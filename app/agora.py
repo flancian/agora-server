@@ -16,7 +16,9 @@ import datetime
 from flask import Blueprint, url_for, render_template, current_app, Response, redirect
 from markupsafe import escape
 from . import db
+from . import config
 bp = Blueprint('agora', __name__)
+
 
 @bp.route('/')
 def index():
@@ -30,6 +32,7 @@ def help():
 @bp.route('/notes') # alias for now
 @bp.route('/nodes')
 def nodes():
+    current_app.logger.warning('Config: %s' % config.AGORA_PATH)
     return render_template('nodes.html', nodes=db.all_nodes())
 
 @bp.route('/journals')
@@ -56,6 +59,12 @@ def garden(garden):
 @bp.route('/wikilink/<node>') # alias for now
 def wikilink(node):
     return render_template('nodes_rendered.html', wikilink=node, nodes=db.nodes_by_wikilink(node), backlinks=db.nodes_by_outlink(node))
+
+@bp.route('/asset/<user>/<asset>')
+def asset(user, asset):
+    # An asset is a binary in someone's garden/<user>/assets directory.
+    path = '/'.join(["garden", user, 'assets', asset])
+    return current_app.send_static_file(path)
 
 @bp.route('/raw/<node>')
 def raw(node):
