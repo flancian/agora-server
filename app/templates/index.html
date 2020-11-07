@@ -1,0 +1,33 @@
+<!--
+ Copyright 2020 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+{% extends "base.html" %}
+{% block content %}
+Ahoy, matey!<br />
+<br />
+This is the <strong>Agora v0.5a</strong>.<br />
+<br />
+This site is very much under construction, but feel free to look around: 
+<ul>
+	<li><a href="{{nodes}}">{{nodes}}</a> lists all nodes in this Agora; currently these are mostly notes as volunteered by users.</li>
+	<li><a href="{{journals}}">{{journals}}</a> displays all journal entries.</li>
+</ul>
+
+The [[<a href="/node/wikilink">wikilink</a>]] is the heart of the Agora. <a href="/node/foo">/node/foo</a> and <a href="/wikilink/foo">/wikilink/foo</a> will both render every node that responds to wikilink [[<a href="/node/foo">foo</a>]]. For example: [[<a href="/node/agora-help">agora-help</a>]].
+
+<br /><br />
+For more information, please visit the <a href="https://flancia.org/go/agora">Agora repository.</a>
+{% endblock %}
