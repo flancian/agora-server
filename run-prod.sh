@@ -13,4 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-uwsgi --socket 0.0.0.0:5000 --protocol=http --module 'app:create_app()'                       
+#uwsgi --socket 0.0.0.0:5000 --protocol=http --module 'app:create_app()'                       
+uwsgi prod.ini
