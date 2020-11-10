@@ -15,12 +15,9 @@
 -->
 
 {% extends "base.html" %}
-<h1> Nodes </h1>
+<h1> Subnodes </h1>
 {% block content %}
-{% for node in nodes %}
-{% for subnode in node.subnodes %}} 
-{% subnode.user %}
-{% endfor %}
-<a href="{{node.url}}">{{node.wikilink}}</a><br />
+{% for subnode in subnodes %}
+(user: {{subnode.user}}) {{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
 {% endfor %}
 {% endblock %}

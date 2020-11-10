@@ -16,22 +16,20 @@
 
 {% extends "base.html" %}
 {% block content %}
-{% if not nodes %}
-No nodes found for '{{wikilink}}'. 
-<br /><br />
-If you <a href="https://flancia.org/go/agora">contributed a node</a> named '{{wikilink}}' to the Agora, here is where your node would be :)
+{% if not subnode %}
+No subnode found matching '{{subnode}}'. 
 <br /><br />
 Go back to <a href="/nodes">/nodes</a>?
 {% endif %}
 
-{% for node in nodes %}
-{{ node.dir }}: <a href="{{node.url}}">{{node.wikilink}}</a><br />
-{{ node.content|markdown|linkify|safe }}
+{{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
+{{ subnode.content|markdown|linkify|safe }}
 <hr />
-{% endfor %}
+
+<br />
 <em>Backlinks:</em><br />
-{% for node in backlinks %}
-{{ node.dir }}: <a href="{{node.url}}">{{node.wikilink}}</a><br />
+{% for subnode in backlinks %}
+{{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
 {% endfor %}
 
 {% endblock %}
