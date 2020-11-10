@@ -27,6 +27,16 @@ Then run the development server:
 ./run.sh
 ```
 
+Please see [CONTRIBUTING](CONTRIBUTING.md) for instructions on how to
+contribute; it may require a one-time signing of a Google CLA.
+
+Note this project *is not an official Google project*, and will not be supported by
+Google. It was simply initiated by flancian@ while employed at Google, and
+thus copyright belongs to Google as indicated in LICENSE and in various license
+headers. This should be of essentially no effect to you or its users (beyond the
+required signing of the CLA if you contribute), as it is released under an open
+license; please reach out to flancian@ or some other maintainer if this concerns you.  
+
 ## Optional: my git configuration
 
 (Tangent) in case this is your first git contribution/you just haven't done it and you find this useful. This is my git config:
