@@ -15,16 +15,16 @@ Install OS dependencies:
 $ apt-get install python3 python3-venv python3-pip
 ```
 
-Then Flask inside a virtual environment in this directory:
+Then install Flask (and other required packages) inside a Python virtual environment in this directory:
 ```
 python3 -m venv venv
-. venv/bin/activate
+. venv/bin/activate  # you'll need to run this every time before running the server.
 pip install -r requirements.txt
 ```
 
 Then run the development server:
 ```
-./run.sh
+./run-dev.sh
 ```
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for instructions on how to
