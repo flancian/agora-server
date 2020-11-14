@@ -125,7 +125,7 @@ def all_nodes(include_journals=True):
 
     # remove journals if so desired.
     if not include_journals:
-        nodes = [node for node in nodes if not re.search('[0-9]+?-[0-9]+?-[0-9]+?', node.wikilink)]
+        nodes = [node for node in nodes if not re.match('[0-9]+?-[0-9]+?-[0-9]+?', node.wikilink)]
 
     # TODO: experiment with other ranking.
     # return sorted(nodes, key=lambda x: -x.size())
@@ -139,7 +139,7 @@ def all_users():
 def all_journals():
     # hack hack.
     nodes = all_nodes()
-    nodes = [node for node in nodes if re.search('[0-9]+?-[0-9]+?-[0-9]+?', node.wikilink)]
+    nodes = [node for node in nodes if re.match('[0-9]+?-[0-9]+?-[0-9]+?', node.wikilink)]
     return sorted(nodes, key=attrgetter('wikilink'), reverse=True)
 
 def nodes_by_wikilink(wikilink):
