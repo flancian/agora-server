@@ -18,9 +18,6 @@
 <h1> Nodes </h1>
 {% block content %}
 {% for node in nodes %}
-{% for subnode in node.subnodes %}} 
-{% subnode.user %}
-{% endfor %}
-<a href="{{node.url}}">{{node.wikilink}}</a><br />
+<a href="{{node.url}}">{{node.wikilink}}</a> ({{node.size()}})<br />
 {% endfor %}
 {% endblock %}

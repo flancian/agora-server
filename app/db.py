@@ -16,6 +16,7 @@ import glob
 import re
 import os
 from . import config
+from collections import defaultdict
 from operator import attrgetter
 
 RE_WIKILINKS = re.compile('\[\[(.*?)\]\]')
@@ -55,6 +56,9 @@ class Node:
         self.uri = wikilink
         self.url = '/node/' + self.uri
         self.subnodes = []
+
+    def size(self):
+        return len(self.subnodes)
 
 class Subnode:
     """A subnode is a note or media resource volunteered by a user of the Agora.
@@ -102,24 +106,41 @@ def content_to_outlinks(content):
         return []
 
 def all_subnodes():
-    l = sorted([f for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)])
-    return [Subnode(f) for f in l]
+    subnodes = [Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)]
+    return sorted(subnodes, key=lambda x: x.uri.lower())
 
-def all_nodes():
-    # hack hack.
-    l = all_subnodes()
-    return sorted([Node(sn.wikilink) for sn in l], key=attrgetter('wikilink'))
+def all_nodes(include_journals=True):
+    # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
+    # hack hack -- there's something in itertools better than this.
+    wikilink_to_subnodes = defaultdict(list)
+    for subnode in all_subnodes():
+        wikilink_to_subnodes[subnode.wikilink].append(subnode)
+
+    # then we iterate over its values and construct nodes for each list of subnodes.
+    nodes = []
+    for wikilink in wikilink_to_subnodes:
+        node = Node(wikilink)
+        node.subnodes = wikilink_to_subnodes[wikilink]
+        nodes.append(node)
+
+    # remove journals if so desired.
+    if not include_journals:
+        nodes = [node for node in nodes if not re.search('[0-9]+?-[0-9]+?-[0-9]+?', node.wikilink)]
+
+    # TODO: experiment with other ranking.
+    # return sorted(nodes, key=lambda x: -x.size())
+    return sorted(nodes, key=lambda x: x.wikilink)
 
 def all_users():
     # hack hack.
     users = os.listdir(os.path.join(config.AGORA_PATH, 'garden'))
-    return sorted([User(u) for u in users], key=attrgetter('uri'))
+    return sorted([User(u) for u in users], key=lambda x: x.uri.lower())
 
 def all_journals():
     # hack hack.
-    l = all_subnodes()
-    # return sorted([sn for sn in l], key=attrgetter('wikilink'), reverse=True)
-    return sorted([f for f in glob.glob(os.path.join(config.AGORA_PATH, '**/????-??-??.md'), recursive=True)])
+    nodes = all_nodes()
+    nodes = [node for node in nodes if re.search('[0-9]+?-[0-9]+?-[0-9]+?', node.wikilink)]
+    return sorted(nodes, key=attrgetter('wikilink'), reverse=True)
 
 def nodes_by_wikilink(wikilink):
     nodes = [node for node in all_nodes() if node.wikilink == wikilink]

@@ -31,8 +31,7 @@ def help():
 
 @bp.route('/nodes')
 def nodes():
-    # current_app.logger.warning('Config: %s' % config.AGORA_PATH)
-    return render_template('nodes.html', nodes=db.all_nodes())
+    return render_template('nodes.html', nodes=db.all_nodes(include_journals=False))
 
 @bp.route('/notes') # alias
 @bp.route('/subnodes')
@@ -45,7 +44,7 @@ def users():
 
 @bp.route('/journals')
 def journals():
-    return render_template('subnodes.html', nodes=db.all_journals())
+    return render_template('nodes.html', nodes=db.all_journals())
 
 @bp.route('/today')
 def today():
@@ -56,7 +55,7 @@ def today():
 @bp.route('/user/<user>')
 @bp.route('/@<user>')
 def user(user):
-    return render_template('subnodes.html', nodes=db.subnodes_by_user(user))
+    return render_template('subnodes.html', subnodes=db.subnodes_by_user(user))
 
 @bp.route('/garden/<garden>')
 def garden(garden):
