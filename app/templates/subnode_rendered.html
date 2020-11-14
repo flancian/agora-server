@@ -19,10 +19,10 @@
 {% if not subnode %}
 No subnode found matching '{{subnode}}'. 
 <br /><br />
-Go back to <a href="/nodes">/nodes</a>?
+Go back to <a href="/nodes">/nodes</a>, <a href="/subnodes">/nodes</a>?
 {% endif %}
 
-{{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
+Subnode: <a href="/@{{subnode.user}}">@{{subnode.user}}</a> on {{subnode.wikilink}}: <a href="{{subnode.url}}">(self)</a> <a href="/node/{{subnode.wikilink}}">(go to node)</a><br />
 {{ subnode.content|markdown|linkify|safe }}
 <hr />
 
