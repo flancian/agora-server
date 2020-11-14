@@ -15,9 +15,9 @@
 -->
 
 {% extends "base.html" %}
-<h1> Nodes </h1>
+<h1> Users </h1>
 {% block content %}
-{% for node in nodes %}
-<a href="{{node.url}}">{{node.wikilink}}</a> ({{node.size()}})<br />
+{% for user in users %}
+<a href="{{user.url}}">{{user.uri}}</a><br />
 {% endfor %}
 {% endblock %}

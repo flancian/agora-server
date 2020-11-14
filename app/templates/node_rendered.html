@@ -15,9 +15,25 @@
 -->
 
 {% extends "base.html" %}
-<h1> Nodes </h1>
 {% block content %}
-{% for node in nodes %}
-<a href="{{node.url}}">{{node.wikilink}}</a> ({{node.size()}})<br />
+{% if not subnodes %}
+No node found for '{{wikilink}}'. 
+<br /><br />
+If you <a href="https://flancia.org/go/agora">contributed a subnode</a> named '{{wikilink}}' to the Agora, this node would not be empty :)
+<br /><br />
+Go back to <a href="/nodes">/nodes</a>?
+{% endif %}
+
+{% for subnode in subnodes %}
+{{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
+{{ subnode.content|markdown|linkify|safe }}
+<hr />
 {% endfor %}
+
+<br />
+<em>Backlinks:</em><br />
+{% for subnode in backlinks %}
+{{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
+{% endfor %}
+
 {% endblock %}

@@ -22,18 +22,25 @@ bp = Blueprint('agora', __name__)
 
 @bp.route('/')
 def index():
-    return render_template('index.html', help=url_for('agora.help'), nodes=url_for('agora.nodes'), journals=url_for('agora.journals'))
+    return render_template('index.html', help=url_for('agora.help'), nodes=url_for('agora.nodes'), subnodes=url_for('agora.subnodes'), users=url_for('agora.users'), journals=url_for('agora.journals'))
 
 @bp.route('/help')
 def help():
     current_app.logger.warning('Not implemented.')
     return 'If I had implemented help already, here you\'d see documentation on all URL endpoints. For now, please refer to the <a href="https://flancia.org/go/agora">code</a>.'
 
-@bp.route('/notes') # alias for now
 @bp.route('/nodes')
 def nodes():
-    current_app.logger.warning('Config: %s' % config.AGORA_PATH)
-    return render_template('nodes.html', nodes=db.all_nodes())
+    return render_template('nodes.html', nodes=db.all_nodes(include_journals=False))
+
+@bp.route('/notes') # alias
+@bp.route('/subnodes')
+def subnodes():
+    return render_template('subnodes.html', subnodes=db.all_subnodes())
+
+@bp.route('/users')
+def users():
+    return render_template('users.html', users=db.all_users())
 
 @bp.route('/journals')
 def journals():
@@ -44,11 +51,11 @@ def today():
     today = datetime.datetime.now().date()
     return redirect("https://anagora.org/node/%s" % today.strftime("%Y-%m-%d"))
 
-@bp.route('/u/<username>')
-@bp.route('/user/<username>')
-def user(username):
-    current_app.logger.warning('Not implemented.')
-    return 'If I had implemented reading user profiles already, here you would see user named "%s".' % escape(username)
+@bp.route('/u/<user>')
+@bp.route('/user/<user>')
+@bp.route('/@<user>')
+def user(user):
+    return render_template('subnodes.html', subnodes=db.subnodes_by_user(user))
 
 @bp.route('/garden/<garden>')
 def garden(garden):
@@ -58,7 +65,11 @@ def garden(garden):
 @bp.route('/node/<node>')
 @bp.route('/wikilink/<node>') # alias for now
 def wikilink(node):
-    return render_template('nodes_rendered.html', wikilink=node, nodes=db.nodes_by_wikilink(node), backlinks=db.nodes_by_outlink(node))
+    return render_template('node_rendered.html', wikilink=node, subnodes=db.subnodes_by_wikilink(node), backlinks=db.subnodes_by_outlink(node))
+
+@bp.route('/subnode/<path:subnode>')
+def subnode(subnode):
+    return render_template('subnode_rendered.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
 
 @bp.route('/asset/<user>/<asset>')
 def asset(user, asset):
