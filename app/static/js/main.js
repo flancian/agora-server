@@ -18,15 +18,15 @@
 document.addEventListener("DOMContentLoaded", function() { 
     // Select button
     const btn = document.querySelector(".theme-toggle");
-    // Select the stylesheet <link>
-    const theme = document.querySelector("#theme-link");
 
     // Listen for a click on the button
     btn.addEventListener("click", function() {
-      if (theme.getAttribute("href") == "{{ url_for('static',filename='css/screen-light.css')}}") {
-        theme.href = "{{ url_for('static',filename='css/screen-dark.css')}}";
+      // Select the stylesheet <link>
+      var theme = document.querySelector("#theme-link");
+      if (theme.getAttribute("href") == "/static/css/screen-light.css") {
+        theme.href = "/static/css/screen-dark.css";
       } else {
-        theme.href = "{{ url_for('static',filename='css/screen-light.css')}}";
+        theme.href = "/static/css/screen-light.css";
       }
     });
 });
