@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-body            { font-family: sans-serif; background: #eee; }
-a, h1, h2       { color: #377ba8; }
+body            { font-family: sans-serif; background: #1f1f1f; color: #bfbfbf}
+a, h1, h2       { color: #9fc6e0; }
 h1, h2          { font-family: 'Georgia', serif; margin: 0; }
 h1              { border-bottom: 2px solid #eee; }
 h2              { font-size: 1.2em; }
@@ -32,6 +32,8 @@ h2              { font-size: 1.2em; }
 .flash          { background: #cee5F5; padding: 0.5em;
                   border: 1px solid #aacbe2; }
 .error          { background: #f0d6d6; padding: 0.5em; }
+
+.logo           { filter: invert(1); vertical-align: top;  width="19" height="19"; }
 
 .wikilink:before {
 	content: "[["
