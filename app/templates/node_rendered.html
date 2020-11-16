@@ -25,15 +25,17 @@ Go back to <a href="/nodes">/nodes</a>?
 {% endif %}
 
 {% for subnode in subnodes %}
-From <a href="/@{{subnode.user}}">@{{subnode.user}}</a>: <a href="{{subnode.url}}">{{subnode.uri}}</a><br />
+<div class="subnode">
+    <span class="subnode-header">Subnode <a href="{{subnode.url}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
 {{ subnode.content|markdown|linkify|safe }}
-<hr />
+</div>
 {% endfor %}
 
-<br />
-<em>Backlinks:</em><br />
+<div class="backlinks">
+<span class="backlinks-header">Backlinks (subnodes linking to {{wikilink}})</span><br />
 {% for subnode in backlinks %}
 {{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
 {% endfor %}
+</div>
 
 {% endblock %}

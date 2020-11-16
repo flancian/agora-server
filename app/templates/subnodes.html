@@ -15,8 +15,9 @@
 -->
 
 {% extends "base.html" %}
-<h1> Subnodes </h1>
 {% block content %}
+<div class="listing">
+<h1> Subnodes </h1>
 {% if not subnodes %}
 No subnodes found for the given term or path.
 <br /><br />
@@ -26,4 +27,6 @@ Go back to <a href="/nodes">/nodes</a>?
 {% for subnode in subnodes %}
 (user: {{subnode.user}}) {{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
 {% endfor %}
+</div>
+
 {% endblock %}

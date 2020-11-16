@@ -22,14 +22,16 @@ No subnode found matching '{{subnode}}'.
 Go back to <a href="/nodes">/nodes</a>, <a href="/subnodes">/nodes</a>?
 {% endif %}
 
-Subnode: <a href="/@{{subnode.user}}">@{{subnode.user}}</a> on {{subnode.wikilink}}: <a href="{{subnode.url}}">(self)</a> <a href="/node/{{subnode.wikilink}}">(go to node)</a><br />
+<div class="subnode">
+    <span class="subnode-header">Subnode by <a href="/@{{subnode.user}}">@{{subnode.user}}</a> in node <a href="/node/{{subnode.wikilink}}">{{subnode.wikilink}}</a></span><br />
 {{ subnode.content|markdown|linkify|safe }}
-<hr />
+</div>
 
-<br />
-<em>Backlinks:</em><br />
+<div class="backlinks">
+    <span class="backlinks-header">Backlinks (subnodes linking to {{subnode.wikilink}})</span>
 {% for subnode in backlinks %}
 {{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
 {% endfor %}
+</div>
 
 {% endblock %}
