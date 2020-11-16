@@ -1,0 +1,43 @@
+<!--
+ Copyright 2020 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!--{% if form.errors %}
+{{ form.errors }}
+{% endif %}
+-->
+
+<div class="formwrapper">
+  <h2 class="title">Search in this Agora</h2>
+  <form method="POST" action="{{url_for('agora.search')}}">
+      <div class="form-field">{{ form.query.label }} {{ form.query(size=20, autofocus=true) }}
+      {{ form.csrf_token }}
+      {{ form.submit }}</div>
+  </form>
+</div>
+
+{% if subnodes %}
+<br />
+<h2> Results </h2>
+{% for subnode in subnodes %}
+(user: {{subnode.user}}) {{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
+{% endfor %}
+{% endif %}
+
+{% endblock %}
