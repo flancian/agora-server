@@ -190,7 +190,7 @@ def nodes_by_outlink(wikilink):
     return nodes
 
 def subnodes_by_outlink(wikilink):
-    # This doesn't work.
+    # This doesn't work. It matches too much/too little for some reason. Debug someday?
     # subnodes = [subnode for subnode in all_subnodes() if [wikilink for wikilink in subnode.outlinks if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]]
     subnodes = [subnode for subnode in all_subnodes() if canonical_wikilink(wikilink) in subnode.outlinks]
     return subnodes
