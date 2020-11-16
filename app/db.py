@@ -181,6 +181,12 @@ def subnodes_by_user(user):
     subnodes = [subnode for subnode in all_subnodes() if subnode.user == user]
     return subnodes
 
+def user_readmes(user):
+    # hack hack
+    # fix duplication.
+    subnodes = [subnode for subnode in all_subnodes() if subnode.user == user and re.search('readme', subnode.wikilink, re.IGNORECASE)]
+    return subnodes
+
 def subnode_by_uri(uri):
     subnode = [subnode for subnode in all_subnodes() if subnode.uri == uri]
     if subnode:
