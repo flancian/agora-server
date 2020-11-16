@@ -146,8 +146,12 @@ def nodes_by_wikilink(wikilink):
     nodes = [node for node in all_nodes() if node.wikilink == wikilink]
     return nodes
 
-def subnodes_by_wikilink(wikilink):
-    subnodes = [subnode for subnode in all_subnodes() if subnode.wikilink == wikilink]
+def subnodes_by_wikilink(wikilink, fuzzy=True):
+    if fuzzy:
+        # TODO
+        subnodes = [subnode for subnode in all_subnodes() if subnode.wikilink == wikilink]
+    else:
+        subnodes = [subnode for subnode in all_subnodes() if subnode.wikilink == wikilink]
     return subnodes
 
 def subnodes_by_user(user):
