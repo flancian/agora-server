@@ -25,7 +25,7 @@ Go back to <a href="/nodes">/nodes</a>?
 {% endif %}
 
 {% for subnode in subnodes %}
-(user: {{subnode.user}}) {{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
+@{{subnode.user}} subnoded <a href="{{subnode.url}}">{{subnode.wikilink}}</a>.<br />
 {% endfor %}
 </div>
 

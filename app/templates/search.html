@@ -24,7 +24,7 @@
 -->
 
 <div class="formwrapper">
-  <h2 class="title">Search in this Agora</h2>
+  <h1>Search</h1>
   <form method="POST" action="{{url_for('agora.search')}}">
       <div class="form-field">{{ form.query.label }} {{ form.query(size=20, autofocus=true) }}
       {{ form.csrf_token }}
