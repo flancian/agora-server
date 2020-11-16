@@ -130,7 +130,7 @@ def all_nodes(include_journals=True):
 
     # TODO: experiment with other ranking.
     # return sorted(nodes, key=lambda x: -x.size())
-    return sorted(nodes, key=lambda x: x.wikilink)
+    return sorted(nodes, key=lambda x: x.wikilink.lower())
 
 def all_users():
     # hack hack.
