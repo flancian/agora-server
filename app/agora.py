@@ -71,14 +71,20 @@ def wikilink(node):
 def subnode(subnode):
     return render_template('subnode_rendered.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
 
+@bp.route('/search/<query>')
+def search(query):
+    return render_template('subnodes.html', subnodes=db.search_subnodes(query))
+
 @bp.route('/asset/<user>/<asset>')
 def asset(user, asset):
     # An asset is a binary in someone's garden/<user>/assets directory.
+    # Currently unused.
     path = '/'.join(["garden", user, 'assets', asset])
     return current_app.send_static_file(path)
 
 @bp.route('/raw/<node>')
 def raw(node):
+    # Currently unused.
     # hack hack
     # outlinks
     return Response("\n\n".join([str(n.outlinks) for n in db.nodes_by_wikilink(node)]), mimetype="text/plain")
@@ -87,4 +93,5 @@ def raw(node):
 
 @bp.route('/backlinks/<node>')
 def backlinks(node):
+    # Currently unused.
     return render_template('nodes.html', nodes=db.nodes_by_outlink(node))

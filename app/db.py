@@ -173,6 +173,10 @@ def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
         subnodes = [subnode for subnode in all_subnodes() if subnode.wikilink == wikilink]
     return subnodes
 
+def search_subnodes(query):
+    subnodes = [subnode for subnode in all_subnodes() if re.search(query, subnode.content)]
+    return subnodes
+
 def subnodes_by_user(user):
     subnodes = [subnode for subnode in all_subnodes() if subnode.user == user]
     return subnodes
