@@ -56,7 +56,7 @@ def today():
 @bp.route('/user/<user>')
 @bp.route('/@<user>')
 def user(user):
-    return render_template('subnodes.html', subnodes=db.subnodes_by_user(user))
+    return render_template('user.html', user=user, subnodes=db.subnodes_by_user(user))
 
 @bp.route('/garden/<garden>')
 def garden(garden):
