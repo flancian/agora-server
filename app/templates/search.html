@@ -23,6 +23,7 @@
 {% endif %}
 -->
 
+<div class="listing">
 <div class="formwrapper">
   <h1>Search</h1>
   <form method="POST" action="{{url_for('agora.search')}}">
@@ -39,5 +40,6 @@
 (user: {{subnode.user}}) {{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
 {% endfor %}
 {% endif %}
+</div>
 
 {% endblock %}
