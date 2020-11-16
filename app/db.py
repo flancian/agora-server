@@ -17,6 +17,7 @@ import re
 import os
 from . import config
 from collections import defaultdict
+from fuzzywuzzy import fuzz
 from operator import attrgetter
 
 RE_WIKILINKS = re.compile('\[\[(.*?)\]\]')
@@ -146,10 +147,10 @@ def nodes_by_wikilink(wikilink):
     nodes = [node for node in all_nodes() if node.wikilink == wikilink]
     return nodes
 
-def subnodes_by_wikilink(wikilink, fuzzy=True):
-    if fuzzy:
+def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
+    if fuzzy_matching:
         # TODO
-        subnodes = [subnode for subnode in all_subnodes() if subnode.wikilink == wikilink]
+        subnodes = [subnode for subnode in all_subnodes() if fuzz.ratio(subnode.wikilink, wikilink) > 90]
     else:
         subnodes = [subnode for subnode in all_subnodes() if subnode.wikilink == wikilink]
     return subnodes
