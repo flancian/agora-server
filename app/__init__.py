@@ -17,12 +17,10 @@ import os
 from flask import Flask
 from flaskext.markdown import Markdown
 from markdown.extensions.wikilinks import WikiLinkExtension
+from . import util
 
 def wikilink_to_url(label, base, end):
-    label = label.lower()
-    label = label.replace(' ', '-')
-    label = label.replace('\'', '')
-    label = label.replace(',', '')
+    label = util.canonical_wikilink(label)
     url = '/node/' + label
     return url
 

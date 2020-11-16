@@ -16,6 +16,7 @@ import glob
 import re
 import os
 from . import config
+from . import util
 from collections import defaultdict
 from fuzzywuzzy import fuzz
 from operator import attrgetter
@@ -72,7 +73,7 @@ class Subnode:
         self.url = '/subnode/' + path_to_uri(path)
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
-        self.wikilink = canonical_wikilink(path_to_wikilink(path))
+        self.wikilink = util.canonical_wikilink(path_to_wikilink(path))
         self.user = path_to_user(path)
         with open(path) as f:
             self.content = f.read()
@@ -112,11 +113,6 @@ def path_to_user(path):
     else:
         return 'agora'
 
-def canonical_wikilink(wikilink):
-    # hack hack
-    wikilink = wikilink.lower().replace(' ', '-').replace('\'', '').replace(',', '')
-    return wikilink
-
 def path_to_wikilink(path):
     return os.path.splitext(os.path.basename(path))[0]
 
@@ -124,7 +120,7 @@ def content_to_outlinks(content):
     # hack hack.
     match = RE_WIKILINKS.findall(content)
     if match:
-        return [canonical_wikilink(m) for m in match]
+        return [util.canonical_wikilink(m) for m in match]
     else:
         return []
 
@@ -192,5 +188,5 @@ def nodes_by_outlink(wikilink):
 def subnodes_by_outlink(wikilink):
     # This doesn't work. It matches too much/too little for some reason. Debug someday?
     # subnodes = [subnode for subnode in all_subnodes() if [wikilink for wikilink in subnode.outlinks if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]]
-    subnodes = [subnode for subnode in all_subnodes() if canonical_wikilink(wikilink) in subnode.outlinks]
+    subnodes = [subnode for subnode in all_subnodes() if util.canonical_wikilink(wikilink) in subnode.outlinks]
     return subnodes
