@@ -174,7 +174,7 @@ def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
     return subnodes
 
 def search_subnodes(query):
-    subnodes = [subnode for subnode in all_subnodes() if re.search(query, subnode.content)]
+    subnodes = [subnode for subnode in all_subnodes() if re.search(query, subnode.content, re.IGNORECASE)]
     return subnodes
 
 def subnodes_by_user(user):

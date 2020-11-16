@@ -15,8 +15,9 @@
 import datetime
 from flask import Blueprint, url_for, render_template, current_app, Response, redirect
 from markupsafe import escape
-from . import db
 from . import config
+from . import db
+from . import forms
 bp = Blueprint('agora', __name__)
 
 
@@ -71,9 +72,17 @@ def wikilink(node):
 def subnode(subnode):
     return render_template('subnode_rendered.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
 
-@bp.route('/search/<query>')
-def search(query):
-    return render_template('subnodes.html', subnodes=db.search_subnodes(query))
+# Searching with GET: potentially useful but probably not a good idea.
+# @bp.route('/search/<query>')
+# def search(query):
+#    return render_template('subnodes.html', subnodes=db.search_subnodes(query))
+
+@bp.route('/search', methods=('GET', 'POST'))
+def search():
+    form = forms.SearchForm()
+    if form.validate_on_submit():
+        return render_template('search.html', form=form, subnodes=db.search_subnodes(form.query.data))
+    return render_template('search.html', form=form)
 
 @bp.route('/asset/<user>/<asset>')
 def asset(user, asset):
