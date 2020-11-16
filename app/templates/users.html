@@ -15,9 +15,11 @@
 -->
 
 {% extends "base.html" %}
-<h1> Users </h1>
 {% block content %}
+<div class="listing">
+<h1> Users </h1>
 {% for user in users %}
 <a href="{{user.url}}">{{user.uri}}</a><br />
 {% endfor %}
+</div>
 {% endblock %}
