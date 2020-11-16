@@ -32,9 +32,9 @@ Go back to <a href="/nodes">/nodes</a>?
 {% endfor %}
 
 <div class="backlinks">
-<span class="backlinks-header">Backlinks (subnodes linking to {{wikilink}})</span><br />
+<span class="backlinks-header">Backlinks (subnodes linking to <a href="/node/{{wikilink}}">[[{{wikilink}}]]</a>)</span><br />
 {% for subnode in backlinks %}
-{{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
+<a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
 {% endfor %}
 </div>
 

@@ -23,15 +23,11 @@ Go back to <a href="/nodes">/nodes</a>, <a href="/subnodes">/nodes</a>?
 {% endif %}
 
 <div class="subnode">
-    <span class="subnode-header">Subnode by <a href="/@{{subnode.user}}">@{{subnode.user}}</a> in node <a href="/node/{{subnode.wikilink}}">{{subnode.wikilink}}</a></span><br />
+    <span class="subnode-header">Subnode by <a href="/@{{subnode.user}}">@{{subnode.user}}</a> in node <a href="/node/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a></span><br />
 {{ subnode.content|markdown|linkify|safe }}
 </div>
 
 <div class="backlinks">
-    <span class="backlinks-header">Backlinks (subnodes linking to {{subnode.wikilink}})</span>
-{% for subnode in backlinks %}
-{{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
-{% endfor %}
-</div>
+    <span class="backlinks-header">To see backlinks, go up to node <a href="/node/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a>.</span> 
 
 {% endblock %}
