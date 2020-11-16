@@ -21,6 +21,7 @@ from fuzzywuzzy import fuzz
 from operator import attrgetter
 
 RE_WIKILINKS = re.compile('\[\[(.*?)\]\]')
+FUZZ_FACTOR = 95
 
 # URIs are ids. 
 # - In the case of nodes, their [[wikilink]].
@@ -71,7 +72,7 @@ class Subnode:
         self.url = '/subnode/' + path_to_uri(path)
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
-        self.wikilink = path_to_wikilink(path)
+        self.wikilink = canonical_wikilink(path_to_wikilink(path))
         self.user = path_to_user(path)
         with open(path) as f:
             self.content = f.read()
@@ -79,6 +80,22 @@ class Subnode:
         self.node = self.wikilink
         # Initiate node for wikilink if this is the first subnode, append otherwise.
         G.addsubnode(self)
+
+    def __eq__(self, other):
+        # hack hack
+        if fuzz.ratio(self.wikilink, other.wikilink) > FUZZ_FACTOR:
+            return True
+        else:
+            return False
+
+    def __sub__(self, other):
+        # hack hack
+        return 100-fuzz.ratio(self.wikilink, other.wikilink)
+
+    def distance(self, other):
+        # hack hack
+        return 100-fuzz.ratio(self.wikilink, other.wikilink)
+
 
 class User:
     def __init__(self, user):
@@ -95,6 +112,11 @@ def path_to_user(path):
     else:
         return 'agora'
 
+def canonical_wikilink(wikilink):
+    # hack hack
+    wikilink = wikilink.lower().replace(' ', '-').replace('\'', '').replace(',', '')
+    return wikilink
+
 def path_to_wikilink(path):
     return os.path.splitext(os.path.basename(path))[0]
 
@@ -102,7 +124,7 @@ def content_to_outlinks(content):
     # hack hack.
     match = RE_WIKILINKS.findall(content)
     if match:
-        return [m.lower().replace(' ', '-').replace('\'', '').replace(',', '') for m in match]
+        return [canonical_wikilink(m) for m in match]
     else:
         return []
 
@@ -150,7 +172,7 @@ def nodes_by_wikilink(wikilink):
 def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
     if fuzzy_matching:
         # TODO
-        subnodes = [subnode for subnode in all_subnodes() if fuzz.ratio(subnode.wikilink, wikilink) > 90]
+        subnodes = [subnode for subnode in all_subnodes() if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]
     else:
         subnodes = [subnode for subnode in all_subnodes() if subnode.wikilink == wikilink]
     return subnodes
@@ -168,5 +190,7 @@ def nodes_by_outlink(wikilink):
     return nodes
 
 def subnodes_by_outlink(wikilink):
-    subnodes = [subnode for subnode in all_subnodes() if wikilink in subnode.outlinks]
+    # This doesn't work.
+    # subnodes = [subnode for subnode in all_subnodes() if [wikilink for wikilink in subnode.outlinks if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]]
+    subnodes = [subnode for subnode in all_subnodes() if canonical_wikilink(wikilink) in subnode.outlinks]
     return subnodes
