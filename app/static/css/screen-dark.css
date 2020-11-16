@@ -41,6 +41,15 @@ h2              { font-size: 1.2em; }
 	content: "]]"
 }
 
+.node        { 
+}
+
+.node-header {
+    text-align: left;
+    margin-bottom: 1em;
+    margin-left: 0.2em;
+}
+
 .subnode        { 
     font-family: sans-serif; 
     background: #1f1f1f; 
@@ -55,7 +64,6 @@ h2              { font-size: 1.2em; }
 
 .subnode-header {
     font-style: italic; 
-    text-align: center;
     margin-bottom: 1em;
 }
 
@@ -72,7 +80,6 @@ h2              { font-size: 1.2em; }
 
 .backlinks-header {
     font-style: italic; 
-    text-align: center;
     margin-bottom: 1em;
 }
 

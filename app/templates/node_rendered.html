@@ -24,12 +24,16 @@ If you <a href="https://flancia.org/go/agora">contributed a subnode</a> named '{
 Go back to <a href="/nodes">/nodes</a>?
 {% endif %}
 
+<div class="node">
+<span class="node-header"><strong>Node</strong> <a href="/node/{{wikilink}}">[[{{wikilink}}]]</a></span>
+
 {% for subnode in subnodes %}
 <div class="subnode">
-    <span class="subnode-header">Subnode <a href="{{subnode.url}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+    <span class="subnode-header"><strong>Subnode</strong> <a href="{{subnode.url}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
 {{ subnode.content|markdown|linkify|safe }}
 </div>
 {% endfor %}
+</div>
 
 <div class="backlinks">
 <span class="backlinks-header">Backlinks (subnodes linking to <a href="/node/{{wikilink}}">[[{{wikilink}}]]</a>)</span><br />

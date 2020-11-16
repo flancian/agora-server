@@ -23,7 +23,7 @@ Go back to <a href="/nodes">/nodes</a>, <a href="/subnodes">/nodes</a>?
 {% endif %}
 
 <div class="subnode">
-    <span class="subnode-header">Subnode by <a href="/@{{subnode.user}}">@{{subnode.user}}</a> in node <a href="/node/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a></span><br />
+    <span class="subnode-header"><strong>Subnode</strong> <a href="{{subnode.url}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a> in <a href="/node/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a></span>
 {{ subnode.content|markdown|linkify|safe }}
 </div>
 
