@@ -182,8 +182,12 @@ def subnodes_by_user(user):
     return subnodes
 
 def subnode_by_uri(uri):
-    subnode = [subnode for subnode in all_subnodes() if subnode.uri == uri][0]
-    return subnode
+    subnode = [subnode for subnode in all_subnodes() if subnode.uri == uri]
+    if subnode:
+        return subnode[0]
+    else:
+        # TODO: handle.
+        return False
 
 def nodes_by_outlink(wikilink):
     nodes = [node for node in all_nodes() if wikilink in node.outlinks]

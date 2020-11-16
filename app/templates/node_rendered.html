@@ -17,13 +17,16 @@
 {% extends "base.html" %}
 {% block content %}
 {% if not subnodes %}
-No node found for '{{wikilink}}'. 
+<div class="message">
+No node found at [[{{wikilink}}]]. 
 <br /><br />
-If you <a href="https://flancia.org/go/agora">contributed a subnode</a> named '{{wikilink}}' to the Agora, this node would not be empty :)
+If you <a href="https://flancia.org/go/agora">contributed a subnode</a> named '{{wikilink}}' to the Agora, this node would exist :)
 <br /><br />
-Go back to <a href="/nodes">/nodes</a>?
+Try listing <a href="/nodes">nodes</a> or perhaps <a href="/search">search</a>.
+</div>
 {% endif %}
 
+{% if subnodes %}
 <div class="node">
 <span class="node-header"><strong>Node</strong> <a href="/node/{{wikilink}}">[[{{wikilink}}]]</a></span>
 
@@ -41,5 +44,6 @@ Go back to <a href="/nodes">/nodes</a>?
 <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
 {% endfor %}
 </div>
+{% endif %}
 
 {% endblock %}
