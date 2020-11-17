@@ -23,7 +23,7 @@ bp = Blueprint('agora', __name__)
 
 @bp.route('/')
 def index():
-    return render_template('index.html', version=config.AGORA_VERSION, help=url_for('agora.help'), nodes=url_for('agora.nodes'), subnodes=url_for('agora.subnodes'), users=url_for('agora.users'), journals=url_for('agora.journals'), search=url_for('agora.search'))
+    return render_template('index.html', version=config.AGORA_VERSION, help=url_for('agora.help'), nodes=url_for('agora.nodes'), subnodes=url_for('agora.subnodes'), users=url_for('agora.users'), journals=url_for('agora.journals'), search=url_for('agora.search'), latest=url_for('agora.latest'))
 
 @bp.route('/help')
 def help():
@@ -39,13 +39,17 @@ def nodes():
 def subnodes():
     return render_template('subnodes.html', subnodes=db.all_subnodes())
 
+@bp.route('/latest')
+def latest():
+    return render_template('subnodes.html', header="Latest", subnodes=db.latest())
+
 @bp.route('/users')
 def users():
     return render_template('users.html', users=db.all_users())
 
 @bp.route('/journals')
 def journals():
-    return render_template('nodes.html', nodes=db.all_journals())
+    return render_template('nodes.html', header="Journals", nodes=db.all_journals())
 
 @bp.route('/today')
 def today():

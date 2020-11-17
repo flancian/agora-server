@@ -77,6 +77,7 @@ class Subnode:
         self.user = path_to_user(path)
         with open(path) as f:
             self.content = f.read()
+        self.mtime = os.path.getmtime(path)
         self.outlinks = content_to_outlinks(self.content)
         self.node = self.wikilink
         # Initiate node for wikilink if this is the first subnode, append otherwise.
@@ -124,9 +125,16 @@ def content_to_outlinks(content):
     else:
         return []
 
-def all_subnodes():
+def all_subnodes(sort=True):
     subnodes = [Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)]
-    return sorted(subnodes, key=lambda x: x.uri.lower())
+    if sort:
+        return sorted(subnodes, key=lambda x: x.uri.lower())
+    else:
+        return subnodes
+
+def latest():
+    subnodes = all_subnodes(sort=False)
+    return sorted(subnodes, key=lambda x: -x.mtime)
 
 def all_nodes(include_journals=True):
     # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.

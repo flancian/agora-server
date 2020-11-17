@@ -17,7 +17,11 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="listing">
+{% if header %}
+<h1> {{header}} </h1>
+{% else %}
 <h1> Nodes </h1>
+{% endif %}
 {% for node in nodes %}
 <a href="{{node.url}}">{{node.wikilink}}</a> ({{node.size()}})<br />
 {% endfor %}
