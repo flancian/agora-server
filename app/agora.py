@@ -56,6 +56,35 @@ def today():
     today = datetime.datetime.now().date()
     return redirect("https://anagora.org/node/%s" % today.strftime("%Y-%m-%d"))
 
+@bp.route('/go/<node>')
+def go(node):
+    """Redirects to the URL in the given node in a block that starts with [[go]], if there is one."""
+    # TODO(flancian): all node-scoped stuff should move to actually use node objects.
+    try:
+        n = db.nodes_by_wikilink(node)
+    except KeyError:
+        return redirect("https://anagora.org/node/%s" % node)
+
+    if len(n) > 1:
+        current_app.logger.warning('nodes_by_wikilink returned more than one node, should not happen.')
+
+    if len(n) == 0:
+        # No nodes with this name -- redirect to node 404.
+        return redirect("https://anagora.org/node/%s" % node)
+
+    links = n[0].go()
+    if len(links) == 0:
+        # No go links detected in this node -- just redirect to the node.
+        # TODO(flancian): flash an explanation :)
+        return redirect("https://anagora.org/node/%s" % node)
+
+    if len(links) > 1:
+        # TODO(flancian): to be implemented.
+        # Likely default to one of the links, show all of them but redirect to default within n seconds.
+        current_app.logger.warning('Code to manage nodes with more than one go link is not Not implemented.')
+
+    return redirect(links[0])
+
 @bp.route('/u/<user>')
 @bp.route('/user/<user>')
 @bp.route('/@<user>')
@@ -76,7 +105,7 @@ def wikilink(node):
 def subnode(subnode):
     return render_template('subnode_rendered.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
 
-# Searching with GET: potentially useful but probably not a good idea.
+    # Searching with GET: potentially useful but probably not a good idea.
 # @bp.route('/search/<query>')
 # def search(query):
 #    return render_template('subnodes.html', subnodes=db.search_subnodes(query))

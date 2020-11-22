@@ -63,6 +63,14 @@ class Node:
     def size(self):
         return len(self.subnodes)
 
+    def go(self):
+        # There's surely a much better way to do this. Alas :)
+        go = []
+        for subnode in self.subnodes:
+            go.extend(subnode.go())
+        return go
+
+
 class Subnode:
     """A subnode is a note or media resource volunteered by a user of the Agora.
     It maps to a particular file in the Agora repository, stored (relative to 
@@ -98,6 +106,21 @@ class Subnode:
         # hack hack
         return 100-fuzz.ratio(self.wikilink, other.wikilink)
 
+    def go(self):
+        # returns a set of go links contained in this node
+        return subnode_to_actions(self, 'go')
+
+
+def subnode_to_actions(subnode, action):
+    # hack hack.
+    action_regex ='\[\[' + action + '\]\] (.*?)$'
+    content = subnode.content
+    actions = []
+    for line in content.splitlines():
+        m = re.search(action_regex, line)
+        if m:
+            actions.append(m.group(1))
+    return actions
 
 class User:
     def __init__(self, user):
