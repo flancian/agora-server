@@ -108,7 +108,15 @@ class Subnode:
 
     def go(self):
         # returns a set of go links contained in this node
-        return subnode_to_actions(self, 'go')
+        golinks = subnode_to_actions(self, 'go')
+        sanitized_golinks = []
+        for golink in golinks:
+            if golink.startswith('http'):
+                sanitized_golinks.append(golink)
+            else:
+                # hack hack.
+                sanitized_golinks.append('https://' + golink)
+        return sanitized_golinks
 
 
 def subnode_to_actions(subnode, action):
