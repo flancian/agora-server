@@ -103,6 +103,10 @@ class User:
     def __init__(self, user):
         self.uri = user
         self.url = '/user/' + self.uri
+        self.subnodes = subnodes_by_user(user)
+
+    def size(self):
+        return len(self.subnodes)
 
 def path_to_uri(path):
     return path.replace(config.AGORA_PATH + '/', '')
