@@ -21,6 +21,7 @@ from . import forms
 bp = Blueprint('agora', __name__)
 
 
+@bp.route('/index')
 @bp.route('/')
 def index():
     return render_template('index.html', version=config.AGORA_VERSION, help=url_for('agora.help'), nodes=url_for('agora.nodes'), subnodes=url_for('agora.subnodes'), users=url_for('agora.users'), journals=url_for('agora.journals'), search=url_for('agora.search'), latest=url_for('agora.latest'))
