@@ -14,5 +14,11 @@
 
 def canonical_wikilink(wikilink):
     # hack hack
-    wikilink = wikilink.lower().replace(' ', '-').replace('\'', '').replace(',', '')
+    wikilink = (
+        wikilink.lower()
+        .replace(' ', '-')
+        .replace('\'', '')
+        .replace(',', '')
+        .replace('/', '-')
+    )
     return wikilink
