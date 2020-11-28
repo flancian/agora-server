@@ -15,18 +15,13 @@ import re
 from dateparser import DateDataParser
 from functools import lru_cache
 
+parser = DateDataParser(languages=['en'])
 
-@lru_cache(maxsize=None)
 def canonical_wikilink(wikilink):
 
     if is_journal(wikilink):
         try:
-            parser = DateDataParser(languages=['en'])
-            date = parser.get_date_data(wikilink).date_obj
-            new_wikilink = date.isoformat().split("T")[0] 
-            if "nov" in wikilink:
-                print(f'>> Journal! "{wikilink}" -> "{new_wikilink}"')
-            wikilink = new_wikilink 
+            wikilink = canonical_date(wikilink)
         except:
             # TODO: if we add logging, maybe log that we couldn't parse a date here
             pass
@@ -42,16 +37,25 @@ def canonical_wikilink(wikilink):
     return wikilink
 
 
-
 @lru_cache(maxsize=None)
-def is_journal(wikilink):
+def canonical_date(wikilink):
+    date = parser.get_date_data(wikilink).date_obj
+    try:
+        new_wikilink = date.isoformat().split("T")[0] 
+    except:
+        pass
 
+    return new_wikilink
+
+
+@lru_cache(maxsize=1)  #memoize this
+def get_combined_date_regex():
     date_regexes = [
         # iso format
         '[0-9]{4}-[0-9]{2}-[0-9]{2}',
         # roam format (what a monstrosity!)
         '(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}(st|nd|th), [0-9]{4}',
-        # roam format (sanitzed for filenames)
+        # roam format (after filename sanitization)
         '(january|february|march|april|may|june|july|august|september|october|november|december)-[0-9]{1,2}(st|nd|th)-[0-9]{4}',
     ]
 
@@ -59,6 +63,9 @@ def is_journal(wikilink):
     # TODO: it'd really be better to compile this regex once rather than on
     # each request, but as the knuth would say premature optimization is the
     # root of all evil, etc. etc.
-    combined_date_regex = re.compile(f'^({"|".join(date_regexes)})$')
+    return re.compile(f'^({"|".join(date_regexes)})$')
 
-    return combined_date_regex.match(wikilink)
+
+@lru_cache(maxsize=None)
+def is_journal(wikilink):
+    return get_combined_date_regex().match(wikilink)
