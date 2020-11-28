@@ -57,6 +57,11 @@ class Node:
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         self.wikilink = wikilink
         self.uri = wikilink
+        # ensure wikilinks to journal entries are all shown in iso format
+        # (important to do it after self.uri = wikilink to avoid breaking
+        # links)
+        if util.is_journal(wikilink):
+            self.wikilink = util.canonical_wikilink(wikilink)
         self.url = '/node/' + self.uri
         self.subnodes = []
 
