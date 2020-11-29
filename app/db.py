@@ -57,6 +57,11 @@ class Node:
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         self.wikilink = wikilink
         self.uri = wikilink
+        # ensure wikilinks to journal entries are all shown in iso format
+        # (important to do it after self.uri = wikilink to avoid breaking
+        # links)
+        if util.is_journal(wikilink):
+            self.wikilink = util.canonical_wikilink(wikilink)
         self.url = '/node/' + self.uri
         self.subnodes = []
 
@@ -187,7 +192,7 @@ def all_nodes(include_journals=True):
 
     # remove journals if so desired.
     if not include_journals:
-        nodes = [node for node in nodes if not re.match('[0-9]+?-[0-9]+?-[0-9]+?', node.wikilink)]
+        nodes = [node for node in nodes if not util.is_journal(node.wikilink)]
 
     # TODO: experiment with other ranking.
     # return sorted(nodes, key=lambda x: -x.size())
@@ -201,7 +206,7 @@ def all_users():
 def all_journals():
     # hack hack.
     nodes = all_nodes()
-    nodes = [node for node in nodes if re.match('[0-9]+?-[0-9]+?-[0-9]+?', node.wikilink)]
+    nodes = [node for node in nodes if util.is_journal(node.wikilink)]
     return sorted(nodes, key=attrgetter('wikilink'), reverse=True)
 
 def nodes_by_wikilink(wikilink):
