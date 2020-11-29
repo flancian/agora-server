@@ -41,11 +41,11 @@ def canonical_wikilink(wikilink):
 def canonical_date(wikilink):
     date = parser.get_date_data(wikilink).date_obj
     try:
-        new_wikilink = date.isoformat().split("T")[0] 
+        wikilink = date.isoformat().split("T")[0]
     except:
         pass
 
-    return new_wikilink
+    return wikilink
 
 
 @lru_cache(maxsize=1)  #memoize this
