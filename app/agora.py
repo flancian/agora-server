@@ -18,13 +18,16 @@ from markupsafe import escape
 from . import config
 from . import db
 from . import forms
+from . import util
 bp = Blueprint('agora', __name__)
 
 
 @bp.route('/index')
 @bp.route('/')
 def index():
-    return render_template('index.html', version=config.AGORA_VERSION, help=url_for('agora.help'), nodes=url_for('agora.nodes'), subnodes=url_for('agora.subnodes'), users=url_for('agora.users'), journals=url_for('agora.journals'), search=url_for('agora.search'), latest=url_for('agora.latest'))
+    node='index'
+    # return render_template('index.html', version=config.AGORA_VERSION, help_url=url_for('agora.help'), nodes_url=url_for('agora.nodes'), subnodes_url=url_for('agora.subnodes'), users_url=url_for('agora.users'), journals_url=url_for('agora.journals'), search_url=url_for('agora.search'), latest_url=url_for('agora.latest'), wikilink=node, subnodes=db.subnodes_by_wikilink(node), backlinks=db.subnodes_by_outlink(node))
+    return render_template('node_rendered.html', wikilink=node, subnodes=util.rank(db.subnodes_by_wikilink(node), user='agora'), backlinks=db.subnodes_by_outlink(node))
 
 @bp.route('/help')
 def help():

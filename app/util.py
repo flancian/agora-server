@@ -17,6 +17,10 @@ from functools import lru_cache
 
 parser = DateDataParser(languages=['en'])
 
+def rank(l, user):
+    # hack hack
+    return sorted(l, key=lambda x: x.user)
+
 def canonical_wikilink(wikilink):
 
     if is_journal(wikilink):

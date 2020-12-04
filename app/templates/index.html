@@ -14,6 +14,8 @@
  limitations under the License.
 -->
 
+<!-- DEPRECATED-->
+
 {% extends "base.html" %}
 {% block content %}
 <div class="subnode">
@@ -23,11 +25,11 @@ This is the <strong>Agora v{{version}}</strong>.<br />
 <br />
 This site is very much under construction, but feel free to look around: 
 <ul>
-	<li><a href="{{nodes}}">{{nodes}}</a> lists all non-journal nodes in this Agora; a node is the set of all subnodes with a given title, or otherwise about the same entity. Subnodes can come from a variety of sources; currently these are mostly notes as volunteered by users.</li>
-	<li><a href="{{journals}}">{{journals}}</a> displays all journal entries (these are just nodes matching YYYY-MM-DD).</li>
-	<li><a href="{{users}}">{{users}}</a> displays all users in this Agora. Click through to see their subnodes.</li>
-	<li><a href="{{subnodes}}">{{latest}}</a> shows which subnodes were added or modified recently.</li>
-	<li><a href="{{search}}">{{search}}</a> offers full text search over all subnodes (supports regexes).</li>
+	<li><a href="{{nodes_url}}">{{nodes}}</a> lists all non-journal nodes in this Agora; a node is the set of all subnodes with a given title, or otherwise about the same entity. Subnodes can come from a variety of sources; currently these are mostly notes as volunteered by users.</li>
+	<li><a href="{{journals_url}}">{{journals}}</a> displays all journal entries (these are just nodes matching YYYY-MM-DD).</li>
+	<li><a href="{{users_url}}">{{users}}</a> displays all users in this Agora. Click through to see their subnodes.</li>
+	<li><a href="{{subnodes_url}}">{{latest}}</a> shows which subnodes were added or modified recently.</li>
+	<li><a href="{{search_url}}">{{search}}</a> offers full text search over all subnodes (supports regexes).</li>
 </ul>
 
 The <a href="/node/wikilink">[[wikilink]]</a> is the heart of the Agora. <a href="/node/foo">/node/foo</a> will render every subnode that resolves to wikilink <a href="/node/foo">[[foo]]</a>. For example: <a href="/node/agora">[[Agora]]</a>.
@@ -35,4 +37,6 @@ The <a href="/node/wikilink">[[wikilink]]</a> is the heart of the Agora. <a href
 <br /><br />
 For more information, please visit the <a href="https://flancia.org/go/agora">Agora repository.</a> If you're interested in knowing what's coming, please refer to <a href="https://anagora.org/node/agora-plan">Agora plan</a>.
 </div>
+
+{% include "node_rendered.html" %}
 {% endblock %}
