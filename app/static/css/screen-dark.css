@@ -68,10 +68,26 @@ h2              { font-size: 1.2em; }
     margin-bottom: 1em;
 }
 
-.backlinks        { 
-    display: inline-block;
+.links { 
+    width: 100%;
     font-family: sans-serif; 
+    display: flex;
+    background: #161616; 
+    color: #cfcfcf; 
+    padding: 0.5em; 
+    margin-bottom: 10px; 
+    border-radius: 10px;
+    gap: 10px;
+}
+
+.backlinks {
     /*background: #1f1f2f; */
+    float: left;
+    width: 20%;
+
+.pushlinks {
+    /*background: #1f1f2f; */
+    width: 20%;
     background: #161616; 
     color: #cfcfcf; 
     padding: 0.5em; 
@@ -79,7 +95,22 @@ h2              { font-size: 1.2em; }
     border-radius: 10px;
 }
 
-.backlinks-header {
+.pulllinks, .forwardlinks {
+    /*background: #1f1f2f; */
+    background: #161616; 
+    width: 20%;
+    color: #cfcfcf; 
+    padding: 0.5em; 
+    margin-bottom: 10px; 
+    border-radius: 10px;
+}
+
+.backlinks-header, .pushlinks-header, .pulllinks-header, .forwardlinks-header {
+    font-style: italic; 
+    margin-bottom: 1em;
+}
+
+.links-header {
     font-style: italic; 
     margin-bottom: 1em;
 }

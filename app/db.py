@@ -112,16 +112,34 @@ class Subnode:
         return 100-fuzz.ratio(self.wikilink, other.wikilink)
 
     def go(self):
-        # returns a set of go links contained in this node
+        """
+        returns a set of go links contained in this subnode
+        go links are blocks of the form:
+        - [[go]] protocol://example.org/url
+        protocol defaults to https.
+        """
         golinks = subnode_to_actions(self, 'go')
         sanitized_golinks = []
         for golink in golinks:
+            # should probably instead check for contains: //
             if golink.startswith('http'):
                 sanitized_golinks.append(golink)
             else:
                 # hack hack.
                 sanitized_golinks.append('https://' + golink)
         return sanitized_golinks
+
+    def pull(self):
+        """
+        returns a set of pull links contained in this subnode
+        pull links are blocks of the form:
+        - [[pull]] [[node]]
+        """
+
+        # TODO: test.
+        pull_links = subnode_to_actions(self, 'pull')
+        entities = content_to_outlinks(pull_links)
+        return entities
 
 
 def subnode_to_actions(subnode, action):
