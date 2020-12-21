@@ -93,6 +93,23 @@ def pull(node):
 
 
 # Entities
+@bp.route('/node/<node>')
+@bp.route('/wikilink/<node>') # alias for now
+def wikilink(node):
+    return render_template(
+            'node_rendered.html', 
+            wikilink=node, 
+            subnodes=db.subnodes_by_wikilink(node), 
+            backlinks=db.subnodes_by_outlink(node),
+            # pushlinks=db.subnodes_by_pushlink(node),
+            # pulllinks=db.subnodes_by_pulllink(node),
+            # forwardlinks=db.subnodes_by_outlink(node)
+            )
+
+@bp.route('/subnode/<path:subnode>')
+def subnode(subnode):
+    return render_template('subnode_rendered.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
+
 @bp.route('/u/<user>')
 @bp.route('/user/<user>')
 @bp.route('/@<user>')
@@ -104,14 +121,6 @@ def garden(garden):
     current_app.logger.warning('Not implemented.')
     return 'If I had implemented rendering gardens already, here you would see garden named "%s".' % escape(garden)
 
-@bp.route('/node/<node>')
-@bp.route('/wikilink/<node>') # alias for now
-def wikilink(node):
-    return render_template('node_rendered.html', wikilink=node, subnodes=db.subnodes_by_wikilink(node), backlinks=db.subnodes_by_outlink(node))
-
-@bp.route('/subnode/<path:subnode>')
-def subnode(subnode):
-    return render_template('subnode_rendered.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
 
 # Lists
 @bp.route('/nodes')
