@@ -39,50 +39,6 @@ Try listing <a href="/nodes">nodes</a> or perhaps <a href="/search">search</a>.
 </div>
 {% endif %}
 
-<!-- this should be an include -->
-<span class="links-header">Links</span><br />
-<div class="links">
-    {% if backlinks %}
-    <div class="backlinks">
-        <span class="backlinks-header">← back</span><br />
-    {% for subnode in backlinks %}
-    <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
-    {% endfor %}
-    <br />
-    </div>
-    {% endif %}
-
-    {% if pushlinks %}
-    <div class="pushlinks">
-        <span class="pushlinks-header">⇇ push</span><br />
-    {% for subnode in pushlinks %}
-    <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
-    {% endfor %}
-    <br />
-    </div>
-    {% endif %}
-
-    {% if pulllinks %}
-    <div class="pulllinks">
-        <span class="pulllinks-header">⇉ pull</span><br />
-    {% for subnode in pulllinks %}
-    <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
-    {% endfor %}
-    <br />
-    </div>
-    {% endif %}
-
-    {% if forwardlinks %}
-    <div class="forwardlinks">
-        <span class="forwardlinks-header">→ forward</span><br />
-    {% for subnode in forwardlinks %}
-    <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
-    {% endfor %}
-    <br />
-    </div>
-    {% endif %}
-</div>
-
-</div>
+{% include "links.html" %}
 
 {% endblock %}
