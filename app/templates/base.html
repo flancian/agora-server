@@ -35,22 +35,21 @@
     <script async src="https://hypothes.is/embed.js"></script>
     <script src="https://hypothes.is/embed.js" async></script>
 	</head>
-	<span align=left>
-		<a href="/"><img src="/static/img/agora.png" class="logo" style="vertical-align: top" width="19" height="19"></a> |
-	</span>
-	<span align=left>
-		<a href="/nodes">nodes</a>
+    <body>
+    <nav class="navigation">
+		<a href="/"><img src="/static/img/agora.png" class="logo" style="vertical-align: top" width="19" height="19"></a>
+        | <a href="/nodes">nodes</a>
 		| <a href="/journals">journals</a>
 		| <a href="/users">users</a>
 		| <a href="/latest">latest</a>
 		| <a href="/search">search</a>
         | <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
 		| <a href="/node/agora-help" style="text-decoration: none;" class="help-button">ℹ️</a>
-	</span>
-    <br />
+    </nav>
 	<hr>
     <div class="content">
 	{% block content %}
 	{% endblock %}
     </div>
+    </body>
 </html>
