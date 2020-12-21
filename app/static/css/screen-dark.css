@@ -60,6 +60,17 @@ h2              { font-size: 1.2em; }
     border-radius: 10px;
 }
 
+.not-found { 
+    font-family: sans-serif; 
+    background: #2f1f1f; 
+    color: #cfcfcf; 
+    padding: 0.5em; 
+    margin-bottom: 10px; 
+    border-radius: 10px;
+}
+
+
+
 /*.subnode li     { margin: 0.8em 1.2em; }*/
 /*.subnode li h2  { margin-left: -1em; }*/
 
@@ -84,6 +95,7 @@ h2              { font-size: 1.2em; }
     /*background: #1f1f2f; */
     float: left;
     width: 20%;
+}
 
 .pushlinks {
     /*background: #1f1f2f; */
@@ -107,11 +119,12 @@ h2              { font-size: 1.2em; }
 
 .backlinks-header, .pushlinks-header, .pulllinks-header, .forwardlinks-header {
     font-style: italic; 
+    font-weight: bold;
     margin-bottom: 1em;
 }
 
 .links-header {
-    font-style: italic; 
+    font-weight: bold;
     margin-bottom: 1em;
 }
 
@@ -124,7 +137,6 @@ h2              { font-size: 1.2em; }
     margin-bottom: 10px; 
     border-radius: 10px;
 }
-
 
 /* hypothes.is 
     This totally doesn't work, at all, and I have no idea why :) 

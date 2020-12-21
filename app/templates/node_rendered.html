@@ -17,7 +17,7 @@
 {% extends "base.html" %}
 {% block content %}
 {% if not subnodes %}
-<div class="message">
+<div class="not-found">
 No node found at [[{{wikilink}}]]. 
 <br /><br />
 If you <a href="https://flancia.org/go/agora">contributed a subnode</a> named '{{wikilink}}' to the Agora, this node would exist :)
@@ -37,13 +37,14 @@ Try listing <a href="/nodes">nodes</a> or perhaps <a href="/search">search</a>.
 </div>
 {% endfor %}
 </div>
+{% endif %}
 
 <!-- this should be an include -->
 <div class="links">
-    <span class="links-header"><strong>Links:</strong></span>
+    <span class="links-header">Links</span>
     {% if backlinks %}
     <div class="backlinks">
-        <span class="backlinks-header"><strong>← back</strong></span><br />
+        <span class="backlinks-header">← back</span><br />
     {% for subnode in backlinks %}
     <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
     {% endfor %}
@@ -53,7 +54,7 @@ Try listing <a href="/nodes">nodes</a> or perhaps <a href="/search">search</a>.
 
     {% if pushlinks %}
     <div class="pushlinks">
-        <span class="pushlinks-header"><strong>⇇ push</strong></span><br />
+        <span class="pushlinks-header">⇇ push</span><br />
     {% for subnode in pushlinks %}
     <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
     {% endfor %}
@@ -63,7 +64,7 @@ Try listing <a href="/nodes">nodes</a> or perhaps <a href="/search">search</a>.
 
     {% if pulllinks %}
     <div class="pulllinks">
-        <span class="pulllinks-header"><strong>⇉ pull</strong></span><br />
+        <span class="pulllinks-header">⇉ pull</span><br />
     {% for subnode in pulllinks %}
     <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
     {% endfor %}
@@ -73,21 +74,15 @@ Try listing <a href="/nodes">nodes</a> or perhaps <a href="/search">search</a>.
 
     {% if forwardlinks %}
     <div class="forwardlinks">
-        <span class="forwardlinks-header"><strong>→ forward</strong></span><br />
+        <span class="forwardlinks-header">→ forward</span><br />
     {% for subnode in forwardlinks %}
     <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
     {% endfor %}
     <br />
     </div>
     {% endif %}
-
 </div>
 
 </div>
-
-
-
-
-{% endif %}
 
 {% endblock %}
