@@ -27,7 +27,13 @@ bp = Blueprint('agora', __name__)
 @bp.route('/')
 def index():
     node='index'
-    return render_template('node_rendered.html', wikilink=node, subnodes=util.rank(db.subnodes_by_wikilink(node), user='agora'), backlinks=db.subnodes_by_outlink(node))
+    return render_template(
+            'node_rendered.html', 
+            wikilink=node, 
+            subnodes=util.rank(db.subnodes_by_wikilink(node), 
+                user='agora'), 
+            backlinks=[x.wikilink for x in db.nodes_by_outlink(node)],
+            )
 
 @bp.route('/help')
 def help():
