@@ -70,10 +70,28 @@ class Node:
 
     def go(self):
         # There's surely a much better way to do this. Alas :)
-        go = []
+        links = []
         for subnode in self.subnodes:
-            go.extend(subnode.go())
+            links.extend(subnode.go())
         return go
+
+    def forward_links(self):
+        links = []
+        for subnode in self.subnodes:
+            links.extend(subnode.outlinks)
+        return sorted(set(links))
+
+    def pull_links(self):
+        links = []
+        for subnode in self.subnodes:
+            links.extend(subnode.pull_links())
+        return sorted(set(links))
+
+    def push_links(self):
+        links = []
+        for subnode in self.subnodes:
+            links.extend(subnode.push_links())
+        return sorted(set(links))
 
 
 class Subnode:
@@ -129,7 +147,7 @@ class Subnode:
                 sanitized_golinks.append('https://' + golink)
         return sanitized_golinks
 
-    def pull(self):
+    def pull_links(self):
         """
         returns a set of pull links contained in this subnode
         pull links are blocks of the form:
@@ -138,8 +156,23 @@ class Subnode:
 
         # TODO: test.
         pull_links = subnode_to_actions(self, 'pull')
-        entities = content_to_outlinks(pull_links)
+        entities = content_to_outlinks("\n".join(pull_links))
         return entities
+
+    def push_links(self):
+        """
+        returns a set of push links contained in this subnode
+        push links are blocks of the form:
+        - [[push]] [[node]]
+
+        TODO: refactor with the above.
+        """
+
+        # TODO: test.
+        push_links = subnode_to_actions(self, 'push')
+        entities = content_to_outlinks("\n".join(push_links))
+        return entities
+
 
 
 def subnode_to_actions(subnode, action):

@@ -96,14 +96,26 @@ def pull(node):
 @bp.route('/node/<node>')
 @bp.route('/wikilink/<node>') # alias for now
 def wikilink(node):
+
+    try:
+        n = db.nodes_by_wikilink(node)
+    except KeyError:
+        # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
+        pass
+
+    try:
+        n = n[0]
+    except IndexError:
+        pass
+
     return render_template(
             'node_rendered.html', 
             wikilink=node, 
             subnodes=db.subnodes_by_wikilink(node), 
             backlinks=db.subnodes_by_outlink(node),
-            # pushlinks=db.subnodes_by_pushlink(node),
-            # pulllinks=db.subnodes_by_pulllink(node),
-            # forwardlinks=db.subnodes_by_outlink(node)
+            pushlinks=n.push_links() if n else [],
+            pulllinks=n.pull_links() if n else [],
+            forwardlinks=n.forward_links() if n else [],
             )
 
 @bp.route('/subnode/<path:subnode>')

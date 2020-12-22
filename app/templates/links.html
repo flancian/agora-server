@@ -16,7 +16,6 @@
 
 <span class="links-header">Links</span><br />
 <div class="links">
-    {% if backlinks %}
     <div class="backlinks">
         <span class="backlinks-header">← back</span><br />
     {% for subnode in backlinks %}
@@ -24,35 +23,30 @@
     {% endfor %}
     <br />
     </div>
-    {% endif %}
 
-    {% if pushlinks %}
+    <!--
     <div class="pushlinks">
-        <span class="pushlinks-header">⇇ push</span><br />
-    {% for subnode in pushlinks %}
-    <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
+        <span class="pushlinks-header">push</span><br />
+    {% for link in pushlinks %}
+    <a href="/node/{{link}}">{{link}}</a><br />
     {% endfor %}
     <br />
     </div>
-    {% endif %}
-
-    {% if pulllinks %}
+    
     <div class="pulllinks">
-        <span class="pulllinks-header">⇉ pull</span><br />
-    {% for subnode in pulllinks %}
-    <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
+        <span class="pulllinks-header">pull</span><br />
+    {% for link in pulllinks %}
+    <a href="/node/{{link}}">{{link}}</a><br />
     {% endfor %}
     <br />
     </div>
-    {% endif %}
+    -->
 
-    {% if forwardlinks %}
     <div class="forwardlinks">
         <span class="forwardlinks-header">→ forward</span><br />
-    {% for subnode in forwardlinks %}
-    <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
+    {% for link in forwardlinks %}
+    <a href="/node/{{link}}">{{link}}</a><br />
     {% endfor %}
     <br />
     </div>
-    {% endif %}
 </div>

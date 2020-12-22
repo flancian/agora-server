@@ -92,29 +92,25 @@ h2              { font-size: 1.2em; }
 }
 
 .backlinks {
-    /*background: #1f1f2f; */
     float: left;
     width: 50%;
 }
 
 .pushlinks {
-    /*background: #1f1f2f; */
     width: 20%;
     background: #161616; 
     color: #cfcfcf; 
-    padding: 0.5em; 
-    margin-bottom: 10px; 
-    border-radius: 10px;
 }
 
-.pulllinks, .forwardlinks {
-    /*background: #1f1f2f; */
-    background: #161616; 
+.pulllinks {
     width: 20%;
+    background: #161616; 
     color: #cfcfcf; 
-    padding: 0.5em; 
-    margin-bottom: 10px; 
-    border-radius: 10px;
+}
+
+.forwardlinks {
+    background: #161616; 
+    width: 50%;
 }
 
 .backlinks-header, .pushlinks-header, .pulllinks-header, .forwardlinks-header {
