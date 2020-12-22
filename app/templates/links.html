@@ -18,8 +18,8 @@
 <div class="links">
     <div class="backlinks">
         <span class="backlinks-header">← back</span><br />
-    {% for subnode in backlinks %}
-    <a href="{{subnode.url}}">{{subnode.wikilink}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
+    {% for link in backlinks %}
+    <a href="/node/{{link}}">{{link}}</a><br />
     {% endfor %}
     <br />
     </div>

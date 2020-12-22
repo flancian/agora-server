@@ -36,7 +36,7 @@ class Graph:
     def __init__(self):
         # [[wikilink]] -> Node
         self.nodes = {}
-        # node -> [n0, ..., nn] such that node has outlinks to the target list.
+        # node -> [n0, ..., nn] such that node has forward_links to the target list.
         self.edges = {}
     def addsubnode(self, subnode):
         if subnode.wikilink in self.nodes:
@@ -78,7 +78,7 @@ class Node:
     def forward_links(self):
         links = []
         for subnode in self.subnodes:
-            links.extend(subnode.outlinks)
+            links.extend(subnode.forward_links)
         return sorted(set(links))
 
     def pull_links(self):
@@ -109,7 +109,7 @@ class Subnode:
         with open(path) as f:
             self.content = f.read()
         self.mtime = os.path.getmtime(path)
-        self.outlinks = content_to_outlinks(self.content)
+        self.forward_links = content_to_forward_links(self.content)
         self.node = self.wikilink
         # Initiate node for wikilink if this is the first subnode, append otherwise.
         G.addsubnode(self)
@@ -156,7 +156,7 @@ class Subnode:
 
         # TODO: test.
         pull_links = subnode_to_actions(self, 'pull')
-        entities = content_to_outlinks("\n".join(pull_links))
+        entities = content_to_forward_links("\n".join(pull_links))
         return entities
 
     def push_links(self):
@@ -170,7 +170,7 @@ class Subnode:
 
         # TODO: test.
         push_links = subnode_to_actions(self, 'push')
-        entities = content_to_outlinks("\n".join(push_links))
+        entities = content_to_forward_links("\n".join(push_links))
         return entities
 
 
@@ -208,7 +208,7 @@ def path_to_user(path):
 def path_to_wikilink(path):
     return os.path.splitext(os.path.basename(path))[0]
 
-def content_to_outlinks(content):
+def content_to_forward_links(content):
     # hack hack.
     match = RE_WIKILINKS.findall(content)
     if match:
@@ -295,11 +295,11 @@ def subnode_by_uri(uri):
         return False
 
 def nodes_by_outlink(wikilink):
-    nodes = [node for node in all_nodes() if wikilink in node.outlinks]
-    return nodes
+    nodes = [node for node in all_nodes() if wikilink in node.forward_links()]
+    return sorted(nodes, key=attrgetter('wikilink'))
 
 def subnodes_by_outlink(wikilink):
     # This doesn't work. It matches too much/too little for some reason. Debug someday?
-    # subnodes = [subnode for subnode in all_subnodes() if [wikilink for wikilink in subnode.outlinks if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]]
-    subnodes = [subnode for subnode in all_subnodes() if util.canonical_wikilink(wikilink) in subnode.outlinks]
+    # subnodes = [subnode for subnode in all_subnodes() if [wikilink for wikilink in subnode.forward_links if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]]
+    subnodes = [subnode for subnode in all_subnodes() if util.canonical_wikilink(wikilink) in subnode.forward_links]
     return subnodes
