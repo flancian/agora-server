@@ -264,6 +264,14 @@ def nodes_by_wikilink(wikilink):
     nodes = [node for node in all_nodes() if node.wikilink == wikilink]
     return nodes
 
+def wikilink_to_node(node):
+    try:
+        return nodes_by_wikilink(node)[0]
+    except (KeyError, IndexError):
+        # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
+        return False
+
+
 def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
     if fuzzy_matching:
         # TODO

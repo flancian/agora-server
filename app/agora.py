@@ -27,13 +27,16 @@ bp = Blueprint('agora', __name__)
 @bp.route('/')
 def index():
     node='index'
+    n = db.wikilink_to_node(node)
     return render_template(
             'node_rendered.html', 
             wikilink=node, 
             subnodes=util.rank(db.subnodes_by_wikilink(node), 
                 user='agora'), 
             backlinks=[x.wikilink for x in db.nodes_by_outlink(node)],
+            forwardlinks=n.forward_links() if n else [],
             )
+
 
 @bp.route('/help')
 def help():
@@ -98,22 +101,13 @@ def pull(node):
     return redirect('/node/{}'.format(node))
 
 
+
 # Entities
 @bp.route('/node/<node>')
 @bp.route('/wikilink/<node>') # alias for now
 def wikilink(node):
 
-    try:
-        n = db.nodes_by_wikilink(node)
-    except KeyError:
-        # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
-        pass
-
-    try:
-        n = n[0]
-    except IndexError:
-        pass
-
+    n = db.wikilink_to_node(node)
     return render_template(
             'node_rendered.html', 
             wikilink=node, 
