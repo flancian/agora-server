@@ -73,7 +73,7 @@ class Node:
         links = []
         for subnode in self.subnodes:
             links.extend(subnode.go())
-        return go
+        return links 
 
     def forward_links(self):
         links = []
