@@ -16,11 +16,12 @@
 
 {% extends "base.html" %}
 {% block content %}
-{% if not node %}
+
+{% if not node.subnodes %}
 <div class="not-found">
-No node found at [[{{node}}]]. 
+No node found at [[{{node.uri}}]]. 
 <br /><br />
-If you <a href="https://flancia.org/go/agora">contributed a subnode</a> that mapped to '{{node}}' in the Agora, this node would exist :)
+If you <a href="https://flancia.org/go/agora">contributed a subnode</a> that mapped to '{{node.uri}}' in the Agora, this node would exist :)
 <br /><br />
 Try listing all <a href="/nodes">nodes</a> or perhaps <a href="/search">search</a>.
 </div>

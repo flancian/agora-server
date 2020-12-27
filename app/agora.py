@@ -20,8 +20,6 @@ from . import db
 from . import forms
 from . import util
 bp = Blueprint('agora', __name__)
-
-
 G = db.G
 
 
