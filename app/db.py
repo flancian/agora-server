@@ -80,10 +80,10 @@ class Graph:
 
     # does this belong here?
     @cachetools.func.ttl_cache(maxsize=1, ttl=20)
-    def subnodes(self, sort=True):
+    def subnodes(self, sort=lambda x: x.uri.lower()):
         subnodes = [Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)]
         if sort:
-            return sorted(subnodes, key=lambda x: x.uri.lower())
+            return sorted(subnodes, key=sort)
         else:
             return subnodes
 

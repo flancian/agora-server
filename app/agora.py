@@ -31,6 +31,7 @@ G = db.G
 def index():
     node='index'
     n = G.node(node)
+    n.subnodes = util.rank(n.subnodes, user='agora')
     return render_template(
             'node_rendered.html', 
             node=n,
