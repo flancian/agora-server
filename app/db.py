@@ -51,7 +51,7 @@ class Graph:
         # looks up a node by uri (essentially [[wikilink]]).
         # horrible
         nodes = self.nodes()
-        return [node for node in nodes if node.uri == uri][0]
+        return nodes_by_wikilink(uri)[0]
 
     def nodes(self, include_journals=True):
         # returns a list of all nodes
@@ -286,7 +286,6 @@ def wikilink_to_node(node):
     except (KeyError, IndexError):
         # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
         return False
-
 
 def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
     if fuzzy_matching:

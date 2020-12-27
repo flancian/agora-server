@@ -22,6 +22,9 @@ from . import util
 bp = Blueprint('agora', __name__)
 
 
+G = db.G
+
+
 # Special
 @bp.route('/index')
 @bp.route('/')
@@ -138,12 +141,12 @@ def garden(garden):
 # Lists
 @bp.route('/nodes')
 def nodes():
-    return render_template('nodes.html', nodes=db.all_nodes(include_journals=False))
+    return render_template('nodes.html', nodes=G.nodes(include_journals=False))
 
 @bp.route('/notes') # alias
 @bp.route('/subnodes')
 def subnodes():
-    return render_template('subnodes.html', subnodes=db.all_subnodes())
+    return render_template('subnodes.html', subnodes=G.subnodes())
 
 @bp.route('/users')
 def users():
