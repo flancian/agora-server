@@ -24,23 +24,22 @@
     <br />
     </div>
 
-    <!--
+    <!-- 
     <div class="pushlinks">
         <span class="pushlinks-header">push</span><br />
     {% for link in pushlinks %}
     <a href="/node/{{link}}">{{link}}</a><br />
     {% endfor %}
     <br />
-    </div>
-    
+    -->
+
     <div class="pulllinks">
-        <span class="pulllinks-header">pull</span><br />
-    {% for link in pulllinks %}
-    <a href="/node/{{link}}">{{link}}</a><br />
+        <span class="pulllinks-header">pulled</span><br />
+    {% for node in pull_nodes %}
+    <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
     {% endfor %}
     <br />
     </div>
-    -->
 
     <div class="forwardlinks">
         <span class="forwardlinks-header">→ forward</span><br />

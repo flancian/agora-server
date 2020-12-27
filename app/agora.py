@@ -112,10 +112,10 @@ def wikilink(node):
             'node_rendered.html', 
             wikilink=node, 
             subnodes=db.subnodes_by_wikilink(node), 
+            pull_nodes=n.pull_nodes() if n else [],
             # backlinks=db.nodes_by_outlink(node),
             backlinks=[x.wikilink for x in db.nodes_by_outlink(node)],
             pushlinks=n.push_links() if n else [],
-            pulllinks=n.pull_links() if n else [],
             forwardlinks=n.forward_links() if n else [],
             )
 

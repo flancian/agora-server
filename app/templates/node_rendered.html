@@ -39,6 +39,22 @@ Try listing <a href="/nodes">nodes</a> or perhaps <a href="/search">search</a>.
 </div>
 {% endif %}
 
+<!--
+{% for node in pull_nodes %}
+<div class="node">
+<span class="node-header"><strong>Pulled node</strong> <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>
+{{node.subnodes}}
+
+{% for subnode in node.subnodes %}
+<div class="subnode">
+    <span class="subnode-header"><strong>Subnode</strong> <a href="{{subnode.url}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+{{ subnode.content|markdown|linkify|safe }}
+</div>
+{% endfor %}
+</div>
+{% endfor %}
+-->
+
 {% include "links.html" %}
 
 {% endblock %}

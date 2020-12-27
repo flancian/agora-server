@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import cachetools.func
 import glob
 import re
 import os
@@ -21,8 +22,11 @@ from collections import defaultdict
 from fuzzywuzzy import fuzz
 from operator import attrgetter
 
+
+# TODO: move action extractor regex here as well.
 RE_WIKILINKS = re.compile('\[\[(.*?)\]\]')
 FUZZ_FACTOR = 95
+
 
 # URIs are ids. 
 # - In the case of nodes, their [[wikilink]].
@@ -34,15 +38,55 @@ FUZZ_FACTOR = 95
 # TODO: implement.
 class Graph:
     def __init__(self):
-        # [[wikilink]] -> Node
-        self.nodes = {}
-        # node -> [n0, ..., nn] such that node has forward_links to the target list.
-        self.edges = {}
-    def addsubnode(self, subnode):
-        if subnode.wikilink in self.nodes:
-            G.nodes[subnode.wikilink].subnodes.append(subnode)
+        # Revisit.
+        pass
+
+    def edge(self, n0, n1):
+        pass
+
+    def edges(self):
+        pass
+
+    def node(self, uri):
+        # looks up a node by uri (essentially [[wikilink]]).
+        # horrible
+        nodes = self.nodes()
+        return [node for node in nodes if node.uri == uri][0]
+
+    def nodes(self, include_journals=True):
+        # returns a list of all nodes
+
+        # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
+        # hack hack -- there's something in itertools better than this.
+        wikilink_to_subnodes = defaultdict(list)
+
+        for subnode in self.subnodes():
+          wikilink_to_subnodes[subnode.wikilink].append(subnode)
+        
+        # then we iterate over its values and construct nodes for each list of subnodes.
+        nodes = []
+        for wikilink in wikilink_to_subnodes:
+            node = Node(wikilink)
+            node.subnodes = wikilink_to_subnodes[wikilink]
+            nodes.append(node)
+
+        # remove journals if so desired.
+        if not include_journals:
+            nodes = [node for node in nodes if not util.is_journal(node.wikilink)]
+
+        # TODO: experiment with other ranking.
+        # return sorted(nodes, key=lambda x: -x.size())
+        return sorted(nodes, key=lambda x: x.wikilink.lower())
+
+    # does this belong here?
+    @cachetools.func.ttl_cache(maxsize=1, ttl=20)
+    def subnodes(self, sort=True):
+        subnodes = [Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)]
+        if sort:
+            return sorted(subnodes, key=lambda x: x.uri.lower())
         else:
-            G.nodes[subnode.wikilink] = Node(subnode.wikilink)
+            return subnodes
+
 
 G = Graph()
 
@@ -81,11 +125,13 @@ class Node:
             links.extend(subnode.forward_links)
         return sorted(set(links))
 
-    def pull_links(self):
-        links = []
+    # Pattern: (subject).action_object.
+    # Could be modeled with RDF?
+    def pull_nodes(self):
+        nodes = []
         for subnode in self.subnodes:
-            links.extend(subnode.pull_links())
-        return sorted(set(links))
+            nodes.extend(subnode.pull_nodes())
+        return sorted(set(nodes))
 
     def push_links(self):
         links = []
@@ -112,7 +158,7 @@ class Subnode:
         self.forward_links = content_to_forward_links(self.content)
         self.node = self.wikilink
         # Initiate node for wikilink if this is the first subnode, append otherwise.
-        G.addsubnode(self)
+        # G.addsubnode(self)
 
     def __eq__(self, other):
         # hack hack
@@ -147,17 +193,17 @@ class Subnode:
                 sanitized_golinks.append('https://' + golink)
         return sanitized_golinks
 
-    def pull_links(self):
+    def pull_nodes(self):
         """
-        returns a set of pull links contained in this subnode
-        pull links are blocks of the form:
+        returns a set of nodes pulled (anagora.org/node/pull) in this subnode
+        pulls are blocks of the form:
         - [[pull]] [[node]]
         """
 
         # TODO: test.
-        pull_links = subnode_to_actions(self, 'pull')
-        entities = content_to_forward_links("\n".join(pull_links))
-        return entities
+        pull_nodes = subnode_to_actions(self, 'pull')
+        entities = content_to_forward_links("\n".join(pull_nodes))
+        return [Node(entity) for entity in entities]
 
     def push_links(self):
         """
@@ -216,38 +262,8 @@ def content_to_forward_links(content):
     else:
         return []
 
-def all_subnodes(sort=True):
-    subnodes = [Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)]
-    if sort:
-        return sorted(subnodes, key=lambda x: x.uri.lower())
-    else:
-        return subnodes
-
 def latest():
-    subnodes = all_subnodes(sort=False)
-    return sorted(subnodes, key=lambda x: -x.mtime)
-
-def all_nodes(include_journals=True):
-    # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
-    # hack hack -- there's something in itertools better than this.
-    wikilink_to_subnodes = defaultdict(list)
-    for subnode in all_subnodes():
-        wikilink_to_subnodes[subnode.wikilink].append(subnode)
-
-    # then we iterate over its values and construct nodes for each list of subnodes.
-    nodes = []
-    for wikilink in wikilink_to_subnodes:
-        node = Node(wikilink)
-        node.subnodes = wikilink_to_subnodes[wikilink]
-        nodes.append(node)
-
-    # remove journals if so desired.
-    if not include_journals:
-        nodes = [node for node in nodes if not util.is_journal(node.wikilink)]
-
-    # TODO: experiment with other ranking.
-    # return sorted(nodes, key=lambda x: -x.size())
-    return sorted(nodes, key=lambda x: x.wikilink.lower())
+    return sorted(G.subnodes(), key=lambda x: -x.mtime)
 
 def all_users():
     # hack hack.
@@ -256,12 +272,12 @@ def all_users():
 
 def all_journals():
     # hack hack.
-    nodes = all_nodes()
+    nodes = G.nodes()
     nodes = [node for node in nodes if util.is_journal(node.wikilink)]
     return sorted(nodes, key=attrgetter('wikilink'), reverse=True)
 
 def nodes_by_wikilink(wikilink):
-    nodes = [node for node in all_nodes() if node.wikilink == wikilink]
+    nodes = [node for node in G.nodes() if node.wikilink == wikilink]
     return nodes
 
 def wikilink_to_node(node):
@@ -275,27 +291,27 @@ def wikilink_to_node(node):
 def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
     if fuzzy_matching:
         # TODO
-        subnodes = [subnode for subnode in all_subnodes() if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]
+        subnodes = [subnode for subnode in G.subnodes() if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]
     else:
-        subnodes = [subnode for subnode in all_subnodes() if subnode.wikilink == wikilink]
+        subnodes = [subnode for subnode in G.subnodes() if subnode.wikilink == wikilink]
     return subnodes
 
 def search_subnodes(query):
-    subnodes = [subnode for subnode in all_subnodes() if re.search(query, subnode.content, re.IGNORECASE)]
+    subnodes = [subnode for subnode in G.subnodes() if re.search(query, subnode.content, re.IGNORECASE)]
     return subnodes
 
 def subnodes_by_user(user):
-    subnodes = [subnode for subnode in all_subnodes() if subnode.user == user]
+    subnodes = [subnode for subnode in G.subnodes() if subnode.user == user]
     return subnodes
 
 def user_readmes(user):
     # hack hack
     # fix duplication.
-    subnodes = [subnode for subnode in all_subnodes() if subnode.user == user and re.search('readme', subnode.wikilink, re.IGNORECASE)]
+    subnodes = [subnode for subnode in G.subnodes() if subnode.user == user and re.search('readme', subnode.wikilink, re.IGNORECASE)]
     return subnodes
 
 def subnode_by_uri(uri):
-    subnode = [subnode for subnode in all_subnodes() if subnode.uri == uri]
+    subnode = [subnode for subnode in G.subnodes() if subnode.uri == uri]
     if subnode:
         return subnode[0]
     else:
@@ -303,11 +319,11 @@ def subnode_by_uri(uri):
         return False
 
 def nodes_by_outlink(wikilink):
-    nodes = [node for node in all_nodes() if wikilink in node.forward_links()]
+    nodes = [node for node in G.nodes() if wikilink in node.forward_links()]
     return sorted(nodes, key=attrgetter('wikilink'))
 
 def subnodes_by_outlink(wikilink):
     # This doesn't work. It matches too much/too little for some reason. Debug someday?
     # subnodes = [subnode for subnode in all_subnodes() if [wikilink for wikilink in subnode.forward_links if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]]
-    subnodes = [subnode for subnode in all_subnodes() if util.canonical_wikilink(wikilink) in subnode.forward_links]
+    subnodes = [subnode for subnode in G.subnodes() if util.canonical_wikilink(wikilink) in subnode.forward_links]
     return subnodes
