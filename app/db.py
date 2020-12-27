@@ -130,7 +130,7 @@ class Node:
         nodes = []
         for subnode in self.subnodes:
             nodes.extend(subnode.pull_nodes())
-        return sorted(set(nodes))
+        return sorted(set(nodes), key=lambda x: x.uri)
 
     def push_links(self):
         links = []
