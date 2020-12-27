@@ -110,15 +110,13 @@ def pull(node):
 @bp.route('/wikilink/<node>') # alias for now
 def wikilink(node):
 
-    n = db.wikilink_to_node(node)
+    n = G.node(node)
     return render_template(
             'node_rendered.html', 
-            wikilink=node, 
-            subnodes=db.subnodes_by_wikilink(node), 
-            pull_nodes=n.pull_nodes() if n else [],
-            # backlinks=db.nodes_by_outlink(node),
+            node=n,
             backlinks=[x.wikilink for x in db.nodes_by_outlink(node)],
             pushlinks=n.push_links() if n else [],
+            pull_nodes=n.pull_nodes() if n else [],
             forwardlinks=n.forward_links() if n else [],
             )
 

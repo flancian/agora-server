@@ -201,9 +201,9 @@ class Subnode:
         """
 
         # TODO: test.
-        pull_nodes = subnode_to_actions(self, 'pull')
-        entities = content_to_forward_links("\n".join(pull_nodes))
-        return [Node(entity) for entity in entities]
+        pull_blocks = subnode_to_actions(self, 'pull')
+        pull_nodes = content_to_forward_links("\n".join(pull_blocks))
+        return [G.node(node) for node in pull_nodes]
 
     def push_links(self):
         """
