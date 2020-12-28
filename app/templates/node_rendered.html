@@ -27,7 +27,7 @@ Try listing all <a href="/nodes">nodes</a> or perhaps <a href="/search">search</
 </div>
 {% endif %}
 
-{% if node %}
+{% if node.subnodes %}
 <div class="node">
 <span class="node-header"><strong>Node</strong> <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>
 
