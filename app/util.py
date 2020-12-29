@@ -17,9 +17,9 @@ from functools import lru_cache
 
 parser = DateDataParser(languages=['en'])
 
-def rank(l, attribute):
+def rank(l, user):
     # hack hack
-    return sorted(l, key=lambda x: x.attribute)
+    return sorted(l, key=lambda x: x.user)
 
 def uprank(l, user):
     # hack hack
