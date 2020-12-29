@@ -17,9 +17,18 @@ from functools import lru_cache
 
 parser = DateDataParser(languages=['en'])
 
-def rank(l, user):
+def rank(l, attribute):
     # hack hack
-    return sorted(l, key=lambda x: x.user)
+    return sorted(l, key=lambda x: x.attribute)
+
+def uprank(l, user):
+    # hack hack
+    def score(n):
+        if n.user == user:
+            return -1
+        return 0
+            
+    return sorted(l, key=score) 
 
 def canonical_wikilink(wikilink):
 

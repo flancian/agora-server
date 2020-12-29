@@ -109,6 +109,8 @@ def pull(node):
 def wikilink(node):
 
     n = G.node(node)
+    n.subnodes = util.uprank(n.subnodes, user='flancian')
+
     return render_template(
             'node_rendered.html', 
             node=n,
