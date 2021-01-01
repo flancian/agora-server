@@ -18,7 +18,11 @@
 <html>
 	<head>
 	    <meta charset="utf-8" />
-	    <title>Agora</title>
+        {% if node is defined %}
+        <title>[[{{node.uri}}]]</title>
+        {% else %}
+        <title>Agora</title>
+        {% endif %}
 	    <meta name="description" content="See flancia.org/go/agora." />
 	    <meta name="HandheldFriendly" content="True" />
 	    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
