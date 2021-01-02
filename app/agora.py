@@ -13,8 +13,9 @@
 # limitations under the License.
 
 import datetime
-from flask import Blueprint, url_for, render_template, current_app, Response, redirect
+from flask import Blueprint, url_for, render_template, current_app, Response, redirect, request
 from markupsafe import escape
+from slugify import slugify, SLUG_OK
 from . import config
 from . import db
 from . import forms
@@ -97,16 +98,22 @@ def pull(node):
     Here it "broadcasts": it renders all nodes that pull from a given node.
 
     Unclear at this point if this should exist at all, or whether it should do something else.
+     
+    TODO: probably remove this, [[pull]] changed.
     """
     
     return redirect('/node/{}'.format(node))
 
-
+@bp.route('/jump')
+def jump():
+    """Redirects to the right node."""
+    jump = request.args.get('jump')
+    return redirect(url_for('.node', node=slugify(jump)))
 
 # Entities
+@bp.route('/wikilink/<node>')
 @bp.route('/node/<node>')
-@bp.route('/wikilink/<node>') # alias for now
-def wikilink(node):
+def node(node):
 
     n = G.node(node)
     n.subnodes = util.uprank(n.subnodes, user='flancian')
