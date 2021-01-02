@@ -118,6 +118,8 @@ def node(node):
     n = G.node(node)
     n.subnodes = util.uprank(n.subnodes, user='flancian')
 
+    search_subnodes = db.search_subnodes(node)
+
     return render_template(
             'node_rendered.html', 
             node=n,
@@ -125,6 +127,7 @@ def node(node):
             pushlinks=n.push_links() if n else [],
             pull_nodes=n.pull_nodes() if n else [],
             forwardlinks=n.forward_links() if n else [],
+            search=search_subnodes
             )
 
 @bp.route('/subnode/<path:subnode>')
