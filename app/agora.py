@@ -106,9 +106,9 @@ def pull(node):
 
 @bp.route('/jump')
 def jump():
-    """Redirects to the right node."""
-    jump = request.args.get('jump')
-    return redirect(url_for('.node', node=slugify(jump)))
+    """Redirects to a context; in "jump" mode, a node *always* exists (nodes map one to one to all possible queries)."""
+    q = request.args.get('q')
+    return redirect(url_for('.node', node=slugify(q)))
 
 # Entities
 @bp.route('/wikilink/<node>')
