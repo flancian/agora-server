@@ -127,7 +127,8 @@ def node(node):
             pushlinks=n.push_links() if n else [],
             pull_nodes=n.pull_nodes() if n else [],
             forwardlinks=n.forward_links() if n else [],
-            search=search_subnodes
+            search=search_subnodes,
+            query=n.wikilink.replace('-', '%20')
             )
 
 @bp.route('/subnode/<path:subnode>')
