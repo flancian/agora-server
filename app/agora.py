@@ -34,9 +34,10 @@ def index():
     return render_template(
             'node_rendered.html', 
             node=n,
-            backlinks=[x.wikilink for x in db.nodes_by_outlink(node)],
+            backlinks=n.back_links(),
             pushlinks=n.push_links() if n else [],
             pull_nodes=n.pull_nodes() if n else [],
+            pulling_nodes=n.pulling_nodes() if n else [],
             forwardlinks=n.forward_links() if n else [],
             )
 
@@ -123,11 +124,12 @@ def node(node):
     return render_template(
             'node_rendered.html', 
             node=n,
-            backlinks=[x.wikilink for x in db.nodes_by_outlink(node)],
+            backlinks=n.back_links(),
             pushlinks=n.push_links() if n else [],
             pull_nodes=n.pull_nodes() if n else [],
             forwardlinks=n.forward_links() if n else [],
             search=search_subnodes,
+            pulling_nodes=n.pulling_nodes(),
             query=n.wikilink.replace('-', '%20')
             )
 

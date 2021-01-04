@@ -118,6 +118,10 @@ class Node:
             links.extend(subnode.go())
         return links 
 
+    # The following section is particularly confusing.
+    # Some functions return wikilinks, some return full blown nodes.
+    # We probably want to converge on the latter.
+    # TODO: fix.
     def forward_links(self):
         links = []
         for subnode in self.subnodes:
@@ -127,16 +131,31 @@ class Node:
     # Pattern: (subject).action_object.
     # Could be modeled with RDF?
     def pull_nodes(self):
+        # the nodes *being pulled* by this node.
         nodes = []
         for subnode in self.subnodes:
             nodes.extend(subnode.pull_nodes())
         return sorted(set(nodes), key=lambda x: x.uri)
+
+    def pulling_nodes(self):
+        # the nodes pulling *this* node.
+        # compare with: pull_nodes.
+        nodes = []
+        for wikilink in self.back_links():
+            n = G.node(wikilink)
+            if self.wikilink in [n.wikilink for n in n.pull_nodes()]:
+                nodes.append(n)
+        return nodes
 
     def push_links(self):
         links = []
         for subnode in self.subnodes:
             links.extend(subnode.push_links())
         return sorted(set(links))
+
+    def back_links(self):
+        return sorted([x.wikilink for x in nodes_by_outlink(self.wikilink)])
+
 
 
 class Subnode:

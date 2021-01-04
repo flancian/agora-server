@@ -34,11 +34,17 @@
     -->
 
     <div class="pulllinks">
-        <span class="pulllinks-header">↑ pulled</span><br />
+        <span class="pulllinks-header">↑ pulled by this node</span><br />
     {% for node in pull_nodes %}
     <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
     {% endfor %}
     <br />
+        <span class="pulllinks-header">↓ pulling this node</span><br />
+    {% for node in pulling_nodes %}
+    <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
+    {% endfor %}
+    <br />
+
     </div>
 
     <div class="forwardlinks">
