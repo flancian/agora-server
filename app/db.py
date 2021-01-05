@@ -109,6 +109,12 @@ class Node:
         self.url = '/node/' + self.uri
         self.subnodes = []
 
+    def __lt__(self, other):
+        return self.wikilink.lower() < other.wikilink.lower()
+
+    def __gt__(self, other):
+        return self.wikilink.lower() > other.wikilink.lower()
+
     def size(self):
         return len(self.subnodes)
 
