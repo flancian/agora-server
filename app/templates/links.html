@@ -24,31 +24,41 @@
     <br />
     </div>
 
-    <!-- 
     <div class="pushlinks">
-        <span class="pushlinks-header">push</span><br />
-    {% for link in pushlinks %}
-    <a href="/node/{{link}}">{{link}}</a><br />
+        <span class="pushlinks-header">↑ pushing</span><br />
+    {% if pushing_nodes %}
+    {% for node in pushing_nodes %}
+    <a href="/node/{{link}}">{{node.uri}}</a><br />
     {% endfor %}
+    {% else %}
+    (none)
+    {% endif %}
     <br />
-    -->
+    <br />
 
+    <!--
     <div class="pulllinks">
-        <span class="pulllinks-header">↑ pulled by this node</span><br />
+    <span class="pulllinks-header"> ↑pushing</span><br />
     {% for node in pull_nodes %}
     <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
     {% endfor %}
     <br />
-        <span class="pulllinks-header">↓ pulling this node</span><br />
+    -->
+    
+    <span class="pulllinks-header">↓ pulling</span><br />
+    {% if pulling_nodes %}
     {% for node in pulling_nodes %}
     <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
     {% endfor %}
+    {% else %}
+    (none)
+    {% endif %}
     <br />
 
     </div>
 
     <div class="forwardlinks">
-        <span class="forwardlinks-header">→ forward</span><br />
+    <span class="forwardlinks-header">→ forward</span><br />
     {% for link in forwardlinks %}
     <a href="/node/{{link}}">{{link}}</a><br />
     {% endfor %}

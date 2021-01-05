@@ -35,9 +35,9 @@ def index():
             'node_rendered.html', 
             node=n,
             backlinks=n.back_links(),
-            pushlinks=n.push_links() if n else [],
             pull_nodes=n.pull_nodes() if n else [],
             pulling_nodes=n.pulling_nodes() if n else [],
+            pushing_nodes=n.pushing_nodes() if n else [],
             forwardlinks=n.forward_links() if n else [],
             )
 
@@ -125,11 +125,11 @@ def node(node):
             'node_rendered.html', 
             node=n,
             backlinks=n.back_links(),
-            pushlinks=n.push_links() if n else [],
             pull_nodes=n.pull_nodes() if n else [],
             forwardlinks=n.forward_links() if n else [],
             search=search_subnodes,
             pulling_nodes=n.pulling_nodes(),
+            pushing_nodes=n.pushing_nodes(),
             query=n.wikilink.replace('-', '%20')
             )
 

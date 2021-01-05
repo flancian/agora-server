@@ -14,6 +14,7 @@
 
 import cachetools.func
 import glob
+import marko
 import re
 import os
 from . import config
@@ -147,11 +148,23 @@ class Node:
                 nodes.append(n)
         return nodes
 
-    def push_links(self):
+    def push_nodes(self):
+        # nodes pushed to from this node.
         links = []
         for subnode in self.subnodes:
-            links.extend(subnode.push_links())
+            links.extend(subnode.push_nodes())
         return sorted(set(links))
+
+    def pushing_nodes(self):
+        # the nodes pushing to *this* node.
+        # compare with: push_nodes.
+        nodes = []
+        for wikilink in self.back_links():
+            n = G.node(wikilink)
+            if self.wikilink in [x.wikilink for x in n.push_nodes()]:
+                nodes.append(n)
+        return nodes
+
 
     def back_links(self):
         return sorted([x.wikilink for x in nodes_by_outlink(self.wikilink)])
@@ -223,7 +236,7 @@ class Subnode:
         pull_nodes = content_to_forward_links("\n".join(pull_blocks))
         return [G.node(node) for node in pull_nodes]
 
-    def push_links(self):
+    def push_nodes(self):
         """
         returns a set of push links contained in this subnode
         push links are blocks of the form:
@@ -233,10 +246,9 @@ class Subnode:
         """
 
         # TODO: test.
-        push_links = subnode_to_actions(self, 'push')
-        entities = content_to_forward_links("\n".join(push_links))
-        return entities
-
+        push_blocks = subnode_to_actions(self, 'push')
+        push_nodes = content_to_forward_links("\n".join(push_blocks))
+        return [G.node(node) for node in push_nodes]
 
 
 def subnode_to_actions(subnode, action):
