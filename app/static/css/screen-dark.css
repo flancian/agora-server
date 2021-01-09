@@ -80,6 +80,19 @@ nav             { font-family: sans-serif}
 .subnode-header {
     font-style: italic; 
     margin-bottom: 1em;
+    display: flex;
+    width: 100%;
+    gap: 5px;
+}
+
+.subnode-id {
+    text-align: left;
+    align: left;
+}
+
+.subnode-links {
+    text-align: left;
+    align: left;
 }
 
 .links { 
@@ -135,6 +148,11 @@ nav             { font-family: sans-serif}
     padding: 0.5em; 
     margin-bottom: 10px; 
     border-radius: 10px;
+}
+
+.wikilink-marker {
+    /* deemphasize */
+    font-weight: lighter;
 }
 
 /* hypothes.is 

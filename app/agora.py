@@ -28,18 +28,7 @@ G = db.G
 @bp.route('/index')
 @bp.route('/')
 def index():
-    node='index'
-    n = G.node(node)
-    n.subnodes = util.rank(n.subnodes, user='agora')
-    return render_template(
-            'node_rendered.html', 
-            node=n,
-            backlinks=n.back_links(),
-            pull_nodes=n.pull_nodes() if n else [],
-            pulling_nodes=n.pulling_nodes() if n else [],
-            pushing_nodes=n.pushing_nodes() if n else [],
-            forwardlinks=n.forward_links() if n else [],
-            )
+    return redirect(url_for('.node', node='index'))
 
 @bp.route('/help')
 def help():
@@ -117,7 +106,8 @@ def jump():
 def node(node):
 
     n = G.node(node)
-    n.subnodes = util.uprank(n.subnodes, user='flancian')
+    # earlier in the list means more highly ranked.
+    n.subnodes = util.uprank(n.subnodes, users=['agora', 'flancian'])
 
     search_subnodes = db.search_subnodes(node)
 
@@ -133,8 +123,30 @@ def node(node):
             query=n.wikilink.replace('-', '%20')
             )
 
+@bp.route('/node/<node>@<user>')
+@bp.route('/@<user>/<node>')
+def subnode(node, user):
+
+    n = G.node(node)
+
+    n.subnodes = util.filter(n.subnodes, user)
+    search_subnodes = db.search_subnodes_by_user(node, user)
+
+    return render_template(
+            'subnode_rendered.html', 
+            node=n,
+            #backlinks=n.back_links(),
+            #pull_nodes=n.pull_nodes() if n else [],
+            #forwardlinks=n.forward_links() if n else [],
+            #search=search_subnodes,
+            #pulling_nodes=n.pulling_nodes(),
+            #pushing_nodes=n.pushing_nodes(),
+            #query=n.wikilink.replace('-', '%20')
+            )
+
+
 @bp.route('/subnode/<path:subnode>')
-def subnode(subnode):
+def old_subnode(subnode):
     return render_template('subnode_rendered.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
 
 @bp.route('/u/<user>')

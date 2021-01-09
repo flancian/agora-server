@@ -21,14 +21,19 @@ def rank(l, user):
     # hack hack
     return sorted(l, key=lambda x: x.user)
 
-def uprank(l, user):
+def uprank(l, users):
     # hack hack
     def score(n):
-        if n.user == user:
-            return -1
+        if n.user in users:
+            # the earlier in the list a user comes, the more highly ranked it is.
+            return users.index(n.user) - len(users) - 1
         return 0
             
     return sorted(l, key=score) 
+
+def filter(l, projection):
+    # hack hack
+    return [n for n in l if n.user == projection]
 
 def canonical_wikilink(wikilink):
 
@@ -42,10 +47,13 @@ def canonical_wikilink(wikilink):
     # hack hack
     wikilink = (
         wikilink.lower()
+        # chars that convert to -, slug-like.
         .replace(' ', '-')
-        .replace('\'', '')
-        .replace(',', '')
         .replace('/', '-')
+        .replace('\'', '')
+        # chars that are elided.
+        .replace('%', '')
+        .replace(',', '')
     )
     return wikilink
 

@@ -31,10 +31,14 @@ Try listing all <a href="/nodes">nodes</a> or perhaps <a href="/search">search</
 <div class="node">
 <span class="node-header"><strong>Node</strong> <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>
 
+
 {% for subnode in node.subnodes %}
 <div class="subnode">
-    <span class="subnode-header"><strong>Subnode</strong> <a href="{{subnode.url}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
-{{ subnode.content|markdown|linkify|safe }}
+    <div class="subnode-header">
+        <span><strong>Subnode</strong> <a href="/@{{subnode.user}}/{{node.uri}}">[[{{node.uri}}@{{subnode.user}}]]</a></span>
+        <span class="subnode-links">(by <a href="/@{{subnode.user}}">@{{subnode.user}}</a>)</span>
+    </div>
+{{ subnode.render()|linkify|safe }}
 </div>
 {% endfor %}
 </div>
@@ -47,7 +51,7 @@ Try listing all <a href="/nodes">nodes</a> or perhaps <a href="/search">search</
 {% for subnode in node.subnodes %}
 <div class="subnode">
     <span class="subnode-header"><strong>Subnode</strong> <a href="{{subnode.url}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
-{{ subnode.content|markdown|linkify|safe }}
+{{ subnode.render()|linkify|safe }}
 </div>
 {% endfor %}
 </div>

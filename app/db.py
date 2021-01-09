@@ -14,10 +14,10 @@
 
 import cachetools.func
 import glob
-import marko
 import re
 import os
 from . import config
+from . import render
 from . import util
 from collections import defaultdict
 from fuzzywuzzy import fuzz
@@ -212,6 +212,13 @@ class Subnode:
         # hack hack
         return 100-fuzz.ratio(self.wikilink, other.wikilink)
 
+    def render(self):
+        # hack hack
+        if self.uri.endswith('md') or self.uri.endswith('MD'):
+            return render.markdown(self.content)
+        if self.uri.endswith('org') or self.uri.endswith('ORG'):
+            return render.markdown(self.content)
+
     def go(self):
         """
         returns a set of go links contained in this subnode
@@ -334,6 +341,10 @@ def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
 
 def search_subnodes(query):
     subnodes = [subnode for subnode in G.subnodes() if re.search(query, subnode.content, re.IGNORECASE)]
+    return subnodes
+
+def search_subnodes_by_user(query, user):
+    subnodes = [subnode for subnode in G.subnodes() if re.search(query, subnode.content, re.IGNORECASE) and subnode.user == user]
     return subnodes
 
 def subnodes_by_user(user):
