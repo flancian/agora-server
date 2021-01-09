@@ -309,7 +309,9 @@ def content_to_forward_links(content):
     # hack hack.
     match = RE_WIKILINKS.findall(content)
     if match:
-        return [util.canonical_wikilink(m) for m in match]
+        # Work around broken forward links due to org mode convention I didn't think of.
+        # TODO: make link parsing format-aware.
+        return [util.canonical_wikilink(m) for m in match if '][' not in m]
     else:
         return []
 
