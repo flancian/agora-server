@@ -15,25 +15,25 @@
 -->
 <br />
 
+<span class="search-header">Search</span><br />
 <div class="search">
-<strong>Search (the internet)</strong> <br />
-<a href="https://www.google.com/search?q={{query}}">Google</a> <br />
-<a href="https://www.duckduckgo.com/{{query}}">DuckDuckGo</a> <br />
-<a href="https://en.wikipedia.org/w/index.php?search={{query}}&title=Special%3ASearch&fulltext=1">Wikipedia</a> <br />
-<a href="https://twitter.com/search/?f=live&q={{query}}">Twitter</a> <br />
-</div>
+    <div class="search-agora">
+        <span class="search-agora-header">In this Agora</span> <br />
+        {% if search %}
+        {% for subnode in search %}
+        <a href="/@{{subnode.user}}/{{subnode.wikilink}}">@{{subnode.user}}/{{subnode.wikilink}}</a><br />
+        {% endfor %}
+        {% else %}
+        No search results.
+        {% endif %}
+    </div>
 
-<br />
-<div class="search">
-<strong>Search (this Agora)</strong>
-<br>
-{% if search %}
-{% for subnode in search %}
-(user: {{subnode.user}}) {{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
-{% endfor %}
-{% else %}
-No search results.
-{% endif %}
+    <div class="search-internet">
+        <span class="search-internet-header">Around the internet</span> <br />
+        <a href="https://www.google.com/search?q={{query}}">Google</a> <br />
+        <a href="https://www.duckduckgo.com/{{query}}">DuckDuckGo</a> <br />
+        <a href="https://en.wikipedia.org/w/index.php?search={{query}}&title=Special%3ASearch&fulltext=1">Wikipedia</a> <br />
+        <a href="https://twitter.com/search/?f=live&q={{query}}">Twitter</a> <br />
+    </div>
 </div>
-
 

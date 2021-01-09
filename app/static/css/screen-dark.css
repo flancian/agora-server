@@ -141,6 +141,40 @@ nav             { font-family: sans-serif}
     margin-left: 0.2em;
 }
 
+.search { 
+    width: 100%;
+    display: flex;
+    background: #161616; 
+    color: #cfcfcf; 
+    padding: 0.5em; 
+    margin-bottom: 10px; 
+    border-radius: 10px;
+    gap: 10px;
+}
+
+.search-header {
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 1em;
+    margin-left: 0.2em;
+}
+
+.search-agora {
+    float: left;
+    width: 50%;
+}
+
+.search-internet {
+    background: #161616; 
+    width: 50%;
+}
+
+.search-agora-header, .search-internet-header {
+    font-style: italic; 
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+
 .listing { 
     display: inline-block;
     background: #161616; 
