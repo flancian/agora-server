@@ -80,19 +80,22 @@ nav             { font-family: sans-serif}
 .subnode-header {
     font-style: italic; 
     margin-bottom: 1em;
-    display: flex;
     width: 100%;
-    gap: 5px;
+}
+
+.subnode-footer {
+    font-style: italic; 
+    width: 100%;
 }
 
 .subnode-id {
     text-align: left;
-    align: left;
+    display: block;
 }
 
 .subnode-links {
     text-align: left;
-    align: left;
+    display: block;
 }
 
 .links { 
