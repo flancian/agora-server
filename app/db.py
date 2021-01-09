@@ -171,7 +171,7 @@ class Node:
                 nodes.append(n)
         return nodes
 
-
+    @cachetools.func.ttl_cache(maxsize=10, ttl=60)
     def back_links(self):
         return sorted([x.wikilink for x in nodes_by_outlink(self.wikilink)])
 
