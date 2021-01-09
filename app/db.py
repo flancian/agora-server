@@ -155,9 +155,9 @@ class Node:
         # the nodes pulling *this* node.
         # compare with: pull_nodes.
         nodes = []
-        for wikilink in self.back_links():
-            n = G.node(wikilink)
-            if wikilink in [n.wikilink for n in n.pull_nodes()]:
+        for backlink in self.back_links():
+            n = G.node(backlink)
+            if self.wikilink in [n.wikilink for n in n.pull_nodes()]:
                 nodes.append(n)
         return nodes
 
@@ -172,13 +172,12 @@ class Node:
         # the nodes pushing to *this* node.
         # compare with: push_nodes.
         nodes = []
-        for wikilink in self.back_links():
-            n = G.node(wikilink)
-            if self.wikilink in [x.wikilink for x in n.push_nodes()]:
+        for backlink in self.back_links():
+            n = G.node(backlink)
+            if self.wikilink in [n.wikilink for n in n.push_nodes()]:
                 nodes.append(n)
         return nodes
 
-    @cachetools.func.ttl_cache(maxsize=10, ttl=60)
     def back_links(self):
         return sorted([x.wikilink for x in nodes_by_outlink(self.wikilink)])
 
