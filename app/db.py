@@ -50,9 +50,16 @@ class Graph:
 
     def node(self, uri):
         # looks up a node by uri (essentially [[wikilink]]).
-        # horrible
-        return wikilink_to_node(uri)
+        # this used to be even worse :)
+        try:
+            nodes = [node for node in G.nodes() if node.wikilink == uri]
+            return nodes[0]
+        except (KeyError, IndexError):
+            # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
+            # Return an empty.
+            return Node(uri)
 
+    @cachetools.func.ttl_cache(maxsize=2, ttl=20)
     def nodes(self, include_journals=True):
         # returns a list of all nodes
 
@@ -150,7 +157,7 @@ class Node:
         nodes = []
         for wikilink in self.back_links():
             n = G.node(wikilink)
-            if self.wikilink in [n.wikilink for n in n.pull_nodes()]:
+            if wikilink in [n.wikilink for n in n.pull_nodes()]:
                 nodes.append(n)
         return nodes
 
@@ -319,10 +326,12 @@ def all_journals():
     nodes = [node for node in nodes if util.is_journal(node.wikilink)]
     return sorted(nodes, key=attrgetter('wikilink'), reverse=True)
 
+# Deprecated.
 def nodes_by_wikilink(wikilink):
     nodes = [node for node in G.nodes() if node.wikilink == wikilink]
     return nodes
 
+# Deprecated.
 def wikilink_to_node(node):
     try:
         return nodes_by_wikilink(node)[0]
