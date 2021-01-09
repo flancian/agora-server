@@ -22,6 +22,7 @@ import re
 from . import config
 from . import util 
 from marko import Markdown, inline
+from orgpython import to_html
 
 
 # Markdown
@@ -49,3 +50,4 @@ markdown = Markdown(extensions=[Wikilinks])
 
 
 # Org-mode goes here.
+orgmode = to_html

@@ -89,6 +89,7 @@ class Graph:
     @cachetools.func.ttl_cache(maxsize=1, ttl=20)
     def subnodes(self, sort=lambda x: x.uri.lower()):
         subnodes = [Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)]
+        subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.org'), recursive=True)])
         if sort:
             return sorted(subnodes, key=sort)
         else:
@@ -223,7 +224,8 @@ class Subnode:
         if self.uri.endswith('md') or self.uri.endswith('MD'):
             return render.markdown(self.content)
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
-            return render.markdown(self.content)
+            print("trying to render org-mode")
+            return render.orgmode(self.content)
 
     def go(self):
         """
