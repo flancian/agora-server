@@ -89,11 +89,11 @@ nav             { font-family: sans-serif}
 }
 
 .subnode-id {
-    text-align: left;
+    float: left;
 }
 
 .subnode-links {
-    text-align: left;
+    float: right;
 }
 
 .links { 

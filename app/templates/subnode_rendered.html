@@ -31,7 +31,8 @@ Try going up to node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a> or perhap
 <div class="subnode">
     <div class="subnode-header">
         <span><strong>Subnode</strong> <a href="/@{{subnode.user}}/{{node.uri}}">[[{{node.uri}}@{{subnode.user}}]]</a></span> in <a href="/node/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a></span>
-        <span class="subnode-links">by <a href="/@{{subnode.user}}">@{{subnode.user}}</a>
+    <span class="subnode-links">by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+    <br />
     </div>
 {{ subnode.render()|linkify|safe }}
 </div>
