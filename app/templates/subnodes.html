@@ -30,7 +30,7 @@ Go back to <a href="/nodes">/nodes</a>?
 {% endif %}
 
 {% for subnode in subnodes %}
-@{{subnode.user}} noded <a href="{{subnode.url}}">{{subnode.wikilink}}</a>.<br />
+<a href="/%{{subnode.user}}/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
 {% endfor %}
 </div>
 

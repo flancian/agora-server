@@ -35,6 +35,7 @@ def help():
     current_app.logger.warning('Not implemented.')
     return 'If I had implemented help already, here you\'d see documentation on all URL endpoints. For now, please refer to the <a href="https://flancia.org/go/agora">code</a>.'
 
+@bp.route('/Δ')
 @bp.route('/latest')
 def latest():
     return render_template('subnodes.html', header="Latest", subnodes=db.latest())
@@ -164,6 +165,7 @@ def nodes():
 def subnodes():
     return render_template('subnodes.html', subnodes=G.subnodes())
 
+@bp.route('/@')
 @bp.route('/users')
 def users():
     return render_template('users.html', users=db.all_users())
