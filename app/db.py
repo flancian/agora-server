@@ -239,7 +239,7 @@ class Subnode:
         if self.mediatype != 'text/plain':
             # hack hack
             #return 'This is a subnode of type {}. You can <a href="/raw/{}">view</a> it.'.format(self.mediatype, self.uri)
-            return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; width: 50%" /> <br />'.format(self.uri)
+            return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 50%" /> <br />'.format(self.uri)
         if self.uri.endswith('md') or self.uri.endswith('MD'):
             content = render.markdown(self.content)
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
