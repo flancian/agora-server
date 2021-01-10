@@ -222,10 +222,10 @@ class Subnode:
     def render(self):
         # hack hack
         if self.uri.endswith('md') or self.uri.endswith('MD'):
-            return render.markdown(self.content)
+            content = render.markdown(self.content)
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
-            print("trying to render org-mode")
-            return render.orgmode(self.content)
+            content = render.orgmode(self.content)
+        return render.postprocess(content)
 
     def go(self):
         """

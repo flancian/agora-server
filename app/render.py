@@ -49,5 +49,16 @@ class Wikilinks():
 markdown = Markdown(extensions=[Wikilinks])
 
 
-# Org-mode goes here.
+# Org-mode -- simple but, well, bad for now.
 orgmode = to_html
+
+
+# Twitter embeds.
+def add_twitter_embeds(content):
+    TWITTER_REGEX='(https://twitter.com/\w+/status/[0-9]+)'
+    TWITTER_EMBED='<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="\\1"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
+    return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
+
+
+# "Pipeline"
+postprocess = add_twitter_embeds
