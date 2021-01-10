@@ -23,11 +23,16 @@ def rank(l, user):
 
 def uprank(l, users):
     # hack hack
+    # score is a sorting order; lower comes first.
     def score(n):
+        score = 0
         if n.user in users:
             # the earlier in the list a user comes, the more highly ranked it is.
-            return users.index(n.user) - len(users) - 1
-        return 0
+            score = users.index(n.user) - len(users) - 1
+        if n.mediatype != 'text/plain':
+            # downrank images as wherever a user has both text and image the text probably needs to go first.
+            score += 0.01
+        return score
             
     return sorted(l, key=score) 
 
