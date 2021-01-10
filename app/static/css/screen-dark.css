@@ -160,13 +160,14 @@ nav             { font-family: sans-serif}
 }
 
 .search-agora {
-    float: left;
-    width: 50%;
+    float: right;
+    width: 65%;
 }
 
 .search-internet {
     background: #161616; 
-    width: 50%;
+    float: left;
+    width: 35%;
 }
 
 .search-agora-header, .search-internet-header {
