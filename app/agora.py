@@ -188,14 +188,10 @@ def asset(user, asset):
     path = '/'.join(["garden", user, 'assets', asset])
     return current_app.send_static_file(path)
 
-@bp.route('/raw/<node>')
-def raw(node):
-    # Currently unused.
-    # hack hack
-    # outlinks
-    return Response("\n\n".join([str(n.outlinks) for n in db.nodes_by_wikilink(node)]), mimetype="text/plain")
-    # content
-    # return Response("\n\n".join([n.content for n in db.nodes_by_wikilink(node)]), mimetype="text/plain")
+@bp.route('/raw/<path:subnode>')
+def raw(subnode):
+    s = db.subnode_by_uri(subnode)
+    return Response(s.content, mimetype=s.mediatype)
 
 @bp.route('/backlinks/<node>')
 def backlinks(node):

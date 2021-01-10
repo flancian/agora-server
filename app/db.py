@@ -88,8 +88,14 @@ class Graph:
     # does this belong here?
     @cachetools.func.ttl_cache(maxsize=1, ttl=20)
     def subnodes(self, sort=lambda x: x.uri.lower()):
+        # Markdown.
         subnodes = [Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)]
+        # Org mode.
         subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.org'), recursive=True)])
+        # Image formats.
+        subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.jpg'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/png') for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.png'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/gif') for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.gif'), recursive=True)])
         if sort:
             return sorted(subnodes, key=sort)
         else:
@@ -188,7 +194,7 @@ class Subnode:
     """A subnode is a note or media resource volunteered by a user of the Agora.
     It maps to a particular file in the Agora repository, stored (relative to 
     the Agora root) in the attribute 'uri'."""
-    def __init__(self, path):
+    def __init__(self, path, mediatype='text/plain'):
         # Use a subnode's URI as its identifier.
         self.uri = path_to_uri(path)
         self.url = '/subnode/' + path_to_uri(path)
@@ -196,10 +202,20 @@ class Subnode:
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         self.wikilink = util.canonical_wikilink(path_to_wikilink(path))
         self.user = path_to_user(path)
-        with open(path) as f:
-            self.content = f.read()
+        self.mediatype = mediatype
+
+        if self.mediatype == 'text/plain':
+            with open(path) as f:
+                self.content = f.read()
+                self.forward_links = content_to_forward_links(self.content)
+        elif self.mediatype.startswith('image'):
+            with open(path, 'rb') as f:
+                self.content = f.read()
+                self.forward_links = []
+        else:
+            raise ValueError
+
         self.mtime = os.path.getmtime(path)
-        self.forward_links = content_to_forward_links(self.content)
         self.node = self.wikilink
         # Initiate node for wikilink if this is the first subnode, append otherwise.
         # G.addsubnode(self)
@@ -220,12 +236,18 @@ class Subnode:
         return 100-fuzz.ratio(self.wikilink, other.wikilink)
 
     def render(self):
-        # hack hack
+        if self.mediatype != 'text/plain':
+            # hack hack
+            #return 'This is a subnode of type {}. You can <a href="/raw/{}">view</a> it.'.format(self.mediatype, self.uri)
+            return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; width: 50%" /> <br />'.format(self.uri)
         if self.uri.endswith('md') or self.uri.endswith('MD'):
             content = render.markdown(self.content)
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
             content = render.orgmode(self.content)
         return render.postprocess(content)
+
+    def raw(self):
+        return content
 
     def go(self):
         """
@@ -274,6 +296,8 @@ class Subnode:
 
 def subnode_to_actions(subnode, action):
     # hack hack.
+    if subnode.mediatype != 'text/plain':
+        return []
     action_regex ='\[\[' + action + '\]\] (.*?)$'
     content = subnode.content
     actions = []
@@ -352,11 +376,11 @@ def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
     return subnodes
 
 def search_subnodes(query):
-    subnodes = [subnode for subnode in G.subnodes() if re.search(query, subnode.content, re.IGNORECASE)]
+    subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype == 'text/plain' and re.search(query, subnode.content, re.IGNORECASE)]
     return subnodes
 
 def search_subnodes_by_user(query, user):
-    subnodes = [subnode for subnode in G.subnodes() if re.search(query, subnode.content, re.IGNORECASE) and subnode.user == user]
+    subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype == 'text/plain' and subnode.user == user and re.search(query, subnode.content, re.IGNORECASE)]
     return subnodes
 
 def subnodes_by_user(user):
@@ -366,7 +390,7 @@ def subnodes_by_user(user):
 def user_readmes(user):
     # hack hack
     # fix duplication.
-    subnodes = [subnode for subnode in G.subnodes() if subnode.user == user and re.search('readme', subnode.wikilink, re.IGNORECASE)]
+    subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype == 'text/plain' and subnode.user == user and re.search('readme', subnode.wikilink, re.IGNORECASE)]
     return subnodes
 
 def subnode_by_uri(uri):

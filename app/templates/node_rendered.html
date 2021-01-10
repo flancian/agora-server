@@ -34,10 +34,9 @@ Try listing all <a href="/nodes">nodes</a> or perhaps <a href="/search">search</
 {% for subnode in node.subnodes %}
 <div class="subnode">
     <div class="subnode-header">
-        <span class="subnode-id"><strong>Subnode</strong> <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span> 
-        <span class="subnode-links">by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+        <span class="subnode-id"><strong>Subnode</strong> <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
+        <span class="subnode-links"><strong>from</strong> <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
     </div>
-    <br />
 {{ subnode.render()|linkify|safe }}
 </div>
 {% endfor %}
@@ -51,10 +50,9 @@ Try listing all <a href="/nodes">nodes</a> or perhaps <a href="/search">search</
 {% for subnode in node.subnodes %}
 <div class="subnode">
     <div class="subnode-header">
-        <span class="subnode-id"><strong>Subnode</strong> <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span> 
-        <span class="subnode-links">by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+        <span class="subnode-id"><strong>Subnode</strong> <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
+        <span class="subnode-links"><strong>from</strong> <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
     </div>
-    <br />
 {{ subnode.render()|linkify|safe }}
 </div>
 {% endfor %}
