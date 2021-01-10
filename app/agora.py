@@ -132,6 +132,7 @@ def subnode(node, user):
     n = G.node(node)
 
     n.subnodes = util.filter(n.subnodes, user)
+    n.subnodes = util.uprank(n.subnodes, user)
     search_subnodes = db.search_subnodes_by_user(node, user)
 
     return render_template(
