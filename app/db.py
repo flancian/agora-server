@@ -207,6 +207,9 @@ class Subnode:
         if self.mediatype == 'text/plain':
             with open(path) as f:
                 self.content = f.read()
+                # Marko raises IndexError on render if the file doesn't terminate with a newline.
+                if not self.content.endswith('\n'):
+                    self.content = self.content + '\n'
                 self.forward_links = content_to_forward_links(self.content)
         elif self.mediatype.startswith('image'):
             with open(path, 'rb') as f:
