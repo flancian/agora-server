@@ -23,7 +23,6 @@ from . import util
 bp = Blueprint('agora', __name__)
 G = db.G
 
-
 # Special
 @bp.route('/index')
 @bp.route('/')
@@ -83,18 +82,19 @@ def go(node):
 
     return redirect(links[0])
 
-@bp.route('/pull/<node>')
-def pull(node):
-    """In the context of a node, "pulls attention" from the parameter node to the current subnode.
+@bp.route('/push/<node>/<other>')
+def push(node, other):
+    #import pprint
+    #response = []
+    #response.append("node: {}".format(node))
+    #response.append("other: {}".format(other))
+    n = G.node(node)
+    o = G.node(other)
+    pushing = n.pushing(o)
+    #response.append(pushing)
 
-    Here it "broadcasts": it renders all nodes that pull from a given node.
-
-    Unclear at this point if this should exist at all, or whether it should do something else.
-     
-    TODO: probably remove this, [[pull]] changed.
-    """
-    
-    return redirect('/node/{}'.format(node))
+    #return Response(pprint.pformat(response))
+    return Response(pushing)
 
 @bp.route('/jump')
 def jump():

@@ -23,6 +23,10 @@ from collections import defaultdict
 from fuzzywuzzy import fuzz
 from operator import attrgetter
 
+# For [[push]] parsing, perhaps move elsewhere?
+import lxml.html
+import lxml.etree
+
 
 # TODO: move action extractor regex here as well.
 RE_WIKILINKS = re.compile('\[\[(.*?)\]\]')
@@ -85,6 +89,18 @@ class Graph:
         # return sorted(nodes, key=lambda x: -x.size())
         return sorted(nodes, key=lambda x: x.wikilink.lower())
 
+    # The following method is unused; it is far too slow given the current control flow.
+    # Running something like this would be ideal eventually though.
+    # It might also work better once all pulling/pushing logic moves to Graph, where it belongs, 
+    # and can make use of more sensible algorithms.
+    @cachetools.func.ttl_cache(maxsize=2, ttl=20)
+    def compute_transclusion(self, include_journals=True):
+
+        # Add artisanal virtual subnodes (resulting from transclusion/[[push]]) to all nodes.
+        for node in self.nodes():
+            pushed_subnodes = node.pushed_subnodes()
+            node.subnodes.extend(pushed_subnodes)
+
     # does this belong here?
     @cachetools.func.ttl_cache(maxsize=1, ttl=20)
     def subnodes(self, sort=lambda x: x.uri.lower()):
@@ -128,6 +144,12 @@ class Node:
 
     def __gt__(self, other):
         return self.wikilink.lower() > other.wikilink.lower()
+
+    def __str__(self):
+        return self.wikilink.lower()
+
+    def __repr__(self):
+        return "node: {}".format(self.wikilink.lower())
 
     def size(self):
         return len(self.subnodes)
@@ -181,13 +203,66 @@ class Node:
         nodes = []
         for backlink in self.back_links():
             n = G.node(backlink)
-            if self.wikilink in [n.wikilink for n in n.push_nodes()]:
+            if self.wikilink == n.wikilink:
+                # ignore nodes pushing to themselves.
+                continue
+            if self.wikilink != n.wikilink and self.wikilink in [n.wikilink for n in n.push_nodes()]:
                 nodes.append(n)
         return nodes
 
-    def back_links(self):
-        return sorted([x.wikilink for x in nodes_by_outlink(self.wikilink)])
+    def pushing(self, other):
+        # returns the blocks that this node pushes to one other as "virtual subnodes"
+        # [[push]] as in anagora.org/node/push.
+        #
+        # arg other should be a Node.
+        # TODO: actually add type annotations, this is 2021.
+        #
+        # TLDR: 
+        # - [[push]] [[other]] 
+        # pushes all children (indented subitems) to [[other]].
+        #
+        # TODO: implement also:
+        # - [[push]] [[other]] foo
+        # pushes foo to [[other]]
+        #
+        # Congratulations! You've gotten to the hackiest place in the [[agora]].
+        # ...as of the time of writing :)
+        subnodes = []
+        if other in self.push_nodes():
+            for subnode in self.subnodes:
+                # I tried parsing the marko tree but honestly this seemed easier/simpler.
+                html = render.markdown(subnode.content)
+                tree = lxml.html.fromstring(html)
+                for link in tree.iterlinks():
+                    # link is of the form (element, attribute, link, pos) -- see https://lxml.de/3.1/lxmlhtml.html.
+                    if link[2] == 'push':
+                        # ugly, but hey, it works... for now.
+                        # this is *flaky* as it depends on an exact number of html elements to separate 
+                        # [[push]] and its [[target node]].
+                        # could be easily improved by just looking for the next <a>.
+                        try:
+                            argument = link[0].getnext().getnext().getnext().text_content() 
+                            if re.search(other.wikilink, argument, re.IGNORECASE) or re.search(other.wikilink.replace('-', ' '), argument, re.IGNORECASE):
+                                # go one level up to find the <li>
+                                parent = link[0].getparent()
+                                # the block to be pushed is this level and its children.
+                                # TODO: replace [[push]] [[other]] with something like [[pushed from]] [[node]], which makes more sense in the target.
+                                block = lxml.etree.tostring(parent)
+                                subnodes.append(VirtualSubnode(subnode, other, block))
+                        except AttributeError:
+                            # Better luck next time -- or when I fix this code :)
+                            pass
+        return subnodes
 
+    def back_links(self):
+        return sorted([x.wikilink for x in nodes_by_outlink(self.wikilink) if x.wikilink != self.wikilink])
+
+    def pushed_subnodes(self):
+        subnodes = []
+        for node in self.pushing_nodes():
+            for subnode in node.pushing(self):
+                subnodes.append(subnode)
+        return subnodes
 
 
 class Subnode:
@@ -222,6 +297,8 @@ class Subnode:
         self.node = self.wikilink
         # Initiate node for wikilink if this is the first subnode, append otherwise.
         # G.addsubnode(self)
+
+
 
     def __eq__(self, other):
         # hack hack
@@ -295,6 +372,28 @@ class Subnode:
         push_blocks = subnode_to_actions(self, 'push')
         push_nodes = content_to_forward_links("\n".join(push_blocks))
         return [G.node(node) for node in push_nodes]
+
+class VirtualSubnode(Subnode):
+    # For instantiating a virtual subnode -- a subnode derived from another subnode. 
+    # Used by [[push]] (transclusion).
+    def __init__(self, source_subnode, target_node, block):
+        """
+        source_subnode: where this virtual subnode came from.
+        target_node: where this virtual subnode will attach (go to).
+        block: the actual payload, as pre rendered html."""
+        self.uri = source_subnode.uri
+        self.url = '/subnode/virtual'
+        # Virtual subnodes are attached to their target
+        self.wikilink = target_node.wikilink
+        self.user = source_subnode.user
+        # Only text transclusion supported.
+        self.mediatype = 'text/plain'
+
+        self.content = block.decode('UTF-8')
+        self.forward_links = content_to_forward_links(self.content)
+
+        self.mtime = source_subnode.mtime
+        self.node = self.wikilink
 
 
 def subnode_to_actions(subnode, action):

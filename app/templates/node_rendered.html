@@ -17,7 +17,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-{% if not node.subnodes %}
+{% if not node.subnodes and not node.pushed_subnodes() %}
 <div class="not-found">
 No node found at [[{{node.uri}}]]. 
 <br /><br />
@@ -38,6 +38,21 @@ Try listing all <a href="/nodes">nodes</a> or perhaps <a href="/search">search</
         <span class="subnode-links"><strong>from</strong> <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
     </div>
 {{ subnode.render()|linkify|safe }}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+
+{% if node.pushed_subnodes() %}
+{% for subnode in node.pushed_subnodes() %}
+<div class="subnode">
+    <div class="subnode-header">
+        <span class="subnode-id"><strong>Subnode</strong> <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
+        <span class="subnode-links"><strong>pushed from</strong> <a href="/subnode/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+    </div>
+<ul>
+{{ subnode.render()|linkify|safe }}
+</ul>
 </div>
 {% endfor %}
 </div>

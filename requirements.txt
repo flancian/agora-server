@@ -2,6 +2,7 @@ bleach==3.2.1
 cachetools==4.2.0
 click==7.1.2
 dateparser==1.0.0
+filetype==1.0.7
 Flask==1.1.2
 Flask-Markdown==0.3
 Flask-WTF==0.14.3
@@ -10,6 +11,7 @@ importlib-metadata==2.0.0
 itsdangerous==1.1.0
 jedi==0.17.2
 Jinja2==2.11.2
+lxml==4.6.2
 Markdown==3.3.3
 marko==0.9.1
 MarkupSafe==1.1.1
