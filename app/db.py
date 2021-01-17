@@ -57,7 +57,8 @@ class Graph:
         # this used to be even worse :)
         try:
             nodes = [node for node in G.nodes() if node.wikilink == uri]
-            return nodes[0]
+            node = nodes[0]
+            return node
         except (KeyError, IndexError):
             # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
             # Return an empty.
@@ -228,7 +229,7 @@ class Node:
         # Congratulations! You've gotten to the hackiest place in the [[agora]].
         # ...as of the time of writing :)
         subnodes = []
-        if other in self.push_nodes():
+        if other.wikilink in [n.wikilink for n in self.push_nodes()]:
             for subnode in self.subnodes:
                 # I tried parsing the marko tree but honestly this seemed easier/simpler.
                 html = render.markdown(subnode.content)
