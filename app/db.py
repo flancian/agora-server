@@ -233,7 +233,11 @@ class Node:
             for subnode in self.subnodes:
                 # I tried parsing the marko tree but honestly this seemed easier/simpler.
                 html = render.markdown(subnode.content)
-                tree = lxml.html.fromstring(html)
+                try:
+                    tree = lxml.html.fromstring(html)
+                except lxml.etree.ParserError:
+                    continue
+
                 for link in tree.iterlinks():
                     # link is of the form (element, attribute, link, pos) -- see https://lxml.de/3.1/lxmlhtml.html.
                     if link[2] == 'push':
