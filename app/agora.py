@@ -111,8 +111,6 @@ def node(node):
     # earlier in the list means more highly ranked.
     n.subnodes = util.uprank(n.subnodes, users=['agora', 'flancian'])
 
-    print("in agora.py: ", n.pushed_subnodes())
-
     search_subnodes = db.search_subnodes(node)
 
     return render_template(
