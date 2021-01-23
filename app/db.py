@@ -162,6 +162,13 @@ class Node:
             links.extend(subnode.go())
         return links 
 
+    def filter(self, other):
+        # There's surely a much better way to do this. Alas :)
+        links = []
+        for subnode in self.subnodes:
+            links.extend(subnode.filter(other))
+        return links 
+
     # The following section is particularly confusing.
     # Some functions return wikilinks, some return full blown nodes.
     # We probably want to converge on the latter.
@@ -352,6 +359,26 @@ class Subnode:
                 sanitized_golinks.append('https://' + golink)
         return sanitized_golinks
 
+    def filter(self, other):
+        """
+        other is a string.
+        returns a set of links contained in this subnode
+        in blocks of the form:
+        - [[other]] protocol://example.org/url
+
+        protocol defaults to https.
+        might pick up magic like resolving social network issues later :)
+        """
+        links = subnode_to_actions(self, other, blocks_only=True)
+        sanitized_links = []
+        for link in links:
+            if '://' in link:
+                sanitized_links.append(link)
+            else:
+                # hack hack.
+                sanitized_links.append('https://' + link)
+        return sanitized_links
+
     def pull_nodes(self):
         """
         returns a set of nodes pulled (anagora.org/node/pull) in this subnode
@@ -401,11 +428,14 @@ class VirtualSubnode(Subnode):
         self.node = self.wikilink
 
 
-def subnode_to_actions(subnode, action):
+def subnode_to_actions(subnode, action, blocks_only=False):
     # hack hack.
     if subnode.mediatype != 'text/plain':
         return []
-    action_regex ='\[\[' + action + '\]\] (.*?)$'
+    if blocks_only:
+        action_regex ='- \[\[' + action + '\]\] (.*?)$'
+    else:
+        action_regex ='\[\[' + action + '\]\] (.*?)$'
     content = subnode.content
     actions = []
     for line in content.splitlines():

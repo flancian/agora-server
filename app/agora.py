@@ -84,17 +84,49 @@ def go(node):
 
 @bp.route('/push/<node>/<other>')
 def push(node, other):
-    #import pprint
-    #response = []
-    #response.append("node: {}".format(node))
-    #response.append("other: {}".format(other))
     n = G.node(node)
     o = G.node(other)
     pushing = n.pushing(o)
-    #response.append(pushing)
 
-    #return Response(pprint.pformat(response))
     return Response(pushing)
+
+# [default action](https://anagora.org/node/default-action)
+@bp.route('/go/<node0>/<node1>')
+def default_action(node0, node1):
+    """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
+    # TODO(flancian): all node-scoped stuff should move to actually use node objects.
+    # TODO(flancian): make [[go]] call this?
+    try:
+        n0 = db.nodes_by_wikilink(node0)
+    except KeyError:
+        return redirect("https://anagora.org/node/%s" % node0)
+    try:
+        n1 = db.nodes_by_wikilink(node1)
+    except KeyError:
+        return redirect("https://anagora.org/node/%s" % node1)
+
+    if len(n0) == 0 and len(n1) == 0:
+        # No nodes with this name.
+        # Redirect to composite node, which might exist and provides search.
+        return redirect(f'https://anagora.org/node/{node0}-{node1}')
+
+    if len(n0) != 0:
+        links = n0[0].filter(node1)
+    elif len(n1) != 0:
+        links += n1[0].filter(node0)
+
+    if len(links) == 0:
+        # No matching links found.
+        # Redirect to composite node, which might exist and provides search.
+        # TODO(flancian): flash an explanation :)
+        return redirect(f'https://anagora.org/node/{node0}-{node1}')
+
+    if len(links) > 1:
+        # TODO(flancian): to be implemented.
+        # Likely default to one of the links, show all of them but redirect to default within n seconds.
+        current_app.logger.warning('Code to manage nodes with more than one go link is not Not implemented.')
+
+    return redirect(links[0])
 
 @bp.route('/jump')
 def jump():
