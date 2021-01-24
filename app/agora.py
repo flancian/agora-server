@@ -180,6 +180,7 @@ def old_subnode(subnode):
 
 @bp.route('/u/<user>')
 @bp.route('/user/<user>')
+@bp.route('/node/@<user>')  # so that [[@flancian]] works.
 @bp.route('/@<user>')
 def user(user):
     return render_template('user.html', user=user, readmes=db.user_readmes(user), subnodes=db.subnodes_by_user(user))
