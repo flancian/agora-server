@@ -14,6 +14,7 @@
 
 import cachetools.func
 import glob
+import itertools
 import re
 import os
 from . import config
@@ -63,6 +64,15 @@ class Graph:
             # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
             # Return an empty.
             return Node(uri)
+
+    def existing_permutations(self, uri):
+        # looks up nodes matching a permutation of the tokenized uri.
+        # 
+        # example use: if [[server-agora]] does not exist, serve [[agora-server]]
+        permutations = itertools.permutations(uri.split('-'))
+        permutations = ['-'.join(permutation) for permutation in permutations]
+        nodes = [node for node in G.nodes() if node.wikilink in permutations and node.subnodes]
+        return nodes
 
     @cachetools.func.ttl_cache(maxsize=2, ttl=20)
     def nodes(self, include_journals=True):

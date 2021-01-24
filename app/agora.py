@@ -145,8 +145,13 @@ def jump():
 def node(node):
 
     n = G.node(node)
-    # earlier in the list means more highly ranked.
-    n.subnodes = util.uprank(n.subnodes, users=['agora', 'flancian'])
+    if n.subnodes:
+        # earlier in the list means more highly ranked.
+        n.subnodes = util.uprank(n.subnodes, users=['agora', 'flancian'])
+        permutations = []
+    # if it's a 404, include permutations.
+    else:
+        permutations = G.existing_permutations(node)
 
     search_subnodes = db.search_subnodes(node)
 
@@ -154,7 +159,7 @@ def node(node):
             'node_rendered.html', 
             node=n,
             backlinks=n.back_links(),
-            pull_nodes=n.pull_nodes() if n else [],
+            pull_nodes=n.pull_nodes() if n.subnodes else permutations,
             forwardlinks=n.forward_links() if n else [],
             search=search_subnodes,
             pulling_nodes=n.pulling_nodes(),
