@@ -57,7 +57,8 @@ def canonical_wikilink(wikilink):
         wikilink.lower()
         # chars that convert to -, slug-like.
         .replace(' ', '-')
-        .replace('/', '-')
+        # not a good idea in the end.
+        #.replace('/', '-')
         .replace('\'', '')
         # chars that are elided.
         .replace('%', '')

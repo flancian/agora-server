@@ -158,6 +158,7 @@ def node(node):
             )
 
 @bp.route('/node/<node>@<user>')
+@bp.route('/node/@<user>/<node>')
 @bp.route('/@<user>/<node>')
 def subnode(node, user):
 
