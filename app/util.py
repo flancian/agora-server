@@ -30,8 +30,11 @@ def uprank(l, users):
             # the earlier in the list a user comes, the more highly ranked it is.
             score = users.index(n.user) - len(users) - 1
         if n.mediatype != 'text/plain':
-            # downrank images as wherever a user has both text and image the text probably needs to go first.
-            score += 0.01
+            # try *uprankin* images as 
+            # previously it was downranking with the idea that whenever user has both 
+            # text and image, the text probably needs to go first. But I think visuals
+            # add a lot if used well.
+            score -= 0.01
         return score
             
     return sorted(l, key=score) 
