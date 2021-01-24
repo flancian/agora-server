@@ -53,6 +53,7 @@ def search():
     return render_template('search.html', form=form)
 
 # Actions
+# Simple go.
 @bp.route('/go/<node>')
 def go(node):
     """Redirects to the URL in the given node in a block that starts with [[go]], if there is one."""
@@ -82,17 +83,10 @@ def go(node):
 
     return redirect(links[0])
 
-@bp.route('/push/<node>/<other>')
-def push(node, other):
-    n = G.node(node)
-    o = G.node(other)
-    pushing = n.pushing(o)
-
-    return Response(pushing)
-
-# [default action](https://anagora.org/node/default-action)
+# Composite go.
+# Likely equivalent to [default action](https://anagora.org/node/default-action)
 @bp.route('/go/<node0>/<node1>')
-def default_action(node0, node1):
+def composite_go(node0, node1):
     """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
     # TODO(flancian): all node-scoped stuff should move to actually use node objects.
     # TODO(flancian): make [[go]] call this?
@@ -110,10 +104,12 @@ def default_action(node0, node1):
         # Redirect to composite node, which might exist and provides search.
         return redirect(f'https://anagora.org/node/{node0}-{node1}')
 
+    links = []
     if len(n0) != 0:
-        links = n0[0].filter(node1)
-    elif len(n1) != 0:
-        links += n1[0].filter(node0)
+        links.extend(n0[0].filter(node1))
+
+    if len(n1) != 0:
+        links.extend(n1[0].filter(node0))
 
     if len(links) == 0:
         # No matching links found.
@@ -127,6 +123,15 @@ def default_action(node0, node1):
         current_app.logger.warning('Code to manage nodes with more than one go link is not Not implemented.')
 
     return redirect(links[0])
+
+@bp.route('/push/<node>/<other>')
+def push(node, other):
+    n = G.node(node)
+    o = G.node(other)
+    pushing = n.pushing(o)
+
+    return Response(pushing)
+
 
 @bp.route('/jump')
 def jump():
