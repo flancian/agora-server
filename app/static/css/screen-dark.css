@@ -18,7 +18,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans&display=swap');
 
 html            { font-family: 'Noto Sans', sans-serif}
-body            { background: #101010; color: #bfbfbf; overflow-x: hidden;}
+body            { background: #000000; color: #bfbfbf; overflow-x: hidden;}
 a               { color: #9fc6e0; }
 h1, h2          { color: #bfbfbf; }
 h1, h2          { font-family: 'Merriweather Sans'; margin-top: 0.2em; margin-bottom: 0.2em;}
@@ -57,7 +57,7 @@ nav             { font-family: sans-serif}
 }
 
 .subnode        { 
-    background: #1f1f1f; 
+    background: #101010; 
     color: #cfcfcf; 
     padding: 0.5em; 
     margin-bottom: 10px; 
@@ -88,7 +88,7 @@ nav             { font-family: sans-serif}
 .subnode-footer {
     font-style: italic; 
     width: 100%;
-    background: #2f2f2f; 
+    background: #1f1f1f; 
     color: #cfcfcf; 
     margin-bottom: 10px; 
     border-radius: 10px;
@@ -103,7 +103,7 @@ nav             { font-family: sans-serif}
 .links { 
     width: 100%;
     display: flex;
-    background: #161616; 
+    background: #080808; 
     color: #cfcfcf; 
     padding: 0.5em; 
     margin-bottom: 10px; 
@@ -118,18 +118,18 @@ nav             { font-family: sans-serif}
 
 .pushlinks {
     width: 20%;
-    background: #161616; 
+    background: #080808; 
     color: #cfcfcf; 
 }
 
 .pulllinks {
     width: 20%;
-    background: #161616; 
+    background: #080808; 
     color: #cfcfcf; 
 }
 
 .forwardlinks {
-    background: #161616; 
+    background: #080808; 
     width: 50%;
 }
 
@@ -149,7 +149,7 @@ nav             { font-family: sans-serif}
 .search { 
     width: 100%;
     display: flex;
-    background: #161616; 
+    background: #080808; 
     color: #cfcfcf; 
     padding: 0.5em; 
     margin-bottom: 10px; 
@@ -170,7 +170,7 @@ nav             { font-family: sans-serif}
 }
 
 .search-internet {
-    background: #161616; 
+    background: #080808; 
     float: left;
     width: 35%;
 }
@@ -183,7 +183,7 @@ nav             { font-family: sans-serif}
 
 .listing { 
     display: inline-block;
-    background: #161616; 
+    background: #080808; 
     color: #cfcfcf; 
     padding: 0.5em; 
     margin-bottom: 10px; 
@@ -193,6 +193,7 @@ nav             { font-family: sans-serif}
 .wikilink-marker {
     /* deemphasize */
     font-weight: lighter;
+    color: #808080;
 }
 
 /* hypothes.is 
