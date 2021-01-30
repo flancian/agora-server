@@ -46,7 +46,7 @@ You can try searching or listing <a href="/nodes">all nodes</a>.<br /><br />
 
 {% if node.pushed_subnodes() %}
 {% for subnode in node.pushed_subnodes() %}
-<div class="subnode">
+<div class="pulled-subnode">
     <div class="subnode-header">
         <span class="subnode-id"><strong>Subnode</strong> <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
         <span class="subnode-links"><strong>pushed from</strong> <a href="/subnode/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
@@ -64,7 +64,7 @@ You can try searching or listing <a href="/nodes">all nodes</a>.<br /><br />
 <span class="node-header"><strong>Pulled node</strong> <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>
 
 {% for subnode in node.subnodes %}
-<div class="subnode">
+<div class="pulled-subnode">
     <div class="subnode-header">
         <span class="subnode-id"><strong>Subnode</strong> <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
         <span class="subnode-links"><strong>from</strong> <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>

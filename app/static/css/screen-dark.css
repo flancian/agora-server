@@ -47,7 +47,22 @@ nav             { font-family: sans-serif}
 	content: "]]"
 }
 
-.node        { 
+.subnode {
+    /* background: #351a4a; */
+    /* background: #2a153b; */
+    background: #12091a;
+    color: #cfcfcf; 
+    padding: 0.5em; 
+    margin-bottom: 10px; 
+    border-radius: 10px;
+}
+
+.pulled-subnode   { 
+    background: #101010; 
+    color: #cfcfcf; 
+    padding: 0.5em; 
+    margin-bottom: 10px; 
+    border-radius: 10px;
 }
 
 .node-header {
@@ -57,11 +72,6 @@ nav             { font-family: sans-serif}
 }
 
 .subnode        { 
-    background: #101010; 
-    color: #cfcfcf; 
-    padding: 0.5em; 
-    margin-bottom: 10px; 
-    border-radius: 10px;
 }
 
 .not-found { 
