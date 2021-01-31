@@ -248,8 +248,13 @@ class Node:
         subnodes = []
         if other.wikilink in [n.wikilink for n in self.push_nodes()]:
             for subnode in self.subnodes:
-                # I tried parsing the marko tree but honestly this seemed easier/simpler.
-                html = render.markdown(subnode.content)
+                if subnode.mediatype != 'text/plain':
+                    continue
+                try:
+                    # I tried parsing the marko tree but honestly this seemed easier/simpler.
+                    html = render.markdown(subnode.content)
+                except AssertionError:
+                    breakpoint()
                 try:
                     tree = lxml.html.fromstring(html)
                 except lxml.etree.ParserError:
