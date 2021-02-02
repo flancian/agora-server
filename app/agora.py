@@ -139,6 +139,10 @@ def push(node, other):
 def jump():
     """Redirects to a context; in "jump" mode, a node *always* exists (nodes map one to one to all possible queries)."""
     q = request.args.get('q')
+    tokens = q.split(" ")
+    # hack hack
+    if tokens[0] == 'go' and len(tokens) > 1:
+        return redirect(url_for('.go', node=slugify(q[3:])))
     return redirect(url_for('.node', node=slugify(q)))
 
 # Entities
