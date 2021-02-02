@@ -65,11 +65,15 @@ class Graph:
             # Return an empty.
             return Node(uri)
 
-    def existing_permutations(self, uri):
+    def existing_permutations(self, uri, max_length=4):
         # looks up nodes matching a permutation of the tokenized uri.
         # 
         # example use: if [[server-agora]] does not exist, serve [[agora-server]]
-        permutations = itertools.permutations(uri.split('-'))
+        #
+        # this is, of course, a terrible implementation and dangerous :)
+        # only enable up to 4 tokens as 24 permutations is manageable.
+        tokens = uri.split('-')
+        permutations = itertools.permutations(tokens, max_length)
         permutations = ['-'.join(permutation) for permutation in permutations]
         nodes = [node for node in G.nodes() if node.wikilink in permutations and node.subnodes]
         return nodes
