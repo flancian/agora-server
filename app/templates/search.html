@@ -26,7 +26,7 @@
 <div class="listing">
 <div class="formwrapper">
   <h1>Search</h1>
-  <form method="POST" action="{{url_for('agora.search')}}">
+  <form method="POST" action="{{url_for('agora.oldsearch')}}">
       <div class="form-field">{{ form.query.label }} {{ form.query(size=20, autofocus=true) }}
       {{ form.csrf_token }}
       {{ form.submit }}</div>

@@ -45,8 +45,9 @@ def today():
     today = datetime.datetime.now().date()
     return redirect("https://anagora.org/node/%s" % today.strftime("%Y-%m-%d"))
 
-@bp.route('/search', methods=('GET', 'POST'))
-def search():
+@bp.route('/oldsearch', methods=('GET', 'POST'))
+def oldsearch():
+    """deprecated in favour of jump-like search"""
     form = forms.SearchForm()
     if form.validate_on_submit():
         return render_template('search.html', form=form, subnodes=db.search_subnodes(form.query.data))
@@ -133,6 +134,7 @@ def push(node, other):
     return Response(pushing)
 
 
+@bp.route('/search')
 @bp.route('/jump')
 def jump():
     """Redirects to a context; in "jump" mode, a node *always* exists (nodes map one to one to all possible queries)."""
@@ -219,12 +221,6 @@ def users():
 @bp.route('/journals')
 def journals():
     return render_template('nodes.html', header="Journals", nodes=db.all_journals())
-
-# Searching with GET: potentially useful but probably not a good idea.
-# @bp.route('/search/<query>')
-# def search(query):
-#    return render_template('subnodes.html', subnodes=db.search_subnodes(query))
-
 
 @bp.route('/asset/<user>/<asset>')
 def asset(user, asset):
