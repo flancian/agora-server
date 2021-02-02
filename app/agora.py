@@ -134,6 +134,7 @@ def push(node, other):
     return Response(pushing)
 
 
+@bp.route('/exec')
 @bp.route('/search')
 @bp.route('/jump')
 def jump():
