@@ -51,6 +51,12 @@ def get_by_uri(uri):
     feed = feedparser.parse(url)
     return feed
 
+def get_latest():
+    uri = 'anagora.org/*'
+    url = f'https://hypothes.is/stream.atom?wildcard_uri={uri}'
+    feed = feedparser.parse(url)
+    return feed
+
 def main():
     if DEBUG:
         feeds = get_user_feeds()

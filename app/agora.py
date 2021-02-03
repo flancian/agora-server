@@ -18,6 +18,7 @@ from markupsafe import escape
 from slugify import slugify, SLUG_OK
 from . import config
 from . import db
+from . import feed
 from . import forms
 from . import util
 bp = Blueprint('agora', __name__)
@@ -38,7 +39,10 @@ def help():
 @bp.route('/delta')
 @bp.route('/latest')
 def latest():
-    return render_template('subnodes.html', header="Latest", subnodes=db.latest())
+    return render_template('delta.html', 
+            header="Recent deltas", 
+            subnodes=db.latest(), 
+            annotations=feed.get_latest())
 
 @bp.route('/today')
 def today():
