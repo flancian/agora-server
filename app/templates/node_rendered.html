@@ -63,16 +63,20 @@ You can try searching or listing <a href="/nodes">all nodes</a>.<br /><br />
 <div class="node">
 <span class="node-header"><strong>Pulled node</strong> <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>
 
-{% for subnode in node.subnodes %}
-<div class="pulled-subnode">
-    <div class="subnode-header">
-        <span class="subnode-id"><strong>Subnode</strong> <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
-        <span class="subnode-links"><strong>from</strong> <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+    {% if node.subnodes %}
+        {% for subnode in node.subnodes %}
+        <div class="pulled-subnode">
+            <div class="subnode-header">
+                <span class="subnode-id"><strong>Subnode</strong> <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
+                <span class="subnode-links"><strong>from</strong> <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+            </div>
+        {{ subnode.render()|linkify|safe }}
+        </div>
+        {% endfor %}
+    {% else %}
+    not found. <br />
+    {% endif %}
     </div>
-{{ subnode.render()|linkify|safe }}
-</div>
-{% endfor %}
-</div>
 {% endfor %}
 
 {% include "links.html" %}
