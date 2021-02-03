@@ -74,7 +74,9 @@
         {% for annotation in annotations.entries %}
         <a href="{{annotation.link}}">Annotation</a> by <a href="https://hypothes.is">hypothes.is</a> user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
         on {{annotation.published[:10]}}<br />
-        <em>{{annotation.summary}}</em><br /><br />
+        <blockquote>
+        <em>{{annotation.summary|markdown|linkify|safe}}</em>
+        </blockquote>
         {% endfor %}
     {% else %}
         No annotations found. <br />
