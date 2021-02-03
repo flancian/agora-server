@@ -121,6 +121,17 @@ nav             { font-family: sans-serif}
     gap: 10px;
 }
 
+.annotations { 
+    width: 100%;
+    display: flex;
+    background: #080808; 
+    color: #cfcfcf; 
+    padding: 0.5em; 
+    margin-bottom: 10px; 
+    border-radius: 10px;
+    gap: 10px;
+}
+
 .backlinks {
     float: left;
     width: 50%;

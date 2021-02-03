@@ -18,6 +18,7 @@ import itertools
 import re
 import os
 from . import config
+from . import feed
 from . import render
 from . import util
 from collections import defaultdict
@@ -145,13 +146,17 @@ class Node:
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         self.wikilink = wikilink
+        # LOL, this is *not* a uri.
+        # TODO(flancian): check where this is used and fix.
         self.uri = wikilink
         # ensure wikilinks to journal entries are all shown in iso format
         # (important to do it after self.uri = wikilink to avoid breaking
         # links)
         if util.is_journal(wikilink):
             self.wikilink = util.canonical_wikilink(wikilink)
+        # Yikes, I really did whatever I wanted here. This is clearly not a full url. More like a 'url_path'.
         self.url = '/node/' + self.uri
+        self.actual_uri = config.URI_BASE + '/node/' + self.uri
         self.subnodes = []
 
     def __lt__(self, other):
@@ -294,6 +299,10 @@ class Node:
             for subnode in node.pushing(self):
                 subnodes.append(subnode)
         return subnodes
+
+    def annotations(self):
+        annotations = feed.get_by_uri(self.actual_uri)
+        return annotations
 
 
 class Subnode:

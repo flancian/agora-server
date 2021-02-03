@@ -171,7 +171,8 @@ def node(node):
             search=search_subnodes,
             pulling_nodes=n.pulling_nodes(),
             pushing_nodes=n.pushing_nodes(),
-            query=n.wikilink.replace('-', '%20')
+            q=n.wikilink.replace('-', '%20'),
+            annotations=n.annotations(),
             )
 
 @bp.route('/node/<node>@<user>')
