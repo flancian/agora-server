@@ -13,13 +13,15 @@
 # limitations under the License.
 
 import datetime
-from flask import Blueprint, url_for, render_template, current_app, Response, redirect, request
+import jsons
+from flask import Blueprint, url_for, render_template, current_app, Response, redirect, request, jsonify
 from markupsafe import escape
 from slugify import slugify, SLUG_OK
 from . import config
 from . import db
 from . import forms
 from . import util
+from flask_cors import CORS
 bp = Blueprint('agora', __name__)
 G = db.G
 
@@ -149,12 +151,17 @@ def jump():
 # Entities
 @bp.route('/wikilink/<node>')
 @bp.route('/node/<node>')
-def node(node):
-
+@bp.route('/node/<node>/uprank/<user_list>')
+def node(node,user_list=""):
+    default_rank = ['agora', 'flancian']
+    rank = user_list.split(",")
+    if len(rank) == 0:
+        rank = default_rank
     n = G.node(node)
     if n.subnodes:
         # earlier in the list means more highly ranked.
-        n.subnodes = util.uprank(n.subnodes, users=['agora', 'flancian'])
+        print("rank", rank)
+        n.subnodes = util.uprank(n.subnodes, users=rank)
         permutations = []
     # if it's a 404, include permutations.
     else:
@@ -213,6 +220,10 @@ def garden(garden):
 def nodes():
     return render_template('nodes.html', nodes=G.nodes(include_journals=False))
 
+@bp.route('/nodes.json')
+def nodes_json():
+    return jsonify(jsons.dump(G.nodes(include_journals=False)))
+
 @bp.route('/notes') # alias
 @bp.route('/subnodes')
 def subnodes():
@@ -243,3 +254,7 @@ def raw(subnode):
 def backlinks(node):
     # Currently unused.
     return render_template('nodes.html', nodes=db.nodes_by_outlink(node))
+
+@bp.route('/settings')
+def settings():
+    return render_template('settings.html', header="Settings")

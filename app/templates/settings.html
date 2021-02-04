@@ -16,14 +16,15 @@
 
 {% extends "base.html" %}
 {% block content %}
-<div class="listing">
+<div >
 {% if header %}
 <h1> {{header}} </h1>
-{% else %}
-<h1> Nodes </h1>
 {% endif %}
-{% for node in nodes %}
-<a href="{{node.url}}/uprank/foo,bar">{{node.wikilink}}</a> ({{node.size()}})<br />
-{% endfor %}
+
+<form method="POST">
+    Enter comma separated list of users to rank
+    <input type="text" id="settings-ranking" placeholder="e.g. flancian, vera">
+    <input type="button" value="Save" class="submit" onclick="processSettings()">
+</form>
 </div>
 {% endblock %}
