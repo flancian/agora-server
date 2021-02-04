@@ -21,7 +21,7 @@ from . import config
 from . import db
 from . import forms
 from . import util
-from flask_cors import CORS
+
 bp = Blueprint('agora', __name__)
 G = db.G
 
@@ -181,6 +181,37 @@ def node(node,user_list=""):
             query=n.wikilink.replace('-', '%20')
             )
 
+@bp.route('/node/<node>.json')
+def node_json(node,user_list=""):
+    default_rank = ['agora', 'flancian']
+    rank = user_list.split(",")
+    if len(rank) == 0:
+        rank = default_rank
+    n = G.node(node)
+    if n.subnodes:
+        # earlier in the list means more highly ranked.
+        print("rank", rank)
+        n.subnodes = util.uprank(n.subnodes, users=rank)
+        permutations = []
+    # if it's a 404, include permutations.
+    else:
+        permutations = G.existing_permutations(node)
+
+    search_subnodes = db.search_subnodes(node)
+
+    return jsons.dump({"node": n, "back_links": n.back_links()})
+    # return render_template(
+    #         'node_rendered.html', 
+    #         node=n,
+    #         backlinks=n.back_links(),
+    #         pull_nodes=n.pull_nodes() if n.subnodes else permutations,
+    #         forwardlinks=n.forward_links() if n else [],
+    #         search=search_subnodes,
+    #         pulling_nodes=n.pulling_nodes(),
+    #         pushing_nodes=n.pushing_nodes(),
+    #         query=n.wikilink.replace('-', '%20')
+    #         )
+
 @bp.route('/node/<node>@<user>')
 @bp.route('/node/@<user>/<node>')
 @bp.route('/@<user>/<node>')
@@ -208,6 +239,10 @@ def old_subnode(subnode):
 @bp.route('/@<user>')
 def user(user):
     return render_template('user.html', user=user, readmes=db.user_readmes(user), subnodes=db.subnodes_by_user(user))
+
+@bp.route('/user/<user>.json')
+def user_json(user):
+    return jsons.dump({"user": user, "subnodes": db.subnodes_by_user(user)})
 
 @bp.route('/garden/<garden>')
 def garden(garden):
