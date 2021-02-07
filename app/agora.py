@@ -182,6 +182,7 @@ def node(node,user_list=""):
             )
 
 @bp.route('/node/<node>.json')
+@bp.route('/node/<node>/uprank/<user_list>.json')
 def node_json(node,user_list=""):
     default_rank = ['agora', 'flancian']
     rank = user_list.split(",")
@@ -272,6 +273,10 @@ def users():
 @bp.route('/journals')
 def journals():
     return render_template('nodes.html', header="Journals", nodes=db.all_journals())
+
+@bp.route('/journals.json')
+def journals_json():
+    return jsonify(jsons.dump(db.all_journals()))
 
 @bp.route('/asset/<user>/<asset>')
 def asset(user, asset):
