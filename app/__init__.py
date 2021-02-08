@@ -58,6 +58,11 @@ def create_app(test_config=None):
 
     @app.template_filter('markdown')
     def markdown(s):
-         return render.markdown(s)
+         try:
+             output = render.markdown(s)
+         except AttributeError:
+             print("***a heisenbug appears***")
+             output = s
+         return output
 
     return app
