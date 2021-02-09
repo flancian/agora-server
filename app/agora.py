@@ -258,7 +258,9 @@ def nodes():
 
 @bp.route('/nodes.json')
 def nodes_json():
-    return jsonify(jsons.dump(G.nodes(include_journals=False)))
+    nodes = G.nodes(include_journals=False)
+    links = list(map(lambda x: x.wikilink, nodes))
+    return jsonify(jsons.dump(links))
 
 @bp.route('/notes') # alias
 @bp.route('/subnodes')
