@@ -200,7 +200,7 @@ def node_json(node,user_list=""):
 
     search_subnodes = db.search_subnodes(node)
 
-    return jsons.dump({"node": n, "back_links": n.back_links()})
+    return jsons.dump({"node": n, "back_links": n.back_links(), "pull_nodes": n.pull_nodes()})
     # return render_template(
     #         'node_rendered.html', 
     #         node=n,
