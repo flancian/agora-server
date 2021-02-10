@@ -16,6 +16,8 @@
 // Adapted from https://css-tricks.com/a-complete-guide-to-dark-mode-on-the-web/#toggling-themes
 
 document.addEventListener("DOMContentLoaded", function() { 
+    // Hack for settings page
+    try { processSettings({ignore: true}) } catch(e){ console.error(e)}
     // Select button
     const btn = document.querySelector(".theme-toggle");
     var theme = document.querySelector("#theme-link");
@@ -40,3 +42,21 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     });
 });
+
+function processSettings(args){
+  args = args || {}
+  let ranking // string for ranking nodes by user, comma separated user list
+  ranking = document.getElementById("settings-ranking").value || ""
+  if (ranking === ""){
+    ranking = localStorage["ranking"] || ""
+    console.log("ranking", ranking)
+    if (ranking !== ""){
+      document.getElementById("settings-ranking").value = ranking
+    }
+  }
+
+  ranking = document.getElementById("settings-ranking").value || ""
+  localStorage["ranking"] = ranking
+  console.log("processing", ranking)
+  if (!args["ignore"]) alert("Settings Saved")
+}

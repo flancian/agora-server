@@ -13,7 +13,8 @@
 # limitations under the License.
 
 import datetime
-from flask import Blueprint, url_for, render_template, current_app, Response, redirect, request
+import jsons
+from flask import Blueprint, url_for, render_template, current_app, Response, redirect, request, jsonify
 from markupsafe import escape
 from slugify import slugify, SLUG_OK
 from . import config
@@ -21,6 +22,7 @@ from . import db
 from . import feed
 from . import forms
 from . import util
+
 bp = Blueprint('agora', __name__)
 G = db.G
 
@@ -153,12 +155,16 @@ def jump():
 # Entities
 @bp.route('/wikilink/<node>')
 @bp.route('/node/<node>')
-def node(node):
-
+@bp.route('/node/<node>/uprank/<user_list>')
+def node(node,user_list=[]):
+    if user_list:
+        rank = user_list.split(",")
+    else:
+        rank = ['agora', 'flancian']
     n = G.node(node)
     if n.subnodes:
         # earlier in the list means more highly ranked.
-        n.subnodes = util.uprank(n.subnodes, users=['agora', 'flancian'])
+        n.subnodes = util.uprank(n.subnodes, users=rank)
         permutations = []
     # if it's a 404, include permutations.
     else:
@@ -178,6 +184,38 @@ def node(node):
             q=n.wikilink.replace('-', '%20'),
             annotations=n.annotations(),
             )
+
+@bp.route('/node/<node>.json')
+@bp.route('/node/<node>/uprank/<user_list>.json')
+def node_json(node,user_list=""):
+    default_rank = ['agora', 'flancian']
+    rank = user_list.split(",")
+    if len(rank) == 0:
+        rank = default_rank
+    n = G.node(node)
+    if n.subnodes:
+        # earlier in the list means more highly ranked.
+        print("rank", rank)
+        n.subnodes = util.uprank(n.subnodes, users=rank)
+        permutations = []
+    # if it's a 404, include permutations.
+    else:
+        permutations = G.existing_permutations(node)
+
+    search_subnodes = db.search_subnodes(node)
+
+    return jsons.dump({"node": n, "back_links": n.back_links(), "pull_nodes": n.pull_nodes()})
+    # return render_template(
+    #         'node_rendered.html', 
+    #         node=n,
+    #         backlinks=n.back_links(),
+    #         pull_nodes=n.pull_nodes() if n.subnodes else permutations,
+    #         forwardlinks=n.forward_links() if n else [],
+    #         search=search_subnodes,
+    #         pulling_nodes=n.pulling_nodes(),
+    #         pushing_nodes=n.pushing_nodes(),
+    #         query=n.wikilink.replace('-', '%20')
+    #         )
 
 @bp.route('/node/<node>@<user>')
 @bp.route('/node/@<user>/<node>')
@@ -207,6 +245,10 @@ def old_subnode(subnode):
 def user(user):
     return render_template('user.html', user=user, readmes=db.user_readmes(user), subnodes=db.subnodes_by_user(user))
 
+@bp.route('/user/<user>.json')
+def user_json(user):
+    return jsons.dump({"user": user, "subnodes": db.subnodes_by_user(user)})
+
 @bp.route('/garden/<garden>')
 def garden(garden):
     current_app.logger.warning('Not implemented.')
@@ -217,6 +259,10 @@ def garden(garden):
 @bp.route('/nodes')
 def nodes():
     return render_template('nodes.html', nodes=G.nodes(include_journals=False))
+
+@bp.route('/nodes.json')
+def nodes_json():
+    return jsonify(jsons.dump(G.nodes(include_journals=False)))
 
 @bp.route('/notes') # alias
 @bp.route('/subnodes')
@@ -231,6 +277,10 @@ def users():
 @bp.route('/journals')
 def journals():
     return render_template('nodes.html', header="Journals", nodes=db.all_journals())
+
+@bp.route('/journals.json')
+def journals_json():
+    return jsonify(jsons.dump(db.all_journals()))
 
 @bp.route('/asset/<user>/<asset>')
 def asset(user, asset):
@@ -248,3 +298,7 @@ def raw(subnode):
 def backlinks(node):
     # Currently unused.
     return render_template('nodes.html', nodes=db.nodes_by_outlink(node))
+
+@bp.route('/settings')
+def settings():
+    return render_template('settings.html', header="Settings")
