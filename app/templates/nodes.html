@@ -23,7 +23,7 @@
 <h1> Nodes </h1>
 {% endif %}
 {% for node in nodes %}
-<a href="{{node.url}}/uprank/foo,bar">{{node.wikilink}}</a> ({{node.size()}})<br />
+<a href="{{node.url}}">{{node.wikilink}}</a> ({{node.size()}})<br />
 {% endfor %}
 </div>
 {% endblock %}
