@@ -156,15 +156,14 @@ def jump():
 @bp.route('/wikilink/<node>')
 @bp.route('/node/<node>')
 @bp.route('/node/<node>/uprank/<user_list>')
-def node(node,user_list=""):
-    default_rank = ['agora', 'flancian']
-    rank = user_list.split(",")
-    if len(rank) == 0:
-        rank = default_rank
+def node(node,user_list=[]):
+    if user_list:
+        rank = user_list.split(",")
+    else:
+        rank = ['agora', 'flancian']
     n = G.node(node)
     if n.subnodes:
         # earlier in the list means more highly ranked.
-        print("rank", rank)
         n.subnodes = util.uprank(n.subnodes, users=rank)
         permutations = []
     # if it's a 404, include permutations.
