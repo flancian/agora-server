@@ -18,6 +18,7 @@ from flask import Flask
 from flaskext.markdown import Markdown
 from markdown.extensions.wikilinks import WikiLinkExtension
 from . import util
+from flask_cors import CORS
 
 def wikilink_to_url(label, base, end):
     label = util.canonical_wikilink(label)
@@ -30,6 +31,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
     )
+    CORS(app)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing

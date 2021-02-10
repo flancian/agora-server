@@ -242,3 +242,6 @@ nav             { font-family: sans-serif}
     This totally doesn't work, at all, and I have no idea why :) 
 */
 .annotator-frame { margin-top: 4.5em }
+
+
+.submit {display: block; margin-top: 25px}
