@@ -250,7 +250,8 @@ def user(user):
 
 @bp.route('/user/<user>.json')
 def user_json(user):
-    return jsons.dump({"user": user, "subnodes": db.subnodes_by_user(user)})
+    subnodes = list(map(lambda x: x.wikilink, db.subnodes_by_user(user)))
+    return jsonify(jsons.dump(subnodes))
 
 @bp.route('/garden/<garden>')
 def garden(garden):
@@ -265,7 +266,9 @@ def nodes():
 
 @bp.route('/nodes.json')
 def nodes_json():
-    return jsonify(jsons.dump(G.nodes(include_journals=False)))
+    nodes = G.nodes(include_journals=False)
+    links = list(map(lambda x: x.wikilink, nodes))
+    return jsonify(jsons.dump(links))
 
 @bp.route('/notes') # alias
 @bp.route('/subnodes')
@@ -276,6 +279,11 @@ def subnodes():
 @bp.route('/users')
 def users():
     return render_template('users.html', users=db.all_users())
+
+@bp.route('/users.json')
+def users_json():
+    users = list(map(lambda x: x.uri, db.all_users()))
+    return jsonify(jsons.dump(users))
 
 @bp.route('/journals')
 def journals():
