@@ -20,7 +20,7 @@
 <div class="subnode">
 {% for subnode in readmes %}
     <span class="subnode-header"><strong>README</strong> by <a href="/@{{user}}">@{{user}}</a></span>
-{{ subnode.content|markdown|linkify|safe }}
+{{ subnode.render()|linkify|safe }}
 {% endfor %}
 </div>
 {% endif %}
