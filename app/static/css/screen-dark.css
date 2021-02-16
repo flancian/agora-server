@@ -118,7 +118,13 @@ nav             { font-family: sans-serif}
     padding: 0.5em; 
     margin-bottom: 10px; 
     border-radius: 10px;
+    overflow: auto;
     gap: 10px;
+    /*    
+    -webkit-transition: height 2s;
+    transition: height 2s;
+    */
+    max-height: 250px;
 }
 
 .annotations { 
@@ -193,11 +199,17 @@ nav             { font-family: sans-serif}
     width: 100%;
     display: flex;
     background: #080808; 
+    overflow: auto;
     color: #cfcfcf; 
     padding: 0.5em; 
     margin-bottom: 10px; 
     border-radius: 10px;
     gap: 10px;
+    /*
+    -webkit-transition: height 2s;
+    transition: height 2s;
+    */
+    max-height: 250px;
 }
 
 .search-header {
