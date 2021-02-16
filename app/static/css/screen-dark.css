@@ -71,9 +71,6 @@ nav             { font-family: sans-serif}
     margin-left: 0.2em;
 }
 
-.subnode        { 
-}
-
 .not-found { 
     background: #2f1f1f; 
     color: #cfcfcf; 
@@ -81,8 +78,6 @@ nav             { font-family: sans-serif}
     margin-bottom: 10px; 
     border-radius: 10px;
 }
-
-
 
 /*.subnode li     { margin: 0.8em 1.2em; }*/
 /*.subnode li h2  { margin-left: -1em; }*/
@@ -257,3 +252,11 @@ nav             { font-family: sans-serif}
 
 
 .submit {display: block; margin-top: 25px}
+
+/* overriding bmann's microblog hardcoded style */
+.microblog_timeline {
+    background: #12091a;
+    color: #cfcfcf; 
+}
+
+
