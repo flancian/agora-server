@@ -360,10 +360,13 @@ class Subnode:
             # hack hack
             #return 'This is a subnode of type {}. You can <a href="/raw/{}">view</a> it.'.format(self.mediatype, self.uri)
             return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 50%" /> <br />'.format(self.uri)
+        # ugly, this should be in render
+        content = render.preprocess(self.content)
         if self.uri.endswith('md') or self.uri.endswith('MD'):
-            content = render.markdown(self.content)
+            content = render.markdown(content)
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
-            content = render.orgmode(self.content)
+            content = render.orgmode(content)
+        # ugly, this too
         return render.postprocess(content)
 
     def raw(self):

@@ -59,6 +59,12 @@ def add_twitter_embeds(content):
     TWITTER_EMBED='<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="\\1"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
+# Trim front matter until we do something useful with it.
+def trim_front_matter(content):
+    FRONT_MATTER_REGEX = '---(\n.*)*---'
+    return re.sub(FRONT_MATTER_REGEX, '', content, flags=re.MULTILINE)
+
 
 # "Pipeline"
+preprocess = trim_front_matter
 postprocess = add_twitter_embeds
