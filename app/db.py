@@ -388,16 +388,31 @@ class Subnode:
     def go(self):
         """
         returns a set of go links contained in this subnode
-        go links are blocks of the form:
-        - [[go]] protocol://example.org/url
-        protocol defaults to https.
+        go links are blocks of one of two forms. A simple one:
+
+        - [[go]] protocol://example.org
+
+        Or a transitive form:
+
+        - [[go]] [[foo]]
+        - [[foo]] protocol://example.org
+
+        (protocol defaults to https.)
         """
         golinks = subnode_to_actions(self, 'go')
         sanitized_golinks = []
         for golink in golinks:
-            # should probably instead check for contains: //
-            if golink.startswith('http'):
+            # looks like a URL (includes a protocol)
+            if '://' in golink:
                 sanitized_golinks.append(golink)
+            # looks like a transitive go link (case two in the docstring)
+            elif '[[' in golink:
+                match = re.search('\[\[(.+?)\]\]', golink)
+                if match:
+                    action = match.group(1)
+                    # hack hack
+                    transitive = subnode_to_actions(self, action)[0]
+                    sanitized_golinks.append(transitive)
             else:
                 # hack hack.
                 sanitized_golinks.append('https://' + golink)
