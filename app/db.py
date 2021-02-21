@@ -372,6 +372,19 @@ class Subnode:
     def raw(self):
         return content
 
+    def parse(self):
+        """Try to extract structured information from the subnode in question, 
+        for example by parsing action blocks or included front matter (YAML).
+        """
+        # not really finished nor tested.
+        raise NotImplementedError
+        import yaml
+        front_matter = re.search('---(\n.*)*---', self.content, flags=re.MULTILINE)
+        if front_matter:
+            front_matter = re.sub('---', '', front_matter[0])
+            return yaml.safe_load(front_matter)
+        return None
+
     def go(self):
         """
         returns a set of go links contained in this subnode
