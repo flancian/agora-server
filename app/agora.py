@@ -316,15 +316,6 @@ def settings():
 
 @bp.route('/search.xml')
 def search_xml():
-    return Response("""
-	<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
-			       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
-	  <ShortName>Agora</ShortName>
-	  <Description>An [[agora]] is an open distributed knowledge graph.</Description>
-	  <InputEncoding>UTF-8</InputEncoding>
-	  <Image width="16" height="16" type="image/x-icon">https://anagora.org/favicon.ico</Image>
-	  <Url type="text/html" template=""https://anagora.org/search?q={searchTerms}">
-	  </Url>
-	  <Url type="application/x-suggestions+json" template="https://anagora.org/suggest.json"/>
-	</OpenSearchDescription>
-    """, 'application/opensearchdescription+xml')
+    return render_template('search.xml', 200, {'Content-Type': 'application/opensearchdescription+xml'})
+
+
