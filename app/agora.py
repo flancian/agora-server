@@ -316,6 +316,6 @@ def settings():
 
 @bp.route('/search.xml')
 def search_xml():
-    return render_template('search.xml', 200, {'Content-Type': 'application/opensearchdescription+xml'})
+    return render_template('search.xml'), 200, {'Content-Type': 'application/opensearchdescription+xml'}
 
 
