@@ -185,7 +185,7 @@ def node(node,user_list=[]):
             search=search_subnodes,
             pulling_nodes=n.pulling_nodes(),
             pushing_nodes=n.pushing_nodes(),
-            query=n.wikilink.replace('-', '%20'),
+            q=n.wikilink.replace('-', '%20'),
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
             # sorry for the fuzzy thinking but I'm short on time and want to get things done.
             # (...famous last words).

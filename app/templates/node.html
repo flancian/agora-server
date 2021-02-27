@@ -54,10 +54,11 @@ Existing permutations are optimistically pulled below.<br/>
 {% endfor %}
 </div>
 {% endif %}
+</div>
 
 {% for node in pull_nodes %}
 <div class="node">
-<span class="node-header">Pulled node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>:
+<span class="node-header">Pulled node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a> ↓</span>
 
     {% if node.subnodes %}
         {% for subnode in node.subnodes %}

@@ -17,7 +17,7 @@
 <div class="search">
     <div class="search-flex">
         <div class="search-internet">
-            <span class="search-internet-header">Search for '{{query}}' around the web</span> <br />
+            <span class="search-internet-header">Search for '{{q}}' around the web</span> <br />
             ↪ <a href="https://www.google.com/search?q={{q}}">Google</a> <br />
             ↪ <a href="https://www.duckduckgo.com/{{q}}">DuckDuckGo</a> <br />
             ↪ <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">Wikipedia</a> <br />
@@ -30,7 +30,7 @@
         </div>
 
         <div class="search-agora">
-            <span class="search-agora-header">Search for '{{query}}' in the Agora</span> <br />
+            <span class="search-agora-header">Search for '{{q}}' in the Agora</span> <br />
             {% if search %}
             {% for subnode in search %}
             <a href="/@{{subnode.user}}/{{subnode.wikilink}}">@{{subnode.user}}/{{subnode.wikilink}}</a><br />
