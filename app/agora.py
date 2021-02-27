@@ -176,7 +176,8 @@ def node(node,user_list=[]):
     search_subnodes = db.search_subnodes(node)
 
     return render_template(
-            'node_rendered.html', 
+            # yuck
+            'content.html', 
             node=n,
             backlinks=n.back_links(),
             pull_nodes=n.pull_nodes() if n.subnodes else permutations,
@@ -184,7 +185,7 @@ def node(node,user_list=[]):
             search=search_subnodes,
             pulling_nodes=n.pulling_nodes(),
             pushing_nodes=n.pushing_nodes(),
-            q=n.wikilink.replace('-', '%20'),
+            query=n.wikilink.replace('-', '%20'),
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
             # sorry for the fuzzy thinking but I'm short on time and want to get things done.
             # (...famous last words).
@@ -235,14 +236,14 @@ def subnode(node, user):
     search_subnodes = db.search_subnodes_by_user(node, user)
 
     return render_template(
-            'subnode_rendered.html', 
+            'subnode.html', 
             node=n,
             )
 
 
 @bp.route('/subnode/<path:subnode>')
 def old_subnode(subnode):
-    return render_template('subnode_rendered.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
+    return render_template('subnode.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
 
 @bp.route('/u/<user>')
 @bp.route('/user/<user>')

@@ -14,32 +14,31 @@
  limitations under the License.
 -->
 
-{% extends 'base.html' %}
+<div class="search">
+    <div class="search-flex">
+        <div class="search-internet">
+            <span class="search-internet-header">Search for '{{query}}' around the web</span> <br />
+            ↪ <a href="https://www.google.com/search?q={{q}}">Google</a> <br />
+            ↪ <a href="https://www.duckduckgo.com/{{q}}">DuckDuckGo</a> <br />
+            ↪ <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">Wikipedia</a> <br />
+            ↪ <a href="https://twitter.com/search/?f=live&q={{q}}">Twitter</a> <br />
+            ↪ <a href="https://github.com/search?q={{q}}">Github</a> <br />
+            ↪ <a href="https://forum.effectivealtruism.org/search?terms={{q}}">Effective Altruism</a> <br />
+            ↪ <a href="https://www.lesswrong.com/search?terms={{q}}">Less Wrong</a> <br />
+            ↪ <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">Encyclopedia of World Problems</a> <br />
+            ↪ <a href="https://www.pubpub.org/search?q={{q}}">PubPub</a> <br />
+        </div>
 
-{% block content %}
-
-<!--{% if form.errors %}
-{{ form.errors }}
-{% endif %}
--->
-
-<div class="listing">
-<div class="formwrapper">
-  <h1>Search</h1>
-  <form method="POST" action="{{url_for('agora.oldsearch')}}">
-      <div class="form-field">{{ form.query.label }} {{ form.query(size=20, autofocus=true) }}
-      {{ form.csrf_token }}
-      {{ form.submit }}</div>
-  </form>
+        <div class="search-agora">
+            <span class="search-agora-header">Search for '{{query}}' in the Agora</span> <br />
+            {% if search %}
+            {% for subnode in search %}
+            <a href="/@{{subnode.user}}/{{subnode.wikilink}}">@{{subnode.user}}/{{subnode.wikilink}}</a><br />
+            {% endfor %}
+            {% else %}
+            No search results.
+            {% endif %}
+        </div>
+    </div>
 </div>
 
-{% if subnodes %}
-<br />
-<h2> Results </h2>
-{% for subnode in subnodes %}
-(user: {{subnode.user}}) {{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
-{% endfor %}
-{% endif %}
-</div>
-
-{% endblock %}

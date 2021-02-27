@@ -14,56 +14,57 @@
  limitations under the License.
 -->
 
-<!-- todo: rename context -->
-<span class="links-header">Context</span><br />
 <div class="links">
-    <div class="backlinks">
-        <span class="backlinks-header">← back</span><br />
-    {% for link in backlinks %}
-    <a href="/node/{{link}}">{{link}}</a><br />
-    {% endfor %}
-    <br />
-    </div>
+    <span class="links-header">Links</span>
+    <div class="links-flex">
+        <div class="backlinks">
+            <span class="backlinks-header">← back</span><br />
+        {% for link in backlinks %}
+        <a href="/node/{{link}}">{{link}}</a><br />
+        {% endfor %}
+        <br />
+        </div>
 
-    <div class="pushlinks">
-        <span class="pushlinks-header">↑ pushing</span><br />
-    {% if pushing_nodes %}
-    {% for node in pushing_nodes %}
-    <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
-    {% endfor %}
-    {% else %}
-    (none)
-    {% endif %}
-    <br />
-    <br />
+        <div class="pushlinks">
+            <span class="pushlinks-header">↑ pushing</span><br />
+        {% if pushing_nodes %}
+        {% for node in pushing_nodes %}
+        <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
+        {% endfor %}
+        {% else %}
+        (none)
+        {% endif %}
+        <br />
+        <br />
 
-    <!--
-    <div class="pulllinks">
-    <span class="pulllinks-header"> ↑pushing</span><br />
-    {% for node in pull_nodes %}
-    <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
-    {% endfor %}
-    <br />
-    -->
-    
-    <span class="pulllinks-header">↓ pulling</span><br />
-    {% if pulling_nodes %}
-    {% for node in pulling_nodes %}
-    <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
-    {% endfor %}
-    {% else %}
-    (none)
-    {% endif %}
-    <br />
+        <!--
+        <div class="pulllinks">
+        <span class="pulllinks-header"> ↑pushing</span><br />
+        {% for node in pull_nodes %}
+        <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
+        {% endfor %}
+        <br />
+        -->
+        
+        <span class="pulllinks-header">↓ pulling</span><br />
+        {% if pulling_nodes %}
+        {% for node in pulling_nodes %}
+        <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
+        {% endfor %}
+        {% else %}
+        (none)
+        {% endif %}
+        <br />
 
-    </div>
+        </div>
 
-    <div class="forwardlinks">
-    <span class="forwardlinks-header">→ forward</span><br />
-    {% for link in forwardlinks %}
-    <a href="/node/{{link}}">{{link}}</a><br />
-    {% endfor %}
-    <br />
+        <div class="forwardlinks">
+        <span class="forwardlinks-header">→ forward</span><br />
+        {% for link in forwardlinks %}
+        <a href="/node/{{link}}">{{link}}</a><br />
+        {% endfor %}
+        <br />
+        </div>
     </div>
 </div>
 
@@ -85,6 +86,3 @@
     {% endif %}
     </div>
 {% endif %}
-
-
-</div>
