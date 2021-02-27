@@ -15,13 +15,31 @@
 -->
 
 {% if not node.subnodes and not node.pushed_subnodes() %}
-<div class="not-found">
-No node found at [[{{node.uri}}]]. 
-<br /><br />
-If you <a href="https://flancia.org/go/agora">contributed a matching subnode</a> with basename '{{node.uri}}' to the Agora (e.g. a note named {{node}}.md or an image named {{node}}.jpg), this node would exist :)
-<br /><br />
-You can try searching or listing <a href="/nodes">all nodes</a>.<br /><br />
-Existing permutations are optimistically pulled below.<br/>
+<div class="node">
+    <span class="node-header">No Agora node found at [[{{qstr}}]]... yet :)</span>
+    <div class="not-found">
+        <ul>
+        <li>
+            If you <a href="https://flancia.org/go/agora">contributed content</a> related to '{{qstr}}' to the Agora ), it would show up here :)
+            <ul>
+                <li>
+                    For example a note named <code>{{node}}.md</code> or an image named <code>{{node}}.jpg</code>. <a href="/node/sign-up"
+                </li>
+                <li>
+                   <strong>Sign up now</strong></a> and start participating!
+                </li>
+                <li>
+                    You can also contribute anonymously to the public Stoa down below; it is world writeable. Feel free to write something about {{qstr}}; whatever it <strong>means</strong> to you.
+                </li>
+            </ul>
+        </li>
+        <li>
+    You can try searching on (see below).
+        </li>
+        <li>
+    Some existing permutations might be optimistically pulled below.<br/>
+        </li>
+    </div>
 </div>
 {% endif %}
 

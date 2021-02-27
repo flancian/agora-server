@@ -56,7 +56,7 @@ nav             { font-family: sans-serif}
     padding: 10px;
 }
 
-.subnode, .links {
+.subnode, .links, .not-found {
     background: #12091a;
     /* background: #150d38; */
     color: #cfcfcf; 
@@ -81,11 +81,10 @@ nav             { font-family: sans-serif}
 }
 
 .not-found { 
+    /*
     background: #2f1f1f; 
-    color: #cfcfcf; 
-    padding: 0.5em; 
-    margin-bottom: 10px; 
-    border-radius: 10px;
+    */
+    background: #690000;
 }
 
 /*.subnode li     { margin: 0.8em 1.2em; }*/
