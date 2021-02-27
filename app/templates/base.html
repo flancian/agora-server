@@ -29,7 +29,7 @@
         <link rel="search" type="application/opensearchdescription+xml"
                            title="Agora" href={{url_for('agora.search_xml')}}>
 	    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
-	    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached9" id="theme-link" />
+	    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached10" id="theme-link" />
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
     <!-- considering this way of integrating hypothesis, although I like "standard" (sidebar) mode.
     <script type="application/json" class="js-hypothesis-config">
@@ -43,15 +43,22 @@
 	</head>
     <body>
     <nav class="navigation">
-		<a href="/"><img src="/static/img/agora.png" class="logo" style="vertical-align: top" width="19" height="19"></a>
-        | <a href="/nodes">nodes</a>
-		| <a href="/users">@</a>
-		| <a href="/latest">Δ</a>
-        | <form action="/exec" method="get" style="display: inline;"><a href="/node/agora-cli">exec</a>: <input type="text" value="{{qstr}}" name="q"></form>
-        | <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
-		<!-- doesn't fit on mobile right now.
-        | <a href="/node/agora-help" style="text-decoration: none;" class="help-button">ℹ️</a>
-        -->
+		<a href="/"><img src="/static/img/agora.png" class="logo" width="20" height="20"></a>
+        | 
+        <a href="/nodes">nodes</a>
+		| 
+        <a href="/users">@</a>
+		| 
+        <a href="/latest">Δ</a>
+        | 
+        <a href="/node/agora-cli">cli</a>
+        <form action="/exec" style="display: inline;" method="get">
+        <input class="mini-cli" id="mini-cli" type="text" value="{{qstr}}" name="q">
+        </form>
+        | 
+        <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
+        | 
+        <a href="/node/agora-help" style="text-decoration: none;" class="help-button">❓</a>
     </nav>
 	<hr>
         ↪ <a href="https://www.google.com/search?q={{q}}">Google</a>
