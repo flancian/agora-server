@@ -37,7 +37,7 @@ nav             { font-family: sans-serif}
                   border: 1px solid #aacbe2; }
 .error          { background: #f0d6d6; padding: 0.5em; }
 
-.logo           { filter: invert(1); vertical-align: center; width="20" height="20"; }
+.logo           { filter: invert(1); vertical-align: middle; width="20" height="20"; }
 
 .wikilink:before {
 	content: "[["
@@ -49,14 +49,15 @@ nav             { font-family: sans-serif}
 
 .navigation {
     width: 100%;
-    vertical-align: center;
+    vertical-align: middle;
+    height: 30px;
 }
 
 .navigation-item {
 }
 
 .mini-cli {
-    width: 28%;
+    width: 530px;
 }
 
 .node, .context, .stoa {
