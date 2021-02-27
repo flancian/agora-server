@@ -144,10 +144,13 @@ def push(node, other):
 @bp.route('/search')
 @bp.route('/jump')
 def jump():
-    """Redirects to a context; in "jump" mode, a node *always* exists (nodes map one to one to all possible queries)."""
+    """Redirects to an appropriate context.
+    Originally called "jump" because in the [[agora]] nodes *always* exist, as they map 1:1 to all possible queries. Thus [[agora search]].
+    """
     q = request.args.get('q')
     tokens = q.split(" ")
     # hack hack
+    # [[push]] [[2021-02-28]] in case I don't get to it today.
     if tokens[0] == 'go' and len(tokens) > 1:
         return redirect(url_for('.go', node=slugify(q[3:])))
     return redirect(url_for('.node', node=slugify(q)))

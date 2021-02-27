@@ -30,7 +30,7 @@ You can try searching or listing <a href="/nodes">all nodes</a>.<br /><br />
 
 {% if node.subnodes %}
 <div class="node">
-<span class="node-header"><strong>Node</strong> <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>
+<span class="node-header"><strong>Node</strong> <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>:
 
 {% for subnode in node.subnodes %}
 <div class="subnode">
@@ -61,7 +61,7 @@ You can try searching or listing <a href="/nodes">all nodes</a>.<br /><br />
 
 {% for node in pull_nodes %}
 <div class="node">
-<span class="node-header"><strong>Pulled node</strong> <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>
+<span class="node-header"><strong>Pulled node</strong> <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>:
 
     {% if node.subnodes %}
         {% for subnode in node.subnodes %}
@@ -74,7 +74,7 @@ You can try searching or listing <a href="/nodes">all nodes</a>.<br /><br />
         </div>
         {% endfor %}
     {% else %}
-    not found. <br />
+    empty. <br />
     {% endif %}
     </div>
 {% endfor %}
