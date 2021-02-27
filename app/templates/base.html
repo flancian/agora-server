@@ -43,7 +43,7 @@
 	</head>
     <body>
     <nav class="navigation">
-		<a href="/"><img src="/static/img/agora.png" class="logo" width="20" height="20"></a>
+		<a href="/"><img style="display: inline;" src="/static/img/agora.png" class="logo" width="20" height="20"></a>
         | 
         <a href="/nodes">nodes</a>
 		| 
@@ -51,7 +51,7 @@
 		| 
         <a href="/latest">Δ</a>
         | 
-        <a href="/node/agora-cli">cli</a>
+        <a href="/node/agora-cli">→</a>
         <form action="/exec" style="display: inline;" method="get">
         <input class="mini-cli" id="mini-cli" type="text" value="{{qstr}}" name="q">
         </form>
@@ -61,15 +61,18 @@
         <a href="/node/agora-help" style="text-decoration: none;" class="help-button">❓</a>
     </nav>
 	<hr>
-        ↪ <a href="https://www.google.com/search?q={{q}}">Google</a>
-        ↪ <a href="https://www.duckduckgo.com/{{q}}">DDG</a>
-        ↪ <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">Wikipedia</a>
-        ↪ <a href="https://twitter.com/search/?f=live&q={{q}}">Twitter</a>
-        ↪ <a href="https://github.com/search?q={{q}}">Github</a>
-        ↪ <a href="https://forum.effectivealtruism.org/search?terms={{q}}">EA</a>
-        ↪ <a href="https://www.lesswrong.com/search?terms={{q}}">LW</a>
-        ↪ <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">World Problems</a>
-        ↪ <a href="https://www.pubpub.org/search?q={{q}}">PubPub</a>
+    <strong>Search '{{qstr}}' on → </strong>
+    <span class="mini-search">
+        <a href="https://www.google.com/search?q={{q}}">Google</a>
+        | <a href="https://www.duckduckgo.com/{{q}}">DDG</a>
+        | <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">Wikipedia</a>
+        | <a href="https://twitter.com/search/?f=live&q={{q}}">Twitter</a>
+        | <a href="https://github.com/search?q={{q}}">Github</a>
+        | <a href="https://forum.effectivealtruism.org/search?terms={{q}}">EA</a>
+        | <a href="https://www.lesswrong.com/search?terms={{q}}">LW</a>
+        | <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">World Problems</a>
+        | <a href="https://www.pubpub.org/search?q={{q}}">PubPub</a>
+    </span>
 	<hr>
     <div class="content">
 	{% block content %}
