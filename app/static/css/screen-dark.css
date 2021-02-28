@@ -1,0 +1,250 @@
+/**
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans&display=swap');
+
+html            { font-family: 'Noto Sans', sans-serif}
+body            { background: #000000; color: #bfbfbf; overflow-x: hidden;}
+a               { color: #9fc6e0; }
+h1, h2          { color: #bfbfbf; }
+h1, h2          { font-family: 'Merriweather Sans'; margin-top: 0.2em; margin-bottom: 0.2em;}
+h1              { font-size: 1.7em; }
+h2              { font-size: 1.2em; }
+
+nav             { font-family: sans-serif}
+.page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
+                  padding: 0.8em; background: white; }
+.entries        { list-style: none; margin: 0; padding: 0; }
+.add-entry      { font-size: 0.9em; border-bottom: 1px solid #ccc; }
+.add-entry dl   { font-weight: bolder; }
+.metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
+                  margin-bottom: 1em; background: #fafafa; }
+.flash          { background: #cee5F5; padding: 0.5em;
+                  border: 1px solid #aacbe2; }
+.error          { background: #f0d6d6; padding: 0.5em; }
+
+.logo           { filter: invert(1); vertical-align: middle; width="20" height="20"; }
+
+.wikilink:before {
+	content: "[["
+}
+
+.wikilink:after {
+	content: "]]"
+}
+
+.navigation {
+    width: 100%;
+    vertical-align: middle;
+    height: 70px;
+}
+@media screen and (min-width: 900px) {
+    .navigation {
+        width: 100%;
+        vertical-align: middle;
+        height: 30px;
+    }
+}
+
+
+.navigation-item {
+}
+
+.mini-cli {
+    width: 300px;
+}
+
+.node, .context, .stoa {
+    /*border-color: #7f5af0;*/
+    border-color: gray;
+    border-style: dotted;
+    margin: 10px; 
+    border-radius: 20px;
+    padding: 10px;
+}
+
+.subnode, .links, .not-found {
+    background: #12091a;
+    /* background: #150d38; */
+    color: #cfcfcf; 
+    padding: 10px; 
+    margin: 10px; 
+    border-radius: 20px;
+}
+
+.pulled-subnode, .pushed-subnode, .search, .stoa-public { 
+    background: #101010; 
+    color: #cfcfcf; 
+    padding: 10px; 
+    margin: 10px; 
+    border-radius: 20px;
+}
+
+.node-header, .context-header, .stoa-header {
+    text-align: left;
+    margin-bottom: 1em;
+    margin-left: 0.2em;
+    font-weight: bolder;
+}
+
+.not-found { 
+    /*
+    background: #2f1f1f; 
+    */
+    background: #690000;
+}
+
+/*.subnode li     { margin: 0.8em 1.2em; }*/
+/*.subnode li h2  { margin-left: -1em; }*/
+
+.subnode-header, .subnode-footer, .links-header, .search-header, .subnode-id {
+    font-style: italic;
+    font-weight: bolder;
+    width: 100%;
+    display: inline-block;
+}
+
+.links-subnode {
+}
+
+.links-flex {
+    display: flex;
+}
+
+.search-flex {
+    display: flex;
+}
+
+.links { 
+    overflow: auto;
+    gap: 10px;
+    max-height: 250px;
+}
+
+.annotations { 
+    width: 100%;
+    display: flex;
+    background: #080808; 
+    color: #cfcfcf; 
+    padding: 0.5em; 
+    margin-bottom: 10px; 
+    border-radius: 10px;
+    gap: 10px;
+}
+
+.delta { 
+    width: 100%;
+    display: flex;
+    background: #080808; 
+    color: #cfcfcf; 
+    padding: 0.5em; 
+    margin-bottom: 10px; 
+    border-radius: 10px;
+    gap: 10px;
+}
+
+.delta-nodes {
+    float: left;
+    width: 50%;
+}
+
+.delta-annotations {
+    background: #080808; 
+    float: right;
+    width: 50%;
+}
+
+.backlinks {
+    float: left;
+    width: 50%;
+}
+
+.pushlinks {
+    width: 20%;
+}
+
+.pulllinks {
+    width: 20%;
+}
+
+.forwardlinks {
+    width: 50%;
+}
+
+.backlinks-header, .pushlinks-header, .pulllinks-header, .forwardlinks-header {
+    font-style: italic; 
+}
+
+.search { 
+    background: #080808;
+    overflow: auto;
+    max-height: 250px;
+}
+
+.search-header {
+    font-weight: bolder;
+    text-align: left;
+    margin-bottom: 1em;
+    margin-left: 0.2em;
+}
+
+.search-agora {
+    float: right;
+    width: 65%;
+}
+
+.search-internet {
+    background: #080808; 
+    float: left;
+    width: 35%;
+}
+
+.search-agora-header, .search-internet-header {
+    font-style: italic; 
+    font-weight: bolder;
+    margin-bottom: 1em;
+}
+
+.listing { 
+    display: inline-block;
+    background: #080808; 
+    color: #cfcfcf; 
+    padding: 0.5em; 
+    margin-bottom: 10px; 
+    border-radius: 10px;
+}
+
+.wikilink-marker {
+    /* deemphasize */
+    font-weight: lighter;
+}
+
+/* hypothes.is 
+    This totally doesn't work, at all, and I have no idea why :) 
+*/
+.annotator-frame { margin-top: 4.5em }
+
+
+.submit {display: block; margin-top: 25px}
+
+/* overriding bmann's microblog hardcoded style */
+.microblog_timeline {
+    background: #12091a;
+    color: #cfcfcf; 
+}
+
+
