@@ -50,14 +50,14 @@ nav             { font-family: sans-serif}
 .navigation {
     width: 100%;
     vertical-align: middle;
-    height: 70px;
+    height: 50px;
 }
 
 .navigation-item {
 }
 
 .mini-cli {
-    width: 530px;
+    width: 300px;
 }
 
 .node, .context, .stoa {
