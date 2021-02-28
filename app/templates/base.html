@@ -29,8 +29,7 @@
         <link rel="search" type="application/opensearchdescription+xml"
                            title="Agora" href={{url_for('agora.search_xml')}}>
 	    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
-	    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached15" id="theme-link" />
-	    <link rel="stylesheet" media="handheld" type="text/css" href="{{ url_for('static',filename='css/mobile-dark.css')}}?uncached5" id="theme-link" />
+	    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached16" id="theme-link" />
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
     <!-- considering this way of integrating hypothesis, although I like "standard" (sidebar) mode.
     <script type="application/json" class="js-hypothesis-config">
@@ -43,39 +42,39 @@
     <script src="https://hypothes.is/embed.js" async></script>
 	</head>
     <body>
-    <nav class="navigation">
-		<a href="/"><img src="/static/img/agora.png" class="logo" width="20px" height="20px"></a>
-        <strong>anagora.org</strong>
-        | 
-        <a href="/nodes">nodes</a>
-		| 
-        <a href="/users">@</a>
-		| 
-        <a href="/latest">Δ</a>
-        | 
-        <a href="/node/agora-cli">→</a>
-        <form action="/exec" style="display: inline;" method="get">
-        <input class="mini-cli" id="mini-cli" type="text" value="{{qstr}}" name="q">
-        </form>
-        | 
-        <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
-        | 
-        <a href="/node/agora-help" style="text-decoration: none;" class="help-button">❓</a>
-    </nav>
-	<hr>
-    <strong>Search '{{qstr}}' on → </strong>
-    <span class="mini-search">
+        <nav>
+            <div class="navigation">
+            <a href="/"><img src="/static/img/agora.png" class="logo" width="20px" height="20px"></a>
+            <strong>anagora.org</strong>
+            | 
+            <a href="/nodes">nodes</a>
+            | 
+            <a href="/users">@</a>
+            | 
+            <a href="/latest">Δ</a>
+            | 
+            <a href="/today">今</a>
+            |
+            <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
+            | 
+            <a href="/node/agora-help" style="text-decoration: none;" class="help-button">❓</a>
+            |
+            <a href="/node/agora-cli">cli →</a>
+            <form action="/exec" style="display: inline;" method="get">
+            <input class="mini-cli" id="mini-cli" type="text" value="{{qstr}}" name="q" autofocus>
+            </form>
+            </div>
+        </nav>
+    <div class="mini-search">
+    <strong>Search on ↪</strong>
         <a href="https://www.google.com/search?q={{q}}">Google</a>
         | <a href="https://www.duckduckgo.com/{{q}}">DDG</a>
         | <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">Wikipedia</a>
         | <a href="https://twitter.com/search/?f=live&q={{q}}">Twitter</a>
         | <a href="https://github.com/search?q={{q}}">Github</a>
-        | <a href="https://forum.effectivealtruism.org/search?terms={{q}}">EA</a>
-        | <a href="https://www.lesswrong.com/search?terms={{q}}">LW</a>
         | <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">World Problems</a>
         | <a href="https://www.pubpub.org/search?q={{q}}">PubPub</a>
-    </span>
-	<hr>
+    </div>
     <div class="content">
 	{% block content %}
 	{% endblock %}

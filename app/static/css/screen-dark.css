@@ -50,22 +50,32 @@ nav             { font-family: sans-serif}
 .navigation {
     width: 100%;
     vertical-align: middle;
-    height: 70px;
+    overflow-y: auto;
+    margin-bottom: 10px;
 }
+
+/*
 @media screen and (min-width: 900px) {
     .navigation {
         width: 100%;
         vertical-align: middle;
-        height: 30px;
+        overflow-y: auto;
     }
 }
-
+*/
 
 .navigation-item {
 }
 
 .mini-cli {
-    width: 300px;
+    width: 350px;
+    height: 20px;
+    line-height: 20px;
+}
+
+.mini-search {
+    padding-bottom: 10px;
+    border-bottom: 1px solid grey;
 }
 
 .node, .context, .stoa {
