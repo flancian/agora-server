@@ -84,7 +84,7 @@ class Graph:
     # @cache.memoize(timeout=30)
     @cachetools.func.ttl_cache(ttl=20)
     def nodes(self, include_journals=True):
-        current_app.logger.debug('Loading graph.')
+        current_app.logger.debug('*** Loading graph.')
         # returns a list of all nodes
 
         # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
@@ -105,7 +105,7 @@ class Graph:
         if not include_journals:
             nodes = [node for node in nodes if not util.is_journal(node.wikilink)]
 
-        current_app.logger.debug('Graph loaded.')
+        current_app.logger.debug('*** Graph loaded.')
         # TODO: experiment with other ranking.
         # return sorted(nodes, key=lambda x: -x.size())
         return sorted(nodes, key=lambda x: x.wikilink.lower())
@@ -581,7 +581,9 @@ def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
     return subnodes
 
 def search_subnodes(query):
+    current_app.logger.debug(f'query: {query}, searching subnodes.')
     subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype == 'text/plain' and re.search(query, subnode.content, re.IGNORECASE)]
+    current_app.logger.debug(f'query: {query}, searched subnodes.')
     return subnodes
 
 def search_subnodes_by_user(query, user):

@@ -160,7 +160,7 @@ def jump():
 @bp.route('/node/<node>')
 @bp.route('/node/<node>/uprank/<user_list>')
 def node(node,user_list=[]):
-    # current_app.logger.debug(f'Assembling node {node}.')
+    current_app.logger.debug(f'[[{node}]]: Assembling node.')
     if user_list:
         rank = user_list.split(",")
     else:
@@ -176,7 +176,7 @@ def node(node,user_list=[]):
 
     search_subnodes = db.search_subnodes(node)
 
-    # current_app.logger.debug(f'Assembled node {node}.')
+    current_app.logger.debug(f'[[{node}]]: Assembled node.')
     return render_template(
             # yuck
             'content.html', 
