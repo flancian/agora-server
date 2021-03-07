@@ -263,7 +263,7 @@ class Node:
                     # I tried parsing the marko tree but honestly this seemed easier/simpler.
                     html = render.markdown(subnode.content)
                 except AssertionError:
-                    breakpoint()
+                    pass
                 try:
                     tree = lxml.html.fromstring(html)
                 except lxml.etree.ParserError:
@@ -363,7 +363,10 @@ class Subnode:
         # ugly, this should be in render
         content = render.preprocess(self.content)
         if self.uri.endswith('md') or self.uri.endswith('MD'):
-            content = render.markdown(content)
+            try:
+                content = render.markdown(content)
+            except:
+                content = "<strong>There was an error loading this subnode. You can try refreshing, which may retry this operation.</strong>"
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
             content = render.orgmode(content)
         # ugly, this too
