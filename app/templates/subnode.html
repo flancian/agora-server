@@ -17,12 +17,14 @@
 {% extends "base.html" %}
 {% block content %}
 
+{% if node %}
 {% if not subnode and not node.subnodes %}
 <div class="not-found">
 No subnodes matching your query.
 <br /><br />
 Try going up to node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a> or perhaps <a href="/search">search</a>.
 </div>
+{% endif %}
 {% endif %}
 
 <!-- the new subnode route uses this, actually receiving a node whose subnodes are partial -->
