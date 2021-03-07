@@ -96,15 +96,12 @@ class Graph:
         # then we iterate over its values and construct nodes for each list of subnodes.
         nodes = {}
         for wikilink in wikilink_to_subnodes:
+            if not include_journals and util.is_journal(wikilink):
+                pass
             node = Node(wikilink)
             node.subnodes = wikilink_to_subnodes[wikilink]
             nodes[wikilink] = node
 
-        # remove journals if so desired.
-        # if not include_journals:
-        #    nodes = [node for node in nodes if not util.is_journal(node.wikilink)]
-
-        
         current_app.logger.debug('*** Graph loaded.')
         return nodes
         # TODO: experiment with other ranking.
