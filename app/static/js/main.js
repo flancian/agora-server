@@ -41,8 +41,15 @@ document.addEventListener("DOMContentLoaded", function() {
 	    localStorage.setItem("theme", "light");
       }
     });
-    // this doesn't really work to prevent focus grabbing by etherpad.
-    document.getElementById("mini-cli").focus();
+
+    // icky but I'm not above this.
+    // this is to work around etherpad grabbing focus.
+    var element = document.getElementById("mini-cli");
+    setTimeout( function() { element.focus() }, 1000 );
+    setTimeout( function() { element.focus() }, 2000 );
+    setTimeout( function() { element.focus() }, 3000 );
+    setTimeout( function() { element.focus() }, 4000 );
+    setTimeout( function() { element.focus() }, 5000 );
 });
 
 function processSettings(args){
