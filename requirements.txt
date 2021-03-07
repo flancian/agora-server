@@ -5,6 +5,7 @@ dateparser==1.0.0
 feedparser==6.0.2
 filetype==1.0.7
 Flask==1.1.2
+Flask-Caching==1.10.0
 Flask-Cors==3.0.10
 Flask-Markdown==0.3
 Flask-WTF==0.14.3

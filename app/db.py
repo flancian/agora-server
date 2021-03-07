@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import cachetools.func
 import glob
 import itertools
 import re
 import os
 from flask import current_app
+from . import cache
 from . import config
 from . import feed
 from . import render
@@ -80,7 +80,7 @@ class Graph:
         nodes = [node for node in G.nodes() if node.wikilink in permutations and node.subnodes]
         return nodes
 
-    @cachetools.func.ttl_cache(maxsize=2, ttl=20)
+    @cache.memoize(timeout=30)
     def nodes(self, include_journals=True):
         current_app.logger.debug('Loading graph.')
         # returns a list of all nodes
@@ -112,7 +112,7 @@ class Graph:
     # Running something like this would be ideal eventually though.
     # It might also work better once all pulling/pushing logic moves to Graph, where it belongs, 
     # and can make use of more sensible algorithms.
-    @cachetools.func.ttl_cache(maxsize=2, ttl=20)
+    @cache.memoize(timeout=30)
     def compute_transclusion(self, include_journals=True):
 
         # Add artisanal virtual subnodes (resulting from transclusion/[[push]]) to all nodes.
@@ -121,7 +121,7 @@ class Graph:
             node.subnodes.extend(pushed_subnodes)
 
     # does this belong here?
-    @cachetools.func.ttl_cache(maxsize=1, ttl=20)
+    @cache.memoize(timeout=30)
     def subnodes(self, sort=lambda x: x.uri.lower()):
         # Markdown.
         subnodes = [Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)]

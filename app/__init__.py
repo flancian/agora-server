@@ -15,11 +15,16 @@
 import bleach
 import os
 from flask import Flask
+from flask_caching import Cache
 from flaskext.markdown import Markdown
 from markdown.extensions.wikilinks import WikiLinkExtension
 from . import util
 from flask_cors import CORS
 
+cache = Cache()
+
+# what is this doing here, I have no idea.
+# todo: move to util.
 def wikilink_to_url(label, base, end):
     label = util.canonical_wikilink(label)
     url = '/node/' + label
@@ -30,8 +35,12 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
+	DEBUG=True,          # some Flask specific configs
+	CACHE_TYPE="SimpleCache",  # Flask-Caching related configs
+	CACHE_DEFAULT_TIMEOUT=30
     )
     CORS(app)
+    cache.init_app(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 30})
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
