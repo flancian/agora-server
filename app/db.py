@@ -548,6 +548,9 @@ def content_to_forward_links(content):
 def latest():
     return sorted(G.subnodes(), key=lambda x: -x.mtime)
 
+def top():
+    return sorted(G.nodes().values(), key=lambda x: -x.size())
+
 def all_users():
     # hack hack.
     users = os.listdir(os.path.join(config.AGORA_PATH, 'garden'))

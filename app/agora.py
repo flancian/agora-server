@@ -49,7 +49,7 @@ def latest():
 @bp.route('/today')
 def today():
     today = datetime.datetime.now().date()
-    return redirect("https://anagora.org/node/%s" % today.strftime("%Y-%m-%d"))
+    return redirect("/node/%s" % today.strftime("%Y-%m-%d"))
 
 @bp.route('/oldsearch', methods=('GET', 'POST'))
 def oldsearch():
@@ -269,7 +269,7 @@ def garden(garden):
 # Lists
 @bp.route('/nodes')
 def nodes():
-    return render_template('nodes.html', nodes=G.nodes(include_journals=False).values())
+    return render_template('nodes.html', nodes=db.top())
 
 @bp.route('/nodes.json')
 def nodes_json():
