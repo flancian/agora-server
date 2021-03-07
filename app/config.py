@@ -6,3 +6,4 @@ AGORA_VERSION = '0.5.3'
 
 URL_BASE = "https://anagora.org"
 URI_BASE = "anagora.org"
+AGORA = URI_BASE
