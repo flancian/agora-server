@@ -41,6 +41,8 @@ document.addEventListener("DOMContentLoaded", function() {
 	    localStorage.setItem("theme", "light");
       }
     });
+    // this doesn't really work to prevent focus grabbing by etherpad.
+    document.getElementById("mini-cli").focus();
 });
 
 function processSettings(args){
