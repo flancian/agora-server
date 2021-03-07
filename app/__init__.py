@@ -35,12 +35,14 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-	DEBUG=True,          # some Flask specific configs
-	CACHE_TYPE="SimpleCache",  # Flask-Caching related configs
-	CACHE_DEFAULT_TIMEOUT=30
     )
     CORS(app)
-    cache.init_app(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 30})
+    cache.init_app(app, config={
+        'CACHE_TYPE': 'RedisCache', 
+        'CACHE_DEFAULT_TIMEOUT': 30,
+        'CACHE_KEY_PREFIX': 'agora',
+        'CACHE_REDIS_HOST': 'localhost',
+        })
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
