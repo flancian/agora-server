@@ -60,8 +60,7 @@ class Graph:
         # looks up a node by uri (essentially [[wikilink]]).
         # this used to be even worse :)
         try:
-            nodes = [node for node in G.nodes() if node.wikilink == uri]
-            node = nodes[0]
+            node = self.nodes()[uri]
             return node
         except (KeyError, IndexError):
             # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
@@ -95,20 +94,22 @@ class Graph:
           wikilink_to_subnodes[subnode.wikilink].append(subnode)
         
         # then we iterate over its values and construct nodes for each list of subnodes.
-        nodes = []
+        nodes = {}
         for wikilink in wikilink_to_subnodes:
             node = Node(wikilink)
             node.subnodes = wikilink_to_subnodes[wikilink]
-            nodes.append(node)
+            nodes[wikilink] = node
 
         # remove journals if so desired.
-        if not include_journals:
-            nodes = [node for node in nodes if not util.is_journal(node.wikilink)]
+        # if not include_journals:
+        #    nodes = [node for node in nodes if not util.is_journal(node.wikilink)]
 
+        
         current_app.logger.debug('*** Graph loaded.')
+        return nodes
         # TODO: experiment with other ranking.
         # return sorted(nodes, key=lambda x: -x.size())
-        return sorted(nodes, key=lambda x: x.wikilink.lower())
+        # return sorted(nodes, key=lambda x: x.wikilink.lower())
 
     # The following method is unused; it is far too slow given the current control flow.
     # Running something like this would be ideal eventually though.
@@ -555,12 +556,12 @@ def all_users():
 def all_journals():
     # hack hack.
     nodes = G.nodes()
-    nodes = [node for node in nodes if util.is_journal(node.wikilink)]
+    nodes = [node for node in nodes.values() if util.is_journal(node.wikilink)]
     return sorted(nodes, key=attrgetter('wikilink'), reverse=True)
 
 # Deprecated.
 def nodes_by_wikilink(wikilink):
-    nodes = [node for node in G.nodes() if node.wikilink == wikilink]
+    nodes = [node for node in G.nodes().values() if node.wikilink == wikilink]
     return nodes
 
 # Deprecated.
@@ -609,7 +610,7 @@ def subnode_by_uri(uri):
         return False
 
 def nodes_by_outlink(wikilink):
-    nodes = [node for node in G.nodes() if wikilink in node.forward_links()]
+    nodes = [node for node in G.nodes().values() if wikilink in node.forward_links()]
     return sorted(nodes, key=attrgetter('wikilink'))
 
 def subnodes_by_outlink(wikilink):

@@ -269,11 +269,11 @@ def garden(garden):
 # Lists
 @bp.route('/nodes')
 def nodes():
-    return render_template('nodes.html', nodes=G.nodes(include_journals=False))
+    return render_template('nodes.html', nodes=G.nodes(include_journals=False).values())
 
 @bp.route('/nodes.json')
 def nodes_json():
-    nodes = G.nodes(include_journals=False)
+    nodes = G.nodes(include_journals=False).values()
     links = list(map(lambda x: x.wikilink, nodes))
     return jsonify(jsons.dump(links))
 
