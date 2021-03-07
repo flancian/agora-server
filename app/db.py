@@ -77,7 +77,7 @@ class Graph:
         tokens = uri.split('-')
         permutations = itertools.permutations(tokens, max_length)
         permutations = ['-'.join(permutation) for permutation in permutations]
-        nodes = [node for node in G.nodes() if node.wikilink in permutations and node.subnodes]
+        nodes = [node for node in G.nodes().values() if node.wikilink in permutations and node.subnodes]
         return nodes
 
     # @cache.memoize(timeout=30)
