@@ -29,7 +29,7 @@ G = db.G
 
 logging.basicConfig(
         filename='agora.log', 
-        level=logging.DEBUG,
+        level=logging.WARNING,
         format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
         )
 
