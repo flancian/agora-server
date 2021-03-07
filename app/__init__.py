@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import bleach
+import logging
 import os
 from flask import Flask
 from flask_caching import Cache
@@ -22,6 +23,11 @@ from . import util
 from flask_cors import CORS
 
 cache = Cache()
+logging.basicConfig(
+        filename='agora.log', 
+        level=logging.WARNING,
+        format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+        )
 
 # what is this doing here, I have no idea.
 # todo: move to util.
@@ -39,7 +45,12 @@ def create_app(test_config=None):
     CORS(app)
     cache.init_app(app, config={
         'CACHE_TYPE': 'SimpleCache', 
-        'CACHE_DEFAULT_TIMEOUT': 30,
+        'CACHE_DEFAULT_TIMEOUT': 60,
+        #'CACHE_TYPE': 'FileSystemCache',
+        #'CACHE_DIR': '/tmp',
+        #'CACHE_TYPE': 'MemcachedCache', 
+        #'CACHE_THRESHOLD': 10,
+        #'CACHE_MEMCACHED_SERVERS': 'localhost',
         #'CACHE_KEY_PREFIX': 'agora',
         #'CACHE_REDIS_HOST': 'localhost',
         })

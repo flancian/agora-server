@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import datetime
-import logging
 import jsons
 from flask import Blueprint, url_for, render_template, current_app, Response, redirect, request, jsonify
 from markupsafe import escape
@@ -26,12 +25,6 @@ from . import util
 
 bp = Blueprint('agora', __name__)
 G = db.G
-
-logging.basicConfig(
-        filename='agora.log', 
-        level=logging.WARNING,
-        format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
-        )
 
 # Special
 @bp.route('/index')

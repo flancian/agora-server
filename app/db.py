@@ -112,7 +112,7 @@ class Graph:
     # Running something like this would be ideal eventually though.
     # It might also work better once all pulling/pushing logic moves to Graph, where it belongs, 
     # and can make use of more sensible algorithms.
-    @cache.memoize(timeout=30)
+    # @cache.memoize(timeout=30)
     def compute_transclusion(self, include_journals=True):
 
         # Add artisanal virtual subnodes (resulting from transclusion/[[push]]) to all nodes.
@@ -121,7 +121,7 @@ class Graph:
             node.subnodes.extend(pushed_subnodes)
 
     # does this belong here?
-    @cache.memoize(timeout=30)
+    # @cache.memoize(timeout=30)
     def subnodes(self, sort=lambda x: x.uri.lower()):
         # Markdown.
         subnodes = [Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)]
