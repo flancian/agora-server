@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import cachetools.func
 import glob
 import itertools
 import re
@@ -80,7 +81,8 @@ class Graph:
         nodes = [node for node in G.nodes() if node.wikilink in permutations and node.subnodes]
         return nodes
 
-    @cache.memoize(timeout=30)
+    # @cache.memoize(timeout=30)
+    @cachetools.func.ttl_cache(ttl=20)
     def nodes(self, include_journals=True):
         current_app.logger.debug('Loading graph.')
         # returns a list of all nodes
@@ -122,6 +124,7 @@ class Graph:
 
     # does this belong here?
     # @cache.memoize(timeout=30)
+    @cachetools.func.ttl_cache(ttl=30)
     def subnodes(self, sort=lambda x: x.uri.lower()):
         # Markdown.
         subnodes = [Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)]

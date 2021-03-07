@@ -25,9 +25,10 @@ from flask_cors import CORS
 cache = Cache()
 logging.basicConfig(
         filename='agora.log', 
-        level=logging.WARNING,
+        level=logging.DEBUG,
         format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
         )
+
 
 # what is this doing here, I have no idea.
 # todo: move to util.
@@ -88,5 +89,17 @@ def create_app(test_config=None):
              print("***a heisenbug appears***")
              output = s
          return output
+
+    @app.before_request
+    def log_entry():
+      app.logger.debug('Initiating request handling.')
+
+    @app.after_request
+    def log_exit(req):
+      app.logger.debug(f'Finished handling {req}.')
+      return req
+
+
+
 
     return app
