@@ -38,10 +38,10 @@ def create_app(test_config=None):
     )
     CORS(app)
     cache.init_app(app, config={
-        'CACHE_TYPE': 'RedisCache', 
+        'CACHE_TYPE': 'SimpleCache', 
         'CACHE_DEFAULT_TIMEOUT': 30,
-        'CACHE_KEY_PREFIX': 'agora',
-        'CACHE_REDIS_HOST': 'localhost',
+        #'CACHE_KEY_PREFIX': 'agora',
+        #'CACHE_REDIS_HOST': 'localhost',
         })
 
     if test_config is None:
