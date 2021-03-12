@@ -29,7 +29,7 @@
         <link rel="search" type="application/opensearchdescription+xml"
                            title="Agora" href={{url_for('agora.search_xml')}}>
 	    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
-	    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached16" id="theme-link" />
+	    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached18" id="theme-link" />
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
     <!-- considering this way of integrating hypothesis, although I like "standard" (sidebar) mode.
     <script type="application/json" class="js-hypothesis-config">
@@ -42,11 +42,19 @@
     <script src="https://hypothes.is/embed.js" async></script>
 	</head>
     <body>
-        <nav>
+        <nav class="topline-container">
+            
+                <div class="topline-home">
+                    <a href="/"><img src="/static/img/agora.png" class="logo" width="20px" height="20px"></a>
+                    <a href="/"><strong>in the agora ↪</strong></a>
+                </div>
+                <div class="topline-cli">
+                <form action="/exec" method="get">
+                    <input id="mini-cli" type="text" value="{{qstr}}" name="q" autofocus>
+                </div>
+                </form>
+
             <div class="navigation">
-            <a href="/"><img src="/static/img/agora.png" class="logo" width="20px" height="20px"></a>
-            <a href="/"><strong>anagora.org</strong></a>
-            | 
             <a href="/nodes">nodes</a>
             | 
             <a href="/users">@</a>
@@ -59,22 +67,21 @@
             | 
             <a href="/node/agora-help" style="text-decoration: none;" class="help-button">❓</a>
             |
-            <a href="/node/agora-cli">cli →</a>
-            <form action="/exec" style="display: inline;" method="get">
-            <input class="mini-cli" id="mini-cli" type="text" value="{{qstr}}" name="q" autofocus>
-            </form>
+            <a href="/node/agora-cli">cli</a>
             </div>
         </nav>
-    <div class="mini-search">
-    <strong>Search on ↪</strong>
-        <a href="https://www.google.com/search?q={{q}}">Google</a>
-        | <a href="https://www.duckduckgo.com/{{q}}">DDG</a>
-        | <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">Wikipedia</a>
-        | <a href="https://twitter.com/search/?f=live&q={{q}}">Twitter</a>
-        | <a href="https://github.com/search?q={{q}}">Github</a>
-        | <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">World Problems</a>
-        | <a href="https://www.pubpub.org/search?q={{q}}">PubPub</a>
-    </div>
+
+            <div class="mini-search">
+            <strong>in the internet ↪</strong>
+                <a href="https://www.google.com/search?q={{q}}">google</a>
+                | <a href="https://www.duckduckgo.com/{{q}}">ddg</a>
+                | <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">wp</a>
+                | <a href="https://twitter.com/search/?f=live&q={{q}}">twitter</a>
+                | <a href="https://github.com/search?q={{q}}">gh</a>
+                | <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">uia</a>
+                | <a href="https://www.pubpub.org/search?q={{q}}">pp</a>
+            </div>
+
     <div class="content">
 	{% block content %}
 	{% endblock %}

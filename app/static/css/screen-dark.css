@@ -48,7 +48,6 @@ nav             { font-family: sans-serif}
 }
 
 .navigation {
-    width: 100%;
     vertical-align: middle;
     overflow-y: auto;
     margin-bottom: 10px;
@@ -67,13 +66,23 @@ nav             { font-family: sans-serif}
 .navigation-item {
 }
 
-.mini-cli {
-    width: 350px;
-    height: 20px;
-    line-height: 20px;
+.topline-container {
+    display: flex;
+}
+.topline-home {
+    margin-right: 10px;
+}
+
+.topline-cli {
+    margin-right: 10px;
+}
+
+.topline-icons {
+    flex-grow: 1;
 }
 
 .mini-search {
+    padding-top: 10px;
     padding-bottom: 10px;
     border-bottom: 1px solid grey;
 }
