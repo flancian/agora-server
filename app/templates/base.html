@@ -29,7 +29,7 @@
         <link rel="search" type="application/opensearchdescription+xml"
                            title="Agora" href={{url_for('agora.search_xml')}}>
 	    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
-	    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached18" id="theme-link" />
+	    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached19" id="theme-link" />
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
     <!-- considering this way of integrating hypothesis, although I like "standard" (sidebar) mode.
     <script type="application/json" class="js-hypothesis-config">
@@ -42,45 +42,51 @@
     <script src="https://hypothes.is/embed.js" async></script>
 	</head>
     <body>
-        <nav class="topline-container">
-            
-                <div class="topline-home">
-                    <a href="/"><img src="/static/img/agora.png" class="logo" width="20px" height="20px"></a>
-                    <a href="/"><strong>in the agora ↪</strong></a>
-                </div>
-                <div class="topline-cli">
-                <form action="/exec" method="get">
-                    <input id="mini-cli" type="text" value="{{qstr}}" name="q" autofocus>
-                </div>
-                </form>
-
+        <nav>
             <div class="navigation">
-            <a href="/nodes">nodes</a>
-            | 
-            <a href="/users">@</a>
-            | 
-            <a href="/latest">Δ</a>
-            | 
-            <a href="/today">今</a>
-            |
-            <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
-            | 
-            <a href="/node/agora-help" style="text-decoration: none;" class="help-button">❓</a>
-            |
-            <a href="/node/agora-cli">cli</a>
-            </div>
-        </nav>
 
-            <div class="mini-search">
-            <strong>in the internet ↪</strong>
-                <a href="https://www.google.com/search?q={{q}}">google</a>
-                | <a href="https://www.duckduckgo.com/{{q}}">ddg</a>
-                | <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">wp</a>
-                | <a href="https://twitter.com/search/?f=live&q={{q}}">twitter</a>
+            <div class="navigation-links">
+                <a href="/"><img src="/static/img/agora.png" class="logo" width="20px" height="20px"></a>
+                <a href="/">anagora.org</a>
+                | 
+                <a href="/nodes">nodes</a>
+                | 
+                <a href="/users">@</a>
+                | 
+                <a href="/latest">Δ</a>
+                | 
+                <a href="/today">今</a>
+                |
+                <a href="/node/agora-cli">cli</a>
+                |
+                <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
+                | 
+                <a href="/node/agora-help" style="text-decoration: none;" class="help-button">❓</a>
+            </div>
+        <hr />
+
+        <div class="topline-node"
+            <span class="cli-form">
+                <form action="/exec" method="get">
+                    <strong>node →</strong> <input id="mini-cli" type="text" value="{{qstr}}" name="q" autofocus>
+                </form>
+            </span>
+        </div>
+
+        <div class="mini-search">
+        <strong>in the internet ↪</strong>
+            <a href="https://www.google.com/search?q={{q}}">google</a>
+            | <a href="https://www.duckduckgo.com/{{q}}">ddg</a>
+            | <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">wp</a>
+            | <a href="https://twitter.com/search/?f=live&q={{q}}">twitter</a>
                 | <a href="https://github.com/search?q={{q}}">gh</a>
                 | <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">uia</a>
                 | <a href="https://www.pubpub.org/search?q={{q}}">pp</a>
             </div>
+            <div class="mini-search">
+            <strong>in the agora ⬎</strong>
+            </div>
+        </nav>
 
     <div class="content">
 	{% block content %}

@@ -50,6 +50,30 @@ nav             { font-family: sans-serif}
 .navigation {
     vertical-align: middle;
     overflow-y: auto;
+    /* border-color: gray;
+    border-style: dotted;
+    margin: 10px; 
+    border-radius: 20px;
+    padding: 10px;
+    */
+    margin-bottom: 10px;
+}
+
+.navigation-links {
+    vertical-align: middle;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.topline-node{
+    vertical-align: middle;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.mini-search{
+    vertical-align: middle;
+    overflow-y: auto;
     margin-bottom: 10px;
 }
 
@@ -67,24 +91,11 @@ nav             { font-family: sans-serif}
 }
 
 .topline-container {
-    display: flex;
+    width: 100%;
 }
-.topline-home {
+
+.cli-header {
     margin-right: 10px;
-}
-
-.topline-cli {
-    margin-right: 10px;
-}
-
-.topline-icons {
-    flex-grow: 1;
-}
-
-.mini-search {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid grey;
 }
 
 .node, .context, .stoa {
