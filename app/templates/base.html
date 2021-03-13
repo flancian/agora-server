@@ -29,7 +29,7 @@
         <link rel="search" type="application/opensearchdescription+xml"
                            title="Agora" href={{url_for('agora.search_xml')}}>
 	    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
-	    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached19" id="theme-link" />
+	    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached20" id="theme-link" />
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
     <!-- considering this way of integrating hypothesis, although I like "standard" (sidebar) mode.
     <script type="application/json" class="js-hypothesis-config">
@@ -65,27 +65,29 @@
             </div>
         <hr />
 
-        <div class="topline-node"
-            <span class="cli-form">
-                <form action="/exec" method="get">
-                    <strong>node →</strong> <input id="mini-cli" type="text" value="{{qstr}}" name="q" autofocus>
-                </form>
-            </span>
+        <div class="topline-node">
+            <div class="topline-node-wrapper">
+				<div class="topline-query">
+					<strong>query:</strong> 
+				</div>
+				<div class="topline-cli">
+					<form action="/exec" method="get">
+						<input id="mini-cli" type="text" value="{{qstr}}" name="q" autofocus>
+					</form>
+				</div>
+            </div>
         </div>
 
-        <div class="mini-search">
-        <strong>on the internet ↪</strong>
-            <a href="https://www.google.com/search?q={{q}}">google</a>
+        <div class="topline-search">
+        <strong>↳ search on:</strong>
+            <a href="https://www.google.com/search?q={{q}}">g</a>
             | <a href="https://www.duckduckgo.com/{{q}}">ddg</a>
             | <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">wp</a>
-            | <a href="https://twitter.com/search/?f=live&q={{q}}">twitter</a>
+            | <a href="https://twitter.com/search/?f=live&q={{q}}">tw</a>
                 | <a href="https://github.com/search?q={{q}}">gh</a>
                 | <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">uia</a>
                 | <a href="https://www.pubpub.org/search?q={{q}}">pp</a>
-            </div>
-            <div class="mini-search">
-            <strong>in the agora ⬎</strong>
-            </div>
+        </div>
         </nav>
 
     <div class="content">
