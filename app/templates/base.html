@@ -31,15 +31,14 @@
 	    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
 	    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached20" id="theme-link" />
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
-    <!-- considering this way of integrating hypothesis, although I like "standard" (sidebar) mode.
+    <!--
     <script type="application/json" class="js-hypothesis-config">
           {
-              "externalContainerSelector": ".node",
+              "externalContainerSelector": ".hypothesis-frame",
           }
     </script>
-    -->
     <script async src="https://hypothes.is/embed.js"></script>
-    <script src="https://hypothes.is/embed.js" async></script>
+    -->
 	</head>
     <body>
         <nav>
@@ -76,7 +75,6 @@
 					</form>
 				</div>
             </div>
-        </div>
 
         <div class="topline-search">
             <strong>↳ search on:</strong>
@@ -93,11 +91,15 @@
             <strong>↳ in this agora ⬎</strong>
         </div>
 
+        </div>
+
         </nav>
 
     <div class="content">
 	{% block content %}
 	{% endblock %}
     </div>
+
+    <div class="hypothesis-frame"></div>
     </body>
 </html>

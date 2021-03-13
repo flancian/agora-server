@@ -68,12 +68,21 @@ nav             { font-family: sans-serif}
 .topline-node{
     vertical-align: middle;
     overflow-y: auto;
-    margin-bottom: 10px;
 }
 
 .topline-node-wrapper {
     display: flex;
 	align-items: center;
+}
+
+#hypothesis-frame {
+    
+}
+
+.hypothesis-adder {
+    display: block;
+    position: absolute;
+    bottom: 0px;
 }
 
 input[type="text"] {
