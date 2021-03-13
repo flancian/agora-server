@@ -16,11 +16,11 @@
 
 {% if not node.subnodes and not node.pushed_subnodes() %}
 <div class="node">
-    <span class="node-header">No Agora node found at [[{{qstr}}]]... yet :)</span>
+    <span class="node-header">No node found at [[{{qstr}}]]... yet :)</span>
     <div class="not-found">
         <ul>
         <li>
-            If you <a href="https://flancia.org/go/agora">contributed content</a> related to '{{qstr}}' to the Agora ), it would show up here :)
+            If you <a href="https://flancia.org/go/agora">contributed content</a> related to '{{qstr}}' to the agora , it would show up here :)
             <ul>
                 <li>
                     For example a note named <code>{{node}}.md</code> or an image named <code>{{node}}.jpg</code>. <a href="/node/sign-up"
@@ -45,7 +45,7 @@
 
 {% if node.subnodes %}
 <div class="node">
-<span class="node-header">Agora node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a> ↓</span>
+<span class="node-header">→ node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>
 
 {% for subnode in node.subnodes %}
 <div class="subnode">
@@ -76,7 +76,7 @@
 
 {% for node in pull_nodes %}
 <div class="node">
-<span class="node-header">Pulled node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a> ↓</span>
+<span class="node-header">⥵ pulled node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>
 
     {% if node.subnodes %}
         {% for subnode in node.subnodes %}

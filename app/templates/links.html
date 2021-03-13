@@ -15,7 +15,7 @@
 -->
 
 <div class="links">
-    <span class="links-header">Links</span>
+    <span class="links-header">links</span>
     <div class="links-flex">
         <div class="backlinks">
             <span class="backlinks-header">← back</span><br />
@@ -79,7 +79,7 @@
 {% if annotations_enabled %}
 <div class="annotations">
     <div class="hypothesis">
-        <span class="backlinks-header">Web annotations</span><br />
+        <span class="backlinks-header">web annotations</span><br />
     {% if annotations.entries %}
         {% for annotation in annotations.entries %}
         <a href="{{annotation.link}}">Annotation</a> by <a href="https://hypothes.is">hypothes.is</a> user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
