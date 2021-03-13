@@ -27,8 +27,101 @@ from . import util
 bp = Blueprint('agora', __name__)
 G = db.G
 
+# The [[agora]] is a [[distributed knowledge graph]].
+# Nodes are the heart of the [[agora]].
+# In the [[agora]] there are no 404s. Everything that can be described with words has a node in the [[agora]].
+# The [[agora]] is a [[search engine]]: anagora.org/agora-search
+#
+# Flask routes work so that the one closest to the function is the canonical one.
+@bp.route('/wikilink/<node>')
+@bp.route('/node/<node>/uprank/<user_list>')
+@bp.route('/node/<node>')
+@bp.route('/<node>')
+def node(node,user_list=[]):
+    current_app.logger.debug(f'[[{node}]]: Assembling node.')
+    if user_list:
+        rank = user_list.split(",")
+    else:
+        rank = ['agora', 'flancian']
+    n = G.node(node)
+    if n.subnodes:
+        # earlier in the list means more highly ranked.
+        n.subnodes = util.uprank(n.subnodes, users=rank)
+        permutations = []
+    # if it's a 404, include permutations.
+    else:
+        permutations = G.existing_permutations(node)
+
+    search_subnodes = db.search_subnodes(node)
+
+    current_app.logger.debug(f'[[{node}]]: Assembled node.')
+    return render_template(
+            # yuck
+            'content.html', 
+            node=n,
+            backlinks=n.back_links(),
+            pull_nodes=n.pull_nodes() if n.subnodes else permutations,
+            forwardlinks=n.forward_links() if n else [],
+            search=search_subnodes,
+            pulling_nodes=n.pulling_nodes(),
+            pushing_nodes=n.pushing_nodes(),
+            q=n.wikilink.replace('-', '%20'),
+            qstr=n.wikilink.replace('-', ' '),
+            # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
+            # sorry for the fuzzy thinking but I'm short on time and want to get things done.
+            # (...famous last words).
+            # annotations=n.annotations(),
+            )
+
+@bp.route('/node/<node>.json')
+@bp.route('/node/<node>/uprank/<user_list>.json')
+def node_json(node,user_list=""):
+    default_rank = ['agora', 'flancian']
+    rank = user_list.split(",")
+    if len(rank) == 0:
+        rank = default_rank
+    n = G.node(node)
+    if n.subnodes:
+        # earlier in the list means more highly ranked.
+        print("rank", rank)
+        n.subnodes = util.uprank(n.subnodes, users=rank)
+        permutations = []
+    # if it's a 404, include permutations.
+    else:
+        permutations = G.existing_permutations(node)
+
+    search_subnodes = db.search_subnodes(node)
+
+    return jsons.dump({"node": n, "back_links": n.back_links(), "pull_nodes": n.pull_nodes()})
+    # return render_template(
+    #         'node_rendered.html', 
+    #         node=n,
+    #         backlinks=n.back_links(),
+    #         pull_nodes=n.pull_nodes() if n.subnodes else permutations,
+    #         forwardlinks=n.forward_links() if n else [],
+    #         search=search_subnodes,
+    #         pulling_nodes=n.pulling_nodes(),
+    #         pushing_nodes=n.pushing_nodes(),
+    #         query=n.wikilink.replace('-', '%20')
+    #         )
+
+@bp.route('/node/<node>@<user>')
+@bp.route('/node/@<user>/<node>')
+@bp.route('/@<user>/<node>')
+def subnode(node, user):
+
+    n = G.node(node)
+
+    n.subnodes = util.filter(n.subnodes, user)
+    n.subnodes = util.uprank(n.subnodes, user)
+    search_subnodes = db.search_subnodes_by_user(node, user)
+
+    return render_template(
+            'subnode.html', 
+            node=n,
+            )
+
 # Special
-@bp.route('/index')
 @bp.route('/')
 def index():
     return redirect(url_for('.node', node='index'))
@@ -155,94 +248,6 @@ def search():
     if tokens[0] == 'go' and len(tokens) > 1:
         return redirect(url_for('.go', node=slugify(" ".join(tokens[1:]))))
     return redirect(url_for('.node', node=slugify(q)))
-
-# Entities
-@bp.route('/wikilink/<node>')
-@bp.route('/node/<node>')
-@bp.route('/node/<node>/uprank/<user_list>')
-def node(node,user_list=[]):
-    current_app.logger.debug(f'[[{node}]]: Assembling node.')
-    if user_list:
-        rank = user_list.split(",")
-    else:
-        rank = ['agora', 'flancian']
-    n = G.node(node)
-    if n.subnodes:
-        # earlier in the list means more highly ranked.
-        n.subnodes = util.uprank(n.subnodes, users=rank)
-        permutations = []
-    # if it's a 404, include permutations.
-    else:
-        permutations = G.existing_permutations(node)
-
-    search_subnodes = db.search_subnodes(node)
-
-    current_app.logger.debug(f'[[{node}]]: Assembled node.')
-    return render_template(
-            # yuck
-            'content.html', 
-            node=n,
-            backlinks=n.back_links(),
-            pull_nodes=n.pull_nodes() if n.subnodes else permutations,
-            forwardlinks=n.forward_links() if n else [],
-            search=search_subnodes,
-            pulling_nodes=n.pulling_nodes(),
-            pushing_nodes=n.pushing_nodes(),
-            q=n.wikilink.replace('-', '%20'),
-            qstr=n.wikilink.replace('-', ' '),
-            # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
-            # sorry for the fuzzy thinking but I'm short on time and want to get things done.
-            # (...famous last words).
-            # annotations=n.annotations(),
-            )
-
-@bp.route('/node/<node>.json')
-@bp.route('/node/<node>/uprank/<user_list>.json')
-def node_json(node,user_list=""):
-    default_rank = ['agora', 'flancian']
-    rank = user_list.split(",")
-    if len(rank) == 0:
-        rank = default_rank
-    n = G.node(node)
-    if n.subnodes:
-        # earlier in the list means more highly ranked.
-        print("rank", rank)
-        n.subnodes = util.uprank(n.subnodes, users=rank)
-        permutations = []
-    # if it's a 404, include permutations.
-    else:
-        permutations = G.existing_permutations(node)
-
-    search_subnodes = db.search_subnodes(node)
-
-    return jsons.dump({"node": n, "back_links": n.back_links(), "pull_nodes": n.pull_nodes()})
-    # return render_template(
-    #         'node_rendered.html', 
-    #         node=n,
-    #         backlinks=n.back_links(),
-    #         pull_nodes=n.pull_nodes() if n.subnodes else permutations,
-    #         forwardlinks=n.forward_links() if n else [],
-    #         search=search_subnodes,
-    #         pulling_nodes=n.pulling_nodes(),
-    #         pushing_nodes=n.pushing_nodes(),
-    #         query=n.wikilink.replace('-', '%20')
-    #         )
-
-@bp.route('/node/<node>@<user>')
-@bp.route('/node/@<user>/<node>')
-@bp.route('/@<user>/<node>')
-def subnode(node, user):
-
-    n = G.node(node)
-
-    n.subnodes = util.filter(n.subnodes, user)
-    n.subnodes = util.uprank(n.subnodes, user)
-    search_subnodes = db.search_subnodes_by_user(node, user)
-
-    return render_template(
-            'subnode.html', 
-            node=n,
-            )
 
 
 @bp.route('/subnode/<path:subnode>')

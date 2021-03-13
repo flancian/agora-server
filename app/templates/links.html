@@ -21,7 +21,7 @@
             <span class="backlinks-header">← back</span><br />
         {% if backlinks %}
             {% for link in backlinks %}
-            <a href="/node/{{link}}">{{link}}</a><br />
+            <a href="/{{link}}">{{link}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -33,7 +33,7 @@
             <span class="pushlinks-header">↑ pushing</span><br />
         {% if pushing_nodes %}
             {% for node in pushing_nodes %}
-            <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
+            <a href="/{{node.uri}}">{{node.uri}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -45,7 +45,7 @@
         <div class="pulllinks">
         <span class="pulllinks-header"> ↑pushing</span><br />
         {% for node in pull_nodes %}
-        <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
+        <a href="/{{node.uri}}">{{node.uri}}</a><br />
         {% endfor %}
         <br />
         -->
@@ -53,7 +53,7 @@
         <span class="pulllinks-header">↓ pulling</span><br />
         {% if pulling_nodes %}
             {% for node in pulling_nodes %}
-            <a href="/node/{{node.uri}}">{{node.uri}}</a><br />
+            <a href="/{{node.uri}}">{{node.uri}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -66,7 +66,7 @@
         <span class="forwardlinks-header">→ forward</span><br />
         {% if forwardlinks %}
             {% for link in forwardlinks %}
-            <a href="/node/{{link}}">{{link}}</a><br />
+            <a href="/{{link}}">{{link}}</a><br />
             {% endfor %}
         {% else %}
             (none)

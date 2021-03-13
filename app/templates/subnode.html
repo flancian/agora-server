@@ -22,7 +22,7 @@
 <div class="not-found">
 No subnodes matching your query.
 <br /><br />
-Try going up to node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a> or perhaps <a href="/search">search</a>.
+Try going up to node <a href="/{{node.uri}}">[[{{node.uri}}]]</a> or perhaps <a href="/search">search</a>.
 </div>
 {% endif %}
 {% endif %}
@@ -32,7 +32,7 @@ Try going up to node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a> or perhap
 {% for subnode in node.subnodes %}
 <div class="subnode">
     <div class="subnode-header">
-        <span>Subnode <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span> in node <a href="/node/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a></span><br />
+        <span>Subnode <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span> in node <a href="/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a></span><br />
     <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
     </div>
 {{ subnode.render()|linkify|safe }}
@@ -42,7 +42,7 @@ Try going up to node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a> or perhap
 
 <div class="links">
 <div class="backlinks">
-    <span class="backlinks-header">To see links, go up to node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a>.</span> 
+    <span class="backlinks-header">To see links, go up to node <a href="/{{node.uri}}">[[{{node.uri}}]]</a>.</span> 
 </div>
 </div>
 {% endif %}
@@ -51,12 +51,12 @@ Try going up to node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a> or perhap
 <!-- old_subnode uses this -->
 {% if subnode %}
 <div class="subnode">
-    <span class="subnode-header">Subnode <a href="/{{subnode.uri}}">[[{{subnode.uri}}]]</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a> in node <a href="/node/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a></span>
+    <span class="subnode-header">Subnode <a href="/{{subnode.uri}}">[[{{subnode.uri}}]]</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a> in node <a href="/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a></span>
 {{ subnode.render()|linkify|safe }}
 </div>
 <div class="links">
 <div class="backlinks">
-    <span class="backlinks-header">To see links, go up to node <a href="/node/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a>.</span> 
+    <span class="backlinks-header">To see links, go up to node <a href="/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a>.</span> 
 </div>
 </div>
 
