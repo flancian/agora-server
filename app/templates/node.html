@@ -50,7 +50,7 @@
 {% for subnode in node.subnodes %}
 <div class="subnode">
     <div class="subnode-header">
-        <span class="subnode-id">Subnode <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
+        <span class="subnode-id">↳ subnode <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
         <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
     </div>
 {{ subnode.render()|linkify|safe }}
@@ -62,7 +62,7 @@
 {% for subnode in node.pushed_subnodes() %}
 <div class="pushed-subnode">
     <div class="subnode-header">
-        <span class="subnode-id">Subnode <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
+        <span class="subnode-id">↳ subnode <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
         <span class="subnode-links">pushed from <a href="/subnode/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
     </div>
 <ul>
@@ -76,13 +76,13 @@
 
 {% for node in pull_nodes %}
 <div class="node">
-<span class="node-header">⥵ pulled node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>
+<span class="node-header">⥅ pulled node <a href="/node/{{node.uri}}">[[{{node.uri}}]]</a></span>
 
     {% if node.subnodes %}
         {% for subnode in node.subnodes %}
         <div class="pulled-subnode">
             <div class="subnode-header">
-                <span class="subnode-id">Subnode <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
+                <span class="subnode-id">↳ subnode <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
                 <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
             </div>
         {{ subnode.render()|linkify|safe }}
