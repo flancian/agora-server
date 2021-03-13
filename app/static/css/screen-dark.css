@@ -173,10 +173,8 @@ input[type="text"] {
 }
 
 .not-found { 
-    /*
-    background: #2f1f1f; 
-    */
-    background: #690000;
+    /*background: #476349;*/
+    background: #476353;
 }
 
 /*.subnode li     { margin: 0.8em 1.2em; }*/

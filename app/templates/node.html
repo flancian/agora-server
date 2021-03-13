@@ -16,29 +16,13 @@
 
 {% if not node.subnodes and not node.pushed_subnodes() %}
 <div class="node">
-    <span class="node-header">No node found at [[{{qstr}}]]... yet :)</span>
+    <span class="node-header">→ node <a href="/{{node}}">{{qstr}}</a> hasn't been defined yet.</span>
     <div class="not-found">
-        <ul>
-        <li>
-            If you <a href="https://flancia.org/go/agora">contributed content</a> related to '{{qstr}}' to the agora , it would show up here :)
-            <ul>
-                <li>
-                    For example a note named <code>{{node}}.md</code> or an image named <code>{{node}}.jpg</code>. <a href="/sign-up"
-                </li>
-                <li>
-                   <strong>Sign up now</strong></a> and start participating!
-                </li>
-                <li>
-                    You can also contribute anonymously to the public Stoa down below; it is world writeable. Feel free to write something about {{qstr}}; whatever it <strong>means</strong> to you.
-                </li>
-            </ul>
-        </li>
-        <li>
-    You can try searching on (see below).
-        </li>
-        <li>
-    Some existing permutations might be optimistically pulled below.<br/>
-        </li>
+        <p> <strong>Welcome to '{{node}}'! You might be the first person ever here.</strong> If so, have fun! Feel free to write something down in the public shared document below. Whoever comes here next will see what you've written. </p>
+
+        <p> Consider writing something related to '{{qstr}}' in some way; whatever that means to you.</p>
+
+        <p> <a href="/sign-up"><strong>You can also sign up as an agora user now</strong></a> and start contributing your personal notes on the subject if it is interesting to you. Some nodes with potentially relevant contributions might be optimistically pulled below.</p>
     </div>
 </div>
 {% endif %}
