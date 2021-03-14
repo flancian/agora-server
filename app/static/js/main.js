@@ -44,9 +44,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // icky but I'm not above this.
     // this is to work around etherpad grabbing focus.
-    var element = document.getElementById("mini-cli");
-    setTimeout( function() { element.focus() }, 1000 );
-    setTimeout( function() { element.focus() }, 3000 );
+    // var element = document.getElementById("mini-cli");
+    // setTimeout( function() { element.focus() }, 1000 );
+    // setTimeout( function() { element.focus() }, 3000 );
+    // did not like it in the end, too disruptive.
 });
 
 function processSettings(args){
