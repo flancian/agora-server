@@ -201,7 +201,7 @@ input[type="text"] {
 .links { 
     overflow: auto;
     gap: 10px;
-    max-height: 250px;
+    /* max-height: 250px; */
 }
 
 .annotations { 
@@ -261,7 +261,7 @@ input[type="text"] {
 .search { 
     background: #080808;
     overflow: auto;
-    max-height: 250px;
+    /* max-height: 250px;*/
 }
 
 .search-header {
