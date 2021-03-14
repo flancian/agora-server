@@ -126,11 +126,6 @@ def subnode(node, user):
 def index():
     return redirect(url_for('.node', node='index'))
 
-@bp.route('/help')
-def help():
-    current_app.logger.warning('Not implemented.')
-    return 'If I had implemented help already, here you\'d see documentation on all URL endpoints. For now, please refer to the <a href="https://flancia.org/go/agora">code</a>.'
-
 @bp.route('/Δ')
 @bp.route('/delta')
 @bp.route('/latest')
