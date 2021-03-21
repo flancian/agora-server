@@ -229,9 +229,12 @@ def push(node, other):
     return Response(pushing)
 
 
+# This receives whatever you type in the mini-cli up to the top of anagora.org.
+# Then it parses it and redirects to the right node or takes the appropriate action.
+# See https://anagora.org/agora-search, in particular 'design', for more.
 @bp.route('/exec')
-@bp.route('/search')
 @bp.route('/jump')
+@bp.route('/search')
 def search():
     """Redirects to an appropriate context.
     Originally called "jump" because in the [[agora]] nodes *always* exist, as they map 1:1 to all possible queries. Thus [[agora search]].

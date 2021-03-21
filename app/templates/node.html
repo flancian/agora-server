@@ -27,7 +27,7 @@
 </div>
 {% endif %}
 
-{% if node.subnodes %}
+{% if node.subnodes or node.pushed_subnodes %}
 <div class="node">
 <span class="node-header">→ node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
 
@@ -42,23 +42,24 @@
         {{ subnode.render()|linkify|safe }}
     </div>
     {% endfor %}
-</div>
-{% endif %}
 
-{% if node.pushed_subnodes() %}
-    {% for subnode in node.pushed_subnodes() %}
-    <div class="pushed-subnode">
-        <div class="subnode-header">
-            <span class="subnode-id">↳ subnode <a
-                    href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
-            <span class="subnode-links">pushed from <a href="/sub{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                    href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+    {% if node.pushed_subnodes() %}
+        {% for subnode in node.pushed_subnodes() %}
+        <div class="pushed-subnode">
+            <div class="subnode-header">
+                <span class="subnode-id">↳ subnode <a
+                        href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
+                <span class="subnode-links">pushed from <a href="/sub{{subnode.uri}}">{{subnode.uri}}</a> by <a
+                        href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+            </div>
+            <ul>
+                {{ subnode.render()|linkify|safe }}
+            </ul>
         </div>
-        <ul>
-            {{ subnode.render()|linkify|safe }}
-        </ul>
-    </div>
-    {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+</div>
 {% endif %}
 
 {% for node in pull_nodes %}
