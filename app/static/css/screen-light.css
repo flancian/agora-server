@@ -19,14 +19,18 @@
 body            { background: #eee; color: #000000; overflow-x: hidden;}
 a, h1, h2       { color: #377ba8; }
 .logo           { filter: none; vertical-align: middle; width="20" height="20"; }
-.node            { background: #ddd; }
+
+.node { 
+    background: #eee; 
+}
 
 .subnode, .links, .not-found {
-    background: #e6ffff; 
+    /*background: #e6ffff; */
+    background: #f7faff;
     color: #000;
 }
 
 .pulled-subnode, .pushed-subnode, .search, .search-internet, .stoa-public, .annotations, .delta, .delta-nodes, .delta-annotations, .microblog_timeline { 
-    background: #ddd; 
+    background: #f4f4f4; 
     color: #000; 
 }

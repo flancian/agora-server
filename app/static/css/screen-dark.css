@@ -164,7 +164,8 @@ input[type="text"] {
 }
 
 .subnode, .links, .not-found {
-    background: #12091a;
+    background: #1f232b;
+    /* background: #12091a; */
     /* background: #150d38; */
     color: #cfcfcf; 
     padding: 10px; 
@@ -327,7 +328,7 @@ input[type="text"] {
 
 /* overriding bmann's microblog hardcoded style */
 .microblog_timeline {
-    background: #12091a;
+    background: #1f232b;
     color: #cfcfcf; 
 }
 
