@@ -132,6 +132,7 @@ class Graph:
         subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.jpg'), recursive=True)])
         subnodes.extend([Subnode(f, mediatype='image/png') for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.png'), recursive=True)])
         subnodes.extend([Subnode(f, mediatype='image/gif') for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.gif'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/webp') for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.webp'), recursive=True)])
         if sort:
             return sorted(subnodes, key=sort)
         else:
