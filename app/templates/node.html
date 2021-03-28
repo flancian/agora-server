@@ -22,12 +22,12 @@
 
         <p> Consider writing something related to '{{qstr}}' in some way; whatever that means to you.</p>
 
-        <p> <a href="/sign-up"><strong>You can also sign up as an agora user now</strong></a> and start contributing your personal notes on the subject if it is interesting to you. Some nodes with potentially relevant contributions might be optimistically pulled below.</p>
+        <p> You can also <a href="/sign-up"><strong>sign up as a full agora user</strong></a> and start contributing your personal notes. Some nodes with potentially relevant contributions might be optimistically pulled below.</p>
     </div>
 </div>
 {% endif %}
 
-{% if node.subnodes or node.pushed_subnodes %}
+{% if node.subnodes or node.pushed_subnodes() %}
 <div class="node">
 <span class="node-header">→ node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
 
