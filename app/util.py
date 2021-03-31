@@ -57,14 +57,16 @@ def canonical_wikilink(wikilink):
         wikilink.lower()
         # chars that convert to -, slug-like.
         .replace(' ', '-')
+        # still thinking this one through, but I guess it makes sense
+        .replace('.', '-')
         # chars that are elided.
         .replace('\'', '')
         .replace('%', '')
         .replace(',', '')
         .replace(':', '')
         .replace("\'", '')
-        # still thinking this one through, but I guess it makes sense
-        .replace('.', '')
+        # this fixes things like 'a vs. b' so they slugify to a-vs-b instead of a-vs--b
+        .replace("--", '-')
     )
     return wikilink
 
