@@ -63,6 +63,8 @@ def canonical_wikilink(wikilink):
         .replace(',', '')
         .replace(':', '')
         .replace("\'", '')
+        # still thinking this one through, but I guess it makes sense
+        .replace('.', '')
     )
     return wikilink
 
