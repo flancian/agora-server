@@ -240,6 +240,9 @@ def search():
     """
     q = request.args.get('q')
     tokens = q.split(" ")
+
+    # ask for bids from search providers?
+    # search.candidates(q, tokens)
     # hack hack
     # [[push]] [[2021-02-28]] in case I don't get to it today.
     if tokens[0] == 'go' and len(tokens) > 1:
