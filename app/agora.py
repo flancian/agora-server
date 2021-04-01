@@ -16,7 +16,6 @@ import datetime
 import jsons
 from flask import Blueprint, url_for, render_template, current_app, Response, redirect, request, jsonify
 from markupsafe import escape
-from slugify import slugify, SLUG_OK
 from urllib.parse import parse_qs 
 from . import config
 from . import db
@@ -180,7 +179,7 @@ def go(node):
     return redirect(links[0])
 
 # Composite go.
-# Likely equivalent to [default action](https://anagora.org/node/default-action)
+# This is a hack, needs to be replaced with proper generic node/block "algebra".
 @bp.route('/go/<node0>/<node1>')
 def composite_go(node0, node1):
     """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
@@ -244,8 +243,8 @@ def search():
     # hack hack
     # [[push]] [[2021-02-28]] in case I don't get to it today.
     if tokens[0] == 'go' and len(tokens) > 1:
-        return redirect(url_for('.go', node=slugify(" ".join(tokens[1:]))))
-    return redirect(url_for('.node', node=slugify(q)))
+        return redirect(url_for('.go', node=util.slugify(" ".join(tokens[1:]))))
+    return redirect(url_for('.node', node=util.slugify(q)))
 
 
 @bp.route('/subnode/<path:subnode>')

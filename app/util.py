@@ -70,6 +70,8 @@ def canonical_wikilink(wikilink):
     )
     return wikilink
 
+slugify = canonical_wikilink
+
 
 @lru_cache(maxsize=None)
 def canonical_date(wikilink):
