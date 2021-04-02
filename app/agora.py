@@ -241,8 +241,16 @@ def search():
     q = request.args.get('q')
     tokens = q.split(" ")
 
-    # ask for bids from search providers?
-    # search.candidates(q, tokens)
+    # ask for bids from search providers.
+    # both the raw query and tokens are passed for convenience; each provider is free to use or discard each.
+    search.get_bids(q, tokens)
+    search.sort() # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
+    result = search[0] # the agora always returns at least one result: the offer to render the node for the query.
+
+    # perhaps here there could be special logic to flash a string at the top of the result node if what we got back from search is a string.
+
+    
+
     # hack hack
     # [[push]] [[2021-02-28]] in case I don't get to it today.
     if tokens[0] == 'go' and len(tokens) > 1:
