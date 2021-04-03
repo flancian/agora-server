@@ -134,6 +134,7 @@ def latest():
             subnodes=db.latest(), 
             annotations=feed.get_latest())
 
+    @bp.route('/now')
 @bp.route('/today')
 def today():
     today = datetime.datetime.now().date()
