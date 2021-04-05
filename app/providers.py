@@ -54,13 +54,26 @@ def go(q, tokens):
                 lambda: redirect(url_for('agora.go', node=util.slugify(" ".join(tokens[1:]))))
                 )
     else:
-        return Bid(Confidence.low, lambda: False)
+        return Bid(Confidence.null, lambda: False)
     # add logic for:
     #    if there is indeed a go link in the destination
     #        return (0.9, )
     #    if there is not:
     #        return (False, 0.0)
 
+def yubnub(q, tokens):
+    yubnub_tokens = [
+            'wp', # wikipedia 
+            'am', # amazon
+            'tpb', # the pirate bay
+            ]
+
+    if tokens[0] in yubnub_tokens and len(tokens) > 1:
+        return Bid(
+                Confidence.high, 
+                lambda: redirect(f'https://yubnub.org/parser/parse?command={q}'))
+    else:
+        return Bid(Confidence.low, lambda: redirect(f'https://yubnub.org/parser/parse?command={q}'))
 
 def node(q, tokens):
     # In case nothing else beats it, bid to show a plain [[agora]] node. 
@@ -71,7 +84,8 @@ def node(q, tokens):
 
 PROVIDERS = [
         node, 
-        go
+        go,
+        yubnub,
         ]
 
 
