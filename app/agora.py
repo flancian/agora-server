@@ -20,7 +20,8 @@ from urllib.parse import parse_qs
 from . import config
 from . import db
 from . import feed
-from . import forms
+from . import forms 
+from . import providers
 from . import util
 
 bp = Blueprint('agora', __name__)
@@ -140,8 +141,8 @@ def today():
     return redirect("/node/%s" % today.strftime("%Y-%m-%d"))
 
 @bp.route('/oldsearch', methods=('GET', 'POST'))
-def oldsearch():
-    """deprecated in favour of jump-like search"""
+def research():
+    """mostly deprecated in favour of jump-like search, left around for now though."""
     form = forms.SearchForm()
     if form.validate_on_submit():
         return render_template('search.html', form=form, subnodes=db.search_subnodes(form.query.data))
@@ -243,18 +244,25 @@ def search():
 
     # ask for bids from search providers.
     # both the raw query and tokens are passed for convenience; each provider is free to use or discard each.
-    search.get_bids(q, tokens)
-    search.sort() # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
-    result = search[0] # the agora always returns at least one result: the offer to render the node for the query.
+    results = providers.get_bids(q, tokens)
+    results.sort(reverse=True) # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
+    result = results[0] # the agora always returns at least one result: the offer to render the node for the query.
 
     # perhaps here there could be special logic to flash a string at the top of the result node if what we got back from search is a string.
 
-    
-
     # hack hack
     # [[push]] [[2021-02-28]] in case I don't get to it today.
-    if tokens[0] == 'go' and len(tokens) > 1:
-        return redirect(url_for('.go', node=util.slugify(" ".join(tokens[1:]))))
+    # if tokens[0] == 'go' and len(tokens) > 1:
+    #    return redirect(url_for('.go', node=util.slugify(" ".join(tokens[1:]))))
+    if callable(result.proposal):
+        return result.proposal()
+    if result.message:
+        # here we should probably do something to 'flash' the message?
+        pass
+    # catch all follows.
+    # "should never happen" (lol) as the agora is its own search provider and a plain node rendering should always be returned as a bid for every query.
+    # log a warning if it does :)
+    current_app.logger.warning('Node catch-all in agora.py triggered; should never happen (tm).')
     return redirect(url_for('.node', node=util.slugify(q)))
 
 
