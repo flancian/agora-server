@@ -55,6 +55,7 @@ def canonical_wikilink(wikilink):
     # hack hack
     wikilink = (
         wikilink.lower()
+        .strip()
         # chars that convert to -, slug-like.
         .replace(' ', '-')
         # still thinking this one through, but I guess it makes sense
