@@ -315,6 +315,14 @@ def users_json():
     users = list(map(lambda x: x.uri, db.all_users()))
     return jsonify(jsons.dump(users))
 
+@bp.route('/journal/<user>')
+def user_journal(user):
+    return render_template('subnodes.html', header="Journals for user", subnodes=db.user_journals(user))
+
+@bp.route('/journal/<user>.json')
+def user_journal_json(user):
+    return jsonify(jsons.dump(db.user_journals(user)))
+
 @bp.route('/journals')
 def journals():
     return render_template('nodes.html', header="Journals", nodes=db.all_journals())
