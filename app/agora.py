@@ -74,17 +74,17 @@ def node(node,user_list=[]):
             # annotations=n.annotations(),
             )
 
-@bp.route('/ttl/<node>')
+@bp.route('/ttl/<node>') # perhaps deprecated
+@bp.route('/turtle/<node>')
 def turtle(node):
     n = G.node(node)
-    return Response(rdf.turtle(n), mimetype='text/turtle')
+    return Response(rdf.turtle_node(n), mimetype='text/turtle')
 
-@bp.route('/ttl')
-def agora_turtle():
+@bp.route('/turtle/all')
+def turtle_all():
 
-    # not actually right
-    n = G.node(agora)
-    return rdf.turtle(n)
+    nodes = G.nodes()
+    return rdf.turtle_graph(nodes)
 
 @bp.route('/node/<node>@<user>')
 @bp.route('/node/@<user>/<node>')

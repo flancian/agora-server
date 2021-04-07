@@ -19,7 +19,7 @@ from . import util
 
 import rdflib
 
-def turtle(node) -> str:
+def turtle_node(node) -> str:
 
     g = rdflib.Graph()
 
@@ -59,9 +59,13 @@ def turtle(node) -> str:
             rdflib.URIRef(f"https://anagora.org/{n1}"),
         ))
 
+    return g.serialize(format="turtle")
 
-    for s, p, o in g:
-        print(s, p, o)
+def turtle_graph(nodes) -> str:
+
+    g = rdflib.Graph()
+
+    # implement
 
     return g.serialize(format="turtle")
 
