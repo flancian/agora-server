@@ -554,6 +554,10 @@ def all_users():
     users = os.listdir(os.path.join(config.AGORA_PATH, 'garden'))
     return sorted([User(u) for u in users], key=lambda x: x.uri.lower())
 
+def user_journals(user):
+    nodes = [node for node in subnodes_by_user(user) if util.is_journal(node.wikilink)]
+    return  sorted(nodes, key=attrgetter('wikilink'), reverse=True)
+
 def all_journals():
     # hack hack.
     nodes = G.nodes()
