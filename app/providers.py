@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from enum import Enum
 from flask import current_app, redirect, url_for
 from typing import Sequence
+from uuid import uuid4
 
 from . import util
 
@@ -33,11 +34,17 @@ class Confidence(FloatEnum):
     high = 0.9
     inf = 1.0
 
-@dataclass(order=True)
+# Cannot use order=True because natural ordering breaks when a member is a callable.
+@dataclass()
 class Bid:
     confidence: Confidence = Confidence.null
-    proposal: callable = False
     message: str = ''
+    uuid4: str = uuid4()
+    # this must come last as it's not comparable
+    proposal: callable = False
+
+    def __lt__(self, other):
+        return (self.confidence, self.message) < (other.confidence, other.message)
 
 def get_bids(q: str, tokens: Sequence[str] = []) -> Sequence[Bid]:
 
@@ -61,11 +68,41 @@ def go(q, tokens):
     #    if there is not:
     #        return (False, 0.0)
 
+
+def tw(q, tokens):
+    # performs a twitter search
+    if tokens[0] == 'tw':
+        # I miss pattern matching. Which pattern should I use here?
+        # TODO: check out if the new 'case' fits.
+        if len(tokens) == 2:
+            search = "%20".join(tokens[2:])
+            return Bid(
+                Confidence.high, 
+                lambda: redirect(f'https://twitter.com/search/?f=live&q={search}')
+                )
+        if len(tokens) > 2:
+            user = tokens[1]
+            search = "%20".join(tokens[2:])
+            return Bid(
+                Confidence.high, 
+                lambda: redirect(f'https://twitter.com/search/?f=live&q=from%3A{user}%20{search}')
+                )
+    else:
+        return Bid(Confidence.null, lambda: False)
+
+
 def yubnub(q, tokens):
     yubnub_tokens = [
             'wp', # wikipedia 
-            'am', # amazon
+            'am', # amazon (us)
+            'amde', # amazon (de)
             'tpb', # the pirate bay
+            'hdl', # libgen
+            'lbn', # libgen
+            'yt', # youtube
+            'spotify', # spotify
+            'goog', # google
+            'ddg', # ddg
             ]
 
     if tokens[0] in yubnub_tokens and len(tokens) > 1:
@@ -83,6 +120,7 @@ def node(q, tokens):
             lambda: redirect(url_for('agora.node', node=util.slugify(q))))
 
 PROVIDERS = [
+        tw,
         node, 
         go,
         yubnub,
