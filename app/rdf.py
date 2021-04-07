@@ -17,55 +17,59 @@
 from flask import current_app, redirect, url_for
 from . import util
 
-import rdflib
+from rdflib import Graph, Namespace, URIRef
 
 def turtle_node(node) -> str:
 
-    g = rdflib.Graph()
+    g = Graph()
+    agora = Namespace("https://anagora.org/")
+    g.namespace_manager.bind('agora', agora)
 
     for backlinking_node in node.back_links():
         n0 = backlinking_node
         n1 = node
         g.add((
-            rdflib.URIRef(f"https://anagora.org/{n0}"),
-            rdflib.URIRef(f"https://anagora.org/links"),
-            rdflib.URIRef(f"https://anagora.org/{n1}"),
+            URIRef(f"https://anagora.org/{n0}"),
+            URIRef(f"https://anagora.org/links"),
+            URIRef(f"https://anagora.org/{n1}"),
         ))
 
     for linked_node in node.forward_links():
         n0 = node
         n1 = linked_node
         g.add((
-            rdflib.URIRef(f"https://anagora.org/{n0}"),
-            rdflib.URIRef(f"https://anagora.org/links"),
-            rdflib.URIRef(f"https://anagora.org/{n1}"),
+            URIRef(f"https://anagora.org/{n0}"),
+            URIRef(f"https://anagora.org/links"),
+            URIRef(f"https://anagora.org/{n1}"),
         ))
 
     for pushing_node in node.pushing_nodes():
         n0 = node
         n1 = linked_node
         g.add((
-            rdflib.URIRef(f"https://anagora.org/{n0}"),
-            rdflib.URIRef(f"https://anagora.org/pushes"),
-            rdflib.URIRef(f"https://anagora.org/{n1}"),
+            URIRef(f"https://anagora.org/{n0}"),
+            URIRef(f"https://anagora.org/pushes"),
+            URIRef(f"https://anagora.org/{n1}"),
         ))
 
     for pulling_node in node.pulling_nodes():
         n0 = pulling_node
         n1 = node
         g.add((
-            rdflib.URIRef(f"https://anagora.org/{n0}"),
-            rdflib.URIRef(f"https://anagora.org/pulls"),
-            rdflib.URIRef(f"https://anagora.org/{n1}"),
+            URIRef(f"https://anagora.org/{n0}"),
+            URIRef(f"https://anagora.org/pulls"),
+            URIRef(f"https://anagora.org/{n1}"),
         ))
 
     return g.serialize(format="turtle")
 
 def turtle_graph(nodes) -> str:
 
-    g = rdflib.Graph()
+    g = Graph()
 
-    # implement
+    for node in nodes:
+        # implement
+        pass
 
     return g.serialize(format="turtle")
 

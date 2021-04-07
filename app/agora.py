@@ -84,7 +84,7 @@ def turtle(node):
 def turtle_all():
 
     nodes = G.nodes()
-    return rdf.turtle_graph(nodes)
+    return Response(rdf.turtle_graph(nodes), mimetype='text/turtle')
 
 @bp.route('/node/<node>@<user>')
 @bp.route('/node/@<user>/<node>')
