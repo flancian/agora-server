@@ -232,6 +232,8 @@ def search():
     # ask for bids from search providers.
     # both the raw query and tokens are passed for convenience; each provider is free to use or discard each.
     results = providers.get_bids(q, tokens)
+    current_app.logger.info(f'Search results for {q}: {results}')
+    print(f'Search results for {q}: {results}')
     results.sort(reverse=True) # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
     result = results[0] # the agora always returns at least one result: the offer to render the node for the query.
 
