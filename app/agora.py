@@ -21,8 +21,8 @@ from . import config
 from . import db
 from . import feed
 from . import forms 
+from . import graph 
 from . import providers
-from . import rdf
 from . import util
 
 bp = Blueprint('agora', __name__)
@@ -68,6 +68,7 @@ def node(node,user_list=[]):
             pushing_nodes=n.pushing_nodes(),
             q=n.wikilink.replace('-', '%20'),
             qstr=n.wikilink.replace('-', ' '),
+            render_graph=True,
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
             # sorry for the fuzzy thinking but I'm short on time and want to get things done.
             # (...famous last words).
@@ -76,20 +77,27 @@ def node(node,user_list=[]):
 
 @bp.route('/ttl/<node>') # perhaps deprecated
 @bp.route('/turtle/<node>')
+@bp.route('/graph/turtle/<node>')
 def turtle(node):
     n = G.node(node)
-    return Response(rdf.turtle_node(n), mimetype='text/turtle')
+    return Response(graph.turtle_node(n), mimetype='text/turtle')
 
-@bp.route('/turtle/all')
+@bp.route('/graph/turtle/all')
+@bp.route('/graph/turtle')
 def turtle_all():
 
     nodes = G.nodes().values()
-    return Response(rdf.turtle_graph(nodes), mimetype='text/turtle')
+    return Response(graph.turtle_nodes(nodes), mimetype='text/turtle')
 
-@bp.route('/graph/js')
+@bp.route('/graph/json')
 def graph_js():
     nodes = G.nodes().values()
-    return Response(rdf.json_graph(nodes), mimetype='application/json')
+    return Response(graph.json_nodes(nodes), mimetype='application/json')
+
+@bp.route('/graph/json/<node>')
+def graph_js_node(node):
+    n = G.node(node)
+    return Response(graph.json_node(n), mimetype='application/json')
 
 @bp.route('/node/<node>@<user>')
 @bp.route('/node/@<user>/<node>')
