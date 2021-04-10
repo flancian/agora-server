@@ -68,6 +68,7 @@ def node(node,user_list=[]):
             pushing_nodes=n.pushing_nodes(),
             q=n.wikilink.replace('-', '%20'),
             qstr=n.wikilink.replace('-', ' '),
+            render_graph=True,
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
             # sorry for the fuzzy thinking but I'm short on time and want to get things done.
             # (...famous last words).

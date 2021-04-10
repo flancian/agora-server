@@ -33,7 +33,9 @@
     <link rel="stylesheet" media="screen" type="text/css"
         href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached22" id="theme-link" />
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
-   <script src="//unpkg.com/force-graph"></script>
+    {% if render_graph %}
+       <script src="//unpkg.com/force-graph"></script>
+    {% endif %}
     <!--
     <script type="application/json" class="js-hypothesis-config">
           {

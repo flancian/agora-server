@@ -281,8 +281,8 @@ input[type="text"] {
 }
 
 #graph { 
-    background: #FFFFFF;
-    overflow: auto;
+    overflow: hidden;
+    border-radius: 20px;
 }
 
 .search-header {

@@ -4,8 +4,12 @@
     {% include "links.html" %}
 
     {% include "search.html" %}
+
+    {% if render_graph %}
     
-    {% include "graph.html" %}
+        {% include "graph.html" %}
+
+    {% endif %}
 
 </div>
 
