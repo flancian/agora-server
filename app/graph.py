@@ -81,7 +81,7 @@ def turtle_node(node) -> str:
     add_node(node, g)
     return g.serialize(format="turtle")
 
-def turtle_graph(nodes) -> str:
+def turtle_nodes(nodes) -> str:
 
     g = Graph()
     agora = Namespace("https://anagora.org/")
@@ -96,8 +96,46 @@ def turtle_graph(nodes) -> str:
 
     return g.serialize(format="turtle")
 
+def json_node(node):
+    # format: https://anagora.org/force-graph
+    # this first redoes the RDF graph and then converts it to JSON.
+    # the code duplication can be fixed with refactoring; more important is whether going through RDF makes sense at all.
+    # I think because RDF does some cleanup to get to "well formed ids" there might be enough of a benefit from reusing that.
+    g = Graph()
+    agora = Namespace("https://anagora.org/")
+    g.namespace_manager.bind('agora', agora)
+
+    add_node(node, g)
+
+    d = {}
+    d["nodes"] = []
+    d["links"] = []
+    unique_nodes = set()
+
+    for n0, link, n1 in g.triples((None, None, None)):
+        print(n0, link, n1)
+        # this step needed because dicts don't fit in sets in python because they're not hashable.
+        unique_nodes.add(n0)
+        unique_nodes.add(link)
+        unique_nodes.add(n1)
+
+    for n in unique_nodes:
+        if node.uri in n: 
+            d["nodes"].append({'id': n, 'name': n.replace('https://anagora.org/', ''), 'val': 4, 'group': 1})
+        elif 'pull' in n or 'push' in n or 'links' in n: 
+            d["nodes"].append({'id': n, 'name': n.replace('https://anagora.org/', ''), 'val': 2, 'group': 2})
+        else:
+            d["nodes"].append({'id': n, 'name': n.replace('https://anagora.org/', ''), 'val': 1, 'group': 3})
+
+    for n0, link, n1 in g.triples((None, None, None)):
+        d["links"].append({'source': n0, 'target': link})
+        d["links"].append({'source': link, 'target': n1})
+        
+    return dumps(d)
+
+
 # technically doesn't belong here but... perhaps this becomes graph.py eventually.
-def json_graph(nodes):
+def json_nodes(nodes):
     # format: https://anagora.org/force-graph
     # this first redoes the RDF graph and then converts it to JSON.
     # the code duplication can be fixed with refactoring; more important is whether going through RDF makes sense at all.

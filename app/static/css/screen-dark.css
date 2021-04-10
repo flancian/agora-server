@@ -280,6 +280,11 @@ input[type="text"] {
     /* max-height: 250px;*/
 }
 
+#graph { 
+    background: #FFFFFF;
+    overflow: auto;
+}
+
 .search-header {
     font-weight: bolder;
     text-align: left;
