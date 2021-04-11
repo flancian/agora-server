@@ -44,7 +44,7 @@ class Bid:
     proposal: callable = False
 
     def __lt__(self, other):
-        return (self.confidence, self.message) < (other.confidence, other.message)
+        return self.confidence < other.confidence
 
 def get_bids(q: str, tokens: Sequence[str] = []) -> Sequence[Bid]:
 

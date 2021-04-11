@@ -217,7 +217,7 @@ input[type="text"] {
 .links { 
     overflow: auto;
     gap: 10px;
-    /* max-height: 250px; */
+    max-height: 400px; */
 }
 
 .annotations { 
@@ -283,6 +283,8 @@ input[type="text"] {
 #graph { 
     overflow: hidden;
     border-radius: 20px;
+    padding: 10px; 
+    margin: 10px; 
 }
 
 .search-header {
