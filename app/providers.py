@@ -38,10 +38,8 @@ class Confidence(FloatEnum):
 @dataclass()
 class Bid:
     confidence: Confidence = Confidence.null
-    message: str = ''
-    uuid4: str = uuid4()
-    # this must come last as it's not comparable
     proposal: callable = False
+    message: str = ''
 
     def __lt__(self, other):
         return self.confidence < other.confidence
@@ -58,10 +56,11 @@ def go(q, tokens):
     if tokens[0] == 'go' and len(tokens) > 1:
         return Bid(
                 Confidence.high, 
-                lambda: redirect(url_for('agora.go', node=util.slugify(" ".join(tokens[1:]))))
-                )
+                lambda: redirect(url_for('agora.go', node=util.slugify(" ".join(tokens[1:])))),
+                "Follow go link")
     else:
         return Bid(Confidence.null, lambda: False)
+
     # add logic for:
     #    if there is indeed a go link in the destination
     #        return (0.9, )
@@ -78,15 +77,16 @@ def tw(q, tokens):
             search = "%20".join(tokens[2:])
             return Bid(
                 Confidence.high, 
-                lambda: redirect(f'https://twitter.com/search/?f=live&q={search}')
-                )
+                lambda: redirect(f'https://twitter.com/search/?f=live&q={search}'),
+                "Twitter search")
         if len(tokens) > 2:
             user = tokens[1]
             search = "%20".join(tokens[2:])
             return Bid(
                 Confidence.high, 
-                lambda: redirect(f'https://twitter.com/search/?f=live&q=from%3A{user}%20{search}')
-                )
+                lambda: redirect(f'https://twitter.com/search/?f=live&q=from%3A{user}%20{search}'),
+                "Twitter search")
+
     else:
         return Bid(Confidence.null, lambda: False)
 
@@ -102,27 +102,31 @@ def yubnub(q, tokens):
             'yt', # youtube
             'spotify', # spotify
             'goog', # google
+            'g', # google
             'ddg', # ddg
+            'imdb', # imdb
             ]
 
     if tokens[0] in yubnub_tokens and len(tokens) > 1:
         return Bid(
                 Confidence.high, 
-                lambda: redirect(f'https://yubnub.org/parser/parse?command={q}'))
+                lambda: redirect(f'https://yubnub.org/parser/parse?command={q}'),
+                "Yubnub command")
     else:
-        return Bid(Confidence.low, lambda: redirect(f'https://yubnub.org/parser/parse?command={q}'))
+        return Bid(Confidence.null, lambda: False)
 
 def node(q, tokens):
     # In case nothing else beats it, bid to show a plain [[agora]] node. 
     # This also serves as a "constructive 404".
     return Bid(
             Confidence.default, 
-            lambda: redirect(url_for('agora.node', node=util.slugify(q))))
+            lambda: redirect(url_for('agora.node', node=util.slugify(q))),
+            "Agora node")
 
 PROVIDERS = [
-        tw,
         node, 
         go,
+        tw,
         yubnub,
         ]
 

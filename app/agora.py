@@ -68,7 +68,7 @@ def node(node,user_list=[]):
             pushing_nodes=n.pushing_nodes(),
             q=n.wikilink.replace('-', '%20'),
             qstr=n.wikilink.replace('-', ' '),
-            render_graph=True,
+            render_graph=True if n.subnodes else False,
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
             # sorry for the fuzzy thinking but I'm short on time and want to get things done.
             # (...famous last words).
@@ -240,9 +240,9 @@ def search():
     # ask for bids from search providers.
     # both the raw query and tokens are passed for convenience; each provider is free to use or discard each.
     results = providers.get_bids(q, tokens)
+    results.sort(reverse=True) # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
     current_app.logger.info(f'Search results for {q}: {results}')
     print(f'Search results for {q}: {results}')
-    results.sort(reverse=True) # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
     result = results[0] # the agora always returns at least one result: the offer to render the node for the query.
 
     # perhaps here there could be special logic to flash a string at the top of the result node if what we got back from search is a string.
