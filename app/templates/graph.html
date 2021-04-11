@@ -18,7 +18,7 @@
 
 <script>
     console.log("loading graph...")
-    fetch("http://dev.anagora.org/graph/json/{{node.uri}}").then(res => res.json()).then(data => {
+    fetch("https://anagora.org/graph/json/{{node.uri}}").then(res => res.json()).then(data => {
     const Graph = ForceGraph()(document.getElementById('graph'))
         .height(400)
         .width(900)
