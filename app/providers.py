@@ -105,6 +105,7 @@ def yubnub(q, tokens):
             'g', # google
             'ddg', # ddg
             'imdb', # imdb
+            'mdn', # developer.mozilla.org
             ]
 
     if tokens[0] in yubnub_tokens and len(tokens) > 1:
