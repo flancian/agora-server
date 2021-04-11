@@ -106,6 +106,7 @@ def yubnub(q, tokens):
             'ddg', # ddg
             'imdb', # imdb
             'mdn', # developer.mozilla.org
+            'academia', # academia.edu
             ]
 
     if tokens[0] in yubnub_tokens and len(tokens) > 1:
