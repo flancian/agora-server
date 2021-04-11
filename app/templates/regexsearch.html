@@ -25,8 +25,8 @@
 
 <div class="listing">
 <div class="formwrapper">
-  <h1>Search</h1>
-  <form method="POST" action="{{url_for('agora.oldsearch')}}">
+  <h1>Full text search</h1>
+  <form method="POST" action="{{url_for('agora.regexsearch')}}">
       <div class="form-field">{{ form.query.label }} {{ form.query(size=20, autofocus=true) }}
       {{ form.csrf_token }}
       {{ form.submit }}</div>

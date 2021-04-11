@@ -135,13 +135,13 @@ def today():
     today = datetime.datetime.now().date()
     return redirect("/node/%s" % today.strftime("%Y-%m-%d"))
 
-@bp.route('/oldsearch', methods=('GET', 'POST'))
-def research():
+@bp.route('/regexsearch', methods=('GET', 'POST'))
+def regexsearch():
     """mostly deprecated in favour of jump-like search, left around for now though."""
     form = forms.SearchForm()
     if form.validate_on_submit():
-        return render_template('search.html', form=form, subnodes=db.search_subnodes(form.query.data))
-    return render_template('search.html', form=form)
+        return render_template('regexsearch.html', form=form, subnodes=db.search_subnodes(form.query.data))
+    return render_template('regexsearch.html', form=form)
 
 # Actions
 # Simple go.
