@@ -363,7 +363,6 @@ class Subnode:
     def render(self):
         if self.mediatype != 'text/plain':
             # hack hack
-            #return 'This is a subnode of type {}. You can <a href="/raw/{}">view</a> it.'.format(self.mediatype, self.uri)
             return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 50%" /> <br />'.format(self.uri)
         # ugly, this should be in render
         content = render.preprocess(self.content)
@@ -371,7 +370,8 @@ class Subnode:
             try:
                 content = render.markdown(content)
             except:
-                content = "<strong>There was an error loading this subnode. You can try refreshing, which may retry this operation.</strong>"
+                content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
+                current_app.logger.error(f'Subnode could not be loaded in {self} (Heisenbug).')
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
             content = render.orgmode(content)
         # ugly, this too
