@@ -19,18 +19,15 @@
 <script>
     console.log("loading graph...")
     fetch("https://anagora.org/graph/json/{{node.uri}}").then(res => res.json()).then(data => {
-    const Graph = ForceGraph()(document.getElementById('graph'))
-        .height(400)
-        .width(900)
+    const container = document.getElementById('graph');
+    const Graph = ForceGraph()(container)
+        .height(container.clientHeight)
+        .width(container.clientWidth)
         .onNodeClick(node => {
             let url = "https://anagora.org/" + node.id
             location.assign(url)
         })
-        .onBackgroundClick(() => {
-            console.log("background click!")
-        })
-        //.backgroundColor('#485365')
-        .backgroundColor('#1f232b')
+        //.backgroundColor('#1f232b')
         .graphData(data)
         .nodeId('id')
         .nodeVal('val')
