@@ -598,7 +598,7 @@ def search_subnodes_by_user(query, user):
 
 def subnodes_by_user(user):
     subnodes = [subnode for subnode in G.subnodes() if subnode.user == user]
-    return subnodes
+    return sorted(subnodes, key=attrgetter('mtime'), reverse=True)
 
 def user_readmes(user):
     # hack hack
