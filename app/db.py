@@ -514,7 +514,7 @@ def subnode_to_actions(subnode, action, blocks_only=False):
 class User:
     def __init__(self, user):
         self.uri = user
-        self.url = '/user/' + self.uri
+        self.url = '/@' + self.uri
         self.subnodes = subnodes_by_user(user)
 
     def size(self):
