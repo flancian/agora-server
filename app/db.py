@@ -188,9 +188,11 @@ class Node:
 
     def filter(self, other):
         # There's surely a much better way to do this. Alas :)
+        current_app.logger.debug(f"filter {self}, {other}")
         links = []
         for subnode in self.subnodes:
             links.extend(subnode.filter(other))
+            current_app.logger.debug(f"subnode {subnode.uri}, {links}")
         return links 
 
     # The following section is particularly confusing.
@@ -436,7 +438,9 @@ class Subnode:
         protocol defaults to https.
         might pick up magic like resolving social network issues later :)
         """
-        links = subnode_to_actions(self, other, blocks_only=True)
+        current_app.logger.debug(f"in subnode filter({self.uri}, {other}")
+        links = subnode_to_actions(self, other, blocks_only=False)
+        current_app.logger.debug(f"links {links}")
         sanitized_links = []
         for link in links:
             if '://' in link:

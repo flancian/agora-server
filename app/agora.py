@@ -181,37 +181,44 @@ def composite_go(node0, node1):
     """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
     # TODO(flancian): all node-scoped stuff should move to actually use node objects.
     # TODO(flancian): make [[go]] call this?
+    # TODO(flancian): uncurse / replace anagora.org with the config setting.
+    # current_app.logger.debug = print
+    current_app.logger.debug(f'running composite_go for {node0}, {node1}.')
     try:
         n0 = db.nodes_by_wikilink(node0)
-    except KeyError:
-        return redirect("https://anagora.org/node/%s" % node0)
-    try:
+        current_app.logger.debug(f'n0: {n0}')
         n1 = db.nodes_by_wikilink(node1)
+        current_app.logger.debug(f'n1: {n1}')
     except KeyError:
-        return redirect("https://anagora.org/node/%s" % node1)
+        pass
+        # return redirect("https://anagora.org/%s" % node0)
 
+    base = config.URL_BASE
     if len(n0) == 0 and len(n1) == 0:
-        # No nodes with this name.
-        # Redirect to composite node, which might exist and provides search.
-        return redirect(f'https://anagora.org/node/{node0}-{node1}')
+        # No nodes with either names.
+        # Redirect to the composite node, which might exist -- or in any case will provide relevant search.
+        current_app.logger.debug(f'redirect 1')
+        return redirect(f'{base}/{node0}-{node1}')
 
     links = []
     if len(n0) != 0:
         links.extend(n0[0].filter(node1))
+        current_app.logger.debug(f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
 
     if len(n1) != 0:
         links.extend(n1[0].filter(node0))
+        current_app.logger.debug(f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
 
     if len(links) == 0:
         # No matching links found.
         # Redirect to composite node, which might exist and provides search.
         # TODO(flancian): flash an explanation :)
-        return redirect(f'https://anagora.org/node/{node0}-{node1}')
+        return redirect(f'{base}/{node0}-{node1}')
 
     if len(links) > 1:
         # TODO(flancian): to be implemented.
         # Likely default to one of the links, show all of them but redirect to default within n seconds.
-        current_app.logger.warning('Code to manage nodes with more than one go link is not Not implemented.')
+        current_app.logger.warning('Code to manage nodes with more than one go link is not implemented.')
 
     return redirect(links[0])
 
