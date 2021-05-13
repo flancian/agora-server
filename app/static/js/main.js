@@ -178,7 +178,8 @@ async function connect() {
   tinymce.init({
      selector: "#ctzn-textarea", 
      menubar: false,
-     plugins: 'link',
+     plugins: 'lists',
+     toolbar: 'bullist'
     })
 }
 
