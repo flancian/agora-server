@@ -154,7 +154,7 @@ input[type="text"] {
     margin-right: 10px;
 }
 
-.node, .context, .stoa {
+.node, .context, .stoa, .ctzn {
     /*border-color: #7f5af0;*/
     border-color: gray;
     border-width: 1px;
@@ -183,7 +183,7 @@ input[type="text"] {
     /*border-radius: 20px;*/
 }
 
-.node-header, .context-header, .stoa-header {
+.node-header, .context-header, .stoa-header, .ctzn-header {
     text-align: left;
     margin-bottom: 1em;
     margin-left: 0.2em;
@@ -344,3 +344,18 @@ input[type="text"] {
 }
 
 
+#login-box, #logout-box {
+    display:none;
+}
+
+#ctzn-login {
+    text-align: right;
+}
+
+#focus-hack {
+    display: none;
+}
+
+#ctzn-login{
+    margin-top: 20px;
+}

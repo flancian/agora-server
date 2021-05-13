@@ -60,7 +60,7 @@ nav             { font-family: sans-serif}
     width: 300px;
 }
 
-.node, .context, .stoa {
+.node, .context, .stoa, .ctzn {
     /*border-color: #7f5af0;*/
     border-color: gray;
     border-style: dotted;
