@@ -1,5 +1,28 @@
-<div class="ctzn">
-    <span class="ctzn-header">CTZN Nodes</span><br />
+<!--
+ Copyright 2021 Google LLC
 
-    <span id="ctzn-data"></span>
-</div>
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+    {% if config['ENABLE_CTZN'] %}
+    <div id="ctzn-login">
+        <div id="login-box">
+            user@host: <input type='text' id='ctzn-user'> password: <input type='password' id='ctzn-password'> <button onclick="login()">Sign in with CTZN</button> 
+            | or <a href="https://ctznry.com/signup" target="_blank">Sign up for an account</a>
+        </div>
+        <span id="logout-box">
+            <button onclick="logout()">Logout of CTZN</button>
+        </span>
+    </div>
+   {% endif %}
+

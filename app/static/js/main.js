@@ -85,13 +85,10 @@ document.addEventListener("DOMContentLoaded", function () {
 //   if (!args["ignore"]) alert("Settings Saved")
 // }
 
-
 // CTZN code
-
 
 let ctzn
 let connected
-
 
 window.onload = () => {
   const user = localStorage["ctzn"]
