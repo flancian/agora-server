@@ -83,7 +83,10 @@ class CTZN {
   async discoverPage(f, slug) {
     const pages = await this.getPages(f)
     const page = await pages.find(p => {
-      return p.key == slug
+      // console.log("p",p,"slug",slug)
+      const dateSlug = `agora-prefix-${slug}`
+      // console.log("wtf", p.key == dateSlug)
+      return (p.key == slug || p.key == dateSlug)
     })
     if (!page) return
     const blobName = page.value.content.blobName
@@ -116,6 +119,7 @@ class CTZN {
 
   async updatePage(pageName, content) {
     const encoded = btoa(content)
+    if(pageName.match(/^\d/)) pageName = `agora-prefix-${pageName}`
     const res = await this.apiCall("blob.update", [`ui:pages:${pageName}`, encoded, { "mimeType": "text/html" }])
     const update = await this.apiCall("table.create", [this.userId, "ctzn.network/page", {
       id: pageName,

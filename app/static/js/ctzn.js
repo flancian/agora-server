@@ -4514,7 +4514,11 @@ var CTZN = /*#__PURE__*/function () {
                 pages = _context6.sent;
                 _context6.next = 5;
                 return pages.find(function (p) {
-                  return p.key == slug;
+                  // console.log("p",p,"slug",slug)
+                  var dateSlug = "agora-prefix-".concat(slug); // console.log("wtf", p.key == dateSlug)
+
+                  // console.log("wtf", p.key == dateSlug)
+                  return p.key == slug || p.key == dateSlug;
                 });
 
               case 5:
@@ -4643,14 +4647,15 @@ var CTZN = /*#__PURE__*/function () {
             switch (_context9.prev = _context9.next) {
               case 0:
                 encoded = btoa(content);
-                _context9.next = 3;
+                if (pageName.match(/^\d/)) pageName = "agora-prefix-".concat(pageName);
+                _context9.next = 4;
                 return this.apiCall("blob.update", ["ui:pages:".concat(pageName), encoded, {
                   "mimeType": "text/html"
                 }]);
 
-              case 3:
+              case 4:
                 res = _context9.sent;
-                _context9.next = 6;
+                _context9.next = 7;
                 return this.apiCall("table.create", [this.userId, "ctzn.network/page", {
                   id: pageName,
                   title: pageName,
@@ -4660,12 +4665,12 @@ var CTZN = /*#__PURE__*/function () {
                   }
                 }]);
 
-              case 6:
+              case 7:
                 update = _context9.sent;
                 console.log("page update", update);
                 return _context9.abrupt("return", res);
 
-              case 9:
+              case 10:
               case "end":
                 return _context9.stop();
             }
