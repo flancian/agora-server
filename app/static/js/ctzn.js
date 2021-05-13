@@ -4466,37 +4466,34 @@ var CTZN = /*#__PURE__*/function () {
     key: "getPages",
     value: function () {
       var _getPages = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(user) {
-        var serverHost, res, body;
+        var serverHost, res;
         return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.prev = 0;
-                serverHost = user.split("@")[1];
+                serverHost = user.split("@")[1]; // const res = await fetch(`https://${serverHost}/.table/${user}/ctzn.network/page`)
+
                 _context5.next = 4;
-                return fetch("https://".concat(serverHost, "/.table/").concat(user, "/ctzn.network/page"));
+                return this.apiCall("table.list", [user, "ctzn.network/page"]);
 
               case 4:
                 res = _context5.sent;
-                _context5.next = 7;
-                return res.json();
+                console.log("res", res);
+                return _context5.abrupt("return", res.entries || [{}]);
 
-              case 7:
-                body = _context5.sent;
-                return _context5.abrupt("return", body.entries);
-
-              case 11:
-                _context5.prev = 11;
+              case 9:
+                _context5.prev = 9;
                 _context5.t0 = _context5["catch"](0);
                 console.error(_context5.t0);
                 return _context5.abrupt("return", [{}]);
 
-              case 15:
+              case 13:
               case "end":
                 return _context5.stop();
             }
           }
-        }, _callee5, null, [[0, 11]]);
+        }, _callee5, this, [[0, 9]]);
       }));
 
       function getPages(_x3) {
@@ -4619,7 +4616,7 @@ var CTZN = /*#__PURE__*/function () {
                   return result;
                 }).catch(function (error) {
                   console.log("list failed", error);
-                  return false;
+                  return {};
                 });
 
               case 2:

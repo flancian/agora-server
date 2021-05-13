@@ -78,9 +78,11 @@ class CTZN {
   async getPages(user) {
     try {
     const serverHost = user.split("@")[1]
-    const res = await fetch(`https://${serverHost}/.table/${user}/ctzn.network/page`)
-    const body = await res.json()
-    return body.entries
+    // const res = await fetch(`https://${serverHost}/.table/${user}/ctzn.network/page`)
+    const res = await this.apiCall("table.list", [user, "ctzn.network/page"])
+    console.log("res", res)
+ 
+    return res.entries || [{}]
     } catch(err) {
       console.error(err)
       return [{}]
@@ -117,7 +119,7 @@ class CTZN {
         return result;
       }).catch(function (error) {
         console.log("list failed", error);
-        return false;
+        return {};
       });
     return result;
   }

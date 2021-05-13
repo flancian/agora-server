@@ -15,39 +15,39 @@
 
 // Adapted from https://css-tricks.com/a-complete-guide-to-dark-mode-on-the-web/#toggling-themes
 
-document.addEventListener("DOMContentLoaded", function() { 
-    // Hack for settings page
-    // try { processSettings({ignore: true}) } catch(e){ console.error(e)}
-    // Select button
-    const btn = document.querySelector(".theme-toggle");
+document.addEventListener("DOMContentLoaded", function () {
+  // Hack for settings page
+  // try { processSettings({ignore: true}) } catch(e){ console.error(e)}
+  // Select button
+  const btn = document.querySelector(".theme-toggle");
+  var theme = document.querySelector("#theme-link");
+  const currentTheme = localStorage.getItem("theme");
+  // If the user's preference in localStorage is dark...
+  if (currentTheme == "dark") {
+    theme.href = "/static/css/screen-dark.css";
+  } else if (currentTheme == "light") {
+    theme.href = "/static/css/screen-light.css";
+  }
+
+  // Listen for a click on the button
+  btn.addEventListener("click", function () {
+    // Select the stylesheet <link>
     var theme = document.querySelector("#theme-link");
-    const currentTheme = localStorage.getItem("theme");
-	// If the user's preference in localStorage is dark...
-	if (currentTheme == "dark") {
+    if (theme.getAttribute("href") == "/static/css/screen-light.css") {
       theme.href = "/static/css/screen-dark.css";
-	} else if (currentTheme == "light") {
+      localStorage.setItem("theme", "dark");
+    } else {
       theme.href = "/static/css/screen-light.css";
-	}
+      localStorage.setItem("theme", "light");
+    }
+  });
 
-    // Listen for a click on the button
-    btn.addEventListener("click", function() {
-      // Select the stylesheet <link>
-      var theme = document.querySelector("#theme-link");
-      if (theme.getAttribute("href") == "/static/css/screen-light.css") {
-        theme.href = "/static/css/screen-dark.css";
-	    localStorage.setItem("theme", "dark");
-      } else {
-        theme.href = "/static/css/screen-light.css";
-	    localStorage.setItem("theme", "light");
-      }
-    });
-
-    // icky but I'm not above this.
-    // this is to work around etherpad grabbing focus.
-    // var element = document.getElementById("mini-cli");
-    // setTimeout( function() { element.focus() }, 1000 );
-    // setTimeout( function() { element.focus() }, 3000 );
-    // did not like it in the end, too disruptive.
+  // icky but I'm not above this.
+  // this is to work around etherpad grabbing focus.
+  // var element = document.getElementById("mini-cli");
+  // setTimeout( function() { element.focus() }, 1000 );
+  // setTimeout( function() { element.focus() }, 3000 );
+  // did not like it in the end, too disruptive.
 });
 
 // function processSettings(args){
@@ -74,7 +74,18 @@ document.addEventListener("DOMContentLoaded", function() {
 const user = JSON.parse(localStorage["ctzn"])
 const ctzn = new CTZN(user)
 
-async function connect(){
+
+{/* <div class="subnode">
+    <div class="subnode-header">
+        <span>Subnode <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span> in node <a href="/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a></span><br />
+    <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+    </div>
+{{ subnode.render()|linkify|safe }}
+</div>
+{% endfor %}
+</div> */}
+
+async function connect() {
   await ctzn.connect()
   await ctzn.login()
   // let following = await ctzn.getFollowing("vera@ctzn.one")
@@ -82,8 +93,12 @@ async function connect(){
   const nodes = await ctzn.findNodes(NODENAME)
   console.log("nodes", nodes)
   const content = nodes.map(n => {
-    
-    return `<div><div>${n.username}</div><div>${n.content}</div></div>`
+
+    return `
+    <div class='subnode'>
+      <div class='subnode-header'>${n.username}</div>
+      <div>${n.content}</div>
+    </div>`
   }).join(" ")
   console.log("content", content)
   const ctznNode = document.getElementById("ctzn-data")
