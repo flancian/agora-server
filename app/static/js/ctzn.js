@@ -4476,21 +4476,20 @@ var CTZN = /*#__PURE__*/function () {
 
               case 4:
                 res = _context5.sent;
-                console.log("res", res);
                 return _context5.abrupt("return", res.entries || [{}]);
 
-              case 9:
-                _context5.prev = 9;
+              case 8:
+                _context5.prev = 8;
                 _context5.t0 = _context5["catch"](0);
                 console.error(_context5.t0);
                 return _context5.abrupt("return", [{}]);
 
-              case 13:
+              case 12:
               case "end":
                 return _context5.stop();
             }
           }
-        }, _callee5, this, [[0, 9]]);
+        }, _callee5, this, [[0, 8]]);
       }));
 
       function getPages(_x3) {

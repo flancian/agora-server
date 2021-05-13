@@ -70,7 +70,7 @@ class CTZN {
       const serverHost = user.split("@")[1]
       // const res = await fetch(`https://${serverHost}/.table/${user}/ctzn.network/page`)
       const res = await this.apiCall("table.list", [user, "ctzn.network/page"])
-      console.log("res", res)
+      // console.log("res", res)
 
       return res.entries || [{}]
     } catch (err) {

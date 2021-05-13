@@ -73,6 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 let ctzn
+let connected
 
 
 window.onload = () => {
@@ -110,6 +111,8 @@ function login() {
 
 
 async function connect() {
+  if(connected) return
+  connected = true
   await ctzn.connect()
   await ctzn.login()
   // let following = await ctzn.getFollowing("vera@ctzn.one")
