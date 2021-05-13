@@ -4635,6 +4635,39 @@ var CTZN = /*#__PURE__*/function () {
       return apiCall;
     }()
   }, {
+    key: "updatePage",
+    value: function () {
+      var _updatePage = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(pageName, content) {
+        var encoded, res;
+        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+          while (1) {
+            switch (_context9.prev = _context9.next) {
+              case 0:
+                encoded = btoa(content);
+                _context9.next = 3;
+                return this.apiCall("blob.update", ["ui:pages:".concat(pageName), encoded, {
+                  "mimeType": "text/html"
+                }]);
+
+              case 3:
+                res = _context9.sent;
+                return _context9.abrupt("return", res);
+
+              case 5:
+              case "end":
+                return _context9.stop();
+            }
+          }
+        }, _callee9, this);
+      }));
+
+      function updatePage(_x9, _x10) {
+        return _updatePage.apply(this, arguments);
+      }
+
+      return updatePage;
+    }()
+  }, {
     key: "userId",
     get: function get() {
       return "".concat(this.user.name, "@").concat(this.user.host);

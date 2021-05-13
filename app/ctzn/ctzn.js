@@ -114,6 +114,12 @@ class CTZN {
     return result;
   }
 
+  async updatePage(pageName, content){
+    const encoded = btoa(content)
+    const res = await this.apiCall("blob.update", [`ui:pages:${pageName}`, encoded, {"mimeType":"text/html"}])
+    return res
+  }
+
   get userId(){
     return `${this.user.name}@${this.user.host}`
   }

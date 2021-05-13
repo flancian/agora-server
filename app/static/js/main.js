@@ -78,7 +78,7 @@ let ctzn
 window.onload = () => {
   const user = localStorage["ctzn"]
   console.log("page load")
-  if(user) {
+  if (user) {
     // have localstorage object
     ctzn = new CTZN(JSON.parse(user))
     const box = document.getElementById("logout-box")
@@ -91,14 +91,14 @@ window.onload = () => {
   }
 }
 
-function login(){
+function login() {
   const box = document.getElementById("login-box")
   console.log("logging in user")
   const user = document.getElementById("ctzn-user").value
-  const passwd =  document.getElementById("ctzn-password").value
+  const passwd = document.getElementById("ctzn-password").value
   const values = user.split("@")
-  const obj = {name: values[0], host: values[1], pass: passwd}
-  
+  const obj = { name: values[0], host: values[1], pass: passwd }
+
   const storageString = JSON.stringify(obj)
   localStorage["ctzn"] = storageString
   box.style.display = "none"
@@ -112,29 +112,45 @@ async function connect() {
   // console.log("following", following)
   const nodes = await ctzn.findNodes(NODENAME)
   console.log("nodes", nodes)
-  const content = nodes.map(n => {
+  let content = nodes.map(n => {
 
-    const nonEdit =  `
+    const nonEdit = `
     <div class='subnode'>
       <div class='subnode-header'>${n.username}</div>
       <div>${n.content}</div>
     </div>`
 
-    const edit =  `
+    const edit = `
     <div class='subnode'>
       <div class='subnode-header'>${n.username}</div>
       <textarea cols=50 rows=10 id="ctzn-textarea">${n.content}</textarea>
+      <button onclick="updatePage()">Save</button>
     </div>`
 
-    if(n.username == ctzn.userId) return edit
+    if (n.username == ctzn.userId) return edit
     return nonEdit
   }).join(" ")
+  if (nodes.length == 0) {
+    content = `
+    <div class='subnode'>
+      <div class='subnode-header'>${ctzn.userId}</div>
+      <textarea cols=50 rows=10 id="ctzn-textarea"></textarea>
+      <button onclick="updatePage()">Save</button>
+    </div>`
+  }
   console.log("content", content)
   const ctznNode = document.getElementById("ctzn-data")
   ctznNode.innerHTML = content
-  tinymce.init({selector: "#ctzn-textarea"})
+  tinymce.init({ selector: "#ctzn-textarea", menubar: false})
 }
 
+
+async function updatePage(){
+  const content = tinymce.activeEditor.getContent();
+  console.log("pad content", content)
+  await ctzn.updatePage(NODENAME, content)
+  alert("Content saved")
+}
 
 
 
