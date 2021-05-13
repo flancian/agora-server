@@ -21,12 +21,12 @@ class DefaultConfig(object):
 class ProductionConfig(DefaultConfig):
     
     # EXPERIMENTS
-    pass
+    ENABLE_CTZN = True
 
 class DevelopmentConfig(DefaultConfig):
     URL_BASE = "http://dev.anagora.org"
     URI_BASE = "dev.anagora.org"
 
     # EXPERIMENTS
-    ENABLE_CTZN = False
+    ENABLE_CTZN = True
     ENABLE_NODE_COUNT = True
