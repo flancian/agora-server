@@ -4419,36 +4419,33 @@ var CTZN = /*#__PURE__*/function () {
     key: "login",
     value: function () {
       var _login = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
-        var res;
+        var user, res;
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
+                console.log("this user", this.user, "ws", this.ws);
+
                 if (this.ws) {
-                  _context4.next = 2;
+                  _context4.next = 3;
                   break;
                 }
 
                 return _context4.abrupt("return", "websocket not connected");
 
-              case 2:
-                _context4.next = 4;
-                return this.ws.call("accounts.login", [{
+              case 3:
+                user = {
                   username: this.user.name,
                   password: this.user.pass
-                }]).then(function (result) {
-                  console.log("accounts.login succeeded", result);
-                  return result;
-                }).catch(function (error) {
-                  console.log("auth failed", error);
-                  this.ws.close();
-                });
+                };
+                _context4.next = 6;
+                return this.apiCall("accounts.login", [user]);
 
-              case 4:
+              case 6:
                 res = _context4.sent;
                 return _context4.abrupt("return", res);
 
-              case 6:
+              case 8:
               case "end":
                 return _context4.stop();
             }
@@ -4615,7 +4612,7 @@ var CTZN = /*#__PURE__*/function () {
                 return this.ws.call(params, data).then(function (result) {
                   return result;
                 }).catch(function (error) {
-                  console.log("list failed", error);
+                  console.error(error);
                   return {};
                 });
 

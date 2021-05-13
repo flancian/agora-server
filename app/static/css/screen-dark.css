@@ -344,3 +344,6 @@ input[type="text"] {
 }
 
 
+#login-box {
+    display:none;
+}

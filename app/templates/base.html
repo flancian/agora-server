@@ -72,7 +72,15 @@
                 |
                 <a href="/agora-help" style="text-decoration: none;" class="help-button">❓</a>
                 |
-                <button>Sign in with CTZN</button>
+                <span id="ctzn-login">
+                    <div id="login-box">
+                        user@host: <input type='text' id='ctzn-user'> password: <input type='password' id='ctzn-password'> <button onclick="login()">Sign in with CTZN</button>
+                    </div>
+                    <span id="logout-box">
+                        <button>Logout of CTZN</button>
+                    </span>
+               </span>
+    
             </div>
             <hr />
 

@@ -71,19 +71,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // CTZN code
 
-const user = JSON.parse(localStorage["ctzn"])
-const ctzn = new CTZN(user)
+
+let ctzn
 
 
-{/* <div class="subnode">
-    <div class="subnode-header">
-        <span>Subnode <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span> in node <a href="/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a></span><br />
-    <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
-    </div>
-{{ subnode.render()|linkify|safe }}
-</div>
-{% endfor %}
-</div> */}
+window.onload = () => {
+  console.log("page load")
+  const user = localStorage["ctzn"]
+  if(user) {
+    // have localstorage object
+    ctzn = new CTZN(JSON.parse(user))
+    const box = document.getElementById("logout-box")
+    box.style.display = "block"
+    connect()
+  } else {
+    // need login
+    const box = document.getElementById("login-box")
+    box.style.display = "block"
+  }
+}
+
+function login(){
+  const box = document.getElementById("login-box")
+  console.log("logging in user")
+  const user = document.getElementById("ctzn-user").value
+  const passwd =  document.getElementById("ctzn-password").value
+  const values = user.split("@")
+  const obj = {name: values[0], host: values[1], pass: passwd}
+  
+  const storageString = JSON.stringify(obj)
+  localStorage["ctzn"] = storageString
+  box.style.display = "none"
+}
+
 
 async function connect() {
   await ctzn.connect()
@@ -106,4 +126,5 @@ async function connect() {
 }
 
 
-connect()
+
+

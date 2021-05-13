@@ -48,7 +48,7 @@ class CTZN {
     return body.followers
   }
 
-  async getFollowing(user){
+  async getFollowing(user) {
     const following = await this.apiCall("table.list", [user, "ctzn.network/follow"])
     const entries = following.entries.map(f => f.key)
     return entries
@@ -57,33 +57,23 @@ class CTZN {
 
   // Login using ctzn account
   async login() {
+    console.log("this user", this.user, "ws", this.ws)
     if (!this.ws) return "websocket not connected"
-    var res = await this.ws
-      .call("accounts.login", [
-        { username: this.user.name, password: this.user.pass }
-      ])
-      .then(function (result) {
-        console.log("accounts.login succeeded", result);
-        return result;
-      })
-      .catch(function (error) {
-        console.log("auth failed", error);
-        this.ws.close();
-
-      });
+    const user = {username: this.user.name, password: this.user.pass}
+    let res = await this.apiCall("accounts.login", [user])
     return res;
   };
 
 
   async getPages(user) {
     try {
-    const serverHost = user.split("@")[1]
-    // const res = await fetch(`https://${serverHost}/.table/${user}/ctzn.network/page`)
-    const res = await this.apiCall("table.list", [user, "ctzn.network/page"])
-    console.log("res", res)
- 
-    return res.entries || [{}]
-    } catch(err) {
+      const serverHost = user.split("@")[1]
+      // const res = await fetch(`https://${serverHost}/.table/${user}/ctzn.network/page`)
+      const res = await this.apiCall("table.list", [user, "ctzn.network/page"])
+      console.log("res", res)
+
+      return res.entries || [{}]
+    } catch (err) {
       console.error(err)
       return [{}]
     }
@@ -118,7 +108,7 @@ class CTZN {
       .then(function (result) {
         return result;
       }).catch(function (error) {
-        console.log("list failed", error);
+        console.error(error);
         return {};
       });
     return result;
