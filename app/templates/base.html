@@ -38,10 +38,10 @@
     </script>
     {% endif %}
 
-    {% if config['ENABLE_CTZN'] %}
+    <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/ctzn.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/util.js')}}"></script>
-    <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
+    {% if config['ENABLE_CTZN'] %}
     <script type=text/javascript src="{{url_for('static', filename='js/jquery.js')}}"></script>
     <script src="https://cdn.tiny.cloud/1/2oja14lfz5n5c1xr5ag0ltbpzuvnur33yw5fpmx6e1ka0lc1/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
     {% endif %}
