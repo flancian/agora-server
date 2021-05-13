@@ -37,11 +37,15 @@
         const NODENAME = "{{node.uri}}"
     </script>
     {% endif %}
+
+    {% if config['ENABLE_CTZN'] %}
     <script type=text/javascript src="{{url_for('static', filename='js/ctzn.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/util.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/jquery.js')}}"></script>
     <script src="https://cdn.tiny.cloud/1/2oja14lfz5n5c1xr5ag0ltbpzuvnur33yw5fpmx6e1ka0lc1/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    {% endif %}
+
     {% if render_graph %}
     <script src="//unpkg.com/force-graph"></script>
     {% endif %}
@@ -77,6 +81,7 @@
                 |
                 <a href="/agora-help" style="text-decoration: none;" class="help-button">❓</a>
                 
+                {% if config['ENABLE_CTZN'] %}
                 <div id="ctzn-login">
                     <div id="login-box">
                         user@host: <input type='text' id='ctzn-user'> password: <input type='password' id='ctzn-password'> <button onclick="login()">Sign in with CTZN</button> 
@@ -86,6 +91,7 @@
                         <button onclick="logout()">Logout of CTZN</button>
                     </span>
                </div>
+               {% endif %}
     
             </div>
             <hr />
