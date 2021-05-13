@@ -113,6 +113,10 @@ class CTZN {
       });
     return result;
   }
+
+  get userId(){
+    return `${this.user.name}@${this.user.host}`
+  }
 }
 
 

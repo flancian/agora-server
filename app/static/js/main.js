@@ -76,8 +76,8 @@ let ctzn
 
 
 window.onload = () => {
-  console.log("page load")
   const user = localStorage["ctzn"]
+  console.log("page load")
   if(user) {
     // have localstorage object
     ctzn = new CTZN(JSON.parse(user))
@@ -114,15 +114,25 @@ async function connect() {
   console.log("nodes", nodes)
   const content = nodes.map(n => {
 
-    return `
+    const nonEdit =  `
     <div class='subnode'>
       <div class='subnode-header'>${n.username}</div>
       <div>${n.content}</div>
     </div>`
+
+    const edit =  `
+    <div class='subnode'>
+      <div class='subnode-header'>${n.username}</div>
+      <textarea cols=50 rows=10 id="ctzn-textarea">${n.content}</textarea>
+    </div>`
+
+    if(n.username == ctzn.userId) return edit
+    return nonEdit
   }).join(" ")
   console.log("content", content)
   const ctznNode = document.getElementById("ctzn-data")
   ctznNode.innerHTML = content
+  tinymce.init({selector: "#ctzn-textarea"})
 }
 
 

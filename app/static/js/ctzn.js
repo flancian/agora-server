@@ -4634,6 +4634,11 @@ var CTZN = /*#__PURE__*/function () {
 
       return apiCall;
     }()
+  }, {
+    key: "userId",
+    get: function get() {
+      return "".concat(this.user.name, "@").concat(this.user.host);
+    }
   }]);
 
   return CTZN;
