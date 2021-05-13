@@ -344,6 +344,11 @@ input[type="text"] {
 }
 
 
-#login-box {
+#login-box, #logout-box {
     display:none;
 }
+
+#ctzn-login {
+    text-align: right;
+}
+

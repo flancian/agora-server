@@ -102,6 +102,10 @@ function login() {
   const storageString = JSON.stringify(obj)
   localStorage["ctzn"] = storageString
   box.style.display = "none"
+  ctzn = new CTZN(obj)
+  const box2 = document.getElementById("logout-box")
+  box2.style.display = "block"
+  connect()
 }
 
 
@@ -152,5 +156,8 @@ async function updatePage(){
   alert("Content saved")
 }
 
-
+function logout(){
+  localStorage.removeItem("ctzn")
+  location.reload()
+}
 
