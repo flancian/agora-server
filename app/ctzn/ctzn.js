@@ -59,7 +59,7 @@ class CTZN {
   async login() {
     console.log("this user", this.user, "ws", this.ws)
     if (!this.ws) return "websocket not connected"
-    const user = {username: this.user.name, password: this.user.pass}
+    const user = { username: this.user.name, password: this.user.pass }
     let res = await this.apiCall("accounts.login", [user])
     return res;
   };
@@ -114,13 +114,21 @@ class CTZN {
     return result;
   }
 
-  async updatePage(pageName, content){
+  async updatePage(pageName, content) {
     const encoded = btoa(content)
-    const res = await this.apiCall("blob.update", [`ui:pages:${pageName}`, encoded, {"mimeType":"text/html"}])
+    const res = await this.apiCall("blob.update", [`ui:pages:${pageName}`, encoded, { "mimeType": "text/html" }])
+    const update = await this.apiCall("table.create", [this.userId, "ctzn.network/page", {
+      id: pageName,
+      title: pageName,
+      content: { mimeType: "text/html", blobName: `ui:pages:${pageName}` },
+
+
+    }])
+    console.log("page update",update)
     return res
   }
 
-  get userId(){
+  get userId() {
     return `${this.user.name}@${this.user.host}`
   }
 }

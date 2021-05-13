@@ -4638,7 +4638,7 @@ var CTZN = /*#__PURE__*/function () {
     key: "updatePage",
     value: function () {
       var _updatePage = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(pageName, content) {
-        var encoded, res;
+        var encoded, res, update;
         return regeneratorRuntime.wrap(function _callee9$(_context9) {
           while (1) {
             switch (_context9.prev = _context9.next) {
@@ -4651,9 +4651,22 @@ var CTZN = /*#__PURE__*/function () {
 
               case 3:
                 res = _context9.sent;
+                _context9.next = 6;
+                return this.apiCall("table.create", [this.userId, "ctzn.network/page", {
+                  id: pageName,
+                  title: pageName,
+                  content: {
+                    mimeType: "text/html",
+                    blobName: "ui:pages:".concat(pageName)
+                  }
+                }]);
+
+              case 6:
+                update = _context9.sent;
+                console.log("page update", update);
                 return _context9.abrupt("return", res);
 
-              case 5:
+              case 9:
               case "end":
                 return _context9.stop();
             }
