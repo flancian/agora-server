@@ -4512,39 +4512,38 @@ var CTZN = /*#__PURE__*/function () {
 
               case 2:
                 pages = _context6.sent;
-                _context6.next = 5;
-                return pages.find(function (p) {
+                // console.log("pages", pages)
+                page = pages.find(function (p) {
                   // console.log("p",p,"slug",slug)
                   var dateSlug = "agora-prefix-".concat(slug); // console.log("wtf", p.key == dateSlug)
 
-                  // console.log("wtf", p.key == dateSlug)
                   return p.key == slug || p.key == dateSlug;
                 });
 
-              case 5:
-                page = _context6.sent;
-
                 if (page) {
-                  _context6.next = 8;
+                  _context6.next = 6;
                   break;
                 }
 
                 return _context6.abrupt("return");
 
-              case 8:
+              case 6:
+                console.log("page", page);
                 blobName = page.value.content.blobName;
-                _context6.next = 11;
+                _context6.next = 10;
                 return this.apiCall("blob.get", [f, blobName]);
 
-              case 11:
+              case 10:
                 blob = _context6.sent;
+                console.log("blob", blob);
                 content = atob(blob.buf);
+                console.log("content", content);
                 return _context6.abrupt("return", {
                   username: f,
                   content: content
                 });
 
-              case 14:
+              case 15:
               case "end":
                 return _context6.stop();
             }
@@ -4564,36 +4563,49 @@ var CTZN = /*#__PURE__*/function () {
       var _findNodes = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(slug) {
         var _this = this;
 
-        var followers, nodes;
+        var nodes, following;
         return regeneratorRuntime.wrap(function _callee7$(_context7) {
           while (1) {
             switch (_context7.prev = _context7.next) {
               case 0:
-                _context7.next = 2;
+                nodes = [];
+                _context7.next = 3;
                 return this.getFollowing("".concat(this.user.name, "@").concat(this.user.host));
 
-              case 2:
-                followers = _context7.sent;
-                console.log("followers", followers);
-                followers.push("".concat(this.user.name, "@").concat(this.user.host));
-                _context7.next = 7;
-                return Promise.all(followers.map(function (f) {
+              case 3:
+                following = _context7.sent;
+                console.log("following", following);
+                following.push("".concat(this.user.name, "@").concat(this.user.host));
+                _context7.prev = 6;
+                _context7.next = 9;
+                return Promise.all(following.map(function (f) {
                   return _this.discoverPage(f, slug);
                 }));
 
-              case 7:
+              case 9:
                 nodes = _context7.sent;
+                _context7.next = 16;
+                break;
+
+              case 12:
+                _context7.prev = 12;
+                _context7.t0 = _context7["catch"](6);
+                console.log("DOH");
+                console.error(_context7.t0);
+
+              case 16:
+                console.log("nodes", nodes);
                 nodes = nodes.filter(function (p) {
                   return p;
                 });
                 return _context7.abrupt("return", nodes);
 
-              case 10:
+              case 19:
               case "end":
                 return _context7.stop();
             }
           }
-        }, _callee7, this);
+        }, _callee7, this, [[6, 12]]);
       }));
 
       function findNodes(_x6) {
@@ -4723,7 +4735,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33993" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42753" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

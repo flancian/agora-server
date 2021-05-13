@@ -53,11 +53,18 @@ document.addEventListener("DOMContentLoaded", function () {
   $("#mini-cli").click(() => $("#mini-cli").val(""))
 
   // focus mini-cli on key combo
-  $(document).keydown(function (e) {
+
+  $(window).keydown(function (e) {
     if (e.ctrlKey && e.altKey && e.keyCode == 83) {
-      $("#mini-cli").focus()
+      $("#mini-cli").focus().val("")
     }
   })
+
+  // $("#stoa").on("load", () => {
+  //   console.log("stoa loaded")
+  //   setTimeout(() => $("#focus-hack").show().focus().hide(), 5000)
+  // })
+  
 });
 
 // function processSettings(args){
@@ -120,6 +127,14 @@ function login() {
 }
 
 
+function toggle(){
+  const content = tinymce.get("ctzn-textarea").getContent()
+  const updated = Util.replaceStrings(content)
+  tinymce.get("ctzn-textarea").setContent(updated)
+  tinymce.execCommand('mceToggleEditor',false,'ctzn-textarea')
+}
+
+
 async function connect() {
   if (connected) return
   connected = true
@@ -141,26 +156,30 @@ async function connect() {
     const edit = `
     <div class='subnode'>
       <div class='subnode-header'>${n.username}</div>
-      <textarea cols=50 rows=10 id="ctzn-textarea">${n.content}</textarea>
-      <button onclick="updatePage()">Save</button>
+      <div cols=50 rows=10 id="ctzn-textarea">${n.content}</div>
+      <button onclick="updatePage()">Save</button> <button onclick="toggle()">Toggle preview</button>
     </div>`
     names.push(n.username)
     console.log("username", n.username, "id", ctzn.userId)
-    if (n.username == ctzn.userId) return edit
-    return nonEdit
+    if (n.username == ctzn.userId) return Util.replaceStrings(edit)
+    return Util.replaceStrings(nonEdit)
   })
   if (nodes.length == 0 || !names.includes(ctzn.userId)) {
     content.push(`
     <div class='subnode'>
       <div class='subnode-header'>${ctzn.userId}</div>
-      <textarea cols=50 rows=10 id="ctzn-textarea"></textarea>
-      <button onclick="updatePage()">Save</button>
+      <div cols=50 rows=10 id="ctzn-textarea"></div>
+      <button onclick="updatePage()">Save</button> <button onclick="toggle()">Toggle preview</button>
     </div>`)
   }
   console.log("content", content)
   const ctznNode = document.getElementById("ctzn-data")
   ctznNode.innerHTML = content.join("\n")
-  tinymce.init({ selector: "#ctzn-textarea", menubar: false })
+  tinymce.init({
+     selector: "#ctzn-textarea", 
+     menubar: false,
+     plugins: 'link',
+    })
 }
 
 

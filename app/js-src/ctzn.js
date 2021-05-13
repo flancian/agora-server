@@ -82,24 +82,35 @@ class CTZN {
 
   async discoverPage(f, slug) {
     const pages = await this.getPages(f)
-    const page = await pages.find(p => {
+    // console.log("pages", pages)
+    const page = pages.find(p => {
       // console.log("p",p,"slug",slug)
       const dateSlug = `agora-prefix-${slug}`
       // console.log("wtf", p.key == dateSlug)
       return (p.key == slug || p.key == dateSlug)
     })
     if (!page) return
+    console.log("page", page)
     const blobName = page.value.content.blobName
     const blob = await this.apiCall("blob.get", [f, blobName])
+    console.log("blob", blob)
     const content = atob(blob.buf)
+    console.log("content", content)
     return { username: f, content }
   }
 
   async findNodes(slug) {
-    const followers = await this.getFollowing(`${this.user.name}@${this.user.host}`)
-    console.log("followers", followers)
-    followers.push(`${this.user.name}@${this.user.host}`)
-    let nodes = await Promise.all(followers.map((f) => this.discoverPage(f, slug)))
+    let nodes = []
+    const following = await this.getFollowing(`${this.user.name}@${this.user.host}`)
+    console.log("following", following)
+    following.push(`${this.user.name}@${this.user.host}`)
+    try {
+    nodes = await Promise.all(following.map((f) => this.discoverPage(f, slug)))
+    } catch(e){
+      console.log("DOH")
+      console.error(e)
+    }
+    console.log("nodes", nodes)
     nodes = nodes.filter(p => p)
     return nodes
   }

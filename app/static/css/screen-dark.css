@@ -352,3 +352,10 @@ input[type="text"] {
     text-align: right;
 }
 
+#focus-hack {
+    display: none;
+}
+
+#ctzn-login{
+    margin-top: 20px;
+}

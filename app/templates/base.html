@@ -36,6 +36,7 @@
         const NODENAME = "{{node.uri}}"
     </script>
     <script type=text/javascript src="{{url_for('static', filename='js/ctzn.js')}}"></script>
+    <script type=text/javascript src="{{url_for('static', filename='js/util.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/jquery.js')}}"></script>
     <script src="https://cdn.tiny.cloud/1/2oja14lfz5n5c1xr5ag0ltbpzuvnur33yw5fpmx6e1ka0lc1/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
@@ -55,7 +56,7 @@
 <body>
     <nav>
         <div class="navigation">
-
+            <input type="text" id="focus-hack">
             <div class="navigation-links">
                 <a href="/"><img src="/static/img/agora.png" class="logo" width="20px" height="20px"></a>
                 <a href="/">anagora.org</a>
@@ -73,8 +74,8 @@
                 <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
                 |
                 <a href="/agora-help" style="text-decoration: none;" class="help-button">❓</a>
-                |
-                <span id="ctzn-login">
+                
+                <div id="ctzn-login">
                     <div id="login-box">
                         user@host: <input type='text' id='ctzn-user'> password: <input type='password' id='ctzn-password'> <button onclick="login()">Sign in with CTZN</button> 
                         | or <a href="https://ctznry.com/signup" target="_blank">Sign up for an account</a>
@@ -82,7 +83,7 @@
                     <span id="logout-box">
                         <button onclick="logout()">Logout of CTZN</button>
                     </span>
-               </span>
+               </div>
     
             </div>
             <hr />
