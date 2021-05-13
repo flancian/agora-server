@@ -4287,7 +4287,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 // CTZN code
 console.log("Loading agora-ctzn module");
-var wsServer = "wss://ctzn.one";
 
 var CTZN = /*#__PURE__*/function () {
   function CTZN(user) {
@@ -4311,6 +4310,7 @@ var CTZN = /*#__PURE__*/function () {
 
       return connect;
     }(function () {
+      var wsServer = "wss://".concat(this.user.host);
       var ws = new _rpcWebsockets.Client(wsServer);
       var self = this;
       return new Promise(function (resolve, reject) {

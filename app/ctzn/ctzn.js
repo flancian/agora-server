@@ -2,17 +2,17 @@
 console.log("Loading agora-ctzn module")
 
 import { Client as WebSocket } from "rpc-websockets"
-const wsServer = "wss://ctzn.one"
 
 
 class CTZN {
   constructor(user) {
     this.user = user
   }
-
-
+  
+  
   /* Websocket Handler */
   connect() {
+    const wsServer = `wss://${this.user.host}`
     const ws = new WebSocket(wsServer);
     const self = this
     return new Promise((resolve, reject) => {

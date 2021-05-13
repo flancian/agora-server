@@ -48,6 +48,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // setTimeout( function() { element.focus() }, 1000 );
   // setTimeout( function() { element.focus() }, 3000 );
   // did not like it in the end, too disruptive.
+
+  $("#mini-cli").click(() =>  $("#mini-cli").val(""))
 });
 
 // function processSettings(args){
@@ -119,6 +121,7 @@ async function connect() {
   // console.log("following", following)
   const nodes = await ctzn.findNodes(NODENAME)
   console.log("nodes", nodes)
+  let names = []
   let content = nodes.map(n => {
 
     const nonEdit = `
@@ -133,21 +136,22 @@ async function connect() {
       <textarea cols=50 rows=10 id="ctzn-textarea">${n.content}</textarea>
       <button onclick="updatePage()">Save</button>
     </div>`
-
+    names.push(n.username)
+    console.log("username",n.username,"id", ctzn.userId)
     if (n.username == ctzn.userId) return edit
     return nonEdit
-  }).join(" ")
-  if (nodes.length == 0) {
-    content = `
+  })
+  if (nodes.length == 0 || !names.includes(ctzn.userId)) {
+    content.push(`
     <div class='subnode'>
       <div class='subnode-header'>${ctzn.userId}</div>
       <textarea cols=50 rows=10 id="ctzn-textarea"></textarea>
       <button onclick="updatePage()">Save</button>
-    </div>`
+    </div>`)
   }
   console.log("content", content)
   const ctznNode = document.getElementById("ctzn-data")
-  ctznNode.innerHTML = content
+  ctznNode.innerHTML = content.join("\n")
   tinymce.init({ selector: "#ctzn-textarea", menubar: false})
 }
 
