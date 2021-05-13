@@ -49,7 +49,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // setTimeout( function() { element.focus() }, 3000 );
   // did not like it in the end, too disruptive.
 
-  $("#mini-cli").click(() =>  $("#mini-cli").val(""))
+  // clear mini cli on click
+  $("#mini-cli").click(() => $("#mini-cli").val(""))
+
+  // focus mini-cli on key combo
+  $(document).keydown(function (e) {
+    if (e.ctrlKey && e.altKey && e.keyCode == 83) {
+      $("#mini-cli").focus()
+    }
+  })
 });
 
 // function processSettings(args){
@@ -113,7 +121,7 @@ function login() {
 
 
 async function connect() {
-  if(connected) return
+  if (connected) return
   connected = true
   await ctzn.connect()
   await ctzn.login()
@@ -137,7 +145,7 @@ async function connect() {
       <button onclick="updatePage()">Save</button>
     </div>`
     names.push(n.username)
-    console.log("username",n.username,"id", ctzn.userId)
+    console.log("username", n.username, "id", ctzn.userId)
     if (n.username == ctzn.userId) return edit
     return nonEdit
   })
@@ -152,18 +160,18 @@ async function connect() {
   console.log("content", content)
   const ctznNode = document.getElementById("ctzn-data")
   ctznNode.innerHTML = content.join("\n")
-  tinymce.init({ selector: "#ctzn-textarea", menubar: false})
+  tinymce.init({ selector: "#ctzn-textarea", menubar: false })
 }
 
 
-async function updatePage(){
+async function updatePage() {
   const content = tinymce.activeEditor.getContent();
   console.log("pad content", content)
   await ctzn.updatePage(NODENAME, content)
   alert("Content saved")
 }
 
-function logout(){
+function logout() {
   localStorage.removeItem("ctzn")
   location.reload()
 }
