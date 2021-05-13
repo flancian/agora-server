@@ -6,3 +6,4 @@ venv
 tags
 agora.log
 app/node_modules
+app/.cache
