@@ -17,7 +17,7 @@
 
 document.addEventListener("DOMContentLoaded", function() { 
     // Hack for settings page
-    try { processSettings({ignore: true}) } catch(e){ console.error(e)}
+    // try { processSettings({ignore: true}) } catch(e){ console.error(e)}
     // Select button
     const btn = document.querySelector(".theme-toggle");
     var theme = document.querySelector("#theme-link");
@@ -50,20 +50,45 @@ document.addEventListener("DOMContentLoaded", function() {
     // did not like it in the end, too disruptive.
 });
 
-function processSettings(args){
-  args = args || {}
-  let ranking // string for ranking nodes by user, comma separated user list
-  ranking = document.getElementById("settings-ranking").value || ""
-  if (ranking === ""){
-    ranking = localStorage["ranking"] || ""
-    console.log("ranking", ranking)
-    if (ranking !== ""){
-      document.getElementById("settings-ranking").value = ranking
-    }
-  }
+// function processSettings(args){
+//   args = args || {}
+//   let ranking // string for ranking nodes by user, comma separated user list
+//   ranking = document.getElementById("settings-ranking").value || ""
+//   if (ranking === ""){
+//     ranking = localStorage["ranking"] || ""
+//     console.log("ranking", ranking)
+//     if (ranking !== ""){
+//       document.getElementById("settings-ranking").value = ranking
+//     }
+//   }
 
-  ranking = document.getElementById("settings-ranking").value || ""
-  localStorage["ranking"] = ranking
-  console.log("processing", ranking)
-  if (!args["ignore"]) alert("Settings Saved")
+//   ranking = document.getElementById("settings-ranking").value || ""
+//   localStorage["ranking"] = ranking
+//   console.log("processing", ranking)
+//   if (!args["ignore"]) alert("Settings Saved")
+// }
+
+
+// CTZN code
+
+const user = JSON.parse(localStorage["ctzn"])
+const ctzn = new CTZN(user)
+
+async function connect(){
+  await ctzn.connect()
+  await ctzn.login()
+  // let following = await ctzn.getFollowing("vera@ctzn.one")
+  // console.log("following", following)
+  const nodes = await ctzn.findNodes(NODENAME)
+  console.log("nodes", nodes)
+  const content = nodes.map(n => {
+    
+    return `<div><div>${n.username}</div><div>${n.content}</div></div>`
+  }).join(" ")
+  console.log("content", content)
+  const ctznNode = document.getElementById("ctzn-data")
+  ctznNode.innerHTML = content
 }
+
+
+connect()

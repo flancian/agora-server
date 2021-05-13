@@ -32,9 +32,13 @@
         href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
     <link rel="stylesheet" media="screen" type="text/css"
         href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached24" id="theme-link" />
+    <script>
+        const NODENAME = "{{node.uri}}"
+    </script>
+    <script type=text/javascript src="{{url_for('static', filename='js/ctzn.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
     {% if render_graph %}
-       <script src="//unpkg.com/force-graph"></script>
+    <script src="//unpkg.com/force-graph"></script>
     {% endif %}
     <!--
     <script type="application/json" class="js-hypothesis-config">
@@ -47,60 +51,62 @@
 </head>
 
 <body>
-        <nav>
-            <div class="navigation">
+    <nav>
+        <div class="navigation">
 
-                <div class="navigation-links">
-                    <a href="/"><img src="/static/img/agora.png" class="logo" width="20px" height="20px"></a>
-                    <a href="/">anagora.org</a>
-                    |
-                    <a href="/nodes">nodes</a>
-                    |
-                    <a href="/users">@</a>
-                    |
-                    <a href="/latest">Δ</a>
-                    |
-                    <a href="/today">今</a>
-                    |
-                    <a href="/agora-cli">cli</a>
-                    |
-                    <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
-                    |
-                    <a href="/agora-help" style="text-decoration: none;" class="help-button">❓</a>
-                </div>
-                <hr />
-
-                <div class="topline-node">
-                    <div class="topline-node-wrapper">
-                        <div class="topline-query">
-                            <strong>query:</strong>
-                        </div>
-                        <div class="topline-cli">
-                            <form action="/exec" method="get">
-                                <input id="mini-cli" type="text" value="{{qstr}}" name="q">
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="topline-search">
-                        <strong>↳ search on:</strong>
-                        <a href="https://www.google.com/search?q={{q}}">g</a>
-                        | <a href="https://www.duckduckgo.com/{{q}}">ddg</a>
-                        | <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">wp</a>
-                        | <a href="https://twitter.com/search/?f=live&q={{q}}">tw</a>
-                        | <a href="https://github.com/search?q={{q}}">gh</a>
-                        | <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">ewp</a>
-                        | <a href="https://www.pubpub.org/search?q={{q}}">pp</a>
-                    </div>
-
-                    <div class="topline-search">
-                        <strong>↳ in this agora ⬎</strong>
-                    </div>
-
-                </div>
+            <div class="navigation-links">
+                <a href="/"><img src="/static/img/agora.png" class="logo" width="20px" height="20px"></a>
+                <a href="/">anagora.org</a>
+                |
+                <a href="/nodes">nodes</a>
+                |
+                <a href="/users">@</a>
+                |
+                <a href="/latest">Δ</a>
+                |
+                <a href="/today">今</a>
+                |
+                <a href="/agora-cli">cli</a>
+                |
+                <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
+                |
+                <a href="/agora-help" style="text-decoration: none;" class="help-button">❓</a>
+                |
+                <button>Sign in with CTZN</button>
             </div>
+            <hr />
 
-        </nav>
+            <div class="topline-node">
+                <div class="topline-node-wrapper">
+                    <div class="topline-query">
+                        <strong>query:</strong>
+                    </div>
+                    <div class="topline-cli">
+                        <form action="/exec" method="get">
+                            <input id="mini-cli" type="text" value="{{qstr}}" name="q">
+                        </form>
+                    </div>
+                </div>
+
+                <div class="topline-search">
+                    <strong>↳ search on:</strong>
+                    <a href="https://www.google.com/search?q={{q}}">g</a>
+                    | <a href="https://www.duckduckgo.com/{{q}}">ddg</a>
+                    | <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">wp</a>
+                    | <a href="https://twitter.com/search/?f=live&q={{q}}">tw</a>
+                    | <a href="https://github.com/search?q={{q}}">gh</a>
+                    | <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">ewp</a>
+                    | <a href="https://www.pubpub.org/search?q={{q}}">pp</a>
+                </div>
+
+                <div class="topline-search">
+                    <strong>↳ in this agora ⬎</strong>
+                </div>
+
+            </div>
+        </div>
+
+    </nav>
 
     <div class="content">
         {% block content %}

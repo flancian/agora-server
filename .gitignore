@@ -5,3 +5,4 @@ __pycache__
 venv
 tags
 agora.log
+app/node_modules
