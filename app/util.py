@@ -68,6 +68,7 @@ def canonical_wikilink(wikilink):
     )
     return wikilink
 
+
 slugify = canonical_wikilink
 
 

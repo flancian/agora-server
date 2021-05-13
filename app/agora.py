@@ -17,7 +17,6 @@ import jsons
 from flask import Blueprint, url_for, render_template, current_app, Response, redirect, request, jsonify
 from markupsafe import escape
 from urllib.parse import parse_qs 
-from . import config
 from . import db
 from . import feed
 from . import forms 
@@ -69,6 +68,7 @@ def node(node,user_list=[]):
             q=n.wikilink.replace('-', '%20'),
             qstr=n.wikilink.replace('-', ' '),
             render_graph=True if n.subnodes else False,
+            config=current_app.config,
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
             # sorry for the fuzzy thinking but I'm short on time and want to get things done.
             # (...famous last words).
@@ -181,7 +181,6 @@ def composite_go(node0, node1):
     """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
     # TODO(flancian): all node-scoped stuff should move to actually use node objects.
     # TODO(flancian): make [[go]] call this?
-    # TODO(flancian): uncurse / replace anagora.org with the config setting.
     # current_app.logger.debug = print
     current_app.logger.debug(f'running composite_go for {node0}, {node1}.')
     try:
@@ -193,7 +192,7 @@ def composite_go(node0, node1):
         pass
         # return redirect("https://anagora.org/%s" % node0)
 
-    base = config.URL_BASE
+    base = current_app.config['URL_BASE']
     if len(n0) == 0 and len(n1) == 0:
         # No nodes with either names.
         # Redirect to the composite node, which might exist -- or in any case will provide relevant search.

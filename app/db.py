@@ -124,15 +124,16 @@ class Graph:
     # @cache.memoize(timeout=30)
     @cachetools.func.ttl_cache(ttl=30)
     def subnodes(self, sort=lambda x: x.uri.lower()):
+        base = current_app.config['AGORA_PATH']
         # Markdown.
-        subnodes = [Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.md'), recursive=True)]
+        subnodes = [Subnode(f) for f in glob.glob(os.path.join(base, '**/*.md'), recursive=True)]
         # Org mode.
-        subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.org'), recursive=True)])
+        subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, '**/*.org'), recursive=True)])
         # Image formats.
-        subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.jpg'), recursive=True)])
-        subnodes.extend([Subnode(f, mediatype='image/png') for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.png'), recursive=True)])
-        subnodes.extend([Subnode(f, mediatype='image/gif') for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.gif'), recursive=True)])
-        subnodes.extend([Subnode(f, mediatype='image/webp') for f in glob.glob(os.path.join(config.AGORA_PATH, '**/*.webp'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpg'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/png') for f in glob.glob(os.path.join(base, '**/*.png'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/gif') for f in glob.glob(os.path.join(base, '**/*.gif'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/webp') for f in glob.glob(os.path.join(base, '**/*.webp'), recursive=True)])
         if sort:
             return sorted(subnodes, key=sort)
         else:
@@ -161,7 +162,7 @@ class Node:
             self.wikilink = util.canonical_wikilink(wikilink)
         # Yikes, I really did whatever I wanted here. This is clearly not a full url. More like a 'url_path'.
         self.url = '/node/' + self.uri
-        self.actual_uri = config.URI_BASE + '/node/' + self.uri
+        self.actual_uri = current_app.config['URI_BASE'] + '/' + self.uri
         self.subnodes = []
 
     def __lt__(self, other):
@@ -525,7 +526,7 @@ class User:
         return len(self.subnodes)
 
 def path_to_uri(path):
-    return path.replace(config.AGORA_PATH + '/', '')
+    return path.replace(current_app.config['AGORA_PATH'] + '/', '')
 
 def path_to_user(path):
     m = re.search('garden/(.+?)/', path)
@@ -555,7 +556,7 @@ def top():
 
 def all_users():
     # hack hack.
-    users = os.listdir(os.path.join(config.AGORA_PATH, 'garden'))
+    users = os.listdir(os.path.join(current_app.config['AGORA_PATH'], 'garden'))
     return sorted([User(u) for u in users], key=lambda x: x.uri.lower())
 
 def user_journals(user):

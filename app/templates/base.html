@@ -24,7 +24,7 @@
     {% else %}
     <title>Agora</title>
     {% endif %}
-    <meta name="description" content="The Agora is a crowdsourced distributed knowledge graph: anagora.org." />
+    <meta name="description" content="The Agora is a crowdsourced distributed knowledge graph: {{config['AGORA_URI']}}." />
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{url_for('agora.search_xml')}}>
@@ -32,9 +32,11 @@
         href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
     <link rel="stylesheet" media="screen" type="text/css"
         href="{{ url_for('static',filename='css/screen-dark.css')}}" id="theme-link" />
+    {% if node %}
     <script>
         const NODENAME = "{{node.uri}}"
     </script>
+    {% endif %}
     <script type=text/javascript src="{{url_for('static', filename='js/ctzn.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/util.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
@@ -59,7 +61,7 @@
             <input type="text" id="focus-hack">
             <div class="navigation-links">
                 <a href="/"><img src="/static/img/agora.png" class="logo" width="20px" height="20px"></a>
-                <a href="/">anagora.org</a>
+                <a href="/">{{config['AGORA_URI']}}</a>
                 |
                 <a href="/nodes">nodes</a>
                 |
