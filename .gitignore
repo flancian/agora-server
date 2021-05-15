@@ -7,4 +7,9 @@ tags
 agora.log
 app/node_modules
 app/.cache
-app/js-src/config.json
+config.json
+app/static/ctzn.js
+app/static/ctzn.js.map
+app/static/util.js
+app/static/util.js.map
+.cache

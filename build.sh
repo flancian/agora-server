@@ -1,0 +1,1 @@
+parcel build app/js-src/* --out-dir app/static/js
