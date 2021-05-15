@@ -17,7 +17,7 @@
 {% if not node.subnodes and not node.pushed_subnodes() %}
 <div class="node">
     <span class="node-header">→ agora node <a href="/{{node}}">{{qstr}}</a> hasn't been defined yet.</span>
-    <div class="not-found">
+    <div class="not-found subnode">
         <p> <strong>Welcome to [[{{node}}]]! You might be the first person ever in this Agora node.</strong> If so, have fun! Feel free to write something in the public document below. Whoever comes here next will see what you've written.</p>
 
         <p>You can also <a href="/sign-up"><strong>sign up/log in</strong></a> and start contributing your personal notes for integration in this Agora.</p>
@@ -37,9 +37,9 @@
             <span class="subnode-id">↳ subnode <a
                     href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
             <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                    href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+                    href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a></span>
         </div>
-        {{ subnode.render()|linkify|safe }}
+        <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
     </div>
     {% endfor %}
 
