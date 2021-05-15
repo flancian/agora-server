@@ -24,8 +24,8 @@ class ProductionConfig(DefaultConfig):
     ENABLE_CTZN = True
 
 class DevelopmentConfig(DefaultConfig):
-    URL_BASE = "http://dev.anagora.org"
-    URI_BASE = "dev.anagora.org"
+    # URL_BASE = "http://dev.anagora.org"
+    # URI_BASE = "dev.anagora.org"
 
     # EXPERIMENTS
     ENABLE_CTZN = True
