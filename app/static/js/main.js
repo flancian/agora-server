@@ -60,11 +60,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   })
 
+
   // $("#stoa").on("load", () => {
   //   console.log("stoa loaded")
   //   setTimeout(() => $("#focus-hack").show().focus().hide(), 5000)
   // })
-  
+
 });
 
 // function processSettings(args){
@@ -91,93 +92,66 @@ let ctzn
 let connected
 
 window.onload = () => {
-  const user = localStorage["ctzn"]
+  const storageJson = localStorage["ctzn"]
+  const storage = JSON.parse(storageJson)
   console.log("page load")
-  if (user) {
+  if (storageJson) {
     // have localstorage object
-    ctzn = new CTZN(JSON.parse(user))
-    const box = document.getElementById("logout-box")
-    box.style.display = "block"
+    let [name, host] = storage.userId.split("@")
+    let pass = storage.pass
+    ctzn = new CTZN({ name, host, pass })
+
+    const button = `<div class="ctzn-submit"><button onclick="updatePage()">Save</button> <button onclick="toggle()">Toggle preview</button></div>`
+    let node = $(`.subnode-user:contains('${storage.userId}')`).closest(".subnode")
+    console.log("node", node.length)
+
+    if (node.length) { // we found an existing subnode
+      
+    } else {
+      node = $(".node").children(".subnode").last()
+      node.after("<div class='subnode'><span class='subnode-content'></span></div>")
+      node = $(".node").children(".subnode").last()
+    }
+    
+    node.find(".subnode-content").attr("id", "ctzn-textarea").after(button)
+
+    tinymce.init({
+      selector: "#ctzn-textarea",
+      menubar: false,
+      plugins: 'lists',
+      toolbar: 'bullist',
+      height: 400
+    })
     connect()
-  } else {
-    // need login
-    const box = document.getElementById("login-box")
-    box.style.display = "block"
+
   }
+
+
 }
 
 function login() {
-  const box = document.getElementById("login-box")
-  console.log("logging in user")
-  const user = document.getElementById("ctzn-user").value
-  const passwd = document.getElementById("ctzn-password").value
-  const values = user.split("@")
-  const obj = { name: values[0], host: values[1], pass: passwd }
-
-  const storageString = JSON.stringify(obj)
+  const userId = document.getElementById("ctzn-user").value
+  const pass = document.getElementById("ctzn-password").value
+  const storageString = JSON.stringify({ userId, pass})
   localStorage["ctzn"] = storageString
-  box.style.display = "none"
-  ctzn = new CTZN(obj)
-  const box2 = document.getElementById("logout-box")
-  box2.style.display = "block"
-  connect()
+  window.location = "/"
 }
 
 
-function toggle(){
+function toggle() {
   const content = tinymce.get("ctzn-textarea").getContent()
   const updated = Util.replaceStrings(content)
   tinymce.get("ctzn-textarea").setContent(updated)
-  tinymce.execCommand('mceToggleEditor',false,'ctzn-textarea')
+  tinymce.execCommand('mceToggleEditor', false, 'ctzn-textarea')
 }
 
 
 async function connect() {
   if (connected) return
   connected = true
+  console.log("connecing to ctzn websocket")
   await ctzn.connect()
   await ctzn.login()
-  // let following = await ctzn.getFollowing("vera@ctzn.one")
-  // console.log("following", following)
-  const nodes = await ctzn.findNodes(NODENAME)
-  console.log("nodes", nodes)
-  let names = []
-  let content = nodes.map(n => {
-
-    const nonEdit = `
-    <div class='subnode'>
-      <div class='subnode-header'>${n.username}</div>
-      <div>${n.content}</div>
-    </div>`
-
-    const edit = `
-    <div class='subnode'>
-      <div class='subnode-header'>${n.username}</div>
-      <div cols=50 rows=10 id="ctzn-textarea">${n.content}</div>
-      <button onclick="updatePage()">Save</button> <button onclick="toggle()">Toggle preview</button>
-    </div>`
-    names.push(n.username)
-    console.log("username", n.username, "id", ctzn.userId)
-    if (n.username == ctzn.userId) return Util.replaceStrings(edit)
-    return Util.replaceStrings(nonEdit)
-  })
-  if (nodes.length == 0 || !names.includes(ctzn.userId)) {
-    content.push(`
-    <div class='subnode'>
-      <div class='subnode-header'>${ctzn.userId}</div>
-      <div cols=50 rows=10 id="ctzn-textarea"></div>
-      <button onclick="updatePage()">Save</button> <button onclick="toggle()">Toggle preview</button>
-    </div>`)
-  }
-  console.log("content", content)
-  const ctznNode = document.getElementById("ctzn-data")
-  ctznNode.innerHTML = content.join("\n")
-  tinymce.init({
-     selector: "#ctzn-textarea", 
-     menubar: false,
-     plugins: 'lists',
-     toolbar: 'bullist'
-    })
 }
 
 
@@ -185,7 +159,7 @@ async function updatePage() {
   const content = tinymce.activeEditor.getContent();
   console.log("pad content", content)
   await ctzn.updatePage(NODENAME, content)
-  alert("Content saved")
+  // alert("Content saved")
 }
 
 function logout() {

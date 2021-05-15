@@ -143,6 +143,10 @@ def regexsearch():
         return render_template('regexsearch.html', form=form, subnodes=db.search_subnodes(form.query.data))
     return render_template('regexsearch.html', form=form)
 
+@bp.route('/ctzn-login')
+def ctzn_login():
+    return render_template('ctzn_login.html')
+
 # Actions
 # Simple go.
 @bp.route('/go/<node>')

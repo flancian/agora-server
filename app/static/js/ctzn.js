@@ -4270,10 +4270,259 @@ var Client = /*#__PURE__*/function (_CommonClient) {
 }(_client["default"]);
 
 exports.Client = Client;
-},{"@babel/runtime/helpers/interopRequireDefault":"../node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"../node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/inherits":"../node_modules/@babel/runtime/helpers/inherits.js","@babel/runtime/helpers/possibleConstructorReturn":"../node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"../node_modules/@babel/runtime/helpers/getPrototypeOf.js","./lib/client/websocket.browser":"../node_modules/rpc-websockets/dist/lib/client/websocket.browser.js","./lib/client":"../node_modules/rpc-websockets/dist/lib/client.js"}],"ctzn.js":[function(require,module,exports) {
+},{"@babel/runtime/helpers/interopRequireDefault":"../node_modules/@babel/runtime/helpers/interopRequireDefault.js","@babel/runtime/helpers/classCallCheck":"../node_modules/@babel/runtime/helpers/classCallCheck.js","@babel/runtime/helpers/inherits":"../node_modules/@babel/runtime/helpers/inherits.js","@babel/runtime/helpers/possibleConstructorReturn":"../node_modules/@babel/runtime/helpers/possibleConstructorReturn.js","@babel/runtime/helpers/getPrototypeOf":"../node_modules/@babel/runtime/helpers/getPrototypeOf.js","./lib/client/websocket.browser":"../node_modules/rpc-websockets/dist/lib/client/websocket.browser.js","./lib/client":"../node_modules/rpc-websockets/dist/lib/client.js"}],"../../../../../usr/local/share/.config/yarn/global/node_modules/process/browser.js":[function(require,module,exports) {
+
+// shim for using process in browser
+var process = module.exports = {}; // cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+  throw new Error('setTimeout has not been defined');
+}
+
+function defaultClearTimeout() {
+  throw new Error('clearTimeout has not been defined');
+}
+
+(function () {
+  try {
+    if (typeof setTimeout === 'function') {
+      cachedSetTimeout = setTimeout;
+    } else {
+      cachedSetTimeout = defaultSetTimout;
+    }
+  } catch (e) {
+    cachedSetTimeout = defaultSetTimout;
+  }
+
+  try {
+    if (typeof clearTimeout === 'function') {
+      cachedClearTimeout = clearTimeout;
+    } else {
+      cachedClearTimeout = defaultClearTimeout;
+    }
+  } catch (e) {
+    cachedClearTimeout = defaultClearTimeout;
+  }
+})();
+
+function runTimeout(fun) {
+  if (cachedSetTimeout === setTimeout) {
+    //normal enviroments in sane situations
+    return setTimeout(fun, 0);
+  } // if setTimeout wasn't available but was latter defined
+
+
+  if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+    cachedSetTimeout = setTimeout;
+    return setTimeout(fun, 0);
+  }
+
+  try {
+    // when when somebody has screwed with setTimeout but no I.E. maddness
+    return cachedSetTimeout(fun, 0);
+  } catch (e) {
+    try {
+      // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+      return cachedSetTimeout.call(null, fun, 0);
+    } catch (e) {
+      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+      return cachedSetTimeout.call(this, fun, 0);
+    }
+  }
+}
+
+function runClearTimeout(marker) {
+  if (cachedClearTimeout === clearTimeout) {
+    //normal enviroments in sane situations
+    return clearTimeout(marker);
+  } // if clearTimeout wasn't available but was latter defined
+
+
+  if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+    cachedClearTimeout = clearTimeout;
+    return clearTimeout(marker);
+  }
+
+  try {
+    // when when somebody has screwed with setTimeout but no I.E. maddness
+    return cachedClearTimeout(marker);
+  } catch (e) {
+    try {
+      // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+      return cachedClearTimeout.call(null, marker);
+    } catch (e) {
+      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+      // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+      return cachedClearTimeout.call(this, marker);
+    }
+  }
+}
+
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+  if (!draining || !currentQueue) {
+    return;
+  }
+
+  draining = false;
+
+  if (currentQueue.length) {
+    queue = currentQueue.concat(queue);
+  } else {
+    queueIndex = -1;
+  }
+
+  if (queue.length) {
+    drainQueue();
+  }
+}
+
+function drainQueue() {
+  if (draining) {
+    return;
+  }
+
+  var timeout = runTimeout(cleanUpNextTick);
+  draining = true;
+  var len = queue.length;
+
+  while (len) {
+    currentQueue = queue;
+    queue = [];
+
+    while (++queueIndex < len) {
+      if (currentQueue) {
+        currentQueue[queueIndex].run();
+      }
+    }
+
+    queueIndex = -1;
+    len = queue.length;
+  }
+
+  currentQueue = null;
+  draining = false;
+  runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+  var args = new Array(arguments.length - 1);
+
+  if (arguments.length > 1) {
+    for (var i = 1; i < arguments.length; i++) {
+      args[i - 1] = arguments[i];
+    }
+  }
+
+  queue.push(new Item(fun, args));
+
+  if (queue.length === 1 && !draining) {
+    runTimeout(drainQueue);
+  }
+}; // v8 likes predictible objects
+
+
+function Item(fun, array) {
+  this.fun = fun;
+  this.array = array;
+}
+
+Item.prototype.run = function () {
+  this.fun.apply(null, this.array);
+};
+
+process.title = 'browser';
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) {
+  return [];
+};
+
+process.binding = function (name) {
+  throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () {
+  return '/';
+};
+
+process.chdir = function (dir) {
+  throw new Error('process.chdir is not supported');
+};
+
+process.umask = function () {
+  return 0;
+};
+},{}],"../node_modules/browser-or-node/lib/index.js":[function(require,module,exports) {
+var process = require("process");
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/* global window self */
+
+var isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
+
+/* eslint-disable no-restricted-globals */
+var isWebWorker = (typeof self === 'undefined' ? 'undefined' : _typeof(self)) === 'object' && self.constructor && self.constructor.name === 'DedicatedWorkerGlobalScope';
+/* eslint-enable no-restricted-globals */
+
+var isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+
+/**
+ * @see https://github.com/jsdom/jsdom/releases/tag/12.0.0
+ * @see https://github.com/jsdom/jsdom/issues/1537
+ */
+/* eslint-disable no-undef */
+var isJsDom = function isJsDom() {
+  return typeof window !== 'undefined' && window.name === 'nodejs' || navigator.userAgent.includes('Node.js') || navigator.userAgent.includes('jsdom');
+};
+
+exports.isBrowser = isBrowser;
+exports.isWebWorker = isWebWorker;
+exports.isNode = isNode;
+exports.isJsDom = isJsDom;
+},{"process":"../../../../../usr/local/share/.config/yarn/global/node_modules/process/browser.js"}],"ctzn.js":[function(require,module,exports) {
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
 var _rpcWebsockets = require("rpc-websockets");
+
+var _browserOrNode = require("browser-or-node");
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
@@ -4299,80 +4548,91 @@ var CTZN = /*#__PURE__*/function () {
 
   _createClass(CTZN, [{
     key: "connect",
-    value: function (_connect) {
-      function connect() {
-        return _connect.apply(this, arguments);
-      }
-
-      connect.toString = function () {
-        return _connect.toString();
-      };
-
-      return connect;
-    }(function () {
-      var wsServer = "wss://".concat(this.user.host);
-      var ws = new _rpcWebsockets.Client(wsServer);
-      var self = this;
-      return new Promise(function (resolve, reject) {
-        ws.on("open", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-          return regeneratorRuntime.wrap(function _callee$(_context) {
-            while (1) {
-              switch (_context.prev = _context.next) {
-                case 0:
-                  console.log("websocket set");
-                  self.ws = ws;
-                  resolve("connected");
-
-                case 3:
-                case "end":
-                  return _context.stop();
-              }
-            }
-          }, _callee);
-        })));
-
-        ws.onclose = function (e) {
-          console.log("Socket is closed. Reconnect will be attempted in 1 second.", e.reason);
-          setTimeout(function () {
-            connect();
-          }, 1000);
-        };
-
-        ws.onerror = function (err) {
-          console.error("Socket encountered error: ", err.message, "Closing socket");
-          ws.close();
-          reject(err);
-        };
-      });
-    })
-  }, {
-    key: "getFollowers",
     value: function () {
-      var _getFollowers = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(user) {
-        var serverHost, res, body;
+      var _connect = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+        var _this = this;
+
+        var wsServer, ws;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                serverHost = user.split("@")[1];
-                _context2.next = 3;
-                return fetch("https://".concat(serverHost, "/.view/ctzn.network/followers-view/").concat(user));
+                wsServer = "wss://".concat(this.user.host);
+                ws = new _rpcWebsockets.Client(wsServer);
+                return _context2.abrupt("return", new Promise(function (resolve, reject) {
+                  ws.on("open", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+                    return regeneratorRuntime.wrap(function _callee$(_context) {
+                      while (1) {
+                        switch (_context.prev = _context.next) {
+                          case 0:
+                            _this.ws = ws;
+                            console.log("websocket set");
+                            _context.next = 4;
+                            return _this.login();
+
+                          case 4:
+                            resolve();
+
+                          case 5:
+                          case "end":
+                            return _context.stop();
+                        }
+                      }
+                    }, _callee);
+                  }))).on("close", function (e) {
+                    console.error("Socket is closed. Reconnect will be attempted in 1 second.", e);
+                    setTimeout(function () {// connect();
+                      // throw "supposed to stay open"
+                    }, 1000);
+                  }).on("error", function (err) {
+                    console.error("Socket encountered error: ", err.message, "Closing socket");
+                    ws.close();
+                    reject(err);
+                  });
+                }));
 
               case 3:
-                res = _context2.sent;
-                _context2.next = 6;
-                return res.json();
-
-              case 6:
-                body = _context2.sent;
-                return _context2.abrupt("return", body.followers);
-
-              case 8:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2);
+        }, _callee2, this);
+      }));
+
+      function connect() {
+        return _connect.apply(this, arguments);
+      }
+
+      return connect;
+    }()
+  }, {
+    key: "getFollowers",
+    value: function () {
+      var _getFollowers = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(user) {
+        var serverHost, res, body;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                serverHost = user.split("@")[1];
+                _context3.next = 3;
+                return fetch("https://".concat(serverHost, "/.view/ctzn.network/followers-view/").concat(user));
+
+              case 3:
+                res = _context3.sent;
+                _context3.next = 6;
+                return res.json();
+
+              case 6:
+                body = _context3.sent;
+                return _context3.abrupt("return", body.followers);
+
+              case 8:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3);
       }));
 
       function getFollowers(_x) {
@@ -4384,28 +4644,28 @@ var CTZN = /*#__PURE__*/function () {
   }, {
     key: "getFollowing",
     value: function () {
-      var _getFollowing = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(user) {
+      var _getFollowing = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(user) {
         var following, entries;
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
-                _context3.next = 2;
+                _context4.next = 2;
                 return this.apiCall("table.list", [user, "ctzn.network/follow"]);
 
               case 2:
-                following = _context3.sent;
+                following = _context4.sent;
                 entries = following.entries.map(function (f) {
                   return f.key;
                 });
-                return _context3.abrupt("return", entries);
+                return _context4.abrupt("return", entries);
 
               case 5:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3, this);
+        }, _callee4, this);
       }));
 
       function getFollowing(_x2) {
@@ -4418,39 +4678,37 @@ var CTZN = /*#__PURE__*/function () {
   }, {
     key: "login",
     value: function () {
-      var _login = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+      var _login = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
         var user, res;
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
-                console.log("this user", this.user, "ws", this.ws);
-
                 if (this.ws) {
-                  _context4.next = 3;
+                  _context5.next = 2;
                   break;
                 }
 
-                return _context4.abrupt("return", "websocket not connected");
+                return _context5.abrupt("return", "websocket not connected");
 
-              case 3:
+              case 2:
                 user = {
                   username: this.user.name,
                   password: this.user.pass
                 };
-                _context4.next = 6;
+                _context5.next = 5;
                 return this.apiCall("accounts.login", [user]);
 
-              case 6:
-                res = _context4.sent;
-                return _context4.abrupt("return", res);
+              case 5:
+                res = _context5.sent;
+                return _context5.abrupt("return", res);
 
-              case 8:
+              case 7:
               case "end":
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4, this);
+        }, _callee5, this);
       }));
 
       function login() {
@@ -4462,34 +4720,26 @@ var CTZN = /*#__PURE__*/function () {
   }, {
     key: "getPages",
     value: function () {
-      var _getPages = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(user) {
+      var _getPages = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(user) {
         var serverHost, res;
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context6.prev = _context6.next) {
               case 0:
-                _context5.prev = 0;
-                serverHost = user.split("@")[1]; // const res = await fetch(`https://${serverHost}/.table/${user}/ctzn.network/page`)
-
-                _context5.next = 4;
+                serverHost = user.split("@")[1];
+                _context6.next = 3;
                 return this.apiCall("table.list", [user, "ctzn.network/page"]);
 
-              case 4:
-                res = _context5.sent;
-                return _context5.abrupt("return", res.entries || [{}]);
+              case 3:
+                res = _context6.sent;
+                return _context6.abrupt("return", res.entries || [{}]);
 
-              case 8:
-                _context5.prev = 8;
-                _context5.t0 = _context5["catch"](0);
-                console.error(_context5.t0);
-                return _context5.abrupt("return", [{}]);
-
-              case 12:
+              case 5:
               case "end":
-                return _context5.stop();
+                return _context6.stop();
             }
           }
-        }, _callee5, this, [[0, 8]]);
+        }, _callee6, this);
       }));
 
       function getPages(_x3) {
@@ -4501,54 +4751,48 @@ var CTZN = /*#__PURE__*/function () {
   }, {
     key: "discoverPage",
     value: function () {
-      var _discoverPage = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(f, slug) {
+      var _discoverPage = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(f, slug) {
         var pages, page, blobName, blob, content;
-        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+        return regeneratorRuntime.wrap(function _callee7$(_context7) {
           while (1) {
-            switch (_context6.prev = _context6.next) {
+            switch (_context7.prev = _context7.next) {
               case 0:
-                _context6.next = 2;
+                _context7.next = 2;
                 return this.getPages(f);
 
               case 2:
-                pages = _context6.sent;
-                // console.log("pages", pages)
+                pages = _context7.sent;
                 page = pages.find(function (p) {
-                  // console.log("p",p,"slug",slug)
-                  var dateSlug = "agora-prefix-".concat(slug); // console.log("wtf", p.key == dateSlug)
-
+                  var dateSlug = "agora-prefix-".concat(slug);
                   return p.key == slug || p.key == dateSlug;
                 });
 
                 if (page) {
-                  _context6.next = 6;
+                  _context7.next = 6;
                   break;
                 }
 
-                return _context6.abrupt("return");
+                return _context7.abrupt("return");
 
               case 6:
-                console.log("page", page);
                 blobName = page.value.content.blobName;
-                _context6.next = 10;
+                _context7.next = 9;
                 return this.apiCall("blob.get", [f, blobName]);
 
-              case 10:
-                blob = _context6.sent;
-                console.log("blob", blob);
+              case 9:
+                blob = _context7.sent;
                 content = atob(blob.buf);
-                console.log("content", content);
-                return _context6.abrupt("return", {
+                return _context7.abrupt("return", {
                   username: f,
                   content: content
                 });
 
-              case 15:
+              case 12:
               case "end":
-                return _context6.stop();
+                return _context7.stop();
             }
           }
-        }, _callee6, this);
+        }, _callee7, this);
       }));
 
       function discoverPage(_x4, _x5) {
@@ -4560,52 +4804,52 @@ var CTZN = /*#__PURE__*/function () {
   }, {
     key: "findNodes",
     value: function () {
-      var _findNodes = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(slug) {
-        var _this = this;
+      var _findNodes = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(slug) {
+        var _this2 = this;
 
         var nodes, following;
-        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+        return regeneratorRuntime.wrap(function _callee8$(_context8) {
           while (1) {
-            switch (_context7.prev = _context7.next) {
+            switch (_context8.prev = _context8.next) {
               case 0:
                 nodes = [];
-                _context7.next = 3;
+                _context8.next = 3;
                 return this.getFollowing("".concat(this.user.name, "@").concat(this.user.host));
 
               case 3:
-                following = _context7.sent;
+                following = _context8.sent;
                 console.log("following", following);
                 following.push("".concat(this.user.name, "@").concat(this.user.host));
-                _context7.prev = 6;
-                _context7.next = 9;
+                _context8.prev = 6;
+                _context8.next = 9;
                 return Promise.all(following.map(function (f) {
-                  return _this.discoverPage(f, slug);
+                  return _this2.discoverPage(f, slug);
                 }));
 
               case 9:
-                nodes = _context7.sent;
-                _context7.next = 16;
+                nodes = _context8.sent;
+                _context8.next = 16;
                 break;
 
               case 12:
-                _context7.prev = 12;
-                _context7.t0 = _context7["catch"](6);
+                _context8.prev = 12;
+                _context8.t0 = _context8["catch"](6);
                 console.log("DOH");
-                console.error(_context7.t0);
+                console.error(_context8.t0);
 
               case 16:
                 console.log("nodes", nodes);
                 nodes = nodes.filter(function (p) {
                   return p;
                 });
-                return _context7.abrupt("return", nodes);
+                return _context8.abrupt("return", nodes);
 
               case 19:
               case "end":
-                return _context7.stop();
+                return _context8.stop();
             }
           }
-        }, _callee7, this, [[6, 12]]);
+        }, _callee8, this, [[6, 12]]);
       }));
 
       function findNodes(_x6) {
@@ -4617,30 +4861,29 @@ var CTZN = /*#__PURE__*/function () {
   }, {
     key: "apiCall",
     value: function () {
-      var _apiCall = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(params, data) {
-        var result;
-        return regeneratorRuntime.wrap(function _callee8$(_context8) {
+      var _apiCall = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(params, data) {
+        return regeneratorRuntime.wrap(function _callee9$(_context9) {
           while (1) {
-            switch (_context8.prev = _context8.next) {
+            switch (_context9.prev = _context9.next) {
               case 0:
-                _context8.next = 2;
-                return this.ws.call(params, data).then(function (result) {
-                  return result;
-                }).catch(function (error) {
-                  console.error(error);
-                  return {};
-                });
+                _context9.prev = 0;
+                _context9.next = 3;
+                return this.ws.call(params, data);
 
-              case 2:
-                result = _context8.sent;
-                return _context8.abrupt("return", result);
+              case 3:
+                return _context9.abrupt("return", _context9.sent);
 
-              case 4:
+              case 6:
+                _context9.prev = 6;
+                _context9.t0 = _context9["catch"](0);
+                console.error(_context9.t0);
+
+              case 9:
               case "end":
-                return _context8.stop();
+                return _context9.stop();
             }
           }
-        }, _callee8, this);
+        }, _callee9, this, [[0, 6]]);
       }));
 
       function apiCall(_x7, _x8) {
@@ -4652,22 +4895,22 @@ var CTZN = /*#__PURE__*/function () {
   }, {
     key: "updatePage",
     value: function () {
-      var _updatePage = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(pageName, content) {
+      var _updatePage = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(pageName, content) {
         var encoded, res, update;
-        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+        return regeneratorRuntime.wrap(function _callee10$(_context10) {
           while (1) {
-            switch (_context9.prev = _context9.next) {
+            switch (_context10.prev = _context10.next) {
               case 0:
                 encoded = btoa(content);
                 if (pageName.match(/^\d/)) pageName = "agora-prefix-".concat(pageName);
-                _context9.next = 4;
+                _context10.next = 4;
                 return this.apiCall("blob.update", ["ui:pages:".concat(pageName), encoded, {
                   "mimeType": "text/html"
                 }]);
 
               case 4:
-                res = _context9.sent;
-                _context9.next = 7;
+                res = _context10.sent;
+                _context10.next = 7;
                 return this.apiCall("table.create", [this.userId, "ctzn.network/page", {
                   id: pageName,
                   title: pageName,
@@ -4678,16 +4921,16 @@ var CTZN = /*#__PURE__*/function () {
                 }]);
 
               case 7:
-                update = _context9.sent;
+                update = _context10.sent;
                 console.log("page update", update);
-                return _context9.abrupt("return", res);
+                return _context10.abrupt("return", res);
 
               case 10:
               case "end":
-                return _context9.stop();
+                return _context10.stop();
             }
           }
-        }, _callee9, this);
+        }, _callee10, this);
       }));
 
       function updatePage(_x9, _x10) {
@@ -4706,8 +4949,12 @@ var CTZN = /*#__PURE__*/function () {
   return CTZN;
 }();
 
-window.CTZN = CTZN;
-},{"rpc-websockets":"../node_modules/rpc-websockets/dist/index.browser.js"}],"../../../../../usr/local/share/.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+exports.default = CTZN;
+
+if (_browserOrNode.isBrowser) {
+  window.CTZN = CTZN;
+}
+},{"rpc-websockets":"../node_modules/rpc-websockets/dist/index.browser.js","browser-or-node":"../node_modules/browser-or-node/lib/index.js"}],"../../../../../usr/local/share/.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -4735,7 +4982,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42753" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33249" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
