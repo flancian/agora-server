@@ -159,6 +159,7 @@ async function updatePage() {
   const content = tinymce.activeEditor.getContent();
   console.log("pad content", content)
   await ctzn.updatePage(NODENAME, content)
+  Util.downloadPage(`${ctzn.user.name}@${ctzn.user.host}`,NODENAME)
   // alert("Content saved")
 }
 
