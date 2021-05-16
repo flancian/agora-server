@@ -16,7 +16,7 @@ class DefaultConfig(object):
     # experiments can be booleans or probabilities (reals in 0..1).
     # release process: set them initially to False/0 in the DefaultConfig and then override in the right environment.
     ENABLE_CTZN = False
-    ENABLE_NODE_COUNT = False
+    ENABLE_STATS = False
 
 class ProductionConfig(DefaultConfig):
     
@@ -29,4 +29,4 @@ class DevelopmentConfig(DefaultConfig):
 
     # EXPERIMENTS
     ENABLE_CTZN = True
-    ENABLE_NODE_COUNT = True
+    ENABLE_STATS = True

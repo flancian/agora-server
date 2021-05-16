@@ -298,7 +298,10 @@ def garden(garden):
 # Lists
 @bp.route('/nodes')
 def nodes():
-    return render_template('nodes.html', nodes=db.top())
+    if current_app.config['ENABLE_STATS']:
+        return render_template('nodes.html', nodes=db.top(), stats=db.stats())
+    else:
+        return render_template('nodes.html', nodes=db.top(), stats=None)
 
 @bp.route('/nodes.json')
 def nodes_json():
