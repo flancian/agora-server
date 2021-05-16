@@ -13,5 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#uwsgi --socket 0.0.0.0:5000 --protocol=http --module 'app:create_app()'                       
+export FLASK_ENV="production"
+export AGORA_CONFIG="ProductionConfig"
 uwsgi prod.ini

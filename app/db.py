@@ -53,8 +53,15 @@ class Graph:
     def edge(self, n0, n1):
         pass
 
+    @cachetools.func.ttl_cache(ttl=300)
     def edges(self):
         pass
+
+    @cachetools.func.ttl_cache(ttl=300)
+    def n_edges(self):
+        subnodes = G.subnodes()
+        edges = sum([len(subnode.forward_links) for subnode in subnodes])
+        return edges
 
     def node(self, uri):
         # looks up a node by uri (essentially [[wikilink]]).
@@ -131,6 +138,7 @@ class Graph:
         subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, '**/*.org'), recursive=True)])
         # Image formats.
         subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpg'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpeg'), recursive=True)])
         subnodes.extend([Subnode(f, mediatype='image/png') for f in glob.glob(os.path.join(base, '**/*.png'), recursive=True)])
         subnodes.extend([Subnode(f, mediatype='image/gif') for f in glob.glob(os.path.join(base, '**/*.gif'), recursive=True)])
         subnodes.extend([Subnode(f, mediatype='image/webp') for f in glob.glob(os.path.join(base, '**/*.webp'), recursive=True)])
@@ -553,6 +561,16 @@ def latest():
 
 def top():
     return sorted(G.nodes().values(), key=lambda x: -x.size())
+
+def stats():
+    stats = {}
+
+    stats['nodes'] = len(G.nodes())
+    stats['subnodes'] = len(G.subnodes())
+    stats['edges'] = G.n_edges()
+    stats['users'] = len(all_users())
+
+    return stats
 
 def all_users():
     # hack hack.

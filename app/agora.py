@@ -143,6 +143,10 @@ def regexsearch():
         return render_template('regexsearch.html', form=form, subnodes=db.search_subnodes(form.query.data))
     return render_template('regexsearch.html', form=form)
 
+@bp.route('/ctzn-login')
+def ctzn_login():
+    return render_template('ctzn_login.html')
+
 # Actions
 # Simple go.
 @bp.route('/go/<node>')
@@ -294,7 +298,10 @@ def garden(garden):
 # Lists
 @bp.route('/nodes')
 def nodes():
-    return render_template('nodes.html', nodes=db.top())
+    if current_app.config['ENABLE_STATS']:
+        return render_template('nodes.html', nodes=db.top(), stats=db.stats())
+    else:
+        return render_template('nodes.html', nodes=db.top(), stats=None)
 
 @bp.route('/nodes.json')
 def nodes_json():
