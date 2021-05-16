@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+npm install ./app/js-src --prefix ./app/js-src
+npx parcel-bundler build app/js-src/*.js --out-dir ../static/js
 export FLASK_ENV="production"
 export AGORA_CONFIG="ProductionConfig"
 uwsgi prod.ini
