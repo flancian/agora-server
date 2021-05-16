@@ -36,13 +36,19 @@ G = db.G
 @bp.route('/wikilink/<node>')
 @bp.route('/node/<node>/uprank/<user_list>')
 @bp.route('/node/<node>')
+@bp.route('/<node>/uprank/<user_list>')
 @bp.route('/<node>')
-def node(node,user_list=[]):
+def node(node,user_list=''):
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
+    # default uprank: system account and maintainers
+    # TODO: move to config.py
+    rank = ['agora', 'flancian', 'vera']
     if user_list:
-        rank = user_list.split(",")
-    else:
-        rank = ['agora', 'flancian']
+        # override rank
+        if ',' in user_list:
+            rank = user_list.split(",")
+        else:
+            rank = user_list
     n = G.node(node)
     if n.subnodes:
         # earlier in the list means more highly ranked.
