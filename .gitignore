@@ -13,3 +13,4 @@ app/static/js/ctzn.js.map
 app/static/js/util.js
 app/static/js/util.js.map
 .cache
+app/js-src/node_modules
