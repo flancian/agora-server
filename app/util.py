@@ -55,8 +55,10 @@ def canonical_wikilink(wikilink):
         .strip()
         # chars that convert to -, slug-like.
         .replace(' ', '-')
-        # still thinking this one through, but I guess it makes sense
-        .replace('.', '-')
+        # this seemed to make sense but I found it too limiting. it makes the following lossy:
+        # - example.tld
+        # - filename.ext
+        # .replace('.', '-')
         # chars that are elided.
         .replace('\'', '')
         .replace('%', '')

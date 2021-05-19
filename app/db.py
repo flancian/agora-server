@@ -18,7 +18,6 @@ import itertools
 import re
 import os
 from flask import current_app
-from . import cache
 from . import config
 from . import feed
 from . import render

@@ -22,14 +22,6 @@ from markdown.extensions.wikilinks import WikiLinkExtension
 from . import util
 from flask_cors import CORS
 
-cache = Cache()
-logging.basicConfig(
-        filename='agora.log', 
-        level=logging.DEBUG,
-        format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
-        )
-
-
 def create_app():
 
     # create and configure the app
@@ -38,17 +30,18 @@ def create_app():
     app.config.from_object('app.config.' + config)
     CORS(app)
 
-    cache.init_app(app, config={
-        'CACHE_TYPE': 'SimpleCache', 
-        'CACHE_DEFAULT_TIMEOUT': 60,
-        #'CACHE_TYPE': 'FileSystemCache',
-        #'CACHE_DIR': '/tmp',
-        #'CACHE_TYPE': 'MemcachedCache', 
-        #'CACHE_THRESHOLD': 10,
-        #'CACHE_MEMCACHED_SERVERS': 'localhost',
-        #'CACHE_KEY_PREFIX': 'agora',
-        #'CACHE_REDIS_HOST': 'localhost',
-        })
+    # there's probably a better way to make this distinction, but this works.
+    if config == 'ProductionConfig':
+        logging.basicConfig(
+            filename='agora.log', 
+            level=logging.WARNING,
+            format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+            )
+    else:
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+            )
 
     # ensure the instance folder exists
     try:
@@ -73,7 +66,7 @@ def create_app():
          try:
              output = render.markdown(s)
          except AttributeError:
-             print("***a heisenbug appears***")
+             app.logger.debug("***a heisenbug appears***")
              output = s
          return output
 
@@ -85,8 +78,5 @@ def create_app():
     def log_exit(req):
       app.logger.debug(f'Finished handling {req}.')
       return req
-
-
-
 
     return app

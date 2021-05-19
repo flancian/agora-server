@@ -36,13 +36,23 @@ G = db.G
 @bp.route('/wikilink/<node>')
 @bp.route('/node/<node>/uprank/<user_list>')
 @bp.route('/node/<node>')
+@bp.route('/<node>/uprank/<user_list>')
 @bp.route('/<node>')
-def node(node,user_list=[]):
+def node(node,user_list=''):
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
+    # default uprank: system account and maintainers
+    # TODO: move to config.py
+    rank = ['agora', 'flancian', 'vera']
     if user_list:
-        rank = user_list.split(",")
-    else:
-        rank = ['agora', 'flancian']
+        # override rank
+        if ',' in user_list:
+            rank = user_list.split(",")
+        else:
+            rank = user_list
+
+    if '.' in node:
+        current_app.logger.debug('****************** 000 code necessary for single-resource serving/embedding would kick in.')
+
     n = G.node(node)
     if n.subnodes:
         # earlier in the list means more highly ranked.
@@ -252,15 +262,12 @@ def search():
     results = providers.get_bids(q, tokens)
     results.sort(reverse=True) # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
     current_app.logger.info(f'Search results for {q}: {results}')
-    print(f'Search results for {q}: {results}')
     result = results[0] # the agora always returns at least one result: the offer to render the node for the query.
 
     # perhaps here there could be special logic to flash a string at the top of the result node if what we got back from search is a string.
 
     # hack hack
     # [[push]] [[2021-02-28]] in case I don't get to it today.
-    # if tokens[0] == 'go' and len(tokens) > 1:
-    #    return redirect(url_for('.go', node=util.slugify(" ".join(tokens[1:]))))
     if callable(result.proposal):
         return result.proposal()
     if result.message:
