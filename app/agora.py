@@ -37,8 +37,9 @@ G = db.G
 @bp.route('/node/<node>/uprank/<user_list>')
 @bp.route('/node/<node>')
 @bp.route('/<node>/uprank/<user_list>')
+@bp.route('/<node>.<extension>')
 @bp.route('/<node>')
-def node(node,user_list=''):
+def node(node, extension='', user_list=''):
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
     # default uprank: system account and maintainers
     # TODO: move to config.py
@@ -50,17 +51,25 @@ def node(node,user_list=''):
         else:
             rank = user_list
 
-    if '.' in node:
-        current_app.logger.debug('****************** 000 code necessary for single-resource serving/embedding would kick in.')
+    from copy import copy
+    n = copy(G.node(node))
 
-    n = G.node(node)
     if n.subnodes:
         # earlier in the list means more highly ranked.
         n.subnodes = util.uprank(n.subnodes, users=rank)
-        permutations = []
-    # if it's a 404, include permutations.
+        if extension:
+            # this is pretty hacky but it works for now
+            # should probably move to a filter method in the node? and get better template support to make what's happening clearer.
+            current_app.logger.debug(f'filtering down to extension {extension}')
+            n.subnodes = [subnode for subnode in n.subnodes if subnode.uri.endswith(f'.{extension}')]
+            n.uri = n.uri + f'.{extension}'
+            n.wikilink = n.wikilink + f'.{extension}'
+        autopull = []
+    # if it's a 404, pull other nodes optimistically if any relevant are available.
     else:
-        permutations = G.existing_permutations(node)
+        # disabled for now, not super useful
+        # autopull = G.related(node)
+        autopull = []
 
     search_subnodes = db.search_subnodes(node)
 
@@ -70,14 +79,14 @@ def node(node,user_list=''):
             'content.html', 
             node=n,
             backlinks=n.back_links(),
-            pull_nodes=n.pull_nodes() if n.subnodes else permutations,
+            pull_nodes=n.pull_nodes() if n.subnodes else autopull,
             forwardlinks=n.forward_links() if n else [],
             search=search_subnodes,
             pulling_nodes=n.pulling_nodes(),
             pushing_nodes=n.pushing_nodes(),
             q=n.wikilink.replace('-', '%20'),
             qstr=n.wikilink.replace('-', ' '),
-            render_graph=True if n.subnodes else False,
+            render_graph=True if n.back_links() or n.subnodes else False,
             config=current_app.config,
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
             # sorry for the fuzzy thinking but I'm short on time and want to get things done.

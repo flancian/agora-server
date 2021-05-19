@@ -86,6 +86,14 @@ class Graph:
         nodes = [node for node in G.nodes().values() if node.wikilink in permutations and node.subnodes]
         return nodes
 
+    def related(self, uri, max_length=4):
+        # looks up nodes which are somehow related to the tokenized uri.
+        tokens = uri.split('-')
+        permutations = itertools.permutations(tokens, max_length)
+        permutations = ['-'.join(permutation) for permutation in permutations]
+        nodes = [node for node in G.nodes().values() if node.wikilink.startswith(uri) and node.subnodes]
+        return nodes
+
     # @cache.memoize(timeout=30)
     @cachetools.func.ttl_cache(ttl=20)
     def nodes(self, include_journals=True):
