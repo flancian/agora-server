@@ -41,47 +41,65 @@ G = db.G
 @bp.route('/wikilink/<node>')
 @bp.route('/node/<node>/uprank/<user_list>')
 @bp.route('/node/<node>')
+@bp.route('/<node>/uprank/<user_list>')
+@bp.route('/<node>.<extension>')
 @bp.route('/<node>')
-def node(node, user_list=[]):
+def node(node, extension='', user_list=''):
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
+    # default uprank: system account and maintainers
+    # TODO: move to config.py
+    rank = ['agora', 'flancian', 'vera']
     if user_list:
-        rank = user_list.split(",")
-    else:
-        rank = ['agora', 'flancian']
-    n = G.node(node)
+        # override rank
+        if ',' in user_list:
+            rank = user_list.split(",")
+        else:
+            rank = user_list
+
+    from copy import copy
+    n = copy(G.node(node))
+
     if n.subnodes:
         # earlier in the list means more highly ranked.
         n.subnodes = util.uprank(n.subnodes, users=rank)
-        permutations = []
-    # if it's a 404, include permutations.
+        if extension:
+            # this is pretty hacky but it works for now
+            # should probably move to a filter method in the node? and get better template support to make what's happening clearer.
+            current_app.logger.debug(f'filtering down to extension {extension}')
+            n.subnodes = [subnode for subnode in n.subnodes if subnode.uri.endswith(f'.{extension}')]
+            n.uri = n.uri + f'.{extension}'
+            n.wikilink = n.wikilink + f'.{extension}'
+        autopull = []
+    # if it's a 404, pull other nodes optimistically if any relevant are available.
     else:
-        permutations = G.existing_permutations(node)
+        # disabled for now, not super useful
+        # autopull = G.related(node)
+        autopull = []
 
     search_subnodes = db.search_subnodes(node)
 
     current_app.logger.debug(f'[[{node}]]: Assembled node.')
     return render_template(
-        # yuck
-        'content.html',
-        node=n,
-        backlinks=n.back_links(),
-        pull_nodes=n.pull_nodes() if n.subnodes else permutations,
-        forwardlinks=n.forward_links() if n else [],
-        search=search_subnodes,
-        pulling_nodes=n.pulling_nodes(),
-        pushing_nodes=n.pushing_nodes(),
-        q=n.wikilink.replace('-', '%20'),
-        qstr=n.wikilink.replace('-', ' '),
-        render_graph=True if n.subnodes else False,
-        config=current_app.config,
-        # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
-        # sorry for the fuzzy thinking but I'm short on time and want to get things done.
-        # (...famous last words).
-        # annotations=n.annotations(),
-    )
+            # yuck
+            'content.html', 
+            node=n,
+            backlinks=n.back_links(),
+            pull_nodes=n.pull_nodes() if n.subnodes else autopull,
+            forwardlinks=n.forward_links() if n else [],
+            search=search_subnodes,
+            pulling_nodes=n.pulling_nodes(),
+            pushing_nodes=n.pushing_nodes(),
+            q=n.wikilink.replace('-', '%20'),
+            qstr=n.wikilink.replace('-', ' '),
+            render_graph=True if n.back_links() or n.subnodes else False,
+            config=current_app.config,
+            # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
+            # sorry for the fuzzy thinking but I'm short on time and want to get things done.
+            # (...famous last words).
+            # annotations=n.annotations(),
+            )
 
-
-@bp.route('/ttl/<node>')  # perhaps deprecated
+@bp.route('/ttl/<node>') # perhaps deprecated
 @bp.route('/turtle/<node>')
 @bp.route('/graph/turtle/<node>')
 def turtle(node):
@@ -279,16 +297,12 @@ def search():
     # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
     results.sort(reverse=True)
     current_app.logger.info(f'Search results for {q}: {results}')
-    print(f'Search results for {q}: {results}')
-    # the agora always returns at least one result: the offer to render the node for the query.
-    result = results[0]
+    result = results[0] # the agora always returns at least one result: the offer to render the node for the query.
 
     # perhaps here there could be special logic to flash a string at the top of the result node if what we got back from search is a string.
 
     # hack hack
     # [[push]] [[2021-02-28]] in case I don't get to it today.
-    # if tokens[0] == 'go' and len(tokens) > 1:
-    #    return redirect(url_for('.go', node=util.slugify(" ".join(tokens[1:]))))
     if callable(result.proposal):
         return result.proposal()
     if result.message:

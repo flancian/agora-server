@@ -17,6 +17,7 @@ class DefaultConfig(object):
     # release process: set them initially to False/0 in the DefaultConfig and then override in the right environment.
     ENABLE_CTZN = False
     ENABLE_STATS = False
+    ENABLE_EMBEDS = False
 
 class ProductionConfig(DefaultConfig):
     
@@ -31,3 +32,4 @@ class DevelopmentConfig(DefaultConfig):
     # EXPERIMENTS
     ENABLE_CTZN = True
     ENABLE_STATS = True
+    ENABLE_EMBEDS = True

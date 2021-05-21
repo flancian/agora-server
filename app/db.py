@@ -18,7 +18,6 @@ import itertools
 import re
 import os
 from flask import current_app
-from . import cache
 from . import config
 from . import feed
 from . import render
@@ -85,6 +84,14 @@ class Graph:
         permutations = itertools.permutations(tokens, max_length)
         permutations = ['-'.join(permutation) for permutation in permutations]
         nodes = [node for node in G.nodes().values() if node.wikilink in permutations and node.subnodes]
+        return nodes
+
+    def related(self, uri, max_length=4):
+        # looks up nodes which are somehow related to the tokenized uri.
+        tokens = uri.split('-')
+        permutations = itertools.permutations(tokens, max_length)
+        permutations = ['-'.join(permutation) for permutation in permutations]
+        nodes = [node for node in G.nodes().values() if node.wikilink.startswith(uri) and node.subnodes]
         return nodes
 
     # @cache.memoize(timeout=30)
