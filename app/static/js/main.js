@@ -92,11 +92,19 @@ let ctzn
 let connected
 
 window.onload = () => {
+  loadGraph()
+  initCtzn()
+}
+
+
+function initCtzn() {
   const storageJson = localStorage["ctzn"]
+  if (!storageJson) return
   const storage = JSON.parse(storageJson)
   console.log("page load")
   if (storageJson) {
     // have localstorage object
+    if (!storage.userId) return
     let [name, host] = storage.userId.split("@")
     let pass = storage.pass
     ctzn = new CTZN({ name, host, pass })
@@ -106,13 +114,13 @@ window.onload = () => {
     console.log("node", node.length)
 
     if (node.length) { // we found an existing subnode
-      
+
     } else {
       node = $(".node").children(".subnode").last()
       node.after("<div class='subnode'><span class='subnode-content'></span></div>")
       node = $(".node").children(".subnode").last()
     }
-    
+
     node.find(".subnode-content").attr("id", "ctzn-textarea").after(button)
 
     tinymce.init({
@@ -125,14 +133,12 @@ window.onload = () => {
     connect()
 
   }
-
-
 }
 
 function login() {
   const userId = document.getElementById("ctzn-user").value
   const pass = document.getElementById("ctzn-password").value
-  const storageString = JSON.stringify({ userId, pass})
+  const storageString = JSON.stringify({ userId, pass })
   localStorage["ctzn"] = storageString
   window.location = "/"
 }
@@ -159,7 +165,7 @@ async function updatePage() {
   const content = tinymce.activeEditor.getContent();
   console.log("pad content", content)
   await ctzn.updatePage(NODENAME, content)
-  Util.downloadPage(`${ctzn.user.name}@${ctzn.user.host}`,NODENAME)
+  Util.downloadPage(`${ctzn.user.name}@${ctzn.user.host}`, NODENAME)
   // alert("Content saved")
 }
 
@@ -167,4 +173,47 @@ function logout() {
   localStorage.removeItem("ctzn")
   location.reload()
 }
+
+
+function getRandomColor() {
+  var letters = '0123456789ABCDEF'.split('');
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+function getRandom(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function sortObjectEntries(obj) {
+  return Object.entries(obj).sort((a, b) => b[1] - a[1]).map(el => el[0])
+}
+
+function loadGraph() {
+  const colorNames = ["#1B9E77", "#D95F02", "#7570B3", "#E7298A"]
+  const ctx = document.getElementById('myChart');
+  const json = $('#proposal-data').text()
+  const data = JSON.parse(json)
+  // const fillPattern = ctx.createPattern(img, 'repeat');
+  const colors = Object.values(data).map(() => colorNames.shift())
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: sortObjectEntries(data),
+      datasets: [{
+        label: '# of Votes',
+        data: Object.values(data).sort(function (a, b) { return b - a }),
+        borderWidth: 1,
+        backgroundColor: colors
+      }]
+    },
+
+  });
+
+}
+
+
 
