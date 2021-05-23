@@ -426,6 +426,9 @@ class Subnode:
         (protocol defaults to https.)
         """
         golinks = subnode_to_actions(self, 'go')
+        # TODO change this to something better after we figure out [[agora actions]] in [[agora proposals]]
+        vera_links = subnode_to_taglink(self, 'go-link')
+        golinks.extend(vera_links)
         sanitized_golinks = []
         for golink in golinks:
             # looks like a URL (includes a protocol)
@@ -530,6 +533,21 @@ def subnode_to_actions(subnode, action, blocks_only=False):
         if m:
             actions.append(m.group(1))
     return actions
+
+def subnode_to_taglink(subnode, tag, blocks_only=False):
+    if subnode.mediatype != 'text/plain':
+        return []
+    if blocks_only:
+        tag_regex ='- \#' + tag + ' (.*?)$'
+    else:
+        tag_regex ='\#' + tag + ' (.*?)$'
+    content = subnode.content
+    tags = []
+    for line in content.splitlines():
+        m = re.search(tag_regex, line)
+        if m:
+            tags.append(m.group(1))
+    return tags
 
 class User:
     def __init__(self, user):
