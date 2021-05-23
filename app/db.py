@@ -478,7 +478,11 @@ class Subnode:
 
         # TODO: test.
         pull_blocks = subnode_to_actions(self, 'pull')
-        pull_nodes = content_to_forward_links("\n".join(pull_blocks))
+        # pull_nodes = content_to_forward_links("\n".join(pull_blocks))
+        try:
+            pull_nodes = content_to_forward_links(self.content)
+        except TypeError:
+            return []
         return [G.node(node) for node in pull_nodes]
 
     def push_nodes(self):
