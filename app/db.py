@@ -230,6 +230,12 @@ class Node:
             nodes.extend(subnode.pull_nodes())
         return sorted(set(nodes), key=lambda x: x.uri)
 
+    def auto_pull_nodes(self):
+        nodes = []
+        for subnode in self.subnodes:
+            nodes.extend(subnode.auto_pull_nodes())
+        return sorted(set(nodes), key=lambda x: x.uri)
+
     def pulling_nodes(self):
         # the nodes pulling *this* node.
         # compare with: pull_nodes.
@@ -475,15 +481,22 @@ class Subnode:
         pulls are blocks of the form:
         - [[pull]] [[node]]
         """
-
-        # TODO: test.
         pull_blocks = subnode_to_actions(self, 'pull')
-        # pull_nodes = content_to_forward_links("\n".join(pull_blocks))
+        # hack hack
+        pull_nodes = content_to_forward_links("\n".join(pull_blocks))
+        return [G.node(node) for node in pull_nodes]
+
+    def auto_pull_nodes(self):
+        """
+        volunteers nodes beyond the explicitly pulled (as per the above).
+        default policy is all links.
+        """
         try:
             pull_nodes = content_to_forward_links(self.content)
         except TypeError:
             return []
         return [G.node(node) for node in pull_nodes]
+
 
     def push_nodes(self):
         """

@@ -17,7 +17,8 @@ class DefaultConfig(object):
     # release process: set them initially to False/0 in the DefaultConfig and then override in the right environment.
     ENABLE_CTZN = False
     ENABLE_STATS = False
-    ENABLE_EMBEDS = False
+    ENABLE_OBSIDIAN_ATTACHMENTS = False
+    ENABLE_AUTO_PULL = False
 
 class ProductionConfig(DefaultConfig):
     
@@ -32,4 +33,5 @@ class DevelopmentConfig(DefaultConfig):
     # EXPERIMENTS
     ENABLE_CTZN = True
     ENABLE_STATS = True
-    ENABLE_EMBEDS = True
+    ENABLE_OBSIDIAN_ATTACHMENTS = True
+    ENABLE_AUTO_PULL = True

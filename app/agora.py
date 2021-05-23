@@ -69,12 +69,6 @@ def node(node, extension='', user_list=''):
             n.subnodes = [subnode for subnode in n.subnodes if subnode.uri.endswith(f'.{extension}')]
             n.uri = n.uri + f'.{extension}'
             n.wikilink = n.wikilink + f'.{extension}'
-        autopull = []
-    # if it's a 404, pull other nodes optimistically if any relevant are available.
-    else:
-        # disabled for now, not super useful
-        # autopull = G.related(node)
-        autopull = []
 
     search_subnodes = db.search_subnodes(node)
 
@@ -84,7 +78,8 @@ def node(node, extension='', user_list=''):
             'content.html', 
             node=n,
             backlinks=n.back_links(),
-            pull_nodes=n.pull_nodes() if n.subnodes else autopull,
+            pull_nodes=n.pull_nodes() if n.subnodes else [],
+            auto_pulled=n.auto_pull_nodes() if n.subnodes and current_app.config['ENABLE_AUTO_PULL'] else [],
             forwardlinks=n.forward_links() if n else [],
             search=search_subnodes,
             pulling_nodes=n.pulling_nodes(),
