@@ -13,14 +13,17 @@
 # limitations under the License.
 
 import datetime
+import collections
 import jsons
+import json
+import re
 from flask import Blueprint, url_for, render_template, current_app, Response, redirect, request, jsonify
 from markupsafe import escape
-from urllib.parse import parse_qs 
+from urllib.parse import parse_qs
 from . import db
 from . import feed
-from . import forms 
-from . import graph 
+from . import forms
+from . import graph
 from . import providers
 from . import util
 
@@ -33,6 +36,8 @@ G = db.G
 # The [[agora]] is a [[search engine]]: anagora.org/agora-search
 #
 # Flask routes work so that the one closest to the function is the canonical one.
+
+
 @bp.route('/wikilink/<node>')
 @bp.route('/node/<node>/uprank/<user_list>')
 @bp.route('/node/<node>')
@@ -101,6 +106,7 @@ def turtle(node):
     n = G.node(node)
     return Response(graph.turtle_node(n), mimetype='text/turtle')
 
+
 @bp.route('/graph/turtle/all')
 @bp.route('/graph/turtle')
 def turtle_all():
@@ -108,15 +114,18 @@ def turtle_all():
     nodes = G.nodes().values()
     return Response(graph.turtle_nodes(nodes), mimetype='text/turtle')
 
+
 @bp.route('/graph/json')
 def graph_js():
     nodes = G.nodes().values()
     return Response(graph.json_nodes(nodes), mimetype='application/json')
 
+
 @bp.route('/graph/json/<node>')
 def graph_js_node(node):
     n = G.node(node)
     return Response(graph.json_node(n), mimetype='application/json')
+
 
 @bp.route('/node/<node>@<user>')
 @bp.route('/node/@<user>/<node>')
@@ -130,29 +139,34 @@ def subnode(node, user):
     search_subnodes = db.search_subnodes_by_user(node, user)
 
     return render_template(
-            'subnode.html', 
-            node=n,
-            )
+        'subnode.html',
+        node=n,
+    )
 
 # Special
+
+
 @bp.route('/')
 def index():
     return redirect(url_for('.node', node='index'))
+
 
 @bp.route('/Δ')
 @bp.route('/delta')
 @bp.route('/latest')
 def latest():
-    return render_template('delta.html', 
-            header="Recent deltas", 
-            subnodes=db.latest(), 
-            annotations=feed.get_latest())
+    return render_template('delta.html',
+                           header="Recent deltas",
+                           subnodes=db.latest(),
+                           annotations=feed.get_latest())
+
 
 @bp.route('/now')
 @bp.route('/today')
 def today():
     today = datetime.datetime.now().date()
     return redirect("/node/%s" % today.strftime("%Y-%m-%d"))
+
 
 @bp.route('/regexsearch', methods=('GET', 'POST'))
 def regexsearch():
@@ -162,12 +176,15 @@ def regexsearch():
         return render_template('regexsearch.html', form=form, subnodes=db.search_subnodes(form.query.data))
     return render_template('regexsearch.html', form=form)
 
+
 @bp.route('/ctzn-login')
 def ctzn_login():
     return render_template('ctzn_login.html')
 
 # Actions
 # Simple go.
+
+
 @bp.route('/go/<node>')
 def go(node):
     """Redirects to the URL in the given node in a block that starts with [[go]], if there is one."""
@@ -178,7 +195,8 @@ def go(node):
         return redirect("https://anagora.org/node/%s" % node)
 
     if len(n) > 1:
-        current_app.logger.warning('nodes_by_wikilink returned more than one node, should not happen.')
+        current_app.logger.warning(
+            'nodes_by_wikilink returned more than one node, should not happen.')
 
     if len(n) == 0:
         # No nodes with this name -- redirect to node 404.
@@ -193,12 +211,15 @@ def go(node):
     if len(links) > 1:
         # TODO(flancian): to be implemented.
         # Likely default to one of the links, show all of them but redirect to default within n seconds.
-        current_app.logger.warning('Code to manage nodes with more than one go link is not Not implemented.')
+        current_app.logger.warning(
+            'Code to manage nodes with more than one go link is not Not implemented.')
 
     return redirect(links[0])
 
 # Composite go.
 # This is a hack, needs to be replaced with proper generic node/block "algebra".
+
+
 @bp.route('/go/<node0>/<node1>')
 def composite_go(node0, node1):
     """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
@@ -225,11 +246,13 @@ def composite_go(node0, node1):
     links = []
     if len(n0) != 0:
         links.extend(n0[0].filter(node1))
-        current_app.logger.debug(f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
+        current_app.logger.debug(
+            f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
 
     if len(n1) != 0:
         links.extend(n1[0].filter(node0))
-        current_app.logger.debug(f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
+        current_app.logger.debug(
+            f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
 
     if len(links) == 0:
         # No matching links found.
@@ -240,9 +263,11 @@ def composite_go(node0, node1):
     if len(links) > 1:
         # TODO(flancian): to be implemented.
         # Likely default to one of the links, show all of them but redirect to default within n seconds.
-        current_app.logger.warning('Code to manage nodes with more than one go link is not implemented.')
+        current_app.logger.warning(
+            'Code to manage nodes with more than one go link is not implemented.')
 
     return redirect(links[0])
+
 
 @bp.route('/push/<node>/<other>')
 def push(node, other):
@@ -269,7 +294,8 @@ def search():
     # ask for bids from search providers.
     # both the raw query and tokens are passed for convenience; each provider is free to use or discard each.
     results = providers.get_bids(q, tokens)
-    results.sort(reverse=True) # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
+    # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
+    results.sort(reverse=True)
     current_app.logger.info(f'Search results for {q}: {results}')
     result = results[0] # the agora always returns at least one result: the offer to render the node for the query.
 
@@ -285,13 +311,16 @@ def search():
     # catch all follows.
     # "should never happen" (lol) as the agora is its own search provider and a plain node rendering should always be returned as a bid for every query.
     # log a warning if it does :)
-    current_app.logger.warning('Node catch-all in agora.py triggered; should never happen (tm).')
+    current_app.logger.warning(
+        'Node catch-all in agora.py triggered; should never happen (tm).')
     return redirect(url_for('.node', node=util.slugify(q)))
 
 
 @bp.route('/subnode/<path:subnode>')
 def old_subnode(subnode):
+    print(subnode)
     return render_template('subnode.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
+
 
 @bp.route('/u/<user>')
 @bp.route('/user/<user>')
@@ -300,10 +329,12 @@ def old_subnode(subnode):
 def user(user):
     return render_template('user.html', user=user, readmes=db.user_readmes(user), subnodes=db.subnodes_by_user(user))
 
+
 @bp.route('/user/<user>.json')
 def user_json(user):
     subnodes = list(map(lambda x: x.wikilink, db.subnodes_by_user(user)))
     return jsonify(jsons.dump(subnodes))
+
 
 @bp.route('/garden/<garden>')
 def garden(garden):
@@ -319,42 +350,51 @@ def nodes():
     else:
         return render_template('nodes.html', nodes=db.top(), stats=None)
 
+
 @bp.route('/nodes.json')
 def nodes_json():
     nodes = G.nodes(include_journals=False).values()
     links = list(map(lambda x: x.wikilink, nodes))
     return jsonify(jsons.dump(links))
 
-@bp.route('/notes') # alias
+
+@bp.route('/notes')  # alias
 @bp.route('/subnodes')
 def subnodes():
     return render_template('subnodes.html', subnodes=G.subnodes())
+
 
 @bp.route('/@')
 @bp.route('/users')
 def users():
     return render_template('users.html', users=db.all_users())
 
+
 @bp.route('/users.json')
 def users_json():
     users = list(map(lambda x: x.uri, db.all_users()))
     return jsonify(jsons.dump(users))
 
+
 @bp.route('/journal/<user>')
 def user_journal(user):
     return render_template('subnodes.html', header="Journals for user", subnodes=db.user_journals(user))
+
 
 @bp.route('/journal/<user>.json')
 def user_journal_json(user):
     return jsonify(jsons.dump(db.user_journals(user)))
 
+
 @bp.route('/journals')
 def journals():
     return render_template('nodes.html', header="Journals", nodes=db.all_journals())
 
+
 @bp.route('/journals.json')
 def journals_json():
     return jsonify(jsons.dump(db.all_journals()))
+
 
 @bp.route('/asset/<user>/<asset>')
 def asset(user, asset):
@@ -363,22 +403,53 @@ def asset(user, asset):
     path = '/'.join(["garden", user, 'assets', asset])
     return current_app.send_static_file(path)
 
+
 @bp.route('/raw/<path:subnode>')
 def raw(subnode):
     s = db.subnode_by_uri(subnode)
     return Response(s.content, mimetype=s.mediatype)
+
 
 @bp.route('/backlinks/<node>')
 def backlinks(node):
     # Currently unused.
     return render_template('nodes.html', nodes=db.nodes_by_outlink(node))
 
+
 @bp.route('/settings')
 def settings():
     return render_template('settings.html', header="Settings")
+
 
 @bp.route('/search.xml')
 def search_xml():
     return render_template('search.xml'), 200, {'Content-Type': 'application/opensearchdescription+xml'}
 
+def count_votes(subnode):
+    match = re.search("\#(\w+)", subnode.content)
+    if not match:
+        return None
+    tag = match.group(1)
+    return {"user": subnode.user, "vote": tag}
 
+@bp.route('/proposal/<user>/<node>')
+def proposal(user,node):
+    n = G.node(node)
+    subnode = next(x for x in n.subnodes if x.user == user)
+    other_nodes = [x for x in n.subnodes if x.user != user]
+    print("subnode", subnode)
+    print("other nodes", other_nodes)
+    votes = list(filter(None,map(count_votes, other_nodes)))
+    print("votes", votes)
+    vote_options = [x.get('vote') for x in votes]
+    print("options", vote_options)
+    vote_counts = collections.Counter(vote_options)
+    print("counts", vote_counts)
+    return render_template(
+        'proposal.html',
+        node=n,
+        subnode=subnode,
+        votes=votes,
+        vote_options=vote_options,
+        vote_counts=json.dumps(vote_counts)
+    )

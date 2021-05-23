@@ -40,6 +40,7 @@
 
     <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/util.js')}}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     {% if config['ENABLE_CTZN'] %}
     <script type=text/javascript src="{{url_for('static', filename='js/ctzn.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/jquery.js')}}"></script>
@@ -121,6 +122,16 @@
         {% block content %}
         {% endblock %}
     </div>
+
+
+
+
+
+
+
+
+   
+
 
 </body>
 

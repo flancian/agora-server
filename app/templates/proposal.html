@@ -1,0 +1,47 @@
+<!--
+ Copyright 2020 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+
+
+{% extends "base.html" %}
+{% block content %}
+<div class="subnode">
+    <div class="subnode-header">
+        <h1>This is proposal [[<a href="/{{node.uri}}">{{node.uri}}</a>]] in the agora</h1>
+        <div>To place your vote create a node named {{node.uri}} and put a tag in it. e.g. #yes</div>
+    </div>
+    {{ subnode.render()|linkify|safe }}
+</div>
+
+{% for vote in votes %}
+<div class="subnode">
+    {{vote.user}} voted {{vote.vote}}
+</div>
+{% endfor %}
+
+<div class="subnode">
+    <div id="proposal-data" hidden>
+        {{vote_counts}}
+    </div>
+    <canvas id="myChart"></canvas>
+</div>
+
+</div>
+{% endblock %}
+
+
+
+
