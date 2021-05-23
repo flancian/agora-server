@@ -23,8 +23,10 @@ from . import util
 from json import dumps
 from rdflib import Graph, Namespace, URIRef
 
+
 def add_node(node: db.Node, g: Graph, only_forward=False):
 
+    base = current_app.config['URL_BASE']
     for linked_node in node.forward_links():
         if re.search('<.*>', linked_node):
             # work around links with html in them (?)
@@ -37,9 +39,9 @@ def add_node(node: db.Node, g: Graph, only_forward=False):
         n0 = node.wikilink
         n1 = linked_node
         g.add((
-            URIRef(f"https://anagora.org/{n0}"),
-            URIRef(f"https://anagora.org/links"),
-            URIRef(f"https://anagora.org/{n1}"),
+            URIRef(f"{base}/{n0}"),
+            URIRef(f"{base}/links"),
+            URIRef(f"{base}/{n1}"),
         ))
 
     if only_forward:
@@ -49,33 +51,34 @@ def add_node(node: db.Node, g: Graph, only_forward=False):
         n0 = backlinking_node
         n1 = node.wikilink
         g.add((
-            URIRef(f"https://anagora.org/{n0}"),
-            URIRef(f"https://anagora.org/links"),
-            URIRef(f"https://anagora.org/{n1}"),
+            URIRef(f"{base}/{n0}"),
+            URIRef(f"{base}/links"),
+            URIRef(f"{base}/{n1}"),
         ))
 
     for pushing_node in node.pushing_nodes():
         n0 = node.wikilink
         n1 = linked_node
         g.add((
-            URIRef(f"https://anagora.org/{n0}"),
-            URIRef(f"https://anagora.org/pushes"),
-            URIRef(f"https://anagora.org/{n1}"),
+            URIRef(f"{base}/{n0}"),
+            URIRef(f"{base}/pushes"),
+            URIRef(f"{base}/{n1}"),
         ))
 
     for pulling_node in node.pulling_nodes():
         n0 = pulling_node
         n1 = node.wikilink
         g.add((
-            URIRef(f"https://anagora.org/{n0}"),
-            URIRef(f"https://anagora.org/pulls"),
-            URIRef(f"https://anagora.org/{n1}"),
+            URIRef(f"{base}/{n0}"),
+            URIRef(f"{base}/pulls"),
+            URIRef(f"{base}/{n1}"),
         ))
 
 def turtle_node(node) -> str:
 
+    base = current_app.config['URL_BASE']
     g = Graph()
-    agora = Namespace("https://anagora.org/")
+    agora = Namespace("{base}/")
     g.namespace_manager.bind('agora', agora)
 
     add_node(node, g)
@@ -83,8 +86,9 @@ def turtle_node(node) -> str:
 
 def turtle_nodes(nodes) -> str:
 
+    base = current_app.config['URL_BASE']
     g = Graph()
-    agora = Namespace("https://anagora.org/")
+    agora = Namespace("{base}/")
     g.namespace_manager.bind('agora', agora)
 
     print(f"turtling agora using forward links only")
@@ -98,75 +102,83 @@ def turtle_nodes(nodes) -> str:
 
 def parse_node(node: db.Node) -> dict:
 
+    base = current_app.config['URL_BASE']
     d = dict()
     d["nodes"] = []
     d["links"] = []
     unique_nodes = set()
 
+    forward_links = node.forward_links()
+    if forward_links:
+        unique_nodes.add('forward link')
+        for linked_node in forward_links:
+            if re.search('<.*>', linked_node):
+                # work around links with html in them (?)
+                continue
+            if '|' in linked_node:
+                # early support for {base}/go/agora-rfc/2
+                linked_node = re.sub('|.*', '', linked_node)
+            n0 = node.wikilink
+            n1 = linked_node
+            d["links"].append({'source': n0, 'target': "forward link"})
+            d["links"].append({'source': "forward link", 'target': n1})
+            unique_nodes.add(n0)
+            unique_nodes.add(n1)
+
+    back_links = node.back_links()
+    if back_links:
+        unique_nodes.add('back link')
+        for backlinking_node in back_links:
+            n0 = backlinking_node
+            n1 = node.wikilink
+            d["links"].append({'source': n0, 'target': "back link"})
+            d["links"].append({'source': "back link", 'target': n1})
+            unique_nodes.add(n0)
+            unique_nodes.add(n1)
+
+    pushing_nodes = node.pushing_nodes()
+    if pushing_nodes:
+        unique_nodes.add('push')
+        for pushing_node in pushing_nodes:
+            n0 = node.wikilink
+            n1 = pushing_node.wikilink
+            d["links"].append({'source': n0, 'target': "push"})
+            d["links"].append({'source': "push", 'target': n1})
+            unique_nodes.add(n0)
+            unique_nodes.add(n1)
+
+    pulling_nodes = node.pulling_nodes()
+    if pulling_nodes:
+        unique_nodes.add('pull')
+        for pulling_node in pulling_nodes:
+            n0 = pulling_node.wikilink
+            n1 = node.wikilink
+            d["links"].append({'source': n0, 'target': "pull"})
+            d["links"].append({'source': "pull", 'target': n1})
+            unique_nodes.add(n0)
+            unique_nodes.add(n1)
+
+    #for n in unique_nodes:
+    #    if n == node.wikilink:
+    #        d["nodes"].append({'id': n, 'name': n, 'val': 4, 'group': 1})
+    #    elif n in ['pull', 'push', 'back link', 'forward link']:
+    #        d["nodes"].append({'id': n, 'name': n, 'val': 2, 'group': 2})
+    #    else:
+    #        d["nodes"].append({'id': n, 'name': n, 'val': 1, 'group': 3})
+
     for n in unique_nodes:
         if node.uri in n: 
-            d["nodes"].append({'id': n, 'name': n.replace('https://anagora.org/', ''), 'val': 4, 'group': 1})
+            d["nodes"].append({'id': n, 'name': n.replace('{base}/', ''), 'val': 4, 'group': 1})
         elif 'pull' in n or 'push' in n or 'links' in n: 
-            d["nodes"].append({'id': n, 'name': n.replace('https://anagora.org/', ''), 'val': 2, 'group': 2})
+            d["nodes"].append({'id': n, 'name': n.replace('{base}/', ''), 'val': 2, 'group': 2})
         else:
-            d["nodes"].append({'id': n, 'name': n.replace('https://anagora.org/', ''), 'val': 1, 'group': 3})
-
-    for linked_node in node.forward_links():
-        if re.search('<.*>', linked_node):
-            # work around links with html in them (?)
-            continue
-        if '|' in linked_node:
-            # early support for https://anagora.org/go/agora-rfc/2
-            linked_node = re.sub('|.*', '', linked_node)
-        n0 = node.wikilink
-        n1 = linked_node
-        d["links"].append({'source': n0, 'target': "forward-link"})
-        d["links"].append({'source': "forward-link", 'target': n1})
-        unique_nodes.add(n0)
-        unique_nodes.add(n1)
-
-    for backlinking_node in node.back_links():
-        n0 = backlinking_node
-        n1 = node.wikilink
-        d["links"].append({'source': n0, 'target': "back-link"})
-        d["links"].append({'source': "back-link", 'target': n1})
-        unique_nodes.add(n0)
-        unique_nodes.add(n1)
-
-    for pushing_node in node.pushing_nodes():
-        n0 = node.wikilink
-        n1 = pushing_node.wikilink
-        d["links"].append({'source': n0, 'target': "push"})
-        d["links"].append({'source': "push", 'target': n1})
-        unique_nodes.add(n0)
-        unique_nodes.add(n1)
-
-    for pulling_node in node.pulling_nodes():
-        n0 = pulling_node.wikilink
-        n1 = node.wikilink
-        d["links"].append({'source': n0, 'target': "pull"})
-        d["links"].append({'source': "pull", 'target': n1})
-        unique_nodes.add(n0)
-        unique_nodes.add(n1)
-
-    unique_nodes.add('pull')
-    unique_nodes.add('push')
-    unique_nodes.add('back-link')
-    unique_nodes.add('forward-link')
-
-    for n in unique_nodes:
-        if n == node.wikilink:
-            d["nodes"].append({'id': n, 'name': n, 'val': 4, 'group': 1})
-        elif n in ['pull', 'push', 'back-link', 'forward-link']:
-            d["nodes"].append({'id': n, 'name': n, 'val': 2, 'group': 2})
-        else:
-            d["nodes"].append({'id': n, 'name': n, 'val': 1, 'group': 3})
+            d["nodes"].append({'id': n, 'name': n.replace('{base}/', ''), 'val': 1, 'group': 3})
 
     return d
 
 
 def json_node(node):
-    # format: https://anagora.org/force-graph
+    # format: {BASE}/force-graph
 
     d = parse_node(node)
     return dumps(d)
@@ -174,12 +186,14 @@ def json_node(node):
 
 # technically doesn't belong here but... perhaps this becomes graph.py eventually.
 def json_nodes(nodes):
-    # format: https://anagora.org/force-graph
+    # format: {BASE}/force-graph
     # this first redoes the RDF graph and then converts it to JSON.
     # the code duplication can be fixed with refactoring; more important is whether going through RDF makes sense at all.
     # I think because RDF does some cleanup to get to "well formed ids" there might be enough of a benefit from reusing that.
+
+    base = current_app.config('URL_BASE')
     g = Graph()
-    agora = Namespace("https://anagora.org/")
+    agora = Namespace(f"{base}/")
     g.namespace_manager.bind('agora', agora)
 
     print(f"jsoing agora using forward links only")

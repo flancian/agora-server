@@ -18,13 +18,13 @@
 
 <script>
     console.log("loading graph...")
-    fetch("https://anagora.org/graph/json/{{node.uri}}").then(res => res.json()).then(data => {
+fetch("{{config['URL_BASE']}}/graph/json/{{node.uri}}").then(res => res.json()).then(data => {
     const container = document.getElementById('graph');
     const Graph = ForceGraph()(container)
         .height(container.clientHeight)
         .width(container.clientWidth)
         .onNodeClick(node => {
-            let url = "https://anagora.org/" + node.id
+            let url = "https://anagora.org/" + node.id;
             location.assign(url)
         })
         //.backgroundColor('#1f232b')
@@ -37,4 +37,5 @@
             .linkColor(() => "#cfcfcf")
         .zoomToFit(100, 10, true)
     });
+    console.log("graph loaded.")
 </script>
