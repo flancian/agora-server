@@ -234,6 +234,7 @@ class Node:
         nodes = []
         for subnode in self.subnodes:
             nodes.extend(subnode.auto_pull_nodes())
+        print(f"auto_pull_nodes: {nodes}")
         return sorted(set(nodes), key=lambda x: x.uri)
 
     def pulling_nodes(self):
