@@ -186,6 +186,9 @@ class Node:
     def __gt__(self, other):
         return self.wikilink.lower() > other.wikilink.lower()
 
+    def __hash__(self):
+        return hash(self.wikilink)
+
     def __str__(self):
         return self.wikilink.lower()
 
@@ -236,7 +239,10 @@ class Node:
         for subnode in self.subnodes:
             nodes.extend(subnode.auto_pull_nodes())
         nodes = [node for node in nodes if node not in self.pull_nodes() and node.uri not in banned_nodes]
-        return sorted(set(nodes), key=lambda x: x.uri)
+        # bug: for some reason set() doesn't dedup here, even though I've checked and the hash from duplicate nodes is identical (!).
+        # test case: [[hypha]].
+        ret = sorted(set(nodes), key=lambda x: x.uri)
+        return ret
 
     def pulling_nodes(self):
         # the nodes pulling *this* node.
