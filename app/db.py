@@ -231,10 +231,11 @@ class Node:
         return sorted(set(nodes), key=lambda x: x.uri)
 
     def auto_pull_nodes(self):
+        banned_nodes = ['agora', 'go', 'pull', 'push']
         nodes = []
         for subnode in self.subnodes:
             nodes.extend(subnode.auto_pull_nodes())
-        nodes = [node for node in nodes if node not in self.pull_nodes()]
+        nodes = [node for node in nodes if node not in self.pull_nodes() and node.uri not in banned_nodes]
         return sorted(set(nodes), key=lambda x: x.uri)
 
     def pulling_nodes(self):
