@@ -8,9 +8,8 @@ agora.log
 app/node_modules
 app/.cache
 config.json
-app/static/js/ctzn.js
-app/static/js/ctzn.js.map
-app/static/js/util.js
-app/static/js/util.js.map
+app/static/js
 .cache
 app/js-src/node_modules
+.parcel-cache
+node_modules

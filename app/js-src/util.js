@@ -1,7 +1,8 @@
 let u = {}
 import fs from 'fs'
 import 'regenerator-runtime/runtime'
-let config = JSON.parse(fs.readFileSync('config.json', 'utf-8'))
+console.log("dirname", __dirname)
+import config from "./config.json"
 
 u.replaceStrings = (str) => {
     const wikireg = /\[\[(.*?)\]\]/g

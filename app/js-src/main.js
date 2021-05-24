@@ -15,6 +15,9 @@
 
 // Adapted from https://css-tricks.com/a-complete-guide-to-dark-mode-on-the-web/#toggling-themes
 
+
+import $ from "jquery"
+
 document.addEventListener("DOMContentLoaded", function () {
   // Hack for settings page
   // try { processSettings({ignore: true}) } catch(e){ console.error(e)}
