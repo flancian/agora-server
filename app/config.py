@@ -25,7 +25,7 @@ class ProductionConfig(DefaultConfig):
     # EXPERIMENTS
     ENABLE_CTZN = True
     ENABLE_STATS = True
-    ENABLE_AUTO_PULL = True
+    ENABLE_AUTO_PULL = False
 
 class DevelopmentConfig(DefaultConfig):
     URL_BASE = "http://dev.anagora.org"
