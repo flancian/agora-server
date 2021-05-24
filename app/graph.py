@@ -158,21 +158,19 @@ def parse_node(node: db.Node) -> dict:
             unique_nodes.add(n0)
             unique_nodes.add(n1)
 
-    #for n in unique_nodes:
-    #    if n == node.wikilink:
-    #        d["nodes"].append({'id': n, 'name': n, 'val': 4, 'group': 1})
-    #    elif n in ['pull', 'push', 'back link', 'forward link']:
-    #        d["nodes"].append({'id': n, 'name': n, 'val': 2, 'group': 2})
-    #    else:
-    #        d["nodes"].append({'id': n, 'name': n, 'val': 1, 'group': 3})
-
     for n in unique_nodes:
-        if node.uri in n: 
-            d["nodes"].append({'id': n, 'name': n.replace('{base}/', ''), 'val': 4, 'group': 1})
-        elif 'pull' in n or 'push' in n or 'links' in n: 
-            d["nodes"].append({'id': n, 'name': n.replace('{base}/', ''), 'val': 2, 'group': 2})
+        if n == node.wikilink:
+            d["nodes"].append({'id': n, 'name': n, 'val': 8, 'group': 1})
+        elif n == 'pull':
+            d["nodes"].append({'id': n, 'name': n, 'val': 4, 'group': 2})
+        elif n == 'push':
+            d["nodes"].append({'id': n, 'name': n, 'val': 4, 'group': 3})
+        elif n == 'back link':
+            d["nodes"].append({'id': n, 'name': n, 'val': 2, 'group': 2})
+        elif n == 'forward link':
+            d["nodes"].append({'id': n, 'name': n, 'val': 2, 'group': 3})
         else:
-            d["nodes"].append({'id': n, 'name': n.replace('{base}/', ''), 'val': 1, 'group': 3})
+            d["nodes"].append({'id': n, 'name': n, 'val': 1, 'group': 6})
 
     return d
 
