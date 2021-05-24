@@ -79,7 +79,7 @@ def node(node, extension='', user_list=''):
             node=n,
             backlinks=n.back_links(),
             pull_nodes=n.pull_nodes() if n.subnodes else [],
-            auto_pull_nodes=n.auto_pull_nodes(), #if n.subnodes and current_app.config['ENABLE_AUTO_PULL'] else [],
+            auto_pull_nodes=n.auto_pull_nodes() if current_app.config['ENABLE_AUTO_PULL'] else [],
             forwardlinks=n.forward_links() if n else [],
             search=search_subnodes,
             pulling_nodes=n.pulling_nodes(),
