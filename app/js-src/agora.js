@@ -30,9 +30,6 @@ $(() => {
     }
   })
 
-  // load fission
-  start()
-
 });
 
 

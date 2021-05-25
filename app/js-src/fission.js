@@ -55,6 +55,7 @@ export const start = async () =>{
             //
             // ☞ We can now interact with our file system (more on that later)
             s.fs
+            window.location.href = "/"
             break;
     
         case wn.Scenario.NotAuthorised:

@@ -172,9 +172,9 @@ def regexsearch():
     return render_template('regexsearch.html', form=form)
 
 
-@bp.route('/ctzn-login')
-def ctzn_login():
-    return render_template('ctzn_login.html')
+@bp.route('/login')
+def login():
+    return render_template('login.html')
 
 # Actions
 # Simple go.
