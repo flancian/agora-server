@@ -79,11 +79,7 @@ function initCtzn() {
 
 // TODO re-enable this when I figure out the bigger picture
 
-// async function updateCtznPage() {
-//   const content = tinymce.activeEditor.getContent();
-//   await ctzn.updatePage(NODENAME, content)
-//   Util.downloadPage(`${ctzn.user.name}@${ctzn.user.host}`, NODENAME)
-// }
+
 
 
 // async function connect() {

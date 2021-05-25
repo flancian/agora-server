@@ -14,38 +14,53 @@
 //
 
 import $ from "jquery"
+import { state } from "./fission.js"
+// import "react"
+// import ed from "./editor.jsx"
 // import 'plugin-syntax-jsx'
 
 export const initEditor = (userId) => {
-    const button = 
-      `<div class="ctzn-submit">
-        <button onclick="updatePage()">Save</button> 
+  const button =
+    `<div class="ctzn-submit">
+        <button onclick="uploadHandler()">Save</button> 
         <button onclick="toggle()">Toggle preview</button>
       </div>`
 
-    let node = $(`.subnode-user:contains('${userId}')`).closest(".subnode")
-    if (node.length) { // we found an existing subnode
+  // let button = ed
 
-    } else {
-        node = $(".node").children(".subnode").last()
-        node.after("<div class='subnode'><span class='subnode-content'></span></div>")
-        node = $(".node").children(".subnode").last()
-    }
-    node.find(".subnode-content").attr("id", "edit-textarea").after(button)
-    initTiny()
+  let node = $(`.subnode-user:contains('${userId}')`).closest(".subnode")
+  if (node.length) { // we found an existing subnode
+
+  } else {
+    node = $(".node").children(".subnode").last()
+    node.after("<div class='subnode'><span class='subnode-content'></span></div>")
+    node = $(".node").children(".subnode").last()
+  }
+  node.find(".subnode-content").attr("id", "edit-textarea").after(button)
+  initTiny()
 }
 
 export const initTiny = () => {
-    tinymce.init({
-      selector: "#edit-textarea",
-      menubar: false,
-      plugins: 'lists',
-      toolbar: 'bullist',
-      height: 400
-    })
+  tinymce.init({
+    selector: "#edit-textarea",
+    menubar: false,
+    plugins: 'lists',
+    toolbar: 'bullist',
+    height: 400
+  })
+}
+
+
+// async function updateCtznPage() {
+//   const content = tinymce.activeEditor.getContent();
+//   await ctzn.updatePage(NODENAME, content)
+//   Util.downloadPage(`${ctzn.user.name}@${ctzn.user.host}`, NODENAME)
+// }
+
+
+window.uploadHandler = async () => {
+  let s = await state()
+  if (s.authenticated) {
+    alert("we good")
   }
-
-
-const uploadToProvider = (provider) => {
-  
 }
