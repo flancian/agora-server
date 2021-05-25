@@ -1,8 +1,7 @@
 let u = {}
 import fs from 'fs'
 import 'regenerator-runtime/runtime'
-console.log("dirname", __dirname)
-import config from "./config.json"
+// import config from "./config.json"
 
 u.replaceStrings = (str) => {
     const wikireg = /\[\[(.*?)\]\]/g
@@ -17,12 +16,12 @@ u.replaceStrings = (str) => {
     return str
 }
 
-u.downloadPage = async (userId, pageName) => {
-    console.log("downloading",pageName)
-    let route = `${config.ctznhost}/${userId}-${pageName}`
-    let res = await fetch(route)
-    res.text()
-}
+// u.downloadPage = async (userId, pageName) => {
+//     console.log("downloading",pageName)
+//     let route = `${config.ctznhost}/${userId}-${pageName}`
+//     let res = await fetch(route)
+//     res.text()
+// }
 
 
 window.Util = u
