@@ -15,9 +15,10 @@
 
 import $ from "jquery"
 import CTZN from "./ctzn.js"
-import {start} from "./fission.js"
+import {state} from "./fission.js"
+import {initEditor} from "./editor.js"
 
-$(() => {
+$(async () => {
   // on page ready
   console.log("page loaded")
 
@@ -30,26 +31,15 @@ $(() => {
     }
   })
 
+  let s = await state()
+  if(s.authenticated){
+    initEditor()
+  }
+
 });
 
 
-const initEditor = (userId) => {
-  const button = `
-    <div class="ctzn-submit">
-      <button onclick="updatePage()">Save</button> 
-      <button onclick="toggle()">Toggle preview</button>
-    </div>`
 
-  let node = $(`.subnode-user:contains('${userId}')`).closest(".subnode")
-  if (node.length) { // we found an existing subnode
-
-  } else {
-    node = $(".node").children(".subnode").last()
-    node.after("<div class='subnode'><span class='subnode-content'></span></div>")
-    node = $(".node").children(".subnode").last()
-  }
-  node.find(".subnode-content").attr("id", "edit-textarea").after(button)
-}
 
 
 const toggleEditor = () => {
