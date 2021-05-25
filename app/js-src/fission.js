@@ -68,7 +68,23 @@ export const start = async () =>{
 }
 
 
+const storeProfile = ()=>{
+
+}
+
+const getContent = async (node)=>{
+    let s = await state()
+    if(s.authenticated){
+        let f = wn.path.file("public", "agora", `${node}.md`)
+        console.log("f", f)
+        let content = await s.fs.read(f)
+        console.log("content", content.toString())
+    }
+}
+
+
 
 window.start = start
 window.wn = wn
 window.state = state
+window.getContent = getContent

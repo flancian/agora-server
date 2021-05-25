@@ -176,6 +176,10 @@ def regexsearch():
 def login():
     return render_template('login.html')
 
+@bp.route('/profile')
+def profile():
+    return render_template('profile.html')
+
 # Actions
 # Simple go.
 
