@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+npx yarn install
 npx parcel build ./app/js-src/index.js --dist-dir ./app/static/js
 export FLASK_APP=app
 export FLASK_ENV="development"

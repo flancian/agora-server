@@ -1,21 +1,19 @@
 import 'regenerator-runtime/runtime'
-const wn = self.webnative
+import * as wn from 'webnative'
 wn.setup.debug({ enabled: true })
-window.wn = wn
-const state = async () => {
+
+export const state = async () => {
     return await wn.initialise({
         permissions: {
-            // Will ask the user permission to store
-            // your apps data in `private/Apps/Nullsoft/Winamp`
             app: {
-                name: "Winamp",
-                creator: "Nullsoft"
+                name: "Agora",
+                creator: "Flancia Collective"
             },
 
             // Ask the user permission to additional filesystem paths
             fs: {
-                private: [wn.path.directory("Audio", "Music")],
-                public: [wn.path.directory("Audio", "Mixtapes")]
+                private: [wn.path.directory("agora")],
+                public: [wn.path.directory("agora")]
             },
             platform:{
                 apps: "*"
@@ -37,9 +35,8 @@ const state = async () => {
     })
 }
 
-const start = async () =>{
+export const start = async () =>{
     const s = await state()
-    console.log(s.scenario)
 
     switch (s.scenario) {
 
@@ -71,7 +68,6 @@ const start = async () =>{
 
 
 
-
-
-// start()
-// console.log("PATH",__dirname)
+window.start = start
+window.wn = wn
+window.state = state
