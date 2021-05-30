@@ -53,6 +53,10 @@ markdown = Markdown(extensions=[Wikilinks])
 orgmode = to_html
 
 
+# Embeds.
+# The *application* of this pattern could perhaps be here instead of in... hmm, db.py? Yeah, that doesn't make sense.
+# TODO: [[refactor]].
+
 # Twitter embeds.
 def add_twitter_embeds(content):
     TWITTER_REGEX='(https://twitter.com/\w+/status/[0-9]+)'
@@ -64,7 +68,15 @@ def trim_front_matter(content):
     FRONT_MATTER_REGEX = '---(\n.*)*---'
     return re.sub(FRONT_MATTER_REGEX, '', content, flags=re.MULTILINE)
 
+# Obsidian pasted images / attachments.
+def add_obsidian_embeds(content):
+    OBSIDIAN_REGEX='(!\[(.+)\]/)'
+    OBSIDIAN_EMBED='<iframe class="embed-obsidian"></iframe>'
+    # also include something like this to move to a lazily loaded div?
+    #<script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
+    return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
 # "Pipeline"
 preprocess = trim_front_matter
-postprocess = add_twitter_embeds
+postprocess = add_twitter_embeds(add_obsidian_embeds)
+

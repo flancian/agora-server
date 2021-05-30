@@ -32,9 +32,12 @@ import lxml.etree
 
 
 # TODO: move action extractor regex here as well.
+# What? No, move to util.py.
 RE_WIKILINKS = re.compile('\[\[(.*?)\]\]')
-FUZZ_FACTOR = 95
 
+# This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
+# https://anagora.org/auto-pull
+FUZZ_FACTOR = 95
 
 # URIs are ids. 
 # - In the case of nodes, their [[wikilink]].
