@@ -406,7 +406,9 @@ class Subnode:
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
             content = render.orgmode(content)
         # ugly, this too
-        return render.postprocess(content)
+        ret = render.postprocess(content)
+        print(f"*** render: {ret}")
+        return ret
 
     def raw(self):
         return content
