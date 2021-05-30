@@ -20,6 +20,7 @@
 
 import re
 from . import config
+from . import regexes
 from . import util 
 from marko import Markdown, inline
 from orgpython import to_html
@@ -27,7 +28,7 @@ from orgpython import to_html
 
 # Markdown
 class WikilinkElement(inline.InlineElement):
-    pattern = r'\[\[ *(.+?) *\]\]'
+    pattern = regexes.WIKILINK.pattern
     parse_children = True
 
     def __init__(self, match):
@@ -68,10 +69,19 @@ def trim_front_matter(content):
     FRONT_MATTER_REGEX = '---(\n.*)*---'
     return re.sub(FRONT_MATTER_REGEX, '', content, flags=re.MULTILINE)
 
+#def content_to_obsidian_embeds(content):
+#    match = regexes.WIKILINKS.findall(content)
+#    if match:
+#        # Work around broken forward links due to org mode convention I didn't think of.
+#        # TODO: make link parsing format-aware.
+#        return [util.canonical_wikilink(m) for m in match if '][' not in m]
+#    else:
+#        return []
+
 # Obsidian pasted images / attachments.
 def add_obsidian_embeds(content):
-    OBSIDIAN_REGEX='(!\[(.+)\]/)'
-    OBSIDIAN_EMBED='<iframe class="embed-obsidian"></iframe>'
+    RE_OBSIDIAN = re.compile('!' + regexes.WIKILINK)
+    OBSIDIAN_EMBED='<iframe class="embed-obsidian">https://anagora.org/\\1</iframe>'
     # also include something like this to move to a lazily loaded div?
     #<script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)

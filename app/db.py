@@ -20,6 +20,7 @@ import os
 from flask import current_app
 from . import config
 from . import feed
+from . import regexes
 from . import render
 from . import util
 from collections import defaultdict
@@ -29,11 +30,6 @@ from operator import attrgetter
 # For [[push]] parsing, perhaps move elsewhere?
 import lxml.html
 import lxml.etree
-
-
-# TODO: move action extractor regex here as well.
-# What? No, move to util.py.
-RE_WIKILINKS = re.compile('\[\[(.*?)\]\]')
 
 # This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
 # https://anagora.org/auto-pull
@@ -601,7 +597,17 @@ def path_to_wikilink(path):
 
 def content_to_forward_links(content):
     # hack hack.
-    match = RE_WIKILINKS.findall(content)
+    match = regexes.WIKILINK.findall(content)
+    if match:
+        # Work around broken forward links due to org mode convention I didn't think of.
+        # TODO: make link parsing format-aware.
+        return [util.canonical_wikilink(m) for m in match if '][' not in m]
+    else:
+        return []
+
+def content_to_obsidian_embeds(content):
+    # hack hack.
+    match = regexes.OBSIDIAN_EMBED.findall(content)
     if match:
         # Work around broken forward links due to org mode convention I didn't think of.
         # TODO: make link parsing format-aware.
