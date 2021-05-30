@@ -81,19 +81,19 @@ def trim_front_matter(content):
 # Obsidian pasted images / attachments.
 def add_obsidian_embeds(content):
     OBSIDIAN_REGEX = re.compile('!' + regexes.WIKILINK.pattern)
-    OBSIDIAN_EMBED='<iframe class="embed-obsidian">https://anagora.org/\\1</iframe>'
+    OBSIDIAN_EMBED='<img class="image-embed" src="https://anagora.org/raw/garden/flancian/\\1"></img><p class="obsidian-embed">from [[\\1]]</p>'
     # also include something like this to move to a lazily loaded div?
     #<script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
 def preprocess(content):
-    filters = [trim_front_matter]
+    filters = [trim_front_matter, add_obsidian_embeds]
     for f in filters:
         content = f(content)
     return content
 
 def postprocess(content):
-    filters = [add_obsidian_embeds, add_twitter_embeds]
+    filters = [add_twitter_embeds]
     for f in filters:
         content = f(content)
     return content
