@@ -65,7 +65,7 @@ def add_twitter_embeds(content):
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 # Trim front matter until we do something useful with it.
-def trim_front_matter(content):
+def trim_front_matter(content, subnode):
     FRONT_MATTER_REGEX = '---(\n.*)*---'
     return re.sub(FRONT_MATTER_REGEX, '', content, flags=re.MULTILINE)
 
@@ -79,20 +79,20 @@ def trim_front_matter(content):
 #        return []
 
 # Obsidian pasted images / attachments.
-def add_obsidian_embeds(content):
+def add_obsidian_embeds(content, subnode):
     OBSIDIAN_REGEX = re.compile('!' + regexes.WIKILINK.pattern)
-    OBSIDIAN_EMBED='<img class="image-embed" src="https://anagora.org/raw/garden/flancian/\\1"></img><p class="obsidian-embed">from [[\\1]]</p>'
+    OBSIDIAN_EMBED=f'<a href="/raw/garden/{subnode.user}/\\1"><img class="image-embed" src="/raw/garden/{subnode.user}/\\1"></img><p class="obsidian-embed"></a>⥅ [[\\1]]</p>'
     # also include something like this to move to a lazily loaded div?
     #<script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
-def preprocess(content):
+def preprocess(content, subnode=''):
     filters = [trim_front_matter, add_obsidian_embeds]
     for f in filters:
-        content = f(content)
+        content = f(content, subnode)
     return content
 
-def postprocess(content):
+def postprocess(content, subnode=''):
     filters = [add_twitter_embeds]
     for f in filters:
         content = f(content)

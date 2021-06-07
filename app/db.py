@@ -396,7 +396,7 @@ class Subnode:
             # hack hack
             return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /> <br />'.format(self.uri)
         # ugly, this should be in render
-        content = render.preprocess(self.content)
+        content = render.preprocess(self.content, subnode=self)
         if self.uri.endswith('md') or self.uri.endswith('MD'):
             try:
                 content = render.markdown(content)
