@@ -2,27 +2,8 @@
   "dependencies": {
     "browser-or-node": "^1.3.0",
     "jquery": "^3.6.0",
-    "js-src": "file:app/js-src",
-    "react": "^17.0.2",
+    "regenerator-runtime": "^0.13.7",
     "rpc-websockets": "^7.4.12",
     "webnative": "^0.25.2"
-  },
-  "name": "agora-server",
-  "description": "This Agora Server is meant to be used in conjunction with an Agora. An Agora is a collection of digital gardens and other information sources that are assembled into a distributed knowledge graph.",
-  "version": "1.0.0",
-  "main": "app/js-src/index.js",
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fuck-capitalism/agora-server.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/fuck-capitalism/agora-server/issues"
-  },
-  "homepage": "https://github.com/fuck-capitalism/agora-server#readme"
+  }
 }

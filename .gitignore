@@ -8,8 +8,8 @@ agora.log
 app/node_modules
 app/.cache
 config.json
-app/static/js
 .cache
 app/js-src/node_modules
+app/static/js/
 .parcel-cache
 node_modules
