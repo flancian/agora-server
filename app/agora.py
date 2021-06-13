@@ -383,7 +383,7 @@ def user_journal_json(user):
 
 @bp.route('/journals')
 def journals():
-    return render_template('nodes.html', header="Journals", nodes=db.all_journals())
+    return render_template('nodes.html', header="Journals", nodes=db.all_journals()[0:10])
 
 
 @bp.route('/journals.json')
