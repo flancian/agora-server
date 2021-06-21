@@ -16,15 +16,13 @@
 
 {% extends "base.html" %}
 {% block content %}
-<div >
-{% if header %}
-<h1> {{header}} </h1>
-{% endif %}
+<div>
+    {% if header %}
+    <h1> {{header}} </h1>
+    {% endif %}
 
-<form method="POST">
-    Enter comma separated list of users to rank
-    <input type="text" id="settings-ranking" placeholder="e.g. flancian, vera">
-    <input type="button" value="Save" class="submit" onclick="processSettings()">
-</form>
+<settings-form></settings-form>
 </div>
+
 {% endblock %}
+

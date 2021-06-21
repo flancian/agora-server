@@ -29,10 +29,10 @@
 
 {% if node.subnodes or node.pushed_subnodes() %}
 <div class="node">
-<span class="node-header">→ node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
+<span class="node-header main-header">→ node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
 
     {% for subnode in node.subnodes %}
-    <div class="subnode">
+    <div class="subnode" data-author="{{subnode.user}}">
         <div class="subnode-header">
             <span class="subnode-id">↳ subnode <a
                     href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />

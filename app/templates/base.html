@@ -25,7 +25,8 @@
     <title>Agora</title>
     {% endif %}
     <meta name="monetization" content="$ilp.uphold.com/yY8FiZ2JyEhy">
-    <meta name="description" content="The Agora is a crowdsourced distributed knowledge graph: {{config['AGORA_URI']}}." />
+    <meta name="description"
+        content="The Agora is a crowdsourced distributed knowledge graph: {{config['AGORA_URI']}}." />
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{url_for('agora.search_xml')}}>
@@ -39,14 +40,7 @@
     </script>
     {% endif %}
 
-    <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
-    <script type=text/javascript src="{{url_for('static', filename='js/util.js')}}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    {% if config['ENABLE_CTZN'] %}
-    <script type=text/javascript src="{{url_for('static', filename='js/ctzn.js')}}"></script>
-    <script type=text/javascript src="{{url_for('static', filename='js/jquery.js')}}"></script>
-    <script src="https://cdn.tiny.cloud/1/2oja14lfz5n5c1xr5ag0ltbpzuvnur33yw5fpmx6e1ka0lc1/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
-    {% endif %}
 
     {% if render_graph %}
     <script src="//unpkg.com/force-graph"></script>
@@ -82,8 +76,8 @@
                 <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
                 |
                 <a href="/agora-help" style="text-decoration: none;" class="help-button">❓</a>
-                
-    
+
+
             </div>
             <hr />
 
@@ -131,7 +125,8 @@
 
 
 
-   
+
+    <script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
 
 
 </body>
