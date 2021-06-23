@@ -89,7 +89,9 @@ def canonical_date(wikilink):
 def get_combined_date_regex():
     date_regexes = [
         # iso format
-        '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+        '[0-9]{4}-[0-9]{2}-[0-9]{2}$',
+        # week format
+        '[0-9]{4}-W'
         # roam format (what a monstrosity!)
         '(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}(st|nd|th), [0-9]{4}',
         # roam format (after filename sanitization)
@@ -100,7 +102,7 @@ def get_combined_date_regex():
     # TODO: it'd really be better to compile this regex once rather than on
     # each request, but as the knuth would say premature optimization is the
     # root of all evil, etc. etc.
-    return re.compile(f'^({"|".join(date_regexes)})$')
+    return re.compile(f'^({"|".join(date_regexes)})')
 
 
 @lru_cache(maxsize=None)

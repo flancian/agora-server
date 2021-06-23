@@ -640,7 +640,7 @@ def all_users():
 
 def user_journals(user):
     nodes = [node for node in subnodes_by_user(user) if util.is_journal(node.wikilink)]
-    return  sorted(nodes, key=attrgetter('wikilink'), reverse=True)
+    return sorted(nodes, key=attrgetter('wikilink'), reverse=True)
 
 def all_journals():
     # hack hack.

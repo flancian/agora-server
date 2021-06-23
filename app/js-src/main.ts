@@ -15,6 +15,8 @@
 
 // Adapted from https://css-tricks.com/a-complete-guide-to-dark-mode-on-the-web/#toggling-themes
 
+import * as $ from "jquery"
+
 document.addEventListener("DOMContentLoaded", function () {
   // Hack for settings page
   // try { processSettings({ignore: true}) } catch(e){ console.error(e)}
@@ -61,118 +63,9 @@ document.addEventListener("DOMContentLoaded", function () {
   })
 
 
-  // $("#stoa").on("load", () => {
-  //   console.log("stoa loaded")
-  //   setTimeout(() => $("#focus-hack").show().focus().hide(), 5000)
-  // })
-
 });
 
-// function processSettings(args){
-//   args = args || {}
-//   let ranking // string for ranking nodes by user, comma separated user list
-//   ranking = document.getElementById("settings-ranking").value || ""
-//   if (ranking === ""){
-//     ranking = localStorage["ranking"] || ""
-//     console.log("ranking", ranking)
-//     if (ranking !== ""){
-//       document.getElementById("settings-ranking").value = ranking
-//     }
-//   }
 
-//   ranking = document.getElementById("settings-ranking").value || ""
-//   localStorage["ranking"] = ranking
-//   console.log("processing", ranking)
-//   if (!args["ignore"]) alert("Settings Saved")
-// }
-
-// CTZN code
-
-let ctzn
-let connected
-
-window.onload = () => {
-  loadGraph()
-  initCtzn()
-}
-
-
-function initCtzn() {
-  const storageJson = localStorage["ctzn"]
-  if (!storageJson) return
-  const storage = JSON.parse(storageJson)
-  console.log("page load")
-  if (storageJson) {
-    // have localstorage object
-    if (!storage.userId) return
-    let [name, host] = storage.userId.split("@")
-    let pass = storage.pass
-    ctzn = new CTZN({ name, host, pass })
-
-    const button = `<div class="ctzn-submit"><button onclick="updatePage()">Save</button> <button onclick="toggle()">Toggle preview</button></div>`
-    let node = $(`.subnode-user:contains('${storage.userId}')`).closest(".subnode")
-    console.log("node", node.length)
-
-    if (node.length) { // we found an existing subnode
-
-    } else {
-      node = $(".node").children(".subnode").last()
-      node.after("<div class='subnode'><span class='subnode-content'></span></div>")
-      node = $(".node").children(".subnode").last()
-    }
-
-    node.find(".subnode-content").attr("id", "ctzn-textarea").after(button)
-
-    tinymce.init({
-      selector: "#ctzn-textarea",
-      menubar: false,
-      plugins: 'lists',
-      toolbar: 'bullist',
-      height: 400
-    })
-    connect()
-
-  }
-}
-
-function login() {
-  const userId = document.getElementById("ctzn-user").value
-  const pass = document.getElementById("ctzn-password").value
-  const storageString = JSON.stringify({ userId, pass })
-  localStorage["ctzn"] = storageString
-  window.location = "/"
-}
-
-
-function toggle() {
-  const content = tinymce.get("ctzn-textarea").getContent()
-  const updated = Util.replaceStrings(content)
-  tinymce.get("ctzn-textarea").setContent(updated)
-  tinymce.execCommand('mceToggleEditor', false, 'ctzn-textarea')
-}
-
-
-async function connect() {
-  if (connected) return
-  connected = true
-  console.log("connecing to ctzn websocket")
-  await ctzn.connect()
-  await ctzn.login()
-}
-
-
-async function updatePage() {
-  const content = tinymce.activeEditor.getContent();
-  console.log("pad content", content)
-  await ctzn.updatePage(NODENAME, content)
-  Util.downloadPage(`${ctzn.user.name}@${ctzn.user.host}`, NODENAME)
-  // alert("Content saved")
-}
-
-function logout() {
-  localStorage.removeItem("ctzn")
-  location.reload()
-}
 
 
 function getRandomColor() {

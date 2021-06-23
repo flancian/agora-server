@@ -1,0 +1,14 @@
+{
+	"main": "app/js-src/index.ts",
+	"dependencies": {
+		"@parcel/config-default": "^2.0.0-nightly.731",
+		"@parcel/transformer-typescript-tsc": "^2.0.0-nightly.731",
+		"babel-preset-solid": "^0.26.5",
+		"hybrids": "^5.3.3",
+		"jquery": "^3.6.0",
+		"react": "^17.0.2",
+		"solid-js": "^0.26.5",
+		"solid-scripts": "^0.0.56",
+		"webpack": "5.0.0"
+	}
+}
