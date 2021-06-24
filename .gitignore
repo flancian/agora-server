@@ -16,3 +16,4 @@ app/static/js/util.js.map
 app/js-src/node_modules
 node_modules
 app/.parcel-cache/
+.parcel-cache
