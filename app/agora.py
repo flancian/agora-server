@@ -132,7 +132,6 @@ def subnode(node, user):
     n.subnodes = util.filter(n.subnodes, user)
     n.subnodes = util.uprank(n.subnodes, user)
     search_subnodes = db.search_subnodes_by_user(node, user)
-
     return render_template(
         'subnode.html',
         node=n,
@@ -383,7 +382,7 @@ def user_journal_json(user):
 
 @bp.route('/journals')
 def journals():
-    return render_template('nodes.html', header="Journals", nodes=db.all_journals()[0:10])
+    return render_template('nodes.html', header="Journals", nodes=db.all_journals()[0:current_app.config['JOURNAL_ENTRIES']])
 
 
 @bp.route('/journals.json')
