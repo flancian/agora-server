@@ -14362,19 +14362,22 @@ var Settings = {
     return hybrids_1.html(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n        <div>\n            Enter comma separated list of users to rank\n            <input type=\"text\" placeholder=\"e.g. flancian, vera\" oninput=\"", "\" value=\"", "\" />\n        </div>\n    "], ["\n        <div>\n            Enter comma separated list of users to rank\n            <input type=\"text\" placeholder=\"e.g. flancian, vera\" oninput=\"", "\" value=\"", "\" />\n        </div>\n    "])), processRanking, ranking);
   }
 };
-var subnodes = $(".subnode");
-var sortList = Array.prototype.sort.bind(subnodes);
-sortList(function (a, b) {
-  if (rawRanking.indexOf(a.dataset.author) === -1) return 1;
-  if (rawRanking.indexOf(b.dataset.author) === -1) return -1; // console.log(rawRanking.indexOf(a.dataset.author), rawRanking.indexOf(b.dataset.author))
-
-  if (rawRanking.indexOf(a.dataset.author) < rawRanking.indexOf(b.dataset.author)) return -1;
-  if (rawRanking.indexOf(a.dataset.author) > rawRanking.indexOf(b.dataset.author)) return 1;
-  return 0;
-});
-subnodes.remove();
-subnodes.insertAfter($(".main-header"));
 hybrids_1.define('settings-form', Settings);
+
+if (localStorage["ranking"]) {
+  var subnodes = $(".subnode");
+  var sortList = Array.prototype.sort.bind(subnodes);
+  sortList(function (a, b) {
+    if (rawRanking.indexOf(a.dataset.author) === -1) return 1;
+    if (rawRanking.indexOf(b.dataset.author) === -1) return -1;
+    if (rawRanking.indexOf(a.dataset.author) < rawRanking.indexOf(b.dataset.author)) return -1;
+    if (rawRanking.indexOf(a.dataset.author) > rawRanking.indexOf(b.dataset.author)) return 1;
+    return 0;
+  });
+  subnodes.remove();
+  subnodes.insertAfter($(".main-header"));
+}
+
 var templateObject_1;
 },{"hybrids":"node_modules/hybrids/src/index.js","jquery":"node_modules/jquery/dist/jquery.js"}],"main.ts":[function(require,module,exports) {
 "use strict"; // Copyright 2020 Google LLC
@@ -14557,7 +14560,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "46691" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40817" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
