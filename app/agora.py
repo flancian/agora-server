@@ -156,10 +156,16 @@ def latest():
 
 
 @bp.route('/now')
+@bp.route('/tonight')
 @bp.route('/today')
 def today():
-    today = datetime.datetime.now().date()
-    return redirect("/node/%s" % today.strftime("%Y-%m-%d"))
+    today = datetime.date.today()
+    return redirect("/%s" % today.strftime("%Y-%m-%d"))
+
+@bp.route('/tomorrow')
+def tomorrow():
+    tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+    return redirect("/%s" % tomorrow.strftime("%Y-%m-%d"))
 
 
 @bp.route('/regexsearch', methods=('GET', 'POST'))
