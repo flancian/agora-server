@@ -14359,7 +14359,7 @@ var Settings = {
   ranking: rawRanking,
   render: function render(_a) {
     var ranking = _a.ranking;
-    return hybrids_1.html(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n        <div>\n            Enter comma separated list of users to rank\n            <input type=\"text\" placeholder=\"e.g. flancian, vera\" oninput=\"", "\" value=\"", "\" />\n        </div>\n    "], ["\n        <div>\n            Enter comma separated list of users to rank\n            <input type=\"text\" placeholder=\"e.g. flancian, vera\" oninput=\"", "\" value=\"", "\" />\n        </div>\n    "])), processRanking, ranking);
+    return hybrids_1.html(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n        <div>\n            Enter comma separated list of users to uprank\n            <input type=\"text\" placeholder=\"e.g. flancian, vera\" oninput=\"", "\" value=\"", "\" />\n        </div>\n    "], ["\n        <div>\n            Enter comma separated list of users to uprank\n            <input type=\"text\" placeholder=\"e.g. flancian, vera\" oninput=\"", "\" value=\"", "\" />\n        </div>\n    "])), processRanking, ranking);
   }
 };
 hybrids_1.define('settings-form', Settings);
@@ -14560,7 +14560,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40817" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "36413" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

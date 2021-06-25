@@ -16,26 +16,17 @@
 
 {% extends "base.html" %}
 {% block content %}
-<div class="node">
-    <span class="node-header"><strong>Recent changes</strong></span>
-</div>
-
-{% if not subnodes %}
-No subnodes found for the given term or path.
-<br /><br />
-Go back to <a href="/nodes">/nodes</a>?
-{% endif %}
 
 <div class="delta">
     <div class="delta-nodes">
-        <span class="backlinks-header">Nodes</span><br />
+        <span class="backlinks-header">Recently edited nodes</span><br />
         {% for subnode in subnodes %}
         <a href="/@{{subnode.user}}/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
         {% endfor %}
     </div>
 
     <div class="delta-annotations">
-        <span class="backlinks-header">Web annotations</span><br />
+        <span class="backlinks-header">Recent web annotations</span><br />
     {% if annotations.entries %}
         {% for annotation in annotations.entries %}
         hypothes.is user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>

@@ -28,7 +28,7 @@ const Settings = {
     ranking: rawRanking,
     render: ({ ranking }) => html`
         <div>
-            Enter comma separated list of users to rank
+            Enter comma separated list of users to uprank
             <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />
         </div>
     `
