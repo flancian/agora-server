@@ -15,7 +15,8 @@
 
 // Adapted from https://css-tricks.com/a-complete-guide-to-dark-mode-on-the-web/#toggling-themes
 
-import * as $ from "jquery"
+import jquery from "jquery";
+(<any>window).$ = (<any>window).jQuery = jquery;
 
 document.addEventListener("DOMContentLoaded", function () {
   // Hack for settings page
@@ -44,24 +45,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // icky but I'm not above this.
-  // this is to work around etherpad grabbing focus.
-  // var element = document.getElementById("mini-cli");
-  // setTimeout( function() { element.focus() }, 1000 );
-  // setTimeout( function() { element.focus() }, 3000 );
-  // did not like it in the end, too disruptive.
-
-  // clear mini cli on click
-  $("#mini-cli").click(() => $("#mini-cli").val(""))
+  // clear mini cli on clicking clear button
+  $("#mini-cli-clear").click(() => $("#mini-cli").val(""))
 
   // focus mini-cli on key combo
-
   $(window).keydown(function (e) {
     if (e.ctrlKey && e.altKey && e.keyCode == 83) {
       $("#mini-cli").focus().val("")
     }
   })
 
+  // pull stoa
+  $("#pull-stoa").click(function() {
+      let node = this.value;
+      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?showControls=true&showChat=true&showLineNumbers=true&useMonospaceFont=false" width="100%" height="500" frameborder="0"></iframe>');
+  });
 
 });
 

@@ -4,7 +4,7 @@ import getpass
 class DefaultConfig(object):
     AGORA_PATH = os.getenv('AGORA_PATH', os.path.join('/home', getpass.getuser(), 'agora'))
     # deprecated/check if unused
-    AGORA_VERSION = '0.5.3'
+    AGORA_VERSION = '0.9'
     # standard: no trailing slashes anywhere in variables.
     # with protocol
     URL_BASE = "https://anagora.org"
@@ -19,6 +19,7 @@ class DefaultConfig(object):
     ENABLE_STATS = False
     ENABLE_OBSIDIAN_ATTACHMENTS = False
     ENABLE_AUTO_PULL = False
+    ENABLE_AUTO_STOA = False
 
 class ProductionConfig(DefaultConfig):
     
@@ -26,6 +27,7 @@ class ProductionConfig(DefaultConfig):
     ENABLE_CTZN = True
     ENABLE_STATS = True
     ENABLE_AUTO_PULL = False
+    ENABLE_AUTO_STOA = False
 
 class DevelopmentConfig(DefaultConfig):
     URL_BASE = "http://dev.anagora.org"
@@ -36,3 +38,4 @@ class DevelopmentConfig(DefaultConfig):
     ENABLE_STATS = True
     ENABLE_OBSIDIAN_ATTACHMENTS = True
     ENABLE_AUTO_PULL = True
+    ENABLE_AUTO_STOA = True

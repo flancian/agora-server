@@ -232,7 +232,7 @@ input[type="text"] {
 .links { 
     overflow: auto;
     gap: 10px;
-    max-height: 400px; */
+    max-height: 400px; 
 }
 
 .annotations { 

@@ -27,6 +27,12 @@ Then run the development server:
 ./run-dev.sh
 ```
 
+If you change Typescript, you'll want to use parcel to watch for changes and recompile:
+
+```
+parcel watch app/js-src/index.ts -d app/static/js
+```
+
 Please see [CONTRIBUTING](CONTRIBUTING.md) for instructions on how to
 contribute; it may require a one-time signing of a Google CLA.
 
@@ -53,7 +59,8 @@ git config --global alias.f "reset --hard HEAD"
 ## About the project
 As you might have inferred from the above, this project is based on [Flask](https://flask.palletsprojects.com). ```/app``` hosts the Flask app. In it:
 
-```/templates``` are Jinja2 templates.
-```__init__.py``` has the high level Flask setup.
-```agora.py``` does rendering (url maps, views).
-```db.py``` has logic to read/process notes. The db is actually the filesystem :)
+```app/__init__.py``` has the high level Flask setup.
+```app/agora.py``` does rendering (url maps, views).
+```app/db.py``` has logic to read/process notes. The db is actually the filesystem :)
+```app/js-src``` has Javascript and Typescript sources.
+```app/templates``` are Jinja2 templates.

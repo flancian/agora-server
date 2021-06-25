@@ -15,10 +15,13 @@
 -->
 
 <div class="stoa">
-    <span class="stoa-header">⟴  stoa</span><br />
+    <span class="stoa-header">⟴  stoas (cooperative resources)</span><br />
         <div class="stoa-public">
-            <span class="subnode-header">public document at <a href="https://stoa.anagora.org/p/{{node.uri}}">stoa.anagora.org/p/{{node.uri}}</a></span>
-            <iframe id="stoa" name="embed_readwrite" src="https://stoa.anagora.org/p/{{node.uri}}?showControls=true&showChat=true&showLineNumbers=true&useMonospaceFont=false" width="100%" height="500" frameborder="0"></iframe>
+            <span class="subnode-header">public document at <a href="https://stoa.anagora.org/p/{{node.uri}}">stoa.anagora.org/p/{{node.uri}}</a>
+                <button id="pull-stoa" value="{{node.uri}}">pull ↓</button>
+            </span>
+            <!-- will be replaced with an iframe or transcluded content by pull code running on the client side -->
+            <div id="stoa-iframe"></div>
         </div>
 
 </div>

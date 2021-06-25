@@ -13,5 +13,9 @@
 // limitations under the License.
 //
 
+// https://github.com/parcel-bundler/parcel/issues/2198
+import jquery from "jquery";
+(<any>window).$ = (<any>window).jQuery = jquery;
+
 import "./settings"
 import "./main"

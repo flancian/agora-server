@@ -14,9 +14,11 @@
 //
 
 import { html, define } from 'hybrids';
-import * as $ from "jquery"
 
-let rawRanking = JSON.parse(localStorage["ranking"] || '{}')
+import jquery from "jquery";
+(<any>window).$ = (<any>window).jQuery = jquery;
+
+let rawRanking = JSON.parse(localStorage["ranking"] || '[]')
 
 function processRanking(host, e) {
     host.ranking = e.currentTarget.value.split(",")

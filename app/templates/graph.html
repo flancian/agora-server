@@ -27,15 +27,13 @@ fetch("{{config['URL_BASE']}}/graph/json/{{node.uri}}").then(res => res.json()).
             let url = "https://anagora.org/" + node.id;
             location.assign(url)
         })
-        //.backgroundColor('#1f232b')
         .graphData(data)
         .nodeId('id')
         .nodeVal('val')
         .nodeLabel('name')
         .nodeAutoColorBy('group')
         .linkDirectionalArrowLength(6)
-            .linkColor(() => "#cfcfcf")
-        .zoomToFit(100, 10, true)
+        .linkColor(() => "#cfcfcf")
     });
     console.log("graph loaded.")
 </script>
