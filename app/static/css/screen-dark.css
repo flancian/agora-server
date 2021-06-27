@@ -155,7 +155,7 @@ input[type="text"] {
     margin-right: 10px;
 }
 
-.node, .context, .stoa, .ctzn {
+.node, .context, .stoa, .ctzn, .search {
     /*border-color: #7f5af0;*/
     border-color: gray;
     border-width: 1px;
@@ -189,7 +189,7 @@ input[type="text"] {
     /*border-radius: 20px;*/
 }
 
-.pulled-subnode, .pushed-subnode, .search, .stoa-public { 
+.pulled-subnode, .pushed-subnode, .stoa-public { 
     background: #101010; 
     color: #cfcfcf; 
     padding: 10px; 
@@ -288,12 +288,6 @@ input[type="text"] {
 
 .backlinks-header, .pushlinks-header, .pulllinks-header, .forwardlinks-header {
     font-style: italic; 
-}
-
-.search { 
-    background: #080808;
-    overflow: auto;
-    /* max-height: 250px;*/
 }
 
 #graph { 

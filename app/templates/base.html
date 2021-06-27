@@ -32,28 +32,28 @@
         href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
     <link rel="stylesheet" media="screen" type="text/css"
         href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached103" id="theme-link" />
-    {% if node is defined %}
-    <script>
-        const NODENAME = "{{node.uri}}"
-        const AGORANAME = "{{config['URI_BASE']}}"
-        const AGORAURL = "{{config['URL_BASE']}}"
-    </script>
+    {% if node is defined and not embed %}
+        <script>
+            const NODENAME = "{{node.uri}}"
+            const AGORANAME = "{{config['URI_BASE']}}"
+            const AGORAURL = "{{config['URL_BASE']}}"
+        </script>
     {% endif %}
 
     {% if not embed %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    {% if render_graph %}
-    <script src="//unpkg.com/force-graph"></script>
-    {% endif %}
-    <!--
-    <script type="application/json" class="js-hypothesis-config">
-          {
-              "externalContainerSelector": ".hypothesis-frame",
-          }
-    </script>
-    -->
-    <script async src="https://hypothes.is/embed.js"></script>
+        {% if render_graph %}
+        <script src="//unpkg.com/force-graph"></script>
+        {% endif %}
+        <!--
+        <script type="application/json" class="js-hypothesis-config">
+              {
+                  "externalContainerSelector": ".hypothesis-frame",
+              }
+        </script>
+        -->
+        <script async src="https://hypothes.is/embed.js"></script>
     {% endif %}
 
 </head>
