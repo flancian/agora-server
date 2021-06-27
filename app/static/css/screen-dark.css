@@ -219,6 +219,12 @@ input[type="text"] {
     display: inline-block;
 }
 
+.search-agora-header, .search-internet-header {
+    font-style: italic; 
+    font-weight: bolder;
+    margin-bottom: 1em;
+}
+
 .links-subnode {
 }
 
@@ -315,12 +321,6 @@ input[type="text"] {
     background: #080808; 
     float: left;
     width: 35%;
-}
-
-.search-agora-header, .search-internet-header {
-    font-style: italic; 
-    font-weight: bolder;
-    margin-bottom: 1em;
 }
 
 .listing { 
