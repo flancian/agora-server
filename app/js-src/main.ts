@@ -65,7 +65,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // pull a node from the [[agora]]
   $(".pull-node").click(function() {
       let node = this.value;
-      $("#" + node + ".pulled-iframe").html('<iframe class="pulled-iframe" name="embed_readwrite" src="http://dev.anagora.org/pull/' + node +'" width="100%" height="500" frameborder="0"></iframe>');
+      $.get(AGORAURL + '/pull/' + node, function(data) {
+          $("#" + node + ".pulled-iframe").html(data);
+      });
+      // old approach with iframe
+      // $("#" + node + ".pulled-iframe").html('<iframe class="pulled-iframe" name="embed_readwrite" src="http://dev.anagora.org/pull/' + node +'" width="100%" height="500" frameborder="0"></iframe>');
       this.innerText = 'pulled';
   });
 

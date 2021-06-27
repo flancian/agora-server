@@ -35,6 +35,8 @@
     {% if node is defined %}
     <script>
         const NODENAME = "{{node.uri}}"
+        const AGORANAME = "{{config['URI_BASE']}}"
+        const AGORAURL = "{{config['URL_BASE']}}"
     </script>
     {% endif %}
 
