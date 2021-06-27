@@ -36,6 +36,9 @@ def uprank(l, users):
             
     return sorted(l, key=score) 
 
+def similar(l, term):
+    return [n.wikilink for n in l if n.wikilink.startswith(term)]
+
 def filter(l, projection):
     # hack hack
     return [n for n in l if n.user == projection]

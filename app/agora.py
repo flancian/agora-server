@@ -357,6 +357,11 @@ def nodes_json():
     links = list(map(lambda x: x.wikilink, nodes))
     return jsonify(jsons.dump(links))
 
+@bp.route('/similar/<term>.json')
+def similar_json(term):
+    nodes = util.similar(db.top(), term)
+    return jsonify(nodes)
+
 
 @bp.route('/notes')  # alias
 @bp.route('/subnodes')
