@@ -1,21 +1,11 @@
 {% for node in auto_pull_nodes %}
 <div class="node">
-    <span class="node-header">⥅ auto pulled node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
-
+    <span class="node-header">⥅ node <a href="/{{node.uri}}">[[{{node.wikilink}}]]</a> (mentioned above)</span> 
     {% if node.subnodes %}
-    {% for subnode in node.subnodes %}
-    <div class="pulled-subnode">
-        <div class="subnode-header">
-            <span class="subnode-id">↳ subnode <a
-                    href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
-            <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                    href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
-        </div>
-        {{ subnode.render()|linkify|safe }}
-    </div>
-    {% endfor %}
+    <button class="pull-node" value="{{node.uri}}">pull ↓</button>
+    <div class="pulled-iframe" id="{{node.uri}}"></div>                           
     {% else %}
-    empty. <br />
+    (empty) <br />
     {% endif %}
 </div>
 {% endfor %}

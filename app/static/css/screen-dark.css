@@ -30,6 +30,7 @@ body {
     color: #bfbfbf; 
     overflow-x: hidden; 
     max-width: 60em;
+    min-width: 60em;
 }
 a               { color: #9fc6e0; }
 h1, h2          { color: #bfbfbf; }
@@ -270,19 +271,19 @@ input[type="text"] {
 
 .backlinks {
     float: left;
-    width: 50%;
+    width: 33%;
 }
 
 .pushlinks {
-    width: 20%;
+    width: 33%;
 }
 
 .pulllinks {
-    width: 20%;
+    width: 33%;
 }
 
 .forwardlinks {
-    width: 50%;
+    width: 33%;
 }
 
 .backlinks-header, .pushlinks-header, .pulllinks-header, .forwardlinks-header {

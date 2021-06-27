@@ -55,10 +55,25 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   })
 
-  // pull stoa
+  // pull a node from the default [[stoa]]
   $("#pull-stoa").click(function() {
       let node = this.value;
       $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?showControls=true&showChat=true&showLineNumbers=true&useMonospaceFont=false" width="100%" height="500" frameborder="0"></iframe>');
+      this.innerText = 'pulled';
+  });
+
+  // pull a node from the [[agora]]
+  $(".pull-node").click(function() {
+      let node = this.value;
+      $("#" + node + ".pulled-iframe").html('<iframe class="pulled-iframe" name="embed_readwrite" src="http://dev.anagora.org/pull/' + node +'" width="100%" height="500" frameborder="0"></iframe>');
+      this.innerText = 'pulled';
+  });
+
+  // pull arbitrary URL
+  $(".pull-url").click(function() {
+      let url = this.value;
+      $("#" + node + ".pulled-iframe").html('<iframe class="pulled-iframe" name="embed_readwrite" src="' + url +'" width="100%" max-height="500" frameborder="0"></iframe>');
+      this.innerText = 'pulled';
   });
 
 });

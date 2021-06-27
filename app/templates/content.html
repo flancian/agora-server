@@ -4,15 +4,19 @@
 
 {% include "node.html" %}
 
-{% include "pulled.html" %}
+{% if not embed %}
 
-{% include "context.html" %}
+    {% include "pulled.html" %}
 
-{% include "stoa.html" %}
+    {% include "context.html" %}
 
-{% include "autopulled.html" %}
+    {% include "stoa.html" %}
 
-{% include "search.html" %}
+    {% include "autopulled.html" %}
+
+    {% include "search.html" %}
+
+{% endif %}
 
 {% endblock %}
 
