@@ -30,7 +30,6 @@ body {
     color: #bfbfbf; 
     overflow-x: hidden; 
     max-width: 60em;
-    min-width: 60em;
 }
 a               { color: #9fc6e0; }
 h1, h2          { color: #bfbfbf; }
