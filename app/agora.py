@@ -432,7 +432,7 @@ def user_journal_json(user):
 
 @bp.route('/journals')
 def journals():
-    return render_template('nodes.html', header="Journals", nodes=db.all_journals()[0:current_app.config['JOURNAL_ENTRIES']])
+    return render_template('journals.html', header="Journals", nodes=db.all_journals()[0:current_app.config['JOURNAL_ENTRIES']])
 
 
 @bp.route('/journals.json')
