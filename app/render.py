@@ -64,6 +64,20 @@ def add_twitter_embeds(content):
     TWITTER_EMBED='<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="\\1"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
+def add_twitter_pull(content):
+    TWITTER_REGEX='(https://twitter.com/\w+/status/[0-9]+)'
+    TWITTER_EMBED='\\1 <button class="pull-tweet" value="\\1">pull tweet</button>'
+    return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
+
+def add_mastodon_pull(content):
+    MASTODON_REGEX='(https://[a-zA-Z-.]+/web/statuses/[0-9]+)'
+    MASTODON_REGEX_ALT='(https://[a-zA-Z-.]+/@\w+/[0-9]+)'
+    MASTODON_EMBED='\\1 <button class="pull-status" value="\\1">pull status</button>'
+    ret = re.sub(MASTODON_REGEX, MASTODON_EMBED, content)
+    ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, ret)
+    return ret
+
+
 # Trim front matter until we do something useful with it.
 def trim_front_matter(content, subnode):
     FRONT_MATTER_REGEX = '---(\n.*)*---'
@@ -93,7 +107,8 @@ def preprocess(content, subnode=''):
     return content
 
 def postprocess(content, subnode=''):
-    filters = [add_twitter_embeds]
+    # filters = [add_twitter_embeds]
+    filters = [add_twitter_pull, add_mastodon_pull]
     for f in filters:
         content = f(content)
     return content

@@ -73,12 +73,28 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulled';
   });
 
+  // pull a tweet using the laziest way I found, might be a better one
+  $(".pull-tweet").click(function(e) {
+      let tweet = this.value;
+      $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
+      this.innerText = 'pulled';
+  });
+
+  // pull a mastodon status (toot) using the laziest way I found, might be a better one
+  $(".pull-status").click(function(e) {
+      let toot = this.value;
+      $(e.currentTarget).after('<iframe src="' + toot + '/embed' + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://social.coop/embed.js" async="async"></script>')
+      this.innerText = 'pulled';
+  });
+
+
   // pull arbitrary URL
   $(".pull-url").click(function() {
       let url = this.value;
       $("#" + node + ".pulled-iframe").html('<iframe class="pulled-iframe" name="embed_readwrite" src="' + url +'" width="100%" max-height="500" frameborder="0"></iframe>');
       this.innerText = 'pulled';
   });
+
 
 });
 
