@@ -9591,7 +9591,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // pull a mastodon status (toot) using the laziest way I found, might be a better one
     $(".pull-status").click(function(e) {
         let toot = this.value;
-        $(e.currentTarget).after('<iframe src="' + toot + '/embed' + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://social.coop/embed.js" async="async"></script>');
+        $(e.currentTarget).after('<br /><iframe src="' + toot + '/embed' + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://social.coop/embed.js" async="async"></script>');
         this.innerText = 'pulled';
     });
     // pull arbitrary URL
