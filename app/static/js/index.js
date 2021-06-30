@@ -9628,10 +9628,16 @@ document.addEventListener("DOMContentLoaded", function() {
         this.innerText = 'pulled';
     });
     // pull arbitrary URL
-    $(".pull-url").click(function() {
+    $(".pull-url").click(function(e) {
         let url = this.value;
-        $("#" + node + ".pulled-iframe").html('<iframe class="pulled-iframe" name="embed_readwrite" src="' + url + '" width="100%" max-height="500" frameborder="0"></iframe>');
+        $(e.currentTarget).next('a').after('<br /><iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>');
         this.innerText = 'pulled';
+    });
+    // go to the specified URL
+    $(".go-url").click(function(e) {
+        let url = this.value;
+        this.innerText = 'going';
+        window.location.replace(url);
     });
 });
 function getRandomColor() {

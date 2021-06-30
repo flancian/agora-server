@@ -83,6 +83,18 @@ def add_pleroma_pull(content):
     ret = re.sub(PLEROMA_REGEX, PLEROMA_EMBED, content)
     return ret
 
+def add_url_pull(content, subnode):
+    URL_REGEX='(\[\[pull\]\]) (.+:\/\/.+)'
+    URL_EMBED='<button class="pull-url" value="\\2">pull</button> \\2'
+    ret = re.sub(URL_REGEX, URL_EMBED, content)
+    return ret
+
+def add_go(content, subnode):
+    URL_REGEX='(\[\[go\]\]) (.+:\/\/.+)'
+    URL_EMBED='<button class="go-url" value="\\2">go</button> \\2'
+    ret = re.sub(URL_REGEX, URL_EMBED, content)
+    return ret
+
 # Trim front matter until we do something useful with it.
 def trim_front_matter(content, subnode):
     FRONT_MATTER_REGEX = '---(\n.*)*---'
@@ -106,7 +118,7 @@ def add_obsidian_embeds(content, subnode):
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
 def preprocess(content, subnode=''):
-    filters = [trim_front_matter, add_obsidian_embeds]
+    filters = [trim_front_matter, add_obsidian_embeds, add_url_pull, add_go]
     for f in filters:
         content = f(content, subnode)
     return content
