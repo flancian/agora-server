@@ -9588,10 +9588,43 @@ document.addEventListener("DOMContentLoaded", function() {
         $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
         this.innerText = 'pulled';
     });
-    // pull a mastodon status (toot) using the laziest way I found, might be a better one
-    $(".pull-status").click(function(e) {
+    // pull a mastodon status (toot) using the roughly correct way IIUC.
+    $(".pull-mastodon-status").click(function(e) {
         let toot = this.value;
-        $(e.currentTarget).after('<br /><iframe src="' + toot + '/embed' + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://social.coop/embed.js" async="async"></script>');
+        let domain, post;
+        // extract instance and :id, then use https://docs.joinmastodon.org/methods/statuses/ and get an oembed
+        // there are two kinds of statuses we want to be able to embed: /web/ led and @user led.
+        const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig;
+        const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig;
+        console.log("testing type of presumed mastodon embed: " + toot);
+        if (m = web_regex.exec(toot)) {
+            console.log("found status of type /web/");
+            domain = m[1];
+            post = m[2];
+        }
+        if (m = user_regex.exec(toot)) {
+            console.log("found status of type /@user/");
+            domain = m[1];
+            post = m[2];
+        }
+        req = domain + '/api/v1/statuses/' + post;
+        console.log('req: ' + req);
+        $.get(req, function(data) {
+            console.log('status: ' + data['url']);
+            let actual_url = data['url'];
+            let oembed_req = domain + '/api/oembed?url=' + actual_url;
+            $.get(oembed_req, function(data1) {
+                console.log('oembed: ' + data1['html']);
+                let html = data1['html'];
+                $(e.currentTarget).after(html);
+                this.innerText = 'pulled';
+            });
+        });
+    });
+    // pull a pleroma status (toot) using the laziest way I found, might be a better one
+    $(".pull-pleroma-status").click(function(e) {
+        let toot = this.value;
+        $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"></script>');
         this.innerText = 'pulled';
     });
     // pull arbitrary URL

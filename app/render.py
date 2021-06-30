@@ -72,11 +72,16 @@ def add_twitter_pull(content):
 def add_mastodon_pull(content):
     MASTODON_REGEX='(https://[a-zA-Z-.]+/web/statuses/[0-9]+)'
     MASTODON_REGEX_ALT='(https://[a-zA-Z-.]+/@\w+/[0-9]+)'
-    MASTODON_EMBED='\\1 <button class="pull-status" value="\\1">pull status</button>'
+    MASTODON_EMBED='\\1 <button class="pull-mastodon-status" value="\\1">pull status</button>'
     ret = re.sub(MASTODON_REGEX, MASTODON_EMBED, content)
     ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, ret)
     return ret
 
+def add_pleroma_pull(content):
+    PLEROMA_REGEX='(https://[a-zA-Z-.]+/notice/\w+)'
+    PLEROMA_EMBED='\\1 <button class="pull-pleroma-status" value="\\1">pull status</button>'
+    ret = re.sub(PLEROMA_REGEX, PLEROMA_EMBED, content)
+    return ret
 
 # Trim front matter until we do something useful with it.
 def trim_front_matter(content, subnode):
@@ -107,8 +112,9 @@ def preprocess(content, subnode=''):
     return content
 
 def postprocess(content, subnode=''):
+    # server side / deprecated
     # filters = [add_twitter_embeds]
-    filters = [add_twitter_pull, add_mastodon_pull]
+    filters = [add_twitter_pull, add_mastodon_pull, add_pleroma_pull]
     for f in filters:
         content = f(content)
     return content
