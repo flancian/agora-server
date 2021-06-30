@@ -112,10 +112,9 @@ document.addEventListener("DOMContentLoaded", function () {
               console.log('oembed: ' + data['html'])
               let html = data['html']
               $(e.currentTarget).after(html);
-              this.innerText = 'pulled';
           });
       });
-
+      this.innerText = 'pulled';
   });
 
   // pull a pleroma status (toot) using the laziest way I found, might be a better one
