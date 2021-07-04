@@ -55,15 +55,92 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   })
 
-  // pull stoa
+  // pull a node from the default [[stoa]]
   $("#pull-stoa").click(function() {
       let node = this.value;
       $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?showControls=true&showChat=true&showLineNumbers=true&useMonospaceFont=false" width="100%" height="500" frameborder="0"></iframe>');
+      this.innerText = 'pulled';
   });
 
+  // pull a node from the [[agora]]
+  $(".pull-node").click(function() {
+      let node = this.value;
+      $.get(AGORAURL + '/pull/' + node, function(data) {
+          $("#" + node + ".pulled-iframe").html(data);
+      });
+      // old approach with iframe
+      // $("#" + node + ".pulled-iframe").html('<iframe class="pulled-iframe" name="embed_readwrite" src="http://dev.anagora.org/pull/' + node +'" width="100%" height="500" frameborder="0"></iframe>');
+      this.innerText = 'pulled';
+  });
+
+  // pull a tweet using the laziest way I found, might be a better one
+  $(".pull-tweet").click(function(e) {
+      let tweet = this.value;
+      $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
+      this.innerText = 'pulled';
+  });
+
+  // pull a mastodon status (toot) using the roughly correct way IIUC.
+  $(".pull-mastodon-status").click(function(e) {
+      let toot = this.value;
+      let domain, post;
+      // extract instance and :id, then use https://docs.joinmastodon.org/methods/statuses/ and get an oembed
+      // there are two kinds of statuses we want to be able to embed: /web/ led and @user led.
+      const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig
+      const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig
+
+      console.log("testing type of presumed mastodon embed: " + toot);
+      if (m = web_regex.exec(toot)) {
+          console.log("found status of type /web/");
+          domain = m[1];
+          post = m[2];
+      }
+      if (m = user_regex.exec(toot)) {
+          console.log("found status of type /@user/");
+          domain = m[1];
+          post = m[2];
+      }
+
+      req = domain + '/api/v1/statuses/' + post
+      console.log('req: ' + req)
+      $.get(req, function(data) {
+          console.log('status: ' + data['url'])
+          let actual_url = data['url']
+
+          let oembed_req = domain + '/api/oembed?url=' + actual_url 
+          $.get(oembed_req, function(data) {
+              console.log('oembed: ' + data['html'])
+              let html = data['html']
+              $(e.currentTarget).after(html);
+          });
+      });
+      this.innerText = 'pulled';
+  });
+
+  // pull a pleroma status (toot) using the laziest way I found, might be a better one
+  $(".pull-pleroma-status").click(function(e) {
+      let toot = this.value;
+      $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"></script>')
+      this.innerText = 'pulled';
+  });
+
+  // pull arbitrary URL
+  $(".pull-url").click(function(e) {
+      let url = this.value;
+      $(e.currentTarget).next('a').after('<br /><iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>')
+      this.innerText = 'pulled';
+  });
+
+  // go to the specified URL
+  $(".go-url").click(function(e) {
+      let url = this.value;
+      this.innerText = 'going';
+      window.location.replace(url);
+  });
+
+
+
 });
-
-
 
 
 function getRandomColor() {

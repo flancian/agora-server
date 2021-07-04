@@ -1,0 +1,71 @@
+<!--
+ Copyright 2020 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="listing">
+
+{% if stats %}
+<a href="/an-agora">This Agora</a> contains <strong>{{stats['nodes']}} nodes</strong> integrated out of <strong>{{stats['subnodes']}} subnodes</strong> by <strong>{{stats['users']}} users</strong>.</strong><br />
+There are <strong>{{stats['edges']}} edges</strong>.
+{% endif %}
+
+{% if header %}
+<h1> {{header}} </h1>
+{% else %}
+<h1> Nodes </h1>
+{% endif %}
+
+{% for node in nodes %}
+<div class="node">
+     <span class="node-header">→ node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
+     
+         {% for subnode in node.subnodes %}
+         <div class="subnode">
+             <div class="subnode-header">
+                 <span class="subnode-id">↳ subnode <a
+                         href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
+                 <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
+                         href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a></span>
+             </div>
+             <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+         </div>
+         {% endfor %}
+     
+         {% if node.pushed_subnodes() %}
+             {% for subnode in node.pushed_subnodes() %}
+             <div class="pushed-subnode">
+                 <div class="subnode-header">
+                     <span class="subnode-id">↳ subnode <a
+                             href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
+                     <span class="subnode-links">pushed from <a href="/sub{{subnode.uri}}">{{subnode.uri}}</a> by <a
+                             href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+                 </div>
+                 <ul>
+                     {{ subnode.render()|linkify|safe }}
+                 </ul>
+             </div>
+             {% endfor %}
+         {% endif %}
+     
+     </div>
+{% endfor %}
+</div>
+
+
+{% endblock %}

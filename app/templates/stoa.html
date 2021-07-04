@@ -15,15 +15,11 @@
 -->
 
 <div class="stoa">
-    <span class="stoa-header">⟴  stoas (cooperative resources)</span><br />
-        <div class="stoa-public">
-            <span class="subnode-header">public document at <a href="https://stoa.anagora.org/p/{{node.uri}}">stoa.anagora.org/p/{{node.uri}}</a>
-                <button id="pull-stoa" value="{{node.uri}}">pull ↓</button>
-            </span>
-            <!-- will be replaced with an iframe or transcluded content by pull code running on the client side -->
-            <div id="stoa-iframe"></div>
-        </div>
-
+    <span class="stoa-header">⟴  default stoa (world writable) at <a href="https://stoa.anagora.org/p/{{node.uri}}">stoa.anagora.org/p/{{node.uri}}</a>
+        <button id="pull-stoa" value="{{node.uri}}">pull stoa ↓</button>
+    </span>
+    <!-- will be replaced with an iframe or transcluded content by pull code running on the client side -->
+    <div id="stoa-iframe"></div>
 </div>
 
 

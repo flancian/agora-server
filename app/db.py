@@ -237,6 +237,12 @@ class Node:
         nodes = []
         for subnode in self.subnodes:
             nodes.extend(subnode.auto_pull_nodes())
+        # for node in self.back_links():
+        #     nodes.append(G.node(node))
+        for node in self.pushing_nodes():
+            nodes.append(node)
+        for node in self.pulling_nodes():
+            nodes.append(node)
         nodes = [node for node in nodes if node not in self.pull_nodes() and node.uri not in banned_nodes]
         # bug: for some reason set() doesn't dedup here, even though I've checked and the hash from duplicate nodes is identical (!).
         # test case: [[hypha]].

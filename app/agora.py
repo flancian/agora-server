@@ -277,6 +277,45 @@ def push(node, other):
 
     return Response(pushing)
 
+# good for embedding just node content.
+@bp.route('/pull/<node>')
+def pull(node):
+    current_app.logger.debug(f'pull [[{node}]]: Assembling node.')
+    # default uprank: system account and maintainers
+    # TODO: move to config.py
+    rank = ['agora', 'flancian', 'vera']
+
+    from copy import copy
+    n = copy(G.node(node))
+
+    if n.subnodes:
+        # earlier in the list means more highly ranked.
+        n.subnodes = util.uprank(n.subnodes, users=rank)
+
+    current_app.logger.debug(f'[[{node}]]: Assembled node.')
+    return render_template(
+            # yuck
+            'content.html', 
+            node=n,
+            embed=True,
+            backlinks=n.back_links(),
+            pull_nodes=n.pull_nodes() if n.subnodes else [],
+            forwardlinks=n.forward_links() if n else [],
+            search=[],
+            pulling_nodes=n.pulling_nodes(),
+            pushing_nodes=n.pushing_nodes(),
+            q=n.wikilink.replace('-', '%20'),
+            qstr=n.wikilink.replace('-', ' '),
+            render_graph=False,
+            config=current_app.config,
+            )
+
+
+
+def pull(node, other):
+    n = G.node(node)
+    return Response(pushing)
+
 
 # This receives whatever you type in the mini-cli up to the top of anagora.org.
 # Then it parses it and redirects to the right node or takes the appropriate action.
@@ -393,7 +432,7 @@ def user_journal_json(user):
 
 @bp.route('/journals')
 def journals():
-    return render_template('nodes.html', header="Journals", nodes=db.all_journals()[0:current_app.config['JOURNAL_ENTRIES']])
+    return render_template('journals.html', header="Journals", nodes=db.all_journals()[0:current_app.config['JOURNAL_ENTRIES']])
 
 
 @bp.route('/journals.json')
