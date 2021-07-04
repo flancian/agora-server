@@ -237,8 +237,8 @@ class Node:
         nodes = []
         for subnode in self.subnodes:
             nodes.extend(subnode.auto_pull_nodes())
-        for node in self.back_links():
-            nodes.append(G.node(node))
+        # for node in self.back_links():
+        #     nodes.append(G.node(node))
         for node in self.pushing_nodes():
             nodes.append(node)
         for node in self.pulling_nodes():
