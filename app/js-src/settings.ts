@@ -19,20 +19,42 @@ import jquery from "jquery";
 (<any>window).$ = (<any>window).jQuery = jquery;
 
 let rawRanking = JSON.parse(localStorage["ranking"] || '[]')
+let rawAutoPull = JSON.parse(localStorage["autoPull"] || 'false')
 
 function processRanking(host, e) {
     host.ranking = e.currentTarget.value.split(",")
     localStorage["ranking"] = JSON.stringify(host.ranking)
 }
+function processPull(host, e){
+    host.autopull = e.currentTarget.checked
+    localStorage["autoPull"] = JSON.stringify(host.autopull)
+}
+function isChecked(){
+    // hack for putting attribute in element
+    if(localStorage["autoPull"] && JSON.parse(localStorage["autoPull"])) return html`
+    <div>
+        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPull}" checked />
+    </div>
+    `
+    return html`
+    <div>
+        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPull}" />
+    </div>
+    `
+}
 const Settings = {
     ranking: rawRanking,
-    render: ({ ranking }) => html`
+    autopull: rawAutoPull,
+    render: ({ ranking, autopull, checked }) => html`
         <div>
             Enter comma separated list of users to uprank
             <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />
         </div>
+        ${isChecked()}
+
     `
 }
+
 define('settings-form', Settings);
 
 if (localStorage["ranking"]) {
