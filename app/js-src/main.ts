@@ -16,7 +16,6 @@
 // Adapted from https://css-tricks.com/a-complete-guide-to-dark-mode-on-the-web/#toggling-themes
 
 import jquery from "jquery";
-import { $NAME } from "solid-js/types/reactive/state";
 (<any>window).$ = (<any>window).jQuery = jquery;
 
 document.addEventListener("DOMContentLoaded", function () {
