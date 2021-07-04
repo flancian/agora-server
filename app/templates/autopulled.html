@@ -1,6 +1,6 @@
 {% for node in auto_pull_nodes %}
 <div class="node">
-    <span class="node-header">⥅ mentioned node <a href="/{{node.uri}}">[[{{node.wikilink}}]]</a></span> 
+    <span class="node-header">⥅ context node <a href="/{{node.uri}}">[[{{node.wikilink}}]]</a></span> 
     {% if node.subnodes %}
     <button class="pull-node" value="{{node.uri}}">pull ↓</button>
     <div class="pulled-iframe" id="{{node.uri}}"></div>                           
