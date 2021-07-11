@@ -3,6 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@parcel/config-default': ^2.0.0-nightly.731
   '@parcel/transformer-typescript-tsc': ^2.0.0-nightly.731
+  '@types/jquery': ^3.5.5
   babel-preset-solid: ^0.26.5
   hybrids: ^5.3.3
   jquery: ^3.6.0
@@ -14,6 +15,7 @@ specifiers:
 dependencies:
   '@parcel/config-default': 2.0.0-nightly.731
   '@parcel/transformer-typescript-tsc': 2.0.0-nightly.731
+  '@types/jquery': 3.5.5
   babel-preset-solid: 0.26.5
   hybrids: 5.3.3
   jquery: 3.6.0
@@ -2139,6 +2141,12 @@ packages:
       '@types/istanbul-lib-report': 3.0.0
     dev: false
 
+  /@types/jquery/3.5.5:
+    resolution: {integrity: sha512-6RXU9Xzpc6vxNrS6FPPapN1SxSHgQ336WC6Jj/N8q30OiaBZ00l1GBgeP7usjVZPivSkGUfL1z/WW6TX989M+w==}
+    dependencies:
+      '@types/sizzle': 2.3.3
+    dev: false
+
   /@types/json-schema/7.0.7:
     resolution: {integrity: sha512-cxWFQVseBm6O9Gbw1IWb8r6OS4OhSt3hPZLkFApLjM8TEXROBuQGLAH2i2gZpcXdLBIrpXuTDhH7Vbm1iXmNGA==}
     dev: false
@@ -2165,6 +2173,10 @@ packages:
 
   /@types/q/1.5.4:
     resolution: {integrity: sha512-1HcDas8SEj4z1Wc696tH56G8OlRaH/sqZOynNNB+HF0WOeXPaxTtbYzJY2oEfiUxjSKjhCKr+MvR7dCHcEelug==}
+    dev: false
+
+  /@types/sizzle/2.3.3:
+    resolution: {integrity: sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==}
     dev: false
 
   /@types/stack-utils/2.0.0:

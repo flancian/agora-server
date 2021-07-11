@@ -19,8 +19,6 @@ import jquery from "jquery";
 (<any>window).$ = (<any>window).jQuery = jquery;
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Hack for settings page
-  // try { processSettings({ignore: true}) } catch(e){ console.error(e)}
   // Select button
   const btn = document.querySelector(".theme-toggle");
   var theme = document.querySelector("#theme-link");
@@ -73,49 +71,68 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulled';
   });
 
+  const autoPull = JSON.parse(localStorage["autoPull"] || 'false')
+
   // pull a tweet using the laziest way I found, might be a better one
   $(".pull-tweet").click(function(e) {
       let tweet = this.value;
       $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
       this.innerText = 'pulled';
   });
+  if(autoPull){
+    $(".pull-tweet").each(function() {
+      const tweet = this.value
+      $(this).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
+      this.innerText = 'pulled';
 
+    })
+  }
+
+  function statusContent(self){
+    let toot = self.value;
+    let domain, post;
+    // extract instance and :id, then use https://docs.joinmastodon.org/methods/statuses/ and get an oembed
+    // there are two kinds of statuses we want to be able to embed: /web/ led and @user led.
+    const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig
+    const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig
+
+    console.log("testing type of presumed mastodon embed: " + toot);
+    if (m = web_regex.exec(toot)) {
+        console.log("found status of type /web/");
+        domain = m[1];
+        post = m[2];
+    }
+    if (m = user_regex.exec(toot)) {
+        console.log("found status of type /@user/");
+        domain = m[1];
+        post = m[2];
+    }
+
+    req = domain + '/api/v1/statuses/' + post
+    console.log('req: ' + req)
+    $.get(req, function(data) {
+        console.log('status: ' + data['url'])
+        let actual_url = data['url']
+
+        let oembed_req = domain + '/api/oembed?url=' + actual_url 
+        $.get(oembed_req, function(data) {
+            console.log('oembed: ' + data['html'])
+            let html = data['html']
+            $(self).after(html);
+        });
+    });
+    self.innerText = 'pulled';
+  }
   // pull a mastodon status (toot) using the roughly correct way IIUC.
   $(".pull-mastodon-status").click(function(e) {
-      let toot = this.value;
-      let domain, post;
-      // extract instance and :id, then use https://docs.joinmastodon.org/methods/statuses/ and get an oembed
-      // there are two kinds of statuses we want to be able to embed: /web/ led and @user led.
-      const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig
-      const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig
-
-      console.log("testing type of presumed mastodon embed: " + toot);
-      if (m = web_regex.exec(toot)) {
-          console.log("found status of type /web/");
-          domain = m[1];
-          post = m[2];
-      }
-      if (m = user_regex.exec(toot)) {
-          console.log("found status of type /@user/");
-          domain = m[1];
-          post = m[2];
-      }
-
-      req = domain + '/api/v1/statuses/' + post
-      console.log('req: ' + req)
-      $.get(req, function(data) {
-          console.log('status: ' + data['url'])
-          let actual_url = data['url']
-
-          let oembed_req = domain + '/api/oembed?url=' + actual_url 
-          $.get(oembed_req, function(data) {
-              console.log('oembed: ' + data['html'])
-              let html = data['html']
-              $(e.currentTarget).after(html);
-          });
-      });
-      this.innerText = 'pulled';
+    statusContent(this)
   });
+
+  if(autoPull){
+    $(".pull-mastodon-status").each(function() {
+      statusContent(this)
+    })
+  }
 
   // pull a pleroma status (toot) using the laziest way I found, might be a better one
   $(".pull-pleroma-status").click(function(e) {
