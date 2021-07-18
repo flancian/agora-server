@@ -92,7 +92,7 @@ def canonical_date(wikilink):
 def get_combined_date_regex():
     date_regexes = [
         # iso format
-        '[0-9]{4}-[0-9]{2}-[0-9]{2}$',
+        '[0-9]{4}.[0-9]{2}.[0-9]{2}$',
         # week format
         '[0-9]{4}-W'
         # roam format (what a monstrosity!)
