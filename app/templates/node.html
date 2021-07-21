@@ -16,13 +16,13 @@
 
 {% if not node.subnodes and not node.pushed_subnodes() %}
 <div class="node">
-    <span class="node-header">→ agora node <a href="/{{node}}">{{qstr}}</a> hasn't been defined yet.</span>
+    <span class="node-header">→ node <a href="/{{node}}">[[{{qstr}}]]</a> hasn't been defined yet.</span>
     <div class="not-found subnode">
-        <p> <strong>Welcome to [[{{node}}]]! You might be the first person ever in this Agora node.</strong> If so, have fun! Feel free to write something in the public document below. Whoever comes here next will see what you've written.</p>
-
-        <p>You can also <a href="/sign-up"><strong>sign up/log in</strong></a> and start contributing your personal notes for integration in this Agora.</p>
+        <p> <strong>Welcome to this Agora! Nobody has left anything here yet.</strong></p>
         
-        <p>Potential relevant/related nodes might be optimistically auto-pulled below.</p>
+        <p>Have fun! Feel free to write something in the public document ("Stoa") below. Whoever comes here next will be able to see what you've left for them.</p>
+
+        <p>You can also <a href="/sign-up"><strong>sign up</strong></a> start contributing your personal notes. Resources from elsewhere in this Agora might be optimistically pulled below.</p>
     </div>
 </div>
 {% endif %}
