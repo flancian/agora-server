@@ -15,6 +15,7 @@
 
 # npm install ./app/js-src --prefix ./app/js-src
 # npx parcel-bundler build app/js-src/*.js --out-dir ../static/js
+. venv/bin/activate
 export FLASK_APP=app
 export FLASK_ENV="development"
 export AGORA_CONFIG="DevelopmentConfig"
