@@ -1,0 +1,17 @@
+# to run agora server as a service:
+# 1. create a dedicated user, I use 'agora'. If you use a different user/path, adjust below.
+# 2. copy or symlink this to ~/.config/systemd/user/agora-server.service in that user
+# 3. start: systemctl --user start agora-server
+# 4. enable (so it automatically starts on boot): systemctl --user enable agora-server
+
+[Unit]
+Description=Agora Server, see https://github.com/flancian/agora-server.
+
+[Service]
+WorkingDirectory=/home/agora/agora-server
+ExecStart=/home/agora/agora-server/run-prod.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target
