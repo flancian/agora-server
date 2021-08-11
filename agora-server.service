@@ -1,8 +1,11 @@
 # to run agora server as a service:
+#
 # 1. create a dedicated user, I use 'agora'. If you use a different user/path, adjust below.
 # 2. copy or symlink this to ~/.config/systemd/user/agora-server.service in that user
 # 3. start: systemctl --user start agora-server
 # 4. enable (so it automatically starts on boot): systemctl --user enable agora-server
+# 
+# thereafter you can check process logs with: journalctl -u agora-server.service (you may need to add the user to group systemd-journal in Debian-based systems.
 
 [Unit]
 Description=Agora Server, see https://github.com/flancian/agora-server.
