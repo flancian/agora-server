@@ -30,8 +30,10 @@ Then run the development server:
 If you change Typescript, you'll want to use parcel to watch for changes and recompile:
 
 ```
-parcel watch app/js-src/index.ts -d app/static/js
+parcel watch app/js-src/index.ts --dist-dir app/static/js
 ```
+
+If you don't have parcel, see https://parceljs.org/getting_started.html.
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for instructions on how to
 contribute; it may require a one-time signing of a Google CLA.
