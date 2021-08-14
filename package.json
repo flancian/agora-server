@@ -11,5 +11,10 @@
 		"solid-js": "^0.26.5",
 		"solid-scripts": "^0.0.56",
 		"webpack": "5.0.0"
+	},
+	"devDependencies": {
+		"add": "^2.0.6",
+		"parcel": "^2.0.0-rc.0",
+		"yarn": "^1.22.11"
 	}
 }

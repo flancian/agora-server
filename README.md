@@ -33,7 +33,7 @@ If you change Typescript, you'll want to use parcel to watch for changes and rec
 parcel watch app/js-src/index.ts --dist-dir app/static/js
 ```
 
-If you don't have parcel, see https://parceljs.org/getting_started.html.
+If you don't have parcel, see https://v2.parceljs.org/getting-started/webapp/. You need parcel 2 for the above command to work. `sudo yarn global add parcel@next` should get you that if you're using yarn (it might end up in /usr/local/bin/parcel).
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for instructions on how to
 contribute; it may require a one-time signing of a Google CLA.
@@ -44,19 +44,6 @@ thus copyright belongs to Google as indicated in LICENSE and in various license
 headers. This should be of essentially no effect to you or its users (beyond the
 required signing of the CLA if you contribute), as it is released under an open
 license; please reach out to flancian@ or some other maintainer if this concerns you.  
-
-## Optional: my git configuration
-
-(Tangent) in case this is your first git contribution/you just haven't done it and you find this useful. This is my git config:
-
-```
-git config --global user.email "example@example.org"
-git config --global user.name "Example"
-git config --global alias.st status
-git config --global alias.ci commit
-git config --global alias.co checkout
-git config --global alias.f "reset --hard HEAD"
-```
 
 ## About the project
 As you might have inferred from the above, this project is based on [Flask](https://flask.palletsprojects.com). ```/app``` hosts the Flask app. In it:
