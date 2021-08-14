@@ -1,0 +1,49 @@
+<!--
+ Copyright 2020 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+{% extends "base.html" %}
+{% block content %}
+
+<div class="search">
+    <div class="search-flex">
+        <div class="search-agora">
+            <span class="search-agora-header">🔎 full text search for '{{qstr}}'</span> <br />
+            {% if search %}
+            {% for subnode in search %}
+            <a href="/@{{subnode.user}}/{{subnode.wikilink}}">@{{subnode.user}}/{{subnode.wikilink}}</a><br />
+            {% endfor %}
+            {% else %}
+            No search results.
+            {% endif %}
+        </div>
+
+        <div class="search-internet">
+            <span class="search-internet-header">🌎 search on...</span> <br />
+            ↪ <a href="https://www.google.com/search?q={{q}}">Google</a> <br />
+            ↪ <a href="https://www.duckduckgo.com/{{q}}">DuckDuckGo</a> <br />
+            ↪ <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">Wikipedia</a> <br />
+            ↪ <a href="https://searx.bar/search?q={{q}}&categories=general&language=en-US">Searx</a> <br />
+            ↪ <a href="https://twitter.com/search/?f=live&q={{q}}">Twitter</a> <br />
+            ↪ <a href="https://github.com/search?q={{q}}">Github</a> <br />
+            ↪ <a href="https://forum.effectivealtruism.org/search?terms={{q}}">Effective Altruism</a> <br />
+            ↪ <a href="https://www.lesswrong.com/search?terms={{q}}">Less Wrong</a> <br />
+            ↪ <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">Encyclopedia of World Problems</a> <br />
+            ↪ <a href="https://www.pubpub.org/search?q={{q}}">PubPub</a> <br />
+        </div>
+    </div>
+</div>
+
+{% endblock %}
