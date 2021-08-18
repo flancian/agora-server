@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# npm install ./app/js-src --prefix ./app/js-src
-# npx parcel-bundler build app/js-src/*.js --out-dir ../static/js
 . venv/bin/activate
+npm install ./app/js-src --prefix ./app/js-src
+npx parcel-bundler build app/js-src/*.js --out-dir ../static/js
 export FLASK_APP=app
 export FLASK_ENV="development"
 export AGORA_CONFIG="DevelopmentConfig"
