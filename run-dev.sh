@@ -14,8 +14,7 @@
 # limitations under the License.
 
 . venv/bin/activate
-npm install ./app/js-src --prefix ./app/js-src
-npx parcel-bundler build app/js-src/*.js --out-dir ../static/js
+parcel watch app/js-src/index.ts --dist-dir app/static/js &
 export FLASK_APP=app
 export FLASK_ENV="development"
 export AGORA_CONFIG="DevelopmentConfig"

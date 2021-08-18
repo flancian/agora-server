@@ -73,11 +73,7 @@
         localRequire,
         module,
         module.exports,
-<<<<<<< HEAD
         this,
-=======
-        this
->>>>>>> main
       );
     }
 
@@ -144,85 +140,12 @@
       this[globalName] = mainExports;
     }
   }
-<<<<<<< HEAD
 })({"fUv5R":[function(require,module,exports) {
 var HMR_HOST = null;
 var HMR_PORT = 1234;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
-=======
-})({"49IOv":[function(require,module,exports) {
-var HMR_HOST = null;
-var HMR_PORT = 1234;
-var HMR_SECURE = false;
-var HMR_ENV_HASH = "69f74e7f31319ffd";
-module.bundle.HMR_BUNDLE_ID = "16666c10df048dff";
-"use strict";
-function _createForOfIteratorHelper(o, allowArrayLike) {
-    var it;
-    if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
-        if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-            if (it) o = it;
-            var i = 0;
-            var F = function F1() {
-            };
-            return {
-                s: F,
-                n: function n() {
-                    if (i >= o.length) return {
-                        done: true
-                    };
-                    return {
-                        done: false,
-                        value: o[i++]
-                    };
-                },
-                e: function e(_e) {
-                    throw _e;
-                },
-                f: F
-            };
-        }
-        throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-    }
-    var normalCompletion = true, didErr = false, err;
-    return {
-        s: function s() {
-            it = o[Symbol.iterator]();
-        },
-        n: function n() {
-            var step = it.next();
-            normalCompletion = step.done;
-            return step;
-        },
-        e: function e(_e2) {
-            didErr = true;
-            err = _e2;
-        },
-        f: function f() {
-            try {
-                if (!normalCompletion && it.return != null) it.return();
-            } finally{
-                if (didErr) throw err;
-            }
-        }
-    };
-}
-function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-}
-function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-    for(var i = 0, arr2 = new Array(len); i < len; i++)arr2[i] = arr[i];
-    return arr2;
-}
->>>>>>> main
 /* global HMR_HOST, HMR_PORT, HMR_ENV_HASH, HMR_SECURE */ /*::
 import type {
   HMRAsset,
@@ -263,54 +186,33 @@ function Module(moduleName) {
         data: module.bundle.hotData,
         _acceptCallbacks: [],
         _disposeCallbacks: [],
-<<<<<<< HEAD
         accept: function(fn) {
             this._acceptCallbacks.push(fn || function() {
             });
         },
         dispose: function(fn) {
-=======
-        accept: function accept(fn) {
-            this._acceptCallbacks.push(fn || function() {
-            });
-        },
-        dispose: function dispose(fn) {
->>>>>>> main
             this._disposeCallbacks.push(fn);
         }
     };
     module.bundle.hotData = undefined;
 }
 module.bundle.Module = Module;
-<<<<<<< HEAD
 var checkedAssets/*: {|[string]: boolean|} */ , acceptedAssets/*: {|[string]: boolean|} */ , assetsToAccept/*: Array<[ParcelRequire, string]> */ ;
-=======
-var checkedAssets, acceptedAssets, assetsToAccept;
->>>>>>> main
 function getHostname() {
     return HMR_HOST || (location.protocol.indexOf('http') === 0 ? location.hostname : 'localhost');
 }
 function getPort() {
     return HMR_PORT || location.port;
-<<<<<<< HEAD
 }
 // eslint-disable-next-line no-redeclare
-=======
-} // eslint-disable-next-line no-redeclare
->>>>>>> main
 var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
     var hostname = getHostname();
     var port = getPort();
     var protocol = HMR_SECURE || location.protocol == 'https:' && !/localhost|127.0.0.1|0.0.0.0/.test(hostname) ? 'wss' : 'ws';
-<<<<<<< HEAD
     var ws = new WebSocket(protocol + '://' + hostname + (port ? ':' + port : '') + '/');
     // $FlowFixMe
     ws.onmessage = function(event/*: {data: string, ...} */ ) {
-=======
-    var ws = new WebSocket(protocol + '://' + hostname + (port ? ':' + port : '') + '/'); // $FlowFixMe
-    ws.onmessage = function(event) {
->>>>>>> main
         checkedAssets = {
         };
         acceptedAssets = {
@@ -320,7 +222,6 @@ if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
         if (data.type === 'update') {
             // Remove error overlay if there is one
             removeErrorOverlay();
-<<<<<<< HEAD
             let assets = data.assets.filter((asset)=>asset.envHash === HMR_ENV_HASH
             );
             // Handle HMR Update
@@ -328,13 +229,6 @@ if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
             assets.forEach((asset)=>{
                 var didAccept = asset.type === 'css' || asset.type === 'js' && hmrAcceptCheck(module.bundle.root, asset.id, asset.depsByBundle);
                 if (didAccept) handled = true;
-=======
-            var assets = data.assets.filter(function(asset) {
-                return asset.envHash === HMR_ENV_HASH;
-            }); // Handle HMR Update
-            var handled = assets.every(function(asset) {
-                return asset.type === 'css' || asset.type === 'js' && hmrAcceptCheck(module.bundle.root, asset.id, asset.depsByBundle);
->>>>>>> main
             });
             if (handled) {
                 console.clear();
@@ -349,7 +243,6 @@ if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
         }
         if (data.type === 'error') {
             // Log parcel errors to console
-<<<<<<< HEAD
             for (let ansiDiagnostic of data.diagnostics.ansi){
                 let stack = ansiDiagnostic.codeframe ? ansiDiagnostic.codeframe : ansiDiagnostic.stack;
                 console.error('🚨 [parcel]: ' + ansiDiagnostic.message + '\n' + stack + '\n\n' + ansiDiagnostic.hints.join('\n'));
@@ -358,33 +251,13 @@ if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
             removeErrorOverlay();
             var overlay = createErrorOverlay(data.diagnostics.html);
             // $FlowFixMe
-=======
-            var _iterator = _createForOfIteratorHelper(data.diagnostics.ansi), _step;
-            try {
-                for(_iterator.s(); !(_step = _iterator.n()).done;){
-                    var ansiDiagnostic = _step.value;
-                    var stack = ansiDiagnostic.codeframe ? ansiDiagnostic.codeframe : ansiDiagnostic.stack;
-                    console.error('🚨 [parcel]: ' + ansiDiagnostic.message + '\n' + stack + '\n\n' + ansiDiagnostic.hints.join('\n'));
-                } // Render the fancy html overlay
-            } catch (err) {
-                _iterator.e(err);
-            } finally{
-                _iterator.f();
-            }
-            removeErrorOverlay();
-            var overlay = createErrorOverlay(data.diagnostics.html); // $FlowFixMe
->>>>>>> main
             document.body.appendChild(overlay);
         }
     };
     ws.onerror = function(e) {
         console.error(e.message);
     };
-<<<<<<< HEAD
     ws.onclose = function(e) {
-=======
-    ws.onclose = function() {
->>>>>>> main
         console.warn('[parcel] 🚨 Connection to the HMR server was lost');
     };
 }
@@ -398,28 +271,11 @@ function removeErrorOverlay() {
 function createErrorOverlay(diagnostics) {
     var overlay = document.createElement('div');
     overlay.id = OVERLAY_ID;
-<<<<<<< HEAD
     let errorHTML = '<div style="background: black; opacity: 0.85; font-size: 16px; color: white; position: fixed; height: 100%; width: 100%; top: 0px; left: 0px; padding: 30px; font-family: Menlo, Consolas, monospace; z-index: 9999;">';
     for (let diagnostic of diagnostics){
         let stack = diagnostic.codeframe ? diagnostic.codeframe : diagnostic.stack;
         errorHTML += `\n      <div>\n        <div style="font-size: 18px; font-weight: bold; margin-top: 20px;">\n          🚨 ${diagnostic.message}\n        </div>\n        <pre>\n          ${stack}\n        </pre>\n        <div>\n          ${diagnostic.hints.map((hint)=>'<div>' + hint + '</div>'
         ).join('')}\n        </div>\n      </div>\n    `;
-=======
-    var errorHTML = '<div style="background: black; opacity: 0.85; font-size: 16px; color: white; position: fixed; height: 100%; width: 100%; top: 0px; left: 0px; padding: 30px; font-family: Menlo, Consolas, monospace; z-index: 9999;">';
-    var _iterator2 = _createForOfIteratorHelper(diagnostics), _step2;
-    try {
-        for(_iterator2.s(); !(_step2 = _iterator2.n()).done;){
-            var diagnostic = _step2.value;
-            var stack = diagnostic.codeframe ? diagnostic.codeframe : diagnostic.stack;
-            errorHTML += "\n      <div>\n        <div style=\"font-size: 18px; font-weight: bold; margin-top: 20px;\">\n          \uD83D\uDEA8 ".concat(diagnostic.message, "\n        </div>\n        <pre>\n          ").concat(stack, "\n        </pre>\n        <div>\n          ").concat(diagnostic.hints.map(function(hint) {
-                return '<div>' + hint + '</div>';
-            }).join(''), "\n        </div>\n      </div>\n    ");
-        }
-    } catch (err) {
-        _iterator2.e(err);
-    } finally{
-        _iterator2.f();
->>>>>>> main
     }
     errorHTML += '</div>';
     overlay.innerHTML = errorHTML;
@@ -446,13 +302,9 @@ function updateLink(link) {
         if (link.parentNode !== null) // $FlowFixMe
         link.parentNode.removeChild(link);
     };
-<<<<<<< HEAD
     newLink.setAttribute('href', // $FlowFixMe
     link.getAttribute('href').split('?')[0] + '?' + Date.now());
     // $FlowFixMe
-=======
-    newLink.setAttribute('href', link.getAttribute('href').split('?')[0] + '?' + Date.now()); // $FlowFixMe
->>>>>>> main
     link.parentNode.insertBefore(newLink, link.nextSibling);
 }
 var cssTimeout = null;
@@ -471,22 +323,14 @@ function reloadCSS() {
         cssTimeout = null;
     }, 50);
 }
-<<<<<<< HEAD
 function hmrApply(bundle/*: ParcelRequire */ , asset/*:  HMRAsset */ ) {
-=======
-function hmrApply(bundle, asset) {
->>>>>>> main
     var modules = bundle.modules;
     if (!modules) return;
     if (asset.type === 'css') {
         reloadCSS();
         return;
     }
-<<<<<<< HEAD
     let deps = asset.depsByBundle[bundle.HMR_BUNDLE_ID];
-=======
-    var deps = asset.depsByBundle[bundle.HMR_BUNDLE_ID];
->>>>>>> main
     if (deps) {
         var fn = new Function('require', 'module', 'exports', asset.output);
         modules[asset.id] = [
@@ -495,11 +339,7 @@ function hmrApply(bundle, asset) {
         ];
     } else if (bundle.parent) hmrApply(bundle.parent, asset);
 }
-<<<<<<< HEAD
 function hmrAcceptCheck(bundle/*: ParcelRequire */ , id/*: string */ , depsByBundle/*: ?{ [string]: { [string]: string } }*/ ) {
-=======
-function hmrAcceptCheck(bundle, id, depsByBundle) {
->>>>>>> main
     var modules = bundle.modules;
     if (!modules) return;
     if (depsByBundle && !depsByBundle[bundle.HMR_BUNDLE_ID]) {
@@ -520,11 +360,7 @@ function hmrAcceptCheck(bundle, id, depsByBundle) {
         return hmrAcceptCheck(v[0], v[1], null);
     });
 }
-<<<<<<< HEAD
 function hmrAcceptRun(bundle/*: ParcelRequire */ , id/*: string */ ) {
-=======
-function hmrAcceptRun(bundle, id) {
->>>>>>> main
     var cached = bundle.cache[id];
     bundle.hotData = {
     };
@@ -539,21 +375,12 @@ function hmrAcceptRun(bundle, id) {
         var assetsToAlsoAccept = cb(function() {
             return getParents(module.bundle.root, id);
         });
-<<<<<<< HEAD
         if (assetsToAlsoAccept && assetsToAccept.length) assetsToAccept.push.apply(assetsToAccept, assetsToAlsoAccept);
-=======
-        if (assetsToAlsoAccept && assetsToAccept.length) // $FlowFixMe[method-unbinding]
-        assetsToAccept.push.apply(assetsToAccept, assetsToAlsoAccept);
->>>>>>> main
     });
     acceptedAssets[id] = true;
 }
 
-<<<<<<< HEAD
 },{}],"kb3Qw":[function(require,module,exports) {
-=======
-},{}],"cFMcT":[function(require,module,exports) {
->>>>>>> main
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 // Copyright 2021 Google LLC
 //
@@ -576,11 +403,7 @@ var _settings = require("./settings");
 var _main = require("./main");
 window.$ = window.jQuery = _jqueryDefault.default;
 
-<<<<<<< HEAD
-},{"jquery":"lUcY5","./settings":"lWHlS","./main":"iAiHz","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lUcY5":[function(require,module,exports) {
-=======
-},{"jquery":"j5K9g","./settings":"jbZYv","./main":"dW6mY","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"j5K9g":[function(require,module,exports) {
->>>>>>> main
+},{"jquery":"hVaUM","./settings":"lWHlS","./main":"iAiHz","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"hVaUM":[function(require,module,exports) {
 /*!
  * jQuery JavaScript Library v3.6.0
  * https://jquery.com/
@@ -2273,11 +2096,7 @@ window.$ = window.jQuery = _jqueryDefault.default;
             };
             return bySet ? markFunction(superMatcher) : superMatcher;
         }
-<<<<<<< HEAD
         compile = Sizzle1.compile = function(selector, match/* Internal Use Only */ ) {
-=======
-        compile = Sizzle1.compile = function(selector, match /* Internal Use Only */ ) {
->>>>>>> main
             var i2, setMatchers = [], elementMatchers = [], cached = compilerCache[selector + " "];
             if (!cached) {
                 // Generate a function of recursive functions that can be used to check each element
@@ -7396,11 +7215,7 @@ window.$ = window.jQuery = _jqueryDefault.default;
     return jQuery;
 });
 
-<<<<<<< HEAD
 },{}],"lWHlS":[function(require,module,exports) {
-=======
-},{}],"jbZYv":[function(require,module,exports) {
->>>>>>> main
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 // Copyright 2021 Google LLC
 //
@@ -7455,11 +7270,7 @@ if (localStorage["ranking"]) {
     subnodes.insertAfter($(".main-header"));
 }
 
-<<<<<<< HEAD
-},{"hybrids":"kEa45","jquery":"lUcY5","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"kEa45":[function(require,module,exports) {
-=======
-},{"hybrids":"lTCSu","jquery":"j5K9g","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"lTCSu":[function(require,module,exports) {
->>>>>>> main
+},{"hybrids":"lxcky","jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lxcky":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "define", ()=>_defineJsDefault.default
@@ -7495,11 +7306,7 @@ var _storeJsDefault = parcelHelpers.interopDefault(_storeJs);
 var _indexJs = require("./template/index.js");
 var _utilsJs = require("./utils.js");
 
-<<<<<<< HEAD
-},{"./define.js":"9p2xK","./property.js":"9B6EK","./parent.js":"27eaN","./children.js":"hCarJ","./render.js":"8URq1","./store.js":"kRe9C","./template/index.js":"1hik0","./utils.js":"8v3xo","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"9p2xK":[function(require,module,exports) {
-=======
-},{"./define.js":"ePyEw","./property.js":"hiyiT","./parent.js":"jpGsc","./children.js":"2PDJZ","./render.js":"bmmDC","./store.js":"3v0kp","./template/index.js":"lNlC7","./utils.js":"8Ukg6","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"ePyEw":[function(require,module,exports) {
->>>>>>> main
+},{"./define.js":"asmN0","./property.js":"fDsJJ","./parent.js":"fdgXC","./children.js":"7O0YF","./render.js":"b5FFb","./store.js":"my5xv","./template/index.js":"2W0rQ","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"asmN0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "callbacksMap", ()=>callbacksMap
@@ -7672,11 +7479,7 @@ function define(...args) {
 }
 exports.default = define;
 
-<<<<<<< HEAD
-},{"./property.js":"9B6EK","./render.js":"8URq1","./cache.js":"bxmB9","./utils.js":"8v3xo","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"9B6EK":[function(require,module,exports) {
-=======
-},{"./property.js":"hiyiT","./render.js":"bmmDC","./cache.js":"lh43H","./utils.js":"8Ukg6","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"hiyiT":[function(require,module,exports) {
->>>>>>> main
+},{"./property.js":"fDsJJ","./render.js":"b5FFb","./cache.js":"h1gUX","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"fDsJJ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _utilsJs = require("./utils.js");
@@ -7739,11 +7542,7 @@ function property(value, connect) {
 }
 exports.default = property;
 
-<<<<<<< HEAD
-},{"./utils.js":"8v3xo","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"8v3xo":[function(require,module,exports) {
-=======
-},{"./utils.js":"8Ukg6","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"8Ukg6":[function(require,module,exports) {
->>>>>>> main
+},{"./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"37ZkP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "camelToDash", ()=>camelToDash
@@ -7790,11 +7589,7 @@ function stringifyElement(target) {
 const deferred = Promise.resolve();
 const storePointer = new WeakMap();
 
-<<<<<<< HEAD
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"dfnIB":[function(require,module,exports) {
-=======
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"8jxq8":[function(require,module,exports) {
->>>>>>> main
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -7826,11 +7621,7 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-<<<<<<< HEAD
-},{}],"8URq1":[function(require,module,exports) {
-=======
-},{}],"bmmDC":[function(require,module,exports) {
->>>>>>> main
+},{}],"b5FFb":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 function render(fn, customOptions = {
@@ -7863,11 +7654,7 @@ function render(fn, customOptions = {
 }
 exports.default = render;
 
-<<<<<<< HEAD
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"bxmB9":[function(require,module,exports) {
-=======
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"lh43H":[function(require,module,exports) {
->>>>>>> main
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"h1gUX":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getEntry", ()=>getEntry
@@ -8071,11 +7858,7 @@ function unsuspend(target) {
     suspense.delete(target);
 }
 
-<<<<<<< HEAD
-},{"./emitter.js":"2JXfP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"2JXfP":[function(require,module,exports) {
-=======
-},{"./emitter.js":"l2w0s","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"l2w0s":[function(require,module,exports) {
->>>>>>> main
+},{"./emitter.js":"k748X","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"k748X":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "dispatch", ()=>dispatch
@@ -8115,11 +7898,7 @@ function subscribe(target, cb) {
     };
 }
 
-<<<<<<< HEAD
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"27eaN":[function(require,module,exports) {
-=======
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"jpGsc":[function(require,module,exports) {
->>>>>>> main
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"fdgXC":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 function walk(node, fn) {
@@ -8146,11 +7925,7 @@ function parent(hybridsOrFn) {
 }
 exports.default = parent;
 
-<<<<<<< HEAD
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"hCarJ":[function(require,module,exports) {
-=======
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"2PDJZ":[function(require,module,exports) {
->>>>>>> main
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"7O0YF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 function walk(node, fn, options, items = []) {
@@ -8187,11 +7962,7 @@ function children(hybridsOrFn, options = {
 }
 exports.default = children;
 
-<<<<<<< HEAD
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"kRe9C":[function(require,module,exports) {
-=======
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"3v0kp":[function(require,module,exports) {
->>>>>>> main
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"my5xv":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "connect", ()=>connect
@@ -9019,11 +8790,7 @@ exports.default = Object.assign(store, {
     ref
 });
 
-<<<<<<< HEAD
-},{"./cache.js":"bxmB9","./utils.js":"8v3xo","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"1hik0":[function(require,module,exports) {
-=======
-},{"./cache.js":"lh43H","./utils.js":"8Ukg6","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"lNlC7":[function(require,module,exports) {
->>>>>>> main
+},{"./cache.js":"h1gUX","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"2W0rQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "html", ()=>html
@@ -9088,11 +8855,7 @@ function svg(parts, ...args) {
 Object.assign(html, _helpersJs);
 Object.assign(svg, _helpersJs);
 
-<<<<<<< HEAD
-},{"../define.js":"9p2xK","./core.js":"lE4YS","./helpers.js":"bCLKm","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lE4YS":[function(require,module,exports) {
-=======
-},{"../define.js":"ePyEw","./core.js":"fVTGq","./helpers.js":"kh1Bq","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"fVTGq":[function(require,module,exports) {
->>>>>>> main
+},{"../define.js":"asmN0","./core.js":"8WyaD","./helpers.js":"8GgIp","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"8WyaD":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getPlaceholder", ()=>getPlaceholder
@@ -9371,11 +9134,7 @@ function compileTemplate(rawParts, isSVG, styles) {
     };
 }
 
-<<<<<<< HEAD
-},{"../utils.js":"8v3xo","./utils.js":"14fTP","./resolvers/value.js":"hD9QV","./resolvers/property.js":"ceeNb","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"14fTP":[function(require,module,exports) {
-=======
-},{"../utils.js":"8Ukg6","./utils.js":"lSCqE","./resolvers/value.js":"3hQys","./resolvers/property.js":"7r72l","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"lSCqE":[function(require,module,exports) {
->>>>>>> main
+},{"../utils.js":"37ZkP","./utils.js":"ayQtD","./resolvers/value.js":"8cNp0","./resolvers/property.js":"dpBl1","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"ayQtD":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "dataMap", ()=>dataMap
@@ -9425,11 +9184,7 @@ function removeTemplate(target) {
     }
 }
 
-<<<<<<< HEAD
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"hD9QV":[function(require,module,exports) {
-=======
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"3hQys":[function(require,module,exports) {
->>>>>>> main
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"8cNp0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _utilsJs = require("../utils.js");
@@ -9467,11 +9222,7 @@ function resolveValue(host, target, value) {
 }
 exports.default = resolveValue;
 
-<<<<<<< HEAD
-},{"../utils.js":"14fTP","./array.js":"bUSKY","./node.js":"kcg58","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"bUSKY":[function(require,module,exports) {
-=======
-},{"../utils.js":"lSCqE","./array.js":"dY4qb","./node.js":"iYRwR","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"dY4qb":[function(require,module,exports) {
->>>>>>> main
+},{"../utils.js":"ayQtD","./array.js":"hTRPk","./node.js":"cYoFq","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"hTRPk":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "arrayMap", ()=>arrayMap
@@ -9550,11 +9301,7 @@ function resolveArray(host, target, value, resolveValue) {
 }
 exports.default = resolveArray;
 
-<<<<<<< HEAD
-},{"../utils.js":"14fTP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"kcg58":[function(require,module,exports) {
-=======
-},{"../utils.js":"lSCqE","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"iYRwR":[function(require,module,exports) {
->>>>>>> main
+},{"../utils.js":"ayQtD","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"cYoFq":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _utilsJs = require("../utils.js");
@@ -9573,11 +9320,7 @@ function resolveNode(host, target, value) {
 }
 exports.default = resolveNode;
 
-<<<<<<< HEAD
-},{"../utils.js":"14fTP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"ceeNb":[function(require,module,exports) {
-=======
-},{"../utils.js":"lSCqE","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"7r72l":[function(require,module,exports) {
->>>>>>> main
+},{"../utils.js":"ayQtD","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"dpBl1":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _eventJs = require("./event.js");
@@ -9613,11 +9356,7 @@ function resolveProperty(attrName, propertyName, isSVG) {
 }
 exports.default = resolveProperty;
 
-<<<<<<< HEAD
-},{"./event.js":"jVXlt","./class.js":"lic4G","./style.js":"cMqpp","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"jVXlt":[function(require,module,exports) {
-=======
-},{"./event.js":"e9H9V","./class.js":"cWcjp","./style.js":"cn9JL","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"e9H9V":[function(require,module,exports) {
->>>>>>> main
+},{"./event.js":"1R6Lh","./class.js":"2j0R7","./style.js":"jV2OL","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"1R6Lh":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 const targets = new WeakMap();
@@ -9642,11 +9381,7 @@ function resolveEventListener(eventType) {
 }
 exports.default = resolveEventListener;
 
-<<<<<<< HEAD
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lic4G":[function(require,module,exports) {
-=======
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"cWcjp":[function(require,module,exports) {
->>>>>>> main
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"2j0R7":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 function normalizeValue(value, set = new Set()) {
@@ -9672,11 +9407,7 @@ function resolveClassList(host, target, value) {
 }
 exports.default = resolveClassList;
 
-<<<<<<< HEAD
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"cMqpp":[function(require,module,exports) {
-=======
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"cn9JL":[function(require,module,exports) {
->>>>>>> main
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"jV2OL":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _utilsJs = require("../../utils.js");
@@ -9700,11 +9431,7 @@ function resolveStyle(host, target, value) {
 }
 exports.default = resolveStyle;
 
-<<<<<<< HEAD
-},{"../../utils.js":"8v3xo","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"bCLKm":[function(require,module,exports) {
-=======
-},{"../../utils.js":"8Ukg6","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"kh1Bq":[function(require,module,exports) {
->>>>>>> main
+},{"../../utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"8GgIp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "set", ()=>set
@@ -9801,11 +9528,7 @@ function resolve(promise, placeholder, delay = 200) {
     };
 }
 
-<<<<<<< HEAD
-},{"../utils.js":"8v3xo","./resolvers/value.js":"hD9QV","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"iAiHz":[function(require,module,exports) {
-=======
-},{"../utils.js":"8Ukg6","./resolvers/value.js":"3hQys","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}],"dW6mY":[function(require,module,exports) {
->>>>>>> main
+},{"../utils.js":"37ZkP","./resolvers/value.js":"8cNp0","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"iAiHz":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 // Copyright 2020 Google LLC
 //
@@ -9854,44 +9577,22 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     // pull a node from the default [[stoa]]
     $("#pull-stoa").click(function() {
-<<<<<<< HEAD
-=======
         this.innerText = 'pulling';
->>>>>>> main
         let node = this.value;
         $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?showControls=true&showChat=true&showLineNumbers=true&useMonospaceFont=false" width="100%" height="500" frameborder="0"></iframe>');
         this.innerText = 'pulled';
     });
     // pull a node from the [[agora]]
     $(".pull-node").click(function() {
-<<<<<<< HEAD
-        let node = this.value;
-        $.get(AGORAURL + '/pull/' + node, function(data) {
-            $("#" + node + ".pulled-iframe").html(data);
-=======
         this.innerText = 'pulling';
         let node = this.value;
         $.get(AGORAURL + '/pull/' + node, function(data) {
             $("#" + node + ".pulled-node-embed").html(data);
->>>>>>> main
         });
         // old approach with iframe
         // $("#" + node + ".pulled-iframe").html('<iframe class="pulled-iframe" name="embed_readwrite" src="http://dev.anagora.org/pull/' + node +'" width="100%" height="500" frameborder="0"></iframe>');
         this.innerText = 'pulled';
     });
-<<<<<<< HEAD
-    const autoPull = JSON.parse(localStorage["autoPull"] || 'false');
-    // pull a tweet using the laziest way I found, might be a better one
-    $(".pull-tweet").click(function(e) {
-        let tweet = this.value;
-        $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
-        this.innerText = 'pulled';
-    });
-    if (autoPull) $(".pull-tweet").each(function() {
-        const tweet = this.value;
-        $(this).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
-        this.innerText = 'pulled';
-=======
     // pull full text search 
     $(".pull-search").click(function() {
         this.innerText = 'pulling';
@@ -9914,7 +9615,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const tweet = this.value;
         $(this).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
         this.innerText = 'pulled?';
->>>>>>> main
     });
     function statusContent(self) {
         let toot = self.value;
@@ -9964,10 +9664,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // pull arbitrary URL
     $(".pull-url").click(function(e) {
         let url = this.value;
-<<<<<<< HEAD
         console.log('pull url : ' + url);
-=======
->>>>>>> main
         $(e.currentTarget).next('a').after('<br /><iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>');
         this.innerText = 'pulled';
     });
@@ -10023,10 +9720,6 @@ function loadGraph() {
     });
 }
 
-<<<<<<< HEAD
-},{"jquery":"lUcY5","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["fUv5R","kb3Qw"], "kb3Qw", "parcelRequire94c2")
-=======
-},{"jquery":"j5K9g","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}]},["49IOv","cFMcT"], "cFMcT", "parcelRequire94c2")
->>>>>>> main
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["fUv5R","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map

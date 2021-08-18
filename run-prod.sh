@@ -13,9 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# npm install ./app/js-src --prefix ./app/js-src
+# npx parcel-bundler build app/js-src/*.js --out-dir ../static/js
 . venv/bin/activate
-npm install ./app/js-src --prefix ./app/js-src
-npx parcel-bundler build app/js-src/*.js --out-dir ../static/js
+parcel watch app/js-src/index.ts --dist-dir app/static/js &
 export FLASK_ENV="production"
 export AGORA_CONFIG="ProductionConfig"
 uwsgi prod.ini
