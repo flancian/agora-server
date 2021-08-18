@@ -70,7 +70,7 @@ def node(node, extension='', user_list=''):
             n.uri = n.uri + f'.{extension}'
             n.wikilink = n.wikilink + f'.{extension}'
 
-    search_subnodes = db.search_subnodes(node)
+    # search_subnodes = db.search_subnodes(node)
 
     current_app.logger.debug(f'[[{node}]]: Assembled node.')
     return render_template(
@@ -81,7 +81,7 @@ def node(node, extension='', user_list=''):
             pull_nodes=n.pull_nodes() if n.subnodes else [],
             auto_pull_nodes=n.auto_pull_nodes() if current_app.config['ENABLE_AUTO_PULL'] else [],
             forwardlinks=n.forward_links() if n else [],
-            search=search_subnodes,
+            search=[],
             pulling_nodes=n.pulling_nodes(),
             pushing_nodes=n.pushing_nodes(),
             q=n.wikilink.replace('-', '%20'),
@@ -310,7 +310,19 @@ def pull(node):
             config=current_app.config,
             )
 
+# for embedding search (at bottom of node).
+@bp.route('/fullsearch/<qstr>')
+def fullsearch(qstr):
+    current_app.logger.debug(f'full text search for [[{qstr}]].')
+    search_subnodes = db.search_subnodes(qstr)
 
+    return render_template(
+            'fullsearch.html', 
+            qstr=qstr,
+            q=qstr,
+            node=qstr,
+            search=search_subnodes
+            )
 
 def pull(node, other):
     n = G.node(node)

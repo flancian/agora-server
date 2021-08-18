@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // pull a node from the default [[stoa]]
   $("#pull-stoa").click(function() {
+      this.innerText = 'pulling';
       let node = this.value;
       $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?showControls=true&showChat=true&showLineNumbers=true&useMonospaceFont=false" width="100%" height="500" frameborder="0"></iframe>');
       this.innerText = 'pulled';
@@ -62,28 +63,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // pull a node from the [[agora]]
   $(".pull-node").click(function() {
+      this.innerText = 'pulling';
       let node = this.value;
       $.get(AGORAURL + '/pull/' + node, function(data) {
-          $("#" + node + ".pulled-iframe").html(data);
+          $("#" + node + ".pulled-node-embed").html(data);
       });
       // old approach with iframe
       // $("#" + node + ".pulled-iframe").html('<iframe class="pulled-iframe" name="embed_readwrite" src="http://dev.anagora.org/pull/' + node +'" width="100%" height="500" frameborder="0"></iframe>');
       this.innerText = 'pulled';
   });
 
+  // pull full text search 
+  $(".pull-search").click(function() {
+      this.innerText = 'pulling';
+      let qstr = this.value;
+      $.get(AGORAURL + '/fullsearch/' + qstr, function(data) {
+          $("#pulled-search.pulled-search-embed").html('<br />' + data);
+      });
+      this.innerText = 'pulled';
+  });
+
+
+
   const autoPull = JSON.parse(localStorage["autoPull"] || 'false')
 
   // pull a tweet using the laziest way I found, might be a better one
   $(".pull-tweet").click(function(e) {
+      this.innerText = 'pulling';
       let tweet = this.value;
       $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
-      this.innerText = 'pulled';
+      this.innerText = 'pulled?';
   });
   if(autoPull){
     $(".pull-tweet").each(function() {
+      this.innerText = 'pulling';
       const tweet = this.value
       $(this).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
-      this.innerText = 'pulled';
+      this.innerText = 'pulled?';
 
     })
   }
