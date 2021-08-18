@@ -16,7 +16,8 @@
 let u = {}
 import fs from 'fs'
 import 'regenerator-runtime/runtime'
-let config = JSON.parse(fs.readFileSync('config.json', 'utf-8'))
+// consider if we need this, it used to be for CTZN
+// let config = JSON.parse(fs.readFileSync('config.json', 'utf-8'))
 
 u.replaceStrings = (str) => {
     const wikireg = /\[\[(.*?)\]\]/g
