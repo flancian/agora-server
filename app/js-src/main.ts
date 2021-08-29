@@ -161,8 +161,8 @@ document.addEventListener("DOMContentLoaded", function () {
   $(".pull-url").click(function(e) {
       let url = this.value;
       console.log('pull url : ' + url)
-      $(e.currentTarget).next('a').after('<br /><iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>')
-      this.innerText = 'pulled';
+      $(e.currentTarget).after('<br /><iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>')
+      this.innerText = 'optimistically pulled';
   });
 
   // go to the specified URL
@@ -171,8 +171,6 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'going';
       window.location.replace(url);
   });
-
-
 
 });
 

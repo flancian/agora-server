@@ -83,7 +83,9 @@ def add_pleroma_pull(content, subnode):
     ret = re.sub(PLEROMA_REGEX, PLEROMA_EMBED, content)
     return ret
 
-def add_url_pull(content, subnode):
+def old_add_url_pull(content, subnode):
+    # deprecated in favour of arbitrary url pulling.
+    # writer side signals like [[pull]] in subnodes should be interpreted as a petition to [[auto pull]].
     URL_REGEX='(\[\[pull\]\]) (.+:\/\/.+)'
     URL_EMBED='<button class="pull-url" value="\\2">pull</button> \\2'
     ret = re.sub(URL_REGEX, URL_EMBED, content)
@@ -101,12 +103,12 @@ def add_url_pull(content, subnode):
     # URL_REGEX="^[a-z0-9!#$%&'-*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
     # URL_REGEX='http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*'
     URL_REGEX='(https?:\/\/\S+wiki\S+)'
-    URL_EMBED='https://anagora.org <button class="pull-url" value="https://anagora.org">pull</button>'
+    URL_EMBED='\\1 <button class="pull-url" value="\\1">pull (p=0.1)</button>'
 
     ret = re.sub(URL_REGEX, URL_EMBED, content)
     return ret
 
-def add_go(content, subnode):
+def add_go_button(content, subnode):
     URL_REGEX='(\[\[go\]\]) (.+:\/\/.+)'
     URL_EMBED='<button class="go-url" value="\\2">go</button> \\2'
     ret = re.sub(URL_REGEX, URL_EMBED, content)
@@ -135,14 +137,14 @@ def add_obsidian_embeds(content, subnode):
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
 def preprocess(content, subnode=''):
-    filters = [trim_front_matter, add_obsidian_embeds, add_url_pull, add_go]
+    filters = [trim_front_matter, add_obsidian_embeds, add_go_button, add_url_pull]
     for f in filters:
         content = f(content, subnode)
     return content
 
 def postprocess(content, subnode=''):
     # filters = [add_twitter_embeds]
-    filters = [add_twitter_pull, add_mastodon_pull, add_pleroma_pull, add_url_pull]
+    filters = [add_twitter_pull, add_mastodon_pull, add_pleroma_pull]
     for f in filters:
         content = f(content, subnode)
     return content
