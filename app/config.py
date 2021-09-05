@@ -8,7 +8,8 @@ class DefaultConfig(object):
     # standard: no trailing slashes anywhere in variables.
     # with protocol
     URL_BASE = "https://anagora.org"
-    API_BASE = "http://localhost:3000"
+    API_BASE = "https://api.anagora.org:3000"
+
     #TODO change this to whatever prod is going to be
     # without protocol
     URI_BASE = "anagora.org"
@@ -35,6 +36,8 @@ class ProductionConfig(DefaultConfig):
 class DevelopmentConfig(DefaultConfig):
     URL_BASE = "http://dev.anagora.org"
     URI_BASE = "dev.anagora.org"
+    API_BASE = "http://localhost:3000"
+
 
     # EXPERIMENTS
     ENABLE_CTZN = True
