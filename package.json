@@ -1,5 +1,8 @@
 {
 	"main": "app/js-src/index.ts",
+	"scripts": {
+		"build": "parcel build app/js-src/index.ts --dist-dir app/static/js --no-cache"
+	},
 	"dependencies": {
 		"@parcel/config-default": "^2.0.0-nightly.731",
 		"@parcel/transformer-typescript-tsc": "^2.0.0-nightly.731",

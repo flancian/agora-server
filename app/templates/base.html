@@ -37,8 +37,12 @@
             const NODENAME = "{{node.uri}}"
             const AGORANAME = "{{config['URI_BASE']}}"
             const AGORAURL = "{{config['URL_BASE']}}"
-        </script>
+            </script>
     {% endif %}
+    
+    <script>
+        const APIBASE = "{{config['API_BASE']}}"
+    </script>
 
     {% if not embed %}
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
