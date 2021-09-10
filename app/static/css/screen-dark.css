@@ -51,14 +51,6 @@ nav             { font-family: sans-serif}
 
 .logo           { filter: invert(1); vertical-align: middle; width="20" height="20"; }
 
-.wikilink:before {
-	content: "[["
-}
-
-.wikilink:after {
-	content: "]]"
-}
-
 .content {
 }
 
@@ -332,7 +324,36 @@ input[type="text"] {
 .wikilink-marker {
     /* deemphasize */
     font-weight: lighter;
+    display: none;
 }
+
+.wikilink:link {
+    /* different color for wikilinks */
+    color: deepskyblue;
+}
+
+.wikilink:visited{
+    /* different color for wikilinks */
+    color: deepskyblue;
+}
+
+.wikilink:hover{
+    /* different color for wikilinks */
+    color: hotpink;
+}
+
+/*
+ * doesn't work super well, sometimes forces a loop when the link is near a line break
+.wikilink:hover:before {
+	content: "[["
+}
+
+.wikilink:hover:after {
+	content: "]]"
+}
+*/
+
+
 
 /* hypothes.is 
     This totally doesn't work, at all, and I have no idea why :) 
