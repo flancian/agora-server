@@ -138,7 +138,7 @@ def add_obsidian_embeds(content, subnode):
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
 def preprocess(content, subnode=''):
-    filters = [trim_front_matter, add_obsidian_embeds, add_go_button, add_url_pull]
+    filters = [trim_front_matter, add_obsidian_embeds, add_url_pull]
     for f in filters:
         content = f(content, subnode)
     return content
