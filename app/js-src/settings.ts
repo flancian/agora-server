@@ -20,6 +20,7 @@ import jquery from "jquery";
 
 let rawRanking = JSON.parse(localStorage["ranking"] || '[]')
 let rawAutoPull = JSON.parse(localStorage["autoPull"] || 'false')
+let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false')
 
 function processRanking(host, e) {
     host.ranking = e.currentTarget.value.split(",")
@@ -35,7 +36,13 @@ function processPull(host, e){
     host.autopull = e.currentTarget.checked
     localStorage["autoPull"] = JSON.stringify(host.autopull)
 }
-function isChecked(){
+
+function processBrackets(host, e){
+    host.brackets = e.currentTarget.checked
+    localStorage["showBrackets"] = JSON.stringify(host.brackets)
+}
+
+function autoPull(){
     // hack for putting attribute in element
     if(localStorage["autoPull"] && JSON.parse(localStorage["autoPull"])) return html`
     <div>
@@ -45,6 +52,20 @@ function isChecked(){
     return html`
     <div>
         Do you want to auto pull external resources? <input type="checkbox" oninput="${processPull}" />
+    </div>
+    `
+}
+
+function showBrackets(){
+    // hack for putting attribute in element
+    if(localStorage["showBrackets"] && JSON.parse(localStorage["showBrackets"])) return html`
+    <div>
+        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" checked />
+    </div>
+    `
+    return html`
+    <div>
+        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" />
     </div>
     `
 }
@@ -64,12 +85,14 @@ async function processRepoAdd(h, e,){
 const Settings = {
     ranking: rawRanking,
     autopull: rawAutoPull,
-    render: ({ ranking, autopull, checked, username, repo }) => html`
+    brackets: rawShowBrackets,
+    render: ({ ranking, autopull, brackets, checked, username, repo }) => html`
         <div>
             Enter comma separated list of users to uprank
             <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />
         </div>
-        ${isChecked()}
+        ${autoPull()}
+        ${showBrackets()}
         <br><br>
         <div>
             <h1>Add garden to agora</h1>

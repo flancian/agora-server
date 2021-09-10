@@ -83,7 +83,14 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulled';
   });
 
-
+  const showBrackets = JSON.parse(localStorage["showBrackets"] || 'false')
+  if(showBrackets){
+    elements = document.getElementsByClassName("wikilink-marker");
+    console.log("should show brackets");
+    for (var i = 0; i < elements.length; i++) {
+          elements[i].style.display = 'inline';
+    }
+  }
 
   const autoPull = JSON.parse(localStorage["autoPull"] || 'false')
 

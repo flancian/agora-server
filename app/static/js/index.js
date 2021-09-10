@@ -7237,6 +7237,7 @@ var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
 window.$ = window.jQuery = _jqueryDefault.default;
 let rawRanking = JSON.parse(localStorage["ranking"] || '[]');
 let rawAutoPull = JSON.parse(localStorage["autoPull"] || 'false');
+let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false');
 function processRanking(host, e) {
     host.ranking = e.currentTarget.value.split(",");
     localStorage["ranking"] = JSON.stringify(host.ranking);
@@ -7251,10 +7252,19 @@ function processPull(host, e) {
     host.autopull = e.currentTarget.checked;
     localStorage["autoPull"] = JSON.stringify(host.autopull);
 }
-function isChecked() {
+function processBrackets(host, e) {
+    host.brackets = e.currentTarget.checked;
+    localStorage["showBrackets"] = JSON.stringify(host.brackets);
+}
+function autoPull() {
     // hack for putting attribute in element
     if (localStorage["autoPull"] && JSON.parse(localStorage["autoPull"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPull}" checked />\n    </div>\n    `;
     return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPull}" />\n    </div>\n    `;
+}
+function showBrackets() {
+    // hack for putting attribute in element
+    if (localStorage["showBrackets"] && JSON.parse(localStorage["showBrackets"])) return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" checked />\n    </div>\n    `;
+    return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" />\n    </div>\n    `;
 }
 async function processRepoAdd(h, e) {
     let response = await fetch(`${APIBASE}/repo`, {
@@ -7274,7 +7284,8 @@ async function processRepoAdd(h, e) {
 const Settings = {
     ranking: rawRanking,
     autopull: rawAutoPull,
-    render: ({ ranking , autopull , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${isChecked()}\n        <br><br>\n        <div>\n            <h1>Add garden to agora</h1>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n\n    `
+    brackets: rawShowBrackets,
+    render: ({ ranking , autopull , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPull()}\n        ${showBrackets()}\n        <br><br>\n        <div>\n            <h1>Add garden to agora</h1>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n\n    `
 };
 _hybrids.define('settings-form', Settings);
 if (localStorage["ranking"]) {
@@ -9624,6 +9635,12 @@ document.addEventListener("DOMContentLoaded", function() {
         });
         this.innerText = 'pulled';
     });
+    const showBrackets = JSON.parse(localStorage["showBrackets"] || 'false');
+    if (showBrackets) {
+        elements = document.getElementsByClassName("wikilink-marker");
+        console.log("should show brackets");
+        for(var i = 0; i < elements.length; i++)elements[i].style.display = 'inline';
+    }
     const autoPull = JSON.parse(localStorage["autoPull"] || 'false');
     // pull a tweet using the laziest way I found, might be a better one
     $(".pull-tweet").click(function(e) {
