@@ -209,6 +209,10 @@ input[type="text"] {
     display: inline-block;
 }
 
+.subnode-id a {
+  text-decoration: none;
+}
+
 .search-agora-header, .search-internet-header {
     font-weight: bolder;
     margin-bottom: 1em;
