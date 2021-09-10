@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
   $("#pull-stoa").click(function() {
       this.innerText = 'pulling';
       let node = this.value;
-      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?showControls=true&showChat=true&showLineNumbers=true&useMonospaceFont=false" width="100%" height="500" frameborder="0"></iframe>');
+      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '" width="100%" height="500" frameborder="0"></iframe>');
       this.innerText = 'pulled';
   });
 
