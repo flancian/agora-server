@@ -28,9 +28,11 @@
 
 <!-- the new subnode route uses this, actually receiving a node whose subnodes are partial -->
 {% if node %}
+<div class="node">
+<span class="node-header main-header">→ part of node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
 {% for subnode in node.subnodes %}
 <div class="subnode">
-    <div class="subnode-header main-header">
+    <div class="subnode-header">
             <span class="subnode-id"><a
                     href="/@{{subnode.user}}/{{node.uri}}">📓</a>
             <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
@@ -40,10 +42,11 @@
 </div>
 {% endfor %}
 </div>
+</div>
 
 <div class="links">
     <div class="backlinks">
-        <span class="backlinks-header">To see links, go up to node <a href="/{{node.uri}}">[[{{node.uri}}]]</a>.</span>
+        <span class="backlinks-header">To see links, go up to full node <a href="/{{node.uri}}">[[{{node.uri}}]]</a>.</span>
     </div>
 </div>
 {% endif %}
