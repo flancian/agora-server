@@ -30,11 +30,11 @@
 {% if node %}
 {% for subnode in node.subnodes %}
 <div class="subnode">
-    <div class="subnode-header">
-        <span>Subnode <a href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span> in node <a
-            href="/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a></span><br />
-        <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a></span>
+    <div class="subnode-header main-header">
+            <span class="subnode-id"><a
+                    href="/@{{subnode.user}}/{{node.uri}}">📓</a>
+            <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
+                    href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></span></a></span>
     </div>
     {{ subnode.render()|linkify|safe }}
 </div>
