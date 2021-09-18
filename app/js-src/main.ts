@@ -113,14 +113,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // pull full text search 
   $(".pull-search").click(function(e) {
-      if (!this.classList.contains('pulled')) {
+      if (this.classList.contains('pulled')) {
+          $("#pulled-search.pulled-search-embed").html('');
+          this.innerText = 'pull';
+          this.classList.remove('pulled');
+      }
+      else {
           this.innerText = 'pulling';
           let qstr = this.value;
           $.get(AGORAURL + '/fullsearch/' + qstr, function(data) {
               $("#pulled-search.pulled-search-embed").html('<br />' + data);
           });
-          this.innerText = 'pulled'; 
           this.classList.add('pulled');
+          this.innerText = 'fold'; 
       }
   });
 
