@@ -37,7 +37,6 @@ G = db.G
 #
 # Flask routes work so that the one closest to the function is the canonical one.
 
-
 @bp.route('/wikilink/<node>')
 @bp.route('/node/<node>/uprank/<user_list>')
 @bp.route('/node/<node>')
@@ -48,7 +47,7 @@ def node(node, extension='', user_list=''):
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
     # default uprank: system account and maintainers
     # TODO: move to config.py
-    rank = ['agora', 'flancian', 'vera']
+    rank = ['agora', 'flancian', 'vera', 'neil']
     if user_list:
         # override rank
         if ',' in user_list:
@@ -283,7 +282,7 @@ def pull(node):
     current_app.logger.debug(f'pull [[{node}]]: Assembling node.')
     # default uprank: system account and maintainers
     # TODO: move to config.py
-    rank = ['agora', 'flancian', 'vera']
+    rank = ['agora', 'flancian', 'vera', 'neil']
 
     from copy import copy
     n = copy(G.node(node))
