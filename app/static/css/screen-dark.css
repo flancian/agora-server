@@ -54,6 +54,13 @@ nav             { font-family: sans-serif}
 .content {
 }
 
+.content blockquote {
+    padding-left: 0.5em;
+    margin-left: 1em;
+    border-left: 2px solid #bfbfbf;
+    font-style: italic;
+}
+
 .navigation {
     vertical-align: middle;
     overflow-y: auto;
