@@ -9608,32 +9608,69 @@ document.addEventListener("DOMContentLoaded", function() {
     $(window).keydown(function(e) {
         if (e.ctrlKey && e.altKey && e.keyCode == 83) $("#mini-cli").focus().val("");
     });
+    // pull arbitrary URL
+    $(".pull-url").click(function(e) {
+        if (this.classList.contains('pulled')) {
+            // already pulled.
+            this.innerText = 'pull';
+            $(e.currentTarget).nextAll('iframe').remove();
+            this.classList.remove('pulled');
+        } else {
+            // pull.
+            this.innerText = 'pulling';
+            let url = this.value;
+            console.log('pull url : ' + url);
+            $(e.currentTarget).after('<iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>');
+            this.innerText = 'fold';
+            this.classList.add('pulled');
+        }
+    });
     // pull a node from the default [[stoa]]
-    $("#pull-stoa").click(function() {
-        this.innerText = 'pulling';
-        let node = this.value;
-        $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '" width="100%" height="500" frameborder="0"></iframe>');
-        this.innerText = 'pulled';
+    $("#pull-stoa").click(function(e) {
+        if (this.classList.contains('pulled')) {
+            // already pulled.
+            this.innerText = 'pull';
+            $(e.currentTarget).nextAll('iframe').remove();
+            $("#stoa-iframe").html('');
+            this.classList.remove('pulled');
+        } else {
+            this.innerText = 'pulling';
+            let node = this.value;
+            $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '" width="100%" height="500" frameborder="0"></iframe>');
+            this.innerText = 'fold';
+            this.classList.add('pulled');
+        }
     });
     // pull a node from the [[agora]]
-    $(".pull-node").click(function() {
-        this.innerText = 'pulling';
+    $(".pull-node").click(function(e) {
         let node = this.value;
-        $.get(AGORAURL + '/pull/' + node, function(data) {
-            $("#" + node + ".pulled-node-embed").html(data);
-        });
-        // old approach with iframe
-        // $("#" + node + ".pulled-iframe").html('<iframe class="pulled-iframe" name="embed_readwrite" src="http://dev.anagora.org/pull/' + node +'" width="100%" height="500" frameborder="0"></iframe>');
-        this.innerText = 'pulled';
+        if (this.classList.contains('pulled')) {
+            // already pulled.
+            // $(e.currentTarget).nextAll('div').remove()
+            $("#" + node + ".pulled-node-embed").html('');
+            this.innerText = 'pull';
+            this.classList.remove('pulled');
+        } else {
+            this.innerText = 'pulling';
+            console.log('pulling node');
+            $.get(AGORAURL + '/pull/' + node, function(data) {
+                $("#" + node + ".pulled-node-embed").html(data);
+            });
+            this.innerText = 'fold';
+            this.classList.add('pulled');
+        }
     });
     // pull full text search 
-    $(".pull-search").click(function() {
-        this.innerText = 'pulling';
-        let qstr = this.value;
-        $.get(AGORAURL + '/fullsearch/' + qstr, function(data) {
-            $("#pulled-search.pulled-search-embed").html('<br />' + data);
-        });
-        this.innerText = 'pulled';
+    $(".pull-search").click(function(e) {
+        if (!this.classList.contains('pulled')) {
+            this.innerText = 'pulling';
+            let qstr = this.value;
+            $.get(AGORAURL + '/fullsearch/' + qstr, function(data) {
+                $("#pulled-search.pulled-search-embed").html('<br />' + data);
+            });
+            this.innerText = 'pulled';
+            this.classList.add('pulled');
+        }
     });
     const showBrackets = JSON.parse(localStorage["showBrackets"] || 'false');
     if (showBrackets) {
@@ -9699,13 +9736,6 @@ document.addEventListener("DOMContentLoaded", function() {
         let toot = this.value;
         $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"></script>');
         this.innerText = 'pulled';
-    });
-    // pull arbitrary URL
-    $(".pull-url").click(function(e) {
-        let url = this.value;
-        console.log('pull url : ' + url);
-        $(e.currentTarget).after('<br /><iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>');
-        this.innerText = 'optimistically pulled';
     });
     // go to the specified URL
     $(".go-url").click(function(e) {
