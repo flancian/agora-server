@@ -18,9 +18,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans&display=swap');
 
 :root {
-    /* Body font size. */
     --base-fontsize: 1rem;
     --header-scale: 1.125;
+    --line-height: 1.618;
 }
 
 html { 
@@ -37,7 +37,6 @@ body {
     overflow-x: hidden; 
     max-width: 60em;
     font-size: var(--base-fontsize);
-    line-height: var(--line-height);
 }
 a               { color: #9fc6e0; }
 nav             { font-family: sans-serif}
@@ -55,7 +54,7 @@ nav             { font-family: sans-serif}
 .logo           { filter: invert(1); vertical-align: middle; width="20" height="20"; }
 
 .content {
-    --line-height: 1.618;
+    line-height: var(--line-height);
 }
 
 /* Format headers */
