@@ -147,14 +147,37 @@ document.addEventListener("DOMContentLoaded", function () {
       $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
       this.innerText = 'pulled?';
   });
-  if(autoPull){
-    $(".pull-tweet").each(function() {
-      this.innerText = 'pulling';
-      const tweet = this.value
-      $(this).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
-      this.innerText = 'pulled?';
 
-    })
+  if(autoPull){
+    console.log('auto pulling!');
+    $(".pull-mastodon-status").each(function(e) {
+        console.log('auto pulling activity');
+        this.click();
+    });
+    $(".pull-tweet").each(function(e) {
+        console.log('auto pulling tweet');
+        this.click();
+    });
+    /*
+     * this might be too disruptive?
+    $(".pull-url").each(function(e) {
+        console.log('auto pulling url');
+        this.click();
+    });
+    */
+    $("#pull-stoa").each(function(e) {
+        console.log('auto pulling stoa');
+        this.click();
+    });
+    $(".pull-node").each(function(e) {
+        console.log('auto pulling node');
+        this.click();
+    });
+    $(".pull-search").each(function(e) {
+        console.log('auto pulling search');
+        this.click();
+    });
+
   }
 
   function statusContent(self){
