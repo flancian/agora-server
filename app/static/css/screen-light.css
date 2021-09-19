@@ -17,7 +17,7 @@
 @import "screen-dark.css";
 
 body            { background: #eee; color: #000000; overflow-x: hidden;}
-a, h1, h2       { color: #377ba8; }
+a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 .logo           { filter: none; vertical-align: middle; width="20" height="20"; }
 
 .node { 

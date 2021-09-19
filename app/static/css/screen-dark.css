@@ -17,6 +17,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans&display=swap');
 
+:root {
+    --base-fontsize: 1rem;
+    --header-scale: 1.125;
+    --line-height: 1.618;
+}
+
 html { 
     font-family: 'Noto Sans', sans-serif;
     display: flex;
@@ -30,13 +36,10 @@ body {
     color: #bfbfbf; 
     overflow-x: hidden; 
     max-width: 60em;
+    font-size: var(--base-fontsize);
+    line-height: var(--line-height);
 }
 a               { color: #9fc6e0; }
-h1, h2          { color: #bfbfbf; }
-h1, h2          { font-family: 'Merriweather Sans'; margin-top: 0.2em; margin-bottom: 0.2em;}
-h1              { font-size: 1.7em; }
-h2              { font-size: 1.2em; }
-
 nav             { font-family: sans-serif}
 .page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
                   padding: 0.8em; background: white; }
@@ -52,6 +55,51 @@ nav             { font-family: sans-serif}
 .logo           { filter: invert(1); vertical-align: middle; width="20" height="20"; }
 
 .content {
+}
+
+/* Format headers */
+h1, h2, h3          { color: #bfbfbf; }
+h1, h2, h3          { font-family: 'Merriweather Sans'; }
+
+/* Fix line height when title wraps */
+h1, h2, h3 {
+    line-height: 1.1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: calc(var(--base-fontsize) * var(--header-scale) * var(--header-scale) * var(--header-scale) * var(--header-scale) * var(--header-scale));
+}
+
+h1:not(:first-child) {
+    margin-top: calc(var(--line-height) * 1.5rem);
+}
+
+h2 {
+    font-size: calc(var(--base-fontsize) * var(--header-scale) * var(--header-scale) * var(--header-scale));
+    margin-top: calc(var(--line-height) * 1.4rem);
+}
+
+h3 {
+    font-size: calc(var(--base-fontsize) * var(--header-scale));
+    margin-top: calc(var(--line-height) * 1.3rem);
+}
+
+h4 {
+    font-size: calc(var(--base-fontsize));
+    margin-top: calc(var(--line-height) * 1.2rem);
+}
+
+h5 {
+    font-size: calc(var(--base-fontsize) / var(--header-scale));
+    margin-top: calc(var(--line-height) * 1.1rem);
+}
+
+h6 {
+    font-size: calc(var(--base-fontsize) / var(--header-scale) / var(--header-scale));
 }
 
 .content blockquote {
