@@ -49,10 +49,10 @@
         {% for subnode in node.pushed_subnodes() %}
         <div class="pushed-subnode">
             <div class="subnode-header">
-                <span class="subnode-id">↳ subnode <a
-                        href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
-                <span class="subnode-links">pushed from <a href="/sub{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                        href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
+                <span class="subnode-id"><a
+                        href="/raw/{{subnode.uri}}">📄</a>
+                <span class="subnode-links">pushed from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
+                                                           href="/@{{subnode.user}}">@{{subnode.user}}</a></span></span>
             </div>
             <ul>
                 {{ subnode.render()|linkify|safe }}
