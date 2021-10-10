@@ -435,7 +435,6 @@ def users_json():
 def user_journal(user):
     return render_template('subnodes.html', header="Journals for user", subnodes=db.user_journals(user))
 
-
 @bp.route('/journal/<user>.json')
 def user_journal_json(user):
     return jsonify(jsons.dump(db.user_journals(user)))
@@ -449,7 +448,7 @@ def journals(entries):
         entries = 365 * 10
     else:
         entries = int(entries)
-    return render_template('journals.html', header=f"Journals for last {entries} days", nodes=db.all_journals()[0:entries])
+    return render_template('journals.html', header=f"Journals for the last {entries} days", nodes=db.all_journals()[0:entries])
 
 
 @bp.route('/journals.json')

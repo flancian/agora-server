@@ -18,11 +18,6 @@
 
 {% block content %}
 
-{% if stats %}
-<a href="/an-agora">This Agora</a> contains <strong>{{stats['nodes']}} journal nodes</strong> integrated out of <strong>{{stats['subnodes']}} subnodes</strong> by <strong>{{stats['users']}} users</strong>.</strong><br />
-There are <strong>{{stats['edges']}} edges</strong>.
-{% endif %}
-
 {% if header %}
 <h1> {{header}} </h1>
 {% else %}
@@ -34,33 +29,19 @@ There are <strong>{{stats['edges']}} edges</strong>.
      <span class="node-header">→ node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
      
          {% for subnode in node.subnodes %}
-         <div class="subnode">
+
+         <div class="subnode" data-author="{{subnode.user}}">
              <div class="subnode-header">
-                 <span class="subnode-id">↳ subnode <a
-                         href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
-                 <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                         href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a></span>
+                 <span class="subnode-id"><a
+                       href="/@{{subnode.user}}/{{node.uri}}">📓</a>
+                     <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
+                                                    href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></span></a></span>
              </div>
              <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
          </div>
+
          {% endfor %}
-     
-         {% if node.pushed_subnodes() %}
-             {% for subnode in node.pushed_subnodes() %}
-             <div class="pushed-subnode">
-                 <div class="subnode-header">
-                     <span class="subnode-id">↳ subnode <a
-                             href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
-                     <span class="subnode-links">pushed from <a href="/sub{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                             href="/@{{subnode.user}}">@{{subnode.user}}</a></span>
-                 </div>
-                 <ul>
-                     {{ subnode.render()|linkify|safe }}
-                 </ul>
-             </div>
-             {% endfor %}
-         {% endif %}
-     
+
      </div>
 {% endfor %}
 </div>
