@@ -225,12 +225,6 @@ document.addEventListener("DOMContentLoaded", function () {
     statusContent(this)
   });
 
-  if(autoPull){
-    $(".pull-mastodon-status").each(function() {
-      statusContent(this)
-    })
-  }
-
   // pull a pleroma status (toot) using the laziest way I found, might be a better one
   $(".pull-pleroma-status").click(function(e) {
       let toot = this.value;

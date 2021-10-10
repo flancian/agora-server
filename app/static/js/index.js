@@ -9770,9 +9770,6 @@ document.addEventListener("DOMContentLoaded", function() {
     $(".pull-mastodon-status").click(function(e) {
         statusContent(this);
     });
-    if (autoPull) $(".pull-mastodon-status").each(function() {
-        statusContent(this);
-    });
     // pull a pleroma status (toot) using the laziest way I found, might be a better one
     $(".pull-pleroma-status").click(function(e) {
         let toot = this.value;
