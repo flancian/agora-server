@@ -66,11 +66,17 @@ def add_twitter_embeds(content, subnode):
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 def add_twitter_pull(content, subnode):
+    if '<a' in content:
+        # hack hack
+        return content
     TWITTER_REGEX='(https://twitter.com/\w+/status/[0-9]+)'
     TWITTER_EMBED='\\1 <button class="pull-tweet" value="\\1">pull</button>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 def add_mastodon_pull(content, subnode):
+    if '<a' in content:
+        # hack hack
+        return content
     MASTODON_REGEX='(https://[a-zA-Z-.]+/web/statuses/[0-9]+)'
     MASTODON_REGEX_ALT='(https://[a-zA-Z-.]+/@\w+/[0-9]+)'
     MASTODON_EMBED='\\1 <button class="pull-mastodon-status" value="\\1">pull</button>'
@@ -79,6 +85,9 @@ def add_mastodon_pull(content, subnode):
     return ret
 
 def add_pleroma_pull(content, subnode):
+    if '<a' in content:
+        # hack hack
+        return content
     PLEROMA_REGEX='(https://[a-zA-Z-.]+/notice/\w+)'
     PLEROMA_EMBED='\\1 <button class="pull-pleroma-status" value="\\1">pull</button>'
     ret = re.sub(PLEROMA_REGEX, PLEROMA_EMBED, content)
