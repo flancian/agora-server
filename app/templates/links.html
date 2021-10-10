@@ -29,7 +29,7 @@
         </div>
 
         <div class="pushlinks">
-            <span class="pushlinks-header">↑ pushing</span><br />
+            <span class="pushlinks-header">↑ pushing here</span><br />
         {% if pushing_nodes %}
             {% for node in pushing_nodes %}
             <a href="/{{node.uri}}">{{node.uri}}</a><br />
@@ -41,7 +41,7 @@
         <br />
 
         <div class="pulllinks">
-        <span class="pulllinks-header">↓ pulling</span><br />
+        <span class="pulllinks-header">↓ pulling this</span><br />
         {% if pulling_nodes %}
             {% for node in pulling_nodes %}
             <a href="/{{node.uri}}">{{node.uri}}</a><br />
