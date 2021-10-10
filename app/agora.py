@@ -440,10 +440,15 @@ def user_journal(user):
 def user_journal_json(user):
     return jsonify(jsons.dump(db.user_journals(user)))
 
-
-@bp.route('/journals')
-def journals():
-    entries = current_app.config['JOURNAL_ENTRIES']
+@bp.route('/journals/', defaults={'entries': None})
+@bp.route('/journals/<entries>')
+def journals(entries):
+    if not entries:
+        entries = current_app.config['JOURNAL_ENTRIES']
+    elif entries == 'all':
+        entries = 365 * 10
+    else:
+        entries = int(entries)
     return render_template('journals.html', header=f"Journals for last {entries} days", nodes=db.all_journals()[0:entries])
 
 
