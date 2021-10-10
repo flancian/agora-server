@@ -443,7 +443,8 @@ def user_journal_json(user):
 
 @bp.route('/journals')
 def journals():
-    return render_template('journals.html', header="Journals", nodes=db.all_journals()[0:current_app.config['JOURNAL_ENTRIES']])
+    entries = current_app.config['JOURNAL_ENTRIES']
+    return render_template('journals.html', header=f"Journals for last {entries} days", nodes=db.all_journals()[0:entries])
 
 
 @bp.route('/journals.json')
