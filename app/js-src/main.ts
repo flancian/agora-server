@@ -138,7 +138,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  const autoPull = JSON.parse(localStorage["autoPull"] || 'false')
+  const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
+  const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
 
   // pull a tweet using the laziest way I found, might be a better one
   $(".pull-tweet").click(function(e) {
@@ -148,8 +149,21 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulled?';
   });
 
-  if(autoPull){
-    console.log('auto pulling!');
+  if(autoPullLocal){
+    console.log('auto pulling local resources!');
+    $(".pull-node").each(function(e) {
+        console.log('auto pulling node');
+        this.click();
+    });
+    $(".pull-search").each(function(e) {
+        console.log('auto pulling search');
+        this.click();
+    });
+
+  }
+
+  if(autoPullExternal){
+    console.log('auto pulling external resources!');
     $(".pull-mastodon-status").each(function(e) {
         console.log('auto pulling activity');
         this.click();
@@ -169,15 +183,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log('auto pulling stoa');
         this.click();
     });
-    $(".pull-node").each(function(e) {
-        console.log('auto pulling node');
-        this.click();
-    });
-    $(".pull-search").each(function(e) {
-        console.log('auto pulling search');
-        this.click();
-    });
-
   }
 
   function statusContent(self){

@@ -19,7 +19,8 @@ import jquery from "jquery";
 (<any>window).$ = (<any>window).jQuery = jquery;
 
 let rawRanking = JSON.parse(localStorage["ranking"] || '[]')
-let rawAutoPull = JSON.parse(localStorage["autoPull"] || 'false')
+let rawAutoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
+let rawAutoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
 let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false')
 
 function processRanking(host, e) {
@@ -32,9 +33,13 @@ function processUsername(h,e ){
 function processRepo(h, e){
     h.repo = e.currentTarget.value
 }
-function processPull(host, e){
-    host.autopull = e.currentTarget.checked
-    localStorage["autoPull"] = JSON.stringify(host.autopull)
+function processPullLocal(host, e){
+    host.autopulllocal = e.currentTarget.checked
+    localStorage["autoPullLocal"] = JSON.stringify(host.autopulllocal)
+}
+function processPullExternal(host, e){
+    host.autopullexternal = e.currentTarget.checked
+    localStorage["autoPullExternal"] = JSON.stringify(host.autopullexternal)
 }
 
 function processBrackets(host, e){
@@ -42,19 +47,34 @@ function processBrackets(host, e){
     localStorage["showBrackets"] = JSON.stringify(host.brackets)
 }
 
-function autoPull(){
+function autoPullLocal(){
     // hack for putting attribute in element
-    if(localStorage["autoPull"] && JSON.parse(localStorage["autoPull"])) return html`
+    if(localStorage["autoPullLocal"] && JSON.parse(localStorage["autoPullLocal"])) return html`
     <div>
-        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPull}" checked />
+        Do you want to auto pull related Agora resources? <input type="checkbox" oninput="${processPullLocal}" checked />
     </div>
     `
     return html`
     <div>
-        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPull}" />
+        Do you want to auto pull related Agora resources? <input type="checkbox" oninput="${processPullLocal}" />
     </div>
     `
 }
+
+function autoPullExternal(){
+    // hack for putting attribute in element
+    if(localStorage["autoPullExternal"] && JSON.parse(localStorage["autoPullExternal"])) return html`
+    <div>
+        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" checked />
+    </div>
+    `
+    return html`
+    <div>
+        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" />
+    </div>
+    `
+}
+
 
 function showBrackets(){
     // hack for putting attribute in element
@@ -84,14 +104,16 @@ async function processRepoAdd(h, e,){
 
 const Settings = {
     ranking: rawRanking,
-    autopull: rawAutoPull,
+    autopulllocal: rawAutoPullLocal,
+    autopullexternal: rawAutoPullExternal,
     brackets: rawShowBrackets,
-    render: ({ ranking, autopull, brackets, checked, username, repo }) => html`
+    render: ({ ranking, autopulllocal, autopullexternal, brackets, checked, username, repo }) => html`
         <div>
             Enter comma separated list of users to uprank
             <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />
         </div>
-        ${autoPull()}
+        ${autoPullLocal()}
+        ${autoPullExternal()}
         ${showBrackets()}
         <br><br>
         <div>

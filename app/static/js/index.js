@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"ecvTC":[function(require,module,exports) {
+})({"3sJ4a":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 40405;
+var HMR_PORT = 44673;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -7236,7 +7236,8 @@ var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
 window.$ = window.jQuery = _jqueryDefault.default;
 let rawRanking = JSON.parse(localStorage["ranking"] || '[]');
-let rawAutoPull = JSON.parse(localStorage["autoPull"] || 'false');
+let rawAutoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
+let rawAutoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
 let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false');
 function processRanking(host, e) {
     host.ranking = e.currentTarget.value.split(",");
@@ -7248,18 +7249,27 @@ function processUsername(h, e) {
 function processRepo(h, e) {
     h.repo = e.currentTarget.value;
 }
-function processPull(host, e) {
-    host.autopull = e.currentTarget.checked;
-    localStorage["autoPull"] = JSON.stringify(host.autopull);
+function processPullLocal(host, e) {
+    host.autopulllocal = e.currentTarget.checked;
+    localStorage["autoPullLocal"] = JSON.stringify(host.autopulllocal);
+}
+function processPullExternal(host, e) {
+    host.autopullexternal = e.currentTarget.checked;
+    localStorage["autoPullExternal"] = JSON.stringify(host.autopullexternal);
 }
 function processBrackets(host, e) {
     host.brackets = e.currentTarget.checked;
     localStorage["showBrackets"] = JSON.stringify(host.brackets);
 }
-function autoPull() {
+function autoPullLocal() {
     // hack for putting attribute in element
-    if (localStorage["autoPull"] && JSON.parse(localStorage["autoPull"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPull}" checked />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPull}" />\n    </div>\n    `;
+    if (localStorage["autoPullLocal"] && JSON.parse(localStorage["autoPullLocal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull related Agora resources? <input type="checkbox" oninput="${processPullLocal}" checked />\n    </div>\n    `;
+    return _hybrids.html`\n    <div>\n        Do you want to auto pull related Agora resources? <input type="checkbox" oninput="${processPullLocal}" />\n    </div>\n    `;
+}
+function autoPullExternal() {
+    // hack for putting attribute in element
+    if (localStorage["autoPullExternal"] && JSON.parse(localStorage["autoPullExternal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" checked />\n    </div>\n    `;
+    return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" />\n    </div>\n    `;
 }
 function showBrackets() {
     // hack for putting attribute in element
@@ -7283,9 +7293,10 @@ async function processRepoAdd(h, e) {
 }
 const Settings = {
     ranking: rawRanking,
-    autopull: rawAutoPull,
+    autopulllocal: rawAutoPullLocal,
+    autopullexternal: rawAutoPullExternal,
     brackets: rawShowBrackets,
-    render: ({ ranking , autopull , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPull()}\n        ${showBrackets()}\n        <br><br>\n        <div>\n            <h1>Add garden to agora</h1>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n\n    `
+    render: ({ ranking , autopulllocal , autopullexternal , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPullLocal()}\n        ${autoPullExternal()}\n        ${showBrackets()}\n        <br><br>\n        <div>\n            <h1>Add garden to agora</h1>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n\n    `
 };
 _hybrids.define('settings-form', Settings);
 if (localStorage["ranking"]) {
@@ -9682,7 +9693,8 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log("should show brackets");
         for(var i = 0; i < elements.length; i++)elements[i].style.display = 'inline';
     }
-    const autoPull = JSON.parse(localStorage["autoPull"] || 'false');
+    const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
+    const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
     // pull a tweet using the laziest way I found, might be a better one
     $(".pull-tweet").click(function(e) {
         this.innerText = 'pulling';
@@ -9690,8 +9702,19 @@ document.addEventListener("DOMContentLoaded", function() {
         $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
         this.innerText = 'pulled?';
     });
-    if (autoPull) {
-        console.log('auto pulling!');
+    if (autoPullLocal) {
+        console.log('auto pulling local resources!');
+        $(".pull-node").each(function(e) {
+            console.log('auto pulling node');
+            this.click();
+        });
+        $(".pull-search").each(function(e) {
+            console.log('auto pulling search');
+            this.click();
+        });
+    }
+    if (autoPullExternal) {
+        console.log('auto pulling external resources!');
         $(".pull-mastodon-status").each(function(e) {
             console.log('auto pulling activity');
             this.click();
@@ -9708,14 +9731,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     */ $("#pull-stoa").each(function(e) {
             console.log('auto pulling stoa');
-            this.click();
-        });
-        $(".pull-node").each(function(e) {
-            console.log('auto pulling node');
-            this.click();
-        });
-        $(".pull-search").each(function(e) {
-            console.log('auto pulling search');
             this.click();
         });
     }
@@ -9816,6 +9831,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["ecvTC","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["3sJ4a","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map
