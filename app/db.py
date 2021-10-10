@@ -85,12 +85,17 @@ class Graph:
         nodes = [node for node in G.nodes().values() if node.wikilink in permutations and node.subnodes]
         return nodes
 
-    def related(self, uri, max_length=4):
-        # looks up nodes which are somehow related to the tokenized uri.
-        tokens = uri.split('-')
-        permutations = itertools.permutations(tokens, max_length)
-        permutations = ['-'.join(permutation) for permutation in permutations]
-        nodes = [node for node in G.nodes().values() if node.wikilink.startswith(uri) and node.subnodes]
+    def related_nodes(self, uri):
+        # currently just looks for nodes which are related to the tokenized uri.
+        # should find plurals/missing middle initials/more general terms.
+        regex = '.*' + uri.replace('-', '.*') + '.*'
+        current_app.logger.debug(f'*** Looking for related nodes to {uri} with regex {regex}.')
+        nodes = [node for node in G.nodes().values() if 
+                    node.subnodes and
+                    node.uri!= uri and
+                    re.match(regex, node.wikilink)
+                ]
+        current_app.logger.debug(f'*** Found related nodes: {nodes}.')
         return nodes
 
     # @cache.memoize(timeout=30)
@@ -235,6 +240,7 @@ class Node:
     def auto_pull_nodes(self):
         banned_nodes = ['agora', 'go', 'pull', 'push']
         nodes = []
+        nodes.extend(G.related_nodes(self.uri))
         for subnode in self.subnodes:
             nodes.extend(subnode.auto_pull_nodes())
         # for node in self.back_links():

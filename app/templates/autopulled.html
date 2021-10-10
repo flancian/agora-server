@@ -15,13 +15,11 @@
 -->
 
 {% for node in auto_pull_nodes %}
-<div class="node">
-    <span class="node-header">⥅ context node <a href="/{{node.uri}}">[[{{node.wikilink}}]]</a></span> 
     {% if node.subnodes %}
+<div class="node">
+    <span class="node-header">⥅ related node <a href="/{{node.uri}}">[[{{node.wikilink}}]]</a></span> 
     <button class="pull-node" value="{{node.uri}}">pull</button>
     <div class="pulled-node-embed" id="{{node.uri}}"></div>                           
-    {% else %}
-    (empty) <br />
     {% endif %}
 </div>
 {% endfor %}
