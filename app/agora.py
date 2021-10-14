@@ -439,8 +439,9 @@ def user_journal(user):
 def user_journal_json(user):
     return jsonify(jsons.dump(db.user_journals(user)))
 
-@bp.route('/journals/', defaults={'entries': None})
 @bp.route('/journals/<entries>')
+@bp.route('/journals/', defaults={'entries': None})
+@bp.route('/journals', defaults={'entries': None})
 def journals(entries):
     if not entries:
         entries = current_app.config['JOURNAL_ENTRIES']
