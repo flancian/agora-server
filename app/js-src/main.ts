@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
       else {
           this.innerText = 'pulling';
           let node = this.value;
-          $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '" width="100%" height="500" frameborder="0"></iframe>');
+          $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?view" width="100%" height="500" frameborder="0"></iframe>');
           this.innerText = 'fold';
           this.classList.add('pulled');
       }
@@ -138,16 +138,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+ 
   const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
   const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
+  const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'true')
 
-  // pull a tweet using the laziest way I found, might be a better one
-  $(".pull-tweet").click(function(e) {
-      this.innerText = 'pulling';
-      let tweet = this.value;
-      $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
-      this.innerText = 'pulled?';
-  });
+ $(".pull-tweet").click(function(e) {
+    this.innerText = 'pulling';
+    let tweet = this.value;
+    $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')                                   
+    this.innerText = 'pulled?';
+    });
+
 
   if(autoPullLocal){
     console.log('auto pulling local resources!');
@@ -179,9 +181,13 @@ document.addEventListener("DOMContentLoaded", function () {
         this.click();
     });
     */
+  }
+
+  if(autoPullStoa){
+    console.log('auto pulling stoa!');
     $("#pull-stoa").each(function(e) {
-        console.log('auto pulling stoa');
-        this.click();
+       console.log('auto pulling stoa');
+       this.click();
     });
   }
 

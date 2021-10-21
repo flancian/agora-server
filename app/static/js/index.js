@@ -9647,7 +9647,7 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             this.innerText = 'pulling';
             let node = this.value;
-            $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '" width="100%" height="500" frameborder="0"></iframe>');
+            $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?view" width="100%" height="500" frameborder="0"></iframe>');
             this.innerText = 'fold';
             this.classList.add('pulled');
         }
@@ -9695,7 +9695,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
     const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
-    // pull a tweet using the laziest way I found, might be a better one
+    const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'true');
     $(".pull-tweet").click(function(e) {
         this.innerText = 'pulling';
         let tweet = this.value;
@@ -9723,13 +9723,16 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log('auto pulling tweet');
             this.click();
         });
-        /*
+    /*
      * this might be too disruptive?
     $(".pull-url").each(function(e) {
         console.log('auto pulling url');
         this.click();
     });
-    */ $("#pull-stoa").each(function(e) {
+    */ }
+    if (autoPullStoa) {
+        console.log('auto pulling stoa!');
+        $("#pull-stoa").each(function(e) {
             console.log('auto pulling stoa');
             this.click();
         });
