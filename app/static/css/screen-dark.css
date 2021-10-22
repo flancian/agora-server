@@ -373,8 +373,6 @@ input[type="text"] {
 
 .listing { 
     display: inline-block;
-    background: #080808; 
-    color: #cfcfcf; 
     padding: 0.5em; 
     margin-bottom: 10px; 
     /*border-radius: 10px;*/
