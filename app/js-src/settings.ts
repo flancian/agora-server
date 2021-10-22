@@ -21,6 +21,7 @@ import jquery from "jquery";
 let rawRanking = JSON.parse(localStorage["ranking"] || '[]')
 let rawAutoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
 let rawAutoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
+let rawAutoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false')
 let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false')
 
 function processRanking(host, e) {
@@ -41,6 +42,10 @@ function processPullExternal(host, e){
     host.autopullexternal = e.currentTarget.checked
     localStorage["autoPullExternal"] = JSON.stringify(host.autopullexternal)
 }
+function processPullStoa(host, e){
+    host.autopullstoa = e.currentTarget.checked
+    localStorage["autoPullStoa"] = JSON.stringify(host.autopullexternal)
+}
 
 function processBrackets(host, e){
     host.brackets = e.currentTarget.checked
@@ -51,12 +56,12 @@ function autoPullLocal(){
     // hack for putting attribute in element
     if(localStorage["autoPullLocal"] && JSON.parse(localStorage["autoPullLocal"])) return html`
     <div>
-        Do you want to auto pull related Agora resources? <input type="checkbox" oninput="${processPullLocal}" checked />
+        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" checked />
     </div>
     `
     return html`
     <div>
-        Do you want to auto pull related Agora resources? <input type="checkbox" oninput="${processPullLocal}" />
+        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" />
     </div>
     `
 }
@@ -75,6 +80,19 @@ function autoPullExternal(){
     `
 }
 
+function autoPullStoa(){
+    // hack for putting attribute in element
+    if(localStorage["autoPullStoa"] && !JSON.parse(localStorage["autoPullStoa"])) return html`
+    <div>
+        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" />
+    </div>
+    `
+    return html`
+    <div>
+        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" checked />
+    </div>
+    `
+}
 
 function showBrackets(){
     // hack for putting attribute in element
@@ -106,18 +124,21 @@ const Settings = {
     ranking: rawRanking,
     autopulllocal: rawAutoPullLocal,
     autopullexternal: rawAutoPullExternal,
+    autopullstoa: rawAutoPullStoa,
     brackets: rawShowBrackets,
-    render: ({ ranking, autopulllocal, autopullexternal, brackets, checked, username, repo }) => html`
+    render: ({ ranking, autopulllocal, autopullexternal, autopullstoa, brackets, checked, username, repo }) => html`
         <div>
             Enter comma separated list of users to uprank
             <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />
         </div>
         ${autoPullLocal()}
         ${autoPullExternal()}
+        ${autoPullStoa()}
         ${showBrackets()}
-        <br><br>
         <div>
-            <h1>Add garden to agora</h1>
+            <h1>Add garden to Agora</h1>
+            <div>This feature is <em>experimental</em>, which means it's probably broken :). If this fails, please send your repository information to signup@anagora.org. Thank you!</div>
+            <br>
             <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>
             <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>
             <button onclick="${processRepoAdd}">Add repo</button>
@@ -141,6 +162,3 @@ if (localStorage["ranking"]) {
     subnodes.remove()
     subnodes.insertAfter($(".main-header"))
 }
-
-console.log(APIBASE)
-

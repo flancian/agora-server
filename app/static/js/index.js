@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"4yibC":[function(require,module,exports) {
+})({"8SnIS":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 33637;
+var HMR_PORT = 37231;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -7238,6 +7238,7 @@ window.$ = window.jQuery = _jqueryDefault.default;
 let rawRanking = JSON.parse(localStorage["ranking"] || '[]');
 let rawAutoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
 let rawAutoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
+let rawAutoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false');
 let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false');
 function processRanking(host, e) {
     host.ranking = e.currentTarget.value.split(",");
@@ -7257,19 +7258,28 @@ function processPullExternal(host, e) {
     host.autopullexternal = e.currentTarget.checked;
     localStorage["autoPullExternal"] = JSON.stringify(host.autopullexternal);
 }
+function processPullStoa(host, e) {
+    host.autopullstoa = e.currentTarget.checked;
+    localStorage["autoPullStoa"] = JSON.stringify(host.autopullexternal);
+}
 function processBrackets(host, e) {
     host.brackets = e.currentTarget.checked;
     localStorage["showBrackets"] = JSON.stringify(host.brackets);
 }
 function autoPullLocal() {
     // hack for putting attribute in element
-    if (localStorage["autoPullLocal"] && JSON.parse(localStorage["autoPullLocal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull related Agora resources? <input type="checkbox" oninput="${processPullLocal}" checked />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to auto pull related Agora resources? <input type="checkbox" oninput="${processPullLocal}" />\n    </div>\n    `;
+    if (localStorage["autoPullLocal"] && JSON.parse(localStorage["autoPullLocal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" checked />\n    </div>\n    `;
+    return _hybrids.html`\n    <div>\n        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" />\n    </div>\n    `;
 }
 function autoPullExternal() {
     // hack for putting attribute in element
     if (localStorage["autoPullExternal"] && JSON.parse(localStorage["autoPullExternal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" checked />\n    </div>\n    `;
     return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" />\n    </div>\n    `;
+}
+function autoPullStoa() {
+    // hack for putting attribute in element
+    if (localStorage["autoPullStoa"] && !JSON.parse(localStorage["autoPullStoa"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" />\n    </div>\n    `;
+    return _hybrids.html`\n    <div>\n        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" checked />\n    </div>\n    `;
 }
 function showBrackets() {
     // hack for putting attribute in element
@@ -7295,8 +7305,9 @@ const Settings = {
     ranking: rawRanking,
     autopulllocal: rawAutoPullLocal,
     autopullexternal: rawAutoPullExternal,
+    autopullstoa: rawAutoPullStoa,
     brackets: rawShowBrackets,
-    render: ({ ranking , autopulllocal , autopullexternal , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPullLocal()}\n        ${autoPullExternal()}\n        ${showBrackets()}\n        <br><br>\n        <div>\n            <h1>Add garden to agora</h1>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n\n    `
+    render: ({ ranking , autopulllocal , autopullexternal , autopullstoa , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPullLocal()}\n        ${autoPullExternal()}\n        ${autoPullStoa()}\n        ${showBrackets()}\n        <div>\n            <h1>Add garden to Agora</h1>\n            <div>This feature is <em>experimental</em>, which means it's probably broken :). If this fails, please send your repository information to signup@anagora.org. Thank you!</div>\n            <br>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n\n    `
 };
 _hybrids.define('settings-form', Settings);
 if (localStorage["ranking"]) {
@@ -7312,7 +7323,6 @@ if (localStorage["ranking"]) {
     subnodes.remove();
     subnodes.insertAfter($(".main-header"));
 }
-console.log(APIBASE);
 
 },{"hybrids":"lxcky","jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lxcky":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -9831,6 +9841,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["4yibC","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["8SnIS","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map

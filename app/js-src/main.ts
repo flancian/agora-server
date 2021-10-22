@@ -138,7 +138,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
- 
   const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
   const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
   const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'true')
