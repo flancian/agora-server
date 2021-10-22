@@ -76,16 +76,16 @@ def node(node, extension='', user_list=''):
             # yuck
             'content.html', 
             node=n,
-            backlinks=n.back_links(),
+            back_nodes=n.back_nodes(),
             pull_nodes=n.pull_nodes() if n.subnodes else [],
             auto_pull_nodes=n.auto_pull_nodes() if current_app.config['ENABLE_AUTO_PULL'] else [],
-            forwardlinks=n.forward_links() if n else [],
+            forward_nodes=n.forward_nodes() if n else [],
             search=[],
             pulling_nodes=n.pulling_nodes(),
             pushing_nodes=n.pushing_nodes(),
             q=n.wikilink.replace('-', '%20'),
             qstr=n.wikilink.replace('-', ' '),
-            render_graph=True if n.back_links() or n.subnodes else False,
+            render_graph=True if n.back_nodes() or n.subnodes else False,
             config=current_app.config,
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
             # sorry for the fuzzy thinking but I'm short on time and want to get things done.

@@ -18,9 +18,9 @@
     <div class="links-flex">
         <div class="backlinks">
             <span class="backlinks-header">← back</span><br />
-        {% if backlinks %}
-            {% for link in backlinks %}
-            <a href="/{{link}}">{{link}}</a><br />
+        {% if back_nodes %}
+            {% for node in back_nodes %}
+            <a href="/{{node.uri}}">{{node.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -32,7 +32,7 @@
             <span class="pushlinks-header">↑ pushing here</span><br />
         {% if pushing_nodes %}
             {% for node in pushing_nodes %}
-            <a href="/{{node.uri}}">{{node.uri}}</a><br />
+            <a href="/{{node.uri}}">{{node.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -44,7 +44,7 @@
         <span class="pulllinks-header">↓ pulling this</span><br />
         {% if pulling_nodes %}
             {% for node in pulling_nodes %}
-            <a href="/{{node.uri}}">{{node.uri}}</a><br />
+            <a href="/{{node.uri}}">{{node.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -55,9 +55,9 @@
 
         <div class="forwardlinks">
         <span class="forwardlinks-header">→ forward</span><br />
-        {% if forwardlinks %}
-            {% for link in forwardlinks %}
-            <a href="/{{link}}">{{link}}</a><br />
+        {% if forward_nodes %}
+            {% for node in forward_nodes %}
+            <a href="/{{node.uri}}">{{node.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)

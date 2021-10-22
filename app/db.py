@@ -233,6 +233,9 @@ class Node:
             links.extend(subnode.forward_links)
         return sorted(set(links))
 
+    def forward_nodes(self):
+        return [G.node(x) for x in self.forward_links()]
+
     # Pattern: (subject).action_object.
     # Could be modeled with RDF?
     def pull_nodes(self):
@@ -264,8 +267,7 @@ class Node:
         # the nodes pulling *this* node.
         # compare with: pull_nodes.
         nodes = []
-        for backlink in self.back_links():
-            n = G.node(backlink)
+        for n in self.back_nodes():
             if self.wikilink in [n.wikilink for n in n.pull_nodes()]:
                 nodes.append(n)
         return nodes
@@ -281,8 +283,7 @@ class Node:
         # the nodes pushing to *this* node.
         # compare with: push_nodes.
         nodes = []
-        for backlink in self.back_links():
-            n = G.node(backlink)
+        for n in self.back_nodes():
             if self.wikilink == n.wikilink:
                 # ignore nodes pushing to themselves.
                 continue
@@ -343,8 +344,11 @@ class Node:
                             pass
         return subnodes
 
+    def back_nodes(self):
+        return sorted([x for x in nodes_by_outlink(self.wikilink) if x.wikilink != self.wikilink])
+
     def back_links(self):
-        return sorted([x.wikilink for x in nodes_by_outlink(self.wikilink) if x.wikilink != self.wikilink])
+        return sorted([x.wikilink for x in self.back_nodes()])
 
     def pushed_subnodes(self):
         subnodes = []
