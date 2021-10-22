@@ -171,6 +171,11 @@ class Node:
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         self.wikilink = wikilink
+        # hack hack
+        # TODO: revamp the whole notion of wikilink; it should default to free form text, with slugs being generated
+        # explicitly. will probably require coalescing different takes on what the 'canonical' description for a 
+        # node should be, and perhaps having some precedence rules.
+        self.description = wikilink.replace('-', ' ')
         # LOL, this is *not* a uri.
         # TODO(flancian): check where this is used and fix.
         self.uri = wikilink
