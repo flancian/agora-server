@@ -19,7 +19,9 @@ from flask import Flask
 from flask_caching import Cache
 from flaskext.markdown import Markdown
 from markdown.extensions.wikilinks import WikiLinkExtension
+from . import agora
 from . import util
+from app.exec import *
 from flask_cors import CORS
 
 def create_app():
@@ -50,8 +52,9 @@ def create_app():
         pass
 
     # Add blueprints here.
-    from . import agora
     app.register_blueprint(agora.bp)
+    # Actions ("exec").
+    app.register_blueprint(exec.default.bp)
     app.add_url_rule('/', endpoint='index')
 
     # Jinja2 extensions.
