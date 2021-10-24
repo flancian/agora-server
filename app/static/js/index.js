@@ -9840,7 +9840,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (autoExec) {
         console.log('autoexec is enabled');
         console.log('executing node: ' + NODENAME);
-        req = "http://localhost:5000/exec/wp/" + encodeURI(NODENAME);
+        req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME);
         console.log('req: ' + req);
         $.get(req, function(data) {
             console.log('html: ' + data);

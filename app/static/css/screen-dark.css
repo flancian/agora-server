@@ -161,6 +161,14 @@ input[type="text"] {
     width: auto;
 }
 
+.topline-agora{
+    display: block;
+    vertical-align: middle;
+    overflow-y: auto;
+    margin: 10px;
+    width: auto;
+}
+
 .topline-query {
 	flex: auto;
 	display: inline;

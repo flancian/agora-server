@@ -38,6 +38,17 @@ class DevelopmentConfig(DefaultConfig):
     URI_BASE = "dev.anagora.org"
     API_BASE = "http://localhost:3000"
 
+    # EXPERIMENTS
+    ENABLE_CTZN = True
+    ENABLE_STATS = True
+    ENABLE_OBSIDIAN_ATTACHMENTS = True
+    ENABLE_AUTO_PULL = True
+    ENABLE_AUTO_STOA = True
+
+class LocalDevelopmentConfig(DefaultConfig):
+    URL_BASE = "http://localhost:5000"
+    URI_BASE = "http://localhost:5000"
+    API_BASE = "http://localhost:3000"
 
     # EXPERIMENTS
     ENABLE_CTZN = True
