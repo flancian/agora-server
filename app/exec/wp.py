@@ -23,4 +23,4 @@ def wp(node):
     result = requests.get(f'https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info&inprop=url&format=json').json()
     title = result['query']['pages'][str(pageid)]['title']
     url = result['query']['pages'][str(pageid)]['canonicalurl']
-    return Response(f"<ul><li>[[wp]] <a href='{url}'>{title}</a></li></ul> <!--{result}-->", mimetype='text/html')
+    return Response(f"<div class='exec'><ul><li><a href='/wp'>wp</a> → </a><a href='{url}'>{url}</a></li></ul> <!--{result}--></div>", mimetype='text/html')

@@ -12,20 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
 import collections
-import jsons
+import datetime
 import json
 import re
-from flask import Blueprint, url_for, render_template, current_app, Response, redirect, request, jsonify
-from markupsafe import escape
 from urllib.parse import parse_qs
-from . import db
-from . import feed
-from . import forms
-from . import graph
-from . import providers
-from . import util
+
+import jsons
+from flask import (Blueprint, Response, current_app, jsonify, redirect,
+                   render_template, request, url_for)
+from markupsafe import escape
+
+from . import db, feed, forms, graph, providers, util
 
 bp = Blueprint('agora', __name__)
 G = db.G
