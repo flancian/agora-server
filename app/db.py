@@ -344,6 +344,14 @@ class Node:
                             pass
         return subnodes
 
+    def exec(self):
+        # returns the blocks (subnodes/resources) that this node *execution* results in, if any.
+        # to add node-specific code, see exec/<node>.py (if it exists).
+        # currently *unused*, unsure if we're going this way or straight to client-side rendering.
+        subnodes = []
+        subnodes.append(VirtualSubnode('wp', '', 'test'))
+        return subnodes
+
     def back_nodes(self):
         return sorted([x for x in nodes_by_outlink(self.wikilink) if x.wikilink != self.wikilink])
 
@@ -544,6 +552,7 @@ class Subnode:
 class VirtualSubnode(Subnode):
     # For instantiating a virtual subnode -- a subnode derived from another subnode. 
     # Used by [[push]] (transclusion).
+    # Used by [[exec]] (general actions).
     def __init__(self, source_subnode, target_node, block):
         """
         source_subnode: where this virtual subnode came from.

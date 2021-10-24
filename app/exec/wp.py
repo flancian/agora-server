@@ -13,7 +13,14 @@
 # limitations under the License.
 
 from . import bp, Response
+import requests
+import pprint
 
 @bp.route('/exec/wp/<node>')
 def wp(node):
-    return Response(f"https://en.wikipedia.org/{node}", mimetype='text/html')
+    search = requests.get(f'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={node}&format=json')
+    pageid = search.json()['query']['search'][0]['pageid']
+    result = requests.get(f'https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info&inprop=url&format=json').json()
+    title = result['query']['pages'][str(pageid)]['title']
+    url = result['query']['pages'][str(pageid)]['canonicalurl']
+    return Response(f"<ul><li>[[wp]] <a href='{url}'>{title}</a></li></ul> <!--{result}-->", mimetype='text/html')

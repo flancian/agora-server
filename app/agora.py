@@ -68,6 +68,7 @@ def node(node, extension='', user_list=''):
             n.subnodes = [subnode for subnode in n.subnodes if subnode.uri.endswith(f'.{extension}')]
             n.uri = n.uri + f'.{extension}'
             n.wikilink = n.wikilink + f'.{extension}'
+    # n.subnodes.extend(n.exec())
 
     # search_subnodes = db.search_subnodes(node)
 
@@ -331,6 +332,7 @@ def pull(node, other):
 # This receives whatever you type in the mini-cli up to the top of anagora.org.
 # Then it parses it and redirects to the right node or takes the appropriate action.
 # See https://anagora.org/agora-search, in particular 'design', for more.
+@bp.route('/exec')
 @bp.route('/jump')
 @bp.route('/search')
 def search():

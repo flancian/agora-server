@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"54LmO":[function(require,module,exports) {
+})({"49IOv":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 39705;
+var HMR_PORT = 1234;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "69f74e7f31319ffd";
 module.bundle.HMR_BUNDLE_ID = "16666c10df048dff";
@@ -9676,6 +9676,12 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
 window.$ = window.jQuery = _jqueryDefault.default;
+// these define default dynamic behaviour client-side, based on local storage preferences.
+// these come from toggles in settings.ts.
+const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
+const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
+const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'true');
+const autoExec = JSON.parse(localStorage["autoExec"] || 'true');
 document.addEventListener("DOMContentLoaded", function() {
     // Select button
     const btn = document.querySelector(".theme-toggle");
@@ -9777,50 +9783,12 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log("should show brackets");
         for(var i = 0; i < elements.length; i++)elements[i].style.display = 'inline';
     }
-    const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
-    const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
-    const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'true');
     $(".pull-tweet").click(function(e) {
         this.innerText = 'pulling';
         let tweet = this.value;
         $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
         this.innerText = 'pulled?';
     });
-    if (autoPullLocal) {
-        console.log('auto pulling local resources!');
-        $(".pull-node").each(function(e) {
-            console.log('auto pulling node');
-            this.click();
-        });
-        $(".pull-search").each(function(e) {
-            console.log('auto pulling search');
-            this.click();
-        });
-    }
-    if (autoPullExternal) {
-        console.log('auto pulling external resources!');
-        $(".pull-mastodon-status").each(function(e) {
-            console.log('auto pulling activity');
-            this.click();
-        });
-        $(".pull-tweet").each(function(e) {
-            console.log('auto pulling tweet');
-            this.click();
-        });
-    /*
-     * this might be too disruptive?
-    $(".pull-url").each(function(e) {
-        console.log('auto pulling url');
-        this.click();
-    });
-    */ }
-    if (autoPullStoa) {
-        console.log('auto pulling stoa!');
-        $("#pull-stoa").each(function(e) {
-            console.log('auto pulling stoa');
-            this.click();
-        });
-    }
     function statusContent(self) {
         let toot = self.value;
         let domain, post;
@@ -9869,6 +9837,52 @@ document.addEventListener("DOMContentLoaded", function() {
         this.innerText = 'going';
         window.location.replace(url);
     });
+    if (autoExec) {
+        console.log('autoexec is enabled');
+        console.log('executing node: ' + NODENAME);
+        req = "http://localhost:5000/exec/wp/" + encodeURI(NODENAME);
+        console.log('req: ' + req);
+        $.get(req, function(data) {
+            console.log('html: ' + data);
+            $(".topline-search").after(data);
+        // let html = data['html']
+        // $(self).after(html);
+        });
+    }
+    if (autoPullLocal) {
+        console.log('auto pulling local resources!');
+        $(".pull-node").each(function(e) {
+            console.log('auto pulling node');
+            this.click();
+        });
+        $(".pull-search").each(function(e) {
+            console.log('auto pulling search');
+            this.click();
+        });
+    }
+    if (autoPullExternal) {
+        console.log('auto pulling external resources!');
+        $(".pull-mastodon-status").each(function(e) {
+            console.log('auto pulling activity');
+            this.click();
+        });
+        $(".pull-tweet").each(function(e) {
+            console.log('auto pulling tweet');
+            this.click();
+        });
+    /*
+     * this might be too disruptive?
+    $(".pull-url").each(function(e) {
+        console.log('auto pulling url');
+        this.click();
+    });
+    */ }
+    if (autoPullStoa) {
+        console.log('auto pulling stoa');
+        $("#pull-stoa").each(function(e) {
+            this.click();
+        });
+    }
 });
 function getRandomColor() {
     var letters = '0123456789ABCDEF'.split('');
@@ -9915,6 +9929,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"j5K9g","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}]},["54LmO","cFMcT"], "cFMcT", "parcelRequire94c2")
+},{"jquery":"j5K9g","@parcel/transformer-js/src/esmodule-helpers.js":"8jxq8"}]},["49IOv","cFMcT"], "cFMcT", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map

@@ -53,8 +53,8 @@ def create_app():
 
     # Add blueprints here.
     app.register_blueprint(agora.bp)
-    # Actions ("exec").
-    app.register_blueprint(exec.default.bp)
+    # Actions (mounted under "exec").
+    app.register_blueprint(default.bp)
     app.add_url_rule('/', endpoint='index')
 
     # Jinja2 extensions.

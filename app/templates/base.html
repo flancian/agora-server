@@ -20,7 +20,7 @@
 <head>
     <meta charset="utf-8" />
     {% if node is defined %}
-    <title>[[{{node.wikilink}}]]</title>
+    <title>[[{{node.description}}]]</title>
     {% else %}
     <title>Agora</title>
     {% endif %}
@@ -35,6 +35,7 @@
     {% if node is defined and not embed %}
         <script>
             const NODENAME = "{{node.uri}}"
+            const NODEDESC = "{{node.description}}"
             const AGORANAME = "{{config['URI_BASE']}}"
             const AGORAURL = "{{config['URL_BASE']}}"
             </script>
@@ -102,7 +103,7 @@
                 </div>
 
                 <div class="topline-search">
-                    <strong>↳ search on:</strong>
+                    <strong>↳ on the Internet:</strong>
                     <a href="https://www.google.com/search?q={{q}}">Google</a>
                     | <a href="https://www.duckduckgo.com/{{q}}">DuckDuckGo</a>
                     | <a href="https://searx.bar/search?q={{q}}&categories=general&language=en-US">Searx</a>
@@ -113,7 +114,7 @@
                     -->
                 </div>
 
-                <div class="topline-search">
+                <div class="topline-agora">
                     <strong>↳ in this Agora ⬎</strong>
                 </div>
 

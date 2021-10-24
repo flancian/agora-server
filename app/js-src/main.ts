@@ -18,6 +18,13 @@
 import jquery from "jquery";
 (<any>window).$ = (<any>window).jQuery = jquery;
 
+// these define default dynamic behaviour client-side, based on local storage preferences.
+// these come from toggles in settings.ts.
+const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
+const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
+const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'true')
+const autoExec = JSON.parse(localStorage["autoExec"] || 'true')
+
 document.addEventListener("DOMContentLoaded", function () {
   // Select button
   const btn = document.querySelector(".theme-toggle");
@@ -54,124 +61,188 @@ document.addEventListener("DOMContentLoaded", function () {
   })
 
   // pull arbitrary URL
-  $(".pull-url").click(function(e) {
-      if (this.classList.contains('pulled')) {
-          // already pulled.
-          this.innerText = 'pull';
-          $(e.currentTarget).nextAll('iframe').remove()
-          this.classList.remove('pulled');
-      }
-      else {
-          // pull.
-          this.innerText = 'pulling';
-          let url = this.value;
-          console.log('pull url : ' + url)
-          $(e.currentTarget).after('<iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>')
-          this.innerText = 'fold';
-          this.classList.add('pulled');
-      }
+  $(".pull-url").click(function (e) {
+    if (this.classList.contains('pulled')) {
+      // already pulled.
+      this.innerText = 'pull';
+      $(e.currentTarget).nextAll('iframe').remove()
+      this.classList.remove('pulled');
+    }
+    else {
+      // pull.
+      this.innerText = 'pulling';
+      let url = this.value;
+      console.log('pull url : ' + url)
+      $(e.currentTarget).after('<iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>')
+      this.innerText = 'fold';
+      this.classList.add('pulled');
+    }
   });
 
   // pull a node from the default [[stoa]]
-  $("#pull-stoa").click(function(e) {
-      if (this.classList.contains('pulled')) {
-          // already pulled.
-          this.innerText = 'pull';
-          $(e.currentTarget).nextAll('iframe').remove()
-          $("#stoa-iframe").html('');
-          this.classList.remove('pulled');
-      }
-      else {
-          this.innerText = 'pulling';
-          let node = this.value;
-          $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?view" width="100%" height="500" frameborder="0"></iframe>');
-          this.innerText = 'fold';
-          this.classList.add('pulled');
-      }
+  $("#pull-stoa").click(function (e) {
+    if (this.classList.contains('pulled')) {
+      // already pulled.
+      this.innerText = 'pull';
+      $(e.currentTarget).nextAll('iframe').remove()
+      $("#stoa-iframe").html('');
+      this.classList.remove('pulled');
+    }
+    else {
+      this.innerText = 'pulling';
+      let node = this.value;
+      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?view" width="100%" height="500" frameborder="0"></iframe>');
+      this.innerText = 'fold';
+      this.classList.add('pulled');
+    }
   });
 
   // pull a node from the [[agora]]
-  $(".pull-node").click(function(e) {
-      let node = this.value;
-      if (this.classList.contains('pulled')) {
-          // already pulled.
-          // $(e.currentTarget).nextAll('div').remove()
-          $("#" + node + ".pulled-node-embed").html('');
-          this.innerText = 'pull';
-          this.classList.remove('pulled');
-      }
-      else {
-          this.innerText = 'pulling';
-          console.log('pulling node');
-          $.get(AGORAURL + '/pull/' + node, function(data) {
-              $("#" + node + ".pulled-node-embed").html(data);
-          });
-          this.innerText = 'fold';
-          this.classList.add('pulled');
-      }
+  $(".pull-node").click(function (e) {
+    let node = this.value;
+    if (this.classList.contains('pulled')) {
+      // already pulled.
+      // $(e.currentTarget).nextAll('div').remove()
+      $("#" + node + ".pulled-node-embed").html('');
+      this.innerText = 'pull';
+      this.classList.remove('pulled');
+    }
+    else {
+      this.innerText = 'pulling';
+      console.log('pulling node');
+      $.get(AGORAURL + '/pull/' + node, function (data) {
+        $("#" + node + ".pulled-node-embed").html(data);
+      });
+      this.innerText = 'fold';
+      this.classList.add('pulled');
+    }
   });
 
   // pull full text search 
-  $(".pull-search").click(function(e) {
-      if (this.classList.contains('pulled')) {
-          $("#pulled-search.pulled-search-embed").html('');
-          this.innerText = 'pull';
-          this.classList.remove('pulled');
-      }
-      else {
-          this.innerText = 'pulling';
-          let qstr = this.value;
-          $.get(AGORAURL + '/fullsearch/' + qstr, function(data) {
-              $("#pulled-search.pulled-search-embed").html('<br />' + data);
-          });
-          this.classList.add('pulled');
-          this.innerText = 'fold'; 
-      }
+  $(".pull-search").click(function (e) {
+    if (this.classList.contains('pulled')) {
+      $("#pulled-search.pulled-search-embed").html('');
+      this.innerText = 'pull';
+      this.classList.remove('pulled');
+    }
+    else {
+      this.innerText = 'pulling';
+      let qstr = this.value;
+      $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
+        $("#pulled-search.pulled-search-embed").html('<br />' + data);
+      });
+      this.classList.add('pulled');
+      this.innerText = 'fold';
+    }
   });
 
   const showBrackets = JSON.parse(localStorage["showBrackets"] || 'false')
-  if(showBrackets){
+  if (showBrackets) {
     elements = document.getElementsByClassName("wikilink-marker");
     console.log("should show brackets");
     for (var i = 0; i < elements.length; i++) {
-          elements[i].style.display = 'inline';
+      elements[i].style.display = 'inline';
     }
   }
 
-  const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
-  const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
-  const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'true')
 
- $(".pull-tweet").click(function(e) {
+  $(".pull-tweet").click(function (e) {
     this.innerText = 'pulling';
     let tweet = this.value;
-    $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')                                   
+    $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
     this.innerText = 'pulled?';
-    });
+  });
 
+  function statusContent(self) {
+    let toot = self.value;
+    let domain, post;
+    // extract instance and :id, then use https://docs.joinmastodon.org/methods/statuses/ and get an oembed
+    // there are two kinds of statuses we want to be able to embed: /web/ led and @user led.
+    const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig
+    const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig
 
-  if(autoPullLocal){
-    console.log('auto pulling local resources!');
-    $(".pull-node").each(function(e) {
-        console.log('auto pulling node');
-        this.click();
+    console.log("testing type of presumed mastodon embed: " + toot);
+    if (m = web_regex.exec(toot)) {
+      console.log("found status of type /web/");
+      domain = m[1];
+      post = m[2];
+    }
+    if (m = user_regex.exec(toot)) {
+      console.log("found status of type /@user/");
+      domain = m[1];
+      post = m[2];
+    }
+
+    req = domain + '/api/v1/statuses/' + post
+    console.log('req: ' + req)
+    $.get(req, function (data) {
+      console.log('status: ' + data['url'])
+      let actual_url = data['url']
+
+      let oembed_req = domain + '/api/oembed?url=' + actual_url
+      $.get(oembed_req, function (data) {
+        console.log('oembed: ' + data['html'])
+        let html = data['html']
+        $(self).after(html);
+      });
     });
-    $(".pull-search").each(function(e) {
-        console.log('auto pulling search');
-        this.click();
+    self.innerText = 'pulled';
+  }
+  // pull a mastodon status (toot) using the roughly correct way IIUC.
+  $(".pull-mastodon-status").click(function (e) {
+    statusContent(this)
+  });
+
+  // pull a pleroma status (toot) using the laziest way I found, might be a better one
+  $(".pull-pleroma-status").click(function (e) {
+    let toot = this.value;
+    $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"></script>')
+    this.innerText = 'pulled';
+  });
+
+  // go to the specified URL
+  $(".go-url").click(function (e) {
+    let url = this.value;
+    this.innerText = 'going';
+    window.location.replace(url);
+  });
+
+  if (autoExec) {
+    console.log('autoexec is enabled')
+    console.log('executing node: ' + NODENAME)
+    req = 'http://localhost:5000' + '/exec/wp/' + encodeURI(NODENAME)
+    console.log('req: ' + req)
+    $.get(req, function (data) {
+      console.log('html: ' + data)
+      $(".topline-search").after(data);
+      // let html = data['html']
+      // $(self).after(html);
     });
 
   }
 
-  if(autoPullExternal){
-    console.log('auto pulling external resources!');
-    $(".pull-mastodon-status").each(function(e) {
-        console.log('auto pulling activity');
-        this.click();
+  if (autoPullLocal) {
+    console.log('auto pulling local resources!');
+    $(".pull-node").each(function (e) {
+      console.log('auto pulling node');
+      this.click();
     });
-    $(".pull-tweet").each(function(e) {
-        console.log('auto pulling tweet');
-        this.click();
+    $(".pull-search").each(function (e) {
+      console.log('auto pulling search');
+      this.click();
+    });
+
+  }
+
+  if (autoPullExternal) {
+    console.log('auto pulling external resources!');
+    $(".pull-mastodon-status").each(function (e) {
+      console.log('auto pulling activity');
+      this.click();
+    });
+    $(".pull-tweet").each(function (e) {
+      console.log('auto pulling tweet');
+      this.click();
     });
     /*
      * this might be too disruptive?
@@ -182,67 +253,13 @@ document.addEventListener("DOMContentLoaded", function () {
     */
   }
 
-  if(autoPullStoa){
-    console.log('auto pulling stoa!');
-    $("#pull-stoa").each(function(e) {
-       console.log('auto pulling stoa');
-       this.click();
+  if (autoPullStoa) {
+    console.log('auto pulling stoa');
+    $("#pull-stoa").each(function (e) {
+      this.click();
     });
   }
 
-  function statusContent(self){
-    let toot = self.value;
-    let domain, post;
-    // extract instance and :id, then use https://docs.joinmastodon.org/methods/statuses/ and get an oembed
-    // there are two kinds of statuses we want to be able to embed: /web/ led and @user led.
-    const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig
-    const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig
-
-    console.log("testing type of presumed mastodon embed: " + toot);
-    if (m = web_regex.exec(toot)) {
-        console.log("found status of type /web/");
-        domain = m[1];
-        post = m[2];
-    }
-    if (m = user_regex.exec(toot)) {
-        console.log("found status of type /@user/");
-        domain = m[1];
-        post = m[2];
-    }
-
-    req = domain + '/api/v1/statuses/' + post
-    console.log('req: ' + req)
-    $.get(req, function(data) {
-        console.log('status: ' + data['url'])
-        let actual_url = data['url']
-
-        let oembed_req = domain + '/api/oembed?url=' + actual_url 
-        $.get(oembed_req, function(data) {
-            console.log('oembed: ' + data['html'])
-            let html = data['html']
-            $(self).after(html);
-        });
-    });
-    self.innerText = 'pulled';
-  }
-  // pull a mastodon status (toot) using the roughly correct way IIUC.
-  $(".pull-mastodon-status").click(function(e) {
-    statusContent(this)
-  });
-
-  // pull a pleroma status (toot) using the laziest way I found, might be a better one
-  $(".pull-pleroma-status").click(function(e) {
-      let toot = this.value;
-      $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"></script>')
-      this.innerText = 'pulled';
-  });
-
-  // go to the specified URL
-  $(".go-url").click(function(e) {
-      let url = this.value;
-      this.innerText = 'going';
-      window.location.replace(url);
-  });
 
 });
 
@@ -286,6 +303,3 @@ function loadGraph() {
   });
 
 }
-
-
-
