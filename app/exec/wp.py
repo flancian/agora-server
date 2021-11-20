@@ -23,4 +23,5 @@ def wp(node):
     result = requests.get(f'https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info&inprop=url&format=json').json()
     title = result['query']['pages'][str(pageid)]['title']
     url = result['query']['pages'][str(pageid)]['canonicalurl']
-    return Response(f"<div class='exec'><ul><li><a href='/wp'>wp</a> → </a><a href='{url}'>{url}</a></li></ul> <!--{result}--></div>", mimetype='text/html')
+    inferred_node = title.replace('_', '-')
+    return Response(f"<div class='exec'><ul><li><a href='/wp'>wp</a> → </a><a href='{url}'>{url}</a> → <a href='/{inferred_node}'><strong>[[{title}]]</strong></a> </li></ul><!--{result}--></div>", mimetype='text/html')

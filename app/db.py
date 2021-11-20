@@ -65,7 +65,7 @@ class Graph:
         # looks up a node by uri (essentially [[wikilink]]).
         # this used to be even worse :)
         try:
-            node = self.nodes()[uri]
+            node = self.nodes()[uri.lower()]
             return node
         except (KeyError, IndexError):
             # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
