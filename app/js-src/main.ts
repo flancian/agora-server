@@ -22,7 +22,7 @@ import jquery from "jquery";
 // these come from toggles in settings.ts.
 const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
 const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
-const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'true')
+const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false')
 const autoExec = JSON.parse(localStorage["autoExec"] || 'true')
 
 document.addEventListener("DOMContentLoaded", function () {

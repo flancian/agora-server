@@ -66,9 +66,11 @@ def add_twitter_embeds(content, subnode):
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 def add_twitter_pull(content, subnode):
-    if '<a' in content:
-        # hack hack
-        # don't apply filters when content has html links
+    # hack: negative lookbehind tries to only match for anchors not preceded by a span... just because in the agora we have 
+    # spans just preceding every anchor that is a wikilink.
+    if re.search(r'(?<!</span>)<a href', content):
+        # don't apply filters when content has html links that are not result of a wikilink.
+        # this works around a bug in some org mode translated files we have.
         return content
     TWITTER_REGEX='(https://twitter.com/\w+/status/[0-9]+)'
     TWITTER_EMBED='\\1 <button class="pull-tweet" value="\\1">pull</button>'
@@ -161,4 +163,3 @@ def postprocess(content, subnode=''):
     for f in filters:
         content = f(content, subnode)
     return content
-

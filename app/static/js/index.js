@@ -140,21 +140,12 @@
       this[globalName] = mainExports;
     }
   }
-<<<<<<< HEAD
-})({"2xpA0":[function(require,module,exports) {
+})({"9P0Uy":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 41689;
+var HMR_PORT = 38567;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
-=======
-})({"ghMHG":[function(require,module,exports) {
-var HMR_HOST = null;
-var HMR_PORT = 1234;
-var HMR_SECURE = false;
-var HMR_ENV_HASH = "c22175d22bace513";
-module.bundle.HMR_BUNDLE_ID = "20e4c9121c0183bf"; // @flow
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
 /* global HMR_HOST, HMR_PORT, HMR_ENV_HASH, HMR_SECURE */ /*::
 import type {
   HMRAsset,
@@ -389,11 +380,7 @@ function hmrAcceptRun(bundle/*: ParcelRequire */ , id/*: string */ ) {
     acceptedAssets[id] = true;
 }
 
-<<<<<<< HEAD
 },{}],"kb3Qw":[function(require,module,exports) {
-=======
-},{}],"jWiUE":[function(require,module,exports) {
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 // Copyright 2021 Google LLC
 //
@@ -416,2707 +403,7 @@ var _settings = require("./settings");
 var _main = require("./main");
 window.$ = window.jQuery = _jqueryDefault.default;
 
-<<<<<<< HEAD
 },{"jquery":"hVaUM","./settings":"lWHlS","./main":"iAiHz","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"hVaUM":[function(require,module,exports) {
-/*!
- * jQuery JavaScript Library v3.6.0
- * https://jquery.com/
- *
- * Includes Sizzle.js
- * https://sizzlejs.com/
- *
- * Copyright OpenJS Foundation and other contributors
- * Released under the MIT license
- * https://jquery.org/license
- *
- * Date: 2021-03-02T17:08Z
- */ (function(global, factory) {
-    if (typeof module === "object" && typeof module.exports === "object") // For CommonJS and CommonJS-like environments where a proper `window`
-    // is present, execute the factory and get jQuery.
-    // For environments that do not have a `window` with a `document`
-    // (such as Node.js), expose a factory as module.exports.
-    // This accentuates the need for the creation of a real `window`.
-    // e.g. var jQuery = require("jquery")(window);
-    // See ticket #14549 for more info.
-    module.exports = global.document ? factory(global, true) : function(w) {
-        if (!w.document) throw new Error("jQuery requires a window with a document");
-        return factory(w);
-    };
-    else factory(global);
-// Pass this if window is not defined yet
-})(typeof window !== "undefined" ? window : this, function(window, noGlobal) {
-    // Edge <= 12 - 13+, Firefox <=18 - 45+, IE 10 - 11, Safari 5.1 - 9+, iOS 6 - 9.1
-    // throw exceptions when non-strict code (e.g., ASP.NET 4.5) accesses strict mode
-    // arguments.callee.caller (trac-13335). But as of jQuery 3.0 (2016), strict mode should be common
-    // enough that all such attempts are guarded in a try block.
-    "use strict";
-    var arr = [];
-    var getProto = Object.getPrototypeOf;
-    var slice = arr.slice;
-    var flat = arr.flat ? function(array) {
-        return arr.flat.call(array);
-    } : function(array) {
-        return arr.concat.apply([], array);
-    };
-    var push = arr.push;
-    var indexOf = arr.indexOf;
-    var class2type = {
-    };
-    var toString = class2type.toString;
-    var hasOwn = class2type.hasOwnProperty;
-    var fnToString = hasOwn.toString;
-    var ObjectFunctionString = fnToString.call(Object);
-    var support = {
-    };
-    var isFunction = function isFunction1(obj) {
-        // Support: Chrome <=57, Firefox <=52
-        // In some browsers, typeof returns "function" for HTML <object> elements
-        // (i.e., `typeof document.createElement( "object" ) === "function"`).
-        // We don't want to classify *any* DOM node as a function.
-        // Support: QtWeb <=3.8.5, WebKit <=534.34, wkhtmltopdf tool <=0.12.5
-        // Plus for old WebKit, typeof returns "function" for HTML collections
-        // (e.g., `typeof document.getElementsByTagName("div") === "function"`). (gh-4756)
-        return typeof obj === "function" && typeof obj.nodeType !== "number" && typeof obj.item !== "function";
-    };
-    var isWindow = function isWindow1(obj) {
-        return obj != null && obj === obj.window;
-    };
-    var document = window.document;
-    var preservedScriptAttributes = {
-        type: true,
-        src: true,
-        nonce: true,
-        noModule: true
-    };
-    function DOMEval(code, node, doc) {
-        doc = doc || document;
-        var i, val, script = doc.createElement("script");
-        script.text = code;
-        if (node) for(i in preservedScriptAttributes){
-            // Support: Firefox 64+, Edge 18+
-            // Some browsers don't support the "nonce" property on scripts.
-            // On the other hand, just using `getAttribute` is not enough as
-            // the `nonce` attribute is reset to an empty string whenever it
-            // becomes browsing-context connected.
-            // See https://github.com/whatwg/html/issues/2369
-            // See https://html.spec.whatwg.org/#nonce-attributes
-            // The `node.getAttribute` check was added for the sake of
-            // `jQuery.globalEval` so that it can fake a nonce-containing node
-            // via an object.
-            val = node[i] || node.getAttribute && node.getAttribute(i);
-            if (val) script.setAttribute(i, val);
-        }
-        doc.head.appendChild(script).parentNode.removeChild(script);
-    }
-    function toType(obj) {
-        if (obj == null) return obj + "";
-        // Support: Android <=2.3 only (functionish RegExp)
-        return typeof obj === "object" || typeof obj === "function" ? class2type[toString.call(obj)] || "object" : typeof obj;
-    }
-    /* global Symbol */ // Defining this global in .eslintrc.json would create a danger of using the global
-    // unguarded in another place, it seems safer to define global only for this module
-    var version = "3.6.0", // Define a local copy of jQuery
-    jQuery = function(selector, context) {
-        // The jQuery object is actually just the init constructor 'enhanced'
-        // Need init if jQuery is called (just allow error to be thrown if not included)
-        return new jQuery.fn.init(selector, context);
-    };
-    jQuery.fn = jQuery.prototype = {
-        // The current version of jQuery being used
-        jquery: version,
-        constructor: jQuery,
-        // The default length of a jQuery object is 0
-        length: 0,
-        toArray: function() {
-            return slice.call(this);
-        },
-        // Get the Nth element in the matched element set OR
-        // Get the whole matched element set as a clean array
-        get: function(num) {
-            // Return all the elements in a clean array
-            if (num == null) return slice.call(this);
-            // Return just the one element from the set
-            return num < 0 ? this[num + this.length] : this[num];
-        },
-        // Take an array of elements and push it onto the stack
-        // (returning the new matched element set)
-        pushStack: function(elems) {
-            // Build a new jQuery matched element set
-            var ret = jQuery.merge(this.constructor(), elems);
-            // Add the old object onto the stack (as a reference)
-            ret.prevObject = this;
-            // Return the newly-formed element set
-            return ret;
-        },
-        // Execute a callback for every element in the matched set.
-        each: function(callback) {
-            return jQuery.each(this, callback);
-        },
-        map: function(callback) {
-            return this.pushStack(jQuery.map(this, function(elem, i) {
-                return callback.call(elem, i, elem);
-            }));
-        },
-        slice: function() {
-            return this.pushStack(slice.apply(this, arguments));
-        },
-        first: function() {
-            return this.eq(0);
-        },
-        last: function() {
-            return this.eq(-1);
-        },
-        even: function() {
-            return this.pushStack(jQuery.grep(this, function(_elem, i) {
-                return (i + 1) % 2;
-            }));
-=======
-},{"./settings":"lpDvT","./main":"iwB9f","jquery":"jP6KW","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"lpDvT":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-// Copyright 2021 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-var _hybrids = require("hybrids");
-var _jquery = require("jquery");
-var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
-window.$ = window.jQuery = _jqueryDefault.default;
-let rawRanking = JSON.parse(localStorage["ranking"] || '[]');
-let rawAutoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
-let rawAutoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
-let rawAutoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false');
-let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false');
-function processRanking(host, e) {
-    host.ranking = e.currentTarget.value.split(",");
-    localStorage["ranking"] = JSON.stringify(host.ranking);
-}
-function processUsername(h, e) {
-    h.username = e.currentTarget.value;
-}
-function processRepo(h, e) {
-    h.repo = e.currentTarget.value;
-}
-function processPullLocal(host, e) {
-    host.autopulllocal = e.currentTarget.checked;
-    localStorage["autoPullLocal"] = JSON.stringify(host.autopulllocal);
-}
-function processPullExternal(host, e) {
-    host.autopullexternal = e.currentTarget.checked;
-    localStorage["autoPullExternal"] = JSON.stringify(host.autopullexternal);
-}
-function processPullStoa(host, e) {
-    host.autopullstoa = e.currentTarget.checked;
-    localStorage["autoPullStoa"] = JSON.stringify(host.autopullexternal);
-}
-function processBrackets(host, e) {
-    host.brackets = e.currentTarget.checked;
-    localStorage["showBrackets"] = JSON.stringify(host.brackets);
-}
-function autoPullLocal() {
-    // hack for putting attribute in element
-    if (localStorage["autoPullLocal"] && JSON.parse(localStorage["autoPullLocal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" checked />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" />\n    </div>\n    `;
-}
-function autoPullExternal() {
-    // hack for putting attribute in element
-    if (localStorage["autoPullExternal"] && JSON.parse(localStorage["autoPullExternal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" checked />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" />\n    </div>\n    `;
-}
-function autoPullStoa() {
-    // hack for putting attribute in element
-    if (localStorage["autoPullStoa"] && !JSON.parse(localStorage["autoPullStoa"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" checked />\n    </div>\n    `;
-}
-function showBrackets() {
-    // hack for putting attribute in element
-    if (localStorage["showBrackets"] && JSON.parse(localStorage["showBrackets"])) return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" checked />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" />\n    </div>\n    `;
-}
-async function processRepoAdd(h, e) {
-    let response = await fetch(`${APIBASE}/repo`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": 'application/json'
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
-        },
-        body: JSON.stringify({
-            target: h.username,
-            url: h.repo,
-            format: "foam"
-        })
-    });
-    let d = await response.json();
-    alert(JSON.stringify(d));
-}
-const Settings = {
-    ranking: rawRanking,
-    autopulllocal: rawAutoPullLocal,
-    autopullexternal: rawAutoPullExternal,
-    autopullstoa: rawAutoPullStoa,
-    brackets: rawShowBrackets,
-    render: ({ ranking , autopulllocal , autopullexternal , autopullstoa , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPullLocal()}\n        ${autoPullExternal()}\n        ${autoPullStoa()}\n        ${showBrackets()}\n        <div>\n            <h1>Add garden to Agora</h1>\n            <div>This feature is <em>experimental</em>, which means it's probably broken :). If this fails, please send your repository information to signup@anagora.org. Thank you!</div>\n            <br>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n\n    `
-};
-_hybrids.define('settings-form', Settings);
-if (localStorage["ranking"]) {
-    let subnodes = $(".subnode");
-    let sortList = Array.prototype.sort.bind(subnodes);
-    sortList(function(a, b) {
-        if (rawRanking.indexOf(a.dataset.author) === -1) return 1;
-        if (rawRanking.indexOf(b.dataset.author) === -1) return -1;
-        if (rawRanking.indexOf(a.dataset.author) < rawRanking.indexOf(b.dataset.author)) return -1;
-        if (rawRanking.indexOf(a.dataset.author) > rawRanking.indexOf(b.dataset.author)) return 1;
-        return 0;
-    });
-    subnodes.remove();
-    subnodes.insertAfter($(".main-header"));
-}
-
-},{"hybrids":"b2sYk","jquery":"jP6KW","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"b2sYk":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "define", ()=>_defineJsDefault.default
-);
-parcelHelpers.export(exports, "property", ()=>_propertyJsDefault.default
-);
-parcelHelpers.export(exports, "parent", ()=>_parentJsDefault.default
-);
-parcelHelpers.export(exports, "children", ()=>_childrenJsDefault.default
-);
-parcelHelpers.export(exports, "render", ()=>_renderJsDefault.default
-);
-parcelHelpers.export(exports, "store", ()=>_storeJsDefault.default
-);
-parcelHelpers.export(exports, "html", ()=>_indexJs.html
-);
-parcelHelpers.export(exports, "svg", ()=>_indexJs.svg
-);
-parcelHelpers.export(exports, "dispatch", ()=>_utilsJs.dispatch
-);
-var _defineJs = require("./define.js");
-var _defineJsDefault = parcelHelpers.interopDefault(_defineJs);
-var _propertyJs = require("./property.js");
-var _propertyJsDefault = parcelHelpers.interopDefault(_propertyJs);
-var _parentJs = require("./parent.js");
-var _parentJsDefault = parcelHelpers.interopDefault(_parentJs);
-var _childrenJs = require("./children.js");
-var _childrenJsDefault = parcelHelpers.interopDefault(_childrenJs);
-var _renderJs = require("./render.js");
-var _renderJsDefault = parcelHelpers.interopDefault(_renderJs);
-var _storeJs = require("./store.js");
-var _storeJsDefault = parcelHelpers.interopDefault(_storeJs);
-var _indexJs = require("./template/index.js");
-var _utilsJs = require("./utils.js");
-
-},{"./define.js":"jxQ6G","./property.js":"lF2iN","./parent.js":"8m2KQ","./children.js":"2Ccac","./render.js":"fTRxc","./store.js":"8xBYF","./template/index.js":"h3R9d","./utils.js":"dZ5DI","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"jxQ6G":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "callbacksMap", ()=>callbacksMap
-);
-parcelHelpers.export(exports, "defineElement", ()=>defineElement
-);
-var _propertyJs = require("./property.js");
-var _propertyJsDefault = parcelHelpers.interopDefault(_propertyJs);
-var _renderJs = require("./render.js");
-var _renderJsDefault = parcelHelpers.interopDefault(_renderJs);
-var _cacheJs = require("./cache.js");
-var _utilsJs = require("./utils.js");
-const defaultMethod = (host, value)=>value
-;
-const callbacksMap = new WeakMap();
-const propsMap = new WeakMap();
-function translate(key, desc) {
-    const type = typeof desc;
-    let config;
-    if (type === "function") switch(key){
-        case "render":
-            config = _renderJsDefault.default(desc);
-            break;
-        case "content":
-            config = _renderJsDefault.default(desc, {
-                shadowRoot: false
-            });
-            break;
-        default:
-            config = {
-                get: desc
-            };
-    }
-    else if (type !== "object" || desc === null || Array.isArray(desc)) config = _propertyJsDefault.default(desc);
-    else config = {
-        get: desc.get || defaultMethod,
-        set: desc.set || !desc.get && defaultMethod || undefined,
-        connect: desc.connect,
-        observe: desc.observe
-    };
-    return config;
-}
-function compile(Hybrid, descriptors) {
-    Hybrid.hybrids = descriptors;
-    const callbacks = [];
-    const props = Object.keys(descriptors);
-    callbacksMap.set(Hybrid, callbacks);
-    propsMap.set(Hybrid, props);
-    props.forEach((key)=>{
-        const config = translate(key, descriptors[key]);
-        Object.defineProperty(Hybrid.prototype, key, {
-            get: function get() {
-                return _cacheJs.get(this, key, config.get);
-            },
-            set: config.set && function set(newValue) {
-                _cacheJs.set(this, key, config.set, newValue);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        if (config.observe) callbacks.unshift((host)=>_cacheJs.observe(host, key, config.get, config.observe)
-        );
-        if (config.connect) callbacks.push((host)=>config.connect(host, key, (options)=>{
-                _cacheJs.invalidate(host, key, {
-                    force: options && options.force === true
-                });
-            })
-        );
-    });
-}
-function walkInShadow(node, fn) {
-    fn(node);
-    Array.from(node.children).forEach((el)=>walkInShadow(el, fn)
-    );
-    if (node.shadowRoot) Array.from(node.shadowRoot.children).forEach((el)=>walkInShadow(el, fn)
-    );
-}
-const updateQueue = new Map();
-function update(Hybrid, lastHybrids) {
-    if (!updateQueue.size) _utilsJs.deferred.then(()=>{
-        walkInShadow(document.body, (node)=>{
-            if (updateQueue.has(node.constructor)) {
-                const prevHybrids = updateQueue.get(node.constructor);
-                const hybrids = node.constructor.hybrids;
-                node.disconnectedCallback();
-                Object.keys(hybrids).forEach((key)=>{
-                    const type = typeof hybrids[key];
-                    const clearValue = type !== "object" && type !== "function" && hybrids[key] !== prevHybrids[key];
-                    _cacheJs.invalidate(node, key, {
-                        clearValue
-                    });
-                });
-                node.connectedCallback();
-            }
-        });
-        updateQueue.clear();
-    });
-    updateQueue.set(Hybrid, lastHybrids);
-}
-const disconnects = new WeakMap();
-function defineElement(tagName, hybrids) {
-    const type = typeof hybrids;
-    if (!hybrids || type !== "object") throw TypeError(`Second argument must be an object: ${type}`);
-    if (tagName !== null) {
-        const CustomElement = window.customElements.get(tagName);
-        if (CustomElement) {
-            if (CustomElement.hybrids === hybrids) return CustomElement;
-            if (CustomElement.hybrids) {
-                Object.keys(CustomElement.hybrids).forEach((key)=>{
-                    delete CustomElement.prototype[key];
-                });
-                const lastHybrids = CustomElement.hybrids;
-                compile(CustomElement, hybrids);
-                update(CustomElement, lastHybrids);
-                return CustomElement;
-            }
-            return window.customElements.define(tagName, HTMLElement);
-        }
-    }
-    class Hybrid extends HTMLElement {
-        constructor(){
-            super();
-            const props = propsMap.get(Hybrid);
-            for(let index = 0; index < props.length; index += 1){
-                const key = props[index];
-                if (hasOwnProperty.call(this, key)) {
-                    const value = this[key];
-                    delete this[key];
-                    this[key] = value;
-                }
-            }
-            _cacheJs.suspend(this);
-        }
-        connectedCallback() {
-            _cacheJs.unsuspend(this);
-            const callbacks = callbacksMap.get(Hybrid);
-            const list = [];
-            for(let index1 = 0; index1 < callbacks.length; index1 += 1){
-                const cb = callbacks[index1](this);
-                if (cb) list.push(cb);
-            }
-            disconnects.set(this, list);
-        }
-        disconnectedCallback() {
-            const list = disconnects.get(this);
-            for(let index1 = 0; index1 < list.length; index1 += 1)list[index1]();
-            _cacheJs.suspend(this);
-        }
-    }
-    compile(Hybrid, hybrids);
-    if (tagName !== null) {
-        Object.defineProperty(Hybrid, "name", {
-            get: ()=>tagName
-        });
-        customElements.define(tagName, Hybrid);
-    }
-    return Hybrid;
-}
-function defineMap(elements) {
-    return Object.keys(elements).reduce((acc, key)=>{
-        const tagName = _utilsJs.pascalToDash(key);
-        acc[key] = defineElement(tagName, elements[key]);
-        return acc;
-    }, {
-    });
-}
-function define(...args) {
-    if (typeof args[0] === "object" && args[0] !== null) return defineMap(args[0]);
-    return defineElement(...args);
-}
-exports.default = define;
-
-},{"./property.js":"lF2iN","./render.js":"fTRxc","./cache.js":"1In8Z","./utils.js":"dZ5DI","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"lF2iN":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _utilsJs = require("./utils.js");
-const defaultTransform = (v)=>v
-;
-const objectTransform = (value)=>{
-    if (typeof value !== "object") throw TypeError(`Assigned value must be an object: ${typeof value}`);
-    return value && Object.freeze(value);
-};
-function property(value, connect) {
-    const attrs = new WeakMap();
-    const type = typeof value;
-    let transform = defaultTransform;
-    switch(type){
-        case "string":
-            transform = String;
-            break;
-        case "number":
-            transform = Number;
-            break;
-        case "boolean":
-            transform = Boolean;
-            break;
-        case "function":
-            transform = value;
-            value = transform();
-            break;
-        case "object":
-            if (value) Object.freeze(value);
-            transform = objectTransform;
-            break;
-        default:
-            break;
-    }
-    return {
-        get: (host, val = value)=>val
-        ,
-        set: (host, val, oldValue = value)=>transform(val, oldValue)
-        ,
-        connect: type !== "object" && type !== "undefined" ? (host, key, invalidate)=>{
-            if (!attrs.has(host)) {
-                const attrName = _utilsJs.camelToDash(key);
-                attrs.set(host, attrName);
-                if (host.hasAttribute(attrName)) {
-                    const attrValue = host.getAttribute(attrName);
-                    host[key] = attrValue === "" && transform === Boolean ? true : attrValue;
-                }
-            }
-            return connect && connect(host, key, invalidate);
-        } : connect,
-        observe: type !== "object" && type !== "undefined" && ((host, val)=>{
-            const attrName = attrs.get(host);
-            const attrValue = host.getAttribute(attrName);
-            const nextValue = val === true ? "" : val;
-            if (nextValue === attrValue) return;
-            if (val !== 0 && !val) host.removeAttribute(attrName);
-            else host.setAttribute(attrName, nextValue);
-        })
-    };
-}
-exports.default = property;
-
-},{"./utils.js":"dZ5DI","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"dZ5DI":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "camelToDash", ()=>camelToDash
-);
-parcelHelpers.export(exports, "pascalToDash", ()=>pascalToDash
-);
-parcelHelpers.export(exports, "dispatch", ()=>dispatch
-);
-parcelHelpers.export(exports, "shadyCSS", ()=>shadyCSS
-);
-parcelHelpers.export(exports, "stringifyElement", ()=>stringifyElement
-);
-parcelHelpers.export(exports, "deferred", ()=>deferred
-);
-parcelHelpers.export(exports, "storePointer", ()=>storePointer
-);
-const camelToDashMap = new Map();
-function camelToDash(str) {
-    let result = camelToDashMap.get(str);
-    if (result === undefined) {
-        result = str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-        camelToDashMap.set(str, result);
-    }
-    return result;
-}
-function pascalToDash(str) {
-    return camelToDash(str.replace(/((?!([A-Z]{2}|^))[A-Z])/g, "-$1"));
-}
-function dispatch(host, eventType, options = {
-}) {
-    return host.dispatchEvent(new CustomEvent(eventType, {
-        bubbles: false,
-        ...options
-    }));
-}
-function shadyCSS(fn, fallback) {
-    const shady = window.ShadyCSS;
-    /* istanbul ignore next */ if (shady && !shady.nativeShadow) return fn(shady);
-    return fallback;
-}
-function stringifyElement(target) {
-    return `<${String(target.tagName).toLowerCase()}>`;
-}
-const deferred = Promise.resolve();
-const storePointer = new WeakMap();
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"1xmLs":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, '__esModule', {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === 'default' || key === '__esModule') return;
-        // Skip duplicate re-exports when they have the same value.
-        if (key in dest && dest[key] === source[key]) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"fTRxc":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-function render(fn, customOptions = {
-}) {
-    if (typeof fn !== "function") throw TypeError(`The first argument must be a function: ${typeof fn}`);
-    const options = {
-        shadowRoot: true,
-        ...customOptions
-    };
-    const shadowRootInit = {
-        mode: "open"
-    };
-    if (typeof options.shadowRoot === "object") Object.assign(shadowRootInit, options.shadowRoot);
-    const getTarget = options.shadowRoot ? (host)=>host.shadowRoot || host.attachShadow(shadowRootInit)
-     : (host)=>host
-    ;
-    return {
-        get (host) {
-            const update = fn(host);
-            const target = getTarget(host);
-            return function flush() {
-                update(host, target);
-                return target;
-            };
-        },
-        observe (host, flush) {
-            flush();
-        }
-    };
-}
-exports.default = render;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"1In8Z":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getEntry", ()=>getEntry
-);
-parcelHelpers.export(exports, "getEntries", ()=>getEntries
-);
-parcelHelpers.export(exports, "get", ()=>get
-);
-parcelHelpers.export(exports, "set", ()=>set
-);
-parcelHelpers.export(exports, "invalidate", ()=>invalidate
-);
-parcelHelpers.export(exports, "invalidateAll", ()=>invalidateAll
-);
-parcelHelpers.export(exports, "observe", ()=>observe
-);
-parcelHelpers.export(exports, "suspend", ()=>suspend
-);
-parcelHelpers.export(exports, "unsuspend", ()=>unsuspend
-);
-var _emitterJs = require("./emitter.js");
-const entries = new WeakMap();
-const suspense = new WeakSet();
-const values = new WeakMap();
-function getEntry(target, key) {
-    let targetMap = entries.get(target);
-    if (!targetMap) {
-        targetMap = new Map();
-        entries.set(target, targetMap);
-    }
-    let entry = targetMap.get(key);
-    if (!entry) {
-        entry = {
-            target,
-            key,
-            value: undefined,
-            contexts: new Set(),
-            deps: new Set(),
-            state: 0,
-            depState: 0,
-            resolved: false
-        };
-        targetMap.set(key, entry);
-    }
-    return entry;
-}
-function getEntries(target) {
-    const result = [];
-    const targetMap = entries.get(target);
-    if (targetMap) targetMap.forEach((entry)=>{
-        result.push(entry);
-    });
-    return result;
-}
-function cleanContexts(entry) {
-    entry.contexts.forEach((contextEntry)=>{
-        if (suspense.has(contextEntry.target)) {
-            contextEntry.depState = 0;
-            contextEntry.resolved = false;
-            contextEntry.value = undefined;
-            values.delete(contextEntry);
-            entry.contexts.delete(contextEntry);
-        }
-    });
-}
-function dispatchDeep(entry) {
-    entry.resolved = false;
-    if (!suspense.has(entry.target)) _emitterJs.dispatch(entry);
-    cleanContexts(entry);
-    entry.contexts.forEach(dispatchDeep);
-}
-let context = null;
-const contexts = new Set();
-function get(target, key, getter, validate) {
-    const entry = getEntry(target, key);
-    if (context && !suspense.has(context.target)) {
-        context.deps.add(entry);
-        entry.contexts.add(context);
-    }
-    if (!suspense.has(target)) {
-        cleanContexts(entry);
-        if (entry.resolved && (!validate || validate && validate(entry.value))) return entry.value;
-        if (entry.depState > entry.state && !validate) {
-            let depState = entry.state;
-            for (const depEntry of entry.deps){
-                // eslint-disable-next-line no-unused-expressions
-                depEntry.target[depEntry.key];
-                if (!depEntry.resolved) {
-                    depState = false;
-                    break;
-                }
-                depState += depEntry.state;
-            }
-            if (depState && depState === entry.depState) {
-                entry.resolved = true;
-                return entry.value;
-            }
-        }
-    }
-    const lastContext = context;
-    try {
-        if (contexts.has(entry)) throw Error(`Circular get invocation is forbidden: '${key}'`);
-        entry.deps.forEach((depEntry)=>{
-            depEntry.contexts.delete(entry);
-        });
-        entry.deps.clear();
-        context = entry;
-        contexts.add(entry);
-        const nextValue = getter(target, entry.value);
-        context = lastContext;
-        if (nextValue !== entry.value) {
-            entry.value = nextValue;
-            entry.state += 1;
-        }
-        let depState = entry.state;
-        entry.deps.forEach((depEntry)=>{
-            depState += depEntry.state;
-        });
-        entry.depState = depState;
-        entry.resolved = !suspense.has(target);
-        contexts.delete(entry);
-    } catch (e) {
-        context = lastContext;
-        contexts.delete(entry);
-        entry.resolved = false;
-        if (context && !suspense.has(context)) {
-            context.deps.delete(entry);
-            entry.contexts.delete(context);
-        }
-        throw e;
-    }
-    return entry.value;
-}
-function set(target, key, setter, value) {
-    const entry = getEntry(target, key);
-    const newValue = setter(target, value, entry.value);
-    if (newValue !== entry.value) {
-        entry.value = newValue;
-        entry.state += 1;
-        entry.depState = 0;
-        dispatchDeep(entry);
-    }
-}
-const gcList = new Set();
-function deleteEntry(entry) {
-    if (!gcList.size) requestAnimationFrame(()=>{
-        gcList.forEach((e)=>{
-            if (e.contexts.size === 0) {
-                e.deps.forEach((depEntry)=>{
-                    depEntry.contexts.delete(e);
-                });
-                const targetMap = entries.get(e.target);
-                targetMap.delete(e.key);
-            }
-        });
-        gcList.clear();
-    });
-    gcList.add(entry);
-}
-function invalidateEntry(entry, options) {
-    entry.depState = 0;
-    dispatchDeep(entry);
-    if (options.clearValue) {
-        entry.value = undefined;
-        values.delete(entry);
-    }
-    if (options.deleteEntry) deleteEntry(entry);
-    if (options.force) entry.state += 1;
-}
-function invalidate(target, key, options = {
-}) {
-    if (contexts.size) throw Error(`Invalidating property in chain of get calls is forbidden: '${key}'`);
-    const entry = getEntry(target, key);
-    invalidateEntry(entry, options);
-}
-function invalidateAll(target, options = {
-}) {
-    if (contexts.size) throw Error("Invalidating all properties in chain of get calls is forbidden");
-    const targetMap = entries.get(target);
-    if (targetMap) targetMap.forEach((entry)=>{
-        invalidateEntry(entry, options);
-    });
-}
-function observe(target, key, getter, fn) {
-    const entry = getEntry(target, key);
-    return _emitterJs.subscribe(entry, ()=>{
-        const lastValue = values.get(entry);
-        const value = get(target, key, getter);
-        if (value !== lastValue) {
-            fn(target, value, lastValue);
-            values.set(entry, value);
-        }
-    });
-}
-function suspend(target) {
-    suspense.add(target);
-}
-function unsuspend(target) {
-    suspense.delete(target);
-}
-
-},{"./emitter.js":"1BAC8","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"1BAC8":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "dispatch", ()=>dispatch
-);
-parcelHelpers.export(exports, "subscribe", ()=>subscribe
-);
-const callbacks = new WeakMap();
-const queue = new Set();
-function execute() {
-    try {
-        queue.forEach((target)=>{
-            try {
-                callbacks.get(target)();
-                queue.delete(target);
-            } catch (e) {
-                queue.delete(target);
-                throw e;
-            }
-        });
-    } catch (e) {
-        if (queue.size) execute();
-        throw e;
-    }
-}
-function dispatch(target) {
-    if (callbacks.has(target)) {
-        if (!queue.size) requestAnimationFrame(execute);
-        queue.add(target);
-    }
-}
-function subscribe(target, cb) {
-    callbacks.set(target, cb);
-    dispatch(target);
-    return function unsubscribe() {
-        queue.delete(target);
-        callbacks.delete(target);
-    };
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"8m2KQ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-function walk(node, fn) {
-    let parentElement = node.parentElement || node.parentNode.host;
-    while(parentElement){
-        const hybrids = parentElement.constructor.hybrids;
-        if (hybrids && fn(hybrids)) return parentElement;
-        parentElement = parentElement.parentElement || parentElement.parentNode && parentElement.parentNode.host;
-    }
-    return parentElement || null;
-}
-function parent(hybridsOrFn) {
-    const fn = typeof hybridsOrFn === "function" ? hybridsOrFn : (hybrids)=>hybrids === hybridsOrFn
-    ;
-    return {
-        get: (host)=>walk(host, fn)
-        ,
-        connect (host, key, invalidate) {
-            const target = host[key];
-            if (target) return invalidate;
-            return false;
-        }
-    };
-}
-exports.default = parent;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"2Ccac":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-function walk(node, fn, options, items = []) {
-    Array.from(node.children).forEach((child)=>{
-        const hybrids = child.constructor.hybrids;
-        if (hybrids && fn(hybrids)) {
-            items.push(child);
-            if (options.deep && options.nested) walk(child, fn, options, items);
-        } else if (options.deep) walk(child, fn, options, items);
-    });
-    return items;
-}
-function children(hybridsOrFn, options = {
-    deep: false,
-    nested: false
-}) {
-    const fn = typeof hybridsOrFn === "function" ? hybridsOrFn : (hybrids)=>hybrids === hybridsOrFn
-    ;
-    return {
-        get (host) {
-            return walk(host, fn, options);
-        },
-        connect (host, key, invalidate) {
-            const observer = new MutationObserver(invalidate);
-            observer.observe(host, {
-                childList: true,
-                subtree: !!options.deep
-            });
-            return ()=>{
-                observer.disconnect();
-            };
-        }
-    };
-}
-exports.default = children;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"8xBYF":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "connect", ()=>connect
-);
-/* eslint-disable no-use-before-define */ var _cacheJs = require("./cache.js");
-var _utilsJs = require("./utils.js");
-const connect = `__store__connect__${Date.now()}__`;
-const definitions = new WeakMap();
-const stales = new WeakMap();
-const refs = new WeakSet();
-function resolve(config, model, lastModel) {
-    if (lastModel) {
-        definitions.set(lastModel, null);
-        stales.set(lastModel, model);
-    }
-    definitions.set(model, config);
-    return model;
-}
-function shallowEqual(target, compare) {
-    return Object.keys(target).every((key)=>target[key] === compare[key]
-    );
-}
-function resolveWithInvalidate(config, model, lastModel) {
-    resolve(config, model, lastModel);
-    if (config.invalidate && (!lastModel || error(model) || !config.isInstance(lastModel) || !shallowEqual(model, lastModel))) config.invalidate();
-    return model;
-}
-function syncCache(config, id, model, invalidate = true) {
-    _cacheJs.set(config, id, invalidate ? resolveWithInvalidate : resolve, model, true);
-    return model;
-}
-let currentTimestamp;
-function getCurrentTimestamp() {
-    if (!currentTimestamp) {
-        currentTimestamp = Date.now();
-        requestAnimationFrame(()=>{
-            currentTimestamp = undefined;
-        });
-    }
-    return currentTimestamp;
-}
-const timestamps = new WeakMap();
-function getTimestamp(model) {
-    let timestamp = timestamps.get(model);
-    if (!timestamp) {
-        timestamp = getCurrentTimestamp();
-        timestamps.set(model, timestamp);
-    }
-    return timestamp;
-}
-function setTimestamp(model) {
-    timestamps.set(model, getCurrentTimestamp());
-    return model;
-}
-function setupStorage(storage) {
-    if (typeof storage === "function") storage = {
-        get: storage
-    };
-    const result = {
-        cache: true,
-        ...storage
-    };
-    if (result.cache === false || result.cache === 0) result.validate = (cachedModel)=>!cachedModel || getTimestamp(cachedModel) === getCurrentTimestamp()
-    ;
-    else if (typeof result.cache === "number") result.validate = (cachedModel)=>!cachedModel || getTimestamp(cachedModel) + result.cache > getCurrentTimestamp()
-    ;
-    else if (result.cache !== true) throw TypeError(`Storage cache property must be a boolean or number: ${typeof result.cache}`);
-    if (!result.get) result.get = ()=>{
-    };
-    return Object.freeze(result);
-}
-function memoryStorage(config) {
-    return {
-        get: config.enumerable ? ()=>{
-        } : ()=>config.create({
-            })
-        ,
-        set: config.enumerable ? (id, values)=>values
-         : (id, values)=>values === null ? {
-                id
-            } : values
-        ,
-        list: config.enumerable && function list(id) {
-            if (id) throw TypeError(`Memory-based model definition does not support id`);
-            return _cacheJs.getEntries(config).reduce((acc, { key , value  })=>{
-                if (key === config) return acc;
-                if (value && !error(value)) acc.push(key);
-                return acc;
-            }, []);
-        }
-    };
-}
-function bootstrap(Model, nested) {
-    if (Array.isArray(Model)) return setupListModel(Model[0], nested);
-    return setupModel(Model, nested);
-}
-function getTypeConstructor(type, key) {
-    switch(type){
-        case "string":
-            return (v)=>v !== undefined && v !== null ? String(v) : ""
-            ;
-        case "number":
-            return Number;
-        case "boolean":
-            return Boolean;
-        default:
-            throw TypeError(`The value of the '${key}' must be a string, number or boolean: ${type}`);
-    }
-}
-const stateSetter = (h, v)=>v
-;
-function setModelState(model, state, value = model) {
-    _cacheJs.set(model, "state", stateSetter, {
-        state,
-        value
-    }, true);
-    return model;
-}
-const stateGetter = (model, v = {
-    state: "ready",
-    value: model
-})=>v
-;
-function getModelState(model) {
-    return _cacheJs.get(model, "state", stateGetter);
-}
-// UUID v4 generator thanks to https://gist.github.com/jed/982883
-function uuid(temp) {
-    return temp ? (temp ^ Math.random() * 16 >> temp / 4).toString(16) : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, uuid);
-}
-function ref(fn) {
-    if (typeof fn !== "function") throw TypeError(`The first argument must be a funtion: ${typeof fn}`);
-    refs.add(fn);
-    return fn;
-}
-const validationMap = new WeakMap();
-function resolveKey(Model, key, config) {
-    let defaultValue = config.model[key];
-    if (refs.has(defaultValue)) defaultValue = defaultValue();
-    let type = typeof defaultValue;
-    if (defaultValue instanceof String || defaultValue instanceof Number) {
-        const check = validationMap.get(defaultValue);
-        if (!check) throw TypeError(stringifyModel(Model, `You must use primitive ${typeof defaultValue.valueOf()} value for '${key}' property of the provided model definition`));
-        defaultValue = defaultValue.valueOf();
-        type = typeof defaultValue;
-        config.checks.set(key, check);
-    }
-    return {
-        defaultValue,
-        type
-    };
-}
-function stringifyModel(Model, msg) {
-    return `${msg}\n\nModel = ${JSON.stringify(Model, (key, value)=>{
-        if (key === connect) return undefined;
-        return value;
-    }, 2)}\n`;
-}
-const resolvedPromise = Promise.resolve();
-const configs = new WeakMap();
-function setupModel(Model, nested) {
-    if (typeof Model !== "object" || Model === null) throw TypeError(`Model definition must be an object: ${typeof Model}`);
-    let config = configs.get(Model);
-    if (config && !config.enumerable) {
-        if (nested && !config.nested) throw TypeError(stringifyModel(Model, "Provided model definition for nested object already used as a root definition"));
-        if (!nested && config.nested) throw TypeError(stringifyModel(Model, "Nested model definition cannot be used outside of the parent definition"));
-    }
-    if (!config) {
-        const storage = Model[connect];
-        if (typeof storage === "object") Object.freeze(storage);
-        let invalidatePromise;
-        const enumerable = hasOwnProperty.call(Model, "id");
-        const checks = new Map();
-        const proto = {
-            toString () {
-                return this.id || undefined;
-            }
-        };
-        const placeholder = Object.create(proto);
-        config = {
-            model: Model,
-            external: !!storage,
-            enumerable,
-            nested: !enumerable && nested,
-            placeholder: (id)=>{
-                const model = Object.create(placeholder);
-                definitions.set(model, config);
-                if (enumerable) model.id = id;
-                return Object.freeze(model);
-            },
-            isInstance: (model)=>Object.getPrototypeOf(model) !== placeholder
-            ,
-            invalidate: ()=>{
-                if (!invalidatePromise) invalidatePromise = resolvedPromise.then(()=>{
-                    _cacheJs.invalidate(config, config, {
-                        clearValue: true
-                    });
-                    invalidatePromise = null;
-                });
-            },
-            checks
-        };
-        configs.set(Model, config);
-        config.storage = setupStorage(storage || memoryStorage(config, Model));
-        const transform = Object.keys(Object.freeze(Model)).filter((key)=>key !== connect
-        ).map((key)=>{
-            if (key !== "id") Object.defineProperty(placeholder, key, {
-                get () {
-                    throw Error(`Model instance in ${getModelState(this).state} state - use store.pending(), store.error(), or store.ready() guards`);
-                },
-                enumerable: true
-            });
-            if (key === "id") {
-                if (Model[key] !== true) throw TypeError("The 'id' property in model definition must be set to 'true' or not be defined");
-                return (model, data, lastModel)=>{
-                    let id;
-                    if (hasOwnProperty.call(data, "id")) id = stringifyId(data.id);
-                    else if (lastModel) id = lastModel.id;
-                    else id = uuid();
-                    Object.defineProperty(model, "id", {
-                        value: id,
-                        enumerable: true
-                    });
-                };
-            }
-            const { defaultValue , type  } = resolveKey(Model, key, config);
-            switch(type){
-                case "function":
-                    return (model)=>{
-                        let resolved;
-                        let value;
-                        Object.defineProperty(model, key, {
-                            get () {
-                                if (!resolved) {
-                                    value = defaultValue(this);
-                                    resolved = true;
-                                }
-                                return value;
-                            }
-                        });
-                    };
-                case "object":
-                    {
-                        if (defaultValue === null) throw TypeError(`The value for the '${key}' must be an object instance: ${defaultValue}`);
-                        const isArray = Array.isArray(defaultValue);
-                        if (isArray) {
-                            const nestedType = typeof defaultValue[0];
-                            if (nestedType !== "object") {
-                                const Constructor = getTypeConstructor(nestedType, key);
-                                const defaultArray = Object.freeze(defaultValue.map(Constructor));
-                                return (model, data, lastModel)=>{
-                                    if (hasOwnProperty.call(data, key)) {
-                                        if (!Array.isArray(data[key])) throw TypeError(`The value for '${key}' property must be an array: ${typeof data[key]}`);
-                                        model[key] = Object.freeze(data[key].map(Constructor));
-                                    } else if (lastModel && hasOwnProperty.call(lastModel, key)) model[key] = lastModel[key];
-                                    else model[key] = defaultArray;
-                                };
-                            }
-                            const localConfig = bootstrap(defaultValue, true);
-                            if (localConfig.enumerable && defaultValue[1]) {
-                                const nestedOptions = defaultValue[1];
-                                if (typeof nestedOptions !== "object") throw TypeError(`Options for '${key}' array property must be an object instance: ${typeof nestedOptions}`);
-                                if (nestedOptions.loose) {
-                                    config.contexts = config.contexts || new Set();
-                                    config.contexts.add(bootstrap(defaultValue[0]));
-                                }
-                            }
-                            return (model, data, lastModel)=>{
-                                if (hasOwnProperty.call(data, key)) {
-                                    if (!Array.isArray(data[key])) throw TypeError(`The value for '${key}' property must be an array: ${typeof data[key]}`);
-                                    model[key] = localConfig.create(data[key], true);
-                                } else model[key] = lastModel && lastModel[key] || !localConfig.enumerable && localConfig.create(defaultValue) || [];
-                            };
-                        }
-                        const nestedConfig = bootstrap(defaultValue, true);
-                        if (nestedConfig.enumerable || nestedConfig.external) return (model, data, lastModel)=>{
-                            let resultModel;
-                            if (hasOwnProperty.call(data, key)) {
-                                const nestedData = data[key];
-                                if (typeof nestedData !== "object" || nestedData === null) {
-                                    if (nestedData !== undefined && nestedData !== null) resultModel = {
-                                        id: nestedData
-                                    };
-                                } else {
-                                    const dataConfig = definitions.get(nestedData);
-                                    if (dataConfig) {
-                                        if (dataConfig.model !== defaultValue) throw TypeError("Model instance must match the definition");
-                                        resultModel = nestedData;
-                                    } else {
-                                        resultModel = nestedConfig.create(nestedData);
-                                        syncCache(nestedConfig, resultModel.id, resultModel);
-                                    }
-                                }
-                            } else resultModel = lastModel && lastModel[key];
-                            if (resultModel) {
-                                const id = resultModel.id;
-                                Object.defineProperty(model, key, {
-                                    get () {
-                                        return _cacheJs.get(this, key, ()=>get(defaultValue, id)
-                                        );
-                                    },
-                                    enumerable: true
-                                });
-                            } else model[key] = undefined;
-                        };
-                        return (model, data, lastModel)=>{
-                            if (hasOwnProperty.call(data, key)) model[key] = nestedConfig.create(data[key], lastModel && lastModel[key]);
-                            else model[key] = lastModel ? lastModel[key] : nestedConfig.create({
-                            });
-                        };
-                    }
-                // eslint-disable-next-line no-fallthrough
-                default:
-                    {
-                        const Constructor = getTypeConstructor(type, key);
-                        return (model, data, lastModel)=>{
-                            if (hasOwnProperty.call(data, key)) model[key] = Constructor(data[key]);
-                            else if (lastModel && hasOwnProperty.call(lastModel, key)) model[key] = lastModel[key];
-                            else model[key] = defaultValue;
-                        };
-                    }
-            }
-        });
-        config.create = function create(data, lastModel) {
-            if (data === null) return null;
-            if (typeof data !== "object") throw TypeError(`Model values must be an object instance: ${data}`);
-            const model = transform.reduce((acc, fn)=>{
-                fn(acc, data, lastModel);
-                return acc;
-            }, Object.create(proto));
-            definitions.set(model, config);
-            _utilsJs.storePointer.set(model, store);
-            return Object.freeze(model);
-        };
-        Object.freeze(placeholder);
-        Object.freeze(config);
-    }
-    return config;
-}
-const listPlaceholderPrototype = Object.getOwnPropertyNames(Array.prototype).reduce((acc, key)=>{
-    if (key === "length" || key === "constructor") return acc;
-    Object.defineProperty(acc, key, {
-        get () {
-            throw Error(`Model list instance in ${getModelState(this).state} state - use store.pending(), store.error(), or store.ready() guards`);
-        }
-    });
-    return acc;
-}, []);
-const lists = new WeakMap();
-function setupListModel(Model, nested) {
-    let config = lists.get(Model);
-    if (config && !config.enumerable) {
-        if (!nested && config.nested) throw TypeError(stringifyModel(Model, "Nested model definition cannot be used outside of the parent definition"));
-    }
-    if (!config) {
-        const modelConfig = setupModel(Model);
-        const contexts = new Set();
-        contexts.add(modelConfig);
-        if (!nested) {
-            if (!modelConfig.enumerable) throw TypeError(stringifyModel(Model, "Provided model definition does not support listing (it must be enumerable - set `id` property to `true`)"));
-            if (!modelConfig.storage.list) throw TypeError(stringifyModel(Model, "Provided model definition storage does not support `list` action"));
-        }
-        nested = !modelConfig.enumerable && nested;
-        config = {
-            list: true,
-            nested,
-            model: Model,
-            contexts,
-            enumerable: modelConfig.enumerable,
-            storage: setupStorage({
-                cache: modelConfig.storage.cache,
-                get: !nested && ((id)=>modelConfig.storage.list(id)
-                )
-            }),
-            placeholder: ()=>{
-                const model = Object.create(listPlaceholderPrototype);
-                definitions.set(model, config);
-                return Object.freeze(model);
-            },
-            isInstance: (model)=>Object.getPrototypeOf(model) !== listPlaceholderPrototype
-            ,
-            create (items, invalidate = false) {
-                const result = items.reduce((acc, data)=>{
-                    let id = data;
-                    if (typeof data === "object" && data !== null) {
-                        id = data.id;
-                        const dataConfig = definitions.get(data);
-                        let model = data;
-                        if (dataConfig) {
-                            if (dataConfig.model !== Model) throw TypeError("Model instance must match the definition");
-                        } else {
-                            model = modelConfig.create(data);
-                            if (modelConfig.enumerable) {
-                                id = model.id;
-                                syncCache(modelConfig, id, model, invalidate);
-                            }
-                        }
-                        if (!modelConfig.enumerable) acc.push(model);
-                    } else if (!modelConfig.enumerable) throw TypeError(`Model instance must be an object: ${typeof data}`);
-                    if (modelConfig.enumerable) {
-                        const key = acc.length;
-                        Object.defineProperty(acc, key, {
-                            get () {
-                                return _cacheJs.get(this, key, ()=>get(Model, id)
-                                );
-                            },
-                            enumerable: true
-                        });
-                    }
-                    return acc;
-                }, []);
-                definitions.set(result, config);
-                _utilsJs.storePointer.set(result, store);
-                return Object.freeze(result);
-            }
-        };
-        lists.set(Model, Object.freeze(config));
-    }
-    return config;
-}
-function resolveTimestamp(h, v) {
-    return v || getCurrentTimestamp();
-}
-function stringifyId(id) {
-    switch(typeof id){
-        case "object":
-            return JSON.stringify(Object.keys(id).sort().reduce((acc, key)=>{
-                if (typeof id[key] === "object" && id[key] !== null) throw TypeError(`You must use primitive value for '${key}' key: ${typeof id[key]}`);
-                acc[key] = id[key];
-                return acc;
-            }, {
-            }));
-        case "undefined":
-            return undefined;
-        default:
-            return String(id);
-    }
-}
-function mapError(model, err, suppressLog) {
-    if (suppressLog !== false) // eslint-disable-next-line no-console
-    console.error(err);
-    return setModelState(model, "error", err);
-}
-function get(Model, id) {
-    const config = bootstrap(Model);
-    let stringId;
-    if (config.enumerable) {
-        stringId = stringifyId(id);
-        if (!config.list && !stringId) throw TypeError(stringifyModel(Model, `Provided model definition requires non-empty id: "${stringId}"`));
-    } else if (id !== undefined) throw TypeError(stringifyModel(Model, "Provided model definition does not support id"));
-    return _cacheJs.get(config, stringId, (h, cachedModel)=>{
-        if (cachedModel && pending(cachedModel)) return cachedModel;
-        let validContexts = true;
-        if (config.contexts) config.contexts.forEach((context)=>{
-            if (_cacheJs.get(context, context, resolveTimestamp) === getCurrentTimestamp()) validContexts = false;
-        });
-        if (validContexts && cachedModel && (config.storage.cache === true || config.storage.validate(cachedModel))) return cachedModel;
-        try {
-            let result = config.storage.get(id);
-            if (typeof result !== "object" || result === null) throw Error(stringifyModel(Model, `Model instance ${stringId !== undefined ? `with '${stringId}' id ` : ""}does not exist`));
-            if (result instanceof Promise) {
-                result = result.then((data)=>{
-                    if (typeof data !== "object" || data === null) throw Error(stringifyModel(Model, `Model instance ${stringId !== undefined ? ` with '${stringId}' id ` : ""}does not exist`));
-                    return syncCache(config, stringId, config.create(!config.list && stringId ? {
-                        ...data,
-                        id: stringId
-                    } : data));
-                }).catch((e)=>syncCache(config, stringId, mapError(cachedModel || config.placeholder(stringId), e))
-                );
-                return setModelState(cachedModel || config.placeholder(stringId), "pending", result);
-            }
-            if (cachedModel) definitions.set(cachedModel, null);
-            return setTimestamp(config.create(!config.list && stringId ? {
-                ...result,
-                id: stringId
-            } : result));
-        } catch (e) {
-            return setTimestamp(mapError(cachedModel || config.placeholder(stringId), e));
-        }
-    }, config.storage.validate);
-}
-const draftMap = new WeakMap();
-function getValidationError(errors) {
-    const keys = Object.keys(errors);
-    const e = Error(`Model validation failed (${keys.join(", ")}) - read the details from 'errors' property`);
-    e.errors = errors;
-    return e;
-}
-function set(model, values = {
-}) {
-    let config = definitions.get(model);
-    if (config === null) {
-        model = stales.get(model);
-        config = definitions.get(model);
-    }
-    if (config === null) throw Error("Provided model instance has expired. Haven't you used stale value?");
-    const isInstance = !!config;
-    if (!config) config = bootstrap(model);
-    const isDraft = draftMap.get(config);
-    if (config.nested) throw stringifyModel(config.model, TypeError("Setting provided nested model instance is not supported, use the root model instance"));
-    if (config.list) throw TypeError("Listing model definition does not support 'set' method");
-    if (!config.storage.set) throw stringifyModel(config.model, TypeError("Provided model definition storage does not support 'set' method"));
-    if (isInstance) {
-        const promise = pending(model);
-        if (promise) return promise.then((m)=>set(m, values)
-        );
-    }
-    let id;
-    const setState = (state, value)=>{
-        if (isInstance) setModelState(model, state, value);
-        else {
-            const entry = _cacheJs.getEntry(config, id);
-            if (entry.value) setModelState(entry.value, state, value);
-        }
-    };
-    try {
-        if (config.enumerable && !isInstance && (!values || typeof values !== "object")) throw TypeError(`Values must be an object instance: ${values}`);
-        if (!isDraft && values && hasOwnProperty.call(values, "id")) throw TypeError(`Values must not contain 'id' property: ${values.id}`);
-        const localModel = config.create(values, isInstance ? model : undefined);
-        const keys = values ? Object.keys(values) : [];
-        const errors = {
-        };
-        const lastError = isInstance && isDraft && error(model);
-        let hasErrors = false;
-        if (localModel) {
-            config.checks.forEach((fn, key)=>{
-                if (keys.indexOf(key) === -1) {
-                    if (lastError && lastError.errors && lastError.errors[key]) {
-                        hasErrors = true;
-                        errors[key] = lastError.errors[key];
-                    }
-                    // eslint-disable-next-line eqeqeq
-                    if (isDraft && localModel[key] == config.model[key]) return;
-                }
-                let checkResult;
-                try {
-                    checkResult = fn(localModel[key], key, localModel);
-                } catch (e) {
-                    checkResult = e;
-                }
-                if (checkResult !== true && checkResult !== undefined) {
-                    hasErrors = true;
-                    errors[key] = checkResult || true;
-                }
-            });
-            if (hasErrors && !isDraft) throw getValidationError(errors);
-        }
-        id = localModel ? localModel.id : model.id;
-        const result = Promise.resolve(config.storage.set(isInstance ? id : undefined, localModel, keys)).then((data)=>{
-            const resultModel = data === localModel ? localModel : config.create(data);
-            if (isInstance && resultModel && id !== resultModel.id) throw TypeError(`Local and storage data must have the same id: '${id}', '${resultModel.id}'`);
-            let resultId = resultModel ? resultModel.id : id;
-            if (hasErrors && isDraft) setModelState(resultModel, "error", getValidationError(errors));
-            if (isDraft && isInstance && hasOwnProperty.call(data, "id") && (!localModel || localModel.id !== model.id)) resultId = model.id;
-            return syncCache(config, resultId, resultModel || mapError(config.placeholder(resultId), Error(`Model instance ${id !== undefined ? `with '${id}' id` : ""}does not exist`), false), true);
-        }).catch((err)=>{
-            err = err !== undefined ? err : Error("Undefined error");
-            setState("error", err);
-            throw err;
-        });
-        setState("pending", result);
-        return result;
-    } catch (e) {
-        setState("error", e);
-        return Promise.reject(e);
-    }
-}
-function sync(model, values) {
-    if (typeof values !== "object") throw TypeError(`Values must be an object instance: ${values}`);
-    let config = definitions.get(model);
-    if (config === null) {
-        model = stales.get(model);
-        config = definitions.get(model);
-    }
-    if (config === null) throw Error("Provided model instance has expired. Haven't you used stale value?");
-    if (config === undefined) {
-        if (!values) throw TypeError("Values must be defined for usage with model definition");
-        config = bootstrap(model);
-        model = undefined;
-    } else if (values && hasOwnProperty.call(values, "id")) throw TypeError(`Values must not contain 'id' property: ${values.id}`);
-    if (config.list) throw TypeError("Listing model definition is not supported in sync method");
-    const resultModel = config.create(values, model);
-    const id = values ? resultModel.id : model.id;
-    return syncCache(config, id, resultModel || mapError(config.placeholder(id), Error(`Model instance ${id !== undefined ? ` with '${id}' id` : ""}does not exist`), false));
-}
-function clear(model, clearValue = true) {
-    if (typeof model !== "object" || model === null) throw TypeError(`The first argument must be a model instance or a model definition: ${model}`);
-    const config = definitions.get(model);
-    if (config === null) throw Error("Provided model instance has expired. Haven't you used stale value from the outer scope?");
-    if (config) _cacheJs.invalidate(config, model.id, {
-        clearValue,
-        deleteEntry: true
-    });
-    else {
-        if (!configs.get(model) && !lists.get(model[0])) throw Error("Model definition must be used before - passed argument is probably not a model definition");
-        _cacheJs.invalidateAll(bootstrap(model), {
-            clearValue,
-            deleteEntry: true
-        });
-    }
-}
-function pending(...models) {
-    let isPending = false;
-    const result = models.map((model)=>{
-        try {
-            const { state , value  } = getModelState(model);
-            if (state === "pending") {
-                isPending = true;
-                return value;
-            }
-        } catch (e) {
-        } // eslint-disable-line no-empty
-        return Promise.resolve(model);
-    });
-    return isPending && (models.length > 1 ? Promise.all(result) : result[0]);
-}
-function resolveToLatest(model) {
-    model = stales.get(model) || model;
-    const promise = pending(model);
-    if (!promise) {
-        const e = error(model);
-        return e ? Promise.reject(e) : Promise.resolve(model);
-    }
-    return promise.then((m)=>resolveToLatest(m)
-    );
-}
-function error(model, property) {
-    if (model === null || typeof model !== "object") return false;
-    const { state , value  } = getModelState(model);
-    const result = state === "error" && value;
-    if (result && property !== undefined) return result.errors && result.errors[property];
-    return result;
-}
-function ready(...models) {
-    return models.length > 0 && models.every((model)=>{
-        const config = definitions.get(model);
-        return !!(config && config.isInstance(model));
-    });
-}
-function mapValueWithState(lastValue, nextValue) {
-    const result = Object.freeze(Object.keys(lastValue).reduce((acc, key)=>{
-        Object.defineProperty(acc, key, {
-            get: ()=>lastValue[key]
-            ,
-            enumerable: true
-        });
-        return acc;
-    }, Object.create(lastValue)));
-    definitions.set(result, definitions.get(lastValue));
-    const { state , value  } = getModelState(nextValue);
-    return setModelState(result, state, value);
-}
-function getValuesFromModel(model, values) {
-    model = {
-        ...model,
-        ...values
-    };
-    delete model.id;
-    return model;
-}
-function submit(draft, values = {
-}) {
-    const config = definitions.get(draft);
-    if (!config || !draftMap.has(config)) throw TypeError(`Provided model instance is not a draft: ${draft}`);
-    if (pending(draft)) throw Error("Model draft in pending state");
-    const options = draftMap.get(config);
-    let result;
-    if (!options.id) result = set(options.model, getValuesFromModel(draft, values));
-    else {
-        const model = get(options.model, draft.id);
-        result = Promise.resolve(pending(model) || model).then((resolvedModel)=>set(resolvedModel, getValuesFromModel(draft, values))
-        );
-    }
-    result = result.then((resultModel)=>{
-        setModelState(draft, "ready");
-        return set(draft, resultModel).then(()=>resultModel
-        );
-    }).catch((e)=>{
-        setModelState(draft, "error", e);
-        return Promise.reject(e);
-    });
-    setModelState(draft, "pending", result);
-    return result;
-}
-function required(value, key) {
-    return !!value || `${key} is required`;
-}
-function valueWithValidation(defaultValue, validate = required, errorMessage = "") {
-    switch(typeof defaultValue){
-        case "string":
-            // eslint-disable-next-line no-new-wrappers
-            defaultValue = new String(defaultValue);
-            break;
-        case "number":
-            // eslint-disable-next-line no-new-wrappers
-            defaultValue = new Number(defaultValue);
-            break;
-        default:
-            throw TypeError(`Default value must be a string or a number: ${typeof defaultValue}`);
-    }
-    let fn;
-    if (validate instanceof RegExp) fn = (value)=>validate.test(value) || errorMessage
-    ;
-    else if (typeof validate === "function") fn = (...args)=>{
-        const result = validate(...args);
-        return result !== true && result !== undefined ? result || errorMessage : result;
-    };
-    else throw TypeError(`The second argument must be a RegExp instance or a function: ${typeof validate}`);
-    validationMap.set(defaultValue, fn);
-    return defaultValue;
-}
-function store(Model, options = {
-}) {
-    const config = bootstrap(Model);
-    if (typeof options !== "object") options = {
-        id: options
-    };
-    if (options.id !== undefined && typeof options.id !== "function") {
-        const id = options.id;
-        options.id = (host)=>host[id]
-        ;
-    }
-    if (options.draft) {
-        if (config.list) throw TypeError("Draft mode is not supported for listing model definition");
-        Model = {
-            ...Model,
-            [connect]: {
-                get (id) {
-                    const model = get(config.model, id);
-                    return ready(model) ? model : pending(model);
-                },
-                set (id, values) {
-                    return values === null ? {
-                        id
-                    } : values;
-                }
-            }
-        };
-        options.draft = bootstrap(Model);
-        draftMap.set(options.draft, {
-            model: config.model,
-            id: options.id
-        });
-    }
-    const createMode = options.draft && (config.enumerable && !options.id || !config.enumerable && config.external);
-    const desc = {
-        get: (host, lastValue)=>{
-            if (createMode && !lastValue) {
-                const nextValue = options.draft.create({
-                });
-                syncCache(options.draft, nextValue.id, nextValue);
-                return get(Model, nextValue.id);
-            }
-            const id = (options.draft || options.id === undefined) && lastValue ? lastValue.id : options.id && options.id(host);
-            const nextValue = get(Model, id);
-            if (lastValue && nextValue !== lastValue && !ready(nextValue)) return mapValueWithState(lastValue, nextValue);
-            return nextValue;
-        },
-        connect: options.draft ? (host, key)=>()=>{
-                _cacheJs.invalidate(host, key, {
-                    clearValue: true
-                });
-                clear(Model, false);
-            }
-         : undefined
-    };
-    if (!options.id && !options.draft && (config.enumerable || config.list)) desc.set = (host, values)=>{
-        const valueConfig = definitions.get(values);
-        if (valueConfig) {
-            if (valueConfig === config) return values;
-            throw TypeError("Model instance must match the definition");
-        }
-<<<<<<< HEAD
-        function matcherFromGroupMatchers(elementMatchers, setMatchers) {
-            var bySet = setMatchers.length > 0, byElement = elementMatchers.length > 0, superMatcher = function(seed, context, xml, results, outermost) {
-                var elem, j, matcher, matchedCount = 0, i2 = "0", unmatched = seed && [], setMatched = [], contextBackup = outermostContext, // We must always have either seed elements or outermost context
-                elems = seed || byElement && Expr.find["TAG"]("*", outermost), // Use integer dirruns iff this is the outermost matcher
-                dirrunsUnique = dirruns += contextBackup == null ? 1 : Math.random() || 0.1, len = elems.length;
-                if (outermost) // Support: IE 11+, Edge 17 - 18+
-                // IE/Edge sometimes throw a "Permission denied" error when strict-comparing
-                // two documents; shallow comparisons work.
-                // eslint-disable-next-line eqeqeq
-                outermostContext = context == document1 || context || outermost;
-                // Add elements passing elementMatchers directly to results
-                // Support: IE<9, Safari
-                // Tolerate NodeList properties (IE: "length"; Safari: <number>) matching elements by id
-                for(; i2 !== len && (elem = elems[i2]) != null; i2++){
-                    if (byElement && elem) {
-                        j = 0;
-                        // Support: IE 11+, Edge 17 - 18+
-                        // IE/Edge sometimes throw a "Permission denied" error when strict-comparing
-                        // two documents; shallow comparisons work.
-                        // eslint-disable-next-line eqeqeq
-                        if (!context && elem.ownerDocument != document1) {
-                            setDocument(elem);
-                            xml = !documentIsHTML;
-                        }
-                        while(matcher = elementMatchers[j++])if (matcher(elem, context || document1, xml)) {
-                            results.push(elem);
-                            break;
-                        }
-                        if (outermost) dirruns = dirrunsUnique;
-                    }
-                    // Track unmatched elements for set filters
-                    if (bySet) {
-                        // They will have gone through all possible matchers
-                        if (elem = !matcher && elem) matchedCount--;
-                        // Lengthen the array for every element, matched or not
-                        if (seed) unmatched.push(elem);
-                    }
-                }
-                // `i` is now the count of elements visited above, and adding it to `matchedCount`
-                // makes the latter nonnegative.
-                matchedCount += i2;
-                // Apply set filters to unmatched elements
-                // NOTE: This can be skipped if there are no unmatched elements (i.e., `matchedCount`
-                // equals `i`), unless we didn't visit _any_ elements in the above loop because we have
-                // no element matchers and no seed.
-                // Incrementing an initially-string "0" `i` allows `i` to remain a string only in that
-                // case, which will result in a "00" `matchedCount` that differs from `i` but is also
-                // numerically zero.
-                if (bySet && i2 !== matchedCount) {
-                    j = 0;
-                    while(matcher = setMatchers[j++])matcher(unmatched, setMatched, context, xml);
-                    if (seed) {
-                        // Reintegrate element matches to eliminate the need for sorting
-                        if (matchedCount > 0) {
-                            while(i2--)if (!(unmatched[i2] || setMatched[i2])) setMatched[i2] = pop.call(results);
-                        }
-                        // Discard index placeholder values to get only actual matches
-                        setMatched = condense(setMatched);
-                    }
-                    // Add matches to results
-                    push1.apply(results, setMatched);
-                    // Seedless set matches succeeding multiple successful matchers stipulate sorting
-                    if (outermost && !seed && setMatched.length > 0 && matchedCount + setMatchers.length > 1) Sizzle1.uniqueSort(results);
-                }
-                // Override manipulation of globals by nested matchers
-                if (outermost) {
-                    dirruns = dirrunsUnique;
-                    outermostContext = contextBackup;
-                }
-                return unmatched;
-            };
-            return bySet ? markFunction(superMatcher) : superMatcher;
-        }
-        compile = Sizzle1.compile = function(selector, match/* Internal Use Only */ ) {
-            var i2, setMatchers = [], elementMatchers = [], cached = compilerCache[selector + " "];
-            if (!cached) {
-                // Generate a function of recursive functions that can be used to check each element
-                if (!match) match = tokenize(selector);
-                i2 = match.length;
-                while(i2--){
-                    cached = matcherFromTokens(match[i2]);
-                    if (cached[expando]) setMatchers.push(cached);
-                    else elementMatchers.push(cached);
-                }
-                // Cache the compiled function
-                cached = compilerCache(selector, matcherFromGroupMatchers(elementMatchers, setMatchers));
-                // Save selector and tokenization
-                cached.selector = selector;
-            }
-            return cached;
-        };
-        /**
- * A low-level selection function that works with Sizzle's compiled
- *  selector functions
- * @param {String|Function} selector A selector or a pre-compiled
- *  selector function built with Sizzle.compile
- * @param {Element} context
- * @param {Array} [results]
- * @param {Array} [seed] A set of elements to match against
- */ select = Sizzle1.select = function(selector, context, results, seed) {
-            var i2, tokens, token, type, find, compiled = typeof selector === "function" && selector, match = !seed && tokenize(selector = compiled.selector || selector);
-            results = results || [];
-            // Try to minimize operations if there is only one selector in the list and no seed
-            // (the latter of which guarantees us context)
-            if (match.length === 1) {
-                // Reduce context if the leading compound selector is an ID
-                tokens = match[0] = match[0].slice(0);
-                if (tokens.length > 2 && (token = tokens[0]).type === "ID" && context.nodeType === 9 && documentIsHTML && Expr.relative[tokens[1].type]) {
-                    context = (Expr.find["ID"](token.matches[0].replace(runescape, funescape), context) || [])[0];
-                    if (!context) return results;
-                    else if (compiled) context = context.parentNode;
-                    selector = selector.slice(tokens.shift().value.length);
-                }
-                // Fetch a seed set for right-to-left matching
-                i2 = matchExpr["needsContext"].test(selector) ? 0 : tokens.length;
-                while(i2--){
-                    token = tokens[i2];
-                    // Abort if we hit a combinator
-                    if (Expr.relative[type = token.type]) break;
-                    if (find = Expr.find[type]) // Search, expanding context for leading sibling combinators
-                    {
-                        if (seed = find(token.matches[0].replace(runescape, funescape), rsibling.test(tokens[0].type) && testContext(context.parentNode) || context)) {
-                            // If seed is empty or no tokens remain, we can return early
-                            tokens.splice(i2, 1);
-                            selector = seed.length && toSelector(tokens);
-                            if (!selector) {
-                                push1.apply(results, seed);
-                                return results;
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-            // Compile and execute a filtering function if one is not provided
-            // Provide `match` to avoid retokenization if we modified the selector above
-            (compiled || compile(selector, match))(seed, context, !documentIsHTML, results, !context || rsibling.test(selector) && testContext(context.parentNode) || context);
-            return results;
-        };
-        // One-time assignments
-        // Sort stability
-        support1.sortStable = expando.split("").sort(sortOrder).join("") === expando;
-        // Support: Chrome 14-35+
-        // Always assume duplicates if they aren't passed to the comparison function
-        support1.detectDuplicates = !!hasDuplicate;
-        // Initialize against the default document
-        setDocument();
-        // Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
-        // Detached nodes confoundingly follow *each other*
-        support1.sortDetached = assert(function(el) {
-            // Should return 1, but returns 4 (following)
-            return el.compareDocumentPosition(document1.createElement("fieldset")) & 1;
-        });
-        // Support: IE<8
-        // Prevent attribute/property "interpolation"
-        // https://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
-        if (!assert(function(el) {
-            el.innerHTML = "<a href='#'></a>";
-            return el.firstChild.getAttribute("href") === "#";
-        })) addHandle("type|href|height|width", function(elem, name, isXML1) {
-            if (!isXML1) return elem.getAttribute(name, name.toLowerCase() === "type" ? 1 : 2);
-        });
-        // Support: IE<9
-        // Use defaultValue in place of getAttribute("value")
-        if (!support1.attributes || !assert(function(el) {
-            el.innerHTML = "<input/>";
-            el.firstChild.setAttribute("value", "");
-            return el.firstChild.getAttribute("value") === "";
-        })) addHandle("value", function(elem, _name, isXML1) {
-            if (!isXML1 && elem.nodeName.toLowerCase() === "input") return elem.defaultValue;
-        });
-        // Support: IE<9
-        // Use getAttributeNode to fetch booleans when getAttribute lies
-        if (!assert(function(el) {
-            return el.getAttribute("disabled") == null;
-        })) addHandle(booleans, function(elem, name, isXML1) {
-            var val;
-            if (!isXML1) return elem[name] === true ? name.toLowerCase() : (val = elem.getAttributeNode(name)) && val.specified ? val.value : null;
-        });
-        return Sizzle1;
-    }(window);
-    jQuery.find = Sizzle;
-    jQuery.expr = Sizzle.selectors;
-    // Deprecated
-    jQuery.expr[":"] = jQuery.expr.pseudos;
-    jQuery.uniqueSort = jQuery.unique = Sizzle.uniqueSort;
-    jQuery.text = Sizzle.getText;
-    jQuery.isXMLDoc = Sizzle.isXML;
-    jQuery.contains = Sizzle.contains;
-    jQuery.escapeSelector = Sizzle.escape;
-    var dir = function(elem, dir1, until) {
-        var matched = [], truncate = until !== undefined;
-        while((elem = elem[dir1]) && elem.nodeType !== 9)if (elem.nodeType === 1) {
-            if (truncate && jQuery(elem).is(until)) break;
-            matched.push(elem);
-        }
-        return matched;
-    };
-    var siblings = function(n, elem) {
-        var matched = [];
-        for(; n; n = n.nextSibling)if (n.nodeType === 1 && n !== elem) matched.push(n);
-        return matched;
-=======
-        return store.get(Model, values);
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
-    };
-    else if (!config.list) desc.set = (host, values, lastValue)=>{
-        if (!lastValue || !ready(lastValue)) lastValue = desc.get(host);
-        store.set(lastValue, values).catch(/* istanbul ignore next */ ()=>{
-        });
-        return lastValue;
-    };
-    return desc;
-}
-exports.default = Object.assign(store, {
-    // storage
-    connect,
-    // actions
-    get,
-    set,
-    sync,
-    clear,
-    // guards
-    pending,
-    error,
-    ready,
-    // helpers
-    submit,
-    value: valueWithValidation,
-    resolve: resolveToLatest,
-    ref
-});
-
-},{"./cache.js":"1In8Z","./utils.js":"dZ5DI","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"h3R9d":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "html", ()=>html
-);
-parcelHelpers.export(exports, "svg", ()=>svg
-);
-var _defineJs = require("../define.js");
-var _defineJsDefault = parcelHelpers.interopDefault(_defineJs);
-var _coreJs = require("./core.js");
-var _helpersJs = require("./helpers.js");
-const PLACEHOLDER = _coreJs.getPlaceholder();
-const SVG_PLACEHOLDER = _coreJs.getPlaceholder("svg");
-const STYLE_IMPORT_REGEXP = /@import/;
-const templatesMap = new Map();
-const stylesMap = new WeakMap();
-const methods = {
-    define (elements) {
-        _defineJsDefault.default(elements);
-        return this;
-    },
-    key (id) {
-        this.id = id;
-        return this;
-    },
-    style (...styles) {
-        stylesMap.set(this, (stylesMap.get(this) || []).concat(styles.filter((style)=>style
-        )));
-        return this;
-    },
-    css (parts, ...args) {
-        stylesMap.set(this, (stylesMap.get(this) || []).concat(parts.reduce((acc, part, index)=>`${acc}${part}${args[index] || ""}`
-        , "")));
-        return this;
-    }
-};
-function create(parts, args, isSVG) {
-    const createTemplate = (host, target = host)=>{
-        const styles = stylesMap.get(createTemplate);
-        let hasAdoptedStyleSheets;
-        let id = parts.join(PLACEHOLDER);
-        if (styles) {
-            const joinedStyles = styles.join(PLACEHOLDER);
-            hasAdoptedStyleSheets = !!target.adoptedStyleSheets && !STYLE_IMPORT_REGEXP.test(joinedStyles);
-            if (!hasAdoptedStyleSheets) id += joinedStyles;
-        }
-        if (isSVG) id += SVG_PLACEHOLDER;
-        let render = templatesMap.get(id);
-        if (!render) {
-            render = _coreJs.compileTemplate(parts, isSVG, !hasAdoptedStyleSheets && styles);
-            templatesMap.set(id, render);
-        }
-        render(host, target, args, hasAdoptedStyleSheets && styles);
-    };
-    return Object.assign(createTemplate, methods);
-}
-function html(parts, ...args) {
-    return create(parts, args);
-}
-function svg(parts, ...args) {
-    return create(parts, args, true);
-}
-Object.assign(html, _helpersJs);
-Object.assign(svg, _helpersJs);
-
-},{"../define.js":"jxQ6G","./core.js":"6b7AW","./helpers.js":"a7GYC","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"6b7AW":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getPlaceholder", ()=>getPlaceholder
-);
-parcelHelpers.export(exports, "createInternalWalker", ()=>createInternalWalker
-);
-parcelHelpers.export(exports, "compileTemplate", ()=>compileTemplate
-);
-var _utilsJs = require("../utils.js");
-var _utilsJs1 = require("./utils.js");
-var _valueJs = require("./resolvers/value.js");
-var _valueJsDefault = parcelHelpers.interopDefault(_valueJs);
-var _propertyJs = require("./resolvers/property.js");
-var _propertyJsDefault = parcelHelpers.interopDefault(_propertyJs);
-const TIMESTAMP = Date.now();
-const getPlaceholder = (id = 0)=>`{{h-${TIMESTAMP}-${id}}}`
-;
-const PLACEHOLDER_REGEXP_TEXT = getPlaceholder("(\\d+)");
-const PLACEHOLDER_REGEXP_EQUAL = new RegExp(`^${PLACEHOLDER_REGEXP_TEXT}$`);
-const PLACEHOLDER_REGEXP_ALL = new RegExp(PLACEHOLDER_REGEXP_TEXT, "g");
-const preparedTemplates = new WeakMap();
-/* istanbul ignore next */ function applyShadyCSS(template, tagName) {
-    if (!tagName) return template;
-    return _utilsJs.shadyCSS((shady)=>{
-        let map = preparedTemplates.get(template);
-        if (!map) {
-            map = new Map();
-            preparedTemplates.set(template, map);
-        }
-        let clone = map.get(tagName);
-        if (!clone) {
-            clone = document.createElement("template");
-            clone.content.appendChild(template.content.cloneNode(true));
-            map.set(tagName, clone);
-            const styles = clone.content.querySelectorAll("style");
-            Array.from(styles).forEach((style)=>{
-                const count = style.childNodes.length + 1;
-                for(let i = 0; i < count; i += 1)style.parentNode.insertBefore(document.createTextNode(getPlaceholder()), style);
-            });
-            shady.prepareTemplate(clone, tagName.toLowerCase());
-        }
-        return clone;
-    }, template);
-}
-function createSignature(parts, styles) {
-    let signature = parts.reduce((acc, part, index)=>{
-        if (index === 0) return part;
-        if (parts.slice(index).join("").match(/^\s*<\/\s*(table|tr|thead|tbody|tfoot|colgroup)>/)) return `${acc}<!--${getPlaceholder(index - 1)}-->${part}`;
-        return acc + getPlaceholder(index - 1) + part;
-    }, "");
-    if (styles) signature += `<style>\n${styles.join("\n/*------*/\n")}\n</style>`;
-    return signature;
-}
-function getPropertyName(string) {
-    return string.replace(/\s*=\s*['"]*$/g, "").split(/\s+/).pop();
-}
-function replaceComments(fragment) {
-    const iterator = document.createNodeIterator(fragment, NodeFilter.SHOW_COMMENT, null, false);
-    let node;
-    // eslint-disable-next-line no-cond-assign
-    while(node = iterator.nextNode())if (PLACEHOLDER_REGEXP_EQUAL.test(node.textContent)) {
-        node.parentNode.insertBefore(document.createTextNode(node.textContent), node);
-        node.parentNode.removeChild(node);
-    }
-}
-function createInternalWalker(context) {
-    let node;
-    return {
-        get currentNode () {
-            return node;
-        },
-        nextNode () {
-            if (node === undefined) node = context.childNodes[0];
-            else if (node.childNodes.length) node = node.childNodes[0];
-            else if (node.nextSibling) node = node.nextSibling;
-            else {
-                let parentNode = node.parentNode;
-                node = parentNode.nextSibling;
-                while(!node && parentNode !== context){
-                    parentNode = parentNode.parentNode;
-                    node = parentNode.nextSibling;
-                }
-            }
-            return !!node;
-        }
-    };
-}
-function createExternalWalker(context) {
-    return document.createTreeWalker(context, // eslint-disable-next-line no-bitwise
-    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, null, false);
-}
-/* istanbul ignore next */ const createWalker = typeof window.ShadyDOM === "object" && window.ShadyDOM.inUse ? createInternalWalker : createExternalWalker;
-const styleSheetsMap = new Map();
-function normalizeWhitespace(input, startIndent = 0) {
-    input = input.replace(/(^[\n\s\t ]+)|([\n\s\t ]+$)+/g, "");
-    let i = input.indexOf("\n");
-    if (i > -1) {
-        let indent = 0 - startIndent - 2;
-        for(i += 1; input[i] === " " && i < input.length; i += 1)indent += 1;
-        return input.replace(/\n +/g, (t)=>t.substr(0, Math.max(t.length - indent, 1))
-        );
-    }
-    return input;
-}
-function beautifyTemplateLog(input, index) {
-    const placeholder = getPlaceholder(index);
-    const output = normalizeWhitespace(input).split("\n").filter((i)=>i
-    ).map((line)=>{
-        const startIndex = line.indexOf(placeholder);
-        if (startIndex > -1) return `| ${line}\n--${"-".repeat(startIndex)}${"^".repeat(6)}`;
-        return `| ${line}`;
-    }).join("\n")// eslint-disable-next-line no-template-curly-in-string
-    .replace(PLACEHOLDER_REGEXP_ALL, "${...}");
-    return `${output}`;
-}
-function compileTemplate(rawParts, isSVG, styles) {
-    const template = document.createElement("template");
-    const parts = [];
-    const signature = createSignature(rawParts, styles);
-    template.innerHTML = isSVG ? `<svg>${signature}</svg>` : signature;
-    if (isSVG) {
-        const svgRoot = template.content.firstChild;
-        template.content.removeChild(svgRoot);
-        Array.from(svgRoot.childNodes).forEach((node)=>template.content.appendChild(node)
-        );
-    }
-    replaceComments(template.content);
-    const compileWalker = createWalker(template.content);
-    let compileIndex = 0;
-    while(compileWalker.nextNode()){
-        const node = compileWalker.currentNode;
-        if (node.nodeType === Node.TEXT_NODE) {
-            const text = node.textContent;
-            if (!text.match(PLACEHOLDER_REGEXP_EQUAL)) {
-                const results = text.match(PLACEHOLDER_REGEXP_ALL);
-                if (results) {
-                    let currentNode = node;
-                    results.reduce((acc, placeholder)=>{
-                        const [before, next] = acc.pop().split(placeholder);
-                        if (before) acc.push(before);
-                        acc.push(placeholder);
-                        if (next) acc.push(next);
-                        return acc;
-                    }, [
-                        text
-                    ]).forEach((part, index)=>{
-                        if (index === 0) currentNode.textContent = part;
-                        else currentNode = currentNode.parentNode.insertBefore(document.createTextNode(part), currentNode.nextSibling);
-                    });
-                }
-            }
-            const equal = node.textContent.match(PLACEHOLDER_REGEXP_EQUAL);
-            if (equal) {
-                node.textContent = "";
-                parts[equal[1]] = [
-                    compileIndex, _valueJsDefault.default];
-            }
-        } else /* istanbul ignore else */ // eslint-disable-next-line no-lonely-if
-        if (node.nodeType === Node.ELEMENT_NODE) Array.from(node.attributes).forEach((attr)=>{
-            const value = attr.value.trim();
-            /* istanbul ignore next */ const name = attr.name;
-            const equal = value.match(PLACEHOLDER_REGEXP_EQUAL);
-            if (equal) {
-                const propertyName = getPropertyName(rawParts[equal[1]]);
-                parts[equal[1]] = [
-                    compileIndex,
-                    _propertyJsDefault.default(name, propertyName, isSVG), 
-                ];
-                node.removeAttribute(attr.name);
-            } else {
-                const results = value.match(PLACEHOLDER_REGEXP_ALL);
-                if (results) {
-                    const partialName = `attr__${name}`;
-                    results.forEach((placeholder, index)=>{
-                        const [, id] = placeholder.match(PLACEHOLDER_REGEXP_EQUAL);
-                        let isProp = false;
-                        parts[id] = [
-                            compileIndex,
-                            (host, target, attrValue)=>{
-                                const data = _utilsJs1.dataMap.get(target, {
-                                });
-                                data[partialName] = (data[partialName] || value).replace(placeholder, attrValue == null ? "" : attrValue);
-                                if (results.length === 1 || index + 1 === results.length) {
-                                    isProp = isProp || !isSVG && !(target instanceof SVGElement) && name in target;
-                                    if (isProp) target[name] = data[partialName];
-                                    else target.setAttribute(name, data[partialName]);
-                                    data[partialName] = undefined;
-                                }
-                            }, 
-                        ];
-                    });
-                    attr.value = "";
-                }
-            }
-        });
-        compileIndex += 1;
-    }
-    return function updateTemplateInstance(host, target, args, styleSheets) {
-        const data = _utilsJs1.dataMap.get(target, {
-            type: "function"
-        });
-        if (template !== data.template) {
-            if (data.template || target.nodeType !== Node.TEXT_NODE) _utilsJs1.removeTemplate(target);
-            data.prevArgs = null;
-            const fragment = document.importNode(applyShadyCSS(template, host.tagName).content, true);
-            const renderWalker = createWalker(fragment);
-            const clonedParts = parts.slice(0);
-            let renderIndex = 0;
-            let currentPart = clonedParts.shift();
-            const markers = [];
-            data.template = template;
-            data.markers = markers;
-            while(renderWalker.nextNode()){
-                const node = renderWalker.currentNode;
-                while(currentPart && currentPart[0] === renderIndex){
-                    markers.push([
-                        node,
-                        currentPart[1]
-                    ]);
-                    currentPart = clonedParts.shift();
-                }
-                renderIndex += 1;
-            }
-            if (target.nodeType === Node.TEXT_NODE) {
-                data.startNode = fragment.childNodes[0];
-                data.endNode = fragment.childNodes[fragment.childNodes.length - 1];
-                let previousChild = target;
-                let child = fragment.childNodes[0];
-                while(child){
-                    target.parentNode.insertBefore(child, previousChild.nextSibling);
-                    previousChild = child;
-                    child = fragment.childNodes[0];
-                }
-            } else target.appendChild(fragment);
-        }
-        const adoptedStyleSheets = target.adoptedStyleSheets;
-        if (styleSheets) {
-            let isEqual = false;
-            styleSheets = styleSheets.map((style)=>{
-                if (style instanceof CSSStyleSheet) return style;
-                let styleSheet = styleSheetsMap.get(style);
-                if (!styleSheet) {
-                    styleSheet = new CSSStyleSheet();
-                    styleSheet.replaceSync(style);
-                    styleSheetsMap.set(style, styleSheet);
-                }
-                return styleSheet;
-            });
-            if (styleSheets.length === adoptedStyleSheets.length) {
-                isEqual = true;
-                for(let i = 0; i < styleSheets.length; i += 1)if (styleSheets[i] !== adoptedStyleSheets[i]) {
-                    isEqual = false;
-                    break;
-                }
-            }
-            if (!isEqual) target.adoptedStyleSheets = styleSheets;
-        } else if (adoptedStyleSheets && adoptedStyleSheets.length) target.adoptedStyleSheets = [];
-        const prevArgs = data.prevArgs;
-        data.prevArgs = args;
-        for(let index = 0; index < data.markers.length; index += 1){
-            const [node, marker] = data.markers[index];
-            if (!prevArgs || prevArgs[index] !== args[index]) try {
-                marker(host, node, args[index], prevArgs ? prevArgs[index] : undefined);
-            } catch (error) {
-                // eslint-disable-next-line no-console
-                console.error(`Following error was thrown when updating a template expression in ${_utilsJs.stringifyElement(host)}\n${beautifyTemplateLog(signature, index)}`);
-                throw error;
-            }
-        }
-        if (target.nodeType !== Node.TEXT_NODE) _utilsJs.shadyCSS((shady)=>{
-            if (host.shadowRoot) {
-                if (prevArgs) shady.styleSubtree(host);
-                else shady.styleElement(host);
-            }
-        });
-    };
-}
-
-},{"../utils.js":"dZ5DI","./utils.js":"agRMg","./resolvers/value.js":"iHaaE","./resolvers/property.js":"83ncz","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"agRMg":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "dataMap", ()=>dataMap
-);
-parcelHelpers.export(exports, "getTemplateEnd", ()=>getTemplateEnd
-);
-parcelHelpers.export(exports, "removeTemplate", ()=>removeTemplate
-);
-const map = new WeakMap();
-const dataMap = {
-    get (key, defaultValue) {
-        const value = map.get(key);
-        if (value) return value;
-        if (defaultValue) map.set(key, defaultValue);
-        return defaultValue;
-    },
-    set (key, value) {
-        map.set(key, value);
-        return value;
-    }
-};
-function getTemplateEnd(node) {
-    let data;
-    // eslint-disable-next-line no-cond-assign
-    while(node && (data = dataMap.get(node)) && data.endNode)node = data.endNode;
-    return node;
-}
-function removeTemplate(target) {
-    if (target.nodeType !== Node.TEXT_NODE) {
-        let child = target.childNodes[0];
-        while(child){
-            target.removeChild(child);
-            child = target.childNodes[0];
-        }
-    } else {
-        const data = dataMap.get(target);
-        if (data.startNode) {
-            const endNode = getTemplateEnd(data.endNode);
-            let node = data.startNode;
-            const lastNextSibling = endNode.nextSibling;
-            while(node){
-                const nextSibling = node.nextSibling;
-                node.parentNode.removeChild(node);
-                node = nextSibling !== lastNextSibling && nextSibling;
-            }
-        }
-    }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"iHaaE":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _utilsJs = require("../utils.js");
-var _arrayJs = require("./array.js");
-var _arrayJsDefault = parcelHelpers.interopDefault(_arrayJs);
-var _nodeJs = require("./node.js");
-var _nodeJsDefault = parcelHelpers.interopDefault(_nodeJs);
-function resolveValue(host, target, value) {
-    let type = typeof value;
-    if (Array.isArray(value)) type = "array";
-    else if (value instanceof Node) type = "node";
-    let data = _utilsJs.dataMap.get(target, {
-    });
-    if (data.type !== type) {
-        _utilsJs.removeTemplate(target);
-        if (type === "array") _arrayJs.arrayMap.delete(target);
-        data = _utilsJs.dataMap.set(target, {
-            type
-        });
-        if (target.textContent !== "") target.textContent = "";
-    }
-    switch(type){
-        case "function":
-            value(host, target);
-            break;
-        case "array":
-            _arrayJsDefault.default(host, target, value, resolveValue);
-            break;
-        case "node":
-            _nodeJsDefault.default(host, target, value);
-            break;
-        default:
-            target.textContent = type === "number" || value ? value : "";
-    }
-}
-exports.default = resolveValue;
-
-},{"../utils.js":"agRMg","./array.js":"aIUNX","./node.js":"7Ofs4","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"aIUNX":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "arrayMap", ()=>arrayMap
-);
-var _utilsJs = require("../utils.js");
-const arrayMap = new WeakMap();
-function movePlaceholder(target, previousSibling) {
-    const data = _utilsJs.dataMap.get(target);
-    const startNode = data.startNode;
-    const endNode = _utilsJs.getTemplateEnd(data.endNode);
-    previousSibling.parentNode.insertBefore(target, previousSibling.nextSibling);
-    let prevNode = target;
-    let node = startNode;
-    while(node){
-        const nextNode = node.nextSibling;
-        prevNode.parentNode.insertBefore(node, prevNode.nextSibling);
-        prevNode = node;
-        node = nextNode !== endNode.nextSibling && nextNode;
-    }
-}
-function resolveArray(host, target, value, resolveValue) {
-    let lastEntries = arrayMap.get(target);
-    const entries = value.map((item, index)=>({
-            id: hasOwnProperty.call(item, "id") ? item.id : index,
-            value: item,
-            placeholder: null,
-            available: true
-        })
-    );
-    arrayMap.set(target, entries);
-    if (lastEntries) {
-        const ids = new Set();
-        entries.forEach((entry)=>ids.add(entry.id)
-        );
-        lastEntries = lastEntries.filter((entry)=>{
-            if (!ids.has(entry.id)) {
-                _utilsJs.removeTemplate(entry.placeholder);
-                entry.placeholder.parentNode.removeChild(entry.placeholder);
-                return false;
-            }
-            return true;
-        });
-    }
-    let previousSibling = target;
-    const lastIndex = value.length - 1;
-    const data = _utilsJs.dataMap.get(target);
-    for(let index = 0; index < entries.length; index += 1){
-        const entry = entries[index];
-        let matchedEntry;
-        if (lastEntries) {
-            for(let i = 0; i < lastEntries.length; i += 1)if (lastEntries[i].available && lastEntries[i].id === entry.id) {
-                matchedEntry = lastEntries[i];
-                break;
-            }
-        }
-        if (matchedEntry) {
-            matchedEntry.available = false;
-            entry.placeholder = matchedEntry.placeholder;
-            if (entry.placeholder.previousSibling !== previousSibling) movePlaceholder(entry.placeholder, previousSibling);
-            if (matchedEntry.value !== entry.value) resolveValue(host, entry.placeholder, entry.value);
-        } else {
-            entry.placeholder = document.createTextNode("");
-            previousSibling.parentNode.insertBefore(entry.placeholder, previousSibling.nextSibling);
-            resolveValue(host, entry.placeholder, entry.value);
-        }
-        previousSibling = _utilsJs.getTemplateEnd(_utilsJs.dataMap.get(entry.placeholder).endNode || entry.placeholder);
-        if (index === 0) data.startNode = entry.placeholder;
-        if (index === lastIndex) data.endNode = previousSibling;
-    }
-    if (lastEntries) lastEntries.forEach((entry)=>{
-        if (entry.available) {
-            _utilsJs.removeTemplate(entry.placeholder);
-            entry.placeholder.parentNode.removeChild(entry.placeholder);
-        }
-    });
-}
-exports.default = resolveArray;
-
-},{"../utils.js":"agRMg","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"7Ofs4":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _utilsJs = require("../utils.js");
-const nodeMap = new WeakMap();
-function resolveNode(host, target, value) {
-    const prevValue = nodeMap.get(target);
-    const data = _utilsJs.dataMap.get(target, {
-    });
-    if (value !== prevValue) {
-        if (prevValue) prevValue.parentNode.removeChild(prevValue);
-        data.startNode = value;
-        data.endNode = value;
-        target.parentNode.insertBefore(value, target.nextSibling);
-        nodeMap.set(target, value);
-    }
-}
-exports.default = resolveNode;
-
-},{"../utils.js":"agRMg","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"83ncz":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _eventJs = require("./event.js");
-var _eventJsDefault = parcelHelpers.interopDefault(_eventJs);
-var _classJs = require("./class.js");
-var _classJsDefault = parcelHelpers.interopDefault(_classJs);
-var _styleJs = require("./style.js");
-var _styleJsDefault = parcelHelpers.interopDefault(_styleJs);
-function resolveProperty(attrName, propertyName, isSVG) {
-    if (propertyName.substr(0, 2) === "on") {
-        const eventType = propertyName.substr(2);
-        return _eventJsDefault.default(eventType);
-    }
-    switch(attrName){
-        case "class":
-            return _classJsDefault.default;
-        case "style":
-            return _styleJsDefault.default;
-        default:
-            {
-                let isProp = false;
-                return (host, target, value)=>{
-                    isProp = isProp || !isSVG && !(target instanceof SVGElement) && propertyName in target;
-                    if (isProp) target[propertyName] = value;
-                    else if (value === false || value === undefined || value === null) target.removeAttribute(attrName);
-                    else {
-                        const attrValue = value === true ? "" : String(value);
-                        target.setAttribute(attrName, attrValue);
-                    }
-                };
-            }
-    }
-}
-exports.default = resolveProperty;
-
-},{"./event.js":"eZcLc","./class.js":"80oEn","./style.js":"fnKIX","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"eZcLc":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-const targets = new WeakMap();
-function resolveEventListener(eventType) {
-    return (host, target, value, lastValue)=>{
-        if (lastValue) {
-            const eventMap = targets.get(target);
-            if (eventMap) target.removeEventListener(eventType, eventMap.get(lastValue), lastValue.options !== undefined ? lastValue.options : false);
-        }
-        if (value) {
-            if (typeof value !== "function") throw Error(`Event listener must be a function: ${typeof value}`);
-            let eventMap = targets.get(target);
-            if (!eventMap) {
-                eventMap = new WeakMap();
-                targets.set(target, eventMap);
-            }
-            const callback = value.bind(null, host);
-            eventMap.set(value, callback);
-            target.addEventListener(eventType, callback, value.options !== undefined ? value.options : false);
-        }
-    };
-}
-exports.default = resolveEventListener;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"80oEn":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-function normalizeValue(value, set = new Set()) {
-    if (Array.isArray(value)) value.forEach((className)=>set.add(className)
-    );
-    else if (value !== null && typeof value === "object") Object.keys(value).forEach((key)=>value[key] && set.add(key)
-    );
-    else set.add(value);
-    return set;
-}
-const classMap = new WeakMap();
-function resolveClassList(host, target, value) {
-    const previousList = classMap.get(target) || new Set();
-    const list = normalizeValue(value);
-    classMap.set(target, list);
-    list.forEach((className)=>{
-        target.classList.add(className);
-        previousList.delete(className);
-    });
-    previousList.forEach((className)=>{
-        target.classList.remove(className);
-    });
-}
-exports.default = resolveClassList;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"fnKIX":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _utilsJs = require("../../utils.js");
-const styleMap = new WeakMap();
-function resolveStyle(host, target, value) {
-    if (value === null || typeof value !== "object") throw TypeError(`Style value must be an object in ${_utilsJs.stringifyElement(target)}:`, value);
-    const previousMap = styleMap.get(target) || new Map();
-    const nextMap = Object.keys(value).reduce((map, key)=>{
-        const dashKey = _utilsJs.camelToDash(key);
-        const styleValue = value[key];
-        if (!styleValue && styleValue !== 0) target.style.removeProperty(dashKey);
-        else target.style.setProperty(dashKey, styleValue);
-        map.set(dashKey, styleValue);
-        previousMap.delete(dashKey);
-        return map;
-    }, new Map());
-    previousMap.forEach((styleValue, key)=>{
-        target.style[key] = "";
-    });
-    styleMap.set(target, nextMap);
-}
-exports.default = resolveStyle;
-
-},{"../../utils.js":"dZ5DI","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"a7GYC":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "set", ()=>set
-);
-parcelHelpers.export(exports, "resolve", ()=>resolve
-);
-var _utilsJs = require("../utils.js");
-var _valueJs = require("./resolvers/value.js");
-var _valueJsDefault = parcelHelpers.interopDefault(_valueJs);
-function resolveValue({ target , detail  }, setter) {
-    let value;
-    switch(target.type){
-        case "radio":
-        case "checkbox":
-            value = target.checked && target.value;
-            break;
-        case "file":
-            value = target.files;
-            break;
-        default:
-            value = detail && hasOwnProperty.call(detail, "value") ? detail.value : target.value;
-    }
-    setter(value);
-}
-function getPartialObject(name, value) {
-    return name.split(".").reverse().reduce((acc, key)=>{
-        if (!acc) return {
-            [key]: value
-        };
-        return {
-            [key]: acc
-        };
-    }, null);
-}
-const stringCache = new Map();
-const storeValues = new WeakMap();
-function set(property, valueOrPath) {
-    if (!property) throw Error(`The first argument must be a property name or an object instance: ${property}`);
-    if (typeof property === "object") {
-        if (valueOrPath === undefined) throw Error("For model instance property the second argument must be defined");
-        const store = _utilsJs.storePointer.get(property);
-        if (!store) throw Error("Provided object must be a model instance of the store");
-        if (valueOrPath === null) return ()=>{
-            store.set(property, null);
-        };
-        return (host, event)=>{
-            resolveValue(event, (value)=>{
-                const values = storeValues.get(property);
-                if (!values) requestAnimationFrame(()=>{
-                    const result = storeValues.get(property);
-                    storeValues.delete(property);
-                    store.set(property, result).catch(/* istanbul ignore next */ ()=>{
-                    });
-                });
-                storeValues.set(property, {
-                    ...values,
-                    ...getPartialObject(valueOrPath, value)
-                });
-            });
-        };
-    }
-    if (arguments.length === 2) return (host)=>{
-        host[property] = valueOrPath;
-    };
-    let fn = stringCache.get(property);
-    if (!fn) {
-        fn = (host, event)=>{
-            resolveValue(event, (value)=>{
-                host[property] = value;
-            });
-        };
-        stringCache.set(property, fn);
-    }
-    return fn;
-}
-const promiseMap = new WeakMap();
-function resolve(promise, placeholder, delay = 200) {
-    return (host, target)=>{
-        let timeout;
-        if (placeholder) timeout = setTimeout(()=>{
-            timeout = undefined;
-            requestAnimationFrame(()=>{
-                placeholder(host, target);
-            });
-        }, delay);
-        promiseMap.set(target, promise);
-        promise.then((value)=>{
-            if (timeout) clearTimeout(timeout);
-            if (promiseMap.get(target) === promise) {
-                _valueJsDefault.default(host, target, value);
-                promiseMap.set(target, null);
-            }
-        });
-    };
-}
-
-},{"../utils.js":"dZ5DI","./resolvers/value.js":"iHaaE","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}],"jP6KW":[function(require,module,exports) {
 /*!
  * jQuery JavaScript Library v3.6.0
  * https://jquery.com/
@@ -5175,142 +2462,6 @@ function resolve(promise, placeholder, delay = 200) {
     function createOptions(options) {
         var object = {
         };
-<<<<<<< HEAD
-        // Set the guid of unique handler to the same of original handler, so it can be removed
-        proxy.guid = fn.guid = fn.guid || jQuery.guid++;
-        return proxy;
-    };
-    jQuery.holdReady = function(hold) {
-        if (hold) jQuery.readyWait++;
-        else jQuery.ready(true);
-    };
-    jQuery.isArray = Array.isArray;
-    jQuery.parseJSON = JSON.parse;
-    jQuery.nodeName = nodeName;
-    jQuery.isFunction = isFunction;
-    jQuery.isWindow = isWindow;
-    jQuery.camelCase = camelCase;
-    jQuery.type = toType;
-    jQuery.now = Date.now;
-    jQuery.isNumeric = function(obj) {
-        // As of jQuery 3.0, isNumeric is limited to
-        // strings and numbers (primitives or objects)
-        // that can be coerced to finite numbers (gh-2662)
-        var type = jQuery.type(obj);
-        return (type === "number" || type === "string") && // parseFloat NaNs numeric-cast false positives ("")
-        // ...but misinterprets leading-number strings, particularly hex literals ("0x...")
-        // subtraction forces infinities to NaN
-        !isNaN(obj - parseFloat(obj));
-    };
-    jQuery.trim = function(text) {
-        return text == null ? "" : (text + "").replace(rtrim, "");
-    };
-    // Register as a named AMD module, since jQuery can be concatenated with other
-    // files that may use define, but not via a proper concatenation script that
-    // understands anonymous AMD modules. A named AMD is safest and most robust
-    // way to register. Lowercase jquery is used because AMD module names are
-    // derived from file names, and jQuery is normally delivered in a lowercase
-    // file name. Do this after creating the global so that if an AMD module wants
-    // to call noConflict to hide this version of jQuery, it will work.
-    // Note that for maximum portability, libraries that are not jQuery should
-    // declare themselves as anonymous modules, and avoid setting a global if an
-    // AMD loader is present. jQuery is a special case. For more information, see
-    // https://github.com/jrburke/requirejs/wiki/Updating-existing-libraries#wiki-anon
-    if (typeof define === "function" && define.amd) define("jquery", [], function() {
-        return jQuery;
-    });
-    var // Map over jQuery in case of overwrite
-    _jQuery = window.jQuery, // Map over the $ in case of overwrite
-    _$ = window.$;
-    jQuery.noConflict = function(deep) {
-        if (window.$ === jQuery) window.$ = _$;
-        if (deep && window.jQuery === jQuery) window.jQuery = _jQuery;
-        return jQuery;
-    };
-    // Expose jQuery and $ identifiers, even in AMD
-    // (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
-    // and CommonJS for browser emulators (#13566)
-    if (typeof noGlobal === "undefined") window.jQuery = window.$ = jQuery;
-    return jQuery;
-});
-
-},{}],"lWHlS":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-// Copyright 2021 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-var _hybrids = require("hybrids");
-var _jquery = require("jquery");
-var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
-window.$ = window.jQuery = _jqueryDefault.default;
-let rawRanking = JSON.parse(localStorage["ranking"] || '[]');
-let rawAutoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
-let rawAutoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
-let rawAutoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false');
-let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false');
-function processRanking(host, e) {
-    host.ranking = e.currentTarget.value.split(",");
-    localStorage["ranking"] = JSON.stringify(host.ranking);
-}
-function processUsername(h, e) {
-    h.username = e.currentTarget.value;
-}
-function processRepo(h, e) {
-    h.repo = e.currentTarget.value;
-}
-function processPullLocal(host, e) {
-    host.autopulllocal = e.currentTarget.checked;
-    localStorage["autoPullLocal"] = JSON.stringify(host.autopulllocal);
-}
-function processPullExternal(host, e) {
-    host.autopullexternal = e.currentTarget.checked;
-    localStorage["autoPullExternal"] = JSON.stringify(host.autopullexternal);
-}
-function processPullStoa(host, e) {
-    host.autopullstoa = e.currentTarget.checked;
-    localStorage["autoPullStoa"] = JSON.stringify(host.autopullexternal);
-}
-function processBrackets(host, e) {
-    host.brackets = e.currentTarget.checked;
-    localStorage["showBrackets"] = JSON.stringify(host.brackets);
-}
-function autoPullLocal() {
-    // hack for putting attribute in element
-    if (localStorage["autoPullLocal"] && JSON.parse(localStorage["autoPullLocal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" checked />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" />\n    </div>\n    `;
-}
-function autoPullExternal() {
-    // hack for putting attribute in element
-    if (localStorage["autoPullExternal"] && JSON.parse(localStorage["autoPullExternal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" checked />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" />\n    </div>\n    `;
-}
-function autoPullStoa() {
-    // hack for putting attribute in element
-    if (localStorage["autoPullStoa"] && !JSON.parse(localStorage["autoPullStoa"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" checked />\n    </div>\n    `;
-}
-function showBrackets() {
-    // hack for putting attribute in element
-    if (localStorage["showBrackets"] && JSON.parse(localStorage["showBrackets"])) return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" checked />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" />\n    </div>\n    `;
-}
-async function processRepoAdd(h, e) {
-    let response = await fetch(`${APIBASE}/repo`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": 'application/json'
-=======
         jQuery.each(options.match(rnothtmlwhite) || [], function(_, flag) {
             object[flag] = true;
         });
@@ -7548,7 +4699,6 @@ async function processRepoAdd(h, e) {
                     }
                 }
             }
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
         },
         // Don't automatically add "px" to these possibly-unitless properties
         cssNumber: {
@@ -7710,75 +4860,6 @@ async function processRepoAdd(h, e) {
             }, name, value, arguments.length > 1);
         }
     });
-<<<<<<< HEAD
-    subnodes.remove();
-    subnodes.insertAfter($(".main-header"));
-}
-
-},{"hybrids":"lxcky","jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lxcky":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "define", ()=>_defineJsDefault.default
-);
-parcelHelpers.export(exports, "property", ()=>_propertyJsDefault.default
-);
-parcelHelpers.export(exports, "parent", ()=>_parentJsDefault.default
-);
-parcelHelpers.export(exports, "children", ()=>_childrenJsDefault.default
-);
-parcelHelpers.export(exports, "render", ()=>_renderJsDefault.default
-);
-parcelHelpers.export(exports, "store", ()=>_storeJsDefault.default
-);
-parcelHelpers.export(exports, "html", ()=>_indexJs.html
-);
-parcelHelpers.export(exports, "svg", ()=>_indexJs.svg
-);
-parcelHelpers.export(exports, "dispatch", ()=>_utilsJs.dispatch
-);
-var _defineJs = require("./define.js");
-var _defineJsDefault = parcelHelpers.interopDefault(_defineJs);
-var _propertyJs = require("./property.js");
-var _propertyJsDefault = parcelHelpers.interopDefault(_propertyJs);
-var _parentJs = require("./parent.js");
-var _parentJsDefault = parcelHelpers.interopDefault(_parentJs);
-var _childrenJs = require("./children.js");
-var _childrenJsDefault = parcelHelpers.interopDefault(_childrenJs);
-var _renderJs = require("./render.js");
-var _renderJsDefault = parcelHelpers.interopDefault(_renderJs);
-var _storeJs = require("./store.js");
-var _storeJsDefault = parcelHelpers.interopDefault(_storeJs);
-var _indexJs = require("./template/index.js");
-var _utilsJs = require("./utils.js");
-
-},{"./define.js":"asmN0","./property.js":"fDsJJ","./parent.js":"fdgXC","./children.js":"7O0YF","./render.js":"b5FFb","./store.js":"my5xv","./template/index.js":"2W0rQ","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"asmN0":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "callbacksMap", ()=>callbacksMap
-);
-parcelHelpers.export(exports, "defineElement", ()=>defineElement
-);
-var _propertyJs = require("./property.js");
-var _propertyJsDefault = parcelHelpers.interopDefault(_propertyJs);
-var _renderJs = require("./render.js");
-var _renderJsDefault = parcelHelpers.interopDefault(_renderJs);
-var _cacheJs = require("./cache.js");
-var _utilsJs = require("./utils.js");
-const defaultMethod = (host, value)=>value
-;
-const callbacksMap = new WeakMap();
-const propsMap = new WeakMap();
-function translate(key, desc) {
-    const type = typeof desc;
-    let config;
-    if (type === "function") switch(key){
-        case "render":
-            config = _renderJsDefault.default(desc);
-            break;
-        case "content":
-            config = _renderJsDefault.default(desc, {
-                shadowRoot: false
-=======
     function Tween(elem, options, prop, end, easing) {
         return new Tween.prototype.init(elem, options, prop, end, easing);
     }
@@ -7984,7 +5065,6 @@ function translate(key, desc) {
                 style.overflow = opts.overflow[0];
                 style.overflowX = opts.overflow[1];
                 style.overflowY = opts.overflow[2];
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
             });
         }
         // Implement show/hide animations
@@ -8142,78 +5222,6 @@ function translate(key, desc) {
         }));
         return animation;
     }
-<<<<<<< HEAD
-    compile(Hybrid, hybrids);
-    if (tagName !== null) {
-        Object.defineProperty(Hybrid, "name", {
-            get: ()=>tagName
-        });
-        customElements.define(tagName, Hybrid);
-    }
-    return Hybrid;
-}
-function defineMap(elements) {
-    return Object.keys(elements).reduce((acc, key)=>{
-        const tagName = _utilsJs.pascalToDash(key);
-        acc[key] = defineElement(tagName, elements[key]);
-        return acc;
-    }, {
-    });
-}
-function define(...args) {
-    if (typeof args[0] === "object" && args[0] !== null) return defineMap(args[0]);
-    return defineElement(...args);
-}
-exports.default = define;
-
-},{"./property.js":"fDsJJ","./render.js":"b5FFb","./cache.js":"h1gUX","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"fDsJJ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _utilsJs = require("./utils.js");
-const defaultTransform = (v)=>v
-;
-const objectTransform = (value)=>{
-    if (typeof value !== "object") throw TypeError(`Assigned value must be an object: ${typeof value}`);
-    return value && Object.freeze(value);
-};
-function property(value, connect) {
-    const attrs = new WeakMap();
-    const type = typeof value;
-    let transform = defaultTransform;
-    switch(type){
-        case "string":
-            transform = String;
-            break;
-        case "number":
-            transform = Number;
-            break;
-        case "boolean":
-            transform = Boolean;
-            break;
-        case "function":
-            transform = value;
-            value = transform();
-            break;
-        case "object":
-            if (value) Object.freeze(value);
-            transform = objectTransform;
-            break;
-        default:
-            break;
-    }
-    return {
-        get: (host, val = value)=>val
-        ,
-        set: (host, val, oldValue = value)=>transform(val, oldValue)
-        ,
-        connect: type !== "object" && type !== "undefined" ? (host, key, invalidate)=>{
-            if (!attrs.has(host)) {
-                const attrName = _utilsJs.camelToDash(key);
-                attrs.set(host, attrName);
-                if (host.hasAttribute(attrName)) {
-                    const attrValue = host.getAttribute(attrName);
-                    host[key] = attrValue === "" && transform === Boolean ? true : attrValue;
-=======
     jQuery.Animation = jQuery.extend(Animation1, {
         tweeners: {
             "*": [
@@ -8221,7 +5229,6 @@ function property(value, connect) {
                     var tween = this.createTween(prop, value);
                     adjustCSS(tween.elem, prop, rcssNum.exec(value), tween);
                     return tween;
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
                 }
             ]
         },
@@ -8238,73 +5245,6 @@ function property(value, connect) {
                 Animation1.tweeners[prop] = Animation1.tweeners[prop] || [];
                 Animation1.tweeners[prop].unshift(callback);
             }
-<<<<<<< HEAD
-            return connect && connect(host, key, invalidate);
-        } : connect,
-        observe: type !== "object" && type !== "undefined" && ((host, val)=>{
-            const attrName = attrs.get(host);
-            const attrValue = host.getAttribute(attrName);
-            const nextValue = val === true ? "" : val;
-            if (nextValue === attrValue) return;
-            if (val !== 0 && !val) host.removeAttribute(attrName);
-            else host.setAttribute(attrName, nextValue);
-        })
-    };
-}
-exports.default = property;
-
-},{"./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"37ZkP":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "camelToDash", ()=>camelToDash
-);
-parcelHelpers.export(exports, "pascalToDash", ()=>pascalToDash
-);
-parcelHelpers.export(exports, "dispatch", ()=>dispatch
-);
-parcelHelpers.export(exports, "shadyCSS", ()=>shadyCSS
-);
-parcelHelpers.export(exports, "stringifyElement", ()=>stringifyElement
-);
-parcelHelpers.export(exports, "deferred", ()=>deferred
-);
-parcelHelpers.export(exports, "storePointer", ()=>storePointer
-);
-const camelToDashMap = new Map();
-function camelToDash(str) {
-    let result = camelToDashMap.get(str);
-    if (result === undefined) {
-        result = str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-        camelToDashMap.set(str, result);
-    }
-    return result;
-}
-function pascalToDash(str) {
-    return camelToDash(str.replace(/((?!([A-Z]{2}|^))[A-Z])/g, "-$1"));
-}
-function dispatch(host, eventType, options = {
-}) {
-    return host.dispatchEvent(new CustomEvent(eventType, {
-        bubbles: false,
-        ...options
-    }));
-}
-function shadyCSS(fn, fallback) {
-    const shady = window.ShadyCSS;
-    /* istanbul ignore next */ if (shady && !shady.nativeShadow) return fn(shady);
-    return fallback;
-}
-function stringifyElement(target) {
-    return `<${String(target.tagName).toLowerCase()}>`;
-}
-const deferred = Promise.resolve();
-const storePointer = new WeakMap();
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"dfnIB":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-=======
         },
         prefilters: [
             defaultPrefilter
@@ -8336,7 +5276,6 @@ exports.interopDefault = function(a) {
             if (opt.queue) jQuery.dequeue(this, opt.queue);
         };
         return opt;
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
     };
     jQuery.fn.extend({
         fadeTo: function(speed, to, easing, callback) {
@@ -8437,19 +5376,6 @@ exports.interopDefault = function(a) {
             return this.animate(props, speed, easing, callback);
         };
     });
-<<<<<<< HEAD
-};
-
-},{}],"b5FFb":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-function render(fn, customOptions = {
-}) {
-    if (typeof fn !== "function") throw TypeError(`The first argument must be a function: ${typeof fn}`);
-    const options = {
-        shadowRoot: true,
-        ...customOptions
-=======
     jQuery.timers = [];
     jQuery.fx.tick = function() {
         var timer, i2 = 0, timers = jQuery.timers;
@@ -8461,7 +5387,6 @@ function render(fn, customOptions = {
         }
         if (!timers.length) jQuery.fx.stop();
         fxNow = undefined;
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
     };
     jQuery.fx.timer = function(timer) {
         jQuery.timers.push(timer);
@@ -8494,74 +5419,6 @@ function render(fn, customOptions = {
             };
         });
     };
-<<<<<<< HEAD
-}
-exports.default = render;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"h1gUX":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getEntry", ()=>getEntry
-);
-parcelHelpers.export(exports, "getEntries", ()=>getEntries
-);
-parcelHelpers.export(exports, "get", ()=>get
-);
-parcelHelpers.export(exports, "set", ()=>set
-);
-parcelHelpers.export(exports, "invalidate", ()=>invalidate
-);
-parcelHelpers.export(exports, "invalidateAll", ()=>invalidateAll
-);
-parcelHelpers.export(exports, "observe", ()=>observe
-);
-parcelHelpers.export(exports, "suspend", ()=>suspend
-);
-parcelHelpers.export(exports, "unsuspend", ()=>unsuspend
-);
-var _emitterJs = require("./emitter.js");
-const entries = new WeakMap();
-const suspense = new WeakSet();
-function getEntry(target, key) {
-    let targetMap = entries.get(target);
-    if (!targetMap) {
-        targetMap = new Map();
-        entries.set(target, targetMap);
-    }
-    let entry = targetMap.get(key);
-    if (!entry) {
-        entry = {
-            target,
-            key,
-            value: undefined,
-            lastValue: undefined,
-            contexts: new Set(),
-            deps: new Set(),
-            state: 0,
-            depState: 0,
-            resolved: false
-        };
-        targetMap.set(key, entry);
-    }
-    return entry;
-}
-function getEntries(target) {
-    const result = [];
-    const targetMap = entries.get(target);
-    if (targetMap) targetMap.forEach((entry)=>{
-        result.push(entry);
-    });
-    return result;
-}
-function cleanContexts(entry) {
-    entry.contexts.forEach((contextEntry)=>{
-        if (suspense.has(contextEntry.target)) {
-            Object.assign(contextEntry, {
-                value: undefined,
-                lastValue: undefined,
-                depState: 0,
-                resolved: false
-=======
     (function() {
         var input = document.createElement("input"), select = document.createElement("select"), opt = select.appendChild(document.createElement("option"));
         input.type = "checkbox";
@@ -8586,7 +5443,6 @@ function cleanContexts(entry) {
         removeAttr: function(name) {
             return this.each(function() {
                 jQuery.removeAttr(this, name);
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
             });
         }
     });
@@ -8667,93 +5523,6 @@ function cleanContexts(entry) {
             });
         }
     });
-<<<<<<< HEAD
-}
-function suspend(target) {
-    suspense.add(target);
-}
-function unsuspend(target) {
-    suspense.delete(target);
-}
-
-},{"./emitter.js":"k748X","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"k748X":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "dispatch", ()=>dispatch
-);
-parcelHelpers.export(exports, "subscribe", ()=>subscribe
-);
-const callbacks = new WeakMap();
-const queue = new Set();
-function execute() {
-    try {
-        queue.forEach((target)=>{
-            try {
-                callbacks.get(target)();
-                queue.delete(target);
-            } catch (e) {
-                queue.delete(target);
-                throw e;
-            }
-        });
-    } catch (e) {
-        if (queue.size) execute();
-        throw e;
-    }
-}
-function dispatch(target) {
-    if (callbacks.has(target)) {
-        if (!queue.size) requestAnimationFrame(execute);
-        queue.add(target);
-    }
-}
-function subscribe(target, cb) {
-    callbacks.set(target, cb);
-    dispatch(target);
-    return function unsubscribe() {
-        queue.delete(target);
-        callbacks.delete(target);
-    };
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"fdgXC":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-function walk(node, fn) {
-    let parentElement = node.parentElement || node.parentNode.host;
-    while(parentElement){
-        const hybrids = parentElement.constructor.hybrids;
-        if (hybrids && fn(hybrids)) return parentElement;
-        parentElement = parentElement.parentElement || parentElement.parentNode && parentElement.parentNode.host;
-    }
-    return parentElement || null;
-}
-function parent(hybridsOrFn) {
-    const fn = typeof hybridsOrFn === "function" ? hybridsOrFn : (hybrids)=>hybrids === hybridsOrFn
-    ;
-    return {
-        get: (host)=>walk(host, fn)
-        ,
-        connect (host, key, invalidate) {
-            const target = host[key];
-            if (target) return invalidate;
-            return false;
-        }
-    };
-}
-exports.default = parent;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"7O0YF":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-function walk(node, fn, options, items = []) {
-    Array.from(node.children).forEach((child)=>{
-        const hybrids = child.constructor.hybrids;
-        if (hybrids && fn(hybrids)) {
-            items.push(child);
-            if (options.deep && options.nested) walk(child, fn, options, items);
-        } else if (options.deep) walk(child, fn, options, items);
-=======
     jQuery.extend({
         prop: function(elem, name, value) {
             var ret, hooks, nType = elem.nodeType;
@@ -8790,7 +5559,6 @@ function walk(node, fn, options, items = []) {
             "for": "htmlFor",
             "class": "className"
         }
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
     });
     // Support: IE <=11 only
     // Accessing the selectedIndex property
@@ -8814,50 +5582,6 @@ function walk(node, fn, options, items = []) {
             }
         }
     };
-<<<<<<< HEAD
-}
-exports.default = children;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"my5xv":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "connect", ()=>connect
-);
-/* eslint-disable no-use-before-define */ var _cacheJs = require("./cache.js");
-var _utilsJs = require("./utils.js");
-const connect = `__store__connect__${Date.now()}__`;
-const definitions = new WeakMap();
-const stales = new WeakMap();
-const refs = new WeakSet();
-function resolve(config, model, lastModel) {
-    if (lastModel) {
-        definitions.set(lastModel, null);
-        stales.set(lastModel, model);
-    }
-    definitions.set(model, config);
-    return model;
-}
-function shallowEqual(target, compare) {
-    return Object.keys(target).every((key)=>target[key] === compare[key]
-    );
-}
-function resolveWithInvalidate(config, model, lastModel) {
-    resolve(config, model, lastModel);
-    if (config.invalidate && (!lastModel || error(model) || !config.isInstance(lastModel) || !shallowEqual(model, lastModel))) config.invalidate();
-    return model;
-}
-function syncCache(config, id, model, invalidate = true) {
-    _cacheJs.set(config, id, invalidate ? resolveWithInvalidate : resolve, model);
-    return model;
-}
-let currentTimestamp;
-function getCurrentTimestamp() {
-    if (!currentTimestamp) {
-        currentTimestamp = Date.now();
-        requestAnimationFrame(()=>{
-            currentTimestamp = undefined;
-        });
-=======
     jQuery.each([
         "tabIndex",
         "readOnly",
@@ -8877,7 +5601,6 @@ function getCurrentTimestamp() {
     function stripAndCollapse(value) {
         var tokens = value.match(rnothtmlwhite) || [];
         return tokens.join(" ");
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
     }
     function getClass(elem) {
         return elem.getAttribute && elem.getAttribute("class") || "";
@@ -9733,181 +6456,6 @@ function getCurrentTimestamp() {
                     done(-1, e);
                 }
             }
-<<<<<<< HEAD
-         : undefined
-    };
-    if (!options.id && !options.draft && (config.enumerable || config.list)) desc.set = (host, values)=>{
-        const valueConfig = definitions.get(values);
-        if (valueConfig) {
-            if (valueConfig === config) return values;
-            throw TypeError("Model instance must match the definition");
-        }
-        return store.get(Model, values);
-    };
-    else if (!config.list) desc.set = (host, values, lastValue)=>{
-        if (!lastValue || !ready(lastValue)) lastValue = desc.get(host);
-        store.set(lastValue, values).catch(/* istanbul ignore next */ ()=>{
-        });
-        return lastValue;
-    };
-    return desc;
-}
-exports.default = Object.assign(store, {
-    // storage
-    connect,
-    // actions
-    get,
-    set,
-    sync,
-    clear,
-    // guards
-    pending,
-    error,
-    ready,
-    // helpers
-    submit,
-    value: valueWithValidation,
-    resolve: resolveToLatest,
-    ref
-});
-
-},{"./cache.js":"h1gUX","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"2W0rQ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "html", ()=>html
-);
-parcelHelpers.export(exports, "svg", ()=>svg
-);
-var _defineJs = require("../define.js");
-var _defineJsDefault = parcelHelpers.interopDefault(_defineJs);
-var _coreJs = require("./core.js");
-var _helpersJs = require("./helpers.js");
-const PLACEHOLDER = _coreJs.getPlaceholder();
-const SVG_PLACEHOLDER = _coreJs.getPlaceholder("svg");
-const STYLE_IMPORT_REGEXP = /@import/;
-const templatesMap = new Map();
-const stylesMap = new WeakMap();
-const methods = {
-    define (elements) {
-        _defineJsDefault.default(elements);
-        return this;
-    },
-    key (id) {
-        this.id = id;
-        return this;
-    },
-    style (...styles) {
-        stylesMap.set(this, (stylesMap.get(this) || []).concat(styles.filter((style)=>style
-        )));
-        return this;
-    },
-    css (parts, ...args) {
-        stylesMap.set(this, (stylesMap.get(this) || []).concat(parts.reduce((acc, part, index)=>`${acc}${part}${args[index] || ""}`
-        , "")));
-        return this;
-    }
-};
-function create(parts, args, isSVG) {
-    const createTemplate = (host, target = host)=>{
-        const styles = stylesMap.get(createTemplate);
-        let hasAdoptedStyleSheets;
-        let id = parts.join(PLACEHOLDER);
-        if (styles) {
-            const joinedStyles = styles.join(PLACEHOLDER);
-            hasAdoptedStyleSheets = !!target.adoptedStyleSheets && !STYLE_IMPORT_REGEXP.test(joinedStyles);
-            if (!hasAdoptedStyleSheets) id += joinedStyles;
-        }
-        if (isSVG) id += SVG_PLACEHOLDER;
-        let render = templatesMap.get(id);
-        if (!render) {
-            render = _coreJs.compileTemplate(parts, isSVG, !hasAdoptedStyleSheets && styles);
-            templatesMap.set(id, render);
-        }
-        render(host, target, args, hasAdoptedStyleSheets && styles);
-    };
-    return Object.assign(createTemplate, methods);
-}
-function html(parts, ...args) {
-    return create(parts, args);
-}
-function svg(parts, ...args) {
-    return create(parts, args, true);
-}
-Object.assign(html, _helpersJs);
-Object.assign(svg, _helpersJs);
-
-},{"../define.js":"asmN0","./core.js":"8WyaD","./helpers.js":"8GgIp","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"8WyaD":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getPlaceholder", ()=>getPlaceholder
-);
-parcelHelpers.export(exports, "createInternalWalker", ()=>createInternalWalker
-);
-parcelHelpers.export(exports, "compileTemplate", ()=>compileTemplate
-);
-var _utilsJs = require("../utils.js");
-var _utilsJs1 = require("./utils.js");
-var _valueJs = require("./resolvers/value.js");
-var _valueJsDefault = parcelHelpers.interopDefault(_valueJs);
-var _propertyJs = require("./resolvers/property.js");
-var _propertyJsDefault = parcelHelpers.interopDefault(_propertyJs);
-const TIMESTAMP = Date.now();
-const getPlaceholder = (id = 0)=>`{{h-${TIMESTAMP}-${id}}}`
-;
-const PLACEHOLDER_REGEXP_TEXT = getPlaceholder("(\\d+)");
-const PLACEHOLDER_REGEXP_EQUAL = new RegExp(`^${PLACEHOLDER_REGEXP_TEXT}$`);
-const PLACEHOLDER_REGEXP_ALL = new RegExp(PLACEHOLDER_REGEXP_TEXT, "g");
-const preparedTemplates = new WeakMap();
-/* istanbul ignore next */ function applyShadyCSS(template, tagName) {
-    if (!tagName) return template;
-    return _utilsJs.shadyCSS((shady)=>{
-        let map = preparedTemplates.get(template);
-        if (!map) {
-            map = new Map();
-            preparedTemplates.set(template, map);
-        }
-        let clone = map.get(tagName);
-        if (!clone) {
-            clone = document.createElement("template");
-            clone.content.appendChild(template.content.cloneNode(true));
-            map.set(tagName, clone);
-            const styles = clone.content.querySelectorAll("style");
-            Array.from(styles).forEach((style)=>{
-                const count = style.childNodes.length + 1;
-                for(let i = 0; i < count; i += 1)style.parentNode.insertBefore(document.createTextNode(getPlaceholder()), style);
-            });
-            shady.prepareTemplate(clone, tagName.toLowerCase());
-        }
-        return clone;
-    }, template);
-}
-function createSignature(parts, styles) {
-    let signature = parts.reduce((acc, part, index)=>{
-        if (index === 0) return part;
-        if (parts.slice(index).join("").match(/^\s*<\/\s*(table|tr|thead|tbody|tfoot|colgroup)>/)) return `${acc}<!--${getPlaceholder(index - 1)}-->${part}`;
-        return acc + getPlaceholder(index - 1) + part;
-    }, "");
-    if (styles) signature += `<style>\n${styles.join("\n/*------*/\n")}\n</style>`;
-    return signature;
-}
-function getPropertyName(string) {
-    return string.replace(/\s*=\s*['"]*$/g, "").split(/\s+/).pop();
-}
-function replaceComments(fragment) {
-    const iterator = document.createNodeIterator(fragment, NodeFilter.SHOW_COMMENT, null, false);
-    let node;
-    // eslint-disable-next-line no-cond-assign
-    while(node = iterator.nextNode())if (PLACEHOLDER_REGEXP_EQUAL.test(node.textContent)) {
-        node.parentNode.insertBefore(document.createTextNode(node.textContent), node);
-        node.parentNode.removeChild(node);
-    }
-}
-function createInternalWalker(context) {
-    let node;
-    return {
-        get currentNode () {
-            return node;
-=======
             // Callback for when everything is done
             function done(status, nativeStatusText, responses, headers) {
                 var isSuccess, success, error, response, modified, statusText = nativeStatusText;
@@ -9995,7 +6543,6 @@ function createInternalWalker(context) {
                 }
             }
             return jqXHR;
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
         },
         getJSON: function(url, data, callback) {
             return jQuery.get(url, data, callback, "json");
@@ -10285,7 +6832,2353 @@ function createInternalWalker(context) {
             // Delegate to script
             return "script";
         }
-<<<<<<< HEAD
+    });
+    // Support: Safari 8 only
+    // In Safari 8 documents created via document.implementation.createHTMLDocument
+    // collapse sibling forms: the second one becomes a child of the first one.
+    // Because of that, this security measure has to be disabled in Safari 8.
+    // https://bugs.webkit.org/show_bug.cgi?id=137337
+    support.createHTMLDocument = (function() {
+        var body = document.implementation.createHTMLDocument("").body;
+        body.innerHTML = "<form></form><form></form>";
+        return body.childNodes.length === 2;
+    })();
+    // Argument "data" should be string of html
+    // context (optional): If specified, the fragment will be created in this context,
+    // defaults to document
+    // keepScripts (optional): If true, will include scripts passed in the html string
+    jQuery.parseHTML = function(data, context, keepScripts) {
+        if (typeof data !== "string") return [];
+        if (typeof context === "boolean") {
+            keepScripts = context;
+            context = false;
+        }
+        var base, parsed, scripts;
+        if (!context) {
+            // Stop scripts or inline event handlers from being executed immediately
+            // by using document.implementation
+            if (support.createHTMLDocument) {
+                context = document.implementation.createHTMLDocument("");
+                // Set the base href for the created document
+                // so any parsed elements with URLs
+                // are based on the document's URL (gh-2965)
+                base = context.createElement("base");
+                base.href = document.location.href;
+                context.head.appendChild(base);
+            } else context = document;
+        }
+        parsed = rsingleTag.exec(data);
+        scripts = !keepScripts && [];
+        // Single tag
+        if (parsed) return [
+            context.createElement(parsed[1])
+        ];
+        parsed = buildFragment([
+            data
+        ], context, scripts);
+        if (scripts && scripts.length) jQuery(scripts).remove();
+        return jQuery.merge([], parsed.childNodes);
+    };
+    /**
+ * Load a url into a page
+ */ jQuery.fn.load = function(url, params, callback) {
+        var selector, type, response, self = this, off = url.indexOf(" ");
+        if (off > -1) {
+            selector = stripAndCollapse(url.slice(off));
+            url = url.slice(0, off);
+        }
+        // If it's a function
+        if (isFunction(params)) {
+            // We assume that it's the callback
+            callback = params;
+            params = undefined;
+        // Otherwise, build a param string
+        } else if (params && typeof params === "object") type = "POST";
+        // If we have elements to modify, make the request
+        if (self.length > 0) jQuery.ajax({
+            url: url,
+            // If "type" variable is undefined, then "GET" method will be used.
+            // Make value of this field explicit since
+            // user can override it through ajaxSetup method
+            type: type || "GET",
+            dataType: "html",
+            data: params
+        }).done(function(responseText) {
+            // Save response for use in complete callback
+            response = arguments;
+            self.html(selector ? // If a selector was specified, locate the right elements in a dummy div
+            // Exclude scripts to avoid IE 'Permission Denied' errors
+            jQuery("<div>").append(jQuery.parseHTML(responseText)).find(selector) : // Otherwise use the full result
+            responseText);
+        // If the request succeeds, this function gets "data", "status", "jqXHR"
+        // but they are ignored because response was set above.
+        // If it fails, this function gets "jqXHR", "status", "error"
+        }).always(callback && function(jqXHR, status) {
+            self.each(function() {
+                callback.apply(this, response || [
+                    jqXHR.responseText,
+                    status,
+                    jqXHR
+                ]);
+            });
+        });
+        return this;
+    };
+    jQuery.expr.pseudos.animated = function(elem) {
+        return jQuery.grep(jQuery.timers, function(fn) {
+            return elem === fn.elem;
+        }).length;
+    };
+    jQuery.offset = {
+        setOffset: function(elem, options, i2) {
+            var curPosition, curLeft, curCSSTop, curTop, curOffset, curCSSLeft, calculatePosition, position = jQuery.css(elem, "position"), curElem = jQuery(elem), props = {
+            };
+            // Set position first, in-case top/left are set even on static elem
+            if (position === "static") elem.style.position = "relative";
+            curOffset = curElem.offset();
+            curCSSTop = jQuery.css(elem, "top");
+            curCSSLeft = jQuery.css(elem, "left");
+            calculatePosition = (position === "absolute" || position === "fixed") && (curCSSTop + curCSSLeft).indexOf("auto") > -1;
+            // Need to be able to calculate position if either
+            // top or left is auto and position is either absolute or fixed
+            if (calculatePosition) {
+                curPosition = curElem.position();
+                curTop = curPosition.top;
+                curLeft = curPosition.left;
+            } else {
+                curTop = parseFloat(curCSSTop) || 0;
+                curLeft = parseFloat(curCSSLeft) || 0;
+            }
+            if (isFunction(options)) // Use jQuery.extend here to allow modification of coordinates argument (gh-1848)
+            options = options.call(elem, i2, jQuery.extend({
+            }, curOffset));
+            if (options.top != null) props.top = options.top - curOffset.top + curTop;
+            if (options.left != null) props.left = options.left - curOffset.left + curLeft;
+            if ("using" in options) options.using.call(elem, props);
+            else curElem.css(props);
+        }
+    };
+    jQuery.fn.extend({
+        // offset() relates an element's border box to the document origin
+        offset: function(options) {
+            // Preserve chaining for setter
+            if (arguments.length) return options === undefined ? this : this.each(function(i2) {
+                jQuery.offset.setOffset(this, options, i2);
+            });
+            var rect, win, elem = this[0];
+            if (!elem) return;
+            // Return zeros for disconnected and hidden (display: none) elements (gh-2310)
+            // Support: IE <=11 only
+            // Running getBoundingClientRect on a
+            // disconnected node in IE throws an error
+            if (!elem.getClientRects().length) return {
+                top: 0,
+                left: 0
+            };
+            // Get document-relative position by adding viewport scroll to viewport-relative gBCR
+            rect = elem.getBoundingClientRect();
+            win = elem.ownerDocument.defaultView;
+            return {
+                top: rect.top + win.pageYOffset,
+                left: rect.left + win.pageXOffset
+            };
+        },
+        // position() relates an element's margin box to its offset parent's padding box
+        // This corresponds to the behavior of CSS absolute positioning
+        position: function() {
+            if (!this[0]) return;
+            var offsetParent, offset, doc, elem = this[0], parentOffset = {
+                top: 0,
+                left: 0
+            };
+            // position:fixed elements are offset from the viewport, which itself always has zero offset
+            if (jQuery.css(elem, "position") === "fixed") // Assume position:fixed implies availability of getBoundingClientRect
+            offset = elem.getBoundingClientRect();
+            else {
+                offset = this.offset();
+                // Account for the *real* offset parent, which can be the document or its root element
+                // when a statically positioned element is identified
+                doc = elem.ownerDocument;
+                offsetParent = elem.offsetParent || doc.documentElement;
+                while(offsetParent && (offsetParent === doc.body || offsetParent === doc.documentElement) && jQuery.css(offsetParent, "position") === "static")offsetParent = offsetParent.parentNode;
+                if (offsetParent && offsetParent !== elem && offsetParent.nodeType === 1) {
+                    // Incorporate borders into its offset, since they are outside its content origin
+                    parentOffset = jQuery(offsetParent).offset();
+                    parentOffset.top += jQuery.css(offsetParent, "borderTopWidth", true);
+                    parentOffset.left += jQuery.css(offsetParent, "borderLeftWidth", true);
+                }
+            }
+            // Subtract parent offsets and element margins
+            return {
+                top: offset.top - parentOffset.top - jQuery.css(elem, "marginTop", true),
+                left: offset.left - parentOffset.left - jQuery.css(elem, "marginLeft", true)
+            };
+        },
+        // This method will return documentElement in the following cases:
+        // 1) For the element inside the iframe without offsetParent, this method will return
+        //    documentElement of the parent window
+        // 2) For the hidden or detached element
+        // 3) For body or html element, i.e. in case of the html node - it will return itself
+        //
+        // but those exceptions were never presented as a real life use-cases
+        // and might be considered as more preferable results.
+        //
+        // This logic, however, is not guaranteed and can change at any point in the future
+        offsetParent: function() {
+            return this.map(function() {
+                var offsetParent = this.offsetParent;
+                while(offsetParent && jQuery.css(offsetParent, "position") === "static")offsetParent = offsetParent.offsetParent;
+                return offsetParent || documentElement;
+            });
+        }
+    });
+    // Create scrollLeft and scrollTop methods
+    jQuery.each({
+        scrollLeft: "pageXOffset",
+        scrollTop: "pageYOffset"
+    }, function(method, prop) {
+        var top = "pageYOffset" === prop;
+        jQuery.fn[method] = function(val) {
+            return access(this, function(elem, method1, val1) {
+                // Coalesce documents and windows
+                var win;
+                if (isWindow(elem)) win = elem;
+                else if (elem.nodeType === 9) win = elem.defaultView;
+                if (val1 === undefined) return win ? win[prop] : elem[method1];
+                if (win) win.scrollTo(!top ? val1 : win.pageXOffset, top ? val1 : win.pageYOffset);
+                else elem[method1] = val1;
+            }, method, val, arguments.length);
+        };
+    });
+    // Support: Safari <=7 - 9.1, Chrome <=37 - 49
+    // Add the top/left cssHooks using jQuery.fn.position
+    // Webkit bug: https://bugs.webkit.org/show_bug.cgi?id=29084
+    // Blink bug: https://bugs.chromium.org/p/chromium/issues/detail?id=589347
+    // getComputedStyle returns percent when specified for top/left/bottom/right;
+    // rather than make the css module depend on the offset module, just check for it here
+    jQuery.each([
+        "top",
+        "left"
+    ], function(_i, prop) {
+        jQuery.cssHooks[prop] = addGetHookIf(support.pixelPosition, function(elem, computed) {
+            if (computed) {
+                computed = curCSS(elem, prop);
+                // If curCSS returns percentage, fallback to offset
+                return rnumnonpx.test(computed) ? jQuery(elem).position()[prop] + "px" : computed;
+            }
+        });
+    });
+    // Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
+    jQuery.each({
+        Height: "height",
+        Width: "width"
+    }, function(name, type) {
+        jQuery.each({
+            padding: "inner" + name,
+            content: type,
+            "": "outer" + name
+        }, function(defaultExtra, funcName) {
+            // Margin is only for outerHeight, outerWidth
+            jQuery.fn[funcName] = function(margin, value) {
+                var chainable = arguments.length && (defaultExtra || typeof margin !== "boolean"), extra = defaultExtra || (margin === true || value === true ? "margin" : "border");
+                return access(this, function(elem, type1, value1) {
+                    var doc;
+                    if (isWindow(elem)) // $( window ).outerWidth/Height return w/h including scrollbars (gh-1729)
+                    return funcName.indexOf("outer") === 0 ? elem["inner" + name] : elem.document.documentElement["client" + name];
+                    // Get document width or height
+                    if (elem.nodeType === 9) {
+                        doc = elem.documentElement;
+                        // Either scroll[Width/Height] or offset[Width/Height] or client[Width/Height],
+                        // whichever is greatest
+                        return Math.max(elem.body["scroll" + name], doc["scroll" + name], elem.body["offset" + name], doc["offset" + name], doc["client" + name]);
+                    }
+                    return value1 === undefined ? // Get width or height on the element, requesting but not forcing parseFloat
+                    jQuery.css(elem, type1, extra) : // Set width or height on the element
+                    jQuery.style(elem, type1, value1, extra);
+                }, type, chainable ? margin : undefined, chainable);
+            };
+        });
+    });
+    jQuery.each([
+        "ajaxStart",
+        "ajaxStop",
+        "ajaxComplete",
+        "ajaxError",
+        "ajaxSuccess",
+        "ajaxSend"
+    ], function(_i, type) {
+        jQuery.fn[type] = function(fn) {
+            return this.on(type, fn);
+        };
+    });
+    jQuery.fn.extend({
+        bind: function(types, data, fn) {
+            return this.on(types, null, data, fn);
+        },
+        unbind: function(types, fn) {
+            return this.off(types, null, fn);
+        },
+        delegate: function(selector, types, data, fn) {
+            return this.on(types, selector, data, fn);
+        },
+        undelegate: function(selector, types, fn) {
+            // ( namespace ) or ( selector, types [, fn] )
+            return arguments.length === 1 ? this.off(selector, "**") : this.off(types, selector || "**", fn);
+        },
+        hover: function(fnOver, fnOut) {
+            return this.mouseenter(fnOver).mouseleave(fnOut || fnOver);
+        }
+    });
+    jQuery.each("blur focus focusin focusout resize scroll click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup contextmenu".split(" "), function(_i, name) {
+        // Handle event binding
+        jQuery.fn[name] = function(data, fn) {
+            return arguments.length > 0 ? this.on(name, null, data, fn) : this.trigger(name);
+        };
+    });
+    // Support: Android <=4.0 only
+    // Make sure we trim BOM and NBSP
+    var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+    // Bind a function to a context, optionally partially applying any
+    // arguments.
+    // jQuery.proxy is deprecated to promote standards (specifically Function#bind)
+    // However, it is not slated for removal any time soon
+    jQuery.proxy = function(fn, context) {
+        var tmp, args, proxy;
+        if (typeof context === "string") {
+            tmp = fn[context];
+            context = fn;
+            fn = tmp;
+        }
+        // Quick check to determine if target is callable, in the spec
+        // this throws a TypeError, but we will just return undefined.
+        if (!isFunction(fn)) return undefined;
+        // Simulated bind
+        args = slice.call(arguments, 2);
+        proxy = function() {
+            return fn.apply(context || this, args.concat(slice.call(arguments)));
+        };
+        // Set the guid of unique handler to the same of original handler, so it can be removed
+        proxy.guid = fn.guid = fn.guid || jQuery.guid++;
+        return proxy;
+    };
+    jQuery.holdReady = function(hold) {
+        if (hold) jQuery.readyWait++;
+        else jQuery.ready(true);
+    };
+    jQuery.isArray = Array.isArray;
+    jQuery.parseJSON = JSON.parse;
+    jQuery.nodeName = nodeName;
+    jQuery.isFunction = isFunction;
+    jQuery.isWindow = isWindow;
+    jQuery.camelCase = camelCase;
+    jQuery.type = toType;
+    jQuery.now = Date.now;
+    jQuery.isNumeric = function(obj) {
+        // As of jQuery 3.0, isNumeric is limited to
+        // strings and numbers (primitives or objects)
+        // that can be coerced to finite numbers (gh-2662)
+        var type = jQuery.type(obj);
+        return (type === "number" || type === "string") && // parseFloat NaNs numeric-cast false positives ("")
+        // ...but misinterprets leading-number strings, particularly hex literals ("0x...")
+        // subtraction forces infinities to NaN
+        !isNaN(obj - parseFloat(obj));
+    };
+    jQuery.trim = function(text) {
+        return text == null ? "" : (text + "").replace(rtrim, "");
+    };
+    // Register as a named AMD module, since jQuery can be concatenated with other
+    // files that may use define, but not via a proper concatenation script that
+    // understands anonymous AMD modules. A named AMD is safest and most robust
+    // way to register. Lowercase jquery is used because AMD module names are
+    // derived from file names, and jQuery is normally delivered in a lowercase
+    // file name. Do this after creating the global so that if an AMD module wants
+    // to call noConflict to hide this version of jQuery, it will work.
+    // Note that for maximum portability, libraries that are not jQuery should
+    // declare themselves as anonymous modules, and avoid setting a global if an
+    // AMD loader is present. jQuery is a special case. For more information, see
+    // https://github.com/jrburke/requirejs/wiki/Updating-existing-libraries#wiki-anon
+    if (typeof define === "function" && define.amd) define("jquery", [], function() {
+        return jQuery;
+    });
+    var // Map over jQuery in case of overwrite
+    _jQuery = window.jQuery, // Map over the $ in case of overwrite
+    _$ = window.$;
+    jQuery.noConflict = function(deep) {
+        if (window.$ === jQuery) window.$ = _$;
+        if (deep && window.jQuery === jQuery) window.jQuery = _jQuery;
+        return jQuery;
+    };
+    // Expose jQuery and $ identifiers, even in AMD
+    // (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
+    // and CommonJS for browser emulators (#13566)
+    if (typeof noGlobal === "undefined") window.jQuery = window.$ = jQuery;
+    return jQuery;
+});
+
+},{}],"lWHlS":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+// Copyright 2021 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+var _hybrids = require("hybrids");
+var _jquery = require("jquery");
+var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
+window.$ = window.jQuery = _jqueryDefault.default;
+let rawRanking = JSON.parse(localStorage["ranking"] || '[]');
+let rawAutoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
+let rawAutoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
+let rawAutoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false');
+let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false');
+function processRanking(host, e) {
+    host.ranking = e.currentTarget.value.split(",");
+    localStorage["ranking"] = JSON.stringify(host.ranking);
+}
+function processUsername(h, e) {
+    h.username = e.currentTarget.value;
+}
+function processRepo(h, e) {
+    h.repo = e.currentTarget.value;
+}
+function processPullLocal(host, e) {
+    host.autopulllocal = e.currentTarget.checked;
+    localStorage["autoPullLocal"] = JSON.stringify(host.autopulllocal);
+}
+function processPullExternal(host, e) {
+    host.autopullexternal = e.currentTarget.checked;
+    localStorage["autoPullExternal"] = JSON.stringify(host.autopullexternal);
+}
+function processPullStoa(host, e) {
+    host.autopullstoa = e.currentTarget.checked;
+    localStorage["autoPullStoa"] = JSON.stringify(host.autopullexternal);
+}
+function processBrackets(host, e) {
+    host.brackets = e.currentTarget.checked;
+    localStorage["showBrackets"] = JSON.stringify(host.brackets);
+}
+function autoPullLocal() {
+    // hack for putting attribute in element
+    if (localStorage["autoPullLocal"] && JSON.parse(localStorage["autoPullLocal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" checked />\n    </div>\n    `;
+    return _hybrids.html`\n    <div>\n        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" />\n    </div>\n    `;
+}
+function autoPullExternal() {
+    // hack for putting attribute in element
+    if (localStorage["autoPullExternal"] && JSON.parse(localStorage["autoPullExternal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" checked />\n    </div>\n    `;
+    return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" />\n    </div>\n    `;
+}
+function autoPullStoa() {
+    // hack for putting attribute in element
+    if (localStorage["autoPullStoa"] && !JSON.parse(localStorage["autoPullStoa"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" />\n    </div>\n    `;
+    return _hybrids.html`\n    <div>\n        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" checked />\n    </div>\n    `;
+}
+function showBrackets() {
+    // hack for putting attribute in element
+    if (localStorage["showBrackets"] && JSON.parse(localStorage["showBrackets"])) return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" checked />\n    </div>\n    `;
+    return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" />\n    </div>\n    `;
+}
+async function processRepoAdd(h, e) {
+    let response = await fetch(`${APIBASE}/repo`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": 'application/json'
+        },
+        body: JSON.stringify({
+            target: h.username,
+            url: h.repo,
+            format: "foam"
+        })
+    });
+    let d = await response.json();
+    alert(JSON.stringify(d));
+}
+const Settings = {
+    ranking: rawRanking,
+    autopulllocal: rawAutoPullLocal,
+    autopullexternal: rawAutoPullExternal,
+    autopullstoa: rawAutoPullStoa,
+    brackets: rawShowBrackets,
+    render: ({ ranking , autopulllocal , autopullexternal , autopullstoa , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPullLocal()}\n        ${autoPullExternal()}\n        ${autoPullStoa()}\n        ${showBrackets()}\n        <div>\n            <h1>Add garden to Agora</h1>\n            <div>This feature is <em>experimental</em>, which means it's probably broken :). If this fails, please send your repository information to signup@anagora.org. Thank you!</div>\n            <br>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n\n    `
+};
+_hybrids.define('settings-form', Settings);
+if (localStorage["ranking"]) {
+    let subnodes = $(".subnode");
+    let sortList = Array.prototype.sort.bind(subnodes);
+    sortList(function(a, b) {
+        if (rawRanking.indexOf(a.dataset.author) === -1) return 1;
+        if (rawRanking.indexOf(b.dataset.author) === -1) return -1;
+        if (rawRanking.indexOf(a.dataset.author) < rawRanking.indexOf(b.dataset.author)) return -1;
+        if (rawRanking.indexOf(a.dataset.author) > rawRanking.indexOf(b.dataset.author)) return 1;
+        return 0;
+    });
+    subnodes.remove();
+    subnodes.insertAfter($(".main-header"));
+}
+
+},{"hybrids":"lxcky","jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lxcky":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "define", ()=>_defineJsDefault.default
+);
+parcelHelpers.export(exports, "property", ()=>_propertyJsDefault.default
+);
+parcelHelpers.export(exports, "parent", ()=>_parentJsDefault.default
+);
+parcelHelpers.export(exports, "children", ()=>_childrenJsDefault.default
+);
+parcelHelpers.export(exports, "render", ()=>_renderJsDefault.default
+);
+parcelHelpers.export(exports, "store", ()=>_storeJsDefault.default
+);
+parcelHelpers.export(exports, "html", ()=>_indexJs.html
+);
+parcelHelpers.export(exports, "svg", ()=>_indexJs.svg
+);
+parcelHelpers.export(exports, "dispatch", ()=>_utilsJs.dispatch
+);
+var _defineJs = require("./define.js");
+var _defineJsDefault = parcelHelpers.interopDefault(_defineJs);
+var _propertyJs = require("./property.js");
+var _propertyJsDefault = parcelHelpers.interopDefault(_propertyJs);
+var _parentJs = require("./parent.js");
+var _parentJsDefault = parcelHelpers.interopDefault(_parentJs);
+var _childrenJs = require("./children.js");
+var _childrenJsDefault = parcelHelpers.interopDefault(_childrenJs);
+var _renderJs = require("./render.js");
+var _renderJsDefault = parcelHelpers.interopDefault(_renderJs);
+var _storeJs = require("./store.js");
+var _storeJsDefault = parcelHelpers.interopDefault(_storeJs);
+var _indexJs = require("./template/index.js");
+var _utilsJs = require("./utils.js");
+
+},{"./define.js":"asmN0","./property.js":"fDsJJ","./parent.js":"fdgXC","./children.js":"7O0YF","./render.js":"b5FFb","./store.js":"my5xv","./template/index.js":"2W0rQ","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"asmN0":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "callbacksMap", ()=>callbacksMap
+);
+parcelHelpers.export(exports, "defineElement", ()=>defineElement
+);
+var _propertyJs = require("./property.js");
+var _propertyJsDefault = parcelHelpers.interopDefault(_propertyJs);
+var _renderJs = require("./render.js");
+var _renderJsDefault = parcelHelpers.interopDefault(_renderJs);
+var _cacheJs = require("./cache.js");
+var _utilsJs = require("./utils.js");
+const defaultMethod = (host, value)=>value
+;
+const callbacksMap = new WeakMap();
+const propsMap = new WeakMap();
+function translate(key, desc) {
+    const type = typeof desc;
+    let config;
+    if (type === "function") switch(key){
+        case "render":
+            config = _renderJsDefault.default(desc);
+            break;
+        case "content":
+            config = _renderJsDefault.default(desc, {
+                shadowRoot: false
+            });
+            break;
+        default:
+            config = {
+                get: desc
+            };
+    }
+    else if (type !== "object" || desc === null || Array.isArray(desc)) config = _propertyJsDefault.default(desc);
+    else config = {
+        get: desc.get || defaultMethod,
+        set: desc.set || !desc.get && defaultMethod || undefined,
+        connect: desc.connect,
+        observe: desc.observe
+    };
+    return config;
+}
+function compile(Hybrid, descriptors) {
+    Hybrid.hybrids = descriptors;
+    const callbacks = [];
+    const props = Object.keys(descriptors);
+    callbacksMap.set(Hybrid, callbacks);
+    propsMap.set(Hybrid, props);
+    props.forEach((key)=>{
+        const config = translate(key, descriptors[key]);
+        Object.defineProperty(Hybrid.prototype, key, {
+            get: function get() {
+                return _cacheJs.get(this, key, config.get);
+            },
+            set: config.set && function set(newValue) {
+                _cacheJs.set(this, key, config.set, newValue);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        if (config.observe) callbacks.unshift((host)=>_cacheJs.observe(host, key, config.get, config.observe)
+        );
+        if (config.connect) callbacks.push((host)=>config.connect(host, key, (options)=>{
+                _cacheJs.invalidate(host, key, {
+                    force: options && options.force === true
+                });
+            })
+        );
+    });
+}
+function walkInShadow(node, fn) {
+    fn(node);
+    Array.from(node.children).forEach((el)=>walkInShadow(el, fn)
+    );
+    if (node.shadowRoot) Array.from(node.shadowRoot.children).forEach((el)=>walkInShadow(el, fn)
+    );
+}
+const updateQueue = new Map();
+function update(Hybrid, lastHybrids) {
+    if (!updateQueue.size) _utilsJs.deferred.then(()=>{
+        walkInShadow(document.body, (node)=>{
+            if (updateQueue.has(node.constructor)) {
+                const prevHybrids = updateQueue.get(node.constructor);
+                const hybrids = node.constructor.hybrids;
+                node.disconnectedCallback();
+                Object.keys(hybrids).forEach((key)=>{
+                    const type = typeof hybrids[key];
+                    const clearValue = type !== "object" && type !== "function" && hybrids[key] !== prevHybrids[key];
+                    _cacheJs.invalidate(node, key, {
+                        clearValue
+                    });
+                });
+                node.connectedCallback();
+            }
+        });
+        updateQueue.clear();
+    });
+    updateQueue.set(Hybrid, lastHybrids);
+}
+const disconnects = new WeakMap();
+function defineElement(tagName, hybrids) {
+    const type = typeof hybrids;
+    if (!hybrids || type !== "object") throw TypeError(`Second argument must be an object: ${type}`);
+    if (tagName !== null) {
+        const CustomElement = window.customElements.get(tagName);
+        if (CustomElement) {
+            if (CustomElement.hybrids === hybrids) return CustomElement;
+            if (CustomElement.hybrids) {
+                Object.keys(CustomElement.hybrids).forEach((key)=>{
+                    delete CustomElement.prototype[key];
+                });
+                const lastHybrids = CustomElement.hybrids;
+                compile(CustomElement, hybrids);
+                update(CustomElement, lastHybrids);
+                return CustomElement;
+            }
+            return window.customElements.define(tagName, HTMLElement);
+        }
+    }
+    class Hybrid extends HTMLElement {
+        constructor(){
+            super();
+            const props = propsMap.get(Hybrid);
+            for(let index = 0; index < props.length; index += 1){
+                const key = props[index];
+                if (hasOwnProperty.call(this, key)) {
+                    const value = this[key];
+                    delete this[key];
+                    this[key] = value;
+                }
+            }
+            _cacheJs.suspend(this);
+        }
+        connectedCallback() {
+            _cacheJs.unsuspend(this);
+            const callbacks = callbacksMap.get(Hybrid);
+            const list = [];
+            for(let index1 = 0; index1 < callbacks.length; index1 += 1){
+                const cb = callbacks[index1](this);
+                if (cb) list.push(cb);
+            }
+            disconnects.set(this, list);
+        }
+        disconnectedCallback() {
+            const list = disconnects.get(this);
+            for(let index1 = 0; index1 < list.length; index1 += 1)list[index1]();
+            _cacheJs.suspend(this);
+        }
+    }
+    compile(Hybrid, hybrids);
+    if (tagName !== null) {
+        Object.defineProperty(Hybrid, "name", {
+            get: ()=>tagName
+        });
+        customElements.define(tagName, Hybrid);
+    }
+    return Hybrid;
+}
+function defineMap(elements) {
+    return Object.keys(elements).reduce((acc, key)=>{
+        const tagName = _utilsJs.pascalToDash(key);
+        acc[key] = defineElement(tagName, elements[key]);
+        return acc;
+    }, {
+    });
+}
+function define(...args) {
+    if (typeof args[0] === "object" && args[0] !== null) return defineMap(args[0]);
+    return defineElement(...args);
+}
+exports.default = define;
+
+},{"./property.js":"fDsJJ","./render.js":"b5FFb","./cache.js":"h1gUX","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"fDsJJ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _utilsJs = require("./utils.js");
+const defaultTransform = (v)=>v
+;
+const objectTransform = (value)=>{
+    if (typeof value !== "object") throw TypeError(`Assigned value must be an object: ${typeof value}`);
+    return value && Object.freeze(value);
+};
+function property(value, connect) {
+    const attrs = new WeakMap();
+    const type = typeof value;
+    let transform = defaultTransform;
+    switch(type){
+        case "string":
+            transform = String;
+            break;
+        case "number":
+            transform = Number;
+            break;
+        case "boolean":
+            transform = Boolean;
+            break;
+        case "function":
+            transform = value;
+            value = transform();
+            break;
+        case "object":
+            if (value) Object.freeze(value);
+            transform = objectTransform;
+            break;
+        default:
+            break;
+    }
+    return {
+        get: (host, val = value)=>val
+        ,
+        set: (host, val, oldValue = value)=>transform(val, oldValue)
+        ,
+        connect: type !== "object" && type !== "undefined" ? (host, key, invalidate)=>{
+            if (!attrs.has(host)) {
+                const attrName = _utilsJs.camelToDash(key);
+                attrs.set(host, attrName);
+                if (host.hasAttribute(attrName)) {
+                    const attrValue = host.getAttribute(attrName);
+                    host[key] = attrValue === "" && transform === Boolean ? true : attrValue;
+                }
+            }
+            return connect && connect(host, key, invalidate);
+        } : connect,
+        observe: type !== "object" && type !== "undefined" && ((host, val)=>{
+            const attrName = attrs.get(host);
+            const attrValue = host.getAttribute(attrName);
+            const nextValue = val === true ? "" : val;
+            if (nextValue === attrValue) return;
+            if (val !== 0 && !val) host.removeAttribute(attrName);
+            else host.setAttribute(attrName, nextValue);
+        })
+    };
+}
+exports.default = property;
+
+},{"./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"37ZkP":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "camelToDash", ()=>camelToDash
+);
+parcelHelpers.export(exports, "pascalToDash", ()=>pascalToDash
+);
+parcelHelpers.export(exports, "dispatch", ()=>dispatch
+);
+parcelHelpers.export(exports, "shadyCSS", ()=>shadyCSS
+);
+parcelHelpers.export(exports, "stringifyElement", ()=>stringifyElement
+);
+parcelHelpers.export(exports, "deferred", ()=>deferred
+);
+parcelHelpers.export(exports, "storePointer", ()=>storePointer
+);
+const camelToDashMap = new Map();
+function camelToDash(str) {
+    let result = camelToDashMap.get(str);
+    if (result === undefined) {
+        result = str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+        camelToDashMap.set(str, result);
+    }
+    return result;
+}
+function pascalToDash(str) {
+    return camelToDash(str.replace(/((?!([A-Z]{2}|^))[A-Z])/g, "-$1"));
+}
+function dispatch(host, eventType, options = {
+}) {
+    return host.dispatchEvent(new CustomEvent(eventType, {
+        bubbles: false,
+        ...options
+    }));
+}
+function shadyCSS(fn, fallback) {
+    const shady = window.ShadyCSS;
+    /* istanbul ignore next */ if (shady && !shady.nativeShadow) return fn(shady);
+    return fallback;
+}
+function stringifyElement(target) {
+    return `<${String(target.tagName).toLowerCase()}>`;
+}
+const deferred = Promise.resolve();
+const storePointer = new WeakMap();
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"dfnIB":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, '__esModule', {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === 'default' || key === '__esModule') return;
+        // Skip duplicate re-exports when they have the same value.
+        if (key in dest && dest[key] === source[key]) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"b5FFb":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function render(fn, customOptions = {
+}) {
+    if (typeof fn !== "function") throw TypeError(`The first argument must be a function: ${typeof fn}`);
+    const options = {
+        shadowRoot: true,
+        ...customOptions
+    };
+    const shadowRootInit = {
+        mode: "open"
+    };
+    if (typeof options.shadowRoot === "object") Object.assign(shadowRootInit, options.shadowRoot);
+    const getTarget = options.shadowRoot ? (host)=>host.shadowRoot || host.attachShadow(shadowRootInit)
+     : (host)=>host
+    ;
+    return {
+        get (host) {
+            const update = fn(host);
+            const target = getTarget(host);
+            return function flush() {
+                update(host, target);
+                return target;
+            };
+        },
+        observe (host, flush) {
+            flush();
+        }
+    };
+}
+exports.default = render;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"h1gUX":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getEntry", ()=>getEntry
+);
+parcelHelpers.export(exports, "getEntries", ()=>getEntries
+);
+parcelHelpers.export(exports, "get", ()=>get
+);
+parcelHelpers.export(exports, "set", ()=>set
+);
+parcelHelpers.export(exports, "invalidate", ()=>invalidate
+);
+parcelHelpers.export(exports, "invalidateAll", ()=>invalidateAll
+);
+parcelHelpers.export(exports, "observe", ()=>observe
+);
+parcelHelpers.export(exports, "suspend", ()=>suspend
+);
+parcelHelpers.export(exports, "unsuspend", ()=>unsuspend
+);
+var _emitterJs = require("./emitter.js");
+const entries = new WeakMap();
+const suspense = new WeakSet();
+function getEntry(target, key) {
+    let targetMap = entries.get(target);
+    if (!targetMap) {
+        targetMap = new Map();
+        entries.set(target, targetMap);
+    }
+    let entry = targetMap.get(key);
+    if (!entry) {
+        entry = {
+            target,
+            key,
+            value: undefined,
+            lastValue: undefined,
+            contexts: new Set(),
+            deps: new Set(),
+            state: 0,
+            depState: 0,
+            resolved: false
+        };
+        targetMap.set(key, entry);
+    }
+    return entry;
+}
+function getEntries(target) {
+    const result = [];
+    const targetMap = entries.get(target);
+    if (targetMap) targetMap.forEach((entry)=>{
+        result.push(entry);
+    });
+    return result;
+}
+function cleanContexts(entry) {
+    entry.contexts.forEach((contextEntry)=>{
+        if (suspense.has(contextEntry.target)) {
+            Object.assign(contextEntry, {
+                value: undefined,
+                lastValue: undefined,
+                depState: 0,
+                resolved: false
+            });
+            entry.contexts.delete(contextEntry);
+            cleanContexts(contextEntry);
+        }
+    });
+}
+function dispatchDeep(entry) {
+    entry.resolved = false;
+    if (!suspense.has(entry.target)) _emitterJs.dispatch(entry);
+    cleanContexts(entry);
+    entry.contexts.forEach(dispatchDeep);
+}
+let context = null;
+const contexts = new Set();
+function get(target, key, getter) {
+    const entry = getEntry(target, key);
+    if (context && !suspense.has(context.target)) {
+        context.deps.add(entry);
+        entry.contexts.add(context);
+    }
+    if (!suspense.has(target)) {
+        cleanContexts(entry);
+        if (entry.resolved) return entry.value;
+        if (entry.depState > entry.state) {
+            let depState = entry.state;
+            for (const depEntry of entry.deps){
+                // eslint-disable-next-line no-unused-expressions
+                depEntry.target[depEntry.key];
+                if (!depEntry.resolved) {
+                    depState = false;
+                    break;
+                }
+                depState += depEntry.state;
+            }
+            if (depState && depState === entry.depState) {
+                entry.resolved = true;
+                return entry.value;
+            }
+        }
+    }
+    const lastContext = context;
+    try {
+        if (contexts.has(entry)) throw Error(`Circular get invocation is forbidden: '${key}'`);
+        entry.deps.forEach((depEntry)=>{
+            depEntry.contexts.delete(entry);
+        });
+        entry.deps.clear();
+        context = entry;
+        contexts.add(entry);
+        const nextValue = getter(target, entry.value);
+        context = lastContext;
+        if (nextValue !== entry.value) {
+            entry.value = nextValue;
+            entry.state += 1;
+        }
+        let depState = entry.state;
+        entry.deps.forEach((depEntry)=>{
+            depState += depEntry.state;
+        });
+        entry.depState = depState;
+        entry.resolved = !suspense.has(target);
+        contexts.delete(entry);
+    } catch (e) {
+        context = lastContext;
+        contexts.delete(entry);
+        entry.resolved = false;
+        if (context && !suspense.has(context)) {
+            context.deps.delete(entry);
+            entry.contexts.delete(context);
+        }
+        throw e;
+    }
+    return entry.value;
+}
+function set(target, key, setter, value) {
+    const entry = getEntry(target, key);
+    const newValue = setter(target, value, entry.value);
+    if (newValue !== entry.value) {
+        entry.value = newValue;
+        entry.state += 1;
+        entry.depState = 0;
+        dispatchDeep(entry);
+    }
+}
+const gcList = new Set();
+function deleteEntry(entry) {
+    if (!gcList.size) requestAnimationFrame(()=>{
+        gcList.forEach((e)=>{
+            if (e.contexts.size === 0) {
+                e.deps.forEach((depEntry)=>{
+                    depEntry.contexts.delete(e);
+                });
+                const targetMap = entries.get(e.target);
+                targetMap.delete(e.key);
+            }
+        });
+        gcList.clear();
+    });
+    gcList.add(entry);
+}
+function invalidateEntry(entry, options) {
+    entry.depState = 0;
+    dispatchDeep(entry);
+    if (options.clearValue) {
+        entry.value = undefined;
+        entry.lastValue = undefined;
+    }
+    if (options.deleteEntry) deleteEntry(entry);
+    if (options.force) entry.state += 1;
+}
+function invalidate(target, key, options = {
+}) {
+    if (contexts.size) throw Error(`Invalidating property in chain of get calls is forbidden: '${key}'`);
+    const entry = getEntry(target, key);
+    invalidateEntry(entry, options);
+}
+function invalidateAll(target, options = {
+}) {
+    if (contexts.size) throw Error("Invalidating all properties in chain of get calls is forbidden");
+    const targetMap = entries.get(target);
+    if (targetMap) targetMap.forEach((entry)=>{
+        invalidateEntry(entry, options);
+    });
+}
+function observe(target, key, getter, fn) {
+    const entry = getEntry(target, key);
+    return _emitterJs.subscribe(entry, ()=>{
+        const value = get(target, key, getter);
+        if (value !== entry.lastValue) {
+            fn(target, value, entry.lastValue);
+            entry.lastValue = value;
+        }
+    });
+}
+function suspend(target) {
+    suspense.add(target);
+}
+function unsuspend(target) {
+    suspense.delete(target);
+}
+
+},{"./emitter.js":"k748X","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"k748X":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "dispatch", ()=>dispatch
+);
+parcelHelpers.export(exports, "subscribe", ()=>subscribe
+);
+const callbacks = new WeakMap();
+const queue = new Set();
+function execute() {
+    try {
+        queue.forEach((target)=>{
+            try {
+                callbacks.get(target)();
+                queue.delete(target);
+            } catch (e) {
+                queue.delete(target);
+                throw e;
+            }
+        });
+    } catch (e) {
+        if (queue.size) execute();
+        throw e;
+    }
+}
+function dispatch(target) {
+    if (callbacks.has(target)) {
+        if (!queue.size) requestAnimationFrame(execute);
+        queue.add(target);
+    }
+}
+function subscribe(target, cb) {
+    callbacks.set(target, cb);
+    dispatch(target);
+    return function unsubscribe() {
+        queue.delete(target);
+        callbacks.delete(target);
+    };
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"fdgXC":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function walk(node, fn) {
+    let parentElement = node.parentElement || node.parentNode.host;
+    while(parentElement){
+        const hybrids = parentElement.constructor.hybrids;
+        if (hybrids && fn(hybrids)) return parentElement;
+        parentElement = parentElement.parentElement || parentElement.parentNode && parentElement.parentNode.host;
+    }
+    return parentElement || null;
+}
+function parent(hybridsOrFn) {
+    const fn = typeof hybridsOrFn === "function" ? hybridsOrFn : (hybrids)=>hybrids === hybridsOrFn
+    ;
+    return {
+        get: (host)=>walk(host, fn)
+        ,
+        connect (host, key, invalidate) {
+            const target = host[key];
+            if (target) return invalidate;
+            return false;
+        }
+    };
+}
+exports.default = parent;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"7O0YF":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+function walk(node, fn, options, items = []) {
+    Array.from(node.children).forEach((child)=>{
+        const hybrids = child.constructor.hybrids;
+        if (hybrids && fn(hybrids)) {
+            items.push(child);
+            if (options.deep && options.nested) walk(child, fn, options, items);
+        } else if (options.deep) walk(child, fn, options, items);
+    });
+    return items;
+}
+function children(hybridsOrFn, options = {
+    deep: false,
+    nested: false
+}) {
+    const fn = typeof hybridsOrFn === "function" ? hybridsOrFn : (hybrids)=>hybrids === hybridsOrFn
+    ;
+    return {
+        get (host) {
+            return walk(host, fn, options);
+        },
+        connect (host, key, invalidate) {
+            const observer = new MutationObserver(invalidate);
+            observer.observe(host, {
+                childList: true,
+                subtree: !!options.deep
+            });
+            return ()=>{
+                observer.disconnect();
+            };
+        }
+    };
+}
+exports.default = children;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"my5xv":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "connect", ()=>connect
+);
+/* eslint-disable no-use-before-define */ var _cacheJs = require("./cache.js");
+var _utilsJs = require("./utils.js");
+const connect = `__store__connect__${Date.now()}__`;
+const definitions = new WeakMap();
+const stales = new WeakMap();
+const refs = new WeakSet();
+function resolve(config, model, lastModel) {
+    if (lastModel) {
+        definitions.set(lastModel, null);
+        stales.set(lastModel, model);
+    }
+    definitions.set(model, config);
+    return model;
+}
+function shallowEqual(target, compare) {
+    return Object.keys(target).every((key)=>target[key] === compare[key]
+    );
+}
+function resolveWithInvalidate(config, model, lastModel) {
+    resolve(config, model, lastModel);
+    if (config.invalidate && (!lastModel || error(model) || !config.isInstance(lastModel) || !shallowEqual(model, lastModel))) config.invalidate();
+    return model;
+}
+function syncCache(config, id, model, invalidate = true) {
+    _cacheJs.set(config, id, invalidate ? resolveWithInvalidate : resolve, model);
+    return model;
+}
+let currentTimestamp;
+function getCurrentTimestamp() {
+    if (!currentTimestamp) {
+        currentTimestamp = Date.now();
+        requestAnimationFrame(()=>{
+            currentTimestamp = undefined;
+        });
+    }
+    return currentTimestamp;
+}
+const timestamps = new WeakMap();
+function getTimestamp(model) {
+    let timestamp = timestamps.get(model);
+    if (!timestamp) {
+        timestamp = getCurrentTimestamp();
+        timestamps.set(model, timestamp);
+    }
+    return timestamp;
+}
+function setTimestamp(model) {
+    timestamps.set(model, getCurrentTimestamp());
+    return model;
+}
+function invalidateTimestamp(model) {
+    timestamps.set(model, 1);
+    return model;
+}
+function setupStorage(storage) {
+    if (typeof storage === "function") storage = {
+        get: storage
+    };
+    const result = {
+        cache: true,
+        loose: true,
+        ...storage
+    };
+    if (result.cache === false || result.cache === 0) result.validate = (cachedModel)=>!cachedModel || getTimestamp(cachedModel) === getCurrentTimestamp()
+    ;
+    else if (typeof result.cache === "number") result.validate = (cachedModel)=>!cachedModel || getTimestamp(cachedModel) + result.cache > getCurrentTimestamp()
+    ;
+    else if (result.cache !== true) throw TypeError(`Storage cache property must be a boolean or number: ${typeof result.cache}`);
+    if (!result.get) result.get = ()=>{
+    };
+    return Object.freeze(result);
+}
+function memoryStorage(config) {
+    return {
+        get: config.enumerable ? ()=>{
+        } : ()=>config.create({
+            })
+        ,
+        set: config.enumerable ? (id, values)=>values
+         : (id, values)=>values === null ? {
+                id
+            } : values
+        ,
+        list: config.enumerable && function list(id) {
+            if (id) throw TypeError(`Memory-based model definition does not support id`);
+            return _cacheJs.getEntries(config).reduce((acc, { key , value  })=>{
+                if (key === config) return acc;
+                if (value && !error(value)) acc.push(key);
+                return acc;
+            }, []);
+        }
+    };
+}
+function bootstrap(Model, nested) {
+    if (Array.isArray(Model)) return setupListModel(Model[0], nested);
+    return setupModel(Model, nested);
+}
+function getTypeConstructor(type, key) {
+    switch(type){
+        case "string":
+            return (v)=>v !== undefined && v !== null ? String(v) : ""
+            ;
+        case "number":
+            return Number;
+        case "boolean":
+            return Boolean;
+        default:
+            throw TypeError(`The value of the '${key}' must be a string, number or boolean: ${type}`);
+    }
+}
+const stateSetter = (_, value, lastValue)=>{
+    if (value.state === "error") return {
+        state: "error",
+        error: value.value
+    };
+    value.error = !!lastValue && lastValue.error;
+    return value;
+};
+function setModelState(model, state, value = model) {
+    _cacheJs.set(model, "state", stateSetter, {
+        state,
+        value
+    });
+    return model;
+}
+const stateGetter = (model, v = {
+    state: "ready",
+    value: model,
+    error: false
+})=>v
+;
+function getModelState(model) {
+    return _cacheJs.get(model, "state", stateGetter);
+}
+// UUID v4 generator thanks to https://gist.github.com/jed/982883
+function uuid(temp) {
+    return temp ? (temp ^ Math.random() * 16 >> temp / 4).toString(16) : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, uuid);
+}
+function ref(fn) {
+    if (typeof fn !== "function") throw TypeError(`The first argument must be a funtion: ${typeof fn}`);
+    refs.add(fn);
+    return fn;
+}
+const validationMap = new WeakMap();
+function resolveKey(Model, key, config) {
+    let defaultValue = config.model[key];
+    if (refs.has(defaultValue)) defaultValue = defaultValue();
+    let type = typeof defaultValue;
+    if (defaultValue instanceof String || defaultValue instanceof Number) {
+        const check = validationMap.get(defaultValue);
+        if (!check) throw TypeError(stringifyModel(Model, `You must use primitive ${typeof defaultValue.valueOf()} value for '${key}' property of the provided model definition`));
+        defaultValue = defaultValue.valueOf();
+        type = typeof defaultValue;
+        config.checks.set(key, check);
+    }
+    return {
+        defaultValue,
+        type
+    };
+}
+function stringifyModel(Model, msg) {
+    return `${msg}\n\nModel = ${JSON.stringify(Model, (key, value)=>{
+        if (key === connect) return undefined;
+        return value;
+    }, 2)}\n`;
+}
+const resolvedPromise = Promise.resolve();
+const configs = new WeakMap();
+function setupModel(Model, nested) {
+    if (typeof Model !== "object" || Model === null) throw TypeError(`Model definition must be an object: ${typeof Model}`);
+    let config = configs.get(Model);
+    if (config && !config.enumerable) {
+        if (nested && !config.nested) throw TypeError(stringifyModel(Model, "Provided model definition for nested object already used as a root definition"));
+        if (!nested && config.nested) throw TypeError(stringifyModel(Model, "Nested model definition cannot be used outside of the parent definition"));
+    }
+    if (!config) {
+        const storage = Model[connect];
+        if (typeof storage === "object") Object.freeze(storage);
+        let invalidatePromise;
+        const enumerable = hasOwnProperty.call(Model, "id");
+        const checks = new Map();
+        const proto = {
+            toString () {
+                return this.id || undefined;
+            }
+        };
+        const placeholder = Object.create(proto);
+        config = {
+            model: Model,
+            external: !!storage,
+            enumerable,
+            nested: !enumerable && nested,
+            placeholder: (id)=>{
+                const model = Object.create(placeholder);
+                definitions.set(model, config);
+                if (enumerable) model.id = id;
+                return Object.freeze(model);
+            },
+            isInstance: (model)=>Object.getPrototypeOf(model) !== placeholder
+            ,
+            invalidate: ()=>{
+                if (!invalidatePromise) invalidatePromise = resolvedPromise.then(()=>{
+                    _cacheJs.invalidate(config, config, {
+                        clearValue: true
+                    });
+                    invalidatePromise = null;
+                });
+            },
+            checks
+        };
+        configs.set(Model, config);
+        config.storage = setupStorage(storage || memoryStorage(config, Model));
+        const transform = Object.keys(Object.freeze(Model)).filter((key)=>key !== connect
+        ).map((key)=>{
+            if (key !== "id") Object.defineProperty(placeholder, key, {
+                get () {
+                    throw Error(`Model instance in ${getModelState(this).state} state - use store.pending(), store.error(), or store.ready() guards`);
+                },
+                enumerable: true
+            });
+            if (key === "id") {
+                if (Model[key] !== true) throw TypeError("The 'id' property in model definition must be set to 'true' or not be defined");
+                return (model, data, lastModel)=>{
+                    let id;
+                    if (hasOwnProperty.call(data, "id")) id = stringifyId(data.id);
+                    else if (lastModel) id = lastModel.id;
+                    else id = uuid();
+                    Object.defineProperty(model, "id", {
+                        value: id,
+                        enumerable: true
+                    });
+                };
+            }
+            const { defaultValue , type  } = resolveKey(Model, key, config);
+            switch(type){
+                case "function":
+                    return (model)=>{
+                        let resolved;
+                        let value;
+                        Object.defineProperty(model, key, {
+                            get () {
+                                if (!resolved) {
+                                    value = defaultValue(this);
+                                    resolved = true;
+                                }
+                                return value;
+                            }
+                        });
+                    };
+                case "object":
+                    {
+                        if (defaultValue === null) throw TypeError(`The value for the '${key}' must be an object instance: ${defaultValue}`);
+                        const isArray = Array.isArray(defaultValue);
+                        if (isArray) {
+                            const nestedType = typeof defaultValue[0];
+                            if (nestedType !== "object") {
+                                const Constructor = getTypeConstructor(nestedType, key);
+                                const defaultArray = Object.freeze(defaultValue.map(Constructor));
+                                return (model, data, lastModel)=>{
+                                    if (hasOwnProperty.call(data, key)) {
+                                        if (!Array.isArray(data[key])) throw TypeError(`The value for '${key}' property must be an array: ${typeof data[key]}`);
+                                        model[key] = Object.freeze(data[key].map(Constructor));
+                                    } else if (lastModel && hasOwnProperty.call(lastModel, key)) model[key] = lastModel[key];
+                                    else model[key] = defaultArray;
+                                };
+                            }
+                            const localConfig = bootstrap(defaultValue, true);
+                            if (localConfig.enumerable && defaultValue[1]) {
+                                const nestedOptions = defaultValue[1];
+                                if (typeof nestedOptions !== "object") throw TypeError(`Options for '${key}' array property must be an object instance: ${typeof nestedOptions}`);
+                                if (nestedOptions.loose) {
+                                    config.contexts = config.contexts || new Set();
+                                    config.contexts.add(bootstrap(defaultValue[0]));
+                                }
+                            }
+                            return (model, data, lastModel)=>{
+                                if (hasOwnProperty.call(data, key)) {
+                                    if (!Array.isArray(data[key])) throw TypeError(`The value for '${key}' property must be an array: ${typeof data[key]}`);
+                                    model[key] = localConfig.create(data[key], true);
+                                } else model[key] = lastModel && lastModel[key] || !localConfig.enumerable && localConfig.create(defaultValue) || [];
+                            };
+                        }
+                        const nestedConfig = bootstrap(defaultValue, true);
+                        if (nestedConfig.enumerable || nestedConfig.external) return (model, data, lastModel)=>{
+                            let resultModel;
+                            if (hasOwnProperty.call(data, key)) {
+                                const nestedData = data[key];
+                                if (typeof nestedData !== "object" || nestedData === null) {
+                                    if (nestedData !== undefined && nestedData !== null) resultModel = {
+                                        id: nestedData
+                                    };
+                                } else {
+                                    const dataConfig = definitions.get(nestedData);
+                                    if (dataConfig) {
+                                        if (dataConfig.model !== defaultValue) throw TypeError("Model instance must match the definition");
+                                        resultModel = nestedData;
+                                    } else {
+                                        resultModel = nestedConfig.create(nestedData);
+                                        syncCache(nestedConfig, resultModel.id, resultModel);
+                                    }
+                                }
+                            } else resultModel = lastModel && lastModel[key];
+                            if (resultModel) {
+                                const id = resultModel.id;
+                                Object.defineProperty(model, key, {
+                                    get () {
+                                        return _cacheJs.get(this, key, ()=>get(defaultValue, id)
+                                        );
+                                    },
+                                    enumerable: true
+                                });
+                            } else model[key] = undefined;
+                        };
+                        return (model, data, lastModel)=>{
+                            if (hasOwnProperty.call(data, key)) model[key] = nestedConfig.create(data[key], lastModel && lastModel[key]);
+                            else model[key] = lastModel ? lastModel[key] : nestedConfig.create({
+                            });
+                        };
+                    }
+                // eslint-disable-next-line no-fallthrough
+                default:
+                    {
+                        const Constructor = getTypeConstructor(type, key);
+                        return (model, data, lastModel)=>{
+                            if (hasOwnProperty.call(data, key)) model[key] = Constructor(data[key]);
+                            else if (lastModel && hasOwnProperty.call(lastModel, key)) model[key] = lastModel[key];
+                            else model[key] = defaultValue;
+                        };
+                    }
+            }
+        });
+        config.create = function create(data, lastModel) {
+            if (data === null) return null;
+            if (typeof data !== "object") throw TypeError(`Model values must be an object instance: ${data}`);
+            const model = transform.reduce((acc, fn)=>{
+                fn(acc, data, lastModel);
+                return acc;
+            }, Object.create(proto));
+            definitions.set(model, config);
+            _utilsJs.storePointer.set(model, store);
+            return Object.freeze(model);
+        };
+        Object.freeze(placeholder);
+        Object.freeze(config);
+    }
+    return config;
+}
+const listPlaceholderPrototype = Object.getOwnPropertyNames(Array.prototype).reduce((acc, key)=>{
+    if (key === "length" || key === "constructor") return acc;
+    Object.defineProperty(acc, key, {
+        get () {
+            throw Error(`Model list instance in ${getModelState(this).state} state - use store.pending(), store.error(), or store.ready() guards`);
+        }
+    });
+    return acc;
+}, []);
+const lists = new WeakMap();
+function setupListModel(Model, nested) {
+    let config = lists.get(Model);
+    if (config && !config.enumerable) {
+        if (!nested && config.nested) throw TypeError(stringifyModel(Model, "Nested model definition cannot be used outside of the parent definition"));
+    }
+    if (!config) {
+        const modelConfig = setupModel(Model);
+        const contexts = new Set();
+        if (modelConfig.storage.loose) contexts.add(modelConfig);
+        if (!nested) {
+            if (!modelConfig.enumerable) throw TypeError(stringifyModel(Model, "Provided model definition does not support listing (it must be enumerable - set `id` property to `true`)"));
+            if (!modelConfig.storage.list) throw TypeError(stringifyModel(Model, "Provided model definition storage does not support `list` action"));
+        }
+        nested = !modelConfig.enumerable && nested;
+        config = {
+            list: true,
+            nested,
+            model: Model,
+            contexts,
+            enumerable: modelConfig.enumerable,
+            storage: setupStorage({
+                cache: modelConfig.storage.cache,
+                get: !nested && ((id)=>modelConfig.storage.list(id)
+                )
+            }),
+            placeholder: ()=>{
+                const model = Object.create(listPlaceholderPrototype);
+                definitions.set(model, config);
+                return Object.freeze(model);
+            },
+            isInstance: (model)=>Object.getPrototypeOf(model) !== listPlaceholderPrototype
+            ,
+            create (items, invalidate = false) {
+                const result = items.reduce((acc, data)=>{
+                    let id = data;
+                    if (typeof data === "object" && data !== null) {
+                        id = data.id;
+                        const dataConfig = definitions.get(data);
+                        let model = data;
+                        if (dataConfig) {
+                            if (dataConfig.model !== Model) throw TypeError("Model instance must match the definition");
+                        } else {
+                            model = modelConfig.create(data);
+                            if (modelConfig.enumerable) {
+                                id = model.id;
+                                syncCache(modelConfig, id, model, invalidate);
+                            }
+                        }
+                        if (!modelConfig.enumerable) acc.push(model);
+                    } else if (!modelConfig.enumerable) throw TypeError(`Model instance must be an object: ${typeof data}`);
+                    if (modelConfig.enumerable) {
+                        const key = acc.length;
+                        Object.defineProperty(acc, key, {
+                            get () {
+                                return _cacheJs.get(this, key, ()=>get(Model, id)
+                                );
+                            },
+                            enumerable: true
+                        });
+                    }
+                    return acc;
+                }, []);
+                definitions.set(result, config);
+                _utilsJs.storePointer.set(result, store);
+                return Object.freeze(result);
+            }
+        };
+        lists.set(Model, Object.freeze(config));
+    }
+    return config;
+}
+function resolveTimestamp(h, v) {
+    return v || getCurrentTimestamp();
+}
+function stringifyId(id) {
+    switch(typeof id){
+        case "object":
+            return JSON.stringify(Object.keys(id).sort().reduce((acc, key)=>{
+                if (typeof id[key] === "object" && id[key] !== null) throw TypeError(`You must use primitive value for '${key}' key: ${typeof id[key]}`);
+                acc[key] = id[key];
+                return acc;
+            }, {
+            }));
+        case "undefined":
+            return undefined;
+        default:
+            return String(id);
+    }
+}
+function mapError(model, err, suppressLog) {
+    if (suppressLog !== false) // eslint-disable-next-line no-console
+    console.error(err);
+    return setModelState(model, "error", err);
+}
+function get(Model, id) {
+    const config = bootstrap(Model);
+    let stringId;
+    if (config.enumerable) {
+        stringId = stringifyId(id);
+        if (!config.list && !stringId) throw TypeError(stringifyModel(Model, `Provided model definition requires non-empty id: "${stringId}"`));
+    } else if (id !== undefined) throw TypeError(stringifyModel(Model, "Provided model definition does not support id"));
+    const validate = config.storage.validate;
+    if (validate) {
+        const entry = _cacheJs.getEntry(config, stringId);
+        if (entry.value && !validate(entry.value)) {
+            entry.resolved = false;
+            entry.depState = 0;
+        }
+    }
+    return _cacheJs.get(config, stringId, (h, cachedModel)=>{
+        if (cachedModel && pending(cachedModel)) return cachedModel;
+        let validContexts = true;
+        if (config.contexts) config.contexts.forEach((context)=>{
+            if (_cacheJs.get(context, context, resolveTimestamp) === getCurrentTimestamp()) validContexts = false;
+        });
+        if (validContexts && cachedModel && (config.storage.cache === true || config.storage.validate(cachedModel))) return cachedModel;
+        try {
+            let result = config.storage.get(id);
+            if (typeof result !== "object" || result === null) throw Error(stringifyModel(Model, `Model instance ${stringId !== undefined ? `with '${stringId}' id ` : ""}does not exist`));
+            if (result instanceof Promise) {
+                result = result.then((data)=>{
+                    if (typeof data !== "object" || data === null) throw Error(stringifyModel(Model, `Model instance ${stringId !== undefined ? ` with '${stringId}' id ` : ""}does not exist`));
+                    return syncCache(config, stringId, config.create(!config.list && stringId ? {
+                        ...data,
+                        id: stringId
+                    } : data));
+                }).catch((e)=>syncCache(config, stringId, mapError(cachedModel || config.placeholder(stringId), e))
+                );
+                return setModelState(cachedModel || config.placeholder(stringId), "pending", result);
+            }
+            if (cachedModel) definitions.set(cachedModel, null);
+            return setTimestamp(config.create(!config.list && stringId ? {
+                ...result,
+                id: stringId
+            } : result));
+        } catch (e) {
+            return setTimestamp(mapError(cachedModel || config.placeholder(stringId), e));
+        }
+    });
+}
+const draftMap = new WeakMap();
+function getValidationError(errors) {
+    const keys = Object.keys(errors);
+    const e = Error(`Model validation failed (${keys.join(", ")}) - read the details from 'errors' property`);
+    e.errors = errors;
+    return e;
+}
+function set(model, values = {
+}) {
+    let config = definitions.get(model);
+    if (config === null) {
+        model = stales.get(model);
+        config = definitions.get(model);
+    }
+    if (config === null) throw Error("Provided model instance has expired. Haven't you used stale value?");
+    const isInstance = !!config;
+    if (!config) config = bootstrap(model);
+    const isDraft = draftMap.get(config);
+    if (config.nested) throw stringifyModel(config.model, TypeError("Setting provided nested model instance is not supported, use the root model instance"));
+    if (config.list) throw TypeError("Listing model definition does not support 'set' method");
+    if (!config.storage.set) throw stringifyModel(config.model, TypeError("Provided model definition storage does not support 'set' method"));
+    if (isInstance) {
+        const promise = pending(model);
+        if (promise) return promise.then((m)=>set(m, values)
+        );
+    }
+    let id;
+    const setState = (state, value)=>{
+        if (isInstance) setModelState(model, state, value);
+        else {
+            const entry = _cacheJs.getEntry(config, id);
+            if (entry.value) setModelState(entry.value, state, value);
+        }
+    };
+    try {
+        if (config.enumerable && !isInstance && (!values || typeof values !== "object")) throw TypeError(`Values must be an object instance: ${values}`);
+        if (!isDraft && values && hasOwnProperty.call(values, "id")) throw TypeError(`Values must not contain 'id' property: ${values.id}`);
+        const localModel = config.create(values, isInstance ? model : undefined);
+        const keys = values ? Object.keys(values) : [];
+        const errors = {
+        };
+        const lastError = isInstance && isDraft && error(model);
+        let hasErrors = false;
+        if (localModel) {
+            config.checks.forEach((fn, key)=>{
+                if (keys.indexOf(key) === -1) {
+                    if (lastError && lastError.errors && lastError.errors[key]) {
+                        hasErrors = true;
+                        errors[key] = lastError.errors[key];
+                    }
+                    // eslint-disable-next-line eqeqeq
+                    if (isDraft && localModel[key] == config.model[key]) return;
+                }
+                let checkResult;
+                try {
+                    checkResult = fn(localModel[key], key, localModel);
+                } catch (e) {
+                    checkResult = e;
+                }
+                if (checkResult !== true && checkResult !== undefined) {
+                    hasErrors = true;
+                    errors[key] = checkResult || true;
+                }
+            });
+            if (hasErrors && !isDraft) throw getValidationError(errors);
+        }
+        id = localModel ? localModel.id : model.id;
+        const result = Promise.resolve(config.storage.set(isInstance ? id : undefined, localModel, keys)).then((data)=>{
+            const resultModel = data === localModel ? localModel : config.create(data);
+            if (isInstance && resultModel && id !== resultModel.id) throw TypeError(`Local and storage data must have the same id: '${id}', '${resultModel.id}'`);
+            let resultId = resultModel ? resultModel.id : id;
+            if (hasErrors && isDraft) setModelState(resultModel, "error", getValidationError(errors));
+            if (isDraft && isInstance && hasOwnProperty.call(data, "id") && (!localModel || localModel.id !== model.id)) resultId = model.id;
+            return syncCache(config, resultId, resultModel || mapError(config.placeholder(resultId), Error(`Model instance ${id !== undefined ? `with '${id}' id` : ""}does not exist`), false), true);
+        }).catch((err)=>{
+            err = err !== undefined ? err : Error("Undefined error");
+            setState("error", err);
+            throw err;
+        });
+        setState("pending", result);
+        return result;
+    } catch (e) {
+        setState("error", e);
+        return Promise.reject(e);
+    }
+}
+function sync(model, values) {
+    if (typeof values !== "object") throw TypeError(`Values must be an object instance: ${values}`);
+    let config = definitions.get(model);
+    if (config === null) {
+        model = stales.get(model);
+        config = definitions.get(model);
+    }
+    if (config === null) throw Error("Provided model instance has expired. Haven't you used stale value?");
+    if (config === undefined) {
+        if (!values) throw TypeError("Values must be defined for usage with model definition");
+        config = bootstrap(model);
+        model = undefined;
+    } else if (values && hasOwnProperty.call(values, "id")) throw TypeError(`Values must not contain 'id' property: ${values.id}`);
+    if (config.list) throw TypeError("Listing model definition is not supported in sync method");
+    const resultModel = config.create(values, model);
+    const id = values ? resultModel.id : model.id;
+    return syncCache(config, id, resultModel || mapError(config.placeholder(id), Error(`Model instance ${id !== undefined ? ` with '${id}' id` : ""}does not exist`), false));
+}
+function clear(model, clearValue = true) {
+    if (typeof model !== "object" || model === null) throw TypeError(`The first argument must be a model instance or a model definition: ${model}`);
+    let config = definitions.get(model);
+    if (config === null) throw Error("Provided model instance has expired. Haven't you used stale value from the outer scope?");
+    if (config) {
+        invalidateTimestamp(model);
+        _cacheJs.invalidate(config, model.id, {
+            clearValue,
+            deleteEntry: true
+        });
+    } else {
+        if (!configs.get(model) && !lists.get(model[0])) throw Error("Model definition must be used before - passed argument is probably not a model definition");
+        config = bootstrap(model);
+        _cacheJs.getEntries(config).forEach((entry)=>{
+            if (entry.value) invalidateTimestamp(entry.value);
+        });
+        _cacheJs.invalidateAll(config, {
+            clearValue,
+            deleteEntry: true
+        });
+    }
+}
+function pending(...models) {
+    let isPending = false;
+    const result = models.map((model)=>{
+        try {
+            const { state , value  } = getModelState(model);
+            if (state === "pending") {
+                isPending = true;
+                return value;
+            }
+        } catch (e) {
+        } // eslint-disable-line no-empty
+        return Promise.resolve(model);
+    });
+    return isPending && (models.length > 1 ? Promise.all(result) : result[0]);
+}
+function resolveToLatest(model) {
+    model = stales.get(model) || model;
+    const promise = pending(model);
+    if (!promise) {
+        const e = error(model);
+        return e ? Promise.reject(e) : Promise.resolve(model);
+    }
+    return promise.then((m)=>resolveToLatest(m)
+    );
+}
+function error(model, property) {
+    if (model === null || typeof model !== "object") return false;
+    const state = getModelState(model);
+    if (property !== undefined && typeof state.error === "object" && state.error) return state.error.errors && state.error.errors[property];
+    return state.error;
+}
+function ready(...models) {
+    return models.length > 0 && models.every((model)=>{
+        const config = definitions.get(model);
+        return !!(config && config.isInstance(model));
+    });
+}
+function mapValueWithState(lastValue, nextValue) {
+    const result = Object.freeze(Object.keys(lastValue).reduce((acc, key)=>{
+        Object.defineProperty(acc, key, {
+            get: ()=>lastValue[key]
+            ,
+            enumerable: true
+        });
+        return acc;
+    }, Object.create(lastValue)));
+    definitions.set(result, definitions.get(lastValue));
+    _cacheJs.set(result, "state", ()=>getModelState(nextValue)
+    );
+    return result;
+}
+function getValuesFromModel(model, values) {
+    model = {
+        ...model,
+        ...values
+    };
+    delete model.id;
+    return model;
+}
+function submit(draft, values = {
+}) {
+    const config = definitions.get(draft);
+    if (!config || !draftMap.has(config)) throw TypeError(`Provided model instance is not a draft: ${draft}`);
+    if (pending(draft)) throw Error("Model draft in pending state");
+    const options = draftMap.get(config);
+    let result;
+    if (!options.id) result = set(options.model, getValuesFromModel(draft, values));
+    else {
+        const model = get(options.model, draft.id);
+        result = Promise.resolve(pending(model) || model).then((resolvedModel)=>set(resolvedModel, getValuesFromModel(draft, values))
+        );
+    }
+    result = result.then((resultModel)=>{
+        setModelState(draft, "ready");
+        return set(draft, resultModel).then(()=>resultModel
+        );
+    }).catch((e)=>{
+        setModelState(draft, "error", e);
+        return Promise.reject(e);
+    });
+    setModelState(draft, "pending", result);
+    return result;
+}
+function required(value, key) {
+    return !!value || `${key} is required`;
+}
+function valueWithValidation(defaultValue, validate = required, errorMessage = "") {
+    switch(typeof defaultValue){
+        case "string":
+            // eslint-disable-next-line no-new-wrappers
+            defaultValue = new String(defaultValue);
+            break;
+        case "number":
+            // eslint-disable-next-line no-new-wrappers
+            defaultValue = new Number(defaultValue);
+            break;
+        default:
+            throw TypeError(`Default value must be a string or a number: ${typeof defaultValue}`);
+    }
+    let fn;
+    if (validate instanceof RegExp) fn = (value)=>validate.test(value) || errorMessage
+    ;
+    else if (typeof validate === "function") fn = (...args)=>{
+        const result = validate(...args);
+        return result !== true && result !== undefined ? result || errorMessage : result;
+    };
+    else throw TypeError(`The second argument must be a RegExp instance or a function: ${typeof validate}`);
+    validationMap.set(defaultValue, fn);
+    return defaultValue;
+}
+function store(Model, options = {
+}) {
+    const config = bootstrap(Model);
+    if (typeof options !== "object") options = {
+        id: options
+    };
+    if (options.id !== undefined && typeof options.id !== "function") {
+        const id = options.id;
+        options.id = (host)=>host[id]
+        ;
+    }
+    if (options.draft) {
+        if (config.list) throw TypeError("Draft mode is not supported for listing model definition");
+        Model = {
+            ...Model,
+            [connect]: {
+                get (id) {
+                    const model = get(config.model, id);
+                    return ready(model) ? model : pending(model);
+                },
+                set (id, values) {
+                    return values === null ? {
+                        id
+                    } : values;
+                }
+            }
+        };
+        options.draft = bootstrap(Model);
+        draftMap.set(options.draft, {
+            model: config.model,
+            id: options.id
+        });
+    }
+    const createMode = options.draft && (config.enumerable && !options.id || !config.enumerable && config.external);
+    const desc = {
+        get: (host, lastValue)=>{
+            if (createMode && !lastValue) {
+                const nextValue = options.draft.create({
+                });
+                syncCache(options.draft, nextValue.id, nextValue, false);
+                return get(Model, nextValue.id);
+            }
+            const id = (options.draft || options.id === undefined) && lastValue ? lastValue.id : options.id && options.id(host);
+            const nextValue = get(Model, id);
+            if (lastValue && nextValue !== lastValue && !ready(nextValue)) return mapValueWithState(lastValue, nextValue);
+            return nextValue;
+        },
+        connect: options.draft ? (host, key)=>()=>{
+                _cacheJs.invalidate(host, key, {
+                    clearValue: true
+                });
+                clear(Model, false);
+            }
+         : undefined
+    };
+    if (!options.id && !options.draft && (config.enumerable || config.list)) desc.set = (host, values)=>{
+        const valueConfig = definitions.get(values);
+        if (valueConfig) {
+            if (valueConfig === config) return values;
+            throw TypeError("Model instance must match the definition");
+        }
+        return store.get(Model, values);
+    };
+    else if (!config.list) desc.set = (host, values, lastValue)=>{
+        if (!lastValue || !ready(lastValue)) lastValue = desc.get(host);
+        store.set(lastValue, values).catch(/* istanbul ignore next */ ()=>{
+        });
+        return lastValue;
+    };
+    return desc;
+}
+exports.default = Object.assign(store, {
+    // storage
+    connect,
+    // actions
+    get,
+    set,
+    sync,
+    clear,
+    // guards
+    pending,
+    error,
+    ready,
+    // helpers
+    submit,
+    value: valueWithValidation,
+    resolve: resolveToLatest,
+    ref
+});
+
+},{"./cache.js":"h1gUX","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"2W0rQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "html", ()=>html
+);
+parcelHelpers.export(exports, "svg", ()=>svg
+);
+var _defineJs = require("../define.js");
+var _defineJsDefault = parcelHelpers.interopDefault(_defineJs);
+var _coreJs = require("./core.js");
+var _helpersJs = require("./helpers.js");
+const PLACEHOLDER = _coreJs.getPlaceholder();
+const SVG_PLACEHOLDER = _coreJs.getPlaceholder("svg");
+const STYLE_IMPORT_REGEXP = /@import/;
+const templatesMap = new Map();
+const stylesMap = new WeakMap();
+const methods = {
+    define (elements) {
+        _defineJsDefault.default(elements);
+        return this;
+    },
+    key (id) {
+        this.id = id;
+        return this;
+    },
+    style (...styles) {
+        stylesMap.set(this, (stylesMap.get(this) || []).concat(styles.filter((style)=>style
+        )));
+        return this;
+    },
+    css (parts, ...args) {
+        stylesMap.set(this, (stylesMap.get(this) || []).concat(parts.reduce((acc, part, index)=>`${acc}${part}${args[index] || ""}`
+        , "")));
+        return this;
+    }
+};
+function create(parts, args, isSVG) {
+    const createTemplate = (host, target = host)=>{
+        const styles = stylesMap.get(createTemplate);
+        let hasAdoptedStyleSheets;
+        let id = parts.join(PLACEHOLDER);
+        if (styles) {
+            const joinedStyles = styles.join(PLACEHOLDER);
+            hasAdoptedStyleSheets = !!target.adoptedStyleSheets && !STYLE_IMPORT_REGEXP.test(joinedStyles);
+            if (!hasAdoptedStyleSheets) id += joinedStyles;
+        }
+        if (isSVG) id += SVG_PLACEHOLDER;
+        let render = templatesMap.get(id);
+        if (!render) {
+            render = _coreJs.compileTemplate(parts, isSVG, !hasAdoptedStyleSheets && styles);
+            templatesMap.set(id, render);
+        }
+        render(host, target, args, hasAdoptedStyleSheets && styles);
+    };
+    return Object.assign(createTemplate, methods);
+}
+function html(parts, ...args) {
+    return create(parts, args);
+}
+function svg(parts, ...args) {
+    return create(parts, args, true);
+}
+Object.assign(html, _helpersJs);
+Object.assign(svg, _helpersJs);
+
+},{"../define.js":"asmN0","./core.js":"8WyaD","./helpers.js":"8GgIp","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"8WyaD":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getPlaceholder", ()=>getPlaceholder
+);
+parcelHelpers.export(exports, "createInternalWalker", ()=>createInternalWalker
+);
+parcelHelpers.export(exports, "compileTemplate", ()=>compileTemplate
+);
+var _utilsJs = require("../utils.js");
+var _utilsJs1 = require("./utils.js");
+var _valueJs = require("./resolvers/value.js");
+var _valueJsDefault = parcelHelpers.interopDefault(_valueJs);
+var _propertyJs = require("./resolvers/property.js");
+var _propertyJsDefault = parcelHelpers.interopDefault(_propertyJs);
+const TIMESTAMP = Date.now();
+const getPlaceholder = (id = 0)=>`{{h-${TIMESTAMP}-${id}}}`
+;
+const PLACEHOLDER_REGEXP_TEXT = getPlaceholder("(\\d+)");
+const PLACEHOLDER_REGEXP_EQUAL = new RegExp(`^${PLACEHOLDER_REGEXP_TEXT}$`);
+const PLACEHOLDER_REGEXP_ALL = new RegExp(PLACEHOLDER_REGEXP_TEXT, "g");
+const preparedTemplates = new WeakMap();
+/* istanbul ignore next */ function applyShadyCSS(template, tagName) {
+    if (!tagName) return template;
+    return _utilsJs.shadyCSS((shady)=>{
+        let map = preparedTemplates.get(template);
+        if (!map) {
+            map = new Map();
+            preparedTemplates.set(template, map);
+        }
+        let clone = map.get(tagName);
+        if (!clone) {
+            clone = document.createElement("template");
+            clone.content.appendChild(template.content.cloneNode(true));
+            map.set(tagName, clone);
+            const styles = clone.content.querySelectorAll("style");
+            Array.from(styles).forEach((style)=>{
+                const count = style.childNodes.length + 1;
+                for(let i = 0; i < count; i += 1)style.parentNode.insertBefore(document.createTextNode(getPlaceholder()), style);
+            });
+            shady.prepareTemplate(clone, tagName.toLowerCase());
+        }
+        return clone;
+    }, template);
+}
+function createSignature(parts, styles) {
+    let signature = parts.reduce((acc, part, index)=>{
+        if (index === 0) return part;
+        if (parts.slice(index).join("").match(/^\s*<\/\s*(table|tr|thead|tbody|tfoot|colgroup)>/)) return `${acc}<!--${getPlaceholder(index - 1)}-->${part}`;
+        return acc + getPlaceholder(index - 1) + part;
+    }, "");
+    if (styles) signature += `<style>\n${styles.join("\n/*------*/\n")}\n</style>`;
+    return signature;
+}
+function getPropertyName(string) {
+    return string.replace(/\s*=\s*['"]*$/g, "").split(/\s+/).pop();
+}
+function replaceComments(fragment) {
+    const iterator = document.createNodeIterator(fragment, NodeFilter.SHOW_COMMENT, null, false);
+    let node;
+    // eslint-disable-next-line no-cond-assign
+    while(node = iterator.nextNode())if (PLACEHOLDER_REGEXP_EQUAL.test(node.textContent)) {
+        node.parentNode.insertBefore(document.createTextNode(node.textContent), node);
+        node.parentNode.removeChild(node);
+    }
+}
+function createInternalWalker(context) {
+    let node;
+    return {
+        get currentNode () {
+            return node;
+        },
+        nextNode () {
+            if (node === undefined) node = context.childNodes[0];
+            else if (node.childNodes.length) node = node.childNodes[0];
+            else if (node.nextSibling) node = node.nextSibling;
+            else {
+                let parentNode = node.parentNode;
+                node = parentNode.nextSibling;
+                while(!node && parentNode !== context){
+                    parentNode = parentNode.parentNode;
+                    node = parentNode.nextSibling;
+                }
+            }
+            return !!node;
+        }
+    };
+}
+function createExternalWalker(context) {
+    return document.createTreeWalker(context, // eslint-disable-next-line no-bitwise
+    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, null, false);
+}
+/* istanbul ignore next */ const createWalker = typeof window.ShadyDOM === "object" && window.ShadyDOM.inUse ? createInternalWalker : createExternalWalker;
+const styleSheetsMap = new Map();
+function normalizeWhitespace(input, startIndent = 0) {
+    input = input.replace(/(^[\n\s\t ]+)|([\n\s\t ]+$)+/g, "");
+    let i = input.indexOf("\n");
+    if (i > -1) {
+        let indent = 0 - startIndent - 2;
+        for(i += 1; input[i] === " " && i < input.length; i += 1)indent += 1;
+        return input.replace(/\n +/g, (t)=>t.substr(0, Math.max(t.length - indent, 1))
+        );
+    }
+    return input;
+}
+function beautifyTemplateLog(input, index) {
+    const placeholder = getPlaceholder(index);
+    const output = normalizeWhitespace(input).split("\n").filter((i)=>i
+    ).map((line)=>{
+        const startIndex = line.indexOf(placeholder);
+        if (startIndex > -1) return `| ${line}\n--${"-".repeat(startIndex)}${"^".repeat(6)}`;
+        return `| ${line}`;
+    }).join("\n")// eslint-disable-next-line no-template-curly-in-string
+    .replace(PLACEHOLDER_REGEXP_ALL, "${...}");
+    return `${output}`;
+}
+function compileTemplate(rawParts, isSVG, styles) {
+    const template = document.createElement("template");
+    const parts = [];
+    const signature = createSignature(rawParts, styles);
+    template.innerHTML = isSVG ? `<svg>${signature}</svg>` : signature;
+    if (isSVG) {
+        const svgRoot = template.content.firstChild;
+        template.content.removeChild(svgRoot);
+        Array.from(svgRoot.childNodes).forEach((node)=>template.content.appendChild(node)
+        );
+    }
+    replaceComments(template.content);
+    const compileWalker = createWalker(template.content);
+    let compileIndex = 0;
+    while(compileWalker.nextNode()){
+        const node = compileWalker.currentNode;
+        if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent;
+            if (!text.match(PLACEHOLDER_REGEXP_EQUAL)) {
+                const results = text.match(PLACEHOLDER_REGEXP_ALL);
+                if (results) {
+                    let currentNode = node;
+                    results.reduce((acc, placeholder)=>{
+                        const [before, next] = acc.pop().split(placeholder);
+                        if (before) acc.push(before);
+                        acc.push(placeholder);
+                        if (next) acc.push(next);
+                        return acc;
+                    }, [
+                        text
+                    ]).forEach((part, index)=>{
+                        if (index === 0) currentNode.textContent = part;
+                        else currentNode = currentNode.parentNode.insertBefore(document.createTextNode(part), currentNode.nextSibling);
+                    });
+                }
+            }
+            const equal = node.textContent.match(PLACEHOLDER_REGEXP_EQUAL);
+            if (equal) {
+                node.textContent = "";
+                parts[equal[1]] = [
+                    compileIndex, _valueJsDefault.default];
+            }
+        } else /* istanbul ignore else */ // eslint-disable-next-line no-lonely-if
+        if (node.nodeType === Node.ELEMENT_NODE) Array.from(node.attributes).forEach((attr)=>{
+            const value = attr.value.trim();
+            /* istanbul ignore next */ const name = attr.name;
+            const equal = value.match(PLACEHOLDER_REGEXP_EQUAL);
+            if (equal) {
+                const propertyName = getPropertyName(rawParts[equal[1]]);
+                parts[equal[1]] = [
+                    compileIndex,
+                    _propertyJsDefault.default(name, propertyName, isSVG), 
+                ];
+                node.removeAttribute(attr.name);
+            } else {
+                const results = value.match(PLACEHOLDER_REGEXP_ALL);
+                if (results) {
+                    const partialName = `attr__${name}`;
+                    results.forEach((placeholder, index)=>{
+                        const [, id] = placeholder.match(PLACEHOLDER_REGEXP_EQUAL);
+                        let isProp = false;
+                        parts[id] = [
+                            compileIndex,
+                            (host, target, attrValue)=>{
+                                const data = _utilsJs1.dataMap.get(target, {
+                                });
+                                data[partialName] = (data[partialName] || value).replace(placeholder, attrValue == null ? "" : attrValue);
+                                if (results.length === 1 || index + 1 === results.length) {
+                                    isProp = isProp || !isSVG && !(target instanceof SVGElement) && name in target;
+                                    if (isProp) target[name] = data[partialName];
+                                    else target.setAttribute(name, data[partialName]);
+                                    data[partialName] = undefined;
+                                }
+                            }, 
+                        ];
+                    });
+                    attr.value = "";
+                }
+            }
+        });
+        compileIndex += 1;
+    }
+    return function updateTemplateInstance(host, target, args, styleSheets) {
+        const data = _utilsJs1.dataMap.get(target, {
+            type: "function"
+        });
+        if (template !== data.template) {
+            if (data.template || target.nodeType !== Node.TEXT_NODE) _utilsJs1.removeTemplate(target);
+            data.prevArgs = null;
+            const fragment = document.importNode(applyShadyCSS(template, host.tagName).content, true);
+            const renderWalker = createWalker(fragment);
+            const clonedParts = parts.slice(0);
+            let renderIndex = 0;
+            let currentPart = clonedParts.shift();
+            const markers = [];
+            data.template = template;
+            data.markers = markers;
+            while(renderWalker.nextNode()){
+                const node = renderWalker.currentNode;
+                while(currentPart && currentPart[0] === renderIndex){
+                    markers.push([
+                        node,
+                        currentPart[1]
+                    ]);
+                    currentPart = clonedParts.shift();
+                }
+                renderIndex += 1;
+            }
+            if (target.nodeType === Node.TEXT_NODE) {
+                data.startNode = fragment.childNodes[0];
+                data.endNode = fragment.childNodes[fragment.childNodes.length - 1];
+                let previousChild = target;
+                let child = fragment.childNodes[0];
+                while(child){
+                    target.parentNode.insertBefore(child, previousChild.nextSibling);
+                    previousChild = child;
+                    child = fragment.childNodes[0];
+                }
+            } else target.appendChild(fragment);
+        }
+        const adoptedStyleSheets = target.adoptedStyleSheets;
+        if (styleSheets) {
+            let isEqual = false;
+            styleSheets = styleSheets.map((style)=>{
+                if (style instanceof CSSStyleSheet) return style;
+                let styleSheet = styleSheetsMap.get(style);
+                if (!styleSheet) {
+                    styleSheet = new CSSStyleSheet();
+                    styleSheet.replaceSync(style);
+                    styleSheetsMap.set(style, styleSheet);
+                }
+                return styleSheet;
+            });
+            if (styleSheets.length === adoptedStyleSheets.length) {
+                isEqual = true;
+                for(let i = 0; i < styleSheets.length; i += 1)if (styleSheets[i] !== adoptedStyleSheets[i]) {
+                    isEqual = false;
+                    break;
+                }
+            }
+            if (!isEqual) target.adoptedStyleSheets = styleSheets;
+        } else if (adoptedStyleSheets && adoptedStyleSheets.length) target.adoptedStyleSheets = [];
+        const prevArgs = data.prevArgs;
+        data.prevArgs = args;
+        for(let index = 0; index < data.markers.length; index += 1){
+            const [node, marker] = data.markers[index];
+            if (!prevArgs || prevArgs[index] !== args[index]) try {
+                marker(host, node, args[index], prevArgs ? prevArgs[index] : undefined);
+            } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error(`Following error was thrown when updating a template expression in ${_utilsJs.stringifyElement(host)}\n${beautifyTemplateLog(signature, index)}`);
+                throw error;
+            }
+        }
         if (target.nodeType !== Node.TEXT_NODE) _utilsJs.shadyCSS((shady)=>{
             if (host.shadowRoot) {
                 if (prevArgs) shady.styleSubtree(host);
@@ -10329,44 +9222,19 @@ function removeTemplate(target) {
         while(child){
             target.removeChild(child);
             child = target.childNodes[0];
-=======
-    });
-    // Support: Safari 8 only
-    // In Safari 8 documents created via document.implementation.createHTMLDocument
-    // collapse sibling forms: the second one becomes a child of the first one.
-    // Because of that, this security measure has to be disabled in Safari 8.
-    // https://bugs.webkit.org/show_bug.cgi?id=137337
-    support.createHTMLDocument = (function() {
-        var body = document.implementation.createHTMLDocument("").body;
-        body.innerHTML = "<form></form><form></form>";
-        return body.childNodes.length === 2;
-    })();
-    // Argument "data" should be string of html
-    // context (optional): If specified, the fragment will be created in this context,
-    // defaults to document
-    // keepScripts (optional): If true, will include scripts passed in the html string
-    jQuery.parseHTML = function(data, context, keepScripts) {
-        if (typeof data !== "string") return [];
-        if (typeof context === "boolean") {
-            keepScripts = context;
-            context = false;
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
         }
-        var base, parsed, scripts;
-        if (!context) {
-            // Stop scripts or inline event handlers from being executed immediately
-            // by using document.implementation
-            if (support.createHTMLDocument) {
-                context = document.implementation.createHTMLDocument("");
-                // Set the base href for the created document
-                // so any parsed elements with URLs
-                // are based on the document's URL (gh-2965)
-                base = context.createElement("base");
-                base.href = document.location.href;
-                context.head.appendChild(base);
-            } else context = document;
+    } else {
+        const data = dataMap.get(target);
+        if (data.startNode) {
+            const endNode = getTemplateEnd(data.endNode);
+            let node = data.startNode;
+            const lastNextSibling = endNode.nextSibling;
+            while(node){
+                const nextSibling = node.nextSibling;
+                node.parentNode.removeChild(node);
+                node = nextSibling !== lastNextSibling && nextSibling;
+            }
         }
-<<<<<<< HEAD
     }
 }
 
@@ -10462,174 +9330,28 @@ function resolveArray(host, target, value, resolveValue) {
             for(let i = 0; i < lastEntries.length; i += 1)if (lastEntries[i].available && lastEntries[i].id === entry.id) {
                 matchedEntry = lastEntries[i];
                 break;
-=======
-        parsed = rsingleTag.exec(data);
-        scripts = !keepScripts && [];
-        // Single tag
-        if (parsed) return [
-            context.createElement(parsed[1])
-        ];
-        parsed = buildFragment([
-            data
-        ], context, scripts);
-        if (scripts && scripts.length) jQuery(scripts).remove();
-        return jQuery.merge([], parsed.childNodes);
-    };
-    /**
- * Load a url into a page
- */ jQuery.fn.load = function(url, params, callback) {
-        var selector, type, response, self = this, off = url.indexOf(" ");
-        if (off > -1) {
-            selector = stripAndCollapse(url.slice(off));
-            url = url.slice(0, off);
-        }
-        // If it's a function
-        if (isFunction(params)) {
-            // We assume that it's the callback
-            callback = params;
-            params = undefined;
-        // Otherwise, build a param string
-        } else if (params && typeof params === "object") type = "POST";
-        // If we have elements to modify, make the request
-        if (self.length > 0) jQuery.ajax({
-            url: url,
-            // If "type" variable is undefined, then "GET" method will be used.
-            // Make value of this field explicit since
-            // user can override it through ajaxSetup method
-            type: type || "GET",
-            dataType: "html",
-            data: params
-        }).done(function(responseText) {
-            // Save response for use in complete callback
-            response = arguments;
-            self.html(selector ? // If a selector was specified, locate the right elements in a dummy div
-            // Exclude scripts to avoid IE 'Permission Denied' errors
-            jQuery("<div>").append(jQuery.parseHTML(responseText)).find(selector) : // Otherwise use the full result
-            responseText);
-        // If the request succeeds, this function gets "data", "status", "jqXHR"
-        // but they are ignored because response was set above.
-        // If it fails, this function gets "jqXHR", "status", "error"
-        }).always(callback && function(jqXHR, status) {
-            self.each(function() {
-                callback.apply(this, response || [
-                    jqXHR.responseText,
-                    status,
-                    jqXHR
-                ]);
-            });
-        });
-        return this;
-    };
-    jQuery.expr.pseudos.animated = function(elem) {
-        return jQuery.grep(jQuery.timers, function(fn) {
-            return elem === fn.elem;
-        }).length;
-    };
-    jQuery.offset = {
-        setOffset: function(elem, options, i2) {
-            var curPosition, curLeft, curCSSTop, curTop, curOffset, curCSSLeft, calculatePosition, position = jQuery.css(elem, "position"), curElem = jQuery(elem), props = {
-            };
-            // Set position first, in-case top/left are set even on static elem
-            if (position === "static") elem.style.position = "relative";
-            curOffset = curElem.offset();
-            curCSSTop = jQuery.css(elem, "top");
-            curCSSLeft = jQuery.css(elem, "left");
-            calculatePosition = (position === "absolute" || position === "fixed") && (curCSSTop + curCSSLeft).indexOf("auto") > -1;
-            // Need to be able to calculate position if either
-            // top or left is auto and position is either absolute or fixed
-            if (calculatePosition) {
-                curPosition = curElem.position();
-                curTop = curPosition.top;
-                curLeft = curPosition.left;
-            } else {
-                curTop = parseFloat(curCSSTop) || 0;
-                curLeft = parseFloat(curCSSLeft) || 0;
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
             }
-            if (isFunction(options)) // Use jQuery.extend here to allow modification of coordinates argument (gh-1848)
-            options = options.call(elem, i2, jQuery.extend({
-            }, curOffset));
-            if (options.top != null) props.top = options.top - curOffset.top + curTop;
-            if (options.left != null) props.left = options.left - curOffset.left + curLeft;
-            if ("using" in options) options.using.call(elem, props);
-            else curElem.css(props);
         }
-    };
-    jQuery.fn.extend({
-        // offset() relates an element's border box to the document origin
-        offset: function(options) {
-            // Preserve chaining for setter
-            if (arguments.length) return options === undefined ? this : this.each(function(i2) {
-                jQuery.offset.setOffset(this, options, i2);
-            });
-            var rect, win, elem = this[0];
-            if (!elem) return;
-            // Return zeros for disconnected and hidden (display: none) elements (gh-2310)
-            // Support: IE <=11 only
-            // Running getBoundingClientRect on a
-            // disconnected node in IE throws an error
-            if (!elem.getClientRects().length) return {
-                top: 0,
-                left: 0
-            };
-            // Get document-relative position by adding viewport scroll to viewport-relative gBCR
-            rect = elem.getBoundingClientRect();
-            win = elem.ownerDocument.defaultView;
-            return {
-                top: rect.top + win.pageYOffset,
-                left: rect.left + win.pageXOffset
-            };
-        },
-        // position() relates an element's margin box to its offset parent's padding box
-        // This corresponds to the behavior of CSS absolute positioning
-        position: function() {
-            if (!this[0]) return;
-            var offsetParent, offset, doc, elem = this[0], parentOffset = {
-                top: 0,
-                left: 0
-            };
-            // position:fixed elements are offset from the viewport, which itself always has zero offset
-            if (jQuery.css(elem, "position") === "fixed") // Assume position:fixed implies availability of getBoundingClientRect
-            offset = elem.getBoundingClientRect();
-            else {
-                offset = this.offset();
-                // Account for the *real* offset parent, which can be the document or its root element
-                // when a statically positioned element is identified
-                doc = elem.ownerDocument;
-                offsetParent = elem.offsetParent || doc.documentElement;
-                while(offsetParent && (offsetParent === doc.body || offsetParent === doc.documentElement) && jQuery.css(offsetParent, "position") === "static")offsetParent = offsetParent.parentNode;
-                if (offsetParent && offsetParent !== elem && offsetParent.nodeType === 1) {
-                    // Incorporate borders into its offset, since they are outside its content origin
-                    parentOffset = jQuery(offsetParent).offset();
-                    parentOffset.top += jQuery.css(offsetParent, "borderTopWidth", true);
-                    parentOffset.left += jQuery.css(offsetParent, "borderLeftWidth", true);
-                }
-            }
-            // Subtract parent offsets and element margins
-            return {
-                top: offset.top - parentOffset.top - jQuery.css(elem, "marginTop", true),
-                left: offset.left - parentOffset.left - jQuery.css(elem, "marginLeft", true)
-            };
-        },
-        // This method will return documentElement in the following cases:
-        // 1) For the element inside the iframe without offsetParent, this method will return
-        //    documentElement of the parent window
-        // 2) For the hidden or detached element
-        // 3) For body or html element, i.e. in case of the html node - it will return itself
-        //
-        // but those exceptions were never presented as a real life use-cases
-        // and might be considered as more preferable results.
-        //
-        // This logic, however, is not guaranteed and can change at any point in the future
-        offsetParent: function() {
-            return this.map(function() {
-                var offsetParent = this.offsetParent;
-                while(offsetParent && jQuery.css(offsetParent, "position") === "static")offsetParent = offsetParent.offsetParent;
-                return offsetParent || documentElement;
-            });
+        if (matchedEntry) {
+            matchedEntry.available = false;
+            entry.placeholder = matchedEntry.placeholder;
+            if (entry.placeholder.previousSibling !== previousSibling) movePlaceholder(entry.placeholder, previousSibling);
+            if (matchedEntry.value !== entry.value) resolveValue(host, entry.placeholder, entry.value);
+        } else {
+            entry.placeholder = document.createTextNode("");
+            previousSibling.parentNode.insertBefore(entry.placeholder, previousSibling.nextSibling);
+            resolveValue(host, entry.placeholder, entry.value);
+        }
+        previousSibling = _utilsJs.getTemplateEnd(_utilsJs.dataMap.get(entry.placeholder).endNode || entry.placeholder);
+        if (index === 0) data.startNode = entry.placeholder;
+        if (index === lastIndex) data.endNode = previousSibling;
+    }
+    if (lastEntries) lastEntries.forEach((entry)=>{
+        if (entry.available) {
+            _utilsJs.removeTemplate(entry.placeholder);
+            entry.placeholder.parentNode.removeChild(entry.placeholder);
         }
     });
-<<<<<<< HEAD
 }
 exports.default = resolveArray;
 
@@ -10795,196 +9517,72 @@ function getPartialObject(name, value) {
         };
         return {
             [key]: acc
-=======
-    // Create scrollLeft and scrollTop methods
-    jQuery.each({
-        scrollLeft: "pageXOffset",
-        scrollTop: "pageYOffset"
-    }, function(method, prop) {
-        var top = "pageYOffset" === prop;
-        jQuery.fn[method] = function(val) {
-            return access(this, function(elem, method1, val1) {
-                // Coalesce documents and windows
-                var win;
-                if (isWindow(elem)) win = elem;
-                else if (elem.nodeType === 9) win = elem.defaultView;
-                if (val1 === undefined) return win ? win[prop] : elem[method1];
-                if (win) win.scrollTo(!top ? val1 : win.pageXOffset, top ? val1 : win.pageYOffset);
-                else elem[method1] = val1;
-            }, method, val, arguments.length);
         };
-    });
-    // Support: Safari <=7 - 9.1, Chrome <=37 - 49
-    // Add the top/left cssHooks using jQuery.fn.position
-    // Webkit bug: https://bugs.webkit.org/show_bug.cgi?id=29084
-    // Blink bug: https://bugs.chromium.org/p/chromium/issues/detail?id=589347
-    // getComputedStyle returns percent when specified for top/left/bottom/right;
-    // rather than make the css module depend on the offset module, just check for it here
-    jQuery.each([
-        "top",
-        "left"
-    ], function(_i, prop) {
-        jQuery.cssHooks[prop] = addGetHookIf(support.pixelPosition, function(elem, computed) {
-            if (computed) {
-                computed = curCSS(elem, prop);
-                // If curCSS returns percentage, fallback to offset
-                return rnumnonpx.test(computed) ? jQuery(elem).position()[prop] + "px" : computed;
+    }, null);
+}
+const stringCache = new Map();
+const storeValues = new WeakMap();
+function set(property, valueOrPath) {
+    if (!property) throw Error(`The first argument must be a property name or an object instance: ${property}`);
+    if (typeof property === "object") {
+        if (valueOrPath === undefined) throw Error("For model instance property the second argument must be defined");
+        const store = _utilsJs.storePointer.get(property);
+        if (!store) throw Error("Provided object must be a model instance of the store");
+        if (valueOrPath === null) return ()=>{
+            store.set(property, null);
+        };
+        return (host, event)=>{
+            resolveValue(event, (value)=>{
+                const values = storeValues.get(property);
+                if (!values) requestAnimationFrame(()=>{
+                    const result = storeValues.get(property);
+                    storeValues.delete(property);
+                    store.set(property, result).catch(/* istanbul ignore next */ ()=>{
+                    });
+                });
+                storeValues.set(property, {
+                    ...values,
+                    ...getPartialObject(valueOrPath, value)
+                });
+            });
+        };
+    }
+    if (arguments.length === 2) return (host)=>{
+        host[property] = valueOrPath;
+    };
+    let fn = stringCache.get(property);
+    if (!fn) {
+        fn = (host, event)=>{
+            resolveValue(event, (value)=>{
+                host[property] = value;
+            });
+        };
+        stringCache.set(property, fn);
+    }
+    return fn;
+}
+const promiseMap = new WeakMap();
+function resolve(promise, placeholder, delay = 200) {
+    return (host, target)=>{
+        let timeout;
+        if (placeholder) timeout = setTimeout(()=>{
+            timeout = undefined;
+            requestAnimationFrame(()=>{
+                placeholder(host, target);
+            });
+        }, delay);
+        promiseMap.set(target, promise);
+        promise.then((value)=>{
+            if (timeout) clearTimeout(timeout);
+            if (promiseMap.get(target) === promise) {
+                _valueJsDefault.default(host, target, value);
+                promiseMap.set(target, null);
             }
         });
-    });
-    // Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
-    jQuery.each({
-        Height: "height",
-        Width: "width"
-    }, function(name, type) {
-        jQuery.each({
-            padding: "inner" + name,
-            content: type,
-            "": "outer" + name
-        }, function(defaultExtra, funcName) {
-            // Margin is only for outerHeight, outerWidth
-            jQuery.fn[funcName] = function(margin, value) {
-                var chainable = arguments.length && (defaultExtra || typeof margin !== "boolean"), extra = defaultExtra || (margin === true || value === true ? "margin" : "border");
-                return access(this, function(elem, type1, value1) {
-                    var doc;
-                    if (isWindow(elem)) // $( window ).outerWidth/Height return w/h including scrollbars (gh-1729)
-                    return funcName.indexOf("outer") === 0 ? elem["inner" + name] : elem.document.documentElement["client" + name];
-                    // Get document width or height
-                    if (elem.nodeType === 9) {
-                        doc = elem.documentElement;
-                        // Either scroll[Width/Height] or offset[Width/Height] or client[Width/Height],
-                        // whichever is greatest
-                        return Math.max(elem.body["scroll" + name], doc["scroll" + name], elem.body["offset" + name], doc["offset" + name], doc["client" + name]);
-                    }
-                    return value1 === undefined ? // Get width or height on the element, requesting but not forcing parseFloat
-                    jQuery.css(elem, type1, extra) : // Set width or height on the element
-                    jQuery.style(elem, type1, value1, extra);
-                }, type, chainable ? margin : undefined, chainable);
-            };
-        });
-    });
-    jQuery.each([
-        "ajaxStart",
-        "ajaxStop",
-        "ajaxComplete",
-        "ajaxError",
-        "ajaxSuccess",
-        "ajaxSend"
-    ], function(_i, type) {
-        jQuery.fn[type] = function(fn) {
-            return this.on(type, fn);
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
-        };
-    });
-    jQuery.fn.extend({
-        bind: function(types, data, fn) {
-            return this.on(types, null, data, fn);
-        },
-        unbind: function(types, fn) {
-            return this.off(types, null, fn);
-        },
-        delegate: function(selector, types, data, fn) {
-            return this.on(types, selector, data, fn);
-        },
-        undelegate: function(selector, types, fn) {
-            // ( namespace ) or ( selector, types [, fn] )
-            return arguments.length === 1 ? this.off(selector, "**") : this.off(types, selector || "**", fn);
-        },
-        hover: function(fnOver, fnOut) {
-            return this.mouseenter(fnOver).mouseleave(fnOut || fnOver);
-        }
-    });
-    jQuery.each("blur focus focusin focusout resize scroll click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup contextmenu".split(" "), function(_i, name) {
-        // Handle event binding
-        jQuery.fn[name] = function(data, fn) {
-            return arguments.length > 0 ? this.on(name, null, data, fn) : this.trigger(name);
-        };
-    });
-    // Support: Android <=4.0 only
-    // Make sure we trim BOM and NBSP
-    var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
-    // Bind a function to a context, optionally partially applying any
-    // arguments.
-    // jQuery.proxy is deprecated to promote standards (specifically Function#bind)
-    // However, it is not slated for removal any time soon
-    jQuery.proxy = function(fn, context) {
-        var tmp, args, proxy;
-        if (typeof context === "string") {
-            tmp = fn[context];
-            context = fn;
-            fn = tmp;
-        }
-        // Quick check to determine if target is callable, in the spec
-        // this throws a TypeError, but we will just return undefined.
-        if (!isFunction(fn)) return undefined;
-        // Simulated bind
-        args = slice.call(arguments, 2);
-        proxy = function() {
-            return fn.apply(context || this, args.concat(slice.call(arguments)));
-        };
-        // Set the guid of unique handler to the same of original handler, so it can be removed
-        proxy.guid = fn.guid = fn.guid || jQuery.guid++;
-        return proxy;
     };
-    jQuery.holdReady = function(hold) {
-        if (hold) jQuery.readyWait++;
-        else jQuery.ready(true);
-    };
-    jQuery.isArray = Array.isArray;
-    jQuery.parseJSON = JSON.parse;
-    jQuery.nodeName = nodeName;
-    jQuery.isFunction = isFunction;
-    jQuery.isWindow = isWindow;
-    jQuery.camelCase = camelCase;
-    jQuery.type = toType;
-    jQuery.now = Date.now;
-    jQuery.isNumeric = function(obj) {
-        // As of jQuery 3.0, isNumeric is limited to
-        // strings and numbers (primitives or objects)
-        // that can be coerced to finite numbers (gh-2662)
-        var type = jQuery.type(obj);
-        return (type === "number" || type === "string") && // parseFloat NaNs numeric-cast false positives ("")
-        // ...but misinterprets leading-number strings, particularly hex literals ("0x...")
-        // subtraction forces infinities to NaN
-        !isNaN(obj - parseFloat(obj));
-    };
-    jQuery.trim = function(text) {
-        return text == null ? "" : (text + "").replace(rtrim, "");
-    };
-    // Register as a named AMD module, since jQuery can be concatenated with other
-    // files that may use define, but not via a proper concatenation script that
-    // understands anonymous AMD modules. A named AMD is safest and most robust
-    // way to register. Lowercase jquery is used because AMD module names are
-    // derived from file names, and jQuery is normally delivered in a lowercase
-    // file name. Do this after creating the global so that if an AMD module wants
-    // to call noConflict to hide this version of jQuery, it will work.
-    // Note that for maximum portability, libraries that are not jQuery should
-    // declare themselves as anonymous modules, and avoid setting a global if an
-    // AMD loader is present. jQuery is a special case. For more information, see
-    // https://github.com/jrburke/requirejs/wiki/Updating-existing-libraries#wiki-anon
-    if (typeof define === "function" && define.amd) define("jquery", [], function() {
-        return jQuery;
-    });
-    var // Map over jQuery in case of overwrite
-    _jQuery = window.jQuery, // Map over the $ in case of overwrite
-    _$ = window.$;
-    jQuery.noConflict = function(deep) {
-        if (window.$ === jQuery) window.$ = _$;
-        if (deep && window.jQuery === jQuery) window.jQuery = _jQuery;
-        return jQuery;
-    };
-    // Expose jQuery and $ identifiers, even in AMD
-    // (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
-    // and CommonJS for browser emulators (#13566)
-    if (typeof noGlobal === "undefined") window.jQuery = window.$ = jQuery;
-    return jQuery;
-});
+}
 
-<<<<<<< HEAD
 },{"../utils.js":"37ZkP","./resolvers/value.js":"8cNp0","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"iAiHz":[function(require,module,exports) {
-=======
-},{}],"iwB9f":[function(require,module,exports) {
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 // Copyright 2020 Google LLC
 //
@@ -11008,7 +9606,7 @@ window.$ = window.jQuery = _jqueryDefault.default;
 // these come from toggles in settings.ts.
 const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
 const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
-const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'true');
+const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false');
 const autoExec = JSON.parse(localStorage["autoExec"] || 'true');
 document.addEventListener("DOMContentLoaded", function() {
     // Select button
@@ -11257,10 +9855,6 @@ function loadGraph() {
     });
 }
 
-<<<<<<< HEAD
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["2xpA0","kb3Qw"], "kb3Qw", "parcelRequire94c2")
-=======
-},{"jquery":"jP6KW","@parcel/transformer-js/src/esmodule-helpers.js":"1xmLs"}]},["ghMHG","jWiUE"], "jWiUE", "parcelRequire94c2")
->>>>>>> ff9361cdd7c144bc65f6c2e7a10dfb98ca5faa36
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["9P0Uy","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map
