@@ -31,7 +31,7 @@ G = db.G
 # The [[agora]] is a [[distributed knowledge graph]].
 # Nodes are the heart of the [[agora]].
 # In the [[agora]] there are no 404s. Everything that can be described with words has a node in the [[agora]].
-# The [[agora]] is a [[search engine]]: anagora.org/agora-search
+# The [[agora]] is in some ways thus a [[search engine]]: anagora.org/agora-search
 #
 # Flask routes work so that the one closest to the function is the canonical one.
 
@@ -52,6 +52,10 @@ def node(node, extension='', user_list=''):
             rank = user_list.split(",")
         else:
             rank = user_list
+
+    # there are some ill-slugged links to anagora.org out there, special casing here for a while at least.
+    # this should probably be made irrelevant by the Big Refactor that we need to do to make the canonical node identifier non-lossy.
+    node = node.replace(',', '').replace(':', '')
 
     from copy import copy
     n = copy(G.node(node))

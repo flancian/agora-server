@@ -140,12 +140,12 @@
       this[globalName] = mainExports;
     }
   }
-})({"2xpA0":[function(require,module,exports) {
+})({"1eKdY":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 41689;
+var HMR_PORT = 1234;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
-module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
+module.bundle.HMR_BUNDLE_ID = "cb25d9263d45812b"; // @flow
 /* global HMR_HOST, HMR_PORT, HMR_ENV_HASH, HMR_SECURE */ /*::
 import type {
   HMRAsset,
@@ -403,7 +403,7 @@ var _settings = require("./settings");
 var _main = require("./main");
 window.$ = window.jQuery = _jqueryDefault.default;
 
-},{"jquery":"hVaUM","./settings":"lWHlS","./main":"iAiHz","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"hVaUM":[function(require,module,exports) {
+},{"jquery":"lUcY5","./settings":"lWHlS","./main":"iAiHz","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lUcY5":[function(require,module,exports) {
 /*!
  * jQuery JavaScript Library v3.6.0
  * https://jquery.com/
@@ -7236,78 +7236,24 @@ var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
 window.$ = window.jQuery = _jqueryDefault.default;
 let rawRanking = JSON.parse(localStorage["ranking"] || '[]');
-let rawAutoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
-let rawAutoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
-let rawAutoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false');
-let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false');
+let rawAutoPull = JSON.parse(localStorage["autoPull"] || 'false');
 function processRanking(host, e) {
     host.ranking = e.currentTarget.value.split(",");
     localStorage["ranking"] = JSON.stringify(host.ranking);
 }
-function processUsername(h, e) {
-    h.username = e.currentTarget.value;
+function processPull(host, e) {
+    host.autopull = e.currentTarget.checked;
+    localStorage["autoPull"] = JSON.stringify(host.autopull);
 }
-function processRepo(h, e) {
-    h.repo = e.currentTarget.value;
-}
-function processPullLocal(host, e) {
-    host.autopulllocal = e.currentTarget.checked;
-    localStorage["autoPullLocal"] = JSON.stringify(host.autopulllocal);
-}
-function processPullExternal(host, e) {
-    host.autopullexternal = e.currentTarget.checked;
-    localStorage["autoPullExternal"] = JSON.stringify(host.autopullexternal);
-}
-function processPullStoa(host, e) {
-    host.autopullstoa = e.currentTarget.checked;
-    localStorage["autoPullStoa"] = JSON.stringify(host.autopullexternal);
-}
-function processBrackets(host, e) {
-    host.brackets = e.currentTarget.checked;
-    localStorage["showBrackets"] = JSON.stringify(host.brackets);
-}
-function autoPullLocal() {
+function isChecked() {
     // hack for putting attribute in element
-    if (localStorage["autoPullLocal"] && JSON.parse(localStorage["autoPullLocal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" checked />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to auto pull Agora resources? <input type="checkbox" oninput="${processPullLocal}" />\n    </div>\n    `;
-}
-function autoPullExternal() {
-    // hack for putting attribute in element
-    if (localStorage["autoPullExternal"] && JSON.parse(localStorage["autoPullExternal"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" checked />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPullExternal}" />\n    </div>\n    `;
-}
-function autoPullStoa() {
-    // hack for putting attribute in element
-    if (localStorage["autoPullStoa"] && !JSON.parse(localStorage["autoPullStoa"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to auto pull the Stoa? <input type="checkbox" oninput="${processPullStoa}" checked />\n    </div>\n    `;
-}
-function showBrackets() {
-    // hack for putting attribute in element
-    if (localStorage["showBrackets"] && JSON.parse(localStorage["showBrackets"])) return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" checked />\n    </div>\n    `;
-    return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" />\n    </div>\n    `;
-}
-async function processRepoAdd(h, e) {
-    let response = await fetch(`${APIBASE}/repo`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": 'application/json'
-        },
-        body: JSON.stringify({
-            target: h.username,
-            url: h.repo,
-            format: "foam"
-        })
-    });
-    let d = await response.json();
-    alert(JSON.stringify(d));
+    if (localStorage["autoPull"] && JSON.parse(localStorage["autoPull"])) return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPull}" checked />\n    </div>\n    `;
+    return _hybrids.html`\n    <div>\n        Do you want to auto pull external resources? <input type="checkbox" oninput="${processPull}" />\n    </div>\n    `;
 }
 const Settings = {
     ranking: rawRanking,
-    autopulllocal: rawAutoPullLocal,
-    autopullexternal: rawAutoPullExternal,
-    autopullstoa: rawAutoPullStoa,
-    brackets: rawShowBrackets,
-    render: ({ ranking , autopulllocal , autopullexternal , autopullstoa , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPullLocal()}\n        ${autoPullExternal()}\n        ${autoPullStoa()}\n        ${showBrackets()}\n        <div>\n            <h1>Add garden to Agora</h1>\n            <div>This feature is <em>experimental</em>, which means it's probably broken :). If this fails, please send your repository information to signup@anagora.org. Thank you!</div>\n            <br>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n\n    `
+    autopull: rawAutoPull,
+    render: ({ ranking , autopull , checked  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${isChecked()}\n\n    `
 };
 _hybrids.define('settings-form', Settings);
 if (localStorage["ranking"]) {
@@ -7324,7 +7270,7 @@ if (localStorage["ranking"]) {
     subnodes.insertAfter($(".main-header"));
 }
 
-},{"hybrids":"lxcky","jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lxcky":[function(require,module,exports) {
+},{"hybrids":"kEa45","jquery":"lUcY5","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"kEa45":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "define", ()=>_defineJsDefault.default
@@ -7360,7 +7306,7 @@ var _storeJsDefault = parcelHelpers.interopDefault(_storeJs);
 var _indexJs = require("./template/index.js");
 var _utilsJs = require("./utils.js");
 
-},{"./define.js":"asmN0","./property.js":"fDsJJ","./parent.js":"fdgXC","./children.js":"7O0YF","./render.js":"b5FFb","./store.js":"my5xv","./template/index.js":"2W0rQ","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"asmN0":[function(require,module,exports) {
+},{"./define.js":"9p2xK","./property.js":"9B6EK","./parent.js":"27eaN","./children.js":"hCarJ","./render.js":"8URq1","./store.js":"kRe9C","./template/index.js":"1hik0","./utils.js":"8v3xo","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"9p2xK":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "callbacksMap", ()=>callbacksMap
@@ -7533,7 +7479,7 @@ function define(...args) {
 }
 exports.default = define;
 
-},{"./property.js":"fDsJJ","./render.js":"b5FFb","./cache.js":"h1gUX","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"fDsJJ":[function(require,module,exports) {
+},{"./property.js":"9B6EK","./render.js":"8URq1","./cache.js":"bxmB9","./utils.js":"8v3xo","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"9B6EK":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _utilsJs = require("./utils.js");
@@ -7596,7 +7542,7 @@ function property(value, connect) {
 }
 exports.default = property;
 
-},{"./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"37ZkP":[function(require,module,exports) {
+},{"./utils.js":"8v3xo","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"8v3xo":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "camelToDash", ()=>camelToDash
@@ -7675,7 +7621,7 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"b5FFb":[function(require,module,exports) {
+},{}],"8URq1":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 function render(fn, customOptions = {
@@ -7708,7 +7654,7 @@ function render(fn, customOptions = {
 }
 exports.default = render;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"h1gUX":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"bxmB9":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getEntry", ()=>getEntry
@@ -7912,7 +7858,7 @@ function unsuspend(target) {
     suspense.delete(target);
 }
 
-},{"./emitter.js":"k748X","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"k748X":[function(require,module,exports) {
+},{"./emitter.js":"2JXfP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"2JXfP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "dispatch", ()=>dispatch
@@ -7952,7 +7898,7 @@ function subscribe(target, cb) {
     };
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"fdgXC":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"27eaN":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 function walk(node, fn) {
@@ -7979,7 +7925,7 @@ function parent(hybridsOrFn) {
 }
 exports.default = parent;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"7O0YF":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"hCarJ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 function walk(node, fn, options, items = []) {
@@ -8016,7 +7962,7 @@ function children(hybridsOrFn, options = {
 }
 exports.default = children;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"my5xv":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"kRe9C":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "connect", ()=>connect
@@ -8844,7 +8790,7 @@ exports.default = Object.assign(store, {
     ref
 });
 
-},{"./cache.js":"h1gUX","./utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"2W0rQ":[function(require,module,exports) {
+},{"./cache.js":"bxmB9","./utils.js":"8v3xo","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"1hik0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "html", ()=>html
@@ -8909,7 +8855,7 @@ function svg(parts, ...args) {
 Object.assign(html, _helpersJs);
 Object.assign(svg, _helpersJs);
 
-},{"../define.js":"asmN0","./core.js":"8WyaD","./helpers.js":"8GgIp","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"8WyaD":[function(require,module,exports) {
+},{"../define.js":"9p2xK","./core.js":"lE4YS","./helpers.js":"bCLKm","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lE4YS":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getPlaceholder", ()=>getPlaceholder
@@ -9188,7 +9134,7 @@ function compileTemplate(rawParts, isSVG, styles) {
     };
 }
 
-},{"../utils.js":"37ZkP","./utils.js":"ayQtD","./resolvers/value.js":"8cNp0","./resolvers/property.js":"dpBl1","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"ayQtD":[function(require,module,exports) {
+},{"../utils.js":"8v3xo","./utils.js":"14fTP","./resolvers/value.js":"hD9QV","./resolvers/property.js":"ceeNb","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"14fTP":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "dataMap", ()=>dataMap
@@ -9238,7 +9184,7 @@ function removeTemplate(target) {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"8cNp0":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"hD9QV":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _utilsJs = require("../utils.js");
@@ -9276,7 +9222,7 @@ function resolveValue(host, target, value) {
 }
 exports.default = resolveValue;
 
-},{"../utils.js":"ayQtD","./array.js":"hTRPk","./node.js":"cYoFq","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"hTRPk":[function(require,module,exports) {
+},{"../utils.js":"14fTP","./array.js":"bUSKY","./node.js":"kcg58","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"bUSKY":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "arrayMap", ()=>arrayMap
@@ -9355,7 +9301,7 @@ function resolveArray(host, target, value, resolveValue) {
 }
 exports.default = resolveArray;
 
-},{"../utils.js":"ayQtD","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"cYoFq":[function(require,module,exports) {
+},{"../utils.js":"14fTP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"kcg58":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _utilsJs = require("../utils.js");
@@ -9374,7 +9320,7 @@ function resolveNode(host, target, value) {
 }
 exports.default = resolveNode;
 
-},{"../utils.js":"ayQtD","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"dpBl1":[function(require,module,exports) {
+},{"../utils.js":"14fTP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"ceeNb":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _eventJs = require("./event.js");
@@ -9410,7 +9356,7 @@ function resolveProperty(attrName, propertyName, isSVG) {
 }
 exports.default = resolveProperty;
 
-},{"./event.js":"1R6Lh","./class.js":"2j0R7","./style.js":"jV2OL","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"1R6Lh":[function(require,module,exports) {
+},{"./event.js":"jVXlt","./class.js":"lic4G","./style.js":"cMqpp","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"jVXlt":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 const targets = new WeakMap();
@@ -9435,7 +9381,7 @@ function resolveEventListener(eventType) {
 }
 exports.default = resolveEventListener;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"2j0R7":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lic4G":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 function normalizeValue(value, set = new Set()) {
@@ -9461,7 +9407,7 @@ function resolveClassList(host, target, value) {
 }
 exports.default = resolveClassList;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"jV2OL":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"cMqpp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _utilsJs = require("../../utils.js");
@@ -9485,7 +9431,7 @@ function resolveStyle(host, target, value) {
 }
 exports.default = resolveStyle;
 
-},{"../../utils.js":"37ZkP","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"8GgIp":[function(require,module,exports) {
+},{"../../utils.js":"8v3xo","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"bCLKm":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "set", ()=>set
@@ -9582,7 +9528,7 @@ function resolve(promise, placeholder, delay = 200) {
     };
 }
 
-},{"../utils.js":"37ZkP","./resolvers/value.js":"8cNp0","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"iAiHz":[function(require,module,exports) {
+},{"../utils.js":"8v3xo","./resolvers/value.js":"hD9QV","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"iAiHz":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 // Copyright 2020 Google LLC
 //
@@ -9602,12 +9548,6 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
 window.$ = window.jQuery = _jqueryDefault.default;
-// these define default dynamic behaviour client-side, based on local storage preferences.
-// these come from toggles in settings.ts.
-const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
-const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
-const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'true');
-const autoExec = JSON.parse(localStorage["autoExec"] || 'true');
 document.addEventListener("DOMContentLoaded", function() {
     // Select button
     const btn = document.querySelector(".theme-toggle");
@@ -9635,85 +9575,33 @@ document.addEventListener("DOMContentLoaded", function() {
     $(window).keydown(function(e) {
         if (e.ctrlKey && e.altKey && e.keyCode == 83) $("#mini-cli").focus().val("");
     });
-    // pull arbitrary URL
-    $(".pull-url").click(function(e) {
-        if (this.classList.contains('pulled')) {
-            // already pulled.
-            this.innerText = 'pull';
-            $(e.currentTarget).nextAll('iframe').remove();
-            this.classList.remove('pulled');
-        } else {
-            // pull.
-            this.innerText = 'pulling';
-            let url = this.value;
-            console.log('pull url : ' + url);
-            $(e.currentTarget).after('<iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>');
-            this.innerText = 'fold';
-            this.classList.add('pulled');
-        }
-    });
     // pull a node from the default [[stoa]]
-    $("#pull-stoa").click(function(e) {
-        if (this.classList.contains('pulled')) {
-            // already pulled.
-            this.innerText = 'pull';
-            $(e.currentTarget).nextAll('iframe').remove();
-            $("#stoa-iframe").html('');
-            this.classList.remove('pulled');
-        } else {
-            this.innerText = 'pulling';
-            let node = this.value;
-            $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?view" width="100%" height="500" frameborder="0"></iframe>');
-            this.innerText = 'fold';
-            this.classList.add('pulled');
-        }
+    $("#pull-stoa").click(function() {
+        let node = this.value;
+        $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?showControls=true&showChat=true&showLineNumbers=true&useMonospaceFont=false" width="100%" height="500" frameborder="0"></iframe>');
+        this.innerText = 'pulled';
     });
     // pull a node from the [[agora]]
-    $(".pull-node").click(function(e) {
+    $(".pull-node").click(function() {
         let node = this.value;
-        if (this.classList.contains('pulled')) {
-            // already pulled.
-            // $(e.currentTarget).nextAll('div').remove()
-            $("#" + node + ".pulled-node-embed").html('');
-            this.innerText = 'pull';
-            this.classList.remove('pulled');
-        } else {
-            this.innerText = 'pulling';
-            console.log('pulling node');
-            $.get(AGORAURL + '/pull/' + node, function(data) {
-                $("#" + node + ".pulled-node-embed").html(data);
-            });
-            this.innerText = 'fold';
-            this.classList.add('pulled');
-        }
+        $.get(AGORAURL + '/pull/' + node, function(data) {
+            $("#" + node + ".pulled-iframe").html(data);
+        });
+        // old approach with iframe
+        // $("#" + node + ".pulled-iframe").html('<iframe class="pulled-iframe" name="embed_readwrite" src="http://dev.anagora.org/pull/' + node +'" width="100%" height="500" frameborder="0"></iframe>');
+        this.innerText = 'pulled';
     });
-    // pull full text search 
-    $(".pull-search").click(function(e) {
-        if (this.classList.contains('pulled')) {
-            $("#pulled-search.pulled-search-embed").html('');
-            this.innerText = 'pull';
-            this.classList.remove('pulled');
-        } else {
-            this.innerText = 'pulling';
-            let qstr = this.value;
-            $.get(AGORAURL + '/fullsearch/' + qstr, function(data) {
-                $("#pulled-search.pulled-search-embed").html('<br />' + data);
-            });
-            this.classList.add('pulled');
-            this.innerText = 'fold';
-        }
-    });
-    const showBrackets = JSON.parse(localStorage["showBrackets"] || 'false');
-    if (showBrackets) {
-        elements = document.getElementsByClassName("wikilink-marker");
-        console.log("should show brackets");
-        for(var i = 0; i < elements.length; i++)elements[i].style.display = 'inline';
-    }
+    const autoPull = JSON.parse(localStorage["autoPull"] || 'false');
+    // pull a tweet using the laziest way I found, might be a better one
     $(".pull-tweet").click(function(e) {
-        this.innerText = 'pulling';
         let tweet = this.value;
         $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
-        this.innerText = 'pulled?';
+        this.innerText = 'pulled';
+    });
+    if (autoPull) $(".pull-tweet").each(function() {
+        const tweet = this.value;
+        $(this).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
+        this.innerText = 'pulled';
     });
     function statusContent(self) {
         let toot = self.value;
@@ -9751,10 +9639,20 @@ document.addEventListener("DOMContentLoaded", function() {
     $(".pull-mastodon-status").click(function(e) {
         statusContent(this);
     });
+    if (autoPull) $(".pull-mastodon-status").each(function() {
+        statusContent(this);
+    });
     // pull a pleroma status (toot) using the laziest way I found, might be a better one
     $(".pull-pleroma-status").click(function(e) {
         let toot = this.value;
         $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"></script>');
+        this.innerText = 'pulled';
+    });
+    // pull arbitrary URL
+    $(".pull-url").click(function(e) {
+        let url = this.value;
+        console.log('pull url : ' + url);
+        $(e.currentTarget).next('a').after('<br /><iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>');
         this.innerText = 'pulled';
     });
     // go to the specified URL
@@ -9763,52 +9661,6 @@ document.addEventListener("DOMContentLoaded", function() {
         this.innerText = 'going';
         window.location.replace(url);
     });
-    if (autoExec) {
-        console.log('autoexec is enabled');
-        console.log('executing node: ' + NODENAME);
-        req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME);
-        console.log('req: ' + req);
-        $.get(req, function(data) {
-            console.log('html: ' + data);
-            $(".topline-search").after(data);
-        // let html = data['html']
-        // $(self).after(html);
-        });
-    }
-    if (autoPullLocal) {
-        console.log('auto pulling local resources!');
-        $(".pull-node").each(function(e) {
-            console.log('auto pulling node');
-            this.click();
-        });
-        $(".pull-search").each(function(e) {
-            console.log('auto pulling search');
-            this.click();
-        });
-    }
-    if (autoPullExternal) {
-        console.log('auto pulling external resources!');
-        $(".pull-mastodon-status").each(function(e) {
-            console.log('auto pulling activity');
-            this.click();
-        });
-        $(".pull-tweet").each(function(e) {
-            console.log('auto pulling tweet');
-            this.click();
-        });
-    /*
-     * this might be too disruptive?
-    $(".pull-url").each(function(e) {
-        console.log('auto pulling url');
-        this.click();
-    });
-    */ }
-    if (autoPullStoa) {
-        console.log('auto pulling stoa');
-        $("#pull-stoa").each(function(e) {
-            this.click();
-        });
-    }
 });
 function getRandomColor() {
     var letters = '0123456789ABCDEF'.split('');
@@ -9855,6 +9707,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["2xpA0","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"lUcY5","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["1eKdY","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map

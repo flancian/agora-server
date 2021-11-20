@@ -101,26 +101,28 @@ class Graph:
     # @cache.memoize(timeout=30)
     @cachetools.func.ttl_cache(ttl=20)
     def nodes(self, include_journals=True):
-        current_app.logger.debug('*** Loading graph.')
+        current_app.logger.debug('*** Loading nodes.')
         # returns a list of all nodes
 
         # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
-        # hack hack -- there's something in itertools better than this.
-        wikilink_to_subnodes = defaultdict(list)
+        # hack hack -- there's probably something in itertools better than this?
+        node_to_subnodes = defaultdict(list)
 
         for subnode in self.subnodes():
-          wikilink_to_subnodes[subnode.wikilink].append(subnode)
+            node_to_subnodes[subnode.node].append(subnode)
+            if subnode.canonical_wikilink != subnode.wikilink:
+                node_to_subnodes[subnode.wikilink].append(subnode)
         
         # then we iterate over its values and construct nodes for each list of subnodes.
         nodes = {}
-        for wikilink in wikilink_to_subnodes:
-            if not include_journals and util.is_journal(wikilink):
+        for node in node_to_subnodes:
+            if not include_journals and util.is_journal(node):
                 pass
-            node = Node(wikilink)
-            node.subnodes = wikilink_to_subnodes[wikilink]
-            nodes[wikilink] = node
+            n = Node(node)
+            n.subnodes = node_to_subnodes[node]
+            nodes[node] = n
 
-        current_app.logger.debug('*** Graph loaded.')
+        current_app.logger.debug('*** Nodes loaded.')
         return nodes
         # TODO: experiment with other ranking.
         # return sorted(nodes, key=lambda x: -x.size())
@@ -380,7 +382,10 @@ class Subnode:
         self.url = '/subnode/' + path_to_uri(path)
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
-        self.wikilink = util.canonical_wikilink(path_to_wikilink(path))
+        # will often have spaces; not lossy (or as lossy as the filesystem)
+        self.wikilink = path_to_wikilink(path)
+        # essentially a slug.
+        self.canonical_wikilink = util.canonical_wikilink(self.wikilink)
         self.user = path_to_user(path)
         self.mediatype = mediatype
 
@@ -399,7 +404,7 @@ class Subnode:
             raise ValueError
 
         self.mtime = os.path.getmtime(path)
-        self.node = self.wikilink
+        self.node = self.canonical_wikilink
         # Initiate node for wikilink if this is the first subnode, append otherwise.
         # G.addsubnode(self)
 
@@ -562,6 +567,7 @@ class VirtualSubnode(Subnode):
         self.url = '/subnode/virtual'
         # Virtual subnodes are attached to their target
         self.wikilink = target_node.wikilink
+        self.canonical_wikilink = self.wikilink
         self.user = source_subnode.user
         # Only text transclusion supported.
         self.mediatype = 'text/plain'
@@ -570,7 +576,7 @@ class VirtualSubnode(Subnode):
         self.forward_links = content_to_forward_links(self.content)
 
         self.mtime = source_subnode.mtime
-        self.node = self.wikilink
+        self.node = self.canonical_wikilink
 
 
 def subnode_to_actions(subnode, action, blocks_only=False):
