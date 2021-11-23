@@ -82,7 +82,7 @@ class Graph:
         tokens = uri.split('-')
         permutations = itertools.permutations(tokens, max_length)
         permutations = ['-'.join(permutation) for permutation in permutations]
-        nodes = [node for node in G.nodes().values() if node.wikilink in permutations and node.subnodes]
+        nodes = [node for node in G.nodes(only_canonical=True).values() if node.wikilink in permutations and node.subnodes]
         return nodes
 
     def related_nodes(self, uri):
@@ -90,7 +90,7 @@ class Graph:
         # should find plurals/missing middle initials/more general terms.
         regex = '.*' + uri.replace('-', '.*') + '.*'
         current_app.logger.debug(f'*** Looking for related nodes to {uri} with regex {regex}.')
-        nodes = [node for node in G.nodes().values() if 
+        nodes = [node for node in G.nodes(only_canonical=True).values() if 
                     node.subnodes and
                     node.uri!= uri and
                     re.match(regex, node.wikilink)
@@ -100,7 +100,7 @@ class Graph:
 
     # @cache.memoize(timeout=30)
     @cachetools.func.ttl_cache(ttl=20)
-    def nodes(self, include_journals=True):
+    def nodes(self, include_journals=True, only_canonical=True):
         current_app.logger.debug('*** Loading nodes.')
         # returns a list of all nodes
 
@@ -110,7 +110,7 @@ class Graph:
 
         for subnode in self.subnodes():
             node_to_subnodes[subnode.node].append(subnode)
-            if subnode.canonical_wikilink != subnode.wikilink:
+            if subnode.canonical_wikilink != subnode.wikilink and not only_canonical:
                 node_to_subnodes[subnode.wikilink].append(subnode)
         
         # then we iterate over its values and construct nodes for each list of subnodes.
@@ -656,12 +656,12 @@ def latest():
     return sorted(G.subnodes(), key=lambda x: -x.mtime)
 
 def top():
-    return sorted(G.nodes().values(), key=lambda x: -x.size())
+    return sorted(G.nodes(only_canonical=True).values(), key=lambda x: -x.size())
 
 def stats():
     stats = {}
 
-    stats['nodes'] = len(G.nodes())
+    stats['nodes'] = len(G.nodes(only_canonical=True))
     stats['subnodes'] = len(G.subnodes())
     stats['edges'] = G.n_edges()
     stats['users'] = len(all_users())
@@ -736,7 +736,7 @@ def subnode_by_uri(uri):
         return False
 
 def nodes_by_outlink(wikilink):
-    nodes = [node for node in G.nodes().values() if wikilink in node.forward_links()]
+    nodes = [node for node in G.nodes(only_canonical=True).values() if wikilink in node.forward_links()]
     return sorted(nodes, key=attrgetter('wikilink'))
 
 def subnodes_by_outlink(wikilink):
