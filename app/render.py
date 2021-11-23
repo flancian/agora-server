@@ -96,6 +96,7 @@ def add_pleroma_pull(content, subnode):
     if re.search(r'(?<!</span>)<a href', content):
         # don't apply filters when content has html links that are not result of a wikilink.
         # this works around a bug in some org mode translated files we have.
+        return content
     PLEROMA_REGEX='(https://[a-zA-Z-.]+/notice/\w+)'
     PLEROMA_EMBED='\\1 <button class="pull-pleroma-status" value="\\1">pull</button>'
     ret = re.sub(PLEROMA_REGEX, PLEROMA_EMBED, content)
