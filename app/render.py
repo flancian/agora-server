@@ -77,9 +77,11 @@ def add_twitter_pull(content, subnode):
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 def add_mastodon_pull(content, subnode):
-    if '<a' in content:
-        # hack hack
-        # don't apply filters when content has html links
+    # hack: negative lookbehind tries to only match for anchors not preceded by a span... just because in the agora we have 
+    # spans just preceding every anchor that is a wikilink.
+    if re.search(r'(?<!</span>)<a href', content):
+        # don't apply filters when content has html links that are not result of a wikilink.
+        # this works around a bug in some org mode translated files we have.
         return content
     MASTODON_REGEX='(https://[a-zA-Z-.]+/web/statuses/[0-9]+)'
     MASTODON_REGEX_ALT='(https://[a-zA-Z-.]+/@\w+/[0-9]+)'
@@ -89,10 +91,11 @@ def add_mastodon_pull(content, subnode):
     return ret
 
 def add_pleroma_pull(content, subnode):
-    if '<a' in content:
-        # hack hack
-        # don't apply filters when content has html links
-        return content
+    # hack: negative lookbehind tries to only match for anchors not preceded by a span... just because in the agora we have 
+    # spans just preceding every anchor that is a wikilink.
+    if re.search(r'(?<!</span>)<a href', content):
+        # don't apply filters when content has html links that are not result of a wikilink.
+        # this works around a bug in some org mode translated files we have.
     PLEROMA_REGEX='(https://[a-zA-Z-.]+/notice/\w+)'
     PLEROMA_EMBED='\\1 <button class="pull-pleroma-status" value="\\1">pull</button>'
     ret = re.sub(PLEROMA_REGEX, PLEROMA_EMBED, content)
