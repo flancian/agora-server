@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
     --line-height: 1.618;
 }
 
-html { 
+html {
     font-family: 'Noto Sans', sans-serif;
     display: flex;
     flex-flow: row nowrap;
@@ -31,35 +31,83 @@ html {
     align-content: center;
     align-items: center;
 }
-body { 
-    background: #000000; 
-    color: #bfbfbf; 
-    overflow-x: hidden; 
+
+body {
+    background: #000000;
+    color: #bfbfbf;
+    overflow-x: hidden;
     max-width: 60em;
     font-size: var(--base-fontsize);
 }
-a               { color: #9fc6e0; }
-nav             { font-family: sans-serif}
-.page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
-                  padding: 0.8em; background: white; }
-.entries        { list-style: none; margin: 0; padding: 0; }
-.add-entry      { font-size: 0.9em; border-bottom: 1px solid #ccc; }
-.add-entry dl   { font-weight: bolder; }
-.metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
-                  margin-bottom: 1em; background: #fafafa; }
-.flash          { background: #cee5F5; padding: 0.5em;
-                  border: 1px solid #aacbe2; }
-.error          { background: #f0d6d6; padding: 0.5em; }
 
-.logo           { filter: invert(1); vertical-align: middle; width="20" height="20"; }
+a {
+    color: #9fc6e0;
+}
+
+nav {
+    font-family: sans-serif
+}
+
+.page {
+    margin: 2em auto;
+    width: 35em;
+    border: 5px solid #ccc;
+    padding: 0.8em;
+    background: white;
+}
+
+.entries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.add-entry {
+    font-size: 0.9em;
+    border-bottom: 1px solid #ccc;
+}
+
+.add-entry dl {
+    font-weight: bolder;
+}
+
+.metanav {
+    text-align: right;
+    font-size: 0.8em;
+    padding: 0.3em;
+    margin-bottom: 1em;
+    background: #fafafa;
+}
+
+.flash {
+    background: #cee5F5;
+    padding: 0.5em;
+    border: 1px solid #aacbe2;
+}
+
+.error {
+    background: #f0d6d6;
+    padding: 0.5em;
+}
+
+.logo {
+    filter: invert(1);
+    vertical-align: middle;
+    width="20"height="20";
+}
 
 .content {
     line-height: var(--line-height);
 }
 
 /* Format headers */
-h1, h2, h3          { color: #bfbfbf; }
-h1, h2, h3          { font-family: 'Merriweather Sans'; }
+h1, h2, h3 {
+    color: #bfbfbf;
+}
+
+h1, h2, h3 {
+    font-family: 'Merriweather Sans';
+}
 
 /* Fix line height when title wraps */
 h1, h2, h3 {
@@ -127,18 +175,14 @@ h6 {
     margin-bottom: 10px;
 }
 
-.topline-node{
+.topline-node {
     vertical-align: middle;
     overflow-y: auto;
 }
 
 .topline-node-wrapper {
     display: flex;
-	align-items: center;
-}
-
-#hypothesis-frame {
-    
+    align-items: center;
 }
 
 .hypothesis-adder {
@@ -148,14 +192,18 @@ h6 {
 }
 
 input[type="text"] {
-    -webkit-box-sizing: border-box; // Safari/Chrome, other WebKit
-    -moz-box-sizing: border-box;    // Firefox, other Gecko
-    box-sizing: border-box;         // Opera/IE 8+
+    -webkit-box-sizing: border-box;
+    /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;
+    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    /* Opera/IE 8+ */
 }
 
-.topline-search{
+.topline-search {
     display: block;
     vertical-align: middle;
+    /* does not work, will be removed shortly */
     overflow-y: auto;
     margin: 10px;
     width: auto;
@@ -163,32 +211,34 @@ input[type="text"] {
 
 .exec {
     list-style-type: trad-chinese-informal;
+    /* why */
 }
 
-.topline-agora{
+.topline-agora {
     display: block;
     vertical-align: middle;
+    /* does not work, will be removed shortly */
     overflow-y: auto;
     margin: 10px;
     width: auto;
 }
 
 .topline-query {
-	flex: auto;
-	display: inline;
+    flex: auto;
+    display: inline;
     vertical-align: middle;
-	margin-right: 5px;
+    margin-right: 5px;
 }
 
 .topline-cli {
-	flex: auto;
+    flex: auto;
     vertical-align: middle;
-	width: 100%;
+    width: 100%;
 }
 
 
 #mini-cli {
-	width: 100%;
+    width: 100%;
 }
 
 
@@ -201,9 +251,6 @@ input[type="text"] {
     }
 }
 */
-
-.navigation-item {
-}
 
 .topline-container {
     width: 100%;
@@ -219,7 +266,7 @@ input[type="text"] {
     border-width: 1px;
     border-style: solid;
     /*border-style: dotted;*/
-    margin: 10px; 
+    margin: 10px;
     /*border-radius: 20px;*/
     padding: 10px;
 }
@@ -241,28 +288,28 @@ input[type="text"] {
     background: #1f232b;
     /* background: #12091a; */
     /* background: #150d38; */
-    color: #cfcfcf; 
-    padding: 10px; 
-    margin: 10px; 
+    color: #cfcfcf;
+    padding: 10px;
+    margin: 10px;
     /*border-radius: 20px;*/
 }
 
-.pulled-subnode, .pushed-subnode, .stoa-public { 
-    background: #101010; 
-    color: #cfcfcf; 
-    padding: 10px; 
-    margin: 10px; 
+.pulled-subnode, .pushed-subnode, .stoa-public {
+    background: #101010;
+    color: #cfcfcf;
+    padding: 10px;
+    margin: 10px;
     /*border-radius: 20px;*/
 }
 
 .node-header, .context-header, .stoa-header, .ctzn-header {
     text-align: left;
     margin-bottom: 1em;
-    margin-left: 0.2em;
+    margin-left: 10px;
     font-weight: bolder;
 }
 
-.not-found { 
+.not-found {
     /*background: #476349;*/
     background: #476353;
 }
@@ -273,19 +320,25 @@ input[type="text"] {
 .subnode-header, .subnode-footer, .links-header, .search-header, .subnode-id {
     font-weight: bolder;
     width: 100%;
-    display: inline-block;
+}
+
+.subnode-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.subnode-contrib {
+    display: flex;
+    column-gap: 5px;
 }
 
 .subnode-id a {
-  text-decoration: none;
+    text-decoration: none;
 }
 
 .search-agora-header, .search-internet-header {
     font-weight: bolder;
     margin-bottom: 1em;
-}
-
-.links-subnode {
 }
 
 .links-flex {
@@ -296,30 +349,30 @@ input[type="text"] {
     display: flex;
 }
 
-.links { 
+.links {
     overflow: auto;
     gap: 10px;
-    max-height: 400px; 
+    max-height: 400px;
 }
 
-.annotations { 
+.annotations {
     width: 100%;
     display: flex;
-    background: #080808; 
-    color: #cfcfcf; 
-    padding: 0.5em; 
-    margin-bottom: 10px; 
+    background: #080808;
+    color: #cfcfcf;
+    padding: 0.5em;
+    margin-bottom: 10px;
     /*border-radius: 10px;*/
     gap: 10px;
 }
 
-.delta { 
+.delta {
     width: 100%;
     display: flex;
-    background: #080808; 
-    color: #cfcfcf; 
-    padding: 0.5em; 
-    margin-bottom: 10px; 
+    background: #080808;
+    color: #cfcfcf;
+    padding: 0.5em;
+    margin-bottom: 10px;
     /*border-radius: 10px;*/
     gap: 10px;
 }
@@ -330,7 +383,7 @@ input[type="text"] {
 }
 
 .delta-annotations {
-    background: #080808; 
+    background: #080808;
     float: right;
     width: 50%;
 }
@@ -353,14 +406,14 @@ input[type="text"] {
 }
 
 .backlinks-header, .pushlinks-header, .pulllinks-header, .forwardlinks-header {
-    font-style: italic; 
+    font-style: italic;
 }
 
-#graph { 
+#graph {
     overflow: hidden;
     /*border-radius: 20px;*/
-    padding: 10px; 
-    margin: 10px; 
+    padding: 10px;
+    margin: 10px;
     max-width: 900px;
     max-height: 400px;
 }
@@ -378,15 +431,15 @@ input[type="text"] {
 }
 
 .search-internet {
-    background: #080808; 
+    background: #080808;
     float: left;
     width: 35%;
 }
 
-.listing { 
+.listing {
     display: inline-block;
-    padding: 0.5em; 
-    margin-bottom: 10px; 
+    padding: 0.5em;
+    margin-bottom: 10px;
     /*border-radius: 10px;*/
 }
 
@@ -401,12 +454,12 @@ input[type="text"] {
     color: deepskyblue;
 }
 
-.wikilink:visited{
+.wikilink:visited {
     /* different color for wikilinks */
     color: deepskyblue;
 }
 
-.wikilink:hover{
+.wikilink:hover {
     /* different color for wikilinks */
     color: hotpink;
 }
@@ -425,22 +478,30 @@ input[type="text"] {
 
 
 /* hypothes.is 
-    This totally doesn't work, at all, and I have no idea why :) 
+    This totally doesn't work at all, and I have no idea why :) 
 */
-.annotator-frame { margin-top: 4.5em }
+.annotator-frame {
+    margin-top: 4.5em
+}
 
 
-.submit {display: block; margin-top: 25px}
+.submit {
+    display: block;
+    margin-top: 25px
+}
 
-/* overriding bmann's microblog hardcoded style */
+/** 
+* overriding bmann's microblog hardcoded style
+* is this sustainable? probably no.
+*/
 .microblog_timeline {
     background: #1f232b;
-    color: #cfcfcf; 
+    color: #cfcfcf;
 }
 
 
 #login-box, #logout-box {
-    display:none;
+    display: none;
 }
 
 #ctzn-login {
@@ -451,6 +512,6 @@ input[type="text"] {
     display: none;
 }
 
-#ctzn-login{
+#ctzn-login {
     margin-top: 20px;
 }

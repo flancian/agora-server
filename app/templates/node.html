@@ -1,5 +1,5 @@
 <!--
- Copyright 2020 Google LLC
+ Copyright 2021 Google LLC
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -19,9 +19,13 @@
     <span class="node-header">📚 node <a href="/{{node}}">[[{{qstr}}]]</a> is empty.</span>
     <div class="not-found subnode" data-author="agora">
         <div class="subnode-header">
-        <strong>Welcome to this Agora! Nobody has left anything here yet.</strong></div>
-        <p>Have fun! <strong>Feel free to write something in the open document below</strong> ("stoa"). There is one in every node in the Agora, waiting for whoever comes along willing to leave something for others. Whoever comes here next will be able to see what you've left and potentially add something of their own.</p>
-        <p>You can also <a href="/sign-up"><strong>sign up as an Agora user</strong></a> and start contributing your individual notes and resources.</p>
+            <strong>Welcome to this Agora! Nobody has left anything here yet.</strong>
+        </div>
+        <p>Have fun! <strong>Feel free to write something in the open document below</strong> ("stoa"). There is one in
+            every node in the Agora, waiting for whoever comes along willing to leave something for others. Whoever
+            comes here next will be able to see what you've left and potentially add something of their own.</p>
+        <p>You can also <a href="/sign-up"><strong>sign up as an Agora user</strong></a> and start contributing your
+            individual notes and resources.</p>
         <p>(Related nodes might be optimistically pulled below.)</p>
     </div>
 </div>
@@ -30,40 +34,51 @@
 {% if node.subnodes or node.pushed_subnodes() %}
 {% if not embed %}
 <div class="node">
-<span class="node-header main-header">📚 node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
-{% endif %}
+    <span class="node-header main-header">📚 node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
+    {% endif %}
 
     {% for subnode in node.subnodes %}
     <div class="subnode" data-author="{{subnode.user}}">
         <div class="subnode-header">
-            <span class="subnode-id"><a
-                    href="/@{{subnode.user}}/{{node.uri}}">📓</a>
-            <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                    href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></span></a></span>
+            <span class="subnode-id">
+                <a href="/@{{subnode.user}}/{{node.uri}}">📓</a>
+                <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
+                        href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span>
+                </span>
+                </a>
+            </span>
+            <span class="subnode-contrib">
+                {% if subnode.edit %}
+                <a href="{{subnode.edit}}">edit</a>
+                {% endif %}
+
+                {% if subnode.donate %}
+                <a href="{{subnode.donate}}">donate</a>
+                {% endif %}
+            </span>
+
+            </span>
         </div>
         <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
     </div>
     {% endfor %}
 
     {% if node.pushed_subnodes() %}
-        {% for subnode in node.pushed_subnodes() %}
-        <div class="pushed-subnode">
-            <div class="subnode-header">
-                <span class="subnode-id"><a
-                      href="/@{{subnode.user}}/{{subnode.wikilink}}">📄</a>
+    {% for subnode in node.pushed_subnodes() %}
+    <div class="pushed-subnode">
+        <div class="subnode-header">
+            <span class="subnode-id"><a href="/@{{subnode.user}}/{{subnode.wikilink}}">📄</a>
                 <span class="subnode-links">pushed from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                                                           href="/@{{subnode.user}}">@{{subnode.user}}</a></span></span>
-            </div>
-            <ul>
-                {{ subnode.render()|linkify|safe }}
-            </ul>
+                        href="/@{{subnode.user}}">@{{subnode.user}}</a></span></span>
         </div>
-        {% endfor %}
+        <ul>
+            {{ subnode.render()|linkify|safe }}
+        </ul>
+    </div>
+    {% endfor %}
     {% endif %}
 
-{% if not embed %}
+    {% if not embed %}
 </div>
 {% endif %}
 {% endif %}
-
-

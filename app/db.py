@@ -388,7 +388,13 @@ class Subnode:
         self.canonical_wikilink = util.canonical_wikilink(self.wikilink)
         self.user = path_to_user(path)
         self.mediatype = mediatype
-
+        # Evan say sorry
+        usrcfg: dict = next((item for item in current_app.config['YAML_CONFIG'] if item['target'] == self.user), None)
+        # if this does not exist i will be sad
+        if usrcfg:
+            self.donate = usrcfg.get('donate', False)
+            self.edit = usrcfg.get('edit', False)
+ 
         if self.mediatype == 'text/plain':
             with open(path) as f:
                 self.content = f.read()
