@@ -22,6 +22,7 @@ import jsons
 from flask import (Blueprint, Response, current_app, jsonify, redirect,
                    render_template, request, url_for)
 from markupsafe import escape
+from copy import copy
 
 from . import db, feed, forms, graph, providers, util
 
@@ -287,7 +288,6 @@ def pull(node):
     # TODO: move to config.py
     rank = ['agora', 'flancian', 'vera', 'neil']
 
-    from copy import copy
     n = copy(G.node(node))
 
     if n.subnodes:

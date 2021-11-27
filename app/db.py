@@ -26,6 +26,8 @@ from . import util
 from collections import defaultdict
 from fuzzywuzzy import fuzz
 from operator import attrgetter
+# guys! I wanna stay sane
+from typing import Union
 
 # For [[push]] parsing, perhaps move elsewhere?
 import lxml.html
@@ -378,8 +380,9 @@ class Subnode:
     the Agora root) in the attribute 'uri'."""
     def __init__(self, path, mediatype='text/plain'):
         # Use a subnode's URI as its identifier.
-        self.uri = path_to_uri(path)
-        self.url = '/subnode/' + path_to_uri(path)
+        self.uri: str = path_to_uri(path)
+        self.url = '/subnode/' + self.uri
+        self.wlmeta = self.uri.split('/')[-1]
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         # will often have spaces; not lossy (or as lossy as the filesystem)
@@ -393,7 +396,9 @@ class Subnode:
         # if this does not exist i will be sad
         if usrcfg:
             self.donate = usrcfg.get('donate', False)
-            self.edit = usrcfg.get('edit', False)
+            self.edit: Union[str,False] = usrcfg.get('edit', False)
+            if not self.edit == False:
+                self.edit = self.edit.replace("{path}",self.wlmeta)
  
         if self.mediatype == 'text/plain':
             with open(path) as f:
