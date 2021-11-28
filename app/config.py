@@ -12,7 +12,6 @@ def getcfg(path):
 
 class DefaultConfig(object):
     AGORA_PATH = os.getenv('AGORA_PATH', os.path.join('/home', getpass.getuser(), 'agora'))
-    # For evan's sake
     YAML_CONFIG = getcfg(os.path.join(AGORA_PATH, 'gardens.yaml'))
     # deprecated/check if unused
     AGORA_VERSION = '0.9'
