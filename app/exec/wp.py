@@ -24,4 +24,4 @@ def wp(node):
     title = result['query']['pages'][str(pageid)]['title']
     url = result['query']['pages'][str(pageid)]['canonicalurl']
     inferred_node = title.replace('_', '-')
-    return Response(f"<div class='exec'><ul><li><a href='/wp'>wp</a> → </a><a href='{url}'>{url}</a> → <a href='/{inferred_node}'><strong>[[{title}]]</strong></a> </li></ul><!--{result}--></div>", mimetype='text/html')
+    return Response(f"<div class='exec'><ul><li><a href='/wp'>wp</a> → </a><a href='{url}'><strong>{url}</strong></a> <button class='pull-exec' value='{url}'>pull</button><span class='node-hint'> → <a href='/{inferred_node}'>[[{title}]]</a> </span></li></ul><!--{result}--></div>", mimetype='text/html')

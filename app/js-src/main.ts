@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // pull arbitrary URL
   $(".pull-url").click(function (e) {
+    console.log("in pull-url!")
     if (this.classList.contains('pulled')) {
       // already pulled.
       this.innerText = 'pull';
@@ -214,10 +215,34 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('req: ' + req)
     $.get(req, function (data) {
       console.log('html: ' + data)
-      $(".topline-search").after(data);
-      // let html = data['html']
-      // $(self).after(html);
+      embed = $(".topline-search").after(data);
+
+      // figure out how to do this without code repetition -- ask [[vera]]?
+      // also, could we scope this search to stuff inside embed? unsure if that points to the DOM, it didn't seem to work.
+      $(".pull-exec").click(function (e) {
+        console.log("in pull-exec!")
+        $(".node-hint").hide();
+        if (this.classList.contains('pulled')) {
+          // already pulled.
+          this.innerText = 'pull';
+          $(e.currentTarget).nextAll('iframe').remove()
+          this.classList.remove('pulled');
+        }
+        else {
+          // pull.
+          this.innerText = 'pulling';
+          let url = this.value;
+          console.log('pull exec: ' + url)
+          $(e.currentTarget).after('<iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>')
+          this.innerText = 'fold';
+          this.classList.add('pulled');
+        }
+      });
+
+
     });
+
+
 
   }
 
