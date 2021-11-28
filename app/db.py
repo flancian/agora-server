@@ -395,7 +395,7 @@ class Subnode:
         usrcfg: dict = next((item for item in current_app.config['YAML_CONFIG'] if item['target'] == self.user), None)
         # if this does not exist i will be sad
         if usrcfg:
-            self.donate = usrcfg.get('donate', False)
+            self.support = usrcfg.get('support', False)
             self.edit: Union[str,False] = usrcfg.get('edit', False)
             if not self.edit == False:
                 self.edit = self.edit.replace("{path}",self.wlmeta)
