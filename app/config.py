@@ -1,8 +1,18 @@
 import os
 import getpass
+import yaml
+
+def getcfg(path):
+    with open(path, "r") as stream:
+        try:
+            return yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+
 
 class DefaultConfig(object):
     AGORA_PATH = os.getenv('AGORA_PATH', os.path.join('/home', getpass.getuser(), 'agora'))
+    YAML_CONFIG = getcfg(os.path.join(AGORA_PATH, 'gardens.yaml'))
     # deprecated/check if unused
     AGORA_VERSION = '0.9'
     # standard: no trailing slashes anywhere in variables.
