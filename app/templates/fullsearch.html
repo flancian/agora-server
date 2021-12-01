@@ -23,7 +23,7 @@
             <span class="search-agora-header">🔎 full text search for '{{qstr}}'</span> <br />
             {% if search %}
             {% for subnode in search %}
-            <a href="/@{{subnode.user}}/{{subnode.wikilink}}">@{{subnode.user}}/{{subnode.wikilink}}</a><br />
+            <a href="/@{{subnode.user}}/{{subnode.canonical_wikilink}}">@{{subnode.user}}/{{subnode.wikilink}}</a><br />
             {% endfor %}
             {% else %}
             No search results.
