@@ -56,22 +56,22 @@ def canonical_wikilink(wikilink):
     wikilink = (
         wikilink.lower()
         .strip()
-        # chars that convert to -, slug-like.
+        # we replace a bunch of non-slug characters with -, then replace all runs of - with a single -.
+        # we don't want to just s#/#-# because that breaks action handling (which looks like foo/bar/baz, and we want to keep intact for path-based handlers)
+        .replace("/ ", '-')
+        .replace(" /", '-')
+        # the following ones could be a regex
         .replace(' ', '-')
         # this seemed to make sense but I found it too limiting. it makes the following lossy:
         # - example.tld
         # - filename.ext
         # .replace('.', '-')
-        # chars that are elided.
-        # ...actually we replace these all with -, then replace all runs of - with a single -.
         .replace('\'', '-')
         .replace('%', '-')
         .replace('.', '-')
         .replace(',', '-')
         .replace(':', '-')
         .replace("\'", '-')
-        # this breaks go links -- it probably shouldn't :) indicates some messy processing.
-        # .replace("/", '-')
         .replace("+", '-')
     )
     wikilink = re.sub('-+', '-', wikilink)
