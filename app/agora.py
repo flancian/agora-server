@@ -19,6 +19,7 @@ import re
 from urllib.parse import parse_qs
 
 import jsons
+import urllib.parse
 from flask import (Blueprint, Response, current_app, jsonify, redirect,
                    render_template, request, url_for)
 from markupsafe import escape
@@ -73,6 +74,13 @@ def node(node, extension='', user_list=''):
             n.wikilink = n.wikilink + f'.{extension}'
     # n.subnodes.extend(n.exec())
 
+    # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
+    # query is meant to be user parsable / readable text, to be used for example in the UI
+    qstr = request.args.get('q') 
+    if not qstr: 
+        # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
+        qstr = n.wikilink.replace('-', ' ')
+
     # search_subnodes = db.search_subnodes(node)
 
     current_app.logger.debug(f'[[{node}]]: Assembled node.')
@@ -87,8 +95,10 @@ def node(node, extension='', user_list=''):
             search=[],
             pulling_nodes=n.pulling_nodes(),
             pushing_nodes=n.pushing_nodes(),
-            q=n.wikilink.replace('-', '%20'),
-            qstr=n.wikilink.replace('-', ' '),
+            # the q part of the query string -- can be forwarded to other sites, expected to preserve all information we got from the user.
+            q=urllib.parse.quote_plus(qstr),
+            # the decoded q parameter in the query string or inferred human-readable query for the slug. it should be ready for rendering.
+            qstr=qstr,
             render_graph=True if n.back_nodes() or n.subnodes else False,
             config=current_app.config,
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
@@ -341,15 +351,16 @@ def search():
     """Redirects to an appropriate context.
     Originally called "jump" because in the [[agora]] nodes *always* exist, as they map 1:1 to all possible queries. Thus [[agora search]].
     """
-    q = request.args.get('q')
-    tokens = q.split(" ")
+    qstr = request.args.get('q')
+    tokens = qstr.split(" ")
+    q = urllib.parse.quote_plus(qstr)
 
     # ask for bids from search providers.
     # both the raw query and tokens are passed for convenience; each provider is free to use or discard each.
     results = providers.get_bids(q, tokens)
     # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
     results.sort(reverse=True)
-    current_app.logger.info(f'Search results for {q}: {results}')
+    current_app.logger.info(f'Search results for {qstr}: {results}')
     result = results[0] # the agora always returns at least one result: the offer to render the node for the query.
 
     # perhaps here there could be special logic to flash a string at the top of the result node if what we got back from search is a string.

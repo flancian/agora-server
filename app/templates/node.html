@@ -34,7 +34,7 @@
 {% if node.subnodes or node.pushed_subnodes() %}
 {% if not embed %}
 <div class="node">
-    <span class="node-header main-header">📚 node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
+    <span class="node-header main-header">📚 node <a href="/{{node.uri}}">[[{{qstr}}]]</a></span>
     {% endif %}
 
     {% for subnode in node.subnodes %}

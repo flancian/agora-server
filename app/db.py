@@ -90,7 +90,7 @@ class Graph:
     def related_nodes(self, uri):
         # currently just looks for nodes which are related to the tokenized uri.
         # should find plurals/missing middle initials/more general terms.
-        regex = '.*' + uri.replace('-', '.*') + '.*'
+        regex = '.*' + re.escape(uri.replace('-', '.*')) + '.*'
         current_app.logger.debug(f'*** Looking for related nodes to {uri} with regex {regex}.')
         nodes = [node for node in G.nodes(only_canonical=True).values() if 
                     node.subnodes and
@@ -179,6 +179,7 @@ class Node:
         # TODO: revamp the whole notion of wikilink; it should default to free form text, with slugs being generated
         # explicitly. will probably require coalescing different takes on what the 'canonical' description for a 
         # node should be, and perhaps having some precedence rules.
+        # DEPRECATED -- use {qstr} in rendering code as needed (for now?).
         self.description = wikilink.replace('-', ' ')
         # LOL, this is *not* a uri.
         # TODO(flancian): check where this is used and fix.

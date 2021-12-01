@@ -63,14 +63,18 @@ def canonical_wikilink(wikilink):
         # - filename.ext
         # .replace('.', '-')
         # chars that are elided.
-        .replace('\'', '')
-        .replace('%', '')
-        .replace(',', '')
-        .replace(':', '')
-        .replace("\'", '')
-        # this fixes things like 'a vs. b' so they slugify to a-vs-b instead of a-vs--b
-        .replace("--", '-')
+        # ...actually we replace these all with -, then replace all runs of - with a single -.
+        .replace('\'', '-')
+        .replace('%', '-')
+        .replace('.', '-')
+        .replace(',', '-')
+        .replace(':', '-')
+        .replace("\'", '-')
+        # this breaks go links -- it probably shouldn't :) indicates some messy processing.
+        # .replace("/", '-')
+        .replace("+", '-')
     )
+    wikilink = re.sub('-+', '-', wikilink)
     return wikilink
 
 
