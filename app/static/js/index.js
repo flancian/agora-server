@@ -9787,7 +9787,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     this.innerText = 'pulling';
                     let url = this.value;
                     console.log('pull exec: ' + url);
-                    $(e.currentTarget).after('<iframe src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px" allowfullscreen="allowfullscreen"></iframe>');
+                    $(e.currentTarget).after('<iframe src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="600px" allowfullscreen="allowfullscreen"></iframe>');
                     this.innerText = 'fold';
                     this.classList.add('pulled');
                 }
