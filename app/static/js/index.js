@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"fUv5R":[function(require,module,exports) {
+})({"47oxK":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 1234;
+var HMR_PORT = 44503;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -9776,21 +9776,27 @@ document.addEventListener("DOMContentLoaded", function() {
             // also, could we scope this search to stuff inside embed? unsure if that points to the DOM, it didn't seem to work.
             $(".pull-exec").click(function(e) {
                 console.log("in pull-exec!");
-                $(".node-hint").hide();
                 if (this.classList.contains('pulled')) {
                     // already pulled.
                     this.innerText = 'pull';
                     $(e.currentTarget).nextAll('iframe').remove();
                     this.classList.remove('pulled');
+                    $(".node-hint").show();
                 } else {
                     // pull.
                     this.innerText = 'pulling';
                     let url = this.value;
                     console.log('pull exec: ' + url);
-                    $(e.currentTarget).after('<iframe src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="600px" allowfullscreen="allowfullscreen"></iframe>');
+                    $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="600px" allowfullscreen="allowfullscreen"></iframe>');
                     this.innerText = 'fold';
                     this.classList.add('pulled');
+                    $(".node-hint").hide();
                 }
+            });
+            $(".go-exec").click(function(e) {
+                // this doesn't work because of same-origin restrictions I think -- contentWindow/contentDocument are always undefined.
+                console.log("in go-exec!");
+                window.location.href = $('#exec-wp').contentWindow.location.href;
             });
         });
     }
@@ -9874,6 +9880,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["fUv5R","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["47oxK","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map

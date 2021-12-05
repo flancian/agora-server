@@ -221,22 +221,29 @@ document.addEventListener("DOMContentLoaded", function () {
       // also, could we scope this search to stuff inside embed? unsure if that points to the DOM, it didn't seem to work.
       $(".pull-exec").click(function (e) {
         console.log("in pull-exec!")
-        $(".node-hint").hide();
         if (this.classList.contains('pulled')) {
           // already pulled.
           this.innerText = 'pull';
           $(e.currentTarget).nextAll('iframe').remove()
           this.classList.remove('pulled');
+          $(".node-hint").show();
         }
         else {
           // pull.
           this.innerText = 'pulling';
           let url = this.value;
           console.log('pull exec: ' + url)
-          $(e.currentTarget).after('<iframe src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="600px" allowfullscreen="allowfullscreen"></iframe>')
+          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="600px" allowfullscreen="allowfullscreen"></iframe>')
           this.innerText = 'fold';
           this.classList.add('pulled');
+          $(".node-hint").hide();
         }
+      });
+
+      $(".go-exec").click(function (e) {
+        // this doesn't work because of same-origin restrictions I think -- contentWindow/contentDocument are always undefined.
+        console.log("in go-exec!")
+        window.location.href = $('#exec-wp').contentWindow.location.href
       });
 
 
