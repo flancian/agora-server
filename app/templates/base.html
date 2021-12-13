@@ -23,6 +23,11 @@
     <title>[[{{qstr}}]]</title>
     {% else %}
     <title>Agora</title>
+    <!-- This Agora is: {{config['URI_BASE']}} -->
+    {% endif %}
+    {% if 'dev.' in config['URI_BASE'] %}
+    <!-- This is a development Agora, so it's likely better if it's not indexed (it might not be up most of the time). -->
+    <meta name="robots" content="noindex" />
     {% endif %}
     <meta name="description" content="The Agora is a crowdsourced distributed knowledge graph: {{config['URI_BASE']}}." />
     <meta name="HandheldFriendly" content="True" />
