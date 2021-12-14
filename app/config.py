@@ -12,7 +12,7 @@ def getcfg(path):
 
 class DefaultConfig(object):
     AGORA_PATH = os.getenv('AGORA_PATH', os.path.join('/home', getpass.getuser(), 'agora'))
-    YAML_CONFIG = getcfg(os.path.join(AGORA_PATH, 'gardens.yaml'))
+    YAML_CONFIG = getcfg(os.path.join(AGORA_PATH, 'sources.yaml'))
     # deprecated/check if unused
     AGORA_VERSION = '0.9'
     # standard: no trailing slashes anywhere in variables.

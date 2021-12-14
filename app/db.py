@@ -150,7 +150,8 @@ class Graph:
         # Markdown.
         subnodes = [Subnode(f) for f in glob.glob(os.path.join(base, '**/*.md'), recursive=True)]
         # Org mode.
-        subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, '**/*.org'), recursive=True)])
+        # This should check for files, this blows up for directories like doc.anagora.org, so only globbing for garden for now.
+        subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.org'), recursive=True)])
         # Image formats.
         subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpg'), recursive=True)])
         subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpeg'), recursive=True)])
