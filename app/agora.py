@@ -107,6 +107,12 @@ def node(node, extension='', user_list=''):
             # annotations=n.annotations(),
             )
 
+@bp.route('/feed/<node>') 
+def node_feed(node):
+    n = G.node(node)
+    return Response(feed.rss(n), mimetype='application/rss+xml')
+
+
 @bp.route('/ttl/<node>') # perhaps deprecated
 @bp.route('/turtle/<node>')
 @bp.route('/graph/turtle/<node>')
@@ -166,6 +172,14 @@ def latest():
                            header="Recent deltas",
                            subnodes=db.latest(),
                            annotations=feed.get_latest())
+
+@bp.route('/feed/latest') 
+def latest_feed():
+    # empty node, we'll fake this one.
+    n = G.node('')
+    n.subnodes = db.latest()[:100]
+    n.subnodes.reverse()
+    return Response(feed.rss(n), mimetype='application/rss+xml')
 
 
 @bp.route('/now')

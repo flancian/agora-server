@@ -4,6 +4,7 @@ certifi==2021.10.8
 charset-normalizer==2.0.7
 click==7.1.2
 dateparser==1.0.0
+feedgen==0.9.0
 feedparser==6.0.2
 filetype==1.0.7
 Flask==1.1.2
@@ -27,6 +28,8 @@ mdx-truly-sane-lists==1.2
 org-python==0.3.2
 packaging==20.4
 parso==0.7.1
+pkg-resources==0.0.0
+pylibmc==1.6.1
 pyparsing==2.4.7
 python-dateutil==2.8.1
 python-Levenshtein==0.12.0

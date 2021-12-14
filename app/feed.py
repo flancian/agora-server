@@ -15,6 +15,7 @@
 import glob
 import itertools
 import os
+from feedgen.feed import FeedGenerator
 import feedparser
 import pprint
 
@@ -65,6 +66,24 @@ def get_latest():
     except UnicodeEncodeError:
         pass
     return feed
+
+def rss(node):
+    fg = FeedGenerator()
+    # not sure what this field is for
+    fg.id(f'https://anagora.org/{node.wikilink}.rss')
+    fg.title(f'Agora feed for node [[{node.wikilink}]]')
+    fg.author( {'name':'anagora.org users','email':'anagora@flancia.org'} )
+    fg.logo('https://anagora.org/favicon.ico')
+    fg.subtitle('The Agora is a crowdsourced distributed knowledge graph')
+    fg.link(href=f'https://anagora.org/{node.wikilink}', rel='self' )
+    fg.language('en')
+    for subnode in node.subnodes:
+        fe = fg.add_entry()
+        fe.id(f'{subnode.uri}')
+        fe.title(f'{subnode.uri}')
+        fe.description(f'A post by user @{subnode.user} in node [[{subnode.node}]].')
+        fe.link(href=f'https://anagora.org/@{subnode.user}/{subnode.node}')
+    return fg.rss_str(pretty=True)
 
 def main():
     if DEBUG:
