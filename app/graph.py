@@ -108,69 +108,89 @@ def parse_node(node: db.Node) -> dict:
     d["links"] = []
     unique_nodes = set()
 
+    this = node.wikilink
     forward_links = node.forward_links()
+    back_links = node.back_links()
+    pushing_nodes = [n.wikilink for n in node.pushing_nodes()]
+    pulling_nodes = [n.wikilink for n in node.pulling_nodes()]
+
+    if pushing_nodes:
+        unique_nodes.add('push')
+        for pushing_node in pushing_nodes:
+            n0 = this
+            n1 = pushing_node
+            d["links"].append({'source': n1, 'target': "push"})
+            d["links"].append({'source': "push", 'target': n0})
+            unique_nodes.add(n0)
+            unique_nodes.add(n1)
+
+    if pulling_nodes:
+        unique_nodes.add('pull')
+        for pulling_node in pulling_nodes:
+            n0 = this
+            n1 = pulling_node
+            d["links"].append({'source': n0, 'target': "pull"})
+            d["links"].append({'source': "pull", 'target': n1})
+            unique_nodes.add(n0)
+            unique_nodes.add(n1)
+
+    if back_links:
+        unique_nodes.add('back')
+        for backlinking_node in back_links:
+            if backlinking_node in ['pull', 'push']:
+                continue
+            if backlinking_node in pushing_nodes or backlinking_node in pulling_nodes:
+                print(f'discarded {node} because of being in pushed/pull list.')
+                continue
+            n0 = backlinking_node
+            n1 = this
+            d["links"].append({'source': n0, 'target': "back"})
+            d["links"].append({'source': "back", 'target': n1})
+            unique_nodes.add(n0)
+            unique_nodes.add(n1)
+
     if forward_links:
-        unique_nodes.add('forward link')
+        unique_nodes.add('forward')
         for linked_node in forward_links:
+            if linked_node in ['pull', 'push']:
+                continue
             if re.search('<.*>', linked_node):
                 # work around links with html in them (?)
                 continue
             if '|' in linked_node:
                 # early support for {base}/go/agora-rfc/2
                 linked_node = re.sub('|.*', '', linked_node)
-            n0 = node.wikilink
+            n0 = this
             n1 = linked_node
-            d["links"].append({'source': n0, 'target': "forward link"})
-            d["links"].append({'source': "forward link", 'target': n1})
-            unique_nodes.add(n0)
-            unique_nodes.add(n1)
-
-    back_links = node.back_links()
-    if back_links:
-        unique_nodes.add('back link')
-        for backlinking_node in back_links:
-            n0 = backlinking_node
-            n1 = node.wikilink
-            d["links"].append({'source': n0, 'target': "back link"})
-            d["links"].append({'source': "back link", 'target': n1})
-            unique_nodes.add(n0)
-            unique_nodes.add(n1)
-
-    pushing_nodes = node.pushing_nodes()
-    if pushing_nodes:
-        unique_nodes.add('push')
-        for pushing_node in pushing_nodes:
-            n0 = node.wikilink
-            n1 = pushing_node.wikilink
-            d["links"].append({'source': n0, 'target': "push"})
-            d["links"].append({'source': "push", 'target': n1})
-            unique_nodes.add(n0)
-            unique_nodes.add(n1)
-
-    pulling_nodes = node.pulling_nodes()
-    if pulling_nodes:
-        unique_nodes.add('pull')
-        for pulling_node in pulling_nodes:
-            n0 = pulling_node.wikilink
-            n1 = node.wikilink
-            d["links"].append({'source': n0, 'target': "pull"})
-            d["links"].append({'source': "pull", 'target': n1})
+            # without these intermediate nodes, the force graph layout kind of sucks -- backlinks and outlinks intermingle in a symmetrical wheel.
+            d["links"].append({'source': n0, 'target': "forward"})
+            d["links"].append({'source': "forward", 'target': n1})
+            # seems more reasonable but doesn't work (for now?)
+            # d["links"].append({'source': n0, 'target': n1})
             unique_nodes.add(n0)
             unique_nodes.add(n1)
 
     for n in unique_nodes:
         if n == node.wikilink:
-            d["nodes"].append({'id': n, 'name': n, 'val': 8, 'group': 1})
+            d["nodes"].append({'id': n, 'name': n, 'val': 80, 'group': 2})
         elif n == 'pull':
-            d["nodes"].append({'id': n, 'name': n, 'val': 4, 'group': 2})
+            d["nodes"].append({'id': n, 'name': n, 'val': 40, 'group': 8})
         elif n == 'push':
-            d["nodes"].append({'id': n, 'name': n, 'val': 4, 'group': 3})
-        elif n == 'back link':
-            d["nodes"].append({'id': n, 'name': n, 'val': 2, 'group': 2})
-        elif n == 'forward link':
-            d["nodes"].append({'id': n, 'name': n, 'val': 2, 'group': 3})
+            d["nodes"].append({'id': n, 'name': n, 'val': 40, 'group': 8})
+        elif n == 'back':
+            d["nodes"].append({'id': n, 'name': n, 'val': 40, 'group': 8})
+        elif n == 'forward':
+            d["nodes"].append({'id': n, 'name': n, 'val': 40, 'group': 8})
+        elif n in back_links:
+            d["nodes"].append({'id': n, 'name': n, 'val': 10, 'group': 1})
+        elif n in forward_links:
+            d["nodes"].append({'id': n, 'name': n, 'val': 10, 'group': 3})
+        elif n in pulling_nodes:
+            d["nodes"].append({'id': n, 'name': n, 'val': 10, 'group': 4})
+        elif n in pushing_nodes:
+            d["nodes"].append({'id': n, 'name': n, 'val': 10, 'group': 5})
         else:
-            d["nodes"].append({'id': n, 'name': n, 'val': 1, 'group': 6})
+            d["nodes"].append({'id': n, 'name': n, 'val': 10, 'group': 10})
 
     return d
 
