@@ -639,8 +639,13 @@ def path_to_user(path):
     m = re.search('garden/(.+?)/', path)
     if m:
         return m.group(1)
-    else:
-        return 'agora'
+    m = re.search('stoa/(.+?)/', path)
+    if m:
+        return 'stoa'
+    m = re.search('stream/(.+?)/', path)
+    if m:
+        return m.group(1)
+    return 'agora'
 
 def path_to_wikilink(path):
     return os.path.splitext(os.path.basename(path))[0]
