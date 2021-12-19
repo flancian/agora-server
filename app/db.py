@@ -400,10 +400,11 @@ class Subnode:
             self.support = user_config.get('support', False)
             self.edit: Union[str, False] = user_config.get('edit', False)
             if self.edit:
+                # for edit paths with {path}
                 self.edit = self.edit.replace("{path}", self.edit_path)
-                if self.user == 'doc.anagora.org':
-                    # hack hack, the stoa doesn't expect an .md extension
-                    self.edit = self.edit[:-3]
+                # for edit paths with {slug}
+                # hack hack, the stoa doesn't expect an .md extension so we just cut out the extension from the path for now.
+                self.edit = self.edit.replace("{slug}", self.edit_path[:-3])
  
         if self.mediatype == 'text/plain':
             try:
