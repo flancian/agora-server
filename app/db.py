@@ -645,7 +645,7 @@ def path_to_user(path):
         return m.group(1)
     m = re.search('stoa/(.+?)/', path)
     if m:
-        return 'stoa'
+        return 'anonymous'
     m = re.search('stream/(.+?)/', path)
     if m:
         return m.group(1)
