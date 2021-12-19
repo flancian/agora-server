@@ -48,6 +48,12 @@ nav {
     font-family: sans-serif
 }
 
+/* this prevents too large images from breaking layouts */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
 .page {
     margin: 2em auto;
     width: 35em;
