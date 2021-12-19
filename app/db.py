@@ -384,7 +384,7 @@ class Subnode:
         # Use a subnode's URI as its identifier.
         self.uri: str = path_to_uri(path)
         self.url = '/subnode/' + self.uri
-        self.wlmeta = self.uri.split('/')[-1]
+        self.edit_path = self.uri.split('/')[-1]
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         # will often have spaces; not lossy (or as lossy as the filesystem)
@@ -394,13 +394,16 @@ class Subnode:
         self.user = path_to_user(path)
         self.mediatype = mediatype
         # Evan say sorry
-        usrcfg: dict = next((item for item in current_app.config['YAML_CONFIG'] if item['target'] == self.user), None)
-        # if this does not exist i will be sad
-        if usrcfg:
-            self.support = usrcfg.get('support', False)
-            self.edit: Union[str,False] = usrcfg.get('edit', False)
-            if not self.edit == False:
-                self.edit = self.edit.replace("{path}",self.wlmeta)
+        user_config: dict = next((item for item in current_app.config['YAML_CONFIG'] if item['target'].endswith(self.user)), None)
+        # if this does not exist [[evan]] will be sad
+        if user_config:
+            self.support = user_config.get('support', False)
+            self.edit: Union[str, False] = user_config.get('edit', False)
+            if self.edit:
+                self.edit = self.edit.replace("{path}", self.edit_path)
+                if self.user == 'doc.anagora.org':
+                    # hack hack, the stoa doesn't expect an .md extension
+                    self.edit = self.edit[:-3]
  
         if self.mediatype == 'text/plain':
             try:
@@ -645,7 +648,7 @@ def path_to_user(path):
         return m.group(1)
     m = re.search('stoa/(.+?)/', path)
     if m:
-        return 'anonymous'
+        return m.group(1)
     m = re.search('stream/(.+?)/', path)
     if m:
         return m.group(1)
