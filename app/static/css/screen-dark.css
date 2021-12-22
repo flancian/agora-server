@@ -347,7 +347,6 @@ input[type="text"] {
 
 .search-agora-header, .search-internet-header {
     font-weight: bolder;
-    margin-bottom: 1em;
 }
 
 .links-flex {
@@ -440,7 +439,6 @@ input[type="text"] {
 }
 
 .search-internet {
-    background: #080808;
     float: left;
     width: 35%;
 }
