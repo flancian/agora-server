@@ -209,6 +209,13 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   if (autoExec) {
+
+    // auto pull search by default.
+    $(".pull-search").each(function (e) {
+      console.log('auto pulling search');
+      this.click();
+    });
+ 
     console.log('autoexec is enabled')
     console.log('executing node: ' + NODENAME)
     req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME)
@@ -253,16 +260,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   }
 
+ 
   if (autoPullLocal) {
     console.log('auto pulling local resources!');
     $(".pull-node").each(function (e) {
       console.log('auto pulling node');
       this.click();
     });
+    /*
     $(".pull-search").each(function (e) {
       console.log('auto pulling search');
       this.click();
     });
+    */
 
   }
 

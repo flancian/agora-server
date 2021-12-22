@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"47oxK":[function(require,module,exports) {
+})({"fUv5R":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 44503;
+var HMR_PORT = 1234;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -9765,6 +9765,11 @@ document.addEventListener("DOMContentLoaded", function() {
         window.location.replace(url);
     });
     if (autoExec) {
+        // auto pull search by default.
+        $(".pull-search").each(function(e) {
+            console.log('auto pulling search');
+            this.click();
+        });
         console.log('autoexec is enabled');
         console.log('executing node: ' + NODENAME);
         req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME);
@@ -9806,11 +9811,12 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log('auto pulling node');
             this.click();
         });
-        $(".pull-search").each(function(e) {
-            console.log('auto pulling search');
-            this.click();
-        });
-    }
+    /*
+    $(".pull-search").each(function (e) {
+      console.log('auto pulling search');
+      this.click();
+    });
+    */ }
     if (autoPullExternal) {
         console.log('auto pulling external resources!');
         $(".pull-mastodon-status").each(function(e) {
@@ -9880,6 +9886,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["47oxK","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["fUv5R","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map
