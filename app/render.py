@@ -23,6 +23,7 @@ from . import config
 from . import regexes
 from . import util 
 from marko import Markdown, inline
+from marko.ext.gfm import gfm
 from orgpython import to_html
 
 
@@ -48,7 +49,8 @@ class Wikilinks():
     elements = [WikilinkElement]
     renderer_mixins = [WikilinkRendererMixin]
 
-markdown = Markdown(extensions=[Wikilinks])
+markdown = gfm
+markdown.use(Wikilinks)
 
 
 # Org-mode -- simple but, well, bad for now.
