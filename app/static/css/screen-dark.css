@@ -21,6 +21,9 @@
     --base-fontsize: 1rem;
     --header-scale: 1.125;
     --line-height: 1.618;
+
+    --accent-bg: #2B2B2B;
+    --border: #666;
 }
 
 html {
@@ -520,4 +523,33 @@ input[type="text"] {
 
 #ctzn-login {
     margin-top: 20px;
+}
+
+/* Format tables.  Based on https://github.com/kevquirk/simple.css/. */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5rem 0;
+}
+
+td,
+th {
+    border: 1px solid var(--border);
+    text-align: left;
+    padding: .5rem;
+}
+
+th {
+    background: var(--accent-bg);
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    /* Set every other cell slightly darker. Improves readability. */
+    background: var(--accent-bg);
+}
+
+table caption {
+    font-weight: bold;
+    margin-bottom: .5rem;
 }

@@ -16,6 +16,11 @@
 
 @import "screen-dark.css";
 
+:root {
+    --accent-bg: #F5F7FF;
+    --border: #D8DAE1;
+}
+
 body            { background: #eee; color: #000000; overflow-x: hidden;}
 a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 .logo           { filter: none; vertical-align: middle; width="20" height="20"; }
