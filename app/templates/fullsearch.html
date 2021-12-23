@@ -16,7 +16,7 @@
 
     <div class="search-flex">
         <div class="search-agora">
-            <span class="search-agora-header">α (in this agora)</span> <br />
+            <span class="search-agora-header">↳ in this Agora ⬎</span> <br />
             {% if search %}
             {% for subnode in search %}
             <a href="/@{{subnode.user}}/{{subnode.canonical_wikilink}}">@{{subnode.user}}/{{subnode.wikilink}}</a><br />
@@ -27,7 +27,7 @@
         </div>
 
         <div class="search-internet">
-            <span class="search-internet-header">🌎 (on the internet)</span> <br />
+            <span class="search-internet-header">🌎 on the internet ⬎</span> <br />
             ↪ <a href="https://www.google.com/search?q={{q}}">Google</a> <br />
             ↪ <a href="https://www.duckduckgo.com/{{q}}">DuckDuckGo</a> <br />
             ↪ <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">Wikipedia</a> <br />

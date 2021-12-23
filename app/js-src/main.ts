@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulling';
       let qstr = this.value;
       $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
-        $("#pulled-search.pulled-search-embed").html('<br />' + data);
+        $("#pulled-search.pulled-search-embed").html(data);
       });
       this.classList.add('pulled');
       this.innerText = 'fold';
