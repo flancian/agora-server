@@ -1,5 +1,6 @@
 let mouseX;
 let mouseY;
+
 $(document).mousemove(function (e) {
     mouseX = e.pageX + 100;
     mouseY = e.pageY;
@@ -14,15 +15,20 @@ function sleep(ms) {
 }
 
 $(".wikilink").hover(async function () {
-    // console.log($(this).text())
-    const url = `/pull/${$(this).text().replace(" ", "-")}`
-    // const data = await fetch(url).then(res => res.json())
-    // console.log(data)
+
     console.log(mouseX, mouseY)
-    await sleep(1000);
     $("#popup").html("").hide()
-    $("#popup").css({ 'top': mouseY, 'left': mouseX }).html(`<div><button onclick='closePopup()'>Close X</button></div><iframe src=${url} width=500 height=300></iframe>`).show()
+    const url = `/pull/${$(this).text().replaceAll(" ", "-")}`
+
+    $.get(url, function (data) {
+      $("#popup").css({ 'top': mouseY, 'left': mouseX, 'background-color': 'black'})
+      $("#popup").html(`<div><button onclick='closePopup()'>Close X</button></div>` + data).show()
+    });
+
+    await sleep(1000);
+
 }, function () {
+    $("#popup").html("").hide()
 });
 
 
