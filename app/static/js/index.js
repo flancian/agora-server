@@ -9698,7 +9698,7 @@ document.addEventListener("DOMContentLoaded", function() {
             this.innerText = 'pulling';
             let qstr = this.value;
             $.get(AGORAURL + '/fullsearch/' + qstr, function(data) {
-                $("#pulled-search.pulled-search-embed").html(data);
+                $("#pulled-search.pulled-search-embed").html('<br />' + data);
             });
             this.classList.add('pulled');
             this.innerText = 'fold';
@@ -9834,7 +9834,17 @@ document.addEventListener("DOMContentLoaded", function() {
         this.click();
     });
     */ }
+    function sleep(ms) {
+        // https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+        return new Promise((resolve)=>setTimeout(resolve, ms)
+        );
+    }
     if (autoPullStoa) {
+        console.log('queueing auto pull');
+        setTimeout(pullStoa, ms);
+        console.log('auto pulled');
+    }
+    function pullStoa() {
         console.log('auto pulling stoa');
         $("#pull-stoa").each(function(e) {
             this.click();
