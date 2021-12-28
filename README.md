@@ -22,6 +22,8 @@ python3 -m venv venv
 pip install -r requirements.txt
 ```
 
+If you get errors while running pip, you might need to install additional OS level dependencies. On a recent run, `apt install libmemcached-dev` was needed.
+
 Then run the development server:
 ```
 ./run-dev.sh
