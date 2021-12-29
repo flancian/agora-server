@@ -62,20 +62,17 @@ orgmode = to_html
 # TODO: [[refactor]].
 
 # Twitter embeds.
+# Now disabled, we prefer to embed client side.
 def add_twitter_embeds(content, subnode):
     TWITTER_REGEX='(https://twitter.com/\w+/status/[0-9]+)'
     TWITTER_EMBED='<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="\\1"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 def add_twitter_pull(content, subnode):
-    # hack: negative lookbehind tries to only match for anchors not preceded by a span... just because in the agora we have 
-    # spans just preceding every anchor that is a wikilink.
-    if re.search(r'(?<!</span>)<a href', content):
-        # don't apply filters when content has html links that are not result of a wikilink.
-        # this works around a bug in some org mode translated files we have.
-        return content
-    TWITTER_REGEX='(https://twitter.com/\w+/status/[0-9]+)'
-    TWITTER_EMBED='\\1 <button class="pull-tweet" value="\\1">pull</button>'
+    # negative lookbehind tries to only match twitter links not preceded by a ", which would be there if the URL is being used as part of an <a href="..."> tag (adding an embed in that case using regexes would break the link).
+    # https://www.regular-expressions.info/lookaround.html if you're wondering how this works.
+    TWITTER_REGEX=r'(?<!")(https://twitter.com/\w+/status/[0-9]+)'
+    TWITTER_EMBED=r'\1 <button class="pull-tweet" value=\1>pull</button>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 def add_mastodon_pull(content, subnode):
@@ -158,14 +155,14 @@ def add_obsidian_embeds(content, subnode):
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
 def preprocess(content, subnode=''):
-    filters = [trim_front_matter, add_obsidian_embeds, add_url_pull]
+    filters = [trim_front_matter, add_obsidian_embeds, add_url_pull, add_twitter_pull]
     for f in filters:
         content = f(content, subnode)
     return content
 
 def postprocess(content, subnode=''):
     # filters = [add_twitter_embeds]
-    filters = [add_twitter_pull, add_mastodon_pull, add_pleroma_pull]
+    filters = [add_mastodon_pull, add_pleroma_pull]
     for f in filters:
         content = f(content, subnode)
     return content

@@ -9711,10 +9711,18 @@ document.addEventListener("DOMContentLoaded", function() {
         for(var i = 0; i < elements.length; i++)elements[i].style.display = 'inline';
     }
     $(".pull-tweet").click(function(e) {
-        this.innerText = 'pulling';
-        let tweet = this.value;
-        $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
-        this.innerText = 'pulled?';
+        if (this.classList.contains('pulled')) {
+            div = $(e.currentTarget).nextAll('.twitter-tweet');
+            div.remove();
+            this.innerText = 'pull';
+            this.classList.remove('pulled');
+        } else {
+            this.innerText = 'pulling';
+            let tweet = this.value;
+            $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
+            this.classList.add('pulled');
+            this.innerText = 'fold';
+        }
     });
     function statusContent(self) {
         let toot = self.value;
