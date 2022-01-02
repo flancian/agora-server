@@ -24,6 +24,7 @@ from . import regexes
 from . import util 
 from marko import Markdown, inline
 from marko.ext.gfm import gfm
+from marko.ext.footnote import Footnote
 from orgpython import to_html
 
 
@@ -49,7 +50,7 @@ class Wikilinks():
     elements = [WikilinkElement]
     renderer_mixins = [WikilinkRendererMixin]
 
-markdown = gfm
+markdown = Markdown(extensions=[Footnote, gfm])
 markdown.use(Wikilinks)
 
 
