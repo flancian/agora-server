@@ -25,9 +25,9 @@ $(".wikilink").hover(async function () {
       $("#popup").html(`<div><button onclick='closePopup()'>Close X</button></div>` + data).show()
     });
 
-    await sleep(1000);
-
-}, function () {
+}, async function () {
+    // hack hack -- it improves the experience.
+    await sleep(2000);
     $("#popup").html("").hide()
 });
 
