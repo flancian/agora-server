@@ -59,6 +59,13 @@ def node(node, extension='', user_list=''):
     # this should probably be made irrelevant by the Big Refactor that we need to do to make the canonical node identifier non-lossy.
     node = node.replace(',', '').replace(':', '')
 
+    # unquote in case the node came in urlencoded, then slugify again to gain the 'dimensionality reduction' effects of
+    # slugs -- and also because G.node() expects a slug as of 2022-01.
+    # yeah, this is a hack.
+    # TODO: fix this, make decoded unicode strings the main IDs within db.py.
+    node = urllib.parse.unquote_plus(node)
+    node = util.slugify(node)
+
     from copy import copy
     n = copy(G.node(node))
 
@@ -146,6 +153,8 @@ def graph_js_node(node):
 @bp.route('/@<user>/<node>')
 def subnode(node, user):
 
+    node = urllib.parse.unquote_plus(node)
+    node = util.slugify(node)
     n = G.node(node)
 
     n.subnodes = util.filter(n.subnodes, user)
@@ -216,6 +225,9 @@ def ctzn_login():
 def go(node):
     """Redirects to the URL in the given node in a block that starts with [[go]], if there is one."""
     # TODO(flancian): all node-scoped stuff should move to actually use node objects.
+
+    node = urllib.parse.unquote_plus(node)
+    node = util.slugify(node)
     try:
         n = db.nodes_by_wikilink(node)
     except KeyError:
