@@ -81,27 +81,35 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // pull jitsi -- required because iframe allow attributes can't be set dynamically it seems
+  // jitsi specific code using their api.
+  // just embedding the iframe worked fine on chrome, but had some issues on firefox. testing.
   $(".pull-jitsi").click(function (e) {
     console.log("in pull-url!")
     if (this.classList.contains('pulled')) {
       // already pulled.
       this.innerText = 'pull';
-      $(e.currentTarget).nextAll('iframe').hide()
+      $('#meet-iframe').html('');
       this.classList.remove('pulled');
     }
     else {
       // pull.
       this.innerText = 'pulling';
       let url = this.value;
-      $(e.currentTarget).nextAll('iframe').attr('src', url)
-      $(e.currentTarget).nextAll('iframe').show()
+      const domain = 'meet.jit.si';
+      const options = {
+        roomName: NODENAME,
+        width: 800,
+        height: 600,
+        parentNode: document.querySelector('#meet-iframe')
+      };
+      const api = new JitsiMeetExternalAPI(domain, options);
+      //$(e.currentTarget).nextAll('iframe').attr('allow', 'camera; microphone; fullscreen; display-capture; autoplay')
+      //$(e.currentTarget).nextAll('iframe').attr('src', url)
+      //$(e.currentTarget).nextAll('iframe').show()
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
   });
-
-
 
   // pull a node from the default [[stoa]]
   $("#pull-stoa").click(function (e) {
@@ -287,10 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 
-
-
   }
-
  
   if (autoPullLocal) {
     console.log('auto pulling local resources!');
