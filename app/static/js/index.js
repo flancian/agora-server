@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"cDCAa":[function(require,module,exports) {
+})({"zjerF":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 34189;
+var HMR_PORT = 41869;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -9654,34 +9654,36 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
     // jitsi specific code using their api.
-    // just embedding the iframe worked fine on chrome, but had some issues on firefox. testing.
-    $(".pull-jitsi").click(function(e) {
-        console.log("in pull-url!");
-        if (this.classList.contains('pulled')) {
-            // already pulled.
-            this.innerText = 'pull';
-            $('#meet-iframe').html('');
-            this.classList.remove('pulled');
-        } else {
-            // pull.
-            this.innerText = 'pulling';
-            let url = this.value;
-            const domain = 'meet.jit.si';
-            const options = {
-                roomName: NODENAME,
-                width: 800,
-                height: 600,
-                parentNode: document.querySelector('#meet-iframe')
-            };
-            const api = new JitsiMeetExternalAPI(domain, options);
-            //$(e.currentTarget).nextAll('iframe').attr('allow', 'camera; microphone; fullscreen; display-capture; autoplay')
-            //$(e.currentTarget).nextAll('iframe').attr('src', url)
-            //$(e.currentTarget).nextAll('iframe').show()
-            this.innerText = 'fold';
-            this.classList.add('pulled');
-        }
-    });
-    // pull a node from the default [[stoa]]
+    // unused / disabled right now as there was no evident advantage in using this as opposed to just using generic pull-url code for embedding the iframe.
+    /*
+  $(".pull-jitsi").click(function (e) {
+    console.log("in pull-url!")
+    if (this.classList.contains('pulled')) {
+      // already pulled.
+      this.innerText = 'pull';
+      $('#meet-iframe').html('');
+      this.classList.remove('pulled');
+    }
+    else {
+      // pull.
+      this.innerText = 'pulling';
+      let url = this.value;
+      const domain = 'meet.jit.si';
+      const options = {
+        roomName: NODENAME,
+        width: 800,
+        height: 600,
+        parentNode: document.querySelector('#meet-iframe')
+      };
+      const api = new JitsiMeetExternalAPI(domain, options);
+      //$(e.currentTarget).nextAll('iframe').attr('allow', 'camera; microphone; fullscreen; display-capture; autoplay')
+      //$(e.currentTarget).nextAll('iframe').attr('src', url)
+      //$(e.currentTarget).nextAll('iframe').show()
+      this.innerText = 'fold';
+      this.classList.add('pulled');
+    }
+  });
+  */ // pull a node from the default [[stoa]]
     $("#pull-stoa").click(function(e) {
         if (this.classList.contains('pulled')) {
             // already pulled.
@@ -9932,6 +9934,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["cDCAa","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["zjerF","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map

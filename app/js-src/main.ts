@@ -82,7 +82,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // jitsi specific code using their api.
-  // just embedding the iframe worked fine on chrome, but had some issues on firefox. testing.
+  // unused / disabled right now as there was no evident advantage in using this as opposed to just using generic pull-url code for embedding the iframe.
+  /*
   $(".pull-jitsi").click(function (e) {
     console.log("in pull-url!")
     if (this.classList.contains('pulled')) {
@@ -110,6 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.classList.add('pulled');
     }
   });
+  */
 
   // pull a node from the default [[stoa]]
   $("#pull-stoa").click(function (e) {
