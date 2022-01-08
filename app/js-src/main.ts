@@ -75,11 +75,33 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulling';
       let url = this.value;
       console.log('pull url : ' + url)
-      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px"></iframe>')
+      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture" src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px"></iframe>')
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
   });
+
+  // pull jitsi -- required because iframe allow attributes can't be set dynamically it seems
+  $(".pull-jitsi").click(function (e) {
+    console.log("in pull-url!")
+    if (this.classList.contains('pulled')) {
+      // already pulled.
+      this.innerText = 'pull';
+      $(e.currentTarget).nextAll('iframe').hide()
+      this.classList.remove('pulled');
+    }
+    else {
+      // pull.
+      this.innerText = 'pulling';
+      let url = this.value;
+      $(e.currentTarget).nextAll('iframe').attr('src', url)
+      $(e.currentTarget).nextAll('iframe').show()
+      this.innerText = 'fold';
+      this.classList.add('pulled');
+    }
+  });
+
+
 
   // pull a node from the default [[stoa]]
   $("#pull-stoa").click(function (e) {

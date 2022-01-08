@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"47oxK":[function(require,module,exports) {
+})({"cDCAa":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 44503;
+var HMR_PORT = 34189;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -9648,7 +9648,25 @@ document.addEventListener("DOMContentLoaded", function() {
             this.innerText = 'pulling';
             let url = this.value;
             console.log('pull url : ' + url);
-            $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px"></iframe>');
+            $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture" src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px"></iframe>');
+            this.innerText = 'fold';
+            this.classList.add('pulled');
+        }
+    });
+    // pull jitsi -- required because iframe allow attributes can't be set dynamically it seems
+    $(".pull-jitsi").click(function(e) {
+        console.log("in pull-url!");
+        if (this.classList.contains('pulled')) {
+            // already pulled.
+            this.innerText = 'pull';
+            $(e.currentTarget).nextAll('iframe').hide();
+            this.classList.remove('pulled');
+        } else {
+            // pull.
+            this.innerText = 'pulling';
+            let url = this.value;
+            $(e.currentTarget).nextAll('iframe').attr('src', url);
+            $(e.currentTarget).nextAll('iframe').show();
             this.innerText = 'fold';
             this.classList.add('pulled');
         }
@@ -9904,6 +9922,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["47oxK","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["cDCAa","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map
