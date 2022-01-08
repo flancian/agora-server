@@ -351,6 +351,20 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+ if (localStorage["ranking"]) {
+    let subnodes = $(".subnode")
+    let sortList = Array.prototype.sort.bind(subnodes);
+    sortList(function (a, b) {
+        if (rawRanking.indexOf(a.dataset.author) === -1) return 1
+        if (rawRanking.indexOf(b.dataset.author) === -1) return -1
+        if (rawRanking.indexOf(a.dataset.author) < rawRanking.indexOf(b.dataset.author)) return -1
+        if (rawRanking.indexOf(a.dataset.author) > rawRanking.indexOf(b.dataset.author)) return 1
+        return 0
+    })
+    subnodes.remove()
+    subnodes.insertAfter($(".main-header"))
+}
+
 });
 
 function getRandomColor() {

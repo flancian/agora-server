@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"zjerF":[function(require,module,exports) {
+})({"cDCAa":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 41869;
+var HMR_PORT = 34189;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -7310,19 +7310,6 @@ const Settings = {
     render: ({ ranking , autopulllocal , autopullexternal , autopullstoa , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPullLocal()}\n        ${autoPullExternal()}\n        ${autoPullStoa()}\n        ${showBrackets()}\n        <div>\n            <h1>Add garden to Agora</h1>\n            <div>This feature is <em>experimental</em>, which means it's probably broken :). If this fails, please send your repository information to signup@anagora.org. Thank you!</div>\n            <br>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n\n    `
 };
 _hybrids.define('settings-form', Settings);
-if (localStorage["ranking"]) {
-    let subnodes = $(".subnode");
-    let sortList = Array.prototype.sort.bind(subnodes);
-    sortList(function(a, b) {
-        if (rawRanking.indexOf(a.dataset.author) === -1) return 1;
-        if (rawRanking.indexOf(b.dataset.author) === -1) return -1;
-        if (rawRanking.indexOf(a.dataset.author) < rawRanking.indexOf(b.dataset.author)) return -1;
-        if (rawRanking.indexOf(a.dataset.author) > rawRanking.indexOf(b.dataset.author)) return 1;
-        return 0;
-    });
-    subnodes.remove();
-    subnodes.insertAfter($(".main-header"));
-}
 
 },{"hybrids":"lxcky","jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lxcky":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -9888,6 +9875,19 @@ document.addEventListener("DOMContentLoaded", function() {
             this.click();
         });
     }
+    if (localStorage["ranking"]) {
+        let subnodes = $(".subnode");
+        let sortList = Array.prototype.sort.bind(subnodes);
+        sortList(function(a, b) {
+            if (rawRanking.indexOf(a.dataset.author) === -1) return 1;
+            if (rawRanking.indexOf(b.dataset.author) === -1) return -1;
+            if (rawRanking.indexOf(a.dataset.author) < rawRanking.indexOf(b.dataset.author)) return -1;
+            if (rawRanking.indexOf(a.dataset.author) > rawRanking.indexOf(b.dataset.author)) return 1;
+            return 0;
+        });
+        subnodes.remove();
+        subnodes.insertAfter($(".main-header"));
+    }
 });
 function getRandomColor() {
     var letters = '0123456789ABCDEF'.split('');
@@ -9934,6 +9934,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["zjerF","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["cDCAa","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map
