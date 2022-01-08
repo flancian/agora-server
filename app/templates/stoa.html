@@ -15,11 +15,18 @@
 -->
 
 <div class="stoa">
-    <span class="stoa-header">📖 stoa (open document)</span>
-    at <a href="https://doc.anagora.org/{{node.uri}}?edit">doc.anagora.org/{{node.uri}}</a>
-    <button id="pull-stoa" value="{{node.uri}}">pull</button>
+    <div class="stoa-header">📖 stoas</div>
+    <ul>
+        <li>
+        public document at <a href="https://doc.anagora.org/{{node.uri}}?edit">doc.anagora.org/{{node.uri}}</a>
+        <button id="pull-stoa" value="{{node.uri}}">pull</button>
+        <div id="stoa-iframe"></div>
+        </li>
+        <li>
+        video call at <a href="https://meet.jit.si/{{node.uri}}">meet.jit.si/{{node.uri}}</a>
+        <button class="pull-url" value="https://meet.jit.si/{{node.uri}}">pull</button>
+        </li>
     <!-- will be replaced with an iframe or transcluded content by pull code running on the client side -->
-    <div id="stoa-iframe"></div>
 </div>
 
 
