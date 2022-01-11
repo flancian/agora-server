@@ -50,8 +50,8 @@ class Wikilinks():
     elements = [WikilinkElement]
     renderer_mixins = [WikilinkRendererMixin]
 
-markdown = Markdown(extensions=[Footnote, gfm])
-markdown.use(Wikilinks)
+markdown = gfm
+markdown.use(Wikilinks, Footnote)
 
 
 # Org-mode -- simple but, well, bad for now.
