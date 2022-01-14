@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# this breaks pull buttons.
+# import bleach
 import cachetools.func
 import glob
 import itertools
@@ -452,6 +454,8 @@ class Subnode:
             return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /> <br />'.format(self.uri)
         # ugly, this should be in render
         content = render.preprocess(self.content, subnode=self)
+        # this breaks pull buttons
+        # content = bleach.clean(content)
         if self.uri.endswith('md') or self.uri.endswith('MD'):
             try:
                 content = render.markdown(content)
