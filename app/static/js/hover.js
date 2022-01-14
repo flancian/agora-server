@@ -29,3 +29,4 @@ function showBox(url){
   });
 }
 
+$(document).click(closePopup)
