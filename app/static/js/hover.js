@@ -1,34 +1,31 @@
 let mouseX;
 let mouseY;
+let locked = false;
 
 $(document).mousemove(function (e) {
-    mouseX = e.pageX + 100;
-    mouseY = e.pageY;
+  mouseX = e.pageX;
+  mouseY = e.pageY + 50;
 });
 
 function closePopup() {
-    $("#popup").css("display", "none");
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  $("#popup").css("display", "none");
 }
 
 $(".wikilink").hover(async function () {
-
-    console.log(mouseX, mouseY)
-    $("#popup").html("").hide()
-    const url = `/pull/${$(this).text().replaceAll(" ", "-")}`
-
-    $.get(url, function (data) {
-      $("#popup").css({ 'top': mouseY, 'left': mouseX, 'background-color': 'black'})
-      $("#popup").html(`<div><button onclick='closePopup()'>Close X</button></div>` + data).show()
-    });
+  locked = true
+  // console.log(mouseX, mouseY)
+  const url = `/pull/${$(this).text().replaceAll(" ", "-")}`
+  setTimeout(() => showBox(url), 1000)
 
 }, async function () {
-    // hack hack -- it improves the experience.
-    await sleep(2000);
-    $("#popup").html("").hide()
+  locked = false
 });
 
+function showBox(url){
+  $.get(url, function (data) {
+    if (!locked) return
+    $("#popup").css({ 'top': mouseY, 'left': mouseX, 'background-color': 'black' })
+    $("#popup").html(`<div><button onclick='closePopup()'>Close X</button></div>` + data).show()
+  });
+}
 
