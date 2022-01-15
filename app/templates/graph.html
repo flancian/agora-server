@@ -52,7 +52,7 @@
         .nodeVal('val')
         .nodeAutoColorBy('group')
         .nodeCanvasObject((node, ctx, globalScale) => {
-          const label = node.id;
+          const label = node.name;
           var fontSize = 12/globalScale;
           if (node.id == NODENAME) {
             fontSize = 24/globalScale;
