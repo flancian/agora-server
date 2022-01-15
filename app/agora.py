@@ -163,6 +163,7 @@ def subnode(node, user):
     return render_template(
         'subnode.html',
         node=n,
+        qstr=f'@{user}/'+n.wikilink.replace('-', ' '),
     )
 
 # Special
