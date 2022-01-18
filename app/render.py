@@ -50,17 +50,15 @@ class WikilinkRendererMixin(object):
 class TiddlylinkElement(inline.InlineElement):
     # is this regexes pattern a good idea?
     pattern = regexes.TIDDLYLINK.pattern
-    parse_children = True
 
     def __init__(self, match):
-        self.anchor= match.group(1)
+        self.anchor = match.group(1)
         self.target = match.group(2)
 
 class TiddlylinkRendererMixin(object):
 
     # This name is magic; it must match render_<class_name_in_snake_case>.
     def render_tiddlylink_element(self, element):
-        breakpoint()
         return '<span class="wikilink-marker">[[</span><a href="{}" class="wikilink">{}</a><span class="wikilink-marker">]]</span>'.format(
             util.canonical_wikilink(element.target), element.anchor
         )
