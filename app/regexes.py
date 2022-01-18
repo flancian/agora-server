@@ -18,6 +18,7 @@ import re
 # - regexes are always compiled
 #   - .pattern attribute if you want the raw string.
 WIKILINK = re.compile(r'\[\[ *(.+?) *\]\]')
+TIDDLYLINK = re.compile(r'\[(.+?)\]\(#(.+?)\)')
 
 # TODO: move action extractor regex here as well.
 # is this the best way?
