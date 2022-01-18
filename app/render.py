@@ -30,6 +30,7 @@ from orgpython import to_html
 
 # Markdown
 class WikilinkElement(inline.InlineElement):
+    # is this regexes pattern a good idea?
     pattern = regexes.WIKILINK.pattern
     parse_children = True
 
@@ -150,6 +151,11 @@ def trim_front_matter(content, subnode):
     FRONT_MATTER_REGEX = '---(\n.*)*---'
     return re.sub(FRONT_MATTER_REGEX, '', content, flags=re.MULTILINE)
 
+# Trim obsidian block anchors until we do something useful with them.
+def trim_block_anchors(content, subnode):
+    BLOCK_ANCHOR_REGEX = r'\^[0-9-]+$'
+    return re.sub(BLOCK_ANCHOR_REGEX, '', content, flags=re.MULTILINE)
+
 #def content_to_obsidian_embeds(content):
 #    match = regexes.WIKILINKS.findall(content)
 #    if match:
@@ -168,7 +174,7 @@ def add_obsidian_embeds(content, subnode):
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
 def preprocess(content, subnode=''):
-    filters = [trim_front_matter, add_obsidian_embeds, add_url_pull, add_twitter_pull]
+    filters = [trim_front_matter, trim_block_anchors, add_obsidian_embeds, add_url_pull, add_twitter_pull]
     for f in filters:
         content = f(content, subnode)
     return content
