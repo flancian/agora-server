@@ -640,13 +640,15 @@ class User:
         self.uri = user
         # yikes
         self.url = '/@' + self.uri
-        # self.subnodes = subnodes_by_user(user)
         self.config = next((item for item in current_app.config['YAML_CONFIG'] if item['target'].endswith(self.user)), None)
         if self.config:
             self.repo_url = self.config.get('url')
             self.repo_type = self.config.get('format')
             self.web = self.config.get('web', 'unknown')
             self.support = self.config.get('support', 'unknown')
+
+    def subnodes(self):
+         return subnodes_by_user(self.user)
 
     def __str__(self):
         return self.user
@@ -655,7 +657,7 @@ class User:
         return self.user == other.user
 
     def size(self):
-        return len(self.subnodes)
+        return len(self.subnodes())
 
 def path_to_uri(path):
     return path.replace(current_app.config['AGORA_PATH'] + '/', '')
