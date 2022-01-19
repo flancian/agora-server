@@ -27,16 +27,33 @@
     {% endif %}
 
     <div class="listing">
-    <h1> Subnodes by @{{user}} </h1>
-    {% if not subnodes %}
-    No subnodes found for the given term or path.
-    <br /><br />
-    Go back to <a href="/nodes">/nodes</a>?
-    {% endif %}
+    <div class="listing-flex">
 
-    {% for subnode in subnodes %}
-    <a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.wikilink}}</a><br />
-    {% endfor %}
+    <div class="infobox">
+        <h1> About @{{user}} </h1>
+        <ul>
+            <li>Repository URL: {{user.url}} </li>
+            <li>Repository type: {{user.type}} </li>
+            <li>Resource count: {{subnodes|length}} </li>
+            <li>Website: {{user.web}} </li>
+            <li>Support link: {{user.support}} </li>
+        </ul>
+        </div>
+
+    <div class="subnodes">
+        <h1> Resources by @{{user}} </h1>
+        {% if not subnodes %}
+        No subnodes found for the given term or path.
+        <br /><br />
+        Go back to <a href="/nodes">/nodes</a>?
+        {% endif %}
+    
+        {% for subnode in subnodes %}
+        <a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.wikilink}}</a><br />
+        {% endfor %}
+        </div>
+
+    </div>
     </div>
 
 </div>

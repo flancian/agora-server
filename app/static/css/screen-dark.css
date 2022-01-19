@@ -353,8 +353,24 @@ input[type="text"] {
     display: flex;
 }
 
+.listing-flex {
+    display: flex;
+}
+
+.flex {
+    display: flex;
+}
+
 .search-flex {
     display: flex;
+}
+
+.infobox {
+    width: 50%
+}
+
+.subnodes {
+    width: 50%
 }
 
 .links {
