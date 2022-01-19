@@ -331,11 +331,6 @@ input[type="text"] {
     width: 100%;
 }
 
-.subnode-header {
-    display: flex;
-    justify-content: space-between;
-}
-
 .subnode-contrib {
     display: flex;
     column-gap: 5px;

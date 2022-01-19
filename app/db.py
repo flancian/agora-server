@@ -747,9 +747,9 @@ def search_subnodes_by_user(query, user):
     subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype == 'text/plain' and subnode.user == user and re.search(query, subnode.content, re.IGNORECASE)]
     return subnodes
 
-def subnodes_by_user(user):
+def subnodes_by_user(user, sort_by='mtime', reverse=True):
     subnodes = [subnode for subnode in G.subnodes() if subnode.user == user]
-    return sorted(subnodes, key=attrgetter('mtime'), reverse=True)
+    return sorted(subnodes, key=attrgetter(sort_by), reverse=reverse)
 
 def user_readmes(user):
     # hack hack

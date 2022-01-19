@@ -20,7 +20,7 @@
 <div class="node">
     <div class="subnode">
     {% for subnode in readmes %}
-        <span class="subnode-header"><strong>README</strong> by <a href="/@{{user}}">@{{user}}</a></span>
+        <span class="subnode-header">🏡 <strong>README</strong> by <a href="/@{{user}}">@{{user}}</a></span>
     {{ subnode.render()|linkify|safe }}
     {% endfor %}
     </div>
@@ -30,7 +30,7 @@
     <div class="listing-flex">
 
     <div class="infobox">
-        <h1> About @{{user}} </h1>
+        <h1>About @{{user}}</h1>
         <ul>
             <li>Repository URL: {{user.url}} </li>
             <li>Repository type: {{user.type}} </li>
@@ -38,10 +38,21 @@
             <li>Website: {{user.web}} </li>
             <li>Support link: {{user.support}} </li>
         </ul>
-        </div>
+
+        <h1>Latest edited</h1>
+            {% if not subnodes %}
+            No subnodes found for the given term or path.
+            <br /><br />
+            Go back to <a href="/nodes">/nodes</a>?
+            {% endif %}
+    
+            {% for subnode in latest %}
+            <a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.wikilink}}</a><br />
+            {% endfor %}
+    </div>
 
     <div class="subnodes">
-        <h1> Resources by @{{user}} </h1>
+        <h1>All nodes by @{{user}}</h1>
         {% if not subnodes %}
         No subnodes found for the given term or path.
         <br /><br />
