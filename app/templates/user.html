@@ -17,25 +17,28 @@
 {% extends "base.html" %}
 {% block content %}
 {% if readmes %}
-<div class="subnode">
-{% for subnode in readmes %}
-    <span class="subnode-header"><strong>README</strong> by <a href="/@{{user}}">@{{user}}</a></span>
-{{ subnode.render()|linkify|safe }}
-{% endfor %}
-</div>
-{% endif %}
+<div class="node">
+    <div class="subnode">
+    {% for subnode in readmes %}
+        <span class="subnode-header"><strong>README</strong> by <a href="/@{{user}}">@{{user}}</a></span>
+    {{ subnode.render()|linkify|safe }}
+    {% endfor %}
+    </div>
+    {% endif %}
 
-<div class="listing">
-<h1> Subnodes by @{{user}} </h1>
-{% if not subnodes %}
-No subnodes found for the given term or path.
-<br /><br />
-Go back to <a href="/nodes">/nodes</a>?
-{% endif %}
+    <div class="listing">
+    <h1> Subnodes by @{{user}} </h1>
+    {% if not subnodes %}
+    No subnodes found for the given term or path.
+    <br /><br />
+    Go back to <a href="/nodes">/nodes</a>?
+    {% endif %}
 
-{% for subnode in subnodes %}
-<a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.wikilink}}</a><br />
-{% endfor %}
+    {% for subnode in subnodes %}
+    <a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.wikilink}}</a><br />
+    {% endfor %}
+    </div>
+
 </div>
 
 {% endblock %}

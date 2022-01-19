@@ -161,7 +161,7 @@ def subnode(node, user):
     n.subnodes = util.uprank(n.subnodes, user)
     search_subnodes = db.search_subnodes_by_user(node, user)
     return render_template(
-        'subnode.html',
+        'content.html',
         node=n,
         qstr=f'@{user}/'+n.wikilink.replace('-', ' '),
     )
