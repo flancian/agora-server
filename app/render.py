@@ -177,6 +177,17 @@ def trim_block_anchors(content, subnode):
     BLOCK_ANCHOR_REGEX = r'\^[0-9-]+$'
     return re.sub(BLOCK_ANCHOR_REGEX, '', content, flags=re.MULTILINE)
 
+# Trim liquid templates (Jekyll stuff) until we do something useful with them.
+def trim_liquid(content, subnode):
+    LIQUID_REGEX = r'{%.*?%}'
+    return re.sub(LIQUID_REGEX, '<em>(Unsupported content elided by the Agora.)</em>', content, flags=re.MULTILINE)
+
+# Trim margin notes (Jekyll stuff).
+def trim_margin_notes(content, subnode):
+    MARGIN_NOTES_REGEX = r'\[\[[^\]]*?::...\]\]'
+    return re.sub(MARGIN_NOTES_REGEX, '', content, flags=re.MULTILINE)
+
+
 # Make it so that Tiddlylinks (links of the form [foo](#bar), wish octothorpe) aren't handled by 
 # [foo](bar) standard Markdown link parsing in Marko.
 def force_tiddlylink_parsing(content, subnode):
@@ -200,7 +211,7 @@ def add_obsidian_embeds(content, subnode):
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
 def preprocess(content, subnode=''):
-    filters = [trim_front_matter, trim_block_anchors, force_tiddlylink_parsing, add_obsidian_embeds, add_url_pull, add_twitter_pull]
+    filters = [trim_front_matter, trim_block_anchors, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_obsidian_embeds, add_url_pull, add_twitter_pull]
     for f in filters:
         content = f(content, subnode)
     return content
