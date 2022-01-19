@@ -160,9 +160,19 @@ def subnode(node, user):
     n.subnodes = util.filter(n.subnodes, user)
     n.subnodes = util.uprank(n.subnodes, user)
     search_subnodes = db.search_subnodes_by_user(node, user)
+
+    # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
+    # query is meant to be user parsable / readable text, to be used for example in the UI
+    qstr = request.args.get('q') 
+
+    if not qstr: 
+        # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
+        qstr = n.wikilink.replace('-', ' ')
+
     return render_template(
         'content.html',
         node=n,
+        subnode=f'@{user}/'+n.wikilink,
         qstr=f'@{user}/'+n.wikilink.replace('-', ' '),
     )
 

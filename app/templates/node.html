@@ -57,7 +57,14 @@
 {% if node.subnodes or node.pushed_subnodes() %}
 {% if not embed %}
 <div class="node">
+
+    {% if subnode %}
+    <span class="node-header main-header">📚 partial node <a href="/{{qstr}}">[[{{qstr}}]]</a>
+    in node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
+    </span>
+    {% else %}
     <span class="node-header main-header">📚 node <a href="/{{node.uri}}">[[{{qstr}}]]</a></span>
+    {% endif %} 
     {% endif %}
 
     {% for subnode in node.subnodes %}

@@ -15,9 +15,11 @@
 ↓
 -->
 
+{% if not subnode %}
 <div class="search">
     <span class="search-agora-header">🔎 full text search for '{{qstr}}'</span>
     <button class="pull-search" value="{{qstr}}">pull</button>
     <div class="pulled-search-embed" id="pulled-search"></div>                           
 </div>
+{% endif %}
 
