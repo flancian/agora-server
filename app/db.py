@@ -394,20 +394,19 @@ class Subnode:
         # essentially a slug.
         self.canonical_wikilink = util.canonical_wikilink(self.wikilink)
         self.user = path_to_user(path)
-        self.mediatype = mediatype
-        # Evan say sorry
-        user_config: dict = next((item for item in current_app.config['YAML_CONFIG'] if item['target'].endswith(self.user)), None)
-        # if this does not exist [[evan]] will be sad
-        if user_config:
-            self.support = user_config.get('support', False)
-            self.edit: Union[str, False] = user_config.get('edit', False)
+        self.user_config = User(self.user).config
+        if self.user_config:
+            self.support = self.user_config.get('support', False)
+            self.edit: Union[str, False] = self.user_config.get('edit', False)
             if self.edit:
                 # for edit paths with {path}
                 self.edit = self.edit.replace("{path}", self.edit_path)
                 # for edit paths with {slug}
                 # hack hack, the stoa doesn't expect an .md extension so we just cut out the extension from the path for now.
                 self.edit = self.edit.replace("{slug}", self.edit_path[:-3])
- 
+
+        self.mediatype = mediatype
+
         if self.mediatype == 'text/plain':
             try:
                 with open(path) as f:
@@ -637,9 +636,23 @@ def subnode_to_taglink(subnode, tag, blocks_only=False):
 
 class User:
     def __init__(self, user):
+        self.user = user
         self.uri = user
+        # yikes
         self.url = '/@' + self.uri
-        self.subnodes = subnodes_by_user(user)
+        # self.subnodes = subnodes_by_user(user)
+        self.config = next((item for item in current_app.config['YAML_CONFIG'] if item['target'].endswith(self.user)), None)
+        if self.config:
+            self.repo_url = self.config.get('url')
+            self.repo_type = self.config.get('format')
+            self.web = self.config.get('web', 'unknown')
+            self.support = self.config.get('support', 'unknown')
+
+    def __str__(self):
+        return self.user
+
+    def __eq__(self, other):
+        return self.user == other.user
 
     def size(self):
         return len(self.subnodes)
