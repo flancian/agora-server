@@ -27,6 +27,9 @@ from marko.ext.gfm import gfm
 from marko.ext.footnote import Footnote
 from orgpython import to_html
 
+# we add and then remove this from detected Tiddlylinks to opt out from default Marko rendering.
+# pretty dirty but it works (tm) and prevents an excursion deeper into Marko.
+TIDDLYHACK = ' TIDDLYLINK'
 
 # Markdown
 class WikilinkElement(inline.InlineElement):
@@ -53,7 +56,7 @@ class TiddlylinkElement(inline.InlineElement):
 
     def __init__(self, match):
         self.anchor = match.group(1)
-        self.target = match.group(2)
+        self.target = match.group(2).replace(TIDDLYHACK, '')
 
 class TiddlylinkRendererMixin(object):
 
@@ -174,7 +177,12 @@ def trim_block_anchors(content, subnode):
     BLOCK_ANCHOR_REGEX = r'\^[0-9-]+$'
     return re.sub(BLOCK_ANCHOR_REGEX, '', content, flags=re.MULTILINE)
 
-#def content_to_obsidian_embeds(content):
+# Make it so that Tiddlylinks (links of the form [foo](#bar), wish octothorpe) aren't handled by 
+# [foo](bar) standard Markdown link parsing in Marko.
+def force_tiddlylink_parsing(content, subnode):
+    return re.sub(regexes.TIDDLYLINK.pattern, fr'[\1](#\2{TIDDLYHACK})', content, flags=re.MULTILINE)
+
+# def content_to_obsidian_embeds(content):
 #    match = regexes.WIKILINKS.findall(content)
 #    if match:
 #        # Work around broken forward links due to org mode convention I didn't think of.
@@ -192,7 +200,7 @@ def add_obsidian_embeds(content, subnode):
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
 def preprocess(content, subnode=''):
-    filters = [trim_front_matter, trim_block_anchors, add_obsidian_embeds, add_url_pull, add_twitter_pull]
+    filters = [trim_front_matter, trim_block_anchors, force_tiddlylink_parsing, add_obsidian_embeds, add_url_pull, add_twitter_pull]
     for f in filters:
         content = f(content, subnode)
     return content
