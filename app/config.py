@@ -24,7 +24,7 @@ class DefaultConfig(object):
     # without protocol
     URI_BASE = "anagora.org"
     AGORA = URI_BASE
-    JOURNAL_ENTRIES = 10 # number of journal entries to load
+    JOURNAL_ENTRIES = 31 # number of journal entries to load
     
     # EXPERIMENTS
     # experiments can be booleans or probabilities (reals in 0..1).

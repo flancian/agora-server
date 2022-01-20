@@ -20,6 +20,7 @@
 
 {% if header %}
 <h1> {{header}} </h1>
+<a href="/journals/7">last week</a> | <a href="/journals/30">last month</a>| <a href="/journals/365">last year</a> | <a href="/journals/all">all entries</a>
 {% else %}
 <h1> Nodes </h1>
 {% endif %}
@@ -37,7 +38,7 @@
                      <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
                                                     href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></span></a></span>
              </div>
-             <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+             <span class="subnode-content">{{ subnode.render()|safe }}</span>
          </div>
 
          {% endfor %}

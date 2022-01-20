@@ -500,10 +500,10 @@ def journals(entries):
     if not entries:
         entries = current_app.config['JOURNAL_ENTRIES']
     elif entries == 'all':
-        entries = 365 * 10
+        entries = 2000000 # ~ 365 * 5500 ~ 3300 BC
     else:
         entries = int(entries)
-    return render_template('journals.html', header=f"Journals for the last {entries} days", nodes=db.all_journals()[0:entries])
+    return render_template('journals.html', qstr=f"journals/{entries}", header=f"Journals for the last {entries} days with entries", nodes=db.all_journals()[0:entries])
 
 
 @bp.route('/journals.json')
