@@ -194,6 +194,12 @@ def latest():
                            subnodes=db.latest(),
                            annotations=feed.get_latest())
 
+@bp.route('/random')
+def random():
+    today = datetime.date.today()
+    random = db.random_node()
+    return redirect(f"/{random.uri}")
+
 @bp.route('/feed/latest') 
 def latest_feed():
     # empty node, we'll fake this one.
@@ -201,7 +207,6 @@ def latest_feed():
     n.subnodes = db.latest()[:100]
     n.subnodes.reverse()
     return Response(feed.rss(n), mimetype='application/rss+xml')
-
 
 @bp.route('/now')
 @bp.route('/tonight')

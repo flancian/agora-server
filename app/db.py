@@ -17,6 +17,7 @@
 import cachetools.func
 import glob
 import itertools
+import random
 import re
 import os
 from flask import current_app
@@ -729,6 +730,10 @@ def all_journals():
     nodes = [node for node in nodes.values() if util.is_journal(node.wikilink)]
     r = sorted(nodes, key=attrgetter('wikilink'), reverse=True)
     return r
+
+def random_node():
+    nodes = list(G.nodes().values())
+    return random.choice(nodes)
 
 # Deprecated.
 def nodes_by_wikilink(wikilink):
