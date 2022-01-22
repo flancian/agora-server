@@ -74,7 +74,6 @@
 {% if annotations_enabled %}
 <div class="annotations">
     <div class="hypothesis">
-        <span class="backlinks-header">web annotations</span><br />
     {% if annotations.entries %}
         {% for annotation in annotations.entries %}
         <a href="{{annotation.link}}">Annotation</a> by <a href="https://hypothes.is">hypothes.is</a> user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
@@ -84,8 +83,8 @@
         </blockquote>
         {% endfor %}
     {% else %}
-        No annotations found. <br />
-        <em>Start using <a href="https://hypothes.is">hypothes.is</a> today!  Web annotations are an open web standard.</em>
+        No web annotations found. <br />
+        <em>Sign up for <a href="https://hypothes.is">hypothes.is</a> and start annotating the web today! Web annotations are an open standard.</em>
     {% endif %}
     </div>
 </div>

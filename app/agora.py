@@ -112,6 +112,7 @@ def node(node, extension='', user_list=''):
             # sorry for the fuzzy thinking but I'm short on time and want to get things done.
             # (...famous last words).
             # annotations=n.annotations(),
+            # annotations_enabled=True,
             )
 
 @bp.route('/feed/<node>') 

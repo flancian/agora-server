@@ -52,7 +52,24 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // clear mini cli on clicking clear button
-  $("#mini-cli-clear").click(() => $("#mini-cli").val(""))
+  $("#mini-cli-clear").click(() => {
+    console.log("clearing mini-cli")
+    $("#mini-cli").val("")
+  })
+  $("#mini-cli-exec").click(() => {
+    console.log("exec mini-cli")
+    $("#mini-cli").parent().submit()
+  })
+  $("#mini-cli-go").click(() => {
+    console.log("go mini-cli")
+    let val = $("#mini-cli").val()
+    $("#mini-cli").val('go/' + val)
+    $("#mini-cli").parent().submit()
+  })
+  $("#mini-cli-pull").click(() => {
+    console.log("pull mini-cli")
+    /* some logic to add a new pulled node div and embed the target node would go here */
+  })
 
   // focus mini-cli on key combo
   $(window).keydown(function (e) {
