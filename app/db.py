@@ -548,10 +548,14 @@ class Subnode:
         returns a set of nodes pulled (anagora.org/node/pull) in this subnode
         pulls are blocks of the form:
         - [[pull]] [[node]]
+        - #pull [[node]]
         """
         pull_blocks = subnode_to_actions(self, 'pull')
+        pull_blocks += subnode_to_taglink(self, 'pull')
+        print(f'in pull_nodes for {self.uri}')
         # hack hack
         pull_nodes = content_to_forward_links("\n".join(pull_blocks))
+
         return [G.node(node) for node in pull_nodes]
 
     def auto_pull_nodes(self):
@@ -571,12 +575,14 @@ class Subnode:
         returns a set of push links contained in this subnode
         push links are blocks of the form:
         - [[push]] [[node]]
+        - #push [[node]]
 
         TODO: refactor with the above.
         """
 
         # TODO: test.
         push_blocks = subnode_to_actions(self, 'push')
+        push_blocks += subnode_to_taglink(self, 'push')
         push_nodes = content_to_forward_links("\n".join(push_blocks))
         return [G.node(node) for node in push_nodes]
 
@@ -610,13 +616,13 @@ def subnode_to_actions(subnode, action, blocks_only=False):
     if subnode.mediatype != 'text/plain':
         return []
     if blocks_only:
-        action_regex ='- \[\[' + action + '\]\] (.*?)$'
+        wikilink_regex ='- \[\[' + action + '\]\] (.*?)$'
     else:
-        action_regex ='\[\[' + action + '\]\] (.*?)$'
+        wikilink_regex ='\[\[' + action + '\]\] (.*?)$'
     content = subnode.content
     actions = []
     for line in content.splitlines():
-        m = re.search(action_regex, line)
+        m = re.search(wikilink_regex, line)
         if m:
             actions.append(m.group(1))
     return actions
@@ -625,9 +631,9 @@ def subnode_to_taglink(subnode, tag, blocks_only=False):
     if subnode.mediatype != 'text/plain':
         return []
     if blocks_only:
-        tag_regex ='- \#' + tag + ' (.*?)$'
+        tag_regex =f'- #{tag} (.*?)$'
     else:
-        tag_regex ='\#' + tag + ' (.*?)$'
+        tag_regex =f'#{tag} (.*?)$'
     content = subnode.content
     tags = []
     for line in content.splitlines():
