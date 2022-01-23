@@ -489,22 +489,23 @@ class Subnode:
         returns a set of go links contained in this subnode
         go links are blocks of one of two forms. A simple one:
 
-        - [[go]] protocol://example.org
+        - [[go]] https://example.org
+        - #go https://example.org
 
         Or a transitive form:
 
-        - [[go]] [[foo]]
         - [[foo]] protocol://example.org
+        - #go [[foo]]
 
         (protocol defaults to https.)
         """
         golinks = subnode_to_actions(self, 'go')
         # TODO change this to something better after we figure out [[agora actions]] in [[agora proposals]]
-        vera_links = subnode_to_taglink(self, 'go-link')
-        golinks.extend(vera_links)
+        golinks.extend(subnode_to_taglink(self, 'go'))
+        golinks.extend(subnode_to_taglink(self, 'go-link'))
         sanitized_golinks = []
         for golink in golinks:
-            # looks like a URL (includes a protocol)
+            # looks like a proper URL (includes a protocol)
             if '://' in golink:
                 sanitized_golinks.append(golink)
             # looks like a transitive go link (case two in the docstring)

@@ -248,7 +248,7 @@ def go(node):
     try:
         n = db.nodes_by_wikilink(node)
     except KeyError:
-        return redirect("https://anagora.org/node/%s" % node)
+        return redirect(f'https://anagora.org/{node}')
 
     if len(n) > 1:
         current_app.logger.warning(
@@ -256,13 +256,14 @@ def go(node):
 
     if len(n) == 0:
         # No nodes with this name -- redirect to node 404.
-        return redirect("https://anagora.org/node/%s" % node)
+        return redirect(f'https://anagora.org/{node}')
 
+    # we should do ranking :)
     links = n[0].go()
     if len(links) == 0:
         # No go links detected in this node -- just redirect to the node.
         # TODO(flancian): flash an explanation :)
-        return redirect("https://anagora.org/node/%s" % node)
+        return redirect(f'https://anagora.org/{node}')
 
     if len(links) > 1:
         # TODO(flancian): to be implemented.
