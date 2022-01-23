@@ -22,6 +22,10 @@ WIKILINK = re.compile(r'\[\[ *(.+?) *\]\]')
 # These are of the form: [text to show](#page to link to)
 TIDDLYLINK = re.compile(r'\[([^\]]+?)\]\(#([^\)]+?)\)', re.MULTILINE)
 
+# Hashtags
+HASHTAG = re.compile(r'#(.+?)\b')
+
+
 # TODO: move action extractor regex here as well.
 # is this the best way?
 ACTION_2 = re.compile(r'\[\[(.*?)\]\]\s*\[\[(.*?)\]\]')

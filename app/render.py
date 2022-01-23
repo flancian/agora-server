@@ -65,11 +65,28 @@ class TiddlylinkRendererMixin(object):
         return '<span class="wikilink-marker">[[</span><a href="{}" class="wikilink">{}</a><span class="wikilink-marker">]]</span>'.format(
             util.canonical_wikilink(element.target), element.anchor
         )
- 
+
+class HashtagElement(inline.InlineElement):
+    # is this regexes pattern a good idea?
+    pattern = regexes.HASHTAG.pattern
+    parse_children = True
+
+    def __init__(self, match):
+        self.target = match.group(1)
+
+class HashtagRendererMixin(object):
+
+    # This name is magic; it must match render_<class_name_in_snake_case>.
+    def render_hashtag_element(self, element):
+        # return '<span class="wikilink-marker">[[</span><a href="{}">{}</a><span class="wikilink-marker">]]</span>'.format(
+        return '<span class="wikilink-marker">[[</span><a href="{}" class="wikilink">{}</a><span class="wikilink-marker">]]</span>'.format(
+            # util.canonical_wikilink(self.escape_url(element.target)), self.render_children(element)
+            util.canonical_wikilink(element.target), self.render_children(element)
+        )
 
 class Wikilinks():
-    elements = [WikilinkElement, TiddlylinkElement]
-    renderer_mixins = [WikilinkRendererMixin, TiddlylinkRendererMixin]
+    elements = [WikilinkElement, TiddlylinkElement, HashtagElement]
+    renderer_mixins = [WikilinkRendererMixin, TiddlylinkRendererMixin, HashtagRendererMixin]
 
 
 markdown = gfm
