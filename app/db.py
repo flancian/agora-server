@@ -351,6 +351,9 @@ class Node:
                         except AttributeError:
                             # Better luck next time -- or when I fix this code :)
                             pass
+        if not subnodes:
+            # could be a failure in parsing, as of the time of writing #push isn't well supported.
+            subnodes.append(VirtualSubnode(subnode, other, f"<em>Couldn't parse #push. See source for content</em>."))
         return subnodes
 
     def exec(self):
@@ -604,7 +607,11 @@ class VirtualSubnode(Subnode):
         # Only text transclusion supported.
         self.mediatype = 'text/plain'
 
-        self.content = block.decode('UTF-8')
+        try:
+            self.content = block.decode('UTF-8')
+        except AttributeError:
+            # sometimes just a string.
+            self.content = block
         self.forward_links = content_to_forward_links(self.content)
 
         self.mtime = source_subnode.mtime
