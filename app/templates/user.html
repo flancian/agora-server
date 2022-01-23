@@ -18,12 +18,14 @@
 {% block content %}
 {% if readmes %}
 <div class="node">
-    <div class="subnode">
     {% for subnode in readmes %}
-        <span class="subnode-header">🏡 <strong>README</strong> by <a href="/@{{user}}">@{{user}}</a></span>
+        <div class="subnode" data-author={{user}}>
+        <div class="subnode-header">
+            <span class="subnode-id"> <span class="subnode-links">🏡 <strong>README</strong> by <a href="/@{{user}}">@{{user}}</a></span></span>
+        </div>
     {{ subnode.render()|linkify|safe }}
+        </div>
     {% endfor %}
-    </div>
     {% endif %}
 
     <div class="listing">

@@ -641,12 +641,18 @@ class User:
         self.uri = user
         # yikes
         self.url = '/@' + self.uri
-        self.config = next((item for item in current_app.config['YAML_CONFIG'] if item['target'].endswith(self.user)), None)
+        try: 
+            self.config = [x for x in current_app.config['YAML_CONFIG'] if 
+            x['target'].split('/')[-1] == self.user.split('@')[-1]][0]
+        except IndexError:
+            self.config = {}
         if self.config:
-            self.repo_url = self.config.get('url')
-            self.repo_type = self.config.get('format')
-            self.web = self.config.get('web', 'unknown')
-            self.support = self.config.get('support', 'unknown')
+            self.repo_url = self.config['url']
+            self.repo_target = self.config['target']
+            self.repo_type = self.config.get('format', 'unknown')
+            self.edit = self.config.get('edit', '')
+            self.web = self.config.get('web', '')
+            self.support = self.config.get('support', '')
 
     def subnodes(self):
          return subnodes_by_user(self.user)

@@ -329,11 +329,15 @@ input[type="text"] {
 .subnode-header, .subnode-footer, .links-header, .search-header, .subnode-id {
     font-weight: bolder;
     width: 100%;
+    display: flex;
 }
 
 .subnode-contrib {
-    display: flex;
-    column-gap: 5px;
+    text-align: right;
+    text-decoration: none;
+}
+
+.subnode-id {
 }
 
 .subnode-id a {
