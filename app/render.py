@@ -44,11 +44,15 @@ class WikilinkRendererMixin(object):
 
     # This name is magic; it must match render_<class_name_in_snake_case>.
     def render_wikilink_element(self, element):
-        # return '<span class="wikilink-marker">[[</span><a href="{}">{}</a><span class="wikilink-marker">]]</span>'.format(
-        return '<span class="wikilink-marker">[[</span><a href="{}" class="wikilink">{}</a><span class="wikilink-marker">]]</span>'.format(
-            # util.canonical_wikilink(self.escape_url(element.target)), self.render_children(element)
-            util.canonical_wikilink(element.target), self.render_children(element)
-        )
+        if '|' in element.target:
+            first, second = element.target.split('|')
+            target = util.canonical_wikilink(first.rstrip())
+            label = second.lstrip()
+            return f'<span class="wikilink-marker">[[</span><a href="{target}" title="[[{element.target}]]" class="wikilink">{label}</a><span class="wikilink-marker">]]</span>'
+        else:
+            target = util.canonical_wikilink(element.target)
+            label = self.render_children(element)
+            return f'<span class="wikilink-marker">[[</span><a href="{target}" title="[[{element.target}]]"class="wikilink">{label}</a><span class="wikilink-marker">]]</span>'
 
 class TiddlylinkElement(inline.InlineElement):
     # is this regexes pattern a good idea?
