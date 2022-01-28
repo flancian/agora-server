@@ -20,6 +20,7 @@ class DefaultConfig(object):
     URL_BASE = "https://anagora.org"
     API_BASE = "https://api.anagora.org"
     # https://anagora.org is run by the [[Flancia Collective]].
+    NAME = "An Agora"
     MAINTAINER = "Flancia Collective"   
 
     #TODO change this to whatever prod is going to be

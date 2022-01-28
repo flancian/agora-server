@@ -139,7 +139,7 @@
     <div id='popup' style='display: none; position: absolute;'>{{popup|default("What could we show here?")}}</div>
     <hr>
     <!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
-    <div id='footer'>An <strong>Agora</strong> took <strong>__EXECTIME__ seconds</strong> to render your request on <strong>__NOW__</strong>.<br><a href="{{config['URL_BASE']}}">This Agora</a> is brought to you by {{config['MAINTAINER']}} and the Agora community.</div>
+    <div id='footer'>This [[<a href="/agora">Agora</a>]] took <strong>__EXECTIME__ seconds</strong> to render your request on <strong>__NOW__</strong>.<br><a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> is brought to you by {{config['MAINTAINER']}} and the Agora community.</div>
 
     <script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/hover.js')}}"></script>
