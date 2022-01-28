@@ -22,7 +22,7 @@ from urllib.parse import parse_qs
 import jsons
 import urllib.parse
 from flask import (Blueprint, Response, current_app, jsonify, redirect,
-                   render_template, request, url_for)
+                   render_template, request, url_for, g)
 from markupsafe import escape
 from copy import copy
 
@@ -30,6 +30,26 @@ from . import db, feed, forms, graph, providers, util
 
 bp = Blueprint('agora', __name__)
 G = db.G
+
+# For footer / timing information.
+# Adapted from https://stackoverflow.com/questions/12273889/calculate-execution-time-for-every-page-in-pythons-flask
+@bp.before_request
+def before_request():
+  g.start = time.time()
+
+@bp.after_request
+def after_request(response):
+    exectime = time.time() - g.start
+    now = datetime.datetime.now()
+
+    if ((response.response) and
+        (200 <= response.status_code < 300) and
+        (response.content_type.startswith('text/html'))):
+        response.set_data(response.get_data().replace(
+            b'__EXECTIME__', bytes(str(exectime), 'utf-8')).replace(
+            b'__NOW__', bytes(str(now), 'utf-8')))
+    return response
+# End footer / timing information.
 
 # The [[agora]] is a [[distributed knowledge graph]].
 # Nodes are the heart of the [[agora]].
@@ -46,7 +66,6 @@ G = db.G
 @bp.route('/<node>')
 def node(node, extension='', user_list=''):
 
-    start = time.time()
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
     # default uprank: system account and maintainers
     # TODO: move to config.py
@@ -94,12 +113,6 @@ def node(node, extension='', user_list=''):
     # search_subnodes = db.search_subnodes(node)
 
     current_app.logger.debug(f'[[{node}]]: Assembled node.')
-    # footer
-    end = time.time()
-    time_to_render = end - start
-    now = datetime.datetime.now()
-    footer = f'This <strong>Agora</strong> took <strong>{time_to_render} seconds</strong> to render your request on <strong>{now}</strong>. https://anagora.org is brought to you by Flancia Collective and the Agora community.'
-
     return render_template(
             # yuck
             'content.html', 
@@ -122,7 +135,6 @@ def node(node, extension='', user_list=''):
             # (...famous last words).
             # annotations=n.annotations(),
             # annotations_enabled=True,
-            footer=footer,
             )
 
 @bp.route('/feed/<node>') 
