@@ -16,6 +16,7 @@ import collections
 import datetime
 import json
 import re
+import time
 from urllib.parse import parse_qs
 
 import jsons
@@ -44,6 +45,8 @@ G = db.G
 @bp.route('/<node>.<extension>')
 @bp.route('/<node>')
 def node(node, extension='', user_list=''):
+
+    start = time.time()
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
     # default uprank: system account and maintainers
     # TODO: move to config.py
@@ -91,6 +94,12 @@ def node(node, extension='', user_list=''):
     # search_subnodes = db.search_subnodes(node)
 
     current_app.logger.debug(f'[[{node}]]: Assembled node.')
+    # footer
+    end = time.time()
+    time_to_render = end - start
+    now = datetime.datetime.now()
+    footer = f'This <strong>Agora</strong> took <strong>{time_to_render} seconds</strong> to render your request on <strong>{now}</strong>. https://anagora.org is brought to you by Flancia Collective and the Agora community.'
+
     return render_template(
             # yuck
             'content.html', 
@@ -113,6 +122,7 @@ def node(node, extension='', user_list=''):
             # (...famous last words).
             # annotations=n.annotations(),
             # annotations_enabled=True,
+            footer=footer,
             )
 
 @bp.route('/feed/<node>') 

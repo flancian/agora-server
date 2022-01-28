@@ -136,10 +136,12 @@
         {% block content %}
         {% endblock %}
     </div>
-    <div id='popup' style='display: none; position: absolute;'>Hello</div>
+    <div id='popup' style='display: none; position: absolute;'>{{popup|default("What could we show here?")}}</div>
+    <hr>
+    <div id='footer'>{{footer|default("This Agora is brought to you by Flancia Collective.", True)|linkify|safe}}</div>
+
     <script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
     <script type=text/javascript src="{{url_for('static', filename='js/hover.js')}}"></script>
-
 
 </body>
 

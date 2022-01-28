@@ -15,6 +15,8 @@
 # this breaks pull buttons.
 # import bleach
 import cachetools.func
+from cachetools_ext.fs import FSLRUCache
+
 import glob
 import itertools
 import random
