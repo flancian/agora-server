@@ -15,8 +15,8 @@
 # this breaks pull buttons.
 # import bleach
 import cachetools.func
-from cachetools_ext.fs import FSLRUCache
 
+import datetime
 import glob
 import itertools
 import random
@@ -58,11 +58,11 @@ class Graph:
     def edge(self, n0, n1):
         pass
 
-    @cachetools.func.ttl_cache(ttl=300)
+    @cachetools.func.ttl_cache(ttl=60)
     def edges(self):
         pass
 
-    @cachetools.func.ttl_cache(ttl=300)
+    @cachetools.func.ttl_cache(ttl=60)
     def n_edges(self):
         subnodes = G.subnodes()
         edges = sum([len(subnode.forward_links) for subnode in subnodes])
@@ -106,9 +106,13 @@ class Graph:
         return nodes
 
     # @cache.memoize(timeout=30)
-    @cachetools.func.ttl_cache(ttl=20)
+    @cachetools.func.ttl_cache(ttl=60)
     def nodes(self, include_journals=True, only_canonical=True):
-        current_app.logger.debug('*** Loading nodes.')
+        # this is where a lot of the 'magic' happens -- this coalesces subnodes into nodes.
+        # most node lookups in the Agora just look up a node in this list.
+        # this is expensive but less so than subnodes().
+        begin = datetime.datetime.now()
+        current_app.logger.debug('*** Loading nodes at {begin}.')
         # returns a list of all nodes
 
         # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
@@ -129,7 +133,8 @@ class Graph:
             n.subnodes = node_to_subnodes[node]
             nodes[node] = n
 
-        current_app.logger.debug('*** Nodes loaded.')
+        end = datetime.datetime.now()
+        current_app.logger.debug(f'*** Nodes loaded from {begin} to {end}.')
         return nodes
         # TODO: experiment with other ranking.
         # return sorted(nodes, key=lambda x: -x.size())
@@ -149,8 +154,14 @@ class Graph:
 
     # does this belong here?
     # @cache.memoize(timeout=30)
-    @cachetools.func.ttl_cache(ttl=30)
+    @cachetools.func.ttl_cache(ttl=60)
     def subnodes(self, sort=lambda x: x.uri.lower()):
+        # this is where the magic happens (?)
+        # as in -- this is where the rubber meets the road.
+        # as of [[2022-01-28]] this takes about 20s to run with an Agora of about 17k subnodes.
+        # which makes caching important :)
+        begin = datetime.datetime.now()
+        current_app.logger.debug(f'*** Loading subnodes at {begin}.')
         base = current_app.config['AGORA_PATH']
         # Markdown.
         subnodes = [Subnode(f) for f in glob.glob(os.path.join(base, '**/*.md'), recursive=True)]
@@ -163,6 +174,9 @@ class Graph:
         subnodes.extend([Subnode(f, mediatype='image/png') for f in glob.glob(os.path.join(base, '**/*.png'), recursive=True)])
         subnodes.extend([Subnode(f, mediatype='image/gif') for f in glob.glob(os.path.join(base, '**/*.gif'), recursive=True)])
         subnodes.extend([Subnode(f, mediatype='image/webp') for f in glob.glob(os.path.join(base, '**/*.webp'), recursive=True)])
+
+        end = datetime.datetime.now()
+        current_app.logger.debug(f'*** Loaded subnodes from {begin} to {end}.')
         if sort:
             return sorted(subnodes, key=sort)
         else:
@@ -198,6 +212,7 @@ class Node:
         # Yikes, I really did whatever I wanted here. This is clearly not a full url. More like a 'url_path'.
         self.url = '/node/' + self.uri
         self.actual_uri = current_app.config['URI_BASE'] + '/' + self.uri
+        # This will be filled in by G as it generates all nodes.
         self.subnodes = []
 
     def __lt__(self, other):
