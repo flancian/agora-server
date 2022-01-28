@@ -42,7 +42,7 @@ class ProductionConfig(DefaultConfig):
     # EXPERIMENTS
     ENABLE_CTZN = False
     ENABLE_STATS = True
-    ENABLE_AUTO_PULL = True
+    ENABLE_AUTO_PULL = False
     ENABLE_AUTO_STOA = False
 
 class DevelopmentConfig(DefaultConfig):
@@ -54,7 +54,7 @@ class DevelopmentConfig(DefaultConfig):
     ENABLE_CTZN = True
     ENABLE_STATS = True
     ENABLE_OBSIDIAN_ATTACHMENTS = True
-    ENABLE_AUTO_PULL = True
+    ENABLE_AUTO_PULL = False
     ENABLE_AUTO_STOA = True
 
 class LocalDevelopmentConfig(DefaultConfig):
