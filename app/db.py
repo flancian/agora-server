@@ -407,6 +407,7 @@ class Subnode:
         # Use a subnode's URI as its identifier.
         self.uri: str = path_to_uri(path)
         self.url = '/subnode/' + self.uri
+
         self.edit_path = self.uri.split('/')[-1]
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
@@ -451,7 +452,8 @@ class Subnode:
         # Initiate node for wikilink if this is the first subnode, append otherwise.
         # G.addsubnode(self)
 
-
+    def __hash__(self):
+        return hash(self.uri)
 
     def __eq__(self, other):
         # hack hack
@@ -468,6 +470,7 @@ class Subnode:
         # hack hack
         return 100-fuzz.ratio(self.wikilink, other.wikilink)
 
+    @cachetools.func.ttl_cache(ttl=60)
     def render(self):
         if self.mediatype != 'text/plain':
             # hack hack
@@ -563,16 +566,17 @@ class Subnode:
                 sanitized_links.append('https://' + link)
         return sanitized_links
 
+    @cachetools.func.ttl_cache(ttl=60)
     def pull_nodes(self):
         """
-        returns a set of nodes pulled (anagora.org/node/pull) in this subnode
+        returns a set of nodes pulled (see [[pull]]) in this subnode
         pulls are blocks of the form:
         - [[pull]] [[node]]
         - #pull [[node]]
         """
         pull_blocks = subnode_to_actions(self, 'pull')
         pull_blocks += subnode_to_taglink(self, 'pull')
-        print(f'in pull_nodes for {self.uri}')
+        current_app.logger.debug(f'in pull_nodes for {self.uri}')
         # hack hack
         pull_nodes = content_to_forward_links("\n".join(pull_blocks))
 
@@ -590,6 +594,7 @@ class Subnode:
         return [G.node(node) for node in pull_nodes]
 
 
+    @cachetools.func.ttl_cache(ttl=60)
     def push_nodes(self):
         """
         returns a set of push links contained in this subnode
