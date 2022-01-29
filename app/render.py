@@ -115,8 +115,14 @@ def add_twitter_embeds(content, subnode):
 def add_twitter_pull(content, subnode):
     # negative lookbehind tries to only match twitter links not preceded by a ", which would be there if the URL is being used as part of an <a href="..."> tag (adding an embed in that case using regexes would break the link).
     # https://www.regular-expressions.info/lookaround.html if you're wondering how this works.
+    if 'subnode/virtual' in subnode.url:
+        # trouble at the mill.
+        # virtual subnodes are prerendered by virtue of how they are generated (from the final html)
+        # they should be "pre cooked".
+        return content 
+
     TWITTER_REGEX=r'(?<!")(https://twitter.com/\w+/status/[0-9]+)'
-    TWITTER_EMBED=r'\1 <button class="pull-tweet" value=\1>pull</button>'
+    TWITTER_EMBED=r'\1 // <button class="pull-tweet" value=\1>pull</button>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 def add_mastodon_pull(content, subnode):
