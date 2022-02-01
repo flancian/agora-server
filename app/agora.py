@@ -22,7 +22,7 @@ from urllib.parse import parse_qs
 import jsons
 import urllib.parse
 from flask import (Blueprint, Response, current_app, jsonify, redirect,
-                   render_template, request, url_for, g)
+                   render_template, request, url_for, g, send_file)
 from markupsafe import escape
 from copy import copy
 
@@ -542,10 +542,12 @@ def journals_json():
 
 @bp.route('/asset/<user>/<asset>')
 def asset(user, asset):
-    # An asset is a binary in someone's garden/<user>/assets directory.
-    # Currently unused.
-    path = '/'.join(["garden", user, 'assets', asset])
-    return current_app.send_static_file(path)
+	print("DAFUQQQQ")
+	# An asset is a binary in someone's garden/<user>/assets directory.
+	# Currently unused.
+	path = '/'.join([current_app.config['AGORA_PATH'], "garden", user, 'assets', asset])
+	print("PATH:", path)
+	return send_file(path)
 
 
 @bp.route('/raw/<path:subnode>')
@@ -597,3 +599,12 @@ def proposal(user,node):
         vote_options=vote_options,
         vote_counts=json.dumps(vote_counts)
     )
+
+
+@bp.route('/api/callback')
+def callback():
+	print("ACCESS TOKEN FROM GITEA")
+	print(request.values['code'])
+	return f'TOKEN {request.values["code"]}<script>alert("{request.values["code"]}")</script>'
+
+# https://git.anagora.org/login/oauth/authorize?client_id=f88fe801-c51b-456e-ac20-2a967555cec0&redirect_uri=http://localhost:5000/api/callback&response_type=code
