@@ -22,7 +22,7 @@ from urllib.parse import parse_qs
 import jsons
 import urllib.parse
 from flask import (Blueprint, Response, current_app, jsonify, redirect,
-                   render_template, request, url_for, g)
+                   render_template, request, url_for, g, send_file)
 from markupsafe import escape
 from copy import copy
 
@@ -542,10 +542,10 @@ def journals_json():
 
 @bp.route('/asset/<user>/<asset>')
 def asset(user, asset):
-    # An asset is a binary in someone's garden/<user>/assets directory.
-    # Currently unused.
-    path = '/'.join(["garden", user, 'assets', asset])
-    return current_app.send_static_file(path)
+	# An asset is a binary in someone's garden/<user>/assets directory.
+	# Currently unused.
+	path = '/'.join([current_app.config['AGORA_PATH'], "garden", user, 'assets', asset])
+	return send_file(path)
 
 
 @bp.route('/raw/<path:subnode>')
