@@ -475,7 +475,10 @@ class Subnode:
         if self.mediatype != 'text/plain':
             # hack hack
             return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /> <br />'.format(self.uri)
-        # ugly, this should be in render
+        if 'subnode/virtual' in self.url:
+            # virtual subnodes should come pre-rendered (as they were extracted post-rendering from other subnodes)
+            return self.content
+        # ugly, this should be in render.py?
         content = render.preprocess(self.content, subnode=self)
         # this breaks pull buttons
         # content = bleach.clean(content)
@@ -483,8 +486,9 @@ class Subnode:
             try:
                 content = render.markdown(content)
             except:
+                # which exception exactly? this should be improved.
                 content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
-                current_app.logger.error(f'Subnode could not be loaded in {self} (Heisenbug).')
+                current_app.logger.exception(f'Subnode could not be loaded in {self} (Heisenbug).')
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
             content = render.orgmode(content)
         # ugly, this too

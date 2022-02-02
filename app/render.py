@@ -45,7 +45,12 @@ class WikilinkRendererMixin(object):
     # This name is magic; it must match render_<class_name_in_snake_case>.
     def render_wikilink_element(self, element):
         if '|' in element.target:
-            first, second = element.target.split('|')
+            try:
+                first, second = element.target.split('|')
+            except ValueError: 
+                # probably more than one pipe; not supported for now
+                first = element.target
+                second = element.target
             target = util.canonical_wikilink(first.rstrip())
             label = second.lstrip()
             return f'<span class="wikilink-marker">[[</span><a href="{target}" title="[[{element.target}]]" class="wikilink">{label}</a><span class="wikilink-marker">]]</span>'
@@ -204,6 +209,11 @@ def trim_block_anchors(content, subnode):
     BLOCK_ANCHOR_REGEX = r'\^[0-9-]+$'
     return re.sub(BLOCK_ANCHOR_REGEX, '', content, flags=re.MULTILINE)
 
+# Trim Logseq  :LOGBOOK: entries until we do something useful with them
+def trim_logbook(content, subnode):
+    LOGBOOK_REGEX = r':?(LOGBOOK|CLOCK|END): ?(\[\d\d.+?\])?'
+    return re.sub(LOGBOOK_REGEX, '', content, flags=re.MULTILINE)
+
 # Trim liquid templates (Jekyll stuff) until we do something useful with them.
 def trim_liquid(content, subnode):
     LIQUID_REGEX = r'{%.*?%}'
@@ -237,8 +247,17 @@ def add_obsidian_embeds(content, subnode):
     #<script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
+def add_logseq_embeds(content, subnode):
+    LOGSEQ_REGEX = re.compile(r'!\[.+?\]\((.+?)\)')
+    LOGSEQ_EMBED=f'<a href="/raw/garden/{subnode.user}/\\1"><img class="image-embed" src="/raw/garden/{subnode.user}/\\1"></img><p class="obsidian-embed"></a>⥅ [[\\1]]</p>'
+    # also include something like this to move to a lazily loaded div?
+    #<script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
+    content = re.sub(LOGSEQ_REGEX, LOGSEQ_EMBED, content)
+    content = re.sub(r'../', '', content)
+    return content
+
 def preprocess(content, subnode=''):
-    filters = [trim_front_matter, trim_block_anchors, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_obsidian_embeds, add_url_pull, add_twitter_pull]
+    filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_logseq_embeds, add_obsidian_embeds, add_url_pull, add_twitter_pull]
     for f in filters:
         content = f(content, subnode)
     return content
