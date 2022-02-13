@@ -92,14 +92,13 @@ class Graph:
         nodes = [node for node in G.nodes(only_canonical=True).values() if node.wikilink in permutations and node.subnodes]
         return nodes
 
-    def related_nodes(self, uri):
-        # currently just looks for nodes which are related to the tokenized uri.
-        # should find plurals/missing middle initials/more general terms.
-        regex = '.*' + re.escape(uri.replace('-', '.*')) + '.*'
-        current_app.logger.debug(f'*** Looking for related nodes to {uri} with regex {regex}.')
+    def match(self, regex):
+        # returns a list of nodes reasonably matching a regex.
+        current_app.logger.debug(f'*** Looking for nodes matching {regex}.')
         nodes = [node for node in G.nodes(only_canonical=True).values() if 
+                    # has some content
                     node.subnodes and
-                    node.uri!= uri and
+                    # its wikilink matches the regex
                     re.match(regex, node.wikilink)
                 ]
         current_app.logger.debug(f'*** Found related nodes: {nodes}.')
@@ -108,7 +107,10 @@ class Graph:
     # @cache.memoize(timeout=30)
     @cachetools.func.ttl_cache(ttl=60)
     def nodes(self, include_journals=True, only_canonical=True):
-        # this is where a lot of the 'magic' happens -- this coalesces subnodes into nodes.
+        # this is where a lot of the 'magic' happens.
+        # this:
+        #   - reads and coalesces (integrates) [[subnodes]] into [[nodes]] 
+        #   - ocassionally provides some code-generated utility by virtue of provisioning [[virtual subnodes]]
         # most node lookups in the Agora just look up a node in this list.
         # this is expensive but less so than subnodes().
         begin = datetime.datetime.now()
@@ -272,18 +274,28 @@ class Node:
         return sorted(set(nodes), key=lambda x: x.uri)
 
     def auto_pull_nodes(self):
+        # note that this essentially does [[node ranking]].
+        # for [[user ranking]], see util.py and agora.py.
         banned_nodes = ['agora', 'go', 'pull', 'push']
         nodes = []
-        nodes.extend(G.related_nodes(self.uri))
+        # TODO: check that this includes [[virtual subnodes]].
+        # auto pull any subnode-specific includes.
         for subnode in self.subnodes:
             nodes.extend(subnode.auto_pull_nodes())
+        # there are too many of these often, let's try without being so aggressive for a bit.
+        # note you need to 'build' these here as back_links currently returns links and not nodes.
         # for node in self.back_links():
         #     nodes.append(G.node(node))
-        for node in self.pushing_nodes():
-            nodes.append(node)
-        for node in self.pulling_nodes():
-            nodes.append(node)
-        nodes = [node for node in nodes if node not in self.pull_nodes() and node.uri not in banned_nodes]
+
+        # too noisy and full text search seems to provide more utility on my use cases, disabling for now.
+        # nodes = [node for node in nodes if node not in self.pull_nodes() and node.uri not in banned_nodes]
+
+        # this should add at least things like equivalent dates.
+        nodes.extend(self.equivalent())
+        # I think [[push]] and [[pull]] are fair game as they mean an [[agora]] user has thought these were strongly related.
+        nodes.extend(self.pushing_nodes())
+        nodes.extend(self.pulling_nodes())
+        
         # bug: for some reason set() doesn't dedup here, even though I've checked and the hash from duplicate nodes is identical (!).
         # test case: [[hypha]].
         ret = sorted(set(nodes), key=lambda x: x.uri)
@@ -296,6 +308,22 @@ class Node:
         for n in self.back_nodes():
             if self.wikilink in [n.wikilink for n in n.pull_nodes()]:
                 nodes.append(n)
+        return nodes
+
+    def equivalent(self):
+        # nodes that are really pretty much "the same as" this one, e.g. different representations for the same date/time or edit distance (within a useful window)
+        nodes = []
+        # too aggressive
+        # regex = '.*' + re.escape(uri.replace('-', '.*')) + '.*'
+
+        # the slug/uri assumption here is a hack, points in the direction of cleanup.
+        # this should probably work based on tokens, which are available... somewhere?
+        # hmm, probably providers.py.
+        # too much for 'equivalence'? probably somewhere in 'related': prefix match.
+        # regex = re.escape(uri.replace('-', '.*')) + '.*'
+        regex = re.escape(self.uri).replace('-', '.*')
+        nodes.extend(G.match(regex))
+
         return nodes
 
     def push_nodes(self):
@@ -589,13 +617,11 @@ class Subnode:
     def auto_pull_nodes(self):
         """
         volunteers nodes beyond the explicitly pulled (as per the above).
-        default policy is all links.
         """
-        try:
-            pull_nodes = content_to_forward_links(self.content)
-        except TypeError:
-            return []
-        return [G.node(node) for node in pull_nodes]
+        nodes = []
+        # default policy used to be all links -- now disabled.
+        # nodes.extend(self.pull_nodes())
+        return nodes
 
 
     @cachetools.func.ttl_cache(ttl=60)
