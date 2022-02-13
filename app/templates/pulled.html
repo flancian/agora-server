@@ -1,6 +1,6 @@
-{% for node in pull_nodes %}
+{% for node in auto_pull_nodes %}
 <div class="node">
-    <span class="node-header">⥅ related node <a href="/{{node.uri}}">[[{{node.uri}}]]</a> pulled by user</span>
+    <span class="node-header">⥅ node <a href="/{{node.uri}}">[[{{node.uri}}]]</a> pulled by the Agora</span>
 
     {% if node.subnodes %}
     {% for subnode in node.subnodes %}
@@ -20,3 +20,27 @@
     {% endif %}
 </div>
 {% endfor %}
+
+{% for node in pull_nodes %}
+<div class="node">
+    <span class="node-header">⥅ node <a href="/{{node.uri}}">[[{{node.uri}}]]</a> pulled by a user</span>
+
+    {% if node.subnodes %}
+    {% for subnode in node.subnodes %}
+
+    <div class="pulled-subnode" data-author="{{subnode.user}}">
+        <div class="subnode-header">
+            <span class="subnode-id"><a
+                    href="/@{{subnode.user}}/{{node.uri}}">📓</a>
+            <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
+                    href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></span></a></span>
+        </div>
+        <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+    </div>
+    {% endfor %}
+    {% else %}
+    empty. <br />
+    {% endif %}
+</div>
+{% endfor %}
+

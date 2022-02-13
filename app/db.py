@@ -292,6 +292,31 @@ class Node:
 
         # this should add at least things like equivalent dates.
         nodes.extend(self.equivalent())
+
+        # bug: for some reason set() doesn't dedup here, even though I've checked and the hash from duplicate nodes is identical (!).
+        # test case: [[hypha]].
+        ret = sorted(set(nodes), key=lambda x: x.uri)
+        return ret
+
+    def related_nodes(self):
+        # note that this essentially does [[node ranking]].
+        # for [[user ranking]], see util.py and agora.py.
+        banned_nodes = ['agora', 'go', 'pull', 'push']
+        nodes = []
+        # TODO: check that this includes [[virtual subnodes]].
+        # auto pull any subnode-specific includes.
+        for subnode in self.subnodes:
+            nodes.extend(subnode.auto_pull_nodes())
+        # there are too many of these often, let's try without being so aggressive for a bit.
+        # note you need to 'build' these here as back_links currently returns links and not nodes.
+        # for node in self.back_links():
+        #     nodes.append(G.node(node))
+
+
+        # this should add at least things like equivalent dates.
+        nodes.extend(self.related())
+
+
         # I think [[push]] and [[pull]] are fair game as they mean an [[agora]] user has thought these were strongly related.
         nodes.extend(self.pushing_nodes())
         nodes.extend(self.pulling_nodes())
@@ -321,9 +346,17 @@ class Node:
         # hmm, probably providers.py.
         # too much for 'equivalence'? probably somewhere in 'related': prefix match.
         # regex = re.escape(uri.replace('-', '.*')) + '.*'
-        regex = re.escape(self.uri).replace('-', '.*')
-        nodes.extend(G.match(regex))
+        # should cover different date formats :)
+        regex = self.uri.replace('-', '.?') + '$'
+        nodes.extend([node for node in G.match(regex) if node.uri != self.uri])
+        return nodes
 
+    def related(self):
+        # nodes that are probably heavily related; right now it does fuzzy prefix matching.
+        # same caveats as for equivalent() :)
+        nodes = []
+        regex = self.uri.replace('-', '.*')
+        nodes.extend([node for node in G.match(regex) if node.uri != self.uri])
         return nodes
 
     def push_nodes(self):

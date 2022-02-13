@@ -120,6 +120,7 @@ def node(node, extension='', user_list=''):
             back_nodes=n.back_nodes(),
             pull_nodes=n.pull_nodes() if n.subnodes else [],
             auto_pull_nodes=n.auto_pull_nodes() if current_app.config['ENABLE_AUTO_PULL'] else [],
+            related_nodes=n.related() if current_app.config['ENABLE_AUTO_PULL'] else [],
             forward_nodes=n.forward_nodes() if n else [],
             search=[],
             pulling_nodes=n.pulling_nodes(),
