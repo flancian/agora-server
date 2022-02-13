@@ -69,7 +69,7 @@ def node(node, extension='', user_list=''):
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
     # default uprank: system account and maintainers
     # TODO: move to config.py
-    rank = ['agora', 'flancian', 'vera', 'neil']
+    rank = ['agora', 'flancian', 'vera', 'neil', 'maya', 'Jayu']
     if user_list:
         # override rank
         if ',' in user_list:
