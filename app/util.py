@@ -95,8 +95,8 @@ def canonical_date(wikilink):
 @lru_cache(maxsize=1)  #memoize this
 def get_combined_date_regex():
     date_regexes = [
-        # iso format
-        '[0-9]{4}.[0-9]{2}.[0-9]{2}$',
+        # iso format, lax
+        '[0-9]{4}.?[0-9]{2}.?[0-9]{2}$',
         # week format
         '[0-9]{4}-W'
         # roam format (what a monstrosity!)
