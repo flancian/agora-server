@@ -52,6 +52,10 @@
             </ul>
     </div>
 </div>
+
+<!-- essentially upranks related nodes for missing node pages only -->
+{% include "related.html" %}
+
 {% endif %}
 
 {% if node.subnodes or node.pushed_subnodes() %}
@@ -112,3 +116,5 @@
 </div>
 {% endif %}
 {% endif %}
+
+{% include "pulled.html" %}

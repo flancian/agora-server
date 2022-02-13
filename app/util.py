@@ -83,13 +83,12 @@ slugify = canonical_wikilink
 
 @lru_cache(maxsize=None)
 def canonical_date(wikilink):
-    date = parser.get_date_data(wikilink).date_obj
+    # this is best effort, returns the wikilink for non-dates (check before you use).
     try:
-        wikilink = date.isoformat().split("T")[0]
-    except:
-        pass
-
-    return wikilink
+        date = parser.get_date_data(wikilink, date_formats=['%Y-%m-%d', '%Y_%m_%d', '%Y%m%d']).date_obj
+        return date.isoformat().split("T")[0]
+    except AttributeError:
+        return wikilink
 
 
 @lru_cache(maxsize=1)  #memoize this

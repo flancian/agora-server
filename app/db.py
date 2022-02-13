@@ -347,7 +347,7 @@ class Node:
         # too much for 'equivalence'? probably somewhere in 'related': prefix match.
         # regex = re.escape(uri.replace('-', '.*')) + '.*'
         # should cover different date formats :)
-        regex = self.uri.replace('-', '.?') + '$'
+        regex = re.sub(r'[-_ ]', '.?', self.uri) + '$'
         nodes.extend([node for node in G.match(regex) if node.uri != self.uri])
         return nodes
 
@@ -355,7 +355,7 @@ class Node:
         # nodes that are probably heavily related; right now it does fuzzy prefix matching.
         # same caveats as for equivalent() :)
         nodes = []
-        regex = self.uri.replace('-', '.*')
+        regex = re.sub(r'[-_ ]', '.*', self.uri)
         nodes.extend([node for node in G.match(regex) if node.uri != self.uri])
         return nodes
 
@@ -786,12 +786,17 @@ def path_to_wikilink(path):
 def content_to_forward_links(content):
     # hack hack.
     match = regexes.WIKILINK.findall(content)
+    links = []
     if match:
-        # Work around broken forward links due to org mode convention I didn't think of.
         # TODO: make link parsing format-aware.
-        return [util.canonical_wikilink(m) for m in match if '][' not in m]
-    else:
-        return []
+        links = []
+        for m in match:
+            # Work around broken forward links due to org mode convention I didn't think of.
+            if '][' not in m:
+                links.append(util.canonical_wikilink(m))
+            else:
+                continue
+    return links
 
 def content_to_obsidian_embeds(content):
     # hack hack.

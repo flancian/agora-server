@@ -4,15 +4,16 @@
 
 {% include "node.html" %}
 
-{% include "pulled.html" %}
-
 {% if not embed %}
 
     {% include "stoa.html" %}
 
     {% include "context.html" %}
 
-    {% include "related.html" %}
+    {% if node.subnodes or node.pushed_subnodes() %}
+        <!-- for empty nodes, we render this above the stoa/context -->
+        {% include "related.html" %}
+    {% endif %}
 
     {% include "search.html" %}
 
