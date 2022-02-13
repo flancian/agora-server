@@ -96,9 +96,9 @@ def canonical_date(wikilink):
 def get_combined_date_regex():
     date_regexes = [
         # iso format, lax
-        '[0-9]{4}.?[0-9]{2}.?[0-9]{2}$',
+        '[0-9]{4}.?[0-9]{2}.?[0-9]{2}',
         # week format
-        '[0-9]{4}-W'
+        '[0-9]{4}-W',
         # roam format (what a monstrosity!)
         '(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}(st|nd|th), [0-9]{4}',
         # roam format (after filename sanitization)

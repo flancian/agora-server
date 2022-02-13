@@ -833,7 +833,11 @@ def all_journals():
     # we could presumably have a more efficient nodes_by_regex? but it might be benchmark-level.
     nodes = G.nodes()
     nodes = [node for node in nodes.values() if util.is_journal(node.wikilink)]
-    r = sorted(nodes, key=attrgetter('wikilink'), reverse=True)
+
+    def datekey(x):
+        return re.sub(r'[-_ ]', '', x.wikilink)
+        
+    r = sorted(nodes, key=datekey, reverse=True)
     return r
 
 def random_node():
