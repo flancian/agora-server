@@ -104,6 +104,18 @@ class Graph:
         current_app.logger.debug(f'*** Found related nodes: {nodes}.')
         return nodes
 
+    def search(self, regex):
+        # returns a list of nodes reasonably freely matching a regex.
+        current_app.logger.debug(f'*** Looking for nodes matching {regex} freely.')
+        nodes = [node for node in G.nodes(only_canonical=True).values() if 
+                    # has some content
+                    node.subnodes and
+                    # its wikilink matches the regex
+                    re.search(regex, node.wikilink)
+                ]
+        current_app.logger.debug(f'*** Found related nodes: {nodes}.')
+        return nodes
+
     # @cache.memoize(timeout=30)
     @cachetools.func.ttl_cache(ttl=60)
     def nodes(self, include_journals=True, only_canonical=True):
@@ -312,10 +324,8 @@ class Node:
         # for node in self.back_links():
         #     nodes.append(G.node(node))
 
-
         # this should add at least things like equivalent dates.
         nodes.extend(self.related())
-
 
         # I think [[push]] and [[pull]] are fair game as they mean an [[agora]] user has thought these were strongly related.
         nodes.extend(self.pushing_nodes())
@@ -356,7 +366,7 @@ class Node:
         # same caveats as for equivalent() :)
         nodes = []
         regex = re.sub(r'[-_ ]', '.*', self.uri)
-        nodes.extend([node for node in G.match(regex) if node.uri != self.uri])
+        nodes.extend([node for node in G.search(regex) if node.uri != self.uri])
         return nodes
 
     def push_nodes(self):
@@ -481,12 +491,19 @@ class Subnode:
         if self.user_config:
             self.support = self.user_config.get('support', False)
             self.edit: Union[str, False] = self.user_config.get('edit', False)
+            self.web: Union[str, False] = self.user_config.get('web', False)
             if self.edit:
                 # for edit paths with {path}
                 self.edit = self.edit.replace("{path}", self.edit_path)
                 # for edit paths with {slug}
                 # hack hack, the stoa doesn't expect an .md extension so we just cut out the extension from the path for now.
                 self.edit = self.edit.replace("{slug}", self.edit_path[:-3])
+            if self.web:
+                # same as the above but for views
+                # for web paths with {path}
+                self.web = self.web.replace("{path}", self.edit_path)
+                # for web paths with {slug}
+                self.web = self.web.replace("{slug}", self.edit_path[:-3])
 
         self.mediatype = mediatype
 

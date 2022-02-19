@@ -77,15 +77,17 @@
             <span class="subnode-id">
                 <a href="/@{{subnode.user}}/{{node.uri}}">📓</a>
                 <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                        href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span>
+                        href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span> 
                 </span>
                 </a>
             </span>
             <span class="subnode-contrib">
+                {% if subnode.web %}
+                <a href="{{subnode.web}}" title="view in website" style="text-decoration: none;">️👁</a>
+                {% endif %}
                 {% if subnode.edit %}
                 <a href="{{subnode.edit}}" title="edit" style="text-decoration: none;">️📝</a>
                 {% endif %}
-
                 {% if subnode.support %}
                 <a href="{{subnode.support}}" title="support">🤗</a>
                 {% endif %}
