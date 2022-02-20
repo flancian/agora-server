@@ -479,10 +479,6 @@ class Subnode:
         self.uri: str = path_to_uri(path)
         self.url = '/subnode/' + self.uri
 
-        try:
-            self.edit_path = os.path.join(*self.uri.split('/')[2:])
-        except TypeError:
-            print(f'{self.uri} resulted in no edit_path')
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         # will often have spaces; not lossy (or as lossy as the filesystem)
@@ -492,6 +488,10 @@ class Subnode:
         self.user = path_to_user(path)
         self.user_config = User(self.user).config
         if self.user_config:
+            try:
+                self.edit_path = os.path.join(*self.uri.split('/')[2:])
+            except TypeError:
+                current_app.logger.debug(f'{self.uri} resulted in no edit_path')
             self.support = self.user_config.get('support', False)
             self.edit: Union[str, False] = self.user_config.get('edit', False)
             self.web: Union[str, False] = self.user_config.get('web', False)
