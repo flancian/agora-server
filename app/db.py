@@ -479,7 +479,10 @@ class Subnode:
         self.uri: str = path_to_uri(path)
         self.url = '/subnode/' + self.uri
 
-        self.edit_path = self.uri.split('/')[-1]
+        try:
+            self.edit_path = os.path.join(*self.uri.split('/')[2:])
+        except TypeError:
+            print(f'{self.uri} resulted in no edit_path')
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         # will often have spaces; not lossy (or as lossy as the filesystem)
