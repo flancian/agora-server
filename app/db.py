@@ -853,17 +853,27 @@ def user_journals(user):
     nodes = [node for node in subnodes_by_user(user) if util.is_journal(node.wikilink)]
     return sorted(nodes, key=attrgetter('wikilink'), reverse=True)
 
-def all_journals():
+def all_journals(skip_future=True):
     # hack hack.
     # we could presumably have a more efficient nodes_by_regex? but it might be benchmark-level.
     nodes = G.nodes()
-    nodes = [node for node in nodes.values() if util.is_journal(node.wikilink)]
+    nodes = [node for node in nodes.values() if util.is_journal(node.wikilink) and node.wikilink]
 
     def datekey(x):
         return re.sub(r'[-_ ]', '', x.wikilink)
         
-    r = sorted(nodes, key=datekey, reverse=True)
-    return r
+    ret = sorted(nodes, key=datekey, reverse=True)
+    if skip_future:
+        def quiet_strptime(s, format):
+            try:
+                return datetime.datetime.strptime(s, format)
+            except ValueError:
+                return False
+
+        import datetime
+        now = datetime.datetime.now() + datetime.timedelta(days=1)
+        ret = [node for node in ret if quiet_strptime(node.wikilink, '%Y-%m-%d') and quiet_strptime(node.wikilink, '%Y-%m-%d') < now]
+    return ret
 
 def random_node():
     nodes = list(G.nodes().values())
