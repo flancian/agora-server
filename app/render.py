@@ -127,7 +127,7 @@ def add_twitter_pull(content, subnode):
         return content 
 
     TWITTER_REGEX=r'(?<!")(https://twitter.com/\w+/status/[0-9]+)'
-    TWITTER_EMBED=r'\1 // <button class="pull-tweet" value=\1>pull</button>'
+    TWITTER_EMBED=r'\1 <button class="pull-tweet" value=\1>pull</button>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 def add_mastodon_pull(content, subnode):
