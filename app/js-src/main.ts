@@ -250,7 +250,18 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   // pull a mastodon status (toot) using the roughly correct way IIUC.
   $(".pull-mastodon-status").click(function (e) {
-    statusContent(this)
+    if (this.classList.contains('pulled')) {
+      div = $(e.currentTarget).nextAll('.mastodon-embed')
+      div.remove()
+      this.innerText = 'pull';
+      this.classList.remove('pulled');
+    }
+    else {
+        this.innerText = 'pulling';
+        statusContent(this)
+        this.classList.add('pulled');
+        this.innerText = 'fold';
+    }
   });
 
   // pull a pleroma status (toot) using the laziest way I found, might be a better one

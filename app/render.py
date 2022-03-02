@@ -120,7 +120,7 @@ def add_twitter_embeds(content, subnode):
 def add_twitter_pull(content, subnode):
     # negative lookbehind tries to only match twitter links not preceded by a ", which would be there if the URL is being used as part of an <a href="..."> tag (adding an embed in that case using regexes would break the link).
     # https://www.regular-expressions.info/lookaround.html if you're wondering how this works.
-    if 'subnode/virtual' in subnode.url:
+    if subnode and 'subnode/virtual' in subnode.url:
         # trouble at the mill.
         # virtual subnodes are prerendered by virtue of how they are generated (from the final html)
         # they should be "pre cooked".
@@ -131,17 +131,22 @@ def add_twitter_pull(content, subnode):
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 def add_mastodon_pull(content, subnode):
+    if subnode and 'subnode/virtual' in subnode.url:
+        # as per the above.
+        return content
+
     # hack: negative lookbehind tries to only match for anchors not preceded by a span... just because in the agora we have 
     # spans just preceding every anchor that is a wikilink.
     if re.search(r'(?<!</span>)<a href', content):
         # don't apply filters when content has html links that are not result of a wikilink.
         # this works around a bug in some org mode translated files we have.
-        return content
-    MASTODON_REGEX='(https://[a-zA-Z-.]+/web/statuses/[0-9]+)'
-    MASTODON_REGEX_ALT='(https://[a-zA-Z-.]+/@\w+/[0-9]+)'
-    MASTODON_EMBED='\\1 <button class="pull-mastodon-status" value="\\1">pull</button>'
-    ret = re.sub(MASTODON_REGEX, MASTODON_EMBED, content)
-    ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, ret)
+        pass
+
+    # MASTODON_REGEX='(https://[a-zA-Z-.]+/web/statuses/[0-9]+)'
+    MASTODON_REGEX_ALT=r'(?<!")(https://[a-zA-Z-.]+/@\w+/[0-9]+)'
+    MASTODON_EMBED=r'\1 <button class="pull-mastodon-status" value="\1">pull</button>'
+    ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, content)
+    # ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, ret)
     return ret
 
 def add_pleroma_pull(content, subnode):
@@ -259,14 +264,15 @@ def add_logseq_embeds(content, subnode):
 def preprocess(content, subnode=''):
     # add_logseq_embeds breaks links everywhere, there's an issue with the regex :)
     # filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_logseq_embeds, add_obsidian_embeds, add_url_pull, add_twitter_pull]
-    filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_obsidian_embeds, add_url_pull, add_twitter_pull]
+    filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_obsidian_embeds, add_url_pull, add_twitter_pull, add_mastodon_pull, add_pleroma_pull]
     for f in filters:
         content = f(content, subnode)
     return content
 
 def postprocess(content, subnode=''):
     # filters = [add_twitter_embeds]
-    filters = [add_mastodon_pull, add_pleroma_pull]
+    # these all ended up moving to preprocess() -- might mean there's not a need for postprocessing overall?
+    filters = []
     for f in filters:
         content = f(content, subnode)
     return content

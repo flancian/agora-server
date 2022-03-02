@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"3Up4K":[function(require,module,exports) {
+})({"47oxK":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 34745;
+var HMR_PORT = 44503;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -9790,7 +9790,17 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     // pull a mastodon status (toot) using the roughly correct way IIUC.
     $(".pull-mastodon-status").click(function(e) {
-        statusContent(this);
+        if (this.classList.contains('pulled')) {
+            div = $(e.currentTarget).nextAll('.mastodon-embed');
+            div.remove();
+            this.innerText = 'pull';
+            this.classList.remove('pulled');
+        } else {
+            this.innerText = 'pulling';
+            statusContent(this);
+            this.classList.add('pulled');
+            this.innerText = 'fold';
+        }
     });
     // pull a pleroma status (toot) using the laziest way I found, might be a better one
     $(".pull-pleroma-status").click(function(e) {
@@ -9949,6 +9959,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["3Up4K","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["47oxK","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map
