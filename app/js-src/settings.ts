@@ -143,8 +143,19 @@ const Settings = {
             <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>
             <button onclick="${processRepoAdd}">Add repo</button>
         </div>
+				<div>
+					<h1>Gitea Integration Settings</h1>
+					<div>personal token: <input type="text" id="gitea-token" placeholder="${localStorage["gitea-token"]}" /></div>
+					<div>repo name: <input type="text" id="gitea-repo" placeholder="${localStorage["gitea-repo"]}" /></div>
+					<button onClick=saveGitea()>Save</button>
+				</div>
 
     `
+}
+
+function saveGitea(){
+		localStorage["gitea-token"] = document.getElementById("gitea-token").value
+		localStorage["gitea-repo"] = document.getElementById("gitea-repo").value
 }
 
 define('settings-form', Settings);

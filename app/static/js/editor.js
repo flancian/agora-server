@@ -3,11 +3,15 @@ $(() => {
 	main()
 })
 
-const user = "vera"
-const repo = "notes"
-const selector = "div.subnode[data-author='"+user+"'] .subnode-content"
-const accessToken = localStorage["accessToken"]
 
+
+async function getUser(){
+	user = await $.ajax({
+    url: `https://git.anagora.org/api/v1/user`,
+    headers: {"Authorization": `token ${accessToken}`},
+	});
+	return user.login
+}
 window.saveData = async function(){
 	const text = $("#node-editor").val()
 	console.log("SAVING",text)
@@ -35,6 +39,12 @@ window.saveData = async function(){
 
 
 async function main(){
+	const accessToken = localStorage["gitea-token"]
+	const user = localStorage["gitea-user"] || await getUser()
+	const repo = localStorage["gitea-repo"]
+	const selector = "div.subnode[data-author='"+user+"'] .subnode-content"
+
+
 	const text = await grabMarkdown()
 	$(selector).html(`<textarea id=node-editor cols=60 rows=10>${text}</textarea>
 	<br>
@@ -48,33 +58,3 @@ async function grabMarkdown(){
 	return text
 }
 
-
-
-// async function select(selector){
-// 	return $(selector).trumbowyg({
-// 		svgPath: false,
-// 		btnsDef:{
-// 			save: {
-// 				text: "Save",
-// 				fn: saveData,
-// 			}
-// 		},
-// 		btns: [
-// 			['bold', 'italic', 'save'],
-// 		]
-// 	});
-// }
-
-
-
-// function newEditor(selector){
-// 	return tinymce.init({selector,
-// 		setup: function (editor){
-// 			editor.ui.registry.addButton('customSave', {
-// 				text: 'SAVE',
-// 				onAction: function (_) {
-// 					editor.insertContent('&nbsp;<strong>It\'s my button!</strong>&nbsp;');
-// 				}
-// 			});
-// 		}})
-// }
