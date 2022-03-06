@@ -182,6 +182,8 @@ class Graph:
         # Org mode.
         # This should check for files, this blows up for directories like doc.anagora.org, so only globbing for garden for now.
         subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.org'), recursive=True)])
+        # [[mycorrhiza]]
+        subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.myco'), recursive=True)])
         # Image formats.
         subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpg'), recursive=True)])
         subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpeg'), recursive=True)])
@@ -563,7 +565,8 @@ class Subnode:
         content = render.preprocess(self.content, subnode=self)
         # this breaks pull buttons
         # content = bleach.clean(content)
-        if self.uri.endswith('md') or self.uri.endswith('MD'):
+        # hack: parse [[mycorrhiza]] as Markdown for [[melanocarpa]] while we work on better support.
+        if self.uri.endswith('md') or self.uri.endswith('MD') or self.uri.endswith('myco'):
             try:
                 content = render.markdown(content)
             except:
