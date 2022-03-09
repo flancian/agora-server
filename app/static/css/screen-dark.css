@@ -224,7 +224,8 @@ input[type="text"] {
 }
 
 .topline-agora {
-    display: block;
+    display: flex;
+    justify-content: space-between;
     vertical-align: middle;
     /* does not work, will be removed shortly */
     overflow-y: auto;
@@ -245,11 +246,9 @@ input[type="text"] {
     width: 100%;
 }
 
-
 #mini-cli {
     width: 100%;
 }
-
 
 /*
 @media screen and (min-width: 900px) {

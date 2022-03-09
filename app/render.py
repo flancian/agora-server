@@ -143,7 +143,10 @@ def add_mastodon_pull(content, subnode):
         pass
 
     # MASTODON_REGEX='(https://[a-zA-Z-.]+/web/statuses/[0-9]+)'
-    MASTODON_REGEX_ALT=r'(?<!")(https://[a-zA-Z-.]+/@\w+/[0-9]+)'
+    # negative lookbehind tries to avoid adding a pull button when the link is
+    #  1. quoted, which likely means it's part of an anchor
+    #  2. preceded by a square bracket, which likely means it's an org mode (?) or mycorrhiza style link.
+    MASTODON_REGEX_ALT=r'(?<!["[])(https://[a-zA-Z-.]+/@\w+/[0-9]+)'
     MASTODON_EMBED=r'\1 <button class="pull-mastodon-status" value="\1">pull</button>'
     ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, content)
     # ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, ret)

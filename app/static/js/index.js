@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"fx84D":[function(require,module,exports) {
+})({"c3S8u":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 38931;
+var HMR_PORT = 46513;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -9814,6 +9814,42 @@ document.addEventListener("DOMContentLoaded", function() {
         this.innerText = 'going';
         window.location.replace(url);
     });
+    // pull all button
+    $("#pull-all").click(function(e) {
+        this.innerText = 'folding all';
+        if (this.classList.contains('pulled')) {
+            // already pulled.
+            $(".pull-node").each(function(e1) {
+                console.log('auto folding nodes');
+                this.click();
+            });
+            $(".pull-mastodon-status").each(function(e1) {
+                console.log('auto pulling activity');
+                this.click();
+            });
+            $(".pull-tweet").each(function(e1) {
+                console.log('auto pulling tweet');
+                this.click();
+            });
+            this.innerText = 'pull all';
+        } else {
+            this.innerText = 'pulling all';
+            console.log('auto pulling local resources!');
+            $(".pull-node").each(function(e1) {
+                console.log('auto pulling nodes');
+                this.click();
+            });
+            $(".pull-mastodon-status").each(function(e1) {
+                console.log('auto pulling activity');
+                this.click();
+            });
+            $(".pull-tweet").each(function(e1) {
+                console.log('auto pulling tweet');
+                this.click();
+            });
+            this.innerText = 'fold all';
+        }
+    });
     if (autoExec) {
         // auto pull search by default.
         $(".pull-search").each(function(e) {
@@ -9825,7 +9861,7 @@ document.addEventListener("DOMContentLoaded", function() {
         req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME);
         console.log('req: ' + req);
         $.get(req, function(data) {
-            console.log('html: ' + data);
+            // console.log('html: ' + data)
             embed = $(".topline-search").after(data);
             // figure out how to do this without code repetition -- ask [[vera]]?
             // also, could we scope this search to stuff inside embed? unsure if that points to the DOM, it didn't seem to work.
@@ -9959,6 +9995,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["fx84D","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["c3S8u","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map

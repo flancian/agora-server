@@ -278,6 +278,44 @@ document.addEventListener("DOMContentLoaded", function () {
     window.location.replace(url);
   });
 
+  // pull all button
+  $("#pull-all").click(function (e) {
+    this.innerText = 'folding all';
+    if (this.classList.contains('pulled')) {
+      // already pulled.
+      $(".pull-node").each(function (e) {
+        console.log('auto folding nodes');
+        this.click();
+      });
+      $(".pull-mastodon-status").each(function (e) {
+        console.log('auto pulling activity');
+        this.click();
+      });
+      $(".pull-tweet").each(function (e) {
+        console.log('auto pulling tweet');
+        this.click();
+      });
+      this.innerText = 'pull all';
+    }
+    else {
+      this.innerText = 'pulling all';
+      console.log('auto pulling local resources!');
+      $(".pull-node").each(function (e) {
+        console.log('auto pulling nodes');
+        this.click();
+      });
+      $(".pull-mastodon-status").each(function (e) {
+        console.log('auto pulling activity');
+        this.click();
+      });
+      $(".pull-tweet").each(function (e) {
+        console.log('auto pulling tweet');
+        this.click();
+      });
+      this.innerText = 'fold all';
+    }
+  });
+
   if (autoExec) {
     // auto pull search by default.
     $(".pull-search").each(function (e) {
@@ -290,7 +328,7 @@ document.addEventListener("DOMContentLoaded", function () {
     req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME)
     console.log('req: ' + req)
     $.get(req, function (data) {
-      console.log('html: ' + data)
+      // console.log('html: ' + data)
       embed = $(".topline-search").after(data);
 
       // figure out how to do this without code repetition -- ask [[vera]]?
