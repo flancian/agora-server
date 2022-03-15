@@ -109,7 +109,7 @@ async function main() {
 	<br>
 	<button onClick="saveData()">Save</button>`)
 	} else {
-		$(subnode).insertAfter(".not-found")
+		$(subnode).insertAfter(".node-header")
 	}
 
 }
