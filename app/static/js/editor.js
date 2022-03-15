@@ -100,6 +100,7 @@ async function main() {
 	const selector = "div.subnode[data-author='" + user + "'] .subnode-content"
 	const snode = $(selector)
 	console.log("SNODE", snode)
+	const saved = snode.html()
 	if (snode.length) {
 		const text = await grabMarkdown()
 		snode.html(`<textarea id=node-editor cols=60 rows=10>${text}</textarea>

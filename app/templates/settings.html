@@ -37,21 +37,21 @@ const form = `
 <div>
 	<div>
 		Enter comma separated list of users to uprank
-		<input type="text" placeholder="e.g. flancian, vera" value="${ranking}" />
+		<input id="ranking" type="text" placeholder="e.g. flancian, vera" value="${ranking}" />
 	</div>
 	<div>
-		Do you want to auto pull Agora resources? <input type="checkbox"  checked />
+		Do you want to auto pull Agora resources? <input id="auto-pull-agora" type="checkbox"  />
 	</div>
 	<div>
-		Do you want to auto pull external resources? <input type="checkbox"  checked />
+		Do you want to auto pull external resources? <input id="auto-pull-external"  type="checkbox"   />
 	</div>
 	<div>
-		Do you want to auto pull the Stoa? <input type="checkbox"  />
+		Do you want to auto pull the Stoa? <input id="auto-pull-stoa"  type="checkbox"  />
 	</div>
 	<div>
-		Do you want to render wikilinks with brackets? <input type="checkbox" checked />
+		Do you want to render wikilinks with brackets? <input id="render-wikilinks"  type="checkbox"  />
 	</div>
-	<button>Save</button>
+	<button onClick=saveSettings()>Save</button>
 </div>
 
 <div>
@@ -64,11 +64,28 @@ const form = `
 `
 $("#form-body").html(form)
 
+setValues()
+
+function setValues(){
+	$("#ranking").val(localStorage["ranking"])
+	$("#auto-pull-agora").prop("checked", JSON.parse(localStorage["auto-pull-agora"]))
+	$("#auto-pull-external").prop("checked", JSON.parse(localStorage["auto-pull-external"]))
+	$("#auto-pull-stoa").prop("checked", JSON.parse(localStorage["auto-pull-stoa"]))
+	$("#render-wikilinks").prop("checked", JSON.parse(localStorage["render-wikilinks"]))
+}
+
 function saveGitea(){
 		localStorage["gitea-token"] = document.getElementById("gitea-token").value
 		localStorage["gitea-repo"] = document.getElementById("gitea-repo").value
 }
 
+function saveSettings(){
+		localStorage["ranking"] = document.getElementById("ranking").value
+		localStorage["auto-pull-agora"] = document.getElementById("auto-pull-agora").checked
+		localStorage["auto-pull-external"] = document.getElementById("auto-pull-external").checked
+		localStorage["auto-pull-stoa"] = document.getElementById("auto-pull-stoa").checked
+		localStorage["render-wikilinks"] = document.getElementById("render-wikilinks").checked
+}
 </script>
 
 
