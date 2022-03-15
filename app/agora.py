@@ -542,11 +542,9 @@ def journals_json():
 
 @bp.route('/asset/<user>/<asset>')
 def asset(user, asset):
-	print("DAFUQQQQ")
 	# An asset is a binary in someone's garden/<user>/assets directory.
 	# Currently unused.
 	path = '/'.join([current_app.config['AGORA_PATH'], "garden", user, 'assets', asset])
-	print("PATH:", path)
 	return send_file(path)
 
 
