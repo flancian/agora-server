@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"c3S8u":[function(require,module,exports) {
+})({"47oxK":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 46513;
+var HMR_PORT = 44503;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -7307,8 +7307,12 @@ const Settings = {
     autopullexternal: rawAutoPullExternal,
     autopullstoa: rawAutoPullStoa,
     brackets: rawShowBrackets,
-    render: ({ ranking , autopulllocal , autopullexternal , autopullstoa , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPullLocal()}\n        ${autoPullExternal()}\n        ${autoPullStoa()}\n        ${showBrackets()}\n        <div>\n            <h1>Add garden to Agora</h1>\n            <div>This feature is <em>experimental</em>, which means it's probably broken :). If this fails, please send your repository information to signup@anagora.org. Thank you!</div>\n            <br>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n\n    `
+    render: ({ ranking , autopulllocal , autopullexternal , autopullstoa , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPullLocal()}\n        ${autoPullExternal()}\n        ${autoPullStoa()}\n        ${showBrackets()}\n        <div>\n            <h1>Add garden to Agora</h1>\n            <div>This feature is <em>experimental</em>, which means it's probably broken :). If this fails, please send your repository information to signup@anagora.org. Thank you!</div>\n            <br>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n				<div>\n					<h1>Gitea Integration Settings</h1>\n					<div>personal token: <input type="text" id="gitea-token" placeholder="${localStorage["gitea-token"]}" /></div>\n					<div>repo name: <input type="text" id="gitea-repo" placeholder="${localStorage["gitea-repo"]}" /></div>\n					<button onClick=saveGitea()>Save</button>\n				</div>\n\n    `
 };
+function saveGitea() {
+    localStorage["gitea-token"] = document.getElementById("gitea-token").value;
+    localStorage["gitea-repo"] = document.getElementById("gitea-repo").value;
+}
 _hybrids.define('settings-form', Settings);
 
 },{"hybrids":"lxcky","jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}],"lxcky":[function(require,module,exports) {
@@ -9995,6 +9999,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["c3S8u","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["47oxK","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map
