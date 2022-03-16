@@ -598,3 +598,12 @@ def proposal(user,node):
         vote_options=vote_options,
         vote_counts=json.dumps(vote_counts)
     )
+
+
+@bp.route('/api/callback')
+def callback():
+	print("ACCESS TOKEN FROM GITEA")
+	print(request.values['code'])
+	return f'TOKEN {request.values["code"]}<script>alert("{request.values["code"]}")</script>'
+
+# https://git.anagora.org/login/oauth/authorize?client_id=f88fe801-c51b-456e-ac20-2a967555cec0&redirect_uri=http://localhost:5000/api/callback&response_type=code

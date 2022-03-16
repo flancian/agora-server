@@ -18,6 +18,8 @@
 <html>
 
 <head>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
     <meta charset="utf-8" />
     {% if node is defined %}
     <title>[[{{qstr}}]] - {{config['URI_BASE']}}</title>
@@ -145,7 +147,7 @@
     <div id='footer'>This [[<a href="/agora">Agora</a>]] took <strong>__EXECTIME__ seconds</strong> to render your request on <strong>__NOW__</strong>.<br><a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> is brought to you by {{config['MAINTAINER']}} and the Agora community.</div>
 
     <script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
-    <script type=text/javascript src="{{url_for('static', filename='js/hover.js')}}"></script>
+    <script type=text/javascript src="{{url_for('static', filename='js/raw.js')}}"></script>
 
 </body>
 
