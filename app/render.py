@@ -217,10 +217,10 @@ def trim_block_anchors(content, subnode):
     BLOCK_ANCHOR_REGEX = r'\^[0-9-]+$'
     return re.sub(BLOCK_ANCHOR_REGEX, '', content, flags=re.MULTILINE)
 
-# Trim Logseq  :LOGBOOK: entries until we do something useful with them
+# Trim Logseq :LOGBOOK: .. :END: blocks until we do something useful with them
 def trim_logbook(content, subnode):
-    LOGBOOK_REGEX = r':?(LOGBOOK|CLOCK|END): ?(\[\d\d.+?\])?'
-    return re.sub(LOGBOOK_REGEX, '', content, flags=re.MULTILINE)
+    LOGBOOK_REGEX = r':LOGBOOK:.*?:END:'
+    return re.sub(LOGBOOK_REGEX, '', content, flags=re.MULTILINE + re.DOTALL)
 
 # Trim liquid templates (Jekyll stuff) until we do something useful with them.
 def trim_liquid(content, subnode):
