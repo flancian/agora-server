@@ -24,7 +24,7 @@ $(".wikilink").hover(async function () {
 function showBox(url){
   $.get(url, function (data) {
     if (!locked) return
-    $("#popup").css({ 'top': mouseY, 'left': mouseX, 'background-color': 'black' })
+    $("#popup").css({ 'top': mouseY, 'left': mouseX, 'background-color': 'var(--main-bg)' })
     $("#popup").html(`<div><button onclick='closePopup()'>Close X</button></div>` + data).show()
   });
 }
