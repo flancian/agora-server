@@ -23,7 +23,7 @@
 
 body            { background: #eee; color: #000000; overflow-x: hidden;}
 a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
-.logo           { filter: none; vertical-align: middle; width="20" height="20"; }
+.logo           { filter: none; vertical-align: middle; width: 20px; height: 20px; }
 
 .node { 
     background: #eee; 
