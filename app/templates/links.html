@@ -23,7 +23,7 @@
             <span class="backlinks-header">← back</span><br />
         {% if node.back_nodes %}
             {% for n in node.back_nodes() %}
-            <a href="/{{node.uri}}">{{n.description}}</a><br />
+            <a href="/{{n.uri}}">{{n.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -35,7 +35,7 @@
             <span class="pushlinks-header">↑ pushing here</span><br />
         {% if node.pushing_nodes %}
             {% for n in node.pushing_nodes() %}
-            <a href="/{{node.uri}}">{{n.description}}</a><br />
+            <a href="/{{n.uri}}">{{n.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -47,7 +47,7 @@
         <span class="pulllinks-header">↓ pulling this</span><br />
         {% if node.pulling_nodes %}
             {% for n in node.pulling_nodes() %}
-            <a href="/{{node.uri}}">{{n.description}}</a><br />
+            <a href="/{{n.uri}}">{{n.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -60,7 +60,7 @@
         <span class="forwardlinks-header">→ forward</span><br />
         {% if node.forward_nodes %}
             {% for n in node.forward_nodes() %}
-            <a href="/{{node.uri}}">{{n.description}}</a><br />
+            <a href="/{{n.uri}}">{{n.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)
