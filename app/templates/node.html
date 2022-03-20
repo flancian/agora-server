@@ -14,7 +14,7 @@
  limitations under the License.
 -->
 
-{% if not node.subnodes and not node.pushed_subnodes() %}
+{% if not node.subnodes %}
 <div class="node" id="{{node.uri}}">
     <span class="node-header main-header">📚 node <a href="/{{node}}">[[{{node.qstr}}]]</a></span>
     <div class="not-found subnode" data-author="agora">
@@ -51,6 +51,15 @@
             </li>
             </ul>
     </div>
+    <div class="pushed-subnodes-embed">
+        <em>Receiving pushes... (requires JavaScript)</em>
+        <!-- removed from the sync rendering path as this is expensive (i.e. slow).
+        interested clients can call GET /push/x to get all subnodes being pushed to x.
+
+        some day maybe: POST/PUT to it to push ;)
+        -->
+    </div>
+
 </div>
 
 <!-- essentially upranks related nodes for missing node pages only -->
