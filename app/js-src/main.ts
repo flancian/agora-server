@@ -331,12 +331,26 @@ document.addEventListener("DOMContentLoaded", function () {
       let id = "#" + node + " .pushed-subnodes-embed";
       console.log('auto pulling pushed subnodes, will write to id: ' + id);
       $.get(AGORAURL + '/push/' + node, function (data) {
-        this.innerText = data;
         $(id).html(data);
       });
       // end auto pull pushed subnodes.
       console.log('auto pulled pushed subnodes, hopefully :)');
     });
+
+    $(".context").each(function (e) {
+      // auto pull context by default.
+      // it would be better to infer this from node div id?
+      let node = NODENAME
+      let id = '.context'
+      console.log('auto pulling context, will write to id: ' + id);
+      $.get(AGORAURL + '/context/' + node, function (data) {
+        $('.context').html(data);
+      });
+      // end auto pull pushed subnodes.
+      console.log('auto pulled pushed subnodes, hopefully :)');
+    });
+
+
 
     /*
       this.innerText = 'pulling';

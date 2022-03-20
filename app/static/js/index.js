@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"iGCnC":[function(require,module,exports) {
+})({"fAMha":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 37249;
+var HMR_PORT = 35965;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -9868,8 +9868,19 @@ document.addEventListener("DOMContentLoaded", function() {
             let id = "#" + node + " .pushed-subnodes-embed";
             console.log('auto pulling pushed subnodes, will write to id: ' + id);
             $.get(AGORAURL + '/push/' + node, function(data) {
-                this.innerText = data;
                 $(id).html(data);
+            });
+            // end auto pull pushed subnodes.
+            console.log('auto pulled pushed subnodes, hopefully :)');
+        });
+        $(".context").each(function(e) {
+            // auto pull context by default.
+            // it would be better to infer this from node div id?
+            let node = NODENAME;
+            let id = '.context';
+            console.log('auto pulling context, will write to id: ' + id);
+            $.get(AGORAURL + '/context/' + node, function(data) {
+                $('.context').html(data);
             });
             // end auto pull pushed subnodes.
             console.log('auto pulled pushed subnodes, hopefully :)');
@@ -10025,6 +10036,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["iGCnC","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["fAMha","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map

@@ -381,6 +381,17 @@ def push(node):
             node=n,
             )
 
+@bp.route('/context/<node>')
+def context(node):
+    # returns by default an html view for the 'context' section: graph, links (including pushes, which can be costly)
+    n = build_node(node)
+
+    return render_template(
+            'context.html', 
+            embed=True,
+            node=n,
+            )
+
 # good for embedding just node content.
 @bp.route('/pull/<node>')
 def pull(node):

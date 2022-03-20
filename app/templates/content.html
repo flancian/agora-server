@@ -8,7 +8,9 @@
 
     {% include "stoa.html" %}
 
-    {% include "context.html" %}
+    <div class="context">
+    <em>Loading context... (requires JavaScript)</em>
+    </div>
 
     {% if node.subnodes or node.pushed_subnodes() %}
         <!-- for empty nodes, we render this above the stoa/context -->
