@@ -461,6 +461,8 @@ class Node:
         return sorted([x.wikilink for x in self.back_nodes()])
 
     def pushed_subnodes(self):
+        # returning long lists here makes the Agora slow as each of these requires processing.
+        # better to only call this in async paths to keep basic node rendering fast.
         subnodes = []
         for node in self.pushing_nodes():
             for subnode in node.pushing(self):

@@ -14,12 +14,15 @@
  limitations under the License.
 -->
 
-{% for node in related_nodes %}
-    {% if node.subnodes %}
-    <div class="node">
-    <span class="node-header">⥅ related node <a href="/{{node.uri}}">[[{{node.description}}]]</a></span> 
-    <button class="pull-node" value="{{node.uri}}">pull</button>
-    <div class="pulled-node-embed" id="{{node.uri}}"></div>                           
-    </div>
-    {% endif %}
-{% endfor %}
+{% if n and n.related %}
+    {% for node in n.related %}
+        {% if node.subnodes %}
+        <div class="node">
+        <span class="node-header">⥅ related node <a href="/{{node.uri}}">[[{{node.description}}]]</a></span> 
+        <button class="pull-node" value="{{node.uri}}">pull</button>
+        <div class="pulled-node-embed" id="{{node.uri}}"></div>                           
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+

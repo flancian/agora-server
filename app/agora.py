@@ -53,19 +53,7 @@ def after_request(response):
 
 # The [[agora]] is a [[distributed knowledge graph]].
 # Nodes are the heart of the [[agora]].
-# In the [[agora]] there are no 404s. Everything that can be described with words has a node in the [[agora]].
-# The [[agora]] is in some ways thus a [[search engine]]: anagora.org/agora-search
-#
-# Flask routes work so that the one closest to the function is the canonical one.
-
-@bp.route('/wikilink/<node>')
-@bp.route('/node/<node>/uprank/<user_list>')
-@bp.route('/node/<node>')
-@bp.route('/<node>/uprank/<user_list>')
-@bp.route('/<node>.<extension>')
-@bp.route('/<node>')
-def node(node, extension='', user_list=''):
-
+def build_node(node, extension='', user_list=''):
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
     # default uprank: system account and maintainers
     # TODO: move to config.py
@@ -108,27 +96,42 @@ def node(node, extension='', user_list=''):
     qstr = request.args.get('q') 
     if not qstr: 
         # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
-        qstr = n.wikilink.replace('-', ' ')
-
+        n.qstr = n.wikilink.replace('-', ' ')
     # search_subnodes = db.search_subnodes(node)
 
     current_app.logger.debug(f'[[{node}]]: Assembled node.')
+    return n
+
+# In the [[agora]] there are no 404s. Everything that can be described with words has a node in the [[agora]].
+# The [[agora]] is in some ways thus a [[search engine]]: anagora.org/agora-search
+#
+# Flask routes work so that the one closest to the function is the canonical one.
+@bp.route('/wikilink/<node>')
+@bp.route('/node/<node>/uprank/<user_list>')
+@bp.route('/node/<node>')
+@bp.route('/<node>/uprank/<user_list>')
+@bp.route('/<node>.<extension>')
+@bp.route('/<node>')
+def node(node, extension='', user_list=''):
+
+    n = build_node(node, extension=extension, user_list=user_list)
+
     return render_template(
             # yuck
             'content.html', 
             node=n,
-            back_nodes=n.back_nodes(),
-            pull_nodes=n.pull_nodes() if n.subnodes else [],
-            auto_pull_nodes=n.auto_pull_nodes() if current_app.config['ENABLE_AUTO_PULL'] else [],
-            related_nodes=n.related() if current_app.config['ENABLE_AUTO_PULL'] else [],
-            forward_nodes=n.forward_nodes() if n else [],
-            search=[],
-            pulling_nodes=n.pulling_nodes(),
-            pushing_nodes=n.pushing_nodes(),
+            #back_nodes=n.back_nodes(),
+            #pull_nodes=n.pull_nodes() if n.subnodes else [],
+            #auto_pull_nodes=n.auto_pull_nodes() if current_app.config['ENABLE_AUTO_PULL'] else [],
+            #related_nodes=n.related() if current_app.config['ENABLE_AUTO_PULL'] else [],
+            #forward_nodes=n.forward_nodes() if n else [],
+            #search=[],
+            #pulling_nodes=n.pulling_nodes(),
+            #pushing_nodes=n.pushing_nodes(),
             # the q part of the query string -- can be forwarded to other sites, expected to preserve all information we got from the user.
-            q=urllib.parse.quote_plus(qstr),
+            #q=urllib.parse.quote_plus(n.qstr),
             # the decoded q parameter in the query string or inferred human-readable query for the slug. it should be ready for rendering.
-            qstr=qstr,
+            #qstr=n.qstr,
             render_graph=True if n.back_nodes() or n.subnodes else False,
             config=current_app.config,
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
@@ -348,30 +351,23 @@ def composite_go(node0, node1):
 
     return redirect(links[0])
 
-
 @bp.route('/push/<node>/<other>')
-def push(node, other):
+def push2(node, other):
+    # OLD, maybe unused?
     n = G.node(node)
     o = G.node(other)
     pushing = n.pushing(o)
+    # This is a list of VirtualSubnodes now, which make sense but doesn't work here.
+    # TODO: do something useful.
 
     return Response(pushing)
 
-# good for embedding just node content.
-@bp.route('/pull/<node>')
-def pull(node):
-    current_app.logger.debug(f'pull [[{node}]]: Assembling node.')
-    # default uprank: system account and maintainers
-    # TODO: move to config.py
-    rank = ['agora', 'flancian', 'vera', 'neil']
+@bp.route('/push/<node>')
+def push(node):
+    # returns by default an html view for the 'pushing here' section / what is being received in associated feeds
+    n = build_node(node)
+    # HERE
 
-    n = copy(G.node(node))
-
-    if n.subnodes:
-        # earlier in the list means more highly ranked.
-        n.subnodes = util.uprank(n.subnodes, users=rank)
-
-    current_app.logger.debug(f'[[{node}]]: Assembled node.')
     return render_template(
             # yuck
             'content.html', 
@@ -389,6 +385,34 @@ def pull(node):
             config=current_app.config,
             )
 
+# good for embedding just node content.
+@bp.route('/pull/<node>')
+def pull(node):
+    current_app.logger.debug(f'pull [[{node}]]: Assembling node.')
+    n = build_node(node)
+    # HERE
+    # default uprank: system account and maintainers
+    # TODO: move to config.py
+    rank = ['agora', 'flancian', 'vera', 'neil']
+
+    return render_template(
+            # yuck
+            'content.html', 
+            node=n,
+            embed=True,
+            backlinks=n.back_links(),
+            pull_nodes=n.pull_nodes() if n.subnodes else [],
+            forwardlinks=n.forward_links() if n else [],
+            search=[],
+            pulling_nodes=n.pulling_nodes(),
+            pushing_nodes=n.pushing_nodes(),
+            q=n.wikilink.replace('-', '%20'),
+            qstr=n.wikilink.replace('-', ' '),
+            render_graph=False,
+            config=current_app.config,
+            )
+
+
 # for embedding search (at bottom of node).
 @bp.route('/fullsearch/<qstr>')
 def fullsearch(qstr):
@@ -403,8 +427,35 @@ def fullsearch(qstr):
             search=search_subnodes
             )
 
-def pull(node, other):
-    n = G.node(node)
+def pull(node):
+
+    n = build_node(node)
+
+    return render_template(
+            # yuck
+            'content.html', 
+            node=n,
+            back_nodes=n.back_nodes(),
+            pull_nodes=n.pull_nodes() if n.subnodes else [],
+            auto_pull_nodes=n.auto_pull_nodes() if current_app.config['ENABLE_AUTO_PULL'] else [],
+            related_nodes=n.related() if current_app.config['ENABLE_AUTO_PULL'] else [],
+            forward_nodes=n.forward_nodes() if n else [],
+            search=[],
+            pulling_nodes=n.pulling_nodes(),
+            pushing_nodes=n.pushing_nodes(),
+            # the q part of the query string -- can be forwarded to other sites, expected to preserve all information we got from the user.
+            q=urllib.parse.quote_plus(n.qstr),
+            # the decoded q parameter in the query string or inferred human-readable query for the slug. it should be ready for rendering.
+            qstr=n.qstr,
+            render_graph=True if n.back_nodes() or n.subnodes else False,
+            config=current_app.config,
+            # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
+            # sorry for the fuzzy thinking but I'm short on time and want to get things done.
+            # (...famous last words).
+            # annotations=n.annotations(),
+            # annotations_enabled=True,
+            )
+
     return Response(pushing)
 
 
