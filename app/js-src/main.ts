@@ -317,13 +317,43 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   if (autoExec) {
+    console.log('autoexec is enabled')
     // auto pull search by default.
     $(".pull-search").each(function (e) {
       console.log('auto pulling search');
       this.click();
     });
+
+    $(".pushed-subnodes-embed").each(function (e) {
+      // auto pull pushed subnodes by default.
+      // it would be better to infer this from node div id?
+      let node = NODENAME
+      let id = "#" + node + " .pushed-subnodes-embed";
+      console.log('auto pulling pushed subnodes, will write to id: ' + id);
+      $.get(AGORAURL + '/push/' + node, function (data) {
+        this.innerText = data;
+        $(id).html(data);
+      });
+      // end auto pull pushed subnodes.
+      console.log('auto pulled pushed subnodes, hopefully :)');
+    });
+
+    /*
+      this.innerText = 'pulling';
+      console.log('pulling node');
+      $.get(AGORAURL + '/pull/' + node, function (data) {
+        $("#" + node + ".pulled-node-embed").html(data);
+      });
+      this.innerText = 'fold';
+      this.classList.add('pulled');
+    }
+    */
+
+    $(".pull-search").each(function (e) {
+      console.log('auto pulling search');
+      this.click();
+    });
  
-    console.log('autoexec is enabled')
     console.log('executing node: ' + NODENAME)
     req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME)
     console.log('req: ' + req)

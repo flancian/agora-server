@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"47oxK":[function(require,module,exports) {
+})({"iGCnC":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 44503;
+var HMR_PORT = 37249;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -9855,12 +9855,38 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
     if (autoExec) {
+        console.log('autoexec is enabled');
         // auto pull search by default.
         $(".pull-search").each(function(e) {
             console.log('auto pulling search');
             this.click();
         });
-        console.log('autoexec is enabled');
+        $(".pushed-subnodes-embed").each(function(e) {
+            // auto pull pushed subnodes by default.
+            // it would be better to infer this from node div id?
+            let node = NODENAME;
+            let id = "#" + node + " .pushed-subnodes-embed";
+            console.log('auto pulling pushed subnodes, will write to id: ' + id);
+            $.get(AGORAURL + '/push/' + node, function(data) {
+                this.innerText = data;
+                $(id).html(data);
+            });
+            // end auto pull pushed subnodes.
+            console.log('auto pulled pushed subnodes, hopefully :)');
+        });
+        /*
+      this.innerText = 'pulling';
+      console.log('pulling node');
+      $.get(AGORAURL + '/pull/' + node, function (data) {
+        $("#" + node + ".pulled-node-embed").html(data);
+      });
+      this.innerText = 'fold';
+      this.classList.add('pulled');
+    }
+    */ $(".pull-search").each(function(e) {
+            console.log('auto pulling search');
+            this.click();
+        });
         console.log('executing node: ' + NODENAME);
         req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME);
         console.log('req: ' + req);
@@ -9999,6 +10025,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["47oxK","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["iGCnC","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map

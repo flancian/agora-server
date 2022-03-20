@@ -22,7 +22,7 @@
 
     <meta charset="utf-8" />
     {% if node is defined %}
-    <title>[[{{qstr}}]] - {{config['URI_BASE']}}</title>
+    <title>[[{{node.qstr}}]] - {{config['URI_BASE']}}</title>
     {% else %}
     <title>Agora</title>
     {% endif %}
@@ -36,7 +36,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{url_for('agora.search_xml')}}>
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
-    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached115" id="theme-link" />
+    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached116" id="theme-link" />
     {% if node is defined and not embed %}
         <script>
             const NODENAME = "{{node.uri}}"
@@ -53,9 +53,7 @@
     {% if not embed %}
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        {% if render_graph %}
         <script src="//unpkg.com/force-graph"></script>
-        {% endif %}
         <!--
         <script type="application/json" class="js-hypothesis-config">
               {
@@ -103,7 +101,7 @@
                     </div>
                     <div class="topline-cli">
                         <form action="/exec" method="get">
-                            <input id="mini-cli" type="text" value="{{qstr}}" name="q">
+                            <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
                         </form>
                     </div>
                     <button id="mini-cli-exec" value="exec">exec</button>
@@ -113,13 +111,13 @@
 
                 <div class="topline-search">
                     <strong>↳ on the Internet:</strong>
-                    <a href="https://www.google.com/search?q={{q}}">Google</a>
-                    | <a href="https://www.duckduckgo.com/{{q}}">DuckDuckGo</a>
-                    | <a href="https://searx.bar/search?q={{q}}&categories=general&language=en-US">Searx</a>
-                    | <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">Wikipedia</a>
+                    <a href="https://www.google.com/search?q={{node.q}}">Google</a>
+                    | <a href="https://www.duckduckgo.com/{{node.q}}">DuckDuckGo</a>
+                    | <a href="https://searx.bar/search?q={{node.q}}&categories=general&language=en-US">Searx</a>
+                    | <a href="https://en.wikipedia.org/wiki/Special:Search/{{node.q}}">Wikipedia</a>
                     <!--
-                    | <a href="https://twitter.com/search/?f=live&q={{q}}">Twitter</a>
-                    | <a href="https://github.com/search?q={{q}}">GitHub</a>
+                    | <a href="https://twitter.com/search/?f=live&q={{node.q}}">Twitter</a>
+                    | <a href="https://github.com/search?q={{node.q}}">GitHub</a>
                     -->
                 </div>
 

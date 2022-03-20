@@ -1,5 +1,5 @@
-    {% if node.pushed_subnodes() %}
-    {% for subnode in node.pushed_subnodes() %}
+{% if pushed_subnodes %}
+    {% for subnode in pushed_subnodes %}
     <div class="pushed-subnode">
         <div class="subnode-header">
             <span class="subnode-id"><a href="/@{{subnode.user}}/{{subnode.wikilink}}">📄</a>
@@ -11,5 +11,5 @@
         </ul>
     </div>
     {% endfor %}
-    {% endif %}
+{% endif %}
 
