@@ -16,8 +16,10 @@
 -->
 
 {% for n in node.pull_nodes() %}
+{% if not embed %}
 <div class="node">
     <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled by user</span>
+{% endif %}
 
     {% if n.subnodes %}
     {% for subnode in n.subnodes %}
@@ -35,7 +37,9 @@
     {% else %}
     empty. <br />
     {% endif %}
+{% if not embed %}
 </div>
+{% endif %}
 {% endfor %}
 
 {% for n in node.auto_pull_nodes() %}
