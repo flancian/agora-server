@@ -276,27 +276,14 @@ def go(node):
     """Redirects to the URL in the given node in a block that starts with [[go]], if there is one."""
     # TODO(flancian): all node-scoped stuff should move to actually use node objects.
 
-    node = urllib.parse.unquote_plus(node)
-    node = util.slugify(node)
-    try:
-        n = db.nodes_by_wikilink(node)
-    except KeyError:
-        return redirect(f'https://anagora.org/{node}')
-
-    if len(n) > 1:
-        current_app.logger.warning(
-            'nodes_by_wikilink returned more than one node, should not happen.')
-
-    if len(n) == 0:
-        # No nodes with this name -- redirect to node 404.
-        return redirect(f'https://anagora.org/{node}')
+    n = build_node(node)
 
     # we should do ranking :)
-    links = n[0].go()
+    links = n.go()
     if len(links) == 0:
         # No go links detected in this node -- just redirect to the node.
         # TODO(flancian): flash an explanation :)
-        return redirect(f'https://anagora.org/{node}')
+        return redirect(f"{current_app.config['URL_BASE']}/{node}")
 
     if len(links) > 1:
         # TODO(flancian): to be implemented.
@@ -317,38 +304,46 @@ def composite_go(node0, node1):
     # TODO(flancian): make [[go]] call this?
     # current_app.logger.debug = print
     current_app.logger.debug(f'running composite_go for {node0}, {node1}.')
-    try:
-        n0 = db.nodes_by_wikilink(node0)
-        current_app.logger.debug(f'n0: {n0}')
-        n1 = db.nodes_by_wikilink(node1)
-        current_app.logger.debug(f'n1: {n1}')
-    except KeyError:
-        pass
-        # return redirect("https://anagora.org/%s" % node0)
+    n0 = build_node(node0)
+    n1 = build_node(node1)
 
     base = current_app.config['URL_BASE']
-    if len(n0) == 0 and len(n1) == 0:
-        # No nodes with either names.
-        # Redirect to the composite node, which might exist -- or in any case will provide relevant search.
-        current_app.logger.debug(f'redirect 1')
-        return redirect(f'{base}/{node0}-{node1}')
+    if not n0.subnodes and not n1.subnodes:
+        # No content in either node.
+        # Redirect to the first node.
+        current_app.logger.debug(f'redirect in composite')
+        return redirect(f'{base}/{node0}')
 
     links = []
-    if len(n0) != 0:
-        links.extend(n0[0].filter(node1))
+    if n0.subnodes:
+        links.extend(n0.subnodes[0].filter(node1))
         current_app.logger.debug(
             f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
 
-    if len(n1) != 0:
-        links.extend(n1[0].filter(node0))
+    if n1.subnodes:
+        links.extend(n1.subnodes[0].filter(node0))
         current_app.logger.debug(
             f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
 
     if len(links) == 0:
-        # No matching links found.
-        # Redirect to composite node, which might exist and provides search.
+        # No matching links found so far.
+        # Try using also pushed_subnodes(), which are relative expensive (slow) to compute.
+
+        if n0.pushed_subnodes():
+            links.extend(n0.pushed_subnodes()[0].filter(node1))
+            current_app.logger.debug(
+                f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
+
+        if n1.pushed_subnodes():
+            links.extend(n1.pushed_subnodes()[0].filter(node0))
+            current_app.logger.debug(
+                f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
+
+    if len(links) == 0:
+        # No matching links found after all tries.
+        # Redirect to the first node.
         # TODO(flancian): flash an explanation :)
-        return redirect(f'{base}/{node0}-{node1}')
+        return redirect(f'{base}/{node0}')
 
     if len(links) > 1:
         # TODO(flancian): to be implemented.

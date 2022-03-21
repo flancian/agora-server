@@ -252,6 +252,8 @@ class Node:
     def go(self):
         # There's surely a much better way to do this. Alas :)
         links = []
+        # worried about pushed_subnodes() speed -- perhaps measure?
+        # for subnode in self.subnodes + self.pushed_subnodes():
         for subnode in self.subnodes:
             links.extend(subnode.go())
         return links 
