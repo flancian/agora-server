@@ -15,17 +15,17 @@
  limitations under the License.
 -->
 
-{% for node in pull_nodes %}
+{% for n in node.pull_nodes() %}
 <div class="node">
-    <span class="node-header">⥅ node <a href="/{{node.uri}}">[[{{node.uri}}]]</a> pulled by user</span>
+    <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.uri}}]]</a> pulled by user</span>
 
-    {% if node.subnodes %}
-    {% for subnode in node.subnodes %}
+    {% if n.subnodes %}
+    {% for subnode in n.subnodes %}
 
     <div class="pulled-subnode" data-author="{{subnode.user}}">
         <div class="subnode-header">
             <span class="subnode-id"><a
-                    href="/@{{subnode.user}}/{{node.uri}}">📓</a>
+                    href="/@{{subnode.user}}/{{n.uri}}">📓</a>
             <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
                     href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></span></a></span>
         </div>
@@ -38,17 +38,17 @@
 </div>
 {% endfor %}
 
-{% for node in auto_pull_nodes %}
+{% for n in node.auto_pull_nodes() %}
 <div class="node">
-    <span class="node-header">⥅ node <a href="/{{node.uri}}">[[{{node.uri}}]]</a> pulled by Agora</span>
+    <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.uri}}]]</a> pulled by Agora</span>
 
-    {% if node.subnodes %}
-    {% for subnode in node.subnodes %}
+    {% if n.subnodes %}
+    {% for subnode in n.subnodes %}
 
     <div class="pulled-subnode" data-author="{{subnode.user}}">
         <div class="subnode-header">
             <span class="subnode-id"><a
-                    href="/@{{subnode.user}}/{{node.uri}}">📓</a>
+                    href="/@{{subnode.user}}/{{n.uri}}">📓</a>
             <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
                     href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></span></a></span>
         </div>
