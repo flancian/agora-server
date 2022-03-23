@@ -14,8 +14,9 @@
  limitations under the License.
 -->
 
-{% if node and node.related %}
-    {% for n in node.related() %}
+{% set related = node.related() %}
+{% if node and related %}
+    {% for n in related %}
         {% if n.subnodes %}
         <div class="node">
         <span class="node-header">⥅ related node <a href="/{{n.uri}}">[[{{n.description}}]]</a></span> 

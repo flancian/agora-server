@@ -319,10 +319,6 @@ class Node:
         # for [[user ranking]], see util.py and agora.py.
         banned_nodes = ['agora', 'go', 'pull', 'push']
         nodes = []
-        # TODO: check that this includes [[virtual subnodes]].
-        # auto pull any subnode-specific includes.
-        for subnode in self.subnodes:
-            nodes.extend(subnode.auto_pull_nodes())
         # there are too many of these often, let's try without being so aggressive for a bit.
         # note you need to 'build' these here as back_links currently returns links and not nodes.
         # for node in self.back_links():
@@ -370,7 +366,7 @@ class Node:
         # same caveats as for equivalent() :)
         nodes = []
         regex = re.sub(r'[-_ ]', '.*', self.uri)
-        nodes.extend([node for node in G.search(regex) if node.uri != self.uri])
+        nodes.extend([node for node in G.search(regex) if node.uri != self.uri and node.uri not in [x.uri for x in self.pull_nodes()]])
         return nodes
 
     def push_nodes(self):

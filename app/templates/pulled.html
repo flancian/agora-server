@@ -15,7 +15,10 @@
  limitations under the License.
 -->
 
-{% for n in node.pull_nodes() %}
+{% set pull_nodes = node.pull_nodes() %}
+{% set auto_pull_nodes = node.auto_pull_nodes() %}
+
+{% for n in pull_nodes %}
 {% if not embed %}
 <div class="node">
 {% endif %}
@@ -29,7 +32,7 @@
 {% endif %}
 {% endfor %}
 
-{% for n in node.auto_pull_nodes() %}
+{% for n in auto_pull_nodes %}
 <div class="node">
     <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled by Agora</span>
 
