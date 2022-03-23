@@ -18,25 +18,12 @@
 {% for n in node.pull_nodes() %}
 {% if not embed %}
 <div class="node">
-    <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled by user</span>
 {% endif %}
 
-    {% if n.subnodes %}
-    {% for subnode in n.subnodes %}
+    <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled by user</span>
+    <button class="pull-node" value="{{n.uri}}">pull</button>
+    <div class="pulled-node-embed" id="{{n.uri}}"></div>                           
 
-    <div class="pulled-subnode" data-author="{{subnode.user}}">
-        <div class="subnode-header">
-            <span class="subnode-id"><a
-                    href="/@{{subnode.user}}/{{n.uri}}">📓</a>
-            <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                    href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></span></a></span>
-        </div>
-        <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
-    </div>
-    {% endfor %}
-    {% else %}
-    empty. <br />
-    {% endif %}
 {% if not embed %}
 </div>
 {% endif %}
