@@ -60,11 +60,8 @@
         -->
     </div>
 
-{% include "related.html" %}
-
-</div>
-
-{% endif %}
+{% endif %} <!-- node without subnodes -->
+<!-- node div left open to share context code with the next case -->
 
 {% if node.subnodes or node.pushed_subnodes() %}
 {% if not embed %}
@@ -107,6 +104,8 @@
     </div>
     {% endfor %}
 
+{% endif %} <!-- node with subnodes -->
+
     {% if not embed %}
     <div class="pushed-subnodes-embed">
         <em>Receiving pushes... (requires JavaScript)</em>
@@ -116,10 +115,9 @@
         some day maybe: POST/PUT to it to push ;)
         -->
     </div>
-{% endif %}
-{% endif %}
+    {% endif %}
 
 {% include "pulled.html" %}
 {% include "related.html" %}
 
-</div>
+</div> <!-- closes node div-->
