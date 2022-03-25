@@ -21,11 +21,11 @@ import { SingleEntryPlugin } from "webpack";
 
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
-const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
-const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
-const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false')
-const autoExec = JSON.parse(localStorage["autoExec"] || 'true')
-const pullRecursive = JSON.parse(localStorage["pullRecursive"] || 'false')
+const autoPullLocal = JSON.parse(localStorage["auto-pull-local"] || 'false')
+const autoPullExternal = JSON.parse(localStorage["auto-pull-external"] || 'false')
+const autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || 'false')
+const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
+const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'false')
 
 document.addEventListener("DOMContentLoaded", function () {
   // Select button

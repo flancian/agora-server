@@ -51,6 +51,9 @@ const form = `
 	<div>
 		Do you want to render wikilinks with brackets? <input id="render-wikilinks"  type="checkbox"  />
 	</div>
+	<div>
+		Do you want to use recursive pulls within the Agora (advanced)? <input id="pull-recursive"  type="checkbox"  />
+	</div>
 	<button onClick=saveSettings()>Save</button>
 </div>
 
@@ -81,6 +84,7 @@ function setValues(){
 	$("#auto-pull-external").prop("checked", JSON.parse(localStorage["auto-pull-external"]))
 	$("#auto-pull-stoa").prop("checked", JSON.parse(localStorage["auto-pull-stoa"]))
 	$("#render-wikilinks").prop("checked", JSON.parse(localStorage["render-wikilinks"]))
+	$("#pull-recursive").prop("checked", JSON.parse(localStorage["pull-recursive"]))
 }
 
 function saveGitea(){
@@ -94,6 +98,7 @@ function saveSettings(){
 		localStorage["auto-pull-external"] = document.getElementById("auto-pull-external").checked
 		localStorage["auto-pull-stoa"] = document.getElementById("auto-pull-stoa").checked
 		localStorage["render-wikilinks"] = document.getElementById("render-wikilinks").checked
+		localStorage["pull-recursive"] = document.getElementById("pull-recursive").checked
 }
 </script>
 

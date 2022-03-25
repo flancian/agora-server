@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"fUv5R":[function(require,module,exports) {
+})({"c3S8u":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 1234;
+var HMR_PORT = 46513;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -9602,11 +9602,11 @@ var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
 window.$ = window.jQuery = _jqueryDefault.default;
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
-const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
-const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
-const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false');
-const autoExec = JSON.parse(localStorage["autoExec"] || 'true');
-const pullRecursive = JSON.parse(localStorage["pullRecursive"] || 'false');
+const autoPullLocal = JSON.parse(localStorage["auto-pull-local"] || 'false');
+const autoPullExternal = JSON.parse(localStorage["auto-pull-external"] || 'false');
+const autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || 'false');
+const autoExec = JSON.parse(localStorage["auto-exec"] || 'true');
+const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'false');
 document.addEventListener("DOMContentLoaded", function() {
     // Select button
     const btn = document.querySelector(".theme-toggle");
@@ -10063,6 +10063,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["fUv5R","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["c3S8u","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map
