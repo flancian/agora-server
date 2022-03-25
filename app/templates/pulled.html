@@ -18,19 +18,17 @@
 {% set pull_nodes = node.pull_nodes() %}
 {% set auto_pull_nodes = node.auto_pull_nodes() %}
 
-{% for n in pull_nodes %}
 {% if not embed %}
+{% for n in pull_nodes %}
 <div class="pulled-node auto-pull">
-{% endif %}
 
     <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled by user</span>
     <button class="pull-node auto-pull-button" value="{{n.uri}}">pull</button>
     <div class="pulled-node-embed" id="{{n.uri}}"></div>                           
 
-{% if not embed %}
 </div>
-{% endif %}
 {% endfor %}
+{% endif %}
 
 {% for n in auto_pull_nodes %}
 <div class="pulled-node">

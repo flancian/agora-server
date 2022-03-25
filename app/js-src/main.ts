@@ -163,7 +163,8 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       console.log('pulling node');
-      // now with two methods! you can choose the nerdy one (recursive) in settings.
+      // now with two methods! you can choose the nerdy one (fully recursive) in settings.
+      // doesn't work yet, but I'll fix it :)
       if (pullRecursive) {
         $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
       }

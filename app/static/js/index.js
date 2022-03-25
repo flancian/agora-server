@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"fAMha":[function(require,module,exports) {
+})({"fUv5R":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 35965;
+var HMR_PORT = 1234;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -9725,7 +9725,8 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             this.innerText = 'pulling';
             console.log('pulling node');
-            // now with two methods! you can choose the nerdy one (recursive) in settings.
+            // now with two methods! you can choose the nerdy one (fully recursive) in settings.
+            // doesn't work yet, but I'll fix it :)
             if (pullRecursive) $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
             else $.get(AGORAURL + '/pull/' + node, function(data) {
                 $("#" + node + ".pulled-node-embed").html(data);
@@ -10062,6 +10063,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["fAMha","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["fUv5R","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map
