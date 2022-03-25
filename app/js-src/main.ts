@@ -25,6 +25,7 @@ const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
 const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
 const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false')
 const autoExec = JSON.parse(localStorage["autoExec"] || 'true')
+const pullRecursive = JSON.parse(localStorage["pullRecursive"] || 'false')
 
 document.addEventListener("DOMContentLoaded", function () {
   // Select button
@@ -151,6 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // pull a node from the [[agora]]
   $(".pull-node").click(function (e) {
     let node = this.value;
+
     if (this.classList.contains('pulled')) {
       // already pulled.
       // $(e.currentTarget).nextAll('div').remove()
@@ -161,9 +163,15 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       console.log('pulling node');
-      $.get(AGORAURL + '/pull/' + node, function (data) {
-        $("#" + node + ".pulled-node-embed").html(data);
-      });
+      // now with two methods! you can choose the nerdy one (recursive) in settings.
+      if (pullRecursive) {
+        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
+      }
+      else {
+        $.get(AGORAURL + '/pull/' + node, function (data) {
+          $("#" + node + ".pulled-node-embed").html(data);
+        });
+      }
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -280,38 +288,52 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // pull all button
   $("#pull-all").click(function (e) {
-    this.innerText = 'folding all';
     if (this.classList.contains('pulled')) {
+      console.log('auto folding all!');
       // already pulled.
       $(".pull-node").each(function (e) {
-        console.log('auto folding nodes');
-        this.click();
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding nodes');
+          this.click();
+        }
       });
       $(".pull-mastodon-status").each(function (e) {
-        console.log('auto pulling activity');
-        this.click();
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding activity');
+          this.click();
+        }
       });
       $(".pull-tweet").each(function (e) {
-        console.log('auto pulling tweet');
-        this.click();
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding tweet');
+          this.click();
+        }
       });
+      this.classList.remove('pulled');
       this.innerText = 'pull all';
     }
     else {
       this.innerText = 'pulling all';
-      console.log('auto pulling local resources!');
+      console.log('auto pulling all!');
       $(".pull-node").each(function (e) {
-        console.log('auto pulling nodes');
-        this.click();
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling nodes');
+          this.click();
+        }
       });
       $(".pull-mastodon-status").each(function (e) {
-        console.log('auto pulling activity');
-        this.click();
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling activity');
+          this.click();
+        }
       });
       $(".pull-tweet").each(function (e) {
-        console.log('auto pulling tweet');
-        this.click();
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling tweet');
+          this.click();
+        }
       });
+      this.classList.add('pulled');
       this.innerText = 'fold all';
     }
   });
@@ -322,6 +344,13 @@ document.addEventListener("DOMContentLoaded", function () {
     $(".pull-search").each(function (e) {
       console.log('auto pulling search');
       this.click();
+    });
+
+    // auto pull everything with class auto-pull by default.
+    // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
+    $(".auto-pull-button").each(function (e) {
+      console.log('auto pulling node, trying to press button' + this)
+      this.click()
     });
 
     $(".pushed-subnodes-embed").each(function (e) {
@@ -363,11 +392,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     */
 
-    $(".pull-search").each(function (e) {
-      console.log('auto pulling search');
-      this.click();
-    });
- 
     console.log('executing node: ' + NODENAME)
     req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME)
     console.log('req: ' + req)
@@ -391,7 +415,7 @@ document.addEventListener("DOMContentLoaded", function () {
           this.innerText = 'pulling';
           let url = this.value;
           console.log('pull exec: ' + url)
-          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="600px" allowfullscreen="allowfullscreen"></iframe>')
+          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>')
           this.innerText = 'fold';
           this.classList.add('pulled');
           $(".node-hint").hide();

@@ -140,9 +140,9 @@
       this[globalName] = mainExports;
     }
   }
-})({"c3S8u":[function(require,module,exports) {
+})({"fAMha":[function(require,module,exports) {
 var HMR_HOST = null;
-var HMR_PORT = 46513;
+var HMR_PORT = 35965;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "c22175d22bace513";
 module.bundle.HMR_BUNDLE_ID = "b18644b858a0dfa8"; // @flow
@@ -7240,6 +7240,7 @@ let rawAutoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
 let rawAutoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
 let rawAutoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false');
 let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false');
+let rawRecursive = JSON.parse(localStorage["pullRecursive"] || 'false');
 function processRanking(host, e) {
     host.ranking = e.currentTarget.value.split(",");
     localStorage["ranking"] = JSON.stringify(host.ranking);
@@ -7286,6 +7287,11 @@ function showBrackets() {
     if (localStorage["showBrackets"] && JSON.parse(localStorage["showBrackets"])) return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" checked />\n    </div>\n    `;
     return _hybrids.html`\n    <div>\n        Do you want to render wikilinks with brackets? <input type="checkbox" oninput="${processBrackets}" />\n    </div>\n    `;
 }
+function pullRecursive() {
+    // hack for putting attribute in element
+    if (localStorage["pullRecursive"] && JSON.parse(localStorage["pullRecursive"])) return _hybrids.html`\n    <div>\n        Do you want pulls to be recursive? <input type="checkbox" oninput="${processRecursive}" checked />\n    </div>\n    `;
+    return _hybrids.html`\n    <div>\n        Do you want pulls to be recursive? <input type="checkbox" oninput="${processRecursive}" />\n    </div>\n    `;
+}
 async function processRepoAdd(h, e) {
     let response = await fetch(`${APIBASE}/repo`, {
         method: "PUT",
@@ -7307,7 +7313,8 @@ const Settings = {
     autopullexternal: rawAutoPullExternal,
     autopullstoa: rawAutoPullStoa,
     brackets: rawShowBrackets,
-    render: ({ ranking , autopulllocal , autopullexternal , autopullstoa , brackets , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPullLocal()}\n        ${autoPullExternal()}\n        ${autoPullStoa()}\n        ${showBrackets()}\n        <div>\n            <h1>Add garden to Agora</h1>\n            <div>This feature is <em>experimental</em>, which means it's probably broken :). If this fails, please send your repository information to signup@anagora.org. Thank you!</div>\n            <br>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n				<div>\n					<h1>Gitea Integration Settings</h1>\n					<div>personal token: <input type="text" id="gitea-token" placeholder="${localStorage["gitea-token"]}" /></div>\n					<div>repo name: <input type="text" id="gitea-repo" placeholder="${localStorage["gitea-repo"]}" /></div>\n					<button onClick=saveGitea()>Save</button>\n				</div>\n\n    `
+    recursive: rawRecursive,
+    render: ({ ranking , autopulllocal , autopullexternal , autopullstoa , brackets , recursive , checked , username , repo  })=>_hybrids.html`\n        <div>\n            Enter comma separated list of users to uprank\n            <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />\n        </div>\n        ${autoPullLocal()}\n        ${autoPullExternal()}\n        ${autoPullStoa()}\n        ${showBrackets()}\n        ${pullRecursive()}\n        <div>\n            <h1>Add garden to Agora</h1>\n            <div>This feature is <em>experimental</em>, which means it's probably broken :). If this fails, please send your repository information to signup@anagora.org. Thank you!</div>\n            <br>\n            <div>Preferred agora username <input type="text" oninput="${processUsername}" value="${username || ''}"/></div>\n            <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>\n            <button onclick="${processRepoAdd}">Add repo</button>\n        </div>\n				<div>\n					<h1>Gitea Integration Settings</h1>\n					<div>personal token: <input type="text" id="gitea-token" placeholder="${localStorage["gitea-token"]}" /></div>\n					<div>repo name: <input type="text" id="gitea-repo" placeholder="${localStorage["gitea-repo"]}" /></div>\n					<button onClick=saveGitea()>Save</button>\n				</div>\n\n    `
 };
 function saveGitea() {
     localStorage["gitea-token"] = document.getElementById("gitea-token").value;
@@ -9599,6 +9606,7 @@ const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false');
 const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false');
 const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false');
 const autoExec = JSON.parse(localStorage["autoExec"] || 'true');
+const pullRecursive = JSON.parse(localStorage["pullRecursive"] || 'false');
 document.addEventListener("DOMContentLoaded", function() {
     // Select button
     const btn = document.querySelector(".theme-toggle");
@@ -9717,7 +9725,9 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             this.innerText = 'pulling';
             console.log('pulling node');
-            $.get(AGORAURL + '/pull/' + node, function(data) {
+            // now with two methods! you can choose the nerdy one (recursive) in settings.
+            if (pullRecursive) $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
+            else $.get(AGORAURL + '/pull/' + node, function(data) {
                 $("#" + node + ".pulled-node-embed").html(data);
             });
             this.innerText = 'fold';
@@ -9820,37 +9830,51 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     // pull all button
     $("#pull-all").click(function(e) {
-        this.innerText = 'folding all';
         if (this.classList.contains('pulled')) {
+            console.log('auto folding all!');
             // already pulled.
             $(".pull-node").each(function(e1) {
-                console.log('auto folding nodes');
-                this.click();
+                if (this.classList.contains('pulled')) {
+                    console.log('auto folding nodes');
+                    this.click();
+                }
             });
             $(".pull-mastodon-status").each(function(e1) {
-                console.log('auto pulling activity');
-                this.click();
+                if (this.classList.contains('pulled')) {
+                    console.log('auto folding activity');
+                    this.click();
+                }
             });
             $(".pull-tweet").each(function(e1) {
-                console.log('auto pulling tweet');
-                this.click();
+                if (this.classList.contains('pulled')) {
+                    console.log('auto folding tweet');
+                    this.click();
+                }
             });
+            this.classList.remove('pulled');
             this.innerText = 'pull all';
         } else {
             this.innerText = 'pulling all';
-            console.log('auto pulling local resources!');
+            console.log('auto pulling all!');
             $(".pull-node").each(function(e1) {
-                console.log('auto pulling nodes');
-                this.click();
+                if (!this.classList.contains('pulled')) {
+                    console.log('auto pulling nodes');
+                    this.click();
+                }
             });
             $(".pull-mastodon-status").each(function(e1) {
-                console.log('auto pulling activity');
-                this.click();
+                if (!this.classList.contains('pulled')) {
+                    console.log('auto pulling activity');
+                    this.click();
+                }
             });
             $(".pull-tweet").each(function(e1) {
-                console.log('auto pulling tweet');
-                this.click();
+                if (!this.classList.contains('pulled')) {
+                    console.log('auto pulling tweet');
+                    this.click();
+                }
             });
+            this.classList.add('pulled');
             this.innerText = 'fold all';
         }
     });
@@ -9859,6 +9883,12 @@ document.addEventListener("DOMContentLoaded", function() {
         // auto pull search by default.
         $(".pull-search").each(function(e) {
             console.log('auto pulling search');
+            this.click();
+        });
+        // auto pull everything with class auto-pull by default.
+        // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
+        $(".auto-pull-button").each(function(e) {
+            console.log('auto pulling node, trying to press button' + this);
             this.click();
         });
         $(".pushed-subnodes-embed").each(function(e) {
@@ -9894,11 +9924,7 @@ document.addEventListener("DOMContentLoaded", function() {
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
-    */ $(".pull-search").each(function(e) {
-            console.log('auto pulling search');
-            this.click();
-        });
-        console.log('executing node: ' + NODENAME);
+    */ console.log('executing node: ' + NODENAME);
         req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME);
         console.log('req: ' + req);
         $.get(req, function(data) {
@@ -9919,7 +9945,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     this.innerText = 'pulling';
                     let url = this.value;
                     console.log('pull exec: ' + url);
-                    $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="600px" allowfullscreen="allowfullscreen"></iframe>');
+                    $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
                     this.innerText = 'fold';
                     this.classList.add('pulled');
                     $(".node-hint").hide();
@@ -10036,6 +10062,6 @@ function loadGraph() {
     });
 }
 
-},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["c3S8u","kb3Qw"], "kb3Qw", "parcelRequire94c2")
+},{"jquery":"hVaUM","@parcel/transformer-js/src/esmodule-helpers.js":"dfnIB"}]},["fAMha","kb3Qw"], "kb3Qw", "parcelRequire94c2")
 
 //# sourceMappingURL=index.js.map

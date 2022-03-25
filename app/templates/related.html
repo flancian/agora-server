@@ -15,10 +15,10 @@
 -->
 
 {% set related = node.related() %}
-{% if node and related %}
+{% if node and related and not embed %}
     {% for n in related %}
         {% if n.subnodes %}
-        <div class="node">
+        <div class="pulled-node">
         <span class="node-header">⥅ related node <a href="/{{n.uri}}">[[{{n.description}}]]</a></span> 
         <button class="pull-node" value="{{n.uri}}">pull</button>
         <div class="pulled-node-embed" id="{{n.uri}}"></div>                           
@@ -26,4 +26,3 @@
         {% endif %}
     {% endfor %}
 {% endif %}
-
