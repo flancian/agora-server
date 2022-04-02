@@ -22,7 +22,7 @@
 {% for n in pull_nodes %}
 <div class="pulled-node auto-pull">
 
-    <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled by user</span>
+    <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled above</span>
     <button class="pull-node auto-pull-button" value="{{n.uri}}">pull</button>
     <div class="pulled-node-embed" id="{{n.uri}}"></div>                           
 
@@ -32,7 +32,7 @@
 
 {% for n in auto_pull_nodes %}
 <div class="pulled-node">
-    <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled by Agora</span>
+    <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled by the Agora</span>
 
     {% if n.subnodes %}
     {% for subnode in n.subnodes %}
