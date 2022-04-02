@@ -19,7 +19,7 @@
 :root {
     --accent-bg: #F5F7FF;
     --border: #D8DAE1;
-    --main-bg: #eee;
+    --main-bg: #eeeeee;
 }
 
 body            { color: #000000; overflow-x: hidden;}
@@ -27,16 +27,16 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 .logo           { filter: none; vertical-align: middle; width: 20px; height: 20px; }
 
 .node { 
-    background: #eee; 
+    background: #f0f0f0; 
 }
 
 .subnode, .links, .not-found {
     /*background: #e6ffff; */
-    background: #f7faff;
+    background: #ffffff;
     color: #000;
 }
 
 .pulled-subnode, .pushed-subnode, .search, .search-internet, .stoa-public, .annotations, .delta, .delta-nodes, .delta-annotations, .microblog_timeline { 
-    background: #f4f4f4; 
+    background: #fefefe; 
     color: #000; 
 }

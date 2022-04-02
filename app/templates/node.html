@@ -18,9 +18,9 @@
 <div class="node" id="{{node.uri}}">
     <span class="node-header main-header">📚 node <a href="/{{node}}">[[{{node.qstr}}]]</a></span>
     <div class="not-found subnode" data-author="agora">
-           Welcome to the Agora! <strong>Nobody has written anything in this node yet.</strong> 
+           <p><strong>Nobody has written in '<em>{{node.qstr}}</em>' yet.</strong></p>
            
-           You can:
+           <p>Welcome to the Agora! You can:</p>
 
             <ul>
             <li>
@@ -32,7 +32,7 @@
                 </ul>
             </li> 
             <li>
-                <strong>Write to the Agora from social platforms!</strong>
+                <strong>Write to the Agora from elsewhere!</strong>
                 <ul>
                 <li>
                 If you follow or interact with <a href="/agora-bot">Agora bot</a> on Twitter, Mastodon or Matrix and write the <a href="/wikilink">wikilink</a> [[<a href="/{{node.qstr}}">{{node.qstr}}</a>]] in a post, the Agora will link it here and optionally save a copy of your writing.
@@ -40,7 +40,7 @@
                 </ul>
             </li> 
             <li>
-                <strong><a href="/sign-up">Sign in</a> to contribute your self hosted writing!</strong>
+                <strong><a href="/sign-up">Sign in</a> to contribute your self hosted writing :)</strong>
                 <ul>
                     <li>You can contribute resources straight from your digital gardens, personal wikis and blogs directly into this <a href="/knowledge-commons">knowledge commons</a>.
                     <li>Some setup required :) Please <a href="/agora-discuss">reach out</a> if interested and we'll try to help!</li>
@@ -49,7 +49,7 @@
                 </ul>
             </li>
             </ul>
-           <p><em>The Agora will try to surface related nodes below.</em></p>
+           <p>The Agora will try to surface related nodes below.</p>
     </div>
     <div class="pushed-subnodes-embed">
         <em>Receiving pushes... (requires JavaScript)</em>
@@ -74,7 +74,7 @@
     {% else %}
     <span class="node-header main-header">📚 node <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a></span>
     {% endif %} 
-    {% endif %}
+{% endif %}
 
     {% for subnode in node.subnodes %}
     <div class="subnode" data-author="{{subnode.user}}">
