@@ -39,8 +39,8 @@ def before_request():
 
 @bp.after_request
 def after_request(response):
-    exectime = time.time() - g.start
-    now = datetime.datetime.now()
+    exectime = round(time.time() - g.start, 2)
+    now = datetime.datetime.now().replace(microsecond=0)
 
     if ((response.response) and
         (200 <= response.status_code < 300) and
