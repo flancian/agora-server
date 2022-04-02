@@ -58,6 +58,10 @@ img {
     height: auto;
 }
 
+li img {
+    vertical-align: top;
+}
+
 .page {
     margin: 2em auto;
     width: 35em;

@@ -256,18 +256,17 @@ def add_obsidian_embeds(content, subnode):
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
 def add_logseq_embeds(content, subnode):
-    LOGSEQ_REGEX = re.compile(r'!\[.+?\]\((.+?)\)')
-    LOGSEQ_EMBED=f'<a href="/raw/garden/{subnode.user}/\\1"><img class="image-embed" src="/raw/garden/{subnode.user}/\\1"></img><p class="obsidian-embed"></a>⥅ [[\\1]]</p>'
+    LOGSEQ_REGEX = re.compile(r'(\./assets/.*)')
+    LOGSEQ_FIX=f'/raw/garden/{subnode.user}/\\1'
     # also include something like this to move to a lazily loaded div?
     #<script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
-    content = re.sub(LOGSEQ_REGEX, LOGSEQ_EMBED, content)
-    content = re.sub(r'../', '', content)
+    content = re.sub(LOGSEQ_REGEX, LOGSEQ_FIX, content)
     return content
 
 def preprocess(content, subnode=''):
     # add_logseq_embeds breaks links everywhere, there's an issue with the regex :)
     # filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_logseq_embeds, add_obsidian_embeds, add_url_pull, add_twitter_pull]
-    filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_obsidian_embeds, add_url_pull, add_twitter_pull, add_mastodon_pull, add_pleroma_pull]
+    filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_obsidian_embeds, add_logseq_embeds, add_url_pull, add_twitter_pull, add_mastodon_pull, add_pleroma_pull]
     for f in filters:
         content = f(content, subnode)
     return content
