@@ -45,7 +45,12 @@ class WikilinkRendererMixin(object):
     # This name is magic; it must match render_<class_name_in_snake_case>.
     def render_wikilink_element(self, element):
         if '|' in element.target:
-            first, second = element.target.split('|')
+            try:
+                first, second = element.target.split('|')
+            except ValueError: 
+                # probably more than one pipe; not supported for now
+                first = element.target
+                second = element.target
             target = util.canonical_wikilink(first.rstrip())
             label = second.lstrip()
             return f'<span class="wikilink-marker">[[</span><a href="{target}" title="[[{element.target}]]" class="wikilink">{label}</a><span class="wikilink-marker">]]</span>'
@@ -115,28 +120,36 @@ def add_twitter_embeds(content, subnode):
 def add_twitter_pull(content, subnode):
     # negative lookbehind tries to only match twitter links not preceded by a ", which would be there if the URL is being used as part of an <a href="..."> tag (adding an embed in that case using regexes would break the link).
     # https://www.regular-expressions.info/lookaround.html if you're wondering how this works.
-    if 'subnode/virtual' in subnode.url:
+    if subnode and 'subnode/virtual' in subnode.url:
         # trouble at the mill.
         # virtual subnodes are prerendered by virtue of how they are generated (from the final html)
         # they should be "pre cooked".
         return content 
 
     TWITTER_REGEX=r'(?<!")(https://twitter.com/\w+/status/[0-9]+)'
-    TWITTER_EMBED=r'\1 // <button class="pull-tweet" value=\1>pull</button>'
+    TWITTER_EMBED=r'\1 <button class="pull-tweet" value=\1>pull</button>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 def add_mastodon_pull(content, subnode):
+    if subnode and 'subnode/virtual' in subnode.url:
+        # as per the above.
+        return content
+
     # hack: negative lookbehind tries to only match for anchors not preceded by a span... just because in the agora we have 
     # spans just preceding every anchor that is a wikilink.
     if re.search(r'(?<!</span>)<a href', content):
         # don't apply filters when content has html links that are not result of a wikilink.
         # this works around a bug in some org mode translated files we have.
-        return content
-    MASTODON_REGEX='(https://[a-zA-Z-.]+/web/statuses/[0-9]+)'
-    MASTODON_REGEX_ALT='(https://[a-zA-Z-.]+/@\w+/[0-9]+)'
-    MASTODON_EMBED='\\1 <button class="pull-mastodon-status" value="\\1">pull</button>'
-    ret = re.sub(MASTODON_REGEX, MASTODON_EMBED, content)
-    ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, ret)
+        pass
+
+    # MASTODON_REGEX='(https://[a-zA-Z-.]+/web/statuses/[0-9]+)'
+    # negative lookbehind tries to avoid adding a pull button when the link is
+    #  1. quoted, which likely means it's part of an anchor
+    #  2. preceded by a square bracket, which likely means it's an org mode (?) or mycorrhiza style link.
+    MASTODON_REGEX_ALT=r'(?<!["[])(https://[a-zA-Z-.]+/@\w+/[0-9]+)'
+    MASTODON_EMBED=r'\1 <button class="pull-mastodon-status" value="\1">pull</button>'
+    ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, content)
+    # ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, ret)
     return ret
 
 def add_pleroma_pull(content, subnode):
@@ -204,6 +217,11 @@ def trim_block_anchors(content, subnode):
     BLOCK_ANCHOR_REGEX = r'\^[0-9-]+$'
     return re.sub(BLOCK_ANCHOR_REGEX, '', content, flags=re.MULTILINE)
 
+# Trim Logseq :LOGBOOK: .. :END: blocks until we do something useful with them
+def trim_logbook(content, subnode):
+    LOGBOOK_REGEX = r':LOGBOOK:.*?:END:'
+    return re.sub(LOGBOOK_REGEX, '', content, flags=re.MULTILINE + re.DOTALL)
+
 # Trim liquid templates (Jekyll stuff) until we do something useful with them.
 def trim_liquid(content, subnode):
     LIQUID_REGEX = r'{%.*?%}'
@@ -237,15 +255,26 @@ def add_obsidian_embeds(content, subnode):
     #<script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
+def add_logseq_embeds(content, subnode):
+    LOGSEQ_REGEX = re.compile(r'(\./assets/.*)')
+    LOGSEQ_FIX=f'/raw/garden/{subnode.user}/\\1'
+    # also include something like this to move to a lazily loaded div?
+    #<script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
+    content = re.sub(LOGSEQ_REGEX, LOGSEQ_FIX, content)
+    return content
+
 def preprocess(content, subnode=''):
-    filters = [trim_front_matter, trim_block_anchors, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_obsidian_embeds, add_url_pull, add_twitter_pull]
+    # add_logseq_embeds breaks links everywhere, there's an issue with the regex :)
+    # filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_logseq_embeds, add_obsidian_embeds, add_url_pull, add_twitter_pull]
+    filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_obsidian_embeds, add_logseq_embeds, add_url_pull, add_twitter_pull, add_mastodon_pull, add_pleroma_pull]
     for f in filters:
         content = f(content, subnode)
     return content
 
 def postprocess(content, subnode=''):
     # filters = [add_twitter_embeds]
-    filters = [add_mastodon_pull, add_pleroma_pull]
+    # these all ended up moving to preprocess() -- might mean there's not a need for postprocessing overall?
+    filters = []
     for f in filters:
         content = f(content, subnode)
     return content

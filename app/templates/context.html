@@ -1,13 +1,8 @@
-<div class="context">
-    <span class="context-header">⥱ context</span><br />
+<!-- <div class="context"> now meant to be loaded async through /context/x -->
+<span class="context-header">⥱ context for <a href="/{{node}}">[[{{node.qstr}}]]</a></span>
 
-    {% if render_graph %}
-    
-        {% include "graph.html" %}
+{% include "graph.html" %}
 
-    {% endif %}
+{% include "links.html" %}
 
-    {% include "links.html" %}
-
-</div>
 

@@ -15,57 +15,68 @@
 -->
 
 {% if not node.subnodes and not node.pushed_subnodes() %}
-<div class="node">
-    <span class="node-header main-header">📚 node <a href="/{{node}}">[[{{qstr}}]]</a></span>
+{% if not embed %}
+<div class="node" id="{{node.uri}}">
+    <span class="node-header main-header">📚 node <a href="/{{node}}">[[{{node.qstr}}]]</a></span>
+{% endif %}
     <div class="not-found subnode" data-author="agora">
-           Welcome! <strong>Nobody has contributed anything to '{{qstr}}' yet.</strong> You can:
+           <p><strong>Nobody has written in '<em>{{node.qstr}}</em>' yet.</strong></p>
+           
+           <p>Welcome to the Agora! You can:</p>
 
             <ul>
             <li>
-                <strong>Write something in the document below!</strong>
+                <strong>Write something here!</strong>
                 <ul>
                 <li>
-                There is at least one public document in every node in the Agora. 
-                Whatever you write in it will be integrated and made available for the next 
-                visitor to read and edit.
+                There should be at least one public document for you to write in anywhere in the Agora. Look for it in the Stoas section below :)
                 </li>
                 </ul>
             </li> 
             <li>
-                <strong>Write to the Agora from social media</strong>.
+                <strong>Write to the Agora elsewhere!</strong>
                 <ul>
                 <li>
-                If you follow <a href="/agora-bot">Agora bot</a> on a supported platform and include the <a href="/wikilink">wikilink</a> <code>[[{{qstr}}]]</code> in a post, 
-                the Agora will link it here and optionally integrate your writing.
+                If you interact with an <a href="/agora-bot">Agora bot</a> on Twitter, Mastodon or Matrix and mention a <a href='/wikilink'>wikilink</a> like [[<a href="/{{node.qstr}}">{{node.qstr}}</a>]], the Agora will try to link your post in the matching nodes and optionally save a copy of your writing.
                 </li>
                 </ul>
             </li> 
             <li>
-                <a href="/sign-up"><strong>Sign up as a full Agora user</strong></a>.
+                <strong><a href="/sign-up">Sign in</a> to contribute your self hosted writing :)</strong>
                 <ul>
-                <li>
-                As a full user you will be able to contribute your personal notes and resources directly to this <a href="/knowledge-commons">knowledge commons</a>.
-                Some setup required :)
+                    <li>You can contribute resources directly from your blog, digital garden or personal wiki into this <a href="/knowledge-commons">knowledge commons</a>.
+                    <li>Some setup required :) Please <a href="/agora-discuss">reach out</a> if interested and we'll try to help!</li>
+                </ul>
                 </li>
                 </ul>
             </li>
             </ul>
+           <p>The Agora will try to surface related nodes below.</p>
     </div>
-</div>
-{% endif %}
+    <div class="pushed-subnodes-embed">
+        <em>Receiving pushes... (requires JavaScript)</em>
+        <!-- removed from the sync rendering path as this is expensive (i.e. slow).
+        interested clients can call GET /push/x to get all subnodes being pushed to x.
+
+        some day maybe: POST/PUT to it to push ;)
+        -->
+    </div>
+
+{% endif %} <!-- node without subnodes -->
+<!-- node div left open to share context code with the next case -->
 
 {% if node.subnodes or node.pushed_subnodes() %}
 {% if not embed %}
-<div class="node">
+<div class="node" id="{{node.uri}}">
 
     {% if subnode %}
-    <span class="node-header main-header">📕 subnode <a href="/{{qstr}}">[[{{qstr}}]]</a>
+    <span class="node-header main-header">📕 subnode <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a>
     in 📚 node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
     </span>
     {% else %}
-    <span class="node-header main-header">📚 node <a href="/{{node.uri}}">[[{{qstr}}]]</a></span>
+    <span class="node-header main-header">📚 node <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a></span>
     {% endif %} 
-    {% endif %}
+{% endif %}
 
     {% for subnode in node.subnodes %}
     <div class="subnode" data-author="{{subnode.user}}">
@@ -73,15 +84,17 @@
             <span class="subnode-id">
                 <a href="/@{{subnode.user}}/{{node.uri}}">📓</a>
                 <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                        href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span>
+                        href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span> 
                 </span>
                 </a>
             </span>
             <span class="subnode-contrib">
+                {% if subnode.web %}
+                <a href="{{subnode.web}}" title="view in website" style="text-decoration: none;">️👁</a>
+                {% endif %}
                 {% if subnode.edit %}
                 <a href="{{subnode.edit}}" title="edit" style="text-decoration: none;">️📝</a>
                 {% endif %}
-
                 {% if subnode.support %}
                 <a href="{{subnode.support}}" title="support">🤗</a>
                 {% endif %}
@@ -93,22 +106,20 @@
     </div>
     {% endfor %}
 
-    {% if node.pushed_subnodes() %}
-    {% for subnode in node.pushed_subnodes() %}
-    <div class="pushed-subnode">
-        <div class="subnode-header">
-            <span class="subnode-id"><a href="/@{{subnode.user}}/{{subnode.wikilink}}">📄</a>
-                <span class="subnode-links">pushed from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                        href="/@{{subnode.user}}">@{{subnode.user}}</a></span></span>
-        </div>
-        <ul>
-            {{ subnode.render()|linkify|safe }}
-        </ul>
-    </div>
-    {% endfor %}
-    {% endif %}
+{% endif %} <!-- node with subnodes -->
 
     {% if not embed %}
-</div>
-{% endif %}
-{% endif %}
+    <div class="pushed-subnodes-embed">
+        <em>Receiving pushes... (requires JavaScript)</em>
+        <!-- removed from the sync rendering path as this is expensive (i.e. slow).
+        interested clients can call GET /push/x to get all subnodes being pushed to x.
+
+        some day maybe: POST/PUT to it to push ;)
+        -->
+    </div>
+    {% endif %}
+
+{% include "pulled.html" %}
+{% include "related.html" %}
+
+</div> <!-- closes node div-->

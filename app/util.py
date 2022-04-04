@@ -83,22 +83,21 @@ slugify = canonical_wikilink
 
 @lru_cache(maxsize=None)
 def canonical_date(wikilink):
-    date = parser.get_date_data(wikilink).date_obj
+    # this is best effort, returns the wikilink for non-dates (check before you use).
     try:
-        wikilink = date.isoformat().split("T")[0]
-    except:
-        pass
-
-    return wikilink
+        date = parser.get_date_data(wikilink, date_formats=['%Y-%m-%d', '%Y_%m_%d', '%Y%m%d']).date_obj
+        return date.isoformat().split("T")[0]
+    except AttributeError:
+        return wikilink
 
 
 @lru_cache(maxsize=1)  #memoize this
 def get_combined_date_regex():
     date_regexes = [
-        # iso format
-        '[0-9]{4}.[0-9]{2}.[0-9]{2}$',
+        # iso format, lax
+        '[0-9]{4}.?[0-9]{2}.?[0-9]{2}',
         # week format
-        '[0-9]{4}-W'
+        '[0-9]{4}-W',
         # roam format (what a monstrosity!)
         '(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}(st|nd|th), [0-9]{4}',
         # roam format (after filename sanitization)

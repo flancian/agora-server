@@ -16,13 +16,91 @@
 {% extends "base.html" %}
 {% block content %}
 <div>
-    {% if header %}
-    <h1> {{header}} </h1>
-    {% endif %}
+	{% if header %}
+	<h1> {{header}} </h1>
+	{% endif %}
 
 
-<settings-form></settings-form>
+	<div id="form-body"></div>
+
+
 </div>
 
-{% endblock %}
 
+
+
+<script>
+console.log("form js")
+const ranking = ""
+const form = `
+
+<div>
+	<div>
+		Enter comma separated list of users to uprank
+		<input id="ranking" type="text" placeholder="e.g. flancian, vera" value="${ranking}" />
+	</div>
+	<div>
+		Do you want to auto pull Agora resources? <input id="auto-pull-agora" type="checkbox"  />
+	</div>
+	<div>
+		Do you want to auto pull external resources? <input id="auto-pull-external"  type="checkbox"   />
+	</div>
+	<div>
+		Do you want to auto pull the Stoa? <input id="auto-pull-stoa"  type="checkbox"  />
+	</div>
+	<div>
+		Do you want to render wikilinks with brackets? <input id="render-wikilinks"  type="checkbox"  />
+	</div>
+	<div>
+		Do you want to use recursive pulls within the Agora (advanced)? <input id="pull-recursive"  type="checkbox"  />
+	</div>
+	<button onClick=saveSettings()>Save</button>
+</div>
+
+	<div>
+	<h1>Adding your digital garden or wiki to the Agora</h1>
+	Please review <a href="CONTRACT">this instance's contract</a> to verify you are in agreement and then send your repository information and desired username via email to signup@anagora.org. 
+	We are working on making this process less manual :)
+	Thank you!</div>
+	</div>
+
+<div>
+	<h1>Gitea Integration Settings</h1>
+	<div>This feature currently only works with repositories in <a href="https://git.anagora.org">git.anagora.org</a> and is <em>experimental</em>, which means it's probably broken -- but being worked on :) </div>
+	<div>First create a repository in the instance if you don't have one, then <a href='https://git.anagora.org/user/settings/applications'>create an access token here</a>.</div>
+	<div>personal token: <input type="text" id="gitea-token" size=60 value="${localStorage["gitea-token"]}" /></div>
+	<div>repo name: <input type="text" id="gitea-repo" value="${localStorage["gitea-repo"]}" /></div>
+	<button onClick=saveGitea()>Save</button>
+</div>
+
+`
+$("#form-body").html(form)
+
+setValues()
+
+function setValues(){
+	$("#ranking").val(localStorage["ranking"])
+	$("#auto-pull-agora").prop("checked", JSON.parse(localStorage["auto-pull-agora"]))
+	$("#auto-pull-external").prop("checked", JSON.parse(localStorage["auto-pull-external"]))
+	$("#auto-pull-stoa").prop("checked", JSON.parse(localStorage["auto-pull-stoa"]))
+	$("#render-wikilinks").prop("checked", JSON.parse(localStorage["render-wikilinks"]))
+	$("#pull-recursive").prop("checked", JSON.parse(localStorage["pull-recursive"]))
+}
+
+function saveGitea(){
+		localStorage["gitea-token"] = document.getElementById("gitea-token").value
+		localStorage["gitea-repo"] = document.getElementById("gitea-repo").value
+}
+
+function saveSettings(){
+		localStorage["ranking"] = document.getElementById("ranking").value
+		localStorage["auto-pull-agora"] = document.getElementById("auto-pull-agora").checked
+		localStorage["auto-pull-external"] = document.getElementById("auto-pull-external").checked
+		localStorage["auto-pull-stoa"] = document.getElementById("auto-pull-stoa").checked
+		localStorage["render-wikilinks"] = document.getElementById("render-wikilinks").checked
+		localStorage["pull-recursive"] = document.getElementById("pull-recursive").checked
+}
+</script>
+
+
+{% endblock %}

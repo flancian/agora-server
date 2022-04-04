@@ -23,7 +23,9 @@ WIKILINK = re.compile(r'\[\[ *(.+?) *\]\]')
 TIDDLYLINK = re.compile(r'\[([^\]]+?)\]\(#([^\)]+?)\)', re.MULTILINE)
 
 # Hashtags
-HASHTAG = re.compile(r'#(.+?)\b')
+# Negative lookbehind is needed to prevent matching html entities:
+# https://github.com/flancian/agora-server/issues/39
+HASHTAG = re.compile(r'(?<!&)#(.+?)\b')
 
 
 # TODO: move action extractor regex here as well.

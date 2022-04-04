@@ -39,8 +39,8 @@ def before_request():
 
 @bp.after_request
 def after_request(response):
-    exectime = time.time() - g.start
-    now = datetime.datetime.now()
+    exectime = round(time.time() - g.start, 2)
+    now = datetime.datetime.now().replace(microsecond=0)
 
     if ((response.response) and
         (200 <= response.status_code < 300) and
@@ -53,23 +53,11 @@ def after_request(response):
 
 # The [[agora]] is a [[distributed knowledge graph]].
 # Nodes are the heart of the [[agora]].
-# In the [[agora]] there are no 404s. Everything that can be described with words has a node in the [[agora]].
-# The [[agora]] is in some ways thus a [[search engine]]: anagora.org/agora-search
-#
-# Flask routes work so that the one closest to the function is the canonical one.
-
-@bp.route('/wikilink/<node>')
-@bp.route('/node/<node>/uprank/<user_list>')
-@bp.route('/node/<node>')
-@bp.route('/<node>/uprank/<user_list>')
-@bp.route('/<node>.<extension>')
-@bp.route('/<node>')
-def node(node, extension='', user_list=''):
-
+def build_node(node, extension='', user_list=''):
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
     # default uprank: system account and maintainers
     # TODO: move to config.py
-    rank = ['agora', 'flancian', 'vera', 'neil']
+    rank = ['agora', 'flancian', 'vera', 'neil', 'maya', 'Jayu']
     if user_list:
         # override rank
         if ',' in user_list:
@@ -105,30 +93,47 @@ def node(node, extension='', user_list=''):
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
-    qstr = request.args.get('q') 
-    if not qstr: 
+    n.qstr = request.args.get('q') 
+    if not n.qstr: 
         # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
-        qstr = n.wikilink.replace('-', ' ')
-
+        n.qstr = n.wikilink.replace('-', ' ')
     # search_subnodes = db.search_subnodes(node)
+    n.q = n.qstr
 
     current_app.logger.debug(f'[[{node}]]: Assembled node.')
+    return n
+
+# In the [[agora]] there are no 404s. Everything that can be described with words has a node in the [[agora]].
+# The [[agora]] is in some ways thus a [[search engine]]: anagora.org/agora-search
+#
+# Flask routes work so that the one closest to the function is the canonical one.
+@bp.route('/wikilink/<node>')
+@bp.route('/node/<node>/uprank/<user_list>')
+@bp.route('/node/<node>')
+@bp.route('/<node>/uprank/<user_list>')
+@bp.route('/<node>.<extension>')
+@bp.route('/<node>')
+def node(node, extension='', user_list=''):
+
+    n = build_node(node, extension=extension, user_list=user_list)
+
     return render_template(
             # yuck
             'content.html', 
             node=n,
-            back_nodes=n.back_nodes(),
-            pull_nodes=n.pull_nodes() if n.subnodes else [],
-            auto_pull_nodes=n.auto_pull_nodes() if current_app.config['ENABLE_AUTO_PULL'] else [],
-            forward_nodes=n.forward_nodes() if n else [],
-            search=[],
-            pulling_nodes=n.pulling_nodes(),
-            pushing_nodes=n.pushing_nodes(),
+            #back_nodes=n.back_nodes(),
+            #pull_nodes=n.pull_nodes() if n.subnodes else [],
+            #auto_pull_nodes=n.auto_pull_nodes() if current_app.config['ENABLE_AUTO_PULL'] else [],
+            #related_nodes=n.related() if current_app.config['ENABLE_AUTO_PULL'] else [],
+            #forward_nodes=n.forward_nodes() if n else [],
+            #search=[],
+            #pulling_nodes=n.pulling_nodes(),
+            #pushing_nodes=n.pushing_nodes(),
             # the q part of the query string -- can be forwarded to other sites, expected to preserve all information we got from the user.
-            q=urllib.parse.quote_plus(qstr),
+            #q=urllib.parse.quote_plus(n.qstr),
             # the decoded q parameter in the query string or inferred human-readable query for the slug. it should be ready for rendering.
-            qstr=qstr,
-            render_graph=True if n.back_nodes() or n.subnodes else False,
+            #qstr=n.qstr,
+            #render_graph=True if n.back_nodes() or n.subnodes else False,
             config=current_app.config,
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
             # sorry for the fuzzy thinking but I'm short on time and want to get things done.
@@ -186,17 +191,19 @@ def subnode(node, user):
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
-    qstr = request.args.get('q') 
+    n.qstr = request.args.get('q') 
 
-    if not qstr: 
+    if not n.qstr: 
         # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
-        qstr = n.wikilink.replace('-', ' ')
+        n.qstr = n.wikilink.replace('-', ' ')
+
+    n.qstr=f'@{user}/'+n.wikilink.replace('-', ' ')
+    n.q = n.qstr
 
     return render_template(
         'content.html',
         node=n,
         subnode=f'@{user}/'+n.wikilink,
-        qstr=f'@{user}/'+n.wikilink.replace('-', ' '),
     )
 
 # Special
@@ -211,10 +218,13 @@ def index():
 @bp.route('/delta')
 @bp.route('/latest')
 def latest():
+    n = build_node('latest')
     return render_template('delta.html',
                            header="Recent deltas",
                            subnodes=db.latest(),
-                           annotations=feed.get_latest())
+                           annotations=feed.get_latest(),
+                           node=n
+                           )
 
 @bp.route('/random')
 def random():
@@ -245,11 +255,12 @@ def tomorrow():
 
 @bp.route('/regexsearch', methods=('GET', 'POST'))
 def regexsearch():
+    n = build_node('regexsearch')
     """mostly deprecated in favour of jump-like search, left around for now though."""
     form = forms.SearchForm()
     if form.validate_on_submit():
-        return render_template('regexsearch.html', form=form, subnodes=db.search_subnodes(form.query.data))
-    return render_template('regexsearch.html', form=form)
+        return render_template('regexsearch.html', form=form, subnodes=db.search_subnodes(form.query.data), node=n)
+    return render_template('regexsearch.html', form=form, node=n)
 
 
 @bp.route('/ctzn-login')
@@ -265,27 +276,14 @@ def go(node):
     """Redirects to the URL in the given node in a block that starts with [[go]], if there is one."""
     # TODO(flancian): all node-scoped stuff should move to actually use node objects.
 
-    node = urllib.parse.unquote_plus(node)
-    node = util.slugify(node)
-    try:
-        n = db.nodes_by_wikilink(node)
-    except KeyError:
-        return redirect(f'https://anagora.org/{node}')
-
-    if len(n) > 1:
-        current_app.logger.warning(
-            'nodes_by_wikilink returned more than one node, should not happen.')
-
-    if len(n) == 0:
-        # No nodes with this name -- redirect to node 404.
-        return redirect(f'https://anagora.org/{node}')
+    n = build_node(node)
 
     # we should do ranking :)
-    links = n[0].go()
+    links = n.go()
     if len(links) == 0:
         # No go links detected in this node -- just redirect to the node.
         # TODO(flancian): flash an explanation :)
-        return redirect(f'https://anagora.org/{node}')
+        return redirect(f"{current_app.config['URL_BASE']}/{node}")
 
     if len(links) > 1:
         # TODO(flancian): to be implemented.
@@ -306,38 +304,46 @@ def composite_go(node0, node1):
     # TODO(flancian): make [[go]] call this?
     # current_app.logger.debug = print
     current_app.logger.debug(f'running composite_go for {node0}, {node1}.')
-    try:
-        n0 = db.nodes_by_wikilink(node0)
-        current_app.logger.debug(f'n0: {n0}')
-        n1 = db.nodes_by_wikilink(node1)
-        current_app.logger.debug(f'n1: {n1}')
-    except KeyError:
-        pass
-        # return redirect("https://anagora.org/%s" % node0)
+    n0 = build_node(node0)
+    n1 = build_node(node1)
 
     base = current_app.config['URL_BASE']
-    if len(n0) == 0 and len(n1) == 0:
-        # No nodes with either names.
-        # Redirect to the composite node, which might exist -- or in any case will provide relevant search.
-        current_app.logger.debug(f'redirect 1')
-        return redirect(f'{base}/{node0}-{node1}')
+    if not n0.subnodes and not n1.subnodes:
+        # No content in either node.
+        # Redirect to the first node.
+        current_app.logger.debug(f'redirect in composite')
+        return redirect(f'{base}/{node0}')
 
     links = []
-    if len(n0) != 0:
-        links.extend(n0[0].filter(node1))
+    if n0.subnodes:
+        links.extend(n0.subnodes[0].filter(node1))
         current_app.logger.debug(
             f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
 
-    if len(n1) != 0:
-        links.extend(n1[0].filter(node0))
+    if n1.subnodes:
+        links.extend(n1.subnodes[0].filter(node0))
         current_app.logger.debug(
             f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
 
     if len(links) == 0:
-        # No matching links found.
-        # Redirect to composite node, which might exist and provides search.
+        # No matching links found so far.
+        # Try using also pushed_subnodes(), which are relative expensive (slow) to compute.
+
+        if n0.pushed_subnodes():
+            links.extend(n0.pushed_subnodes()[0].filter(node1))
+            current_app.logger.debug(
+                f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
+
+        if n1.pushed_subnodes():
+            links.extend(n1.pushed_subnodes()[0].filter(node0))
+            current_app.logger.debug(
+                f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
+
+    if len(links) == 0:
+        # No matching links found after all tries.
+        # Redirect to the first node.
         # TODO(flancian): flash an explanation :)
-        return redirect(f'{base}/{node0}-{node1}')
+        return redirect(f'{base}/{node0}')
 
     if len(links) > 1:
         # TODO(flancian): to be implemented.
@@ -347,46 +353,57 @@ def composite_go(node0, node1):
 
     return redirect(links[0])
 
-
 @bp.route('/push/<node>/<other>')
-def push(node, other):
+def push2(node, other):
+    # OLD, maybe unused?
     n = G.node(node)
     o = G.node(other)
     pushing = n.pushing(o)
+    # This is a list of VirtualSubnodes now, which make sense but doesn't work here.
+    # TODO: do something useful.
 
     return Response(pushing)
+
+@bp.route('/push/<node>')
+def push(node):
+    # returns by default an html view for the 'pushing here' section / what is being received in associated feeds
+    n = build_node(node)
+
+    return render_template(
+            'push.html', 
+            pushed_subnodes=n.pushed_subnodes(),
+            embed=True,
+            node=n,
+            )
+
+@bp.route('/context/<node>')
+def context(node):
+    # returns by default an html view for the 'context' section: graph, links (including pushes, which can be costly)
+    n = build_node(node)
+
+    return render_template(
+            'context.html', 
+            embed=True,
+            node=n,
+            )
 
 # good for embedding just node content.
 @bp.route('/pull/<node>')
 def pull(node):
     current_app.logger.debug(f'pull [[{node}]]: Assembling node.')
+    n = build_node(node)
     # default uprank: system account and maintainers
     # TODO: move to config.py
     rank = ['agora', 'flancian', 'vera', 'neil']
 
-    n = copy(G.node(node))
-
-    if n.subnodes:
-        # earlier in the list means more highly ranked.
-        n.subnodes = util.uprank(n.subnodes, users=rank)
-
-    current_app.logger.debug(f'[[{node}]]: Assembled node.')
     return render_template(
             # yuck
             'content.html', 
             node=n,
             embed=True,
-            backlinks=n.back_links(),
-            pull_nodes=n.pull_nodes() if n.subnodes else [],
-            forwardlinks=n.forward_links() if n else [],
-            search=[],
-            pulling_nodes=n.pulling_nodes(),
-            pushing_nodes=n.pushing_nodes(),
-            q=n.wikilink.replace('-', '%20'),
-            qstr=n.wikilink.replace('-', ' '),
-            render_graph=False,
             config=current_app.config,
             )
+
 
 # for embedding search (at bottom of node).
 @bp.route('/fullsearch/<qstr>')
@@ -401,10 +418,6 @@ def fullsearch(qstr):
             node=qstr,
             search=search_subnodes
             )
-
-def pull(node, other):
-    n = G.node(node)
-    return Response(pushing)
 
 
 # This receives whatever you type in the mini-cli up to the top of anagora.org.
@@ -448,7 +461,6 @@ def search():
 
 @bp.route('/subnode/<path:subnode>')
 def old_subnode(subnode):
-    print(subnode)
     return render_template('subnode.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
 
 
@@ -457,9 +469,12 @@ def old_subnode(subnode):
 @bp.route('/node/@<user>')  # so that [[@flancian]] works.
 @bp.route('/@<user>')
 def user(user):
+    n = build_node(user)
+    n.qstr='@' + n.qstr
     return render_template('user.html', user=db.User(user), readmes=db.user_readmes(user), 
         subnodes=db.subnodes_by_user(user, sort_by='node', reverse=False),
-        latest=db.subnodes_by_user(user, sort_by='mtime', reverse=True)[:100]
+        latest=db.subnodes_by_user(user, sort_by='mtime', reverse=True)[:100],
+        node=n
         )
 
 
@@ -478,10 +493,11 @@ def garden(garden):
 # Lists
 @bp.route('/nodes')
 def nodes():
+    n = build_node('nodes')
     if current_app.config['ENABLE_STATS']:
-        return render_template('nodes.html', nodes=db.top(), stats=db.stats())
+        return render_template('nodes.html', nodes=db.top(), node=n, stats=db.stats())
     else:
-        return render_template('nodes.html', nodes=db.top(), stats=None)
+        return render_template('nodes.html', nodes=db.top(), node=n, stats=None)
 
 
 @bp.route('/nodes.json')
@@ -496,16 +512,11 @@ def similar_json(term):
     return jsonify(nodes)
 
 
-@bp.route('/notes')  # alias
-@bp.route('/subnodes')
-def subnodes():
-    return render_template('subnodes.html', subnodes=G.subnodes())
-
-
 @bp.route('/@')
 @bp.route('/users')
 def users():
-    return render_template('users.html', users=db.all_users())
+    n = build_node('users')
+    return render_template('users.html', users=db.all_users(), node=n)
 
 
 @bp.route('/users.json')
@@ -516,6 +527,7 @@ def users_json():
 
 @bp.route('/journal/<user>')
 def user_journal(user):
+    n = build_node(user)
     return render_template('subnodes.html', header="Journals for user", subnodes=db.user_journals(user))
 
 @bp.route('/journal/<user>.json')
@@ -532,13 +544,17 @@ def journals_feed():
 @bp.route('/journals/', defaults={'entries': None})
 @bp.route('/journals', defaults={'entries': None})
 def journals(entries):
+    n = build_node('journals')
+    if entries:
+        n.qstr=f"journals/{entries}"
     if not entries:
+        n.qstr=f"journals"
         entries = current_app.config['JOURNAL_ENTRIES']
     elif entries == 'all':
         entries = 2000000 # ~ 365 * 5500 ~ 3300 BC
     else:
         entries = int(entries)
-    return render_template('journals.html', qstr=f"journals/{entries}", header=f"Journals for the last {entries} days with entries", nodes=db.all_journals()[0:entries])
+    return render_template('journals.html', node=n, header=f"Journals for the last {entries} days with entries", nodes=db.all_journals()[0:entries])
 
 
 @bp.route('/journals.json')
@@ -568,7 +584,8 @@ def backlinks(node):
 
 @bp.route('/settings')
 def settings():
-    return render_template('settings.html', header="Settings")
+    n = build_node('settings')
+    return render_template('settings.html', header="Settings", node=n)
 
 
 @bp.route('/search.xml')
@@ -603,3 +620,12 @@ def proposal(user,node):
         vote_options=vote_options,
         vote_counts=json.dumps(vote_counts)
     )
+
+
+@bp.route('/api/callback')
+def callback():
+	print("ACCESS TOKEN FROM GITEA")
+	print(request.values['code'])
+	return f'TOKEN {request.values["code"]}<script>alert("{request.values["code"]}")</script>'
+
+# https://git.anagora.org/login/oauth/authorize?client_id=f88fe801-c51b-456e-ac20-2a967555cec0&redirect_uri=http://localhost:5000/api/callback&response_type=code

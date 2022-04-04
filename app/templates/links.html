@@ -16,14 +16,14 @@
 
 <div class="links">
     {% if subnode %}
-    To see links, go up to full node <a href="/{{node.uri}}">[[{{node.uri}}]]</a>.
+    To see links, go up to full node <a href="/{{node.qstr}}">[[{{node.uri}}]]</a>.
     {% else %}
     <div class="links-flex">
         <div class="backlinks">
             <span class="backlinks-header">← back</span><br />
-        {% if back_nodes %}
-            {% for node in back_nodes %}
-            <a href="/{{node.uri}}">{{node.description}}</a><br />
+        {% if node.back_nodes %}
+            {% for n in node.back_nodes() %}
+            <a href="/{{n.uri}}">{{n.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -33,9 +33,9 @@
 
         <div class="pushlinks">
             <span class="pushlinks-header">↑ pushing here</span><br />
-        {% if pushing_nodes %}
-            {% for node in pushing_nodes %}
-            <a href="/{{node.uri}}">{{node.description}}</a><br />
+        {% if node.pushing_nodes %}
+            {% for n in node.pushing_nodes() %}
+            <a href="/{{n.uri}}">{{n.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -45,9 +45,9 @@
 
         <div class="pulllinks">
         <span class="pulllinks-header">↓ pulling this</span><br />
-        {% if pulling_nodes %}
-            {% for node in pulling_nodes %}
-            <a href="/{{node.uri}}">{{node.description}}</a><br />
+        {% if node.pulling_nodes %}
+            {% for n in node.pulling_nodes() %}
+            <a href="/{{n.uri}}">{{n.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)
@@ -58,9 +58,9 @@
 
         <div class="forwardlinks">
         <span class="forwardlinks-header">→ forward</span><br />
-        {% if forward_nodes %}
-            {% for node in forward_nodes %}
-            <a href="/{{node.uri}}">{{node.description}}</a><br />
+        {% if node.forward_nodes %}
+            {% for n in node.forward_nodes() %}
+            <a href="/{{n.uri}}">{{n.description}}</a><br />
             {% endfor %}
         {% else %}
             (none)

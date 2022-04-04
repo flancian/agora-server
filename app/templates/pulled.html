@@ -1,14 +1,46 @@
-{% for node in pull_nodes %}
-<div class="node">
-    <span class="node-header">⥅ related node <a href="/{{node.uri}}">[[{{node.uri}}]]</a> pulled by user</span>
 
-    {% if node.subnodes %}
-    {% for subnode in node.subnodes %}
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+{% set pull_nodes = node.pull_nodes() %}
+{% set auto_pull_nodes = node.auto_pull_nodes() %}
+
+{% if not embed %}
+{% for n in pull_nodes %}
+<div class="pulled-node auto-pull">
+
+    <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled above</span>
+    <button class="pull-node auto-pull-button" value="{{n.uri}}">pull</button>
+    <div class="pulled-node-embed" id="{{n.uri}}"></div>                           
+
+</div>
+{% endfor %}
+{% endif %}
+
+{% for n in auto_pull_nodes %}
+<div class="pulled-node">
+    <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled by the Agora</span>
+
+    {% if n.subnodes %}
+    {% for subnode in n.subnodes %}
 
     <div class="pulled-subnode" data-author="{{subnode.user}}">
         <div class="subnode-header">
             <span class="subnode-id"><a
-                    href="/@{{subnode.user}}/{{node.uri}}">📓</a>
+                    href="/@{{subnode.user}}/{{n.uri}}">📓</a>
             <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
                     href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></span></a></span>
         </div>

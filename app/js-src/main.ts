@@ -21,10 +21,11 @@ import { SingleEntryPlugin } from "webpack";
 
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
-const autoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
-const autoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
-const autoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false')
-const autoExec = JSON.parse(localStorage["autoExec"] || 'true')
+const autoPullLocal = JSON.parse(localStorage["auto-pull-local"] || 'false')
+const autoPullExternal = JSON.parse(localStorage["auto-pull-external"] || 'false')
+const autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || 'false')
+const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
+const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'false')
 
 document.addEventListener("DOMContentLoaded", function () {
   // Select button
@@ -151,6 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // pull a node from the [[agora]]
   $(".pull-node").click(function (e) {
     let node = this.value;
+
     if (this.classList.contains('pulled')) {
       // already pulled.
       // $(e.currentTarget).nextAll('div').remove()
@@ -161,9 +163,16 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       console.log('pulling node');
-      $.get(AGORAURL + '/pull/' + node, function (data) {
-        $("#" + node + ".pulled-node-embed").html(data);
-      });
+      // now with two methods! you can choose the nerdy one (fully recursive) in settings.
+      // doesn't work yet, but I'll fix it :)
+      if (pullRecursive) {
+        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
+      }
+      else {
+        $.get(AGORAURL + '/pull/' + node, function (data) {
+          $("#" + node + ".pulled-node-embed").html(data);
+        });
+      }
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -180,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulling';
       let qstr = this.value;
       $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
-        $("#pulled-search.pulled-search-embed").html('<br />' + data);
+        $("#pulled-search.pulled-search-embed").html(data);
       });
       this.classList.add('pulled');
       this.innerText = 'fold';
@@ -250,7 +259,18 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   // pull a mastodon status (toot) using the roughly correct way IIUC.
   $(".pull-mastodon-status").click(function (e) {
-    statusContent(this)
+    if (this.classList.contains('pulled')) {
+      div = $(e.currentTarget).nextAll('.mastodon-embed')
+      div.remove()
+      this.innerText = 'pull';
+      this.classList.remove('pulled');
+    }
+    else {
+        this.innerText = 'pulling';
+        statusContent(this)
+        this.classList.add('pulled');
+        this.innerText = 'fold';
+    }
   });
 
   // pull a pleroma status (toot) using the laziest way I found, might be a better one
@@ -267,19 +287,117 @@ document.addEventListener("DOMContentLoaded", function () {
     window.location.replace(url);
   });
 
+  // pull all button
+  $("#pull-all").click(function (e) {
+    if (this.classList.contains('pulled')) {
+      console.log('auto folding all!');
+      // already pulled.
+      $(".pull-node").each(function (e) {
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding nodes');
+          this.click();
+        }
+      });
+      $(".pull-mastodon-status").each(function (e) {
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding activity');
+          this.click();
+        }
+      });
+      $(".pull-tweet").each(function (e) {
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding tweet');
+          this.click();
+        }
+      });
+      this.classList.remove('pulled');
+      this.innerText = 'pull all';
+    }
+    else {
+      this.innerText = 'pulling all';
+      console.log('auto pulling all!');
+      $(".pull-node").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling nodes');
+          this.click();
+        }
+      });
+      $(".pull-mastodon-status").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling activity');
+          this.click();
+        }
+      });
+      $(".pull-tweet").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling tweet');
+          this.click();
+        }
+      });
+      this.classList.add('pulled');
+      this.innerText = 'fold all';
+    }
+  });
+
   if (autoExec) {
+    console.log('autoexec is enabled')
     // auto pull search by default.
     $(".pull-search").each(function (e) {
       console.log('auto pulling search');
       this.click();
     });
- 
-    console.log('autoexec is enabled')
+
+    // auto pull everything with class auto-pull by default.
+    // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
+    $(".auto-pull-button").each(function (e) {
+      console.log('auto pulling node, trying to press button' + this)
+      this.click()
+    });
+
+    $(".pushed-subnodes-embed").each(function (e) {
+      // auto pull pushed subnodes by default.
+      // it would be better to infer this from node div id?
+      let node = NODENAME
+      let id = "#" + node + " .pushed-subnodes-embed";
+      console.log('auto pulling pushed subnodes, will write to id: ' + id);
+      $.get(AGORAURL + '/push/' + node, function (data) {
+        $(id).html(data);
+      });
+      // end auto pull pushed subnodes.
+      console.log('auto pulled pushed subnodes, hopefully :)');
+    });
+
+    $(".context").each(function (e) {
+      // auto pull context by default.
+      // it would be better to infer this from node div id?
+      let node = NODENAME
+      let id = '.context'
+      console.log('auto pulling context, will write to id: ' + id);
+      $.get(AGORAURL + '/context/' + node, function (data) {
+        $('.context').html(data);
+      });
+      // end auto pull pushed subnodes.
+      console.log('auto pulled pushed subnodes, hopefully :)');
+    });
+
+
+
+    /*
+      this.innerText = 'pulling';
+      console.log('pulling node');
+      $.get(AGORAURL + '/pull/' + node, function (data) {
+        $("#" + node + ".pulled-node-embed").html(data);
+      });
+      this.innerText = 'fold';
+      this.classList.add('pulled');
+    }
+    */
+
     console.log('executing node: ' + NODENAME)
     req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME)
     console.log('req: ' + req)
     $.get(req, function (data) {
-      console.log('html: ' + data)
+      // console.log('html: ' + data)
       embed = $(".topline-search").after(data);
 
       // figure out how to do this without code repetition -- ask [[vera]]?
@@ -298,7 +416,7 @@ document.addEventListener("DOMContentLoaded", function () {
           this.innerText = 'pulling';
           let url = this.value;
           console.log('pull exec: ' + url)
-          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="600px" allowfullscreen="allowfullscreen"></iframe>')
+          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>')
           this.innerText = 'fold';
           this.classList.add('pulled');
           $(".node-hint").hide();

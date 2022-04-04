@@ -1,0 +1,15 @@
+{% if pushed_subnodes %}
+    {% for subnode in pushed_subnodes %}
+    <div class="pushed-subnode">
+        <div class="subnode-header">
+            <span class="subnode-id"><a href="/@{{subnode.user}}/{{subnode.wikilink}}">📄</a>
+                <span class="subnode-links">pushed from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
+                        href="/@{{subnode.user}}">@{{subnode.user}}</a></span></span>
+        </div>
+        <ul>
+            {{ subnode.render()|linkify|safe }}
+        </ul>
+    </div>
+    {% endfor %}
+{% endif %}
+

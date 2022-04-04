@@ -17,8 +17,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans&display=swap');
 
+:root {
+    --main-bg: #000;
+}
+
 html            { font-family: 'Noto Sans', sans-serif}
-body            { background: #000000; color: #bfbfbf; overflow-x: hidden;}
+body            { background: var(--main-bg); color: #bfbfbf; overflow-x: hidden;}
 a               { color: #9fc6e0; }
 h1, h2          { color: #bfbfbf; }
 h1, h2          { font-family: 'Merriweather Sans'; margin-top: 0.2em; margin-bottom: 0.2em;}
@@ -68,6 +72,17 @@ nav             { font-family: sans-serif}
     border-radius: 20px;
     padding: 10px;
 }
+
+.pulled-node {
+    /*border-color: #7f5af0;*/
+    border-color: gray;
+    border-style: dashed;
+    margin: 10px; 
+    border-radius: 20px;
+    padding: 10px;
+}
+
+
 
 .subnode, .links, .not-found {
     background: #12091a;

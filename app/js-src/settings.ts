@@ -23,6 +23,7 @@ let rawAutoPullLocal = JSON.parse(localStorage["autoPullLocal"] || 'false')
 let rawAutoPullExternal = JSON.parse(localStorage["autoPullExternal"] || 'false')
 let rawAutoPullStoa = JSON.parse(localStorage["autoPullStoa"] || 'false')
 let rawShowBrackets = JSON.parse(localStorage["showBrackets"] || 'false')
+let rawRecursive = JSON.parse(localStorage["pullRecursive"] || 'false')
 
 function processRanking(host, e) {
     host.ranking = e.currentTarget.value.split(",")
@@ -108,6 +109,20 @@ function showBrackets(){
     `
 }
 
+function pullRecursive(){
+    // hack for putting attribute in element
+    if(localStorage["pullRecursive"] && JSON.parse(localStorage["pullRecursive"])) return html`
+    <div>
+        Do you want pulls to be recursive? <input type="checkbox" oninput="${processRecursive}" checked />
+    </div>
+    `
+    return html`
+    <div>
+        Do you want pulls to be recursive? <input type="checkbox" oninput="${processRecursive}" />
+    </div>
+    `
+}
+
 async function processRepoAdd(h, e,){
     let response = await fetch(`${APIBASE}/repo`, {
         method: "PUT",
@@ -126,7 +141,8 @@ const Settings = {
     autopullexternal: rawAutoPullExternal,
     autopullstoa: rawAutoPullStoa,
     brackets: rawShowBrackets,
-    render: ({ ranking, autopulllocal, autopullexternal, autopullstoa, brackets, checked, username, repo }) => html`
+    recursive: rawRecursive,
+    render: ({ ranking, autopulllocal, autopullexternal, autopullstoa, brackets, recursive, checked, username, repo }) => html`
         <div>
             Enter comma separated list of users to uprank
             <input type="text" placeholder="e.g. flancian, vera" oninput="${processRanking}" value="${ranking}" />
@@ -135,6 +151,7 @@ const Settings = {
         ${autoPullExternal()}
         ${autoPullStoa()}
         ${showBrackets()}
+        ${pullRecursive()}
         <div>
             <h1>Add garden to Agora</h1>
             <div>This feature is <em>experimental</em>, which means it's probably broken :). If this fails, please send your repository information to signup@anagora.org. Thank you!</div>
@@ -143,8 +160,19 @@ const Settings = {
             <div>Repo git url <input type="text" oninput="${processRepo}", value="${repo || ''}"/></div>
             <button onclick="${processRepoAdd}">Add repo</button>
         </div>
+				<div>
+					<h1>Gitea Integration Settings</h1>
+					<div>personal token: <input type="text" id="gitea-token" placeholder="${localStorage["gitea-token"]}" /></div>
+					<div>repo name: <input type="text" id="gitea-repo" placeholder="${localStorage["gitea-repo"]}" /></div>
+					<button onClick=saveGitea()>Save</button>
+				</div>
 
     `
+}
+
+function saveGitea(){
+		localStorage["gitea-token"] = document.getElementById("gitea-token").value
+		localStorage["gitea-repo"] = document.getElementById("gitea-repo").value
 }
 
 define('settings-form', Settings);

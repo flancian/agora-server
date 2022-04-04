@@ -24,6 +24,7 @@
 
     --accent-bg: #2B2B2B;
     --border: #666;
+    --main-bg: #000;
 }
 
 html {
@@ -36,7 +37,7 @@ html {
 }
 
 body {
-    background: #000000;
+    background: var(--main-bg);
     color: #bfbfbf;
     overflow-x: hidden;
     max-width: 60em;
@@ -55,6 +56,10 @@ nav {
 img {
     max-width: 100%;
     height: auto;
+}
+
+li img {
+    vertical-align: top;
 }
 
 .page {
@@ -175,13 +180,11 @@ h6 {
     border-radius: 20px;
     padding: 10px;
     */
-    margin-bottom: 10px;
 }
 
 .navigation-links {
     vertical-align: middle;
     overflow-y: auto;
-    margin-bottom: 10px;
 }
 
 .topline-node {
@@ -224,7 +227,8 @@ input[type="text"] {
 }
 
 .topline-agora {
-    display: block;
+    display: flex;
+    justify-content: space-between;
     vertical-align: middle;
     /* does not work, will be removed shortly */
     overflow-y: auto;
@@ -245,11 +249,9 @@ input[type="text"] {
     width: 100%;
 }
 
-
 #mini-cli {
     width: 100%;
 }
-
 
 /*
 @media screen and (min-width: 900px) {
@@ -279,6 +281,18 @@ input[type="text"] {
     /*border-radius: 20px;*/
     padding: 10px;
 }
+
+.pulled-node {
+    /*border-color: #7f5af0;*/
+    border-color: gray;
+    border-width: 1px;
+    border-style: dotted;
+    /*border-style: dotted;*/
+    margin: 10px;
+    /*border-radius: 20px;*/
+    padding: 10px;
+}
+
 
 .image-embed {
     display: block;

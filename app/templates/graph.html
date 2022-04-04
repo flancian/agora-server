@@ -20,6 +20,8 @@
     console.log("loading graph...")
     fetch("{{config['URL_BASE']}}/graph/json/{{node.uri}}").then(res => res.json()).then(data => {
     const container = document.getElementById('graph');
+    const currentTheme = localStorage.getItem("theme");
+    const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
     /*
     
     const Graph = ForceGraph()(container)
@@ -61,7 +63,7 @@
           const textWidth = ctx.measureText(label).width;
           const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
 
-          ctx.fillStyle = 'rgba(50, 50, 50, 1)';
+          ctx.fillStyle = backgroundColor;
           ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
 
           ctx.textAlign = 'center';

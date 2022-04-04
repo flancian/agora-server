@@ -92,28 +92,42 @@ class Graph:
 				nodes = [node for node in G.nodes(only_canonical=True).values() if node.wikilink in permutations and node.subnodes]
 				return nodes
 
-		def related_nodes(self, uri):
-				# currently just looks for nodes which are related to the tokenized uri.
-				# should find plurals/missing middle initials/more general terms.
-				regex = '.*' + re.escape(uri.replace('-', '.*')) + '.*'
-				current_app.logger.debug(f'*** Looking for related nodes to {uri} with regex {regex}.')
-				nodes = [node for node in G.nodes(only_canonical=True).values() if 
-										node.subnodes and
-										node.uri!= uri and
-										re.match(regex, node.wikilink)
-								]
-				current_app.logger.debug(f'*** Found related nodes: {nodes}.')
-				return nodes
+    def match(self, regex):
+        # returns a list of nodes reasonably matching a regex.
+        current_app.logger.debug(f'*** Looking for nodes matching {regex}.')
+        nodes = [node for node in G.nodes(only_canonical=True).values() if 
+                    # has some content
+                    node.subnodes and
+                    # its wikilink matches the regex
+                    re.match(regex, node.wikilink)
+                ]
+        current_app.logger.debug(f'*** Found related nodes: {nodes}.')
+        return nodes
 
-		# @cache.memoize(timeout=30)
-		@cachetools.func.ttl_cache(ttl=60)
-		def nodes(self, include_journals=True, only_canonical=True):
-				# this is where a lot of the 'magic' happens -- this coalesces subnodes into nodes.
-				# most node lookups in the Agora just look up a node in this list.
-				# this is expensive but less so than subnodes().
-				begin = datetime.datetime.now()
-				current_app.logger.debug('*** Loading nodes at {begin}.')
-				# returns a list of all nodes
+    def search(self, regex):
+        # returns a list of nodes reasonably freely matching a regex.
+        current_app.logger.debug(f'*** Looking for nodes matching {regex} freely.')
+        nodes = [node for node in G.nodes(only_canonical=True).values() if 
+                    # has some content
+                    node.subnodes and
+                    # its wikilink matches the regex
+                    re.search(regex, node.wikilink)
+                ]
+        current_app.logger.debug(f'*** Found related nodes: {nodes}.')
+        return nodes
+
+    # @cache.memoize(timeout=30)
+    @cachetools.func.ttl_cache(ttl=60)
+    def nodes(self, include_journals=True, only_canonical=True):
+        # this is where a lot of the 'magic' happens.
+        # this:
+        #   - reads and coalesces (integrates) [[subnodes]] into [[nodes]] 
+        #   - ocassionally provides some code-generated utility by virtue of provisioning [[virtual subnodes]]
+        # most node lookups in the Agora just look up a node in this list.
+        # this is expensive but less so than subnodes().
+        begin = datetime.datetime.now()
+        current_app.logger.debug('*** Loading nodes at {begin}.')
+        # returns a list of all nodes
 
 				# first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
 				# hack hack -- there's probably something in itertools better than this?
@@ -152,28 +166,30 @@ class Graph:
 						pushed_subnodes = node.pushed_subnodes()
 						node.subnodes.extend(pushed_subnodes)
 
-		# does this belong here?
-		# @cache.memoize(timeout=30)
-		@cachetools.func.ttl_cache(ttl=60)
-		def subnodes(self, sort=lambda x: x.uri.lower()):
-				# this is where the magic happens (?)
-				# as in -- this is where the rubber meets the road.
-				# as of [[2022-01-28]] this takes about 20s to run with an Agora of about 17k subnodes.
-				# which makes caching important :)
-				begin = datetime.datetime.now()
-				current_app.logger.debug(f'*** Loading subnodes at {begin}.')
-				base = current_app.config['AGORA_PATH']
-				# Markdown.
-				subnodes = [Subnode(f) for f in glob.glob(os.path.join(base, '**/*.md'), recursive=True)]
-				# Org mode.
-				# This should check for files, this blows up for directories like doc.anagora.org, so only globbing for garden for now.
-				subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.org'), recursive=True)])
-				# Image formats.
-				subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpg'), recursive=True)])
-				subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpeg'), recursive=True)])
-				subnodes.extend([Subnode(f, mediatype='image/png') for f in glob.glob(os.path.join(base, '**/*.png'), recursive=True)])
-				subnodes.extend([Subnode(f, mediatype='image/gif') for f in glob.glob(os.path.join(base, '**/*.gif'), recursive=True)])
-				subnodes.extend([Subnode(f, mediatype='image/webp') for f in glob.glob(os.path.join(base, '**/*.webp'), recursive=True)])
+    # does this belong here?
+    # @cache.memoize(timeout=30)
+    @cachetools.func.ttl_cache(ttl=60)
+    def subnodes(self, sort=lambda x: x.uri.lower()):
+        # this is where the magic happens (?)
+        # as in -- this is where the rubber meets the road.
+        # as of [[2022-01-28]] this takes about 20s to run with an Agora of about 17k subnodes.
+        # which makes caching important :)
+        begin = datetime.datetime.now()
+        current_app.logger.debug(f'*** Loading subnodes at {begin}.')
+        base = current_app.config['AGORA_PATH']
+        # Markdown.
+        subnodes = [Subnode(f) for f in glob.glob(os.path.join(base, '**/*.md'), recursive=True)]
+        # Org mode.
+        # This should check for files, this blows up for directories like doc.anagora.org, so only globbing for garden for now.
+        subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.org'), recursive=True)])
+        # [[mycorrhiza]]
+        subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.myco'), recursive=True)])
+        # Image formats.
+        subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpg'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpeg'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/png') for f in glob.glob(os.path.join(base, '**/*.png'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/gif') for f in glob.glob(os.path.join(base, '**/*.gif'), recursive=True)])
+        subnodes.extend([Subnode(f, mediatype='image/webp') for f in glob.glob(os.path.join(base, '**/*.webp'), recursive=True)])
 
 				end = datetime.datetime.now()
 				current_app.logger.debug(f'*** Loaded subnodes from {begin} to {end}.')
@@ -233,12 +249,23 @@ class Node:
 		def size(self):
 				return len(self.subnodes)
 
+<<<<<<< HEAD
 		def go(self):
 				# There's surely a much better way to do this. Alas :)
 				links = []
 				for subnode in self.subnodes:
 						links.extend(subnode.go())
 				return links 
+=======
+    def go(self):
+        # There's surely a much better way to do this. Alas :)
+        links = []
+        # worried about pushed_subnodes() speed -- perhaps measure?
+        # for subnode in self.subnodes + self.pushed_subnodes():
+        for subnode in self.subnodes:
+            links.extend(subnode.go())
+        return links 
+>>>>>>> main
 
 		def filter(self, other):
 				# There's surely a much better way to do this. Alas :)
@@ -271,23 +298,52 @@ class Node:
 						nodes.extend(subnode.pull_nodes())
 				return sorted(set(nodes), key=lambda x: x.uri)
 
-		def auto_pull_nodes(self):
-				banned_nodes = ['agora', 'go', 'pull', 'push']
-				nodes = []
-				nodes.extend(G.related_nodes(self.uri))
-				for subnode in self.subnodes:
-						nodes.extend(subnode.auto_pull_nodes())
-				# for node in self.back_links():
-				#     nodes.append(G.node(node))
-				for node in self.pushing_nodes():
-						nodes.append(node)
-				for node in self.pulling_nodes():
-						nodes.append(node)
-				nodes = [node for node in nodes if node not in self.pull_nodes() and node.uri not in banned_nodes]
-				# bug: for some reason set() doesn't dedup here, even though I've checked and the hash from duplicate nodes is identical (!).
-				# test case: [[hypha]].
-				ret = sorted(set(nodes), key=lambda x: x.uri)
-				return ret
+    def auto_pull_nodes(self):
+        # note that this essentially does [[node ranking]].
+        # for [[user ranking]], see util.py and agora.py.
+        banned_nodes = ['agora', 'go', 'pull', 'push']
+        nodes = []
+        # TODO: check that this includes [[virtual subnodes]].
+        # auto pull any subnode-specific includes.
+        for subnode in self.subnodes:
+            nodes.extend(subnode.auto_pull_nodes())
+        # there are too many of these often, let's try without being so aggressive for a bit.
+        # note you need to 'build' these here as back_links currently returns links and not nodes.
+        # for node in self.back_links():
+        #     nodes.append(G.node(node))
+
+        # too noisy and full text search seems to provide more utility on my use cases, disabling for now.
+        # nodes = [node for node in nodes if node not in self.pull_nodes() and node.uri not in banned_nodes]
+
+        # this should add at least things like equivalent dates.
+        nodes.extend(self.equivalent())
+
+        # bug: for some reason set() doesn't dedup here, even though I've checked and the hash from duplicate nodes is identical (!).
+        # test case: [[hypha]].
+        ret = sorted(set(nodes), key=lambda x: x.uri)
+        return ret
+
+    def related_nodes(self):
+        # note that this essentially does [[node ranking]].
+        # for [[user ranking]], see util.py and agora.py.
+        banned_nodes = ['agora', 'go', 'pull', 'push']
+        nodes = []
+        # there are too many of these often, let's try without being so aggressive for a bit.
+        # note you need to 'build' these here as back_links currently returns links and not nodes.
+        # for node in self.back_links():
+        #     nodes.append(G.node(node))
+
+        # this should add at least things like equivalent dates.
+        nodes.extend(self.related())
+
+        # I think [[push]] and [[pull]] are fair game as they mean an [[agora]] user has thought these were strongly related.
+        nodes.extend(self.pushing_nodes())
+        nodes.extend(self.pulling_nodes())
+        
+        # bug: for some reason set() doesn't dedup here, even though I've checked and the hash from duplicate nodes is identical (!).
+        # test case: [[hypha]].
+        ret = sorted(set(nodes), key=lambda x: x.uri)
+        return ret
 
 		def pulling_nodes(self):
 				# the nodes pulling *this* node.
@@ -298,12 +354,36 @@ class Node:
 								nodes.append(n)
 				return nodes
 
-		def push_nodes(self):
-				# nodes pushed to from this node.
-				links = []
-				for subnode in self.subnodes:
-						links.extend(subnode.push_nodes())
-				return sorted(set(links))
+    def equivalent(self):
+        # nodes that are really pretty much "the same as" this one, e.g. different representations for the same date/time or edit distance (within a useful window)
+        nodes = []
+        # too aggressive
+        # regex = '.*' + re.escape(uri.replace('-', '.*')) + '.*'
+
+        # the slug/uri assumption here is a hack, points in the direction of cleanup.
+        # this should probably work based on tokens, which are available... somewhere?
+        # hmm, probably providers.py.
+        # too much for 'equivalence'? probably somewhere in 'related': prefix match.
+        # regex = re.escape(uri.replace('-', '.*')) + '.*'
+        # should cover different date formats :)
+        regex = re.sub(r'[-_ ]', '.?', self.uri) + '$'
+        nodes.extend([node for node in G.match(regex) if node.uri != self.uri])
+        return nodes
+
+    def related(self):
+        # nodes that are probably heavily related; right now it does fuzzy prefix matching.
+        # same caveats as for equivalent() :)
+        nodes = []
+        regex = re.sub(r'[-_ ]', '.*', self.uri)
+        nodes.extend([node for node in G.search(regex) if node.uri != self.uri and node.uri not in [x.uri for x in self.pull_nodes()]])
+        return nodes
+
+    def push_nodes(self):
+        # nodes pushed to from this node.
+        links = []
+        for subnode in self.subnodes:
+            links.extend(subnode.push_nodes())
+        return sorted(set(links))
 
 		def pushing_nodes(self):
 				# the nodes pushing to *this* node.
@@ -387,12 +467,18 @@ class Node:
 		def back_links(self):
 				return sorted([x.wikilink for x in self.back_nodes()])
 
-		def pushed_subnodes(self):
-				subnodes = []
-				for node in self.pushing_nodes():
-						for subnode in node.pushing(self):
-								subnodes.append(subnode)
-				return subnodes
+    def pushed_subnodes(self):
+        # returning long lists here makes the Agora slow as each of these requires processing.
+        # better to only call this in async paths to keep basic node rendering fast.
+        subnodes = []
+        for node in self.pushing_nodes():
+            for subnode in node.pushing(self):
+                subnodes.append(subnode)
+        return subnodes
+
+    def annotations(self):
+        annotations = feed.get_by_uri(self.actual_uri)
+        return annotations
 
 		def annotations(self):
 				annotations = feed.get_by_uri(self.actual_uri)
@@ -413,24 +499,34 @@ class Subnode:
 				self.uri: str = path_to_uri(path)
 				self.url = '/subnode/' + self.uri
 
-				self.edit_path = self.uri.split('/')[-1]
-				# Subnodes are attached to the node matching their wikilink.
-				# i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
-				# will often have spaces; not lossy (or as lossy as the filesystem)
-				self.wikilink = path_to_wikilink(path)
-				# essentially a slug.
-				self.canonical_wikilink = util.canonical_wikilink(self.wikilink)
-				self.user = path_to_user(path)
-				self.user_config = User(self.user).config
-				if self.user_config:
-						self.support = self.user_config.get('support', False)
-						self.edit: Union[str, False] = self.user_config.get('edit', False)
-						if self.edit:
-								# for edit paths with {path}
-								self.edit = self.edit.replace("{path}", self.edit_path)
-								# for edit paths with {slug}
-								# hack hack, the stoa doesn't expect an .md extension so we just cut out the extension from the path for now.
-								self.edit = self.edit.replace("{slug}", self.edit_path[:-3])
+        # Subnodes are attached to the node matching their wikilink.
+        # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
+        # will often have spaces; not lossy (or as lossy as the filesystem)
+        self.wikilink = path_to_wikilink(path)
+        # essentially a slug.
+        self.canonical_wikilink = util.canonical_wikilink(self.wikilink)
+        self.user = path_to_user(path)
+        self.user_config = User(self.user).config
+        if self.user_config:
+            try:
+                self.edit_path = os.path.join(*self.uri.split('/')[2:])
+            except TypeError:
+                current_app.logger.debug(f'{self.uri} resulted in no edit_path')
+            self.support = self.user_config.get('support', False)
+            self.edit: Union[str, False] = self.user_config.get('edit', False)
+            self.web: Union[str, False] = self.user_config.get('web', False)
+            if self.edit:
+                # for edit paths with {path}
+                self.edit = self.edit.replace("{path}", self.edit_path)
+                # for edit paths with {slug}
+                # hack hack, the stoa doesn't expect an .md extension so we just cut out the extension from the path for now.
+                self.edit = self.edit.replace("{slug}", self.edit_path[:-3])
+            if self.web:
+                # same as the above but for views
+                # for web paths with {path}
+                self.web = self.web.replace("{path}", self.edit_path)
+                # for web paths with {slug}
+                self.web = self.web.replace("{slug}", self.edit_path[:-3])
 
 				self.mediatype = mediatype
 
@@ -475,26 +571,31 @@ class Subnode:
 				# hack hack
 				return 100-fuzz.ratio(self.wikilink, other.wikilink)
 
-		@cachetools.func.ttl_cache(ttl=60)
-		def render(self):
-				if self.mediatype != 'text/plain':
-						# hack hack
-						return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /> <br />'.format(self.uri)
-				# ugly, this should be in render
-				content = render.preprocess(self.content, subnode=self)
-				# this breaks pull buttons
-				# content = bleach.clean(content)
-				if self.uri.endswith('md') or self.uri.endswith('MD'):
-						try:
-								content = render.markdown(content)
-						except:
-								content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
-								current_app.logger.error(f'Subnode could not be loaded in {self} (Heisenbug).')
-				if self.uri.endswith('org') or self.uri.endswith('ORG'):
-						content = render.orgmode(content)
-				# ugly, this too
-				ret = render.postprocess(content)
-				return ret
+    @cachetools.func.ttl_cache(ttl=60)
+    def render(self):
+        if self.mediatype != 'text/plain':
+            # hack hack
+            return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /> <br />'.format(self.uri)
+        if 'subnode/virtual' in self.url:
+            # virtual subnodes should come pre-rendered (as they were extracted post-rendering from other subnodes)
+            return self.content
+        # ugly, this should be in render.py?
+        content = render.preprocess(self.content, subnode=self)
+        # this breaks pull buttons
+        # content = bleach.clean(content)
+        # hack: parse [[mycorrhiza]] as Markdown for [[melanocarpa]] while we work on better support.
+        if self.uri.endswith('md') or self.uri.endswith('MD') or self.uri.endswith('myco'):
+            try:
+                content = render.markdown(content)
+            except:
+                # which exception exactly? this should be improved.
+                content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
+                current_app.logger.exception(f'Subnode could not be loaded in {self} (Heisenbug).')
+        if self.uri.endswith('org') or self.uri.endswith('ORG'):
+            content = render.orgmode(content)
+        # ugly, this too
+        ret = render.postprocess(content)
+        return ret
 
 		def raw(self):
 				return content
@@ -587,16 +688,14 @@ class Subnode:
 
 				return [G.node(node) for node in pull_nodes]
 
-		def auto_pull_nodes(self):
-				"""
-				volunteers nodes beyond the explicitly pulled (as per the above).
-				default policy is all links.
-				"""
-				try:
-						pull_nodes = content_to_forward_links(self.content)
-				except TypeError:
-						return []
-				return [G.node(node) for node in pull_nodes]
+    def auto_pull_nodes(self):
+        """
+        volunteers nodes beyond the explicitly pulled (as per the above).
+        """
+        nodes = []
+        # default policy used to be all links -- now disabled.
+        # nodes.extend(self.pull_nodes())
+        return nodes
 
 
 		@cachetools.func.ttl_cache(ttl=60)
@@ -726,14 +825,19 @@ def path_to_wikilink(path):
 		return os.path.splitext(os.path.basename(path))[0]
 
 def content_to_forward_links(content):
-		# hack hack.
-		match = regexes.WIKILINK.findall(content)
-		if match:
-				# Work around broken forward links due to org mode convention I didn't think of.
-				# TODO: make link parsing format-aware.
-				return [util.canonical_wikilink(m) for m in match if '][' not in m]
-		else:
-				return []
+    # hack hack.
+    match = regexes.WIKILINK.findall(content)
+    links = []
+    if match:
+        # TODO: make link parsing format-aware.
+        links = []
+        for m in match:
+            # Work around broken forward links due to org mode convention I didn't think of.
+            if '][' not in m:
+                links.append(util.canonical_wikilink(m))
+            else:
+                continue
+    return links
 
 def content_to_obsidian_embeds(content):
 		# hack hack.
@@ -770,13 +874,18 @@ def user_journals(user):
 		nodes = [node for node in subnodes_by_user(user) if util.is_journal(node.wikilink)]
 		return sorted(nodes, key=attrgetter('wikilink'), reverse=True)
 
-def all_journals():
-		# hack hack.
-		# we could presumably have a more efficient nodes_by_regex? but it might be benchmark-level.
-		nodes = G.nodes()
-		nodes = [node for node in nodes.values() if util.is_journal(node.wikilink)]
-		r = sorted(nodes, key=attrgetter('wikilink'), reverse=True)
-		return r
+    ret = sorted(nodes, key=datekey, reverse=True)
+    if skip_future:
+        def quiet_strptime(s, format):
+            try:
+                return datetime.datetime.strptime(s, format)
+            except ValueError:
+                return False
+
+        import datetime
+        now = datetime.datetime.now() + datetime.timedelta(days=1)
+        ret = [node for node in ret if quiet_strptime(node.wikilink, '%Y-%m-%d') and quiet_strptime(node.wikilink, '%Y-%m-%d') < now]
+    return ret
 
 def random_node():
 		nodes = list(G.nodes().values())
@@ -786,7 +895,6 @@ def random_node():
 def nodes_by_wikilink(wikilink):
 		nodes = [node for node in G.nodes().values() if node.wikilink == wikilink]
 		return nodes
-
 # Deprecated.
 def wikilink_to_node(node):
 		try:
