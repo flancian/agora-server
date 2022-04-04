@@ -74,6 +74,8 @@ def add_node(node: db.Node, g: Graph, only_forward=False):
             URIRef(f"{base}/{n1}"),
         ))
 
+	
+
 def turtle_node(node) -> str:
 
     base = current_app.config['URL_BASE']

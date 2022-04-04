@@ -522,6 +522,12 @@ def user_journal(user):
 def user_journal_json(user):
     return jsonify(jsons.dump(db.user_journals(user)))
 
+@bp.route('/feed/journals')
+def journals_feed():
+	nodes = db.all_journals()[0:30]
+	n = db.consolidate_nodes(nodes)
+	n.subnodes.reverse()
+	return Response(feed.rss(n), mimetype='application/rss+xml')
 @bp.route('/journals/<entries>')
 @bp.route('/journals/', defaults={'entries': None})
 @bp.route('/journals', defaults={'entries': None})
