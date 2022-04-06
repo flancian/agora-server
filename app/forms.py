@@ -17,6 +17,6 @@ from wtforms import StringField, TextField, SubmitField
 from wtforms.validators import DataRequired, Length
 
 class SearchForm(FlaskForm):
-		"""Search form."""
-		query = StringField('Query', [DataRequired()])
-		submit = SubmitField('Search')
+	"""Search form."""
+	query = StringField('Query', [DataRequired()])
+	submit = SubmitField('Search')

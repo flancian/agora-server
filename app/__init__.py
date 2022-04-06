@@ -26,60 +26,60 @@ from flask_cors import CORS
 
 def create_app():
 
-		# create and configure the app
-		app = Flask(__name__, instance_relative_config=True)
-		config = os.environ.get('AGORA_CONFIG', 'DevelopmentConfig')
-		app.config.from_object('app.config.' + config)
-		CORS(app)
+	# create and configure the app
+	app = Flask(__name__, instance_relative_config=True)
+	config = os.environ.get('AGORA_CONFIG', 'DevelopmentConfig')
+	app.config.from_object('app.config.' + config)
+	CORS(app)
 
-		# there's probably a better way to make this distinction, but this works.
-		if config == 'ProductionConfig':
-				logging.basicConfig(
-						filename='agora.log', 
-						level=logging.WARNING,
-						format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
-						)
-		else:
-				logging.basicConfig(
-						level=logging.DEBUG,
-						format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
-						)
+	# there's probably a better way to make this distinction, but this works.
+	if config == 'ProductionConfig':
+		logging.basicConfig(
+			filename='agora.log', 
+			level=logging.WARNING,
+			format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+			)
+	else:
+		logging.basicConfig(
+			level=logging.DEBUG,
+			format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+			)
 
-		# ensure the instance folder exists
-		try:
-				os.makedirs(app.instance_path)
-		except OSError:
-				pass
+	# ensure the instance folder exists
+	try:
+		os.makedirs(app.instance_path)
+	except OSError:
+		pass
 
-		# Add blueprints here.
-		app.register_blueprint(agora.bp)
-		# Actions (mounted under "exec").
-		app.register_blueprint(default.bp)
-		app.add_url_rule('/', endpoint='index')
+	# Add blueprints here.
+	app.register_blueprint(agora.bp)
+	# Actions (mounted under "exec").
+	app.register_blueprint(default.bp)
+	app.add_url_rule('/', endpoint='index')
 
-		# Jinja2 extensions.
-		# Markdown(app, tab_length=2, extensions=["sane_lists", WikiLinkExtension(build_url=wikilink_to_url), "fenced_code"])
+	# Jinja2 extensions.
+	# Markdown(app, tab_length=2, extensions=["sane_lists", WikiLinkExtension(build_url=wikilink_to_url), "fenced_code"])
  
-		@app.template_filter('linkify')
-		def linkify(s):
-				 return bleach.linkify(s)
+	@app.template_filter('linkify')
+	def linkify(s):
+		 return bleach.linkify(s)
 
-		@app.template_filter('markdown')
-		def markdown(s):
-				 try:
-						 output = render.markdown(s)
-				 except AttributeError:
-						 app.logger.debug("***a heisenbug appears***")
-						 output = s
-				 return output
+	@app.template_filter('markdown')
+	def markdown(s):
+		 try:
+			 output = render.markdown(s)
+		 except AttributeError:
+			 app.logger.debug("***a heisenbug appears***")
+			 output = s
+		 return output
 
-		@app.before_request
-		def log_entry():
-			app.logger.debug('Initiating request handling.')
+	@app.before_request
+	def log_entry():
+		app.logger.debug('Initiating request handling.')
 
-		@app.after_request
-		def log_exit(req):
-			app.logger.debug(f'Finished handling {req}.')
-			return req
+	@app.after_request
+	def log_exit(req):
+		app.logger.debug(f'Finished handling {req}.')
+		return req
 
-		return app
+	return app
