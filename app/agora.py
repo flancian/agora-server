@@ -546,7 +546,12 @@ def journals(entries):
     elif entries == 'all':
         entries = 2000000 # ~ 365 * 5500 ~ 3300 BC
     else:
-        entries = int(entries)
+        try:
+            entries = int(entries)
+        except ValueError:
+            # we only support numbers and all (handled above), other suffixes must be a broken link from /all or /30 or such...
+            # long story, this is a hack working around a bug for now.
+            return redirect(url_for('.node', node=entries))
     return render_template('journals.html', node=n, header=f"Journals for the last {entries} days with entries", nodes=db.all_journals()[0:entries])
 
 
