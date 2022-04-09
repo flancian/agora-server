@@ -28,7 +28,7 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 .wikilink:link { color: #1e53a6; }
 .logo           { filter: none; vertical-align: middle; width: 20px; height: 20px; }
 
-.node { 
+.node, .search, .search-internet { 
     background: #f0f0f0; 
 }
 
@@ -38,7 +38,7 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
     color: #000;
 }
 
-.pulled-subnode, .pushed-subnode, .search, .search-internet, .stoa-public, .annotations, .delta, .delta-nodes, .delta-annotations, .microblog_timeline { 
+.pulled-subnode, .pushed-subnode, .stoa-public, .annotations, .delta, .delta-nodes, .delta-annotations, .microblog_timeline { 
     background: #f8f8f8; 
     color: #000; 
 }
