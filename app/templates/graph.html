@@ -22,24 +22,6 @@
     const container = document.getElementById('graph');
     const currentTheme = localStorage.getItem("theme");
     const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
-    /*
-    
-    const Graph = ForceGraph()(container)
-        .height(container.clientHeight)
-        .width(container.clientWidth)
-        .onNodeClick(node => {
-            let url = "https://anagora.org/" + node.id;
-            location.assign(url)
-        })
-        .graphData(data)
-        .nodeId('id')
-        .nodeVal('val')
-        .nodeLabel('name')
-        .nodeAutoColorBy('group')
-        .linkDirectionalArrowLength(6)
-        .linkColor(() => "#cfcfcf")
-    });
-    */
 
     console.log('graph center:' + NODENAME)
     const Graph = ForceGraph()(container);
