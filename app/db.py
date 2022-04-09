@@ -363,7 +363,11 @@ class Node:
         # regex = re.escape(uri.replace('-', '.*')) + '.*'
         # should cover different date formats :)
         regex = re.sub(r'[-_ ]', '.?', self.uri) + '$'
-        nodes.extend([node for node in G.match(regex) if node.uri != self.uri])
+        try:
+            nodes.extend([node for node in G.match(regex) if node.uri != self.uri])
+        except re.error:
+            # sometimes node names might contain invalid regexes.
+            pass
         return nodes
 
     def related(self):
@@ -371,7 +375,11 @@ class Node:
         # same caveats as for equivalent() :)
         nodes = []
         regex = re.sub(r'[-_ ]', '.*', self.uri)
-        nodes.extend([node for node in G.search(regex) if node.uri != self.uri and node.uri not in [x.uri for x in self.pull_nodes()]])
+        try:
+            nodes.extend([node for node in G.search(regex) if node.uri != self.uri and node.uri not in [x.uri for x in self.pull_nodes()]])
+        except re.error:
+            # sometimes node names might contain invalid regexes.
+            pass
         return nodes
 
     def push_nodes(self):
