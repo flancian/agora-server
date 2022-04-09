@@ -1,0 +1,48 @@
+<!--
+ Copyright 2021 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div id="graph"></div>
+
+<script>
+    console.log("loading graph...")
+    fetch("{{config['URL_BASE']}}/graph/json/all").then(res => res.json()).then(data => {
+    const container = document.getElementById('agoragraph');
+    const currentTheme = localStorage.getItem("theme");
+    // const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
+    const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
+    const edgeColor = (currentTheme == 'light' ? 'rgba(50, 50, 50, 1)' : 'rgba(200, 200, 200, 1)')
+
+    const AgoraGraph = ForceGraph()(container);
+    AgoraGraph.height(container.clientHeight)
+        .width(container.clientWidth)
+        .graphData(data)
+        .nodeId('id')
+        .nodeVal('val')
+        .nodeAutoColorBy('group')
+        .d3AlphaDecay(0)
+        .d3VelocityDecay(0.08)
+        .coolDownTime(60000)
+        .zoom(0.001)
+        .enablePointerInteraction(false)
+        .linkColor(() => edgeColor);
+    AgoraGraph.zoom(3);
+    AgoraGraph.onEngineStop(() => AgoraGraph.zoomToFit(400));
+    });
+
+    // fit to canvas when engine stops
+
+    console.log("graph loaded.")
+</script>
