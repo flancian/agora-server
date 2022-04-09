@@ -533,6 +533,13 @@ def user_journal(user):
 def user_journal_json(user):
     return jsonify(jsons.dump(db.user_journals(user)))
 
+@bp.route('/feed/journals')
+def journals_feed():
+    nodes = db.all_journals()[0:30]
+    n = db.consolidate_nodes(nodes)
+    n.subnodes.reverse()
+    return Response(feed.rss(n), mimetype='application/rss+xml')
+  
 @bp.route('/journals/<entries>')
 @bp.route('/journals/', defaults={'entries': None})
 @bp.route('/journals', defaults={'entries': None})
@@ -562,10 +569,10 @@ def journals_json():
 
 @bp.route('/asset/<user>/<asset>')
 def asset(user, asset):
-	# An asset is a binary in someone's garden/<user>/assets directory.
-	# Currently unused.
-	path = '/'.join([current_app.config['AGORA_PATH'], "garden", user, 'assets', asset])
-	return send_file(path)
+    # An asset is a binary in someone's garden/<user>/assets directory.
+    # Currently unused.
+    path = '/'.join([current_app.config['AGORA_PATH'], "garden", user, 'assets', asset])
+    return send_file(path)
 
 
 @bp.route('/raw/<path:subnode>')
@@ -622,8 +629,8 @@ def proposal(user,node):
 
 @bp.route('/api/callback')
 def callback():
-	print("ACCESS TOKEN FROM GITEA")
-	print(request.values['code'])
-	return f'TOKEN {request.values["code"]}<script>alert("{request.values["code"]}")</script>'
+    print("ACCESS TOKEN FROM GITEA")
+    print(request.values['code'])
+    return f'TOKEN {request.values["code"]}<script>alert("{request.values["code"]}")</script>'
 
 # https://git.anagora.org/login/oauth/authorize?client_id=f88fe801-c51b-456e-ac20-2a967555cec0&redirect_uri=http://localhost:5000/api/callback&response_type=code
