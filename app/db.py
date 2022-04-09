@@ -42,6 +42,9 @@ import lxml.etree
 # https://anagora.org/auto-pull
 FUZZ_FACTOR = 95
 
+# Spreading over a range prevents thundering herd affected by I/O throughput.
+CACHE_TTL = random.randint(60, 120)
+
 # URIs are ids. 
 # - In the case of nodes, their [[wikilink]].
 #   - Example: 'foo', meaning the node that is rendered when you click on [[foo]] somewhere.
@@ -58,11 +61,11 @@ class Graph:
     def edge(self, n0, n1):
         pass
 
-    @cachetools.func.ttl_cache(ttl=60)
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def edges(self):
         pass
 
-    @cachetools.func.ttl_cache(ttl=60)
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def n_edges(self):
         subnodes = G.subnodes()
         edges = sum([len(subnode.forward_links) for subnode in subnodes])
@@ -117,7 +120,7 @@ class Graph:
         return nodes
 
     # @cache.memoize(timeout=30)
-    @cachetools.func.ttl_cache(ttl=60)
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def nodes(self, include_journals=True, only_canonical=True):
         # this is where a lot of the 'magic' happens.
         # this:
@@ -126,6 +129,7 @@ class Graph:
         # most node lookups in the Agora just look up a node in this list.
         # this is expensive but less so than subnodes().
         begin = datetime.datetime.now()
+        current_app.logger.debug(f'*** CACHE_TTL is {CACHE_TTL}.')
         current_app.logger.debug('*** Loading nodes at {begin}.')
         # returns a list of all nodes
 
@@ -168,7 +172,7 @@ class Graph:
 
     # does this belong here?
     # @cache.memoize(timeout=30)
-    @cachetools.func.ttl_cache(ttl=60)
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def subnodes(self, sort=lambda x: x.uri.lower()):
         # this is where the magic happens (?)
         # as in -- this is where the rubber meets the road.
@@ -553,7 +557,7 @@ class Subnode:
         # hack hack
         return 100-fuzz.ratio(self.wikilink, other.wikilink)
 
-    @cachetools.func.ttl_cache(ttl=60)
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def render(self):
         if self.mediatype != 'text/plain':
             # hack hack
@@ -654,7 +658,7 @@ class Subnode:
                 sanitized_links.append('https://' + link)
         return sanitized_links
 
-    @cachetools.func.ttl_cache(ttl=60)
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def pull_nodes(self):
         """
         returns a set of nodes pulled (see [[pull]]) in this subnode
@@ -680,7 +684,7 @@ class Subnode:
         return nodes
 
 
-    @cachetools.func.ttl_cache(ttl=60)
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def push_nodes(self):
         """
         returns a set of push links contained in this subnode
