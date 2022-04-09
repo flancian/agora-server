@@ -21,7 +21,9 @@
     fetch("{{config['URL_BASE']}}/graph/json/{{node.uri}}").then(res => res.json()).then(data => {
     const container = document.getElementById('graph');
     const currentTheme = localStorage.getItem("theme");
+    // const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
     const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
+    const edgeColor = (currentTheme == 'light' ? 'rgba(50, 50, 50, 1)' : 'rgba(200, 200, 200, 1)')
 
     console.log('graph center:' + NODENAME)
     const Graph = ForceGraph()(container);
@@ -56,7 +58,7 @@
           node.__bckgDimensions = bckgDimensions; // to re-use in nodePointerAreaPaint
         })
         .linkDirectionalArrowLength(3)
-        .linkColor(() => "#cfcfcf")
+        .linkColor(() => edgeColor)
         //.d3Force('collision', d3.forceCollide(node => Math.sqrt(100 / (node.level + 1)) * NODE_REL_SIZE))
         .nodePointerAreaPaint((node, color, ctx) => {
           ctx.fillStyle = color;
