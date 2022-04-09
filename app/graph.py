@@ -26,216 +26,216 @@ from rdflib import Graph, Namespace, URIRef
 
 def add_node(node: db.Node, g: Graph, only_forward=False):
 
-	base = current_app.config['URL_BASE']
-	for linked_node in node.forward_links():
-		if re.search('<.*>', linked_node):
-			# work around links with html in them (?)
-			continue
-		if '|' in linked_node:
-			# early support for https://anagora.org/go/agora-rfc/2
-			linked_node = re.sub('|.*', '', linked_node)
-		# this does away with lots of encoding problems in irregular links, but also encodes unicode characters, so some legibility is lost in the final result unless it is urldecoded.
-		linked_node = urllib.parse.quote_plus(linked_node)
-		n0 = node.wikilink
-		n1 = linked_node
-		g.add((
-			URIRef(f"{base}/{n0}"),
-			URIRef(f"{base}/links"),
-			URIRef(f"{base}/{n1}"),
-		))
+  base = current_app.config['URL_BASE']
+  for linked_node in node.forward_links():
+    if re.search('<.*>', linked_node):
+      # work around links with html in them (?)
+      continue
+    if '|' in linked_node:
+      # early support for https://anagora.org/go/agora-rfc/2
+      linked_node = re.sub('|.*', '', linked_node)
+    # this does away with lots of encoding problems in irregular links, but also encodes unicode characters, so some legibility is lost in the final result unless it is urldecoded.
+    linked_node = urllib.parse.quote_plus(linked_node)
+    n0 = node.wikilink
+    n1 = linked_node
+    g.add((
+      URIRef(f"{base}/{n0}"),
+      URIRef(f"{base}/links"),
+      URIRef(f"{base}/{n1}"),
+    ))
 
-	if only_forward:
-		return
+  if only_forward:
+    return
 
-	for backlinking_node in node.back_links():
-		n0 = backlinking_node
-		n1 = node.wikilink
-		g.add((
-			URIRef(f"{base}/{n0}"),
-			URIRef(f"{base}/links"),
-			URIRef(f"{base}/{n1}"),
-		))
+  for backlinking_node in node.back_links():
+    n0 = backlinking_node
+    n1 = node.wikilink
+    g.add((
+      URIRef(f"{base}/{n0}"),
+      URIRef(f"{base}/links"),
+      URIRef(f"{base}/{n1}"),
+    ))
 
-	for pushing_node in node.pushing_nodes():
-		n0 = node.wikilink
-		n1 = linked_node
-		g.add((
-			URIRef(f"{base}/{n0}"),
-			URIRef(f"{base}/pushes"),
-			URIRef(f"{base}/{n1}"),
-		))
+  for pushing_node in node.pushing_nodes():
+    n0 = node.wikilink
+    n1 = linked_node
+    g.add((
+      URIRef(f"{base}/{n0}"),
+      URIRef(f"{base}/pushes"),
+      URIRef(f"{base}/{n1}"),
+    ))
 
-	for pulling_node in node.pulling_nodes():
-		n0 = pulling_node
-		n1 = node.wikilink
-		g.add((
-			URIRef(f"{base}/{n0}"),
-			URIRef(f"{base}/pulls"),
-			URIRef(f"{base}/{n1}"),
-		))
+  for pulling_node in node.pulling_nodes():
+    n0 = pulling_node
+    n1 = node.wikilink
+    g.add((
+      URIRef(f"{base}/{n0}"),
+      URIRef(f"{base}/pulls"),
+      URIRef(f"{base}/{n1}"),
+    ))
 
 def turtle_node(node) -> str:
 
-	base = current_app.config['URL_BASE']
-	g = Graph()
-	agora = Namespace("{base}/")
-	g.namespace_manager.bind('agora', agora)
+  base = current_app.config['URL_BASE']
+  g = Graph()
+  agora = Namespace("{base}/")
+  g.namespace_manager.bind('agora', agora)
 
-	add_node(node, g)
-	return g.serialize(format="turtle")
+  add_node(node, g)
+  return g.serialize(format="turtle")
 
 def turtle_nodes(nodes) -> str:
 
-	base = current_app.config['URL_BASE']
-	g = Graph()
-	agora = Namespace("{base}/")
-	g.namespace_manager.bind('agora', agora)
+  base = current_app.config['URL_BASE']
+  g = Graph()
+  agora = Namespace("{base}/")
+  g.namespace_manager.bind('agora', agora)
 
-	print(f"turtling agora using forward links only")
-	node_count = len(nodes)
-	print(f"node count: {node_count}")
+  print(f"turtling agora using forward links only")
+  node_count = len(nodes)
+  print(f"node count: {node_count}")
 
-	for node in nodes:
-		add_node(node, g, only_forward=True)
+  for node in nodes:
+    add_node(node, g, only_forward=True)
 
-	return g.serialize(format="turtle")
+  return g.serialize(format="turtle")
 
 def parse_node(node: db.Node) -> dict:
 
-	base = current_app.config['URL_BASE']
-	d = dict()
-	d["nodes"] = []
-	d["links"] = []
-	unique_nodes = set()
+  base = current_app.config['URL_BASE']
+  d = dict()
+  d["nodes"] = []
+  d["links"] = []
+  unique_nodes = set()
 
-	this = node.wikilink
-	forward_links = node.forward_links()
-	back_links = node.back_links()
-	pushing_nodes = [n.wikilink for n in node.pushing_nodes()]
-	pulling_nodes = [n.wikilink for n in node.pulling_nodes()]
+  this = node.wikilink
+  forward_links = node.forward_links()
+  back_links = node.back_links()
+  pushing_nodes = [n.wikilink for n in node.pushing_nodes()]
+  pulling_nodes = [n.wikilink for n in node.pulling_nodes()]
 
-	if pushing_nodes:
-		unique_nodes.add('push')
-		for pushing_node in pushing_nodes:
-			n0 = this
-			n1 = pushing_node
-			d["links"].append({'source': n1, 'target': "push"})
-			d["links"].append({'source': "push", 'target': n0})
-			unique_nodes.add(n0)
-			unique_nodes.add(n1)
+  if pushing_nodes:
+    unique_nodes.add('push')
+    for pushing_node in pushing_nodes:
+      n0 = this
+      n1 = pushing_node
+      d["links"].append({'source': n1, 'target': "push"})
+      d["links"].append({'source': "push", 'target': n0})
+      unique_nodes.add(n0)
+      unique_nodes.add(n1)
 
-	if pulling_nodes:
-		unique_nodes.add('pull')
-		for pulling_node in pulling_nodes:
-			n0 = this
-			n1 = pulling_node
-			d["links"].append({'source': n0, 'target': "pull"})
-			d["links"].append({'source': "pull", 'target': n1})
-			unique_nodes.add(n0)
-			unique_nodes.add(n1)
+  if pulling_nodes:
+    unique_nodes.add('pull')
+    for pulling_node in pulling_nodes:
+      n0 = this
+      n1 = pulling_node
+      d["links"].append({'source': n0, 'target': "pull"})
+      d["links"].append({'source': "pull", 'target': n1})
+      unique_nodes.add(n0)
+      unique_nodes.add(n1)
 
-	if back_links:
-		unique_nodes.add('back')
-		for backlinking_node in back_links:
-			if backlinking_node in ['pull', 'push']:
-				continue
-			if backlinking_node in pushing_nodes or backlinking_node in pulling_nodes:
-				print(f'discarded {node} because of being in pushed/pull list.')
-				continue
-			n0 = backlinking_node
-			n1 = this
-			d["links"].append({'source': n0, 'target': "back"})
-			d["links"].append({'source': "back", 'target': n1})
-			unique_nodes.add(n0)
-			unique_nodes.add(n1)
+  if back_links:
+    unique_nodes.add('back')
+    for backlinking_node in back_links:
+      if backlinking_node in ['pull', 'push']:
+        continue
+      if backlinking_node in pushing_nodes or backlinking_node in pulling_nodes:
+        print(f'discarded {node} because of being in pushed/pull list.')
+        continue
+      n0 = backlinking_node
+      n1 = this
+      d["links"].append({'source': n0, 'target': "back"})
+      d["links"].append({'source': "back", 'target': n1})
+      unique_nodes.add(n0)
+      unique_nodes.add(n1)
 
-	if forward_links:
-		unique_nodes.add('forward')
-		for linked_node in forward_links:
-			if linked_node in ['pull', 'push']:
-				continue
-			if re.search('<.*>', linked_node):
-				# work around links with html in them (?)
-				continue
-			if '|' in linked_node:
-				# early support for {base}/go/agora-rfc/2
-				linked_node = re.sub('|.*', '', linked_node)
-			n0 = this
-			n1 = linked_node
-			# without these intermediate nodes, the force graph layout kind of sucks -- backlinks and outlinks intermingle in a symmetrical wheel.
-			d["links"].append({'source': n0, 'target': "forward"})
-			d["links"].append({'source': "forward", 'target': n1})
-			# seems more reasonable but doesn't work (for now?)
-			# d["links"].append({'source': n0, 'target': n1})
-			unique_nodes.add(n0)
-			unique_nodes.add(n1)
+  if forward_links:
+    unique_nodes.add('forward')
+    for linked_node in forward_links:
+      if linked_node in ['pull', 'push']:
+        continue
+      if re.search('<.*>', linked_node):
+        # work around links with html in them (?)
+        continue
+      if '|' in linked_node:
+        # early support for {base}/go/agora-rfc/2
+        linked_node = re.sub('|.*', '', linked_node)
+      n0 = this
+      n1 = linked_node
+      # without these intermediate nodes, the force graph layout kind of sucks -- backlinks and outlinks intermingle in a symmetrical wheel.
+      d["links"].append({'source': n0, 'target': "forward"})
+      d["links"].append({'source': "forward", 'target': n1})
+      # seems more reasonable but doesn't work (for now?)
+      # d["links"].append({'source': n0, 'target': n1})
+      unique_nodes.add(n0)
+      unique_nodes.add(n1)
 
-	for n in unique_nodes:
-		if n == node.wikilink:
-			d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 16, 'group': 2})
-		elif n == 'pull':
-			d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
-		elif n == 'push':
-			d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
-		elif n == 'back':
-			d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
-		elif n == 'forward':
-			d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
-		elif n in back_links:
-			d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 1})
-		elif n in forward_links:
-			d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 3})
-		elif n in pulling_nodes:
-			d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 4})
-		elif n in pushing_nodes:
-			d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 5})
-		else:
-			d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 10})
+  for n in unique_nodes:
+    if n == node.wikilink:
+      d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 16, 'group': 2})
+    elif n == 'pull':
+      d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
+    elif n == 'push':
+      d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
+    elif n == 'back':
+      d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
+    elif n == 'forward':
+      d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
+    elif n in back_links:
+      d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 1})
+    elif n in forward_links:
+      d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 3})
+    elif n in pulling_nodes:
+      d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 4})
+    elif n in pushing_nodes:
+      d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 5})
+    else:
+      d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 10})
 
-	return d
+  return d
 
 
 def json_node(node):
-	# format: {BASE}/force-graph
+  # format: {BASE}/force-graph
 
-	d = parse_node(node)
-	return dumps(d)
+  d = parse_node(node)
+  return dumps(d)
 
 
 # technically doesn't belong here but... perhaps this becomes graph.py eventually.
 def json_nodes(nodes):
-	# format: {BASE}/force-graph
-	# this first redoes the RDF graph and then converts it to JSON.
-	# the code duplication can be fixed with refactoring; more important is whether going through RDF makes sense at all.
-	# I think because RDF does some cleanup to get to "well formed ids" there might be enough of a benefit from reusing that.
+  # format: {BASE}/force-graph
+  # this first redoes the RDF graph and then converts it to JSON.
+  # the code duplication can be fixed with refactoring; more important is whether going through RDF makes sense at all.
+  # I think because RDF does some cleanup to get to "well formed ids" there might be enough of a benefit from reusing that.
 
-	base = current_app.config('URL_BASE')
-	g = Graph()
-	agora = Namespace(f"{base}/")
-	g.namespace_manager.bind('agora', agora)
+  base = current_app.config('URL_BASE')
+  g = Graph()
+  agora = Namespace(f"{base}/")
+  g.namespace_manager.bind('agora', agora)
 
-	print(f"jsoing agora using forward links only")
-	node_count = len(nodes)
-	print(f"node count: {node_count}")
+  print(f"jsoing agora using forward links only")
+  node_count = len(nodes)
+  print(f"node count: {node_count}")
 
-	for node in nodes:
-		add_node(node, g, only_forward=True)
+  for node in nodes:
+    add_node(node, g, only_forward=True)
 
-	d = {}
-	d["nodes"] = []
-	d["links"] = []
-	unique_nodes = set()
+  d = {}
+  d["nodes"] = []
+  d["links"] = []
+  unique_nodes = set()
 
-	for n0, _, n1 in g.triples((None, None, None)):
-		# this step needed because dicts don't fit in sets in python because they're not hashable.
-		unique_nodes.add(n0)
-		unique_nodes.add(n1)
+  for n0, _, n1 in g.triples((None, None, None)):
+    # this step needed because dicts don't fit in sets in python because they're not hashable.
+    unique_nodes.add(n0)
+    unique_nodes.add(n1)
 
-	for node in unique_nodes:
-		d["nodes"].append({'id': node, 'name': node, 'val': 1})
+  for node in unique_nodes:
+    d["nodes"].append({'id': node, 'name': node, 'val': 1})
 
-	for n0, link, n1 in g.triples((None, None, None)):
-		d["links"].append({'source': n0, 'target': n1})
-		
-	return dumps(d)
+  for n0, link, n1 in g.triples((None, None, None)):
+    d["links"].append({'source': n0, 'target': n1})
+    
+  return dumps(d)
 
