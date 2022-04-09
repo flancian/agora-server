@@ -458,6 +458,17 @@ input[type="text"] {
     max-height: 400px;
 }
 
+#agoragraph {
+    overflow: hidden;
+    /*border-radius: 20px;*/
+    padding: 10px;
+    margin: 10px;
+    max-width: 900px;
+    max-height: 600px;
+}
+
+
+
 .search-header {
     font-weight: bolder;
     text-align: left;

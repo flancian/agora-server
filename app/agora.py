@@ -163,6 +163,7 @@ def turtle_all():
     return Response(graph.turtle_nodes(nodes), mimetype='text/turtle')
 
 
+@bp.route('/graph/json/all')
 @bp.route('/graph/json')
 def graph_js():
     nodes = G.nodes().values()

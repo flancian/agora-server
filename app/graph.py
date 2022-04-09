@@ -209,7 +209,7 @@ def json_nodes(nodes):
     # the code duplication can be fixed with refactoring; more important is whether going through RDF makes sense at all.
     # I think because RDF does some cleanup to get to "well formed ids" there might be enough of a benefit from reusing that.
 
-    base = current_app.config('URL_BASE')
+    base = current_app.config['URL_BASE']
     g = Graph()
     agora = Namespace(f"{base}/")
     g.namespace_manager.bind('agora', agora)

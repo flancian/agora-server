@@ -16,13 +16,16 @@
 
 {% extends "base.html" %}
 
+<div class="node">
 {% block content %}
-
 <div class="listing">
 
 {% if stats %}
 There are <strong>{{stats['nodes']}} nodes</strong> integrated out of <strong>{{stats['subnodes']}} subnodes</strong> by <strong>{{stats['users']}} users</strong>.</strong><br />
 There are <strong>{{stats['edges']}} edges</strong>.
+
+<div id="agoragraph"></div>
+{% include "agoragraph.html" %}
 {% endif %}
 
 {% if header %}
@@ -35,6 +38,7 @@ There are <strong>{{stats['edges']}} edges</strong>.
 <a href="{{node.url}}">{{node.wikilink}}</a> ({{node.size()}})<br />
 {% endfor %}
 
+</div>
 </div>
 
 {% endblock %}
