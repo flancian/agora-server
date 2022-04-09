@@ -71,6 +71,7 @@ class Graph:
         edges = sum([len(subnode.forward_links) for subnode in subnodes])
         return edges
 
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def node(self, uri):
         # looks up a node by uri (essentially [[wikilink]]).
         # this used to be even worse :)
