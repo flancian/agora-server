@@ -893,10 +893,10 @@ def all_journals(skip_future=True):
     return ret
 
 def consolidate_nodes(nodes) -> Node:
-  node = Node("journals")
-  for n in nodes:
-    node.subnodes.extend(n.subnodes)
-  return node
+    node = Node("journals")
+    for n in nodes:
+        node.subnodes.extend(n.subnodes)
+    return node
 
 def random_node():
     nodes = list(G.nodes().values())
