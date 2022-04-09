@@ -1,0 +1,7 @@
+User-agent: SemrushBot
+User-agent: AhrefsBot
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: *
+Allow: /
