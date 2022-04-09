@@ -76,7 +76,6 @@ def build_node(node, extension='', user_list=''):
     node = urllib.parse.unquote_plus(node)
     node = util.slugify(node)
 
-    from copy import copy
     n = copy(G.node(node))
 
     if n.subnodes:
