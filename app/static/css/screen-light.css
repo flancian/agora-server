@@ -32,13 +32,13 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
     background: #f0f0f0; 
 }
 
-.subnode, .links, .not-found {
+.subnode, .links, .not-found, #graph {
     /*background: #e6ffff; */
     background: #ffffff;
     color: #000;
 }
 
 .pulled-subnode, .pushed-subnode, .search, .search-internet, .stoa-public, .annotations, .delta, .delta-nodes, .delta-annotations, .microblog_timeline { 
-    background: #fefefe; 
+    background: #f8f8f8; 
     color: #000; 
 }
