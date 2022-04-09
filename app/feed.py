@@ -81,6 +81,7 @@ def rss(node):
         fe = fg.add_entry()
         fe.id(f'{subnode.uri}')
         fe.title(f'{subnode.uri}')
+        fe.content(f'{subnode.content}')
         fe.description(f'A post by user @{subnode.user} in node [[{subnode.node}]].')
         fe.link(href=f'https://anagora.org/@{subnode.user}/{subnode.node}')
     return fg.rss_str(pretty=True)

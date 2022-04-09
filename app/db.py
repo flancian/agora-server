@@ -485,6 +485,7 @@ class Node:
         return annotations
 
 
+
 class Subnode:
     """A subnode is a note or media resource volunteered by a user of the Agora.
     It maps to a particular file in the Agora repository, stored (relative to 
@@ -891,6 +892,12 @@ def all_journals(skip_future=True):
         ret = [node for node in ret if quiet_strptime(node.wikilink, '%Y-%m-%d') and quiet_strptime(node.wikilink, '%Y-%m-%d') < now]
     return ret
 
+def consolidate_nodes(nodes) -> Node:
+  node = Node("journals")
+  for n in nodes:
+    node.subnodes.extend(n.subnodes)
+  return node
+
 def random_node():
     nodes = list(G.nodes().values())
     return random.choice(nodes)
@@ -943,7 +950,7 @@ def subnode_by_uri(uri):
         return subnode[0]
     else:
         # TODO: handle.
-        return False
+        return Subnode(uri)
 
 def nodes_by_outlink(wikilink):
     nodes = [node for node in G.nodes(only_canonical=True).values() if wikilink in node.forward_links()]
