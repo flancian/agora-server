@@ -45,10 +45,10 @@ def after_request(response):
 	if ((response.response) and
 	(200 <= response.status_code < 300) and
 	(response.content_type.startswith('text/html'))):
-	response.set_data(response.get_data().replace(
-	b'__EXECTIME__', bytes(str(exectime), 'utf-8')).replace(
-	b'__NOW__', bytes(str(now), 'utf-8')))
-	return response
+		response.set_data(response.get_data().replace(
+		b'__EXECTIME__', bytes(str(exectime), 'utf-8')).replace(
+		b'__NOW__', bytes(str(now), 'utf-8')))
+		return response
 # End footer / timing information.
 
 # The [[agora]] is a [[distributed knowledge graph]].
@@ -59,11 +59,11 @@ def build_node(node, extension='', user_list=''):
 	# TODO: move to config.py
 	rank = ['agora', 'flancian', 'vera', 'neil', 'maya', 'Jayu']
 	if user_list:
-	# override rank
-	if ',' in user_list:
-	rank = user_list.split(",")
-	else:
-	rank = user_list
+		# override rank
+		if ',' in user_list:
+			rank = user_list.split(",")
+		else:
+			rank = user_list
 
 	# there are some ill-slugged links to anagora.org out there, special casing here for a while at least.
 	# this should probably be made irrelevant by the Big Refactor that we need to do to make the canonical node identifier non-lossy.
@@ -80,15 +80,15 @@ def build_node(node, extension='', user_list=''):
 	n = copy(G.node(node))
 
 	if n.subnodes:
-	# earlier in the list means more highly ranked.
-	n.subnodes = util.uprank(n.subnodes, users=rank)
-	if extension:
-	# this is pretty hacky but it works for now
-	# should probably move to a filter method in the node? and get better template support to make what's happening clearer.
-	current_app.logger.debug(f'filtering down to extension {extension}')
-	n.subnodes = [subnode for subnode in n.subnodes if subnode.uri.endswith(f'.{extension}')]
-	n.uri = n.uri + f'.{extension}'
-	n.wikilink = n.wikilink + f'.{extension}'
+		# earlier in the list means more highly ranked.
+		n.subnodes = util.uprank(n.subnodes, users=rank)
+		if extension:
+			# this is pretty hacky but it works for now
+			# should probably move to a filter method in the node? and get better template support to make what's happening clearer.
+			current_app.logger.debug(f'filtering down to extension {extension}')
+			n.subnodes = [subnode for subnode in n.subnodes if subnode.uri.endswith(f'.{extension}')]
+			n.uri = n.uri + f'.{extension}'
+			n.wikilink = n.wikilink + f'.{extension}'
 	# n.subnodes.extend(n.exec())
 
 	# q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
@@ -96,7 +96,7 @@ def build_node(node, extension='', user_list=''):
 	n.qstr = request.args.get('q') 
 	if not n.qstr: 
 	# could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
-	n.qstr = n.wikilink.replace('-', ' ')
+		n.qstr = n.wikilink.replace('-', ' ')
 	# search_subnodes = db.search_subnodes(node)
 	n.q = n.qstr
 
@@ -195,7 +195,7 @@ def subnode(node, user):
 
 	if not n.qstr: 
 	# could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
-	n.qstr = n.wikilink.replace('-', ' ')
+		n.qstr = n.wikilink.replace('-', ' ')
 
 	n.qstr=f'@{user}/'+n.wikilink.replace('-', ' ')
 	n.q = n.qstr
@@ -259,7 +259,7 @@ def regexsearch():
 	"""mostly deprecated in favour of jump-like search, left around for now though."""
 	form = forms.SearchForm()
 	if form.validate_on_submit():
-	return render_template('regexsearch.html', form=form, subnodes=db.search_subnodes(form.query.data), node=n)
+		return render_template('regexsearch.html', form=form, subnodes=db.search_subnodes(form.query.data), node=n)
 	return render_template('regexsearch.html', form=form, node=n)
 
 
@@ -283,12 +283,12 @@ def go(node):
 	if len(links) == 0:
 	# No go links detected in this node -- just redirect to the node.
 	# TODO(flancian): flash an explanation :)
-	return redirect(f"{current_app.config['URL_BASE']}/{node}")
+		return redirect(f"{current_app.config['URL_BASE']}/{node}")
 
 	if len(links) > 1:
 	# TODO(flancian): to be implemented.
 	# Likely default to one of the links, show all of them but redirect to default within n seconds.
-	current_app.logger.warning(
+		current_app.logger.warning(
 	'Code to manage nodes with more than one go link is not Not implemented.')
 
 	return redirect(links[0])
@@ -311,17 +311,17 @@ def composite_go(node0, node1):
 	if not n0.subnodes and not n1.subnodes:
 	# No content in either node.
 	# Redirect to the first node.
-	current_app.logger.debug(f'redirect in composite')
+		current_app.logger.debug(f'redirect in composite')
 	return redirect(f'{base}/{node0}')
 
 	links = []
 	if n0.subnodes:
-	links.extend(n0.subnodes[0].filter(node1))
+		links.extend(n0.subnodes[0].filter(node1))
 	current_app.logger.debug(
 	f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
 
 	if n1.subnodes:
-	links.extend(n1.subnodes[0].filter(node0))
+		links.extend(n1.subnodes[0].filter(node0))
 	current_app.logger.debug(
 	f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
 
@@ -329,29 +329,29 @@ def composite_go(node0, node1):
 	# No matching links found so far.
 	# Try using also pushed_subnodes(), which are relative expensive (slow) to compute.
 
-	if n0.pushed_subnodes():
-	links.extend(n0.pushed_subnodes()[0].filter(node1))
-	current_app.logger.debug(
-	f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
+		if n0.pushed_subnodes():
+			links.extend(n0.pushed_subnodes()[0].filter(node1))
+		current_app.logger.debug(
+		f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
 
-	if n1.pushed_subnodes():
-	links.extend(n1.pushed_subnodes()[0].filter(node0))
-	current_app.logger.debug(
-	f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
+		if n1.pushed_subnodes():
+			links.extend(n1.pushed_subnodes()[0].filter(node0))
+		current_app.logger.debug(
+		f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
 
-	if len(links) == 0:
-	# No matching links found after all tries.
-	# Redirect to the first node.
-	# TODO(flancian): flash an explanation :)
-	return redirect(f'{base}/{node0}')
+		if len(links) == 0:
+		# No matching links found after all tries.
+		# Redirect to the first node.
+		# TODO(flancian): flash an explanation :)
+			return redirect(f'{base}/{node0}')
 
-	if len(links) > 1:
-	# TODO(flancian): to be implemented.
-	# Likely default to one of the links, show all of them but redirect to default within n seconds.
-	current_app.logger.warning(
-	'Code to manage nodes with more than one go link is not implemented.')
+		if len(links) > 1:
+			# TODO(flancian): to be implemented.
+			# Likely default to one of the links, show all of them but redirect to default within n seconds.
+			current_app.logger.warning(
+			'Code to manage nodes with more than one go link is not implemented.')
 
-	return redirect(links[0])
+		return redirect(links[0])
 
 @bp.route('/push/<node>/<other>')
 def push2(node, other):
@@ -447,10 +447,10 @@ def search():
 	# hack hack
 	# [[push]] [[2021-02-28]] in case I don't get to it today.
 	if callable(result.proposal):
-	return result.proposal()
+		return result.proposal()
 	if result.message:
 	# here we should probably do something to 'flash' the message?
-	pass
+		pass
 	# catch all follows.
 	# "should never happen" (lol) as the agora is its own search provider and a plain node rendering should always be returned as a bid for every query.
 	# log a warning if it does :)
@@ -495,9 +495,9 @@ def garden(garden):
 def nodes():
 	n = build_node('nodes')
 	if current_app.config['ENABLE_STATS']:
-	return render_template('nodes.html', nodes=db.top(), node=n, stats=db.stats())
+		return render_template('nodes.html', nodes=db.top(), node=n, stats=db.stats())
 	else:
-	return render_template('nodes.html', nodes=db.top(), node=n, stats=None)
+		return render_template('nodes.html', nodes=db.top(), node=n, stats=None)
 
 
 @bp.route('/nodes.json')
@@ -540,15 +540,15 @@ def user_journal_json(user):
 def journals(entries):
 	n = build_node('journals')
 	if entries:
-	n.qstr=f"journals/{entries}"
+		n.qstr=f"journals/{entries}"
 	if not entries:
-	n.qstr=f"journals"
-	entries = current_app.config['JOURNAL_ENTRIES']
+		n.qstr=f"journals"
+		entries = current_app.config['JOURNAL_ENTRIES']
 	elif entries == 'all':
-	entries = 2000000 # ~ 365 * 5500 ~ 3300 BC
+		entries = 2000000 # ~ 365 * 5500 ~ 3300 BC
 	else:
-	entries = int(entries)
-	return render_template('journals.html', node=n, header=f"Journals for the last {entries} days with entries", nodes=db.all_journals()[0:entries])
+		entries = int(entries)
+		return render_template('journals.html', node=n, header=f"Journals for the last {entries} days with entries", nodes=db.all_journals()[0:entries])
 
 
 @bp.route('/journals.json')
@@ -589,7 +589,7 @@ def search_xml():
 def count_votes(subnode):
 	match = re.search("\#(\w+)", subnode.content)
 	if not match:
-	return None
+		return None
 	tag = match.group(1)
 	return {"user": subnode.user, "vote": tag}
 
