@@ -537,6 +537,10 @@ class Subnode:
             except IsADirectoryError:
                 self.content = "(A directory).\n"
                 self.forward_links = []
+            except FileNotFoundError:
+                self.content = ""
+                self.forward_links = []
+                return
         elif self.mediatype.startswith('image'):
             with open(path, 'rb') as f:
                 self.content = f.read()
