@@ -538,7 +538,7 @@ class Subnode:
                 self.content = "(A directory).\n"
                 self.forward_links = []
             except FileNotFoundError:
-                self.content = ""
+                self.content = "(File not found).\n"
                 self.forward_links = []
                 return
         elif self.mediatype.startswith('image'):
