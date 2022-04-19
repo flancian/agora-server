@@ -80,7 +80,7 @@ async function main() {
 	
 							
 					</div>
-					<span class="subnode-content"><textarea id="node-editor" cols="60" rows="10">
+					<span class="subnode-content"><textarea style="width: 100%" id="node-editor" cols="60" rows="10">
 </textarea>
 	<br>
 	<button onclick="saveData()">Save</button></span>
@@ -103,7 +103,7 @@ async function main() {
 	const saved = snode.html()
 	if (snode.length) {
 		const text = await grabMarkdown()
-		snode.html(`<textarea id=node-editor cols=60 rows=10>${text}</textarea>
+		snode.html(`<textarea style="width: 100%" id=node-editor cols=60 rows=10>${text}</textarea>
 
 	
 	<br>
