@@ -540,7 +540,14 @@ class Subnode:
             except FileNotFoundError:
                 self.content = "(File not found).\n"
                 self.forward_links = []
-                return
+            except OSError:
+                self.content = "(File could not be read).\n"
+                self.forward_links = []
+                current_app.logger.exception(f'Could not read file due to OSError in Subnode __init__ (Heisenbug).')
+            except:
+                self.content = "(Unhandled exception when trying to read).\n"
+                self.forward_links = []
+                current_app.logger.exception(f'Could not read file in Subnode __init__ (Heisenbug).')
         elif self.mediatype.startswith('image'):
             with open(path, 'rb') as f:
                 self.content = f.read()
