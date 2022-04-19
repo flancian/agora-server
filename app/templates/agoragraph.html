@@ -14,8 +14,6 @@
  limitations under the License.
 -->
 
-<div id="graph"></div>
-
 <script>
     console.log("loading graph...")
     fetch("{{config['URL_BASE']}}/graph/json/all").then(res => res.json()).then(data => {
@@ -28,18 +26,19 @@
     const AgoraGraph = ForceGraph()(container);
     AgoraGraph.height(container.clientHeight)
         .width(container.clientWidth)
-        .graphData(data)
         .nodeId('id')
         .nodeVal('val')
-        .nodeAutoColorBy('group')
-        .d3AlphaDecay(0)
-        .d3VelocityDecay(0.08)
-        .coolDownTime(60000)
-        .zoom(0.001)
-        .enablePointerInteraction(false)
-        .linkColor(() => edgeColor);
-    AgoraGraph.zoom(3);
-    AgoraGraph.onEngineStop(() => AgoraGraph.zoomToFit(400));
+        // .nodeRelSize(6)
+        .nodeAutoColorBy('user')
+        .zoom(0.1)
+        .onNodeClick(node => {
+            // let url = "{{config['URL_BASE']}}/" + node.id;
+            let url = node.id;
+            location.assign(url)
+        })
+        .graphData(data);
+    // AgoraGraph.zoom(3);
+    // AgoraGraph.onEngineStop(() => AgoraGraph.zoomToFit(400));
     });
 
     // fit to canvas when engine stops

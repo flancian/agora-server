@@ -218,24 +218,35 @@ def json_nodes(nodes):
     node_count = len(nodes)
     print(f"node count: {node_count}")
 
+    unique_nodes = set()
     for node in nodes:
+        unique_nodes.add(node)
         add_node(node, g, only_forward=True)
 
     d = {}
+    nodes_to_render = []
     d["nodes"] = []
     d["links"] = []
-    unique_nodes = set()
 
-    for n0, _, n1 in g.triples((None, None, None)):
-        # this step needed because dicts don't fit in sets in python because they're not hashable.
-        unique_nodes.add(n0)
-        unique_nodes.add(n1)
+    # for n0, _, n1 in g.triples((None, None, None)):
+    #    # this step needed because dicts don't fit in sets in python because they're not hashable.
+    #    unique_nodes.add(n0)
+    #    unique_nodes.add(n1)
 
     for node in unique_nodes:
-        d["nodes"].append({'id': node, 'name': node, 'val': 1})
+        # hack hack
+        size = node.size()
+        # if size <= 4:
+        #     continue
+        d["nodes"].append({'id': f"{base}/{node.uri}", 'name': node.description, 'val': size})
+        nodes_to_render.append(f"{base}/{node.uri}")
 
     for n0, link, n1 in g.triples((None, None, None)):
-        d["links"].append({'source': n0, 'target': n1})
+        if str(n0) in nodes_to_render and str(n1) in nodes_to_render:
+            d["links"].append({'source': n0, 'target': n1})
+            # this takes care of links to non-existent nodes, added with value 1 by default.
+            # now commented as we don't graph those by default.
+            # d["nodes"].append({'id': n1, 'name': n1, 'val': 1})
         
     return dumps(d)
   
