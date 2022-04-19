@@ -98,8 +98,8 @@ async function main() {
 
 	const repo = localStorage["gitea-repo"]
 	const selector = "div.subnode[data-author='" + user + "'] .subnode-content"
-	const snode = $(selector)
-	console.log("SNODE", snode)
+	const snode = $(selector).first()
+	console.log("SNODE", snode,snode.length)
 	const saved = snode.html()
 	if (snode.length) {
 		const text = await grabMarkdown()
@@ -109,7 +109,8 @@ async function main() {
 	<br>
 	<button onClick="saveData()">Save</button>`)
 	} else {
-		$(subnode).insertAfter(".node-header")
+		nh = $(".node-header").first()
+		$(subnode).insertAfter(nh)
 	}
 
 }
