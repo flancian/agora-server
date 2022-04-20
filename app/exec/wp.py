@@ -19,7 +19,10 @@ import pprint
 @bp.route('/exec/wp/<node>')
 def wp(node):
     search = requests.get(f'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={node}&format=json')
-    pageid = search.json()['query']['search'][0]['pageid']
+    try:
+        pageid = search.json()['query']['search'][0]['pageid']
+    except IndexError:
+        return Response("")
     result = requests.get(f'https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json').json()
     title = result['query']['pages'][str(pageid)]['title']
     url = result['query']['pages'][str(pageid)]['canonicalurl']
