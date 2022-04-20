@@ -461,7 +461,9 @@ def search():
 
 @bp.route('/subnode/<path:subnode>')
 def old_subnode(subnode):
-    return render_template('subnode.html', subnode=db.subnode_by_uri(subnode), backlinks=db.subnodes_by_outlink(subnode))
+    sn = db.subnode_by_uri(subnode)
+    n = build_node(sn.wikilink)
+    return render_template('subnode.html', node=n, subnode=sn, backlinks=db.subnodes_by_outlink(subnode))
 
 
 @bp.route('/u/<user>')
