@@ -540,6 +540,7 @@ class Subnode:
             except FileNotFoundError:
                 self.content = "(File not found).\n"
                 self.forward_links = []
+                current_app.logger.exception(f'Could not read file due to FileNotFoundError in Subnode __init__ (Heisenbug).')
             except OSError:
                 self.content = "(File could not be read).\n"
                 self.forward_links = []
@@ -547,7 +548,7 @@ class Subnode:
             except:
                 self.content = "(Unhandled exception when trying to read).\n"
                 self.forward_links = []
-                current_app.logger.exception(f'Could not read file in Subnode __init__ (Heisenbug).')
+                current_app.logger.exception(f'Could not read file due to unhandled exception in Subnode __init__ (Heisenbug).')
         elif self.mediatype.startswith('image'):
             with open(path, 'rb') as f:
                 self.content = f.read()
@@ -596,8 +597,10 @@ class Subnode:
                 content = render.markdown(content)
             except:
                 # which exception exactly? this should be improved.
+                # as of 2022-04-20, this seems to be AttributeError most of the time.
+                # caused by: 'BlankLine' object has no attribute 'children' in html_renderer.py:84 in marko.
                 content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
-                current_app.logger.exception(f'Subnode could not be loaded in {self} (Heisenbug).')
+                current_app.logger.exception(f'Subnode could not be loaded in {self.uri} (Heisenbug).')
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
             content = render.orgmode(content)
         # ugly, this too
