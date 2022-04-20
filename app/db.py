@@ -491,6 +491,7 @@ class Subnode:
     It maps to a particular file in the Agora repository, stored (relative to 
     the Agora root) in the attribute 'uri'."""
     def __init__(self, path, mediatype='text/plain'):
+        self.path = path
         # Use a subnode's URI as its identifier.
         self.uri: str = path_to_uri(path)
         self.url = '/subnode/' + self.uri
@@ -504,62 +505,69 @@ class Subnode:
         self.user = path_to_user(path)
         self.user_config = User(self.user).config
         if self.user_config:
-            try:
-                self.edit_path = os.path.join(*self.uri.split('/')[2:])
-            except TypeError:
-                current_app.logger.debug(f'{self.uri} resulted in no edit_path')
-            self.support = self.user_config.get('support', False)
-            self.edit: Union[str, False] = self.user_config.get('edit', False)
-            self.web: Union[str, False] = self.user_config.get('web', False)
-            if self.edit:
-                # for edit paths with {path}
-                self.edit = self.edit.replace("{path}", self.edit_path)
-                # for edit paths with {slug}
-                # hack hack, the stoa doesn't expect an .md extension so we just cut out the extension from the path for now.
-                self.edit = self.edit.replace("{slug}", self.edit_path[:-3])
-            if self.web:
-                # same as the above but for views
-                # for web paths with {path}
-                self.web = self.web.replace("{path}", self.edit_path)
-                # for web paths with {slug}
-                self.web = self.web.replace("{slug}", self.edit_path[:-3])
+            self.load_user_config()
 
         self.mediatype = mediatype
 
         if self.mediatype == 'text/plain':
-            try:
-                with open(path) as f:
-                    self.content = f.read()
-                    # Marko raises IndexError on render if the file doesn't terminate with a newline.
-                    if not self.content.endswith('\n'):
-                        self.content = self.content + '\n'
-                    self.forward_links = content_to_forward_links(self.content)
-            except IsADirectoryError:
-                self.content = "(A directory).\n"
-                self.forward_links = []
-            except FileNotFoundError:
-                self.content = "(File not found).\n"
-                self.forward_links = []
-                current_app.logger.exception(f'Could not read file due to FileNotFoundError in Subnode __init__ (Heisenbug).')
-            except OSError:
-                self.content = "(File could not be read).\n"
-                self.forward_links = []
-                current_app.logger.exception(f'Could not read file due to OSError in Subnode __init__ (Heisenbug).')
-            except:
-                self.content = "(Unhandled exception when trying to read).\n"
-                self.forward_links = []
-                current_app.logger.exception(f'Could not read file due to unhandled exception in Subnode __init__ (Heisenbug).')
+            self.load_text_subnode()
         elif self.mediatype.startswith('image'):
-            with open(path, 'rb') as f:
-                self.content = f.read()
-                self.forward_links = []
+            self.load_image_subnode()
         else:
             raise ValueError
 
         self.mtime = os.path.getmtime(path)
         self.node = self.canonical_wikilink
-        # Initiate node for wikilink if this is the first subnode, append otherwise.
-        # G.addsubnode(self)
+
+    def load_text_subnode(self):
+        try:
+            with open(self.path) as f:
+                self.content = f.read()
+                # Marko raises IndexError on render if the file doesn't terminate with a newline.
+                if not self.content.endswith('\n'):
+                    self.content = self.content + '\n'
+                self.forward_links = content_to_forward_links(self.content)
+        except IsADirectoryError:
+            self.content = "(A directory).\n"
+            self.forward_links = []
+        except FileNotFoundError:
+            self.content = "(File not found).\n"
+            self.forward_links = []
+            current_app.logger.exception(f'Could not read file due to FileNotFoundError in Subnode __init__ (Heisenbug).')
+        except OSError:
+            self.content = "(File could not be read).\n"
+            self.forward_links = []
+            current_app.logger.exception(f'Could not read file due to OSError in Subnode __init__ (Heisenbug).')
+        except:
+            self.content = "(Unhandled exception when trying to read).\n"
+            self.forward_links = []
+            current_app.logger.exception(f'Could not read file due to unhandled exception in Subnode __init__ (Heisenbug).')
+
+    def load_image_subnode(self):
+        with open(self.path, 'rb') as f:
+            self.content = f.read()
+            self.forward_links = []
+
+    def load_user_config(self):
+        try:
+            self.edit_path = os.path.join(*self.uri.split('/')[2:])
+        except TypeError:
+            current_app.logger.debug(f'{self.uri} resulted in no edit_path')
+        self.support = self.user_config.get('support', False)
+        self.edit: Union[str, False] = self.user_config.get('edit', False)
+        self.web: Union[str, False] = self.user_config.get('web', False)
+        if self.edit:
+            # for edit paths with {path}
+            self.edit = self.edit.replace("{path}", self.edit_path)
+            # for edit paths with {slug}
+            # hack hack, the stoa doesn't expect an .md extension so we just cut out the extension from the path for now.
+            self.edit = self.edit.replace("{slug}", self.edit_path[:-3])
+        if self.web:
+            # same as the above but for views
+            # for web paths with {path}
+            self.web = self.web.replace("{path}", self.edit_path)
+            # for web paths with {slug}
+            self.web = self.web.replace("{slug}", self.edit_path[:-3])
 
     def __hash__(self):
         return hash(self.uri)
@@ -587,23 +595,29 @@ class Subnode:
         if 'subnode/virtual' in self.url:
             # virtual subnodes should come pre-rendered (as they were extracted post-rendering from other subnodes)
             return self.content
-        # ugly, this should be in render.py?
-        content = render.preprocess(self.content, subnode=self)
         # this breaks pull buttons
         # content = bleach.clean(content)
         # hack: parse [[mycorrhiza]] as Markdown for [[melanocarpa]] while we work on better support.
         if self.uri.endswith('md') or self.uri.endswith('MD') or self.uri.endswith('myco'):
             try:
+                content = render.preprocess(self.content, subnode=self)
                 content = render.markdown(content)
             except:
                 # which exception exactly? this should be improved.
                 # as of 2022-04-20, this seems to be AttributeError most of the time.
                 # caused by: 'BlankLine' object has no attribute 'children' in html_renderer.py:84 in marko.
-                content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
-                current_app.logger.exception(f'Subnode could not be loaded in {self.uri} (Heisenbug).')
+                current_app.logger.exception(f'Subnode {self.uri} could not be rendered, retrying once (Heisenbug).')
+                try:
+                    # try reloading on demand, working around caches.
+                    self.load_text_subnode()
+                    content = render.preprocess(self.content, subnode=self)
+                    content = render.markdown(content)
+                except:
+                    content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
+                    current_app.logger.exception(f'Subnode {self.uri} could not be rendered even after retrying read (Heisenbug).')
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
+            content = render.preprocess(self.content, subnode=self)
             content = render.orgmode(content)
-        # ugly, this too
         ret = render.postprocess(content)
         return ret
 
