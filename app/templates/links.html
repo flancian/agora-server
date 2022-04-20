@@ -79,7 +79,7 @@
         <a href="{{annotation.link}}">Annotation</a> by <a href="https://hypothes.is">hypothes.is</a> user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
         on {{annotation.published[:10]}}<br />
         <blockquote>
-        <em>{{annotation.summary|markdown|linkify|safe}}</em>
+        <em>{{annotation.summary|linkify|safe}}</em>
         </blockquote>
         {% endfor %}
     {% else %}

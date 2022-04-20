@@ -33,7 +33,7 @@
         annotated <a href="{{annotation.link}}">{{annotation.title}}</a>
         on {{annotation.published[:10]}}<br />
         <blockquote>
-        <em>{{annotation.summary|markdown|linkify|safe}}</em>
+        <em>{{annotation.summary|linkify|safe}}</em>
         </blockquote>
         {% endfor %}
     {% else %}

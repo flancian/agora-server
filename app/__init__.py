@@ -16,9 +16,6 @@ import bleach
 import logging
 import os
 from flask import Flask
-from flask_caching import Cache
-from flaskext.markdown import Markdown
-from markdown.extensions.wikilinks import WikiLinkExtension
 from . import agora
 from . import util
 from app.exec import *
@@ -57,21 +54,9 @@ def create_app():
     app.register_blueprint(default.bp)
     app.add_url_rule('/', endpoint='index')
 
-    # Jinja2 extensions.
-    # Markdown(app, tab_length=2, extensions=["sane_lists", WikiLinkExtension(build_url=wikilink_to_url), "fenced_code"])
- 
     @app.template_filter('linkify')
     def linkify(s):
          return bleach.linkify(s)
-
-    @app.template_filter('markdown')
-    def markdown(s):
-         try:
-             output = render.markdown(s)
-         except AttributeError:
-             app.logger.debug("***a heisenbug appears***")
-             output = s
-         return output
 
     @app.before_request
     def log_entry():
