@@ -586,12 +586,15 @@ class Subnode:
         # hack: parse [[mycorrhiza]] as Markdown for [[melanocarpa]] while we work on better support.
         if self.uri.endswith('md') or self.uri.endswith('MD') or self.uri.endswith('myco'):
             try:
+                print("Rendering Markdown")
+                print(content)
                 content = render.markdown(content)
             except:
                 # which exception exactly? this should be improved.
                 content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
                 current_app.logger.exception(f'Subnode could not be loaded in {self} (Heisenbug).')
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
+				
             content = render.orgmode(content)
         # ugly, this too
         ret = render.postprocess(content)

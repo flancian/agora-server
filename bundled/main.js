@@ -5,9 +5,6 @@
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __esm = (fn, res) => function __init() {
-    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-  };
   var __commonJS = (cb, mod) => function __require() {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
@@ -20,7 +17,6 @@
     return to;
   };
   var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
-  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
   // node_modules/.pnpm/jquery@3.6.0/node_modules/jquery/dist/jquery.js
   var require_jquery = __commonJS({
@@ -5908,1008 +5904,347 @@
   });
 
   // app/js-src/main.ts
-  var main_exports = {};
-  var import_jquery, autoPullLocal, autoPullExternal, autoPullStoa, autoExec, pullRecursive;
-  var init_main = __esm({
-    "app/js-src/main.ts"() {
-      import_jquery = __toESM(require_jquery());
-      window.$ = window.jQuery = import_jquery.default;
-      autoPullLocal = JSON.parse(localStorage["auto-pull-local"] || "false");
-      autoPullExternal = JSON.parse(localStorage["auto-pull-external"] || "false");
-      autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || "false");
-      autoExec = JSON.parse(localStorage["auto-exec"] || "true");
-      pullRecursive = JSON.parse(localStorage["pull-recursive"] || "false");
-      document.addEventListener("DOMContentLoaded", function() {
-        const btn = document.querySelector(".theme-toggle");
-        var theme = document.querySelector("#theme-link");
-        const currentTheme = localStorage.getItem("theme");
-        if (currentTheme == "dark") {
-          theme.href = "/static/css/screen-dark.css";
-        } else if (currentTheme == "light") {
-          theme.href = "/static/css/screen-light.css";
+  var import_jquery = __toESM(require_jquery());
+  window.$ = window.jQuery = import_jquery.default;
+  var autoPullLocal = JSON.parse(localStorage["auto-pull-local"] || "false");
+  var autoPullExternal = JSON.parse(localStorage["auto-pull-external"] || "false");
+  var autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || "false");
+  var autoExec = JSON.parse(localStorage["auto-exec"] || "true");
+  var pullRecursive = JSON.parse(localStorage["pull-recursive"] || "false");
+  document.addEventListener("DOMContentLoaded", function() {
+    const btn = document.querySelector(".theme-toggle");
+    var theme = document.querySelector("#theme-link");
+    const currentTheme = localStorage.getItem("theme");
+    if (currentTheme == "dark") {
+      theme.href = "/static/css/screen-dark.css";
+    } else if (currentTheme == "light") {
+      theme.href = "/static/css/screen-light.css";
+    }
+    btn.addEventListener("click", function() {
+      var theme2 = document.querySelector("#theme-link");
+      if (theme2.getAttribute("href") == "/static/css/screen-light.css") {
+        theme2.href = "/static/css/screen-dark.css";
+        localStorage.setItem("theme", "dark");
+      } else {
+        theme2.href = "/static/css/screen-light.css";
+        localStorage.setItem("theme", "light");
+      }
+    });
+    $("#mini-cli-clear").click(() => {
+      console.log("clearing mini-cli");
+      $("#mini-cli").val("");
+    });
+    $("#mini-cli-exec").click(() => {
+      console.log("exec mini-cli");
+      $("#mini-cli").parent().submit();
+    });
+    $("#mini-cli-go").click(() => {
+      console.log("go mini-cli");
+      let val = $("#mini-cli").val();
+      $("#mini-cli").val("go/" + val);
+      $("#mini-cli").parent().submit();
+    });
+    $("#mini-cli-pull").click(() => {
+      console.log("pull mini-cli");
+    });
+    $(window).keydown(function(e) {
+      if (e.ctrlKey && e.altKey && e.keyCode == 83) {
+        $("#mini-cli").focus().val("");
+      }
+    });
+    $(".pull-url").click(function(e) {
+      console.log("in pull-url!");
+      if (this.classList.contains("pulled")) {
+        this.innerText = "pull";
+        $(e.currentTarget).nextAll("iframe").remove();
+        this.classList.remove("pulled");
+      } else {
+        this.innerText = "pulling";
+        let url = this.value;
+        console.log("pull url : " + url);
+        $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px"></iframe>');
+        this.innerText = "fold";
+        this.classList.add("pulled");
+      }
+    });
+    $("#pull-stoa").click(function(e) {
+      if (this.classList.contains("pulled")) {
+        this.innerText = "pull";
+        $(e.currentTarget).nextAll("iframe").remove();
+        $("#stoa-iframe").html("");
+        this.classList.remove("pulled");
+      } else {
+        this.innerText = "pulling";
+        let node = this.value;
+        $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="500" frameborder="0"></iframe>');
+        this.innerText = "fold";
+        this.classList.add("pulled");
+      }
+    });
+    $(".pull-node").click(function(e) {
+      let node = this.value;
+      if (this.classList.contains("pulled")) {
+        $("#" + node + ".pulled-node-embed").html("");
+        this.innerText = "pull";
+        this.classList.remove("pulled");
+      } else {
+        this.innerText = "pulling";
+        console.log("pulling node");
+        if (pullRecursive) {
+          $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + "/" + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
+        } else {
+          $.get(AGORAURL + "/pull/" + node, function(data) {
+            $("#" + node + ".pulled-node-embed").html(data);
+          });
         }
-        btn.addEventListener("click", function() {
-          var theme2 = document.querySelector("#theme-link");
-          if (theme2.getAttribute("href") == "/static/css/screen-light.css") {
-            theme2.href = "/static/css/screen-dark.css";
-            localStorage.setItem("theme", "dark");
-          } else {
-            theme2.href = "/static/css/screen-light.css";
-            localStorage.setItem("theme", "light");
+        this.innerText = "fold";
+        this.classList.add("pulled");
+      }
+    });
+    $(".pull-search").click(function(e) {
+      if (this.classList.contains("pulled")) {
+        $("#pulled-search.pulled-search-embed").html("");
+        this.innerText = "pull";
+        this.classList.remove("pulled");
+      } else {
+        this.innerText = "pulling";
+        let qstr = this.value;
+        $.get(AGORAURL + "/fullsearch/" + qstr, function(data) {
+          $("#pulled-search.pulled-search-embed").html(data);
+        });
+        this.classList.add("pulled");
+        this.innerText = "fold";
+      }
+    });
+    const showBrackets = JSON.parse(localStorage["showBrackets"] || "false");
+    if (showBrackets) {
+      elements = document.getElementsByClassName("wikilink-marker");
+      console.log("should show brackets");
+      for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "inline";
+      }
+    }
+    $(".pull-tweet").click(function(e) {
+      if (this.classList.contains("pulled")) {
+        div = $(e.currentTarget).nextAll(".twitter-tweet");
+        div.remove();
+        this.innerText = "pull";
+        this.classList.remove("pulled");
+      } else {
+        this.innerText = "pulling";
+        let tweet = this.value;
+        $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"><\/script>');
+        this.classList.add("pulled");
+        this.innerText = "fold";
+      }
+    });
+    function statusContent(self) {
+      let toot = self.value;
+      let domain, post;
+      const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig;
+      const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig;
+      console.log("testing type of presumed mastodon embed: " + toot);
+      if (m = web_regex.exec(toot)) {
+        console.log("found status of type /web/");
+        domain = m[1];
+        post = m[2];
+      }
+      if (m = user_regex.exec(toot)) {
+        console.log("found status of type /@user/");
+        domain = m[1];
+        post = m[2];
+      }
+      req = domain + "/api/v1/statuses/" + post;
+      console.log("req: " + req);
+      $.get(req, function(data) {
+        console.log("status: " + data["url"]);
+        let actual_url = data["url"];
+        let oembed_req = domain + "/api/oembed?url=" + actual_url;
+        $.get(oembed_req, function(data2) {
+          console.log("oembed: " + data2["html"]);
+          let html = data2["html"];
+          $(self).after(html);
+        });
+      });
+      self.innerText = "pulled";
+    }
+    $(".pull-mastodon-status").click(function(e) {
+      if (this.classList.contains("pulled")) {
+        div = $(e.currentTarget).nextAll(".mastodon-embed");
+        div.remove();
+        this.innerText = "pull";
+        this.classList.remove("pulled");
+      } else {
+        this.innerText = "pulling";
+        statusContent(this);
+        this.classList.add("pulled");
+        this.innerText = "fold";
+      }
+    });
+    $(".pull-pleroma-status").click(function(e) {
+      let toot = this.value;
+      $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"><\/script>');
+      this.innerText = "pulled";
+    });
+    $(".go-url").click(function(e) {
+      let url = this.value;
+      this.innerText = "going";
+      window.location.replace(url);
+    });
+    $("#pull-all").click(function(e) {
+      if (this.classList.contains("pulled")) {
+        console.log("auto folding all!");
+        $(".pull-node").each(function(e2) {
+          if (this.classList.contains("pulled")) {
+            console.log("auto folding nodes");
+            this.click();
           }
         });
-        $("#mini-cli-clear").click(() => {
-          console.log("clearing mini-cli");
-          $("#mini-cli").val("");
-        });
-        $("#mini-cli-exec").click(() => {
-          console.log("exec mini-cli");
-          $("#mini-cli").parent().submit();
-        });
-        $("#mini-cli-go").click(() => {
-          console.log("go mini-cli");
-          let val = $("#mini-cli").val();
-          $("#mini-cli").val("go/" + val);
-          $("#mini-cli").parent().submit();
-        });
-        $("#mini-cli-pull").click(() => {
-          console.log("pull mini-cli");
-        });
-        $(window).keydown(function(e) {
-          if (e.ctrlKey && e.altKey && e.keyCode == 83) {
-            $("#mini-cli").focus().val("");
+        $(".pull-mastodon-status").each(function(e2) {
+          if (this.classList.contains("pulled")) {
+            console.log("auto folding activity");
+            this.click();
           }
         });
-        $(".pull-url").click(function(e) {
-          console.log("in pull-url!");
+        $(".pull-tweet").each(function(e2) {
+          if (this.classList.contains("pulled")) {
+            console.log("auto folding tweet");
+            this.click();
+          }
+        });
+        this.classList.remove("pulled");
+        this.innerText = "pull all";
+      } else {
+        this.innerText = "pulling all";
+        console.log("auto pulling all!");
+        $(".pull-node").each(function(e2) {
+          if (!this.classList.contains("pulled")) {
+            console.log("auto pulling nodes");
+            this.click();
+          }
+        });
+        $(".pull-mastodon-status").each(function(e2) {
+          if (!this.classList.contains("pulled")) {
+            console.log("auto pulling activity");
+            this.click();
+          }
+        });
+        $(".pull-tweet").each(function(e2) {
+          if (!this.classList.contains("pulled")) {
+            console.log("auto pulling tweet");
+            this.click();
+          }
+        });
+        this.classList.add("pulled");
+        this.innerText = "fold all";
+      }
+    });
+    if (autoExec) {
+      console.log("autoexec is enabled");
+      $(".pull-search").each(function(e) {
+        console.log("auto pulling search");
+        this.click();
+      });
+      $(".auto-pull-button").each(function(e) {
+        console.log("auto pulling node, trying to press button" + this);
+        this.click();
+      });
+      $(".pushed-subnodes-embed").each(function(e) {
+        let node = NODENAME;
+        let id = "#" + node + " .pushed-subnodes-embed";
+        console.log("auto pulling pushed subnodes, will write to id: " + id);
+        $.get(AGORAURL + "/push/" + node, function(data) {
+          $(id).html(data);
+        });
+        console.log("auto pulled pushed subnodes, hopefully :)");
+      });
+      $(".context").each(function(e) {
+        let node = NODENAME;
+        let id = ".context";
+        console.log("auto pulling context, will write to id: " + id);
+        $.get(AGORAURL + "/context/" + node, function(data) {
+          $(".context").html(data);
+        });
+        console.log("auto pulled pushed subnodes, hopefully :)");
+      });
+      console.log("executing node: " + NODENAME);
+      req = AGORAURL + "/exec/wp/" + encodeURI(NODENAME);
+      console.log("req: " + req);
+      $.get(req, function(data) {
+        embed = $(".topline-search").after(data);
+        $(".pull-exec").click(function(e) {
+          console.log("in pull-exec!");
           if (this.classList.contains("pulled")) {
             this.innerText = "pull";
             $(e.currentTarget).nextAll("iframe").remove();
             this.classList.remove("pulled");
+            $(".node-hint").show();
           } else {
             this.innerText = "pulling";
             let url = this.value;
-            console.log("pull url : " + url);
-            $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px"></iframe>');
+            console.log("pull exec: " + url);
+            $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
             this.innerText = "fold";
             this.classList.add("pulled");
+            $(".node-hint").hide();
           }
         });
-        $("#pull-stoa").click(function(e) {
-          if (this.classList.contains("pulled")) {
-            this.innerText = "pull";
-            $(e.currentTarget).nextAll("iframe").remove();
-            $("#stoa-iframe").html("");
-            this.classList.remove("pulled");
-          } else {
-            this.innerText = "pulling";
-            let node = this.value;
-            $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="500" frameborder="0"></iframe>');
-            this.innerText = "fold";
-            this.classList.add("pulled");
-          }
+        $(".go-exec").click(function(e) {
+          console.log("in go-exec!");
+          window.location.href = $("#exec-wp").contentWindow.location.href;
         });
-        $(".pull-node").click(function(e) {
-          let node = this.value;
-          if (this.classList.contains("pulled")) {
-            $("#" + node + ".pulled-node-embed").html("");
-            this.innerText = "pull";
-            this.classList.remove("pulled");
-          } else {
-            this.innerText = "pulling";
-            console.log("pulling node");
-            if (pullRecursive) {
-              $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + "/" + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
-            } else {
-              $.get(AGORAURL + "/pull/" + node, function(data) {
-                $("#" + node + ".pulled-node-embed").html(data);
-              });
-            }
-            this.innerText = "fold";
-            this.classList.add("pulled");
-          }
-        });
-        $(".pull-search").click(function(e) {
-          if (this.classList.contains("pulled")) {
-            $("#pulled-search.pulled-search-embed").html("");
-            this.innerText = "pull";
-            this.classList.remove("pulled");
-          } else {
-            this.innerText = "pulling";
-            let qstr = this.value;
-            $.get(AGORAURL + "/fullsearch/" + qstr, function(data) {
-              $("#pulled-search.pulled-search-embed").html(data);
-            });
-            this.classList.add("pulled");
-            this.innerText = "fold";
-          }
-        });
-        const showBrackets = JSON.parse(localStorage["showBrackets"] || "false");
-        if (showBrackets) {
-          elements = document.getElementsByClassName("wikilink-marker");
-          console.log("should show brackets");
-          for (var i = 0; i < elements.length; i++) {
-            elements[i].style.display = "inline";
-          }
-        }
-        $(".pull-tweet").click(function(e) {
-          if (this.classList.contains("pulled")) {
-            div = $(e.currentTarget).nextAll(".twitter-tweet");
-            div.remove();
-            this.innerText = "pull";
-            this.classList.remove("pulled");
-          } else {
-            this.innerText = "pulling";
-            let tweet = this.value;
-            $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"><\/script>');
-            this.classList.add("pulled");
-            this.innerText = "fold";
-          }
-        });
-        function statusContent(self) {
-          let toot = self.value;
-          let domain, post;
-          const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig;
-          const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig;
-          console.log("testing type of presumed mastodon embed: " + toot);
-          if (m = web_regex.exec(toot)) {
-            console.log("found status of type /web/");
-            domain = m[1];
-            post = m[2];
-          }
-          if (m = user_regex.exec(toot)) {
-            console.log("found status of type /@user/");
-            domain = m[1];
-            post = m[2];
-          }
-          req = domain + "/api/v1/statuses/" + post;
-          console.log("req: " + req);
-          $.get(req, function(data) {
-            console.log("status: " + data["url"]);
-            let actual_url = data["url"];
-            let oembed_req = domain + "/api/oembed?url=" + actual_url;
-            $.get(oembed_req, function(data2) {
-              console.log("oembed: " + data2["html"]);
-              let html = data2["html"];
-              $(self).after(html);
-            });
-          });
-          self.innerText = "pulled";
-        }
-        $(".pull-mastodon-status").click(function(e) {
-          if (this.classList.contains("pulled")) {
-            div = $(e.currentTarget).nextAll(".mastodon-embed");
-            div.remove();
-            this.innerText = "pull";
-            this.classList.remove("pulled");
-          } else {
-            this.innerText = "pulling";
-            statusContent(this);
-            this.classList.add("pulled");
-            this.innerText = "fold";
-          }
-        });
-        $(".pull-pleroma-status").click(function(e) {
-          let toot = this.value;
-          $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"><\/script>');
-          this.innerText = "pulled";
-        });
-        $(".go-url").click(function(e) {
-          let url = this.value;
-          this.innerText = "going";
-          window.location.replace(url);
-        });
-        $("#pull-all").click(function(e) {
-          if (this.classList.contains("pulled")) {
-            console.log("auto folding all!");
-            $(".pull-node").each(function(e2) {
-              if (this.classList.contains("pulled")) {
-                console.log("auto folding nodes");
-                this.click();
-              }
-            });
-            $(".pull-mastodon-status").each(function(e2) {
-              if (this.classList.contains("pulled")) {
-                console.log("auto folding activity");
-                this.click();
-              }
-            });
-            $(".pull-tweet").each(function(e2) {
-              if (this.classList.contains("pulled")) {
-                console.log("auto folding tweet");
-                this.click();
-              }
-            });
-            this.classList.remove("pulled");
-            this.innerText = "pull all";
-          } else {
-            this.innerText = "pulling all";
-            console.log("auto pulling all!");
-            $(".pull-node").each(function(e2) {
-              if (!this.classList.contains("pulled")) {
-                console.log("auto pulling nodes");
-                this.click();
-              }
-            });
-            $(".pull-mastodon-status").each(function(e2) {
-              if (!this.classList.contains("pulled")) {
-                console.log("auto pulling activity");
-                this.click();
-              }
-            });
-            $(".pull-tweet").each(function(e2) {
-              if (!this.classList.contains("pulled")) {
-                console.log("auto pulling tweet");
-                this.click();
-              }
-            });
-            this.classList.add("pulled");
-            this.innerText = "fold all";
-          }
-        });
-        if (autoExec) {
-          console.log("autoexec is enabled");
-          $(".pull-search").each(function(e) {
-            console.log("auto pulling search");
-            this.click();
-          });
-          $(".auto-pull-button").each(function(e) {
-            console.log("auto pulling node, trying to press button" + this);
-            this.click();
-          });
-          $(".pushed-subnodes-embed").each(function(e) {
-            let node = NODENAME;
-            let id = "#" + node + " .pushed-subnodes-embed";
-            console.log("auto pulling pushed subnodes, will write to id: " + id);
-            $.get(AGORAURL + "/push/" + node, function(data) {
-              $(id).html(data);
-            });
-            console.log("auto pulled pushed subnodes, hopefully :)");
-          });
-          $(".context").each(function(e) {
-            let node = NODENAME;
-            let id = ".context";
-            console.log("auto pulling context, will write to id: " + id);
-            $.get(AGORAURL + "/context/" + node, function(data) {
-              $(".context").html(data);
-            });
-            console.log("auto pulled pushed subnodes, hopefully :)");
-          });
-          console.log("executing node: " + NODENAME);
-          req = AGORAURL + "/exec/wp/" + encodeURI(NODENAME);
-          console.log("req: " + req);
-          $.get(req, function(data) {
-            embed = $(".topline-search").after(data);
-            $(".pull-exec").click(function(e) {
-              console.log("in pull-exec!");
-              if (this.classList.contains("pulled")) {
-                this.innerText = "pull";
-                $(e.currentTarget).nextAll("iframe").remove();
-                this.classList.remove("pulled");
-                $(".node-hint").show();
-              } else {
-                this.innerText = "pulling";
-                let url = this.value;
-                console.log("pull exec: " + url);
-                $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
-                this.innerText = "fold";
-                this.classList.add("pulled");
-                $(".node-hint").hide();
-              }
-            });
-            $(".go-exec").click(function(e) {
-              console.log("in go-exec!");
-              window.location.href = $("#exec-wp").contentWindow.location.href;
-            });
-          });
-        }
-        if (autoPullLocal) {
-          console.log("auto pulling local resources!");
-          $(".pull-node").each(function(e) {
-            console.log("auto pulling node");
-            this.click();
-          });
-        }
-        if (autoPullExternal) {
-          console.log("auto pulling external resources!");
-          $(".pull-mastodon-status").each(function(e) {
-            console.log("auto pulling activity");
-            this.click();
-          });
-          $(".pull-tweet").each(function(e) {
-            console.log("auto pulling tweet");
-            this.click();
-          });
-        }
-        function sleep(ms2) {
-          return new Promise((resolve) => setTimeout(resolve, ms2));
-        }
-        if (autoPullStoa) {
-          console.log("queueing auto pull");
-          setTimeout(pullStoa, ms);
-          console.log("auto pulled");
-        }
-        function pullStoa() {
-          console.log("auto pulling stoa");
-          $("#pull-stoa").each(function(e) {
-            this.click();
-          });
-        }
-        if (localStorage["ranking"]) {
-          let subnodes = $(".subnode");
-          let sortList = Array.prototype.sort.bind(subnodes);
-          sortList(function(a, b) {
-            if (rawRanking.indexOf(a.dataset.author) === -1)
-              return 1;
-            if (rawRanking.indexOf(b.dataset.author) === -1)
-              return -1;
-            if (rawRanking.indexOf(a.dataset.author) < rawRanking.indexOf(b.dataset.author))
-              return -1;
-            if (rawRanking.indexOf(a.dataset.author) > rawRanking.indexOf(b.dataset.author))
-              return 1;
-            return 0;
-          });
-          subnodes.remove();
-          subnodes.insertAfter($(".main-header"));
-        }
       });
     }
-  });
-
-  // ../node_modules/regenerator-runtime/runtime.js
-  var require_runtime = __commonJS({
-    "../node_modules/regenerator-runtime/runtime.js"(exports, module) {
-      var runtime = function(exports2) {
-        "use strict";
-        var Op = Object.prototype;
-        var hasOwn = Op.hasOwnProperty;
-        var undefined2;
-        var $Symbol = typeof Symbol === "function" ? Symbol : {};
-        var iteratorSymbol = $Symbol.iterator || "@@iterator";
-        var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
-        var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
-        function define2(obj, key, value) {
-          Object.defineProperty(obj, key, {
-            value,
-            enumerable: true,
-            configurable: true,
-            writable: true
-          });
-          return obj[key];
-        }
-        try {
-          define2({}, "");
-        } catch (err) {
-          define2 = function(obj, key, value) {
-            return obj[key] = value;
-          };
-        }
-        function wrap(innerFn, outerFn, self, tryLocsList) {
-          var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
-          var generator = Object.create(protoGenerator.prototype);
-          var context = new Context(tryLocsList || []);
-          generator._invoke = makeInvokeMethod(innerFn, self, context);
-          return generator;
-        }
-        exports2.wrap = wrap;
-        function tryCatch(fn, obj, arg) {
-          try {
-            return { type: "normal", arg: fn.call(obj, arg) };
-          } catch (err) {
-            return { type: "throw", arg: err };
-          }
-        }
-        var GenStateSuspendedStart = "suspendedStart";
-        var GenStateSuspendedYield = "suspendedYield";
-        var GenStateExecuting = "executing";
-        var GenStateCompleted = "completed";
-        var ContinueSentinel = {};
-        function Generator() {
-        }
-        function GeneratorFunction() {
-        }
-        function GeneratorFunctionPrototype() {
-        }
-        var IteratorPrototype = {};
-        define2(IteratorPrototype, iteratorSymbol, function() {
-          return this;
-        });
-        var getProto = Object.getPrototypeOf;
-        var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
-        if (NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
-          IteratorPrototype = NativeIteratorPrototype;
-        }
-        var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype);
-        GeneratorFunction.prototype = GeneratorFunctionPrototype;
-        define2(Gp, "constructor", GeneratorFunctionPrototype);
-        define2(GeneratorFunctionPrototype, "constructor", GeneratorFunction);
-        GeneratorFunction.displayName = define2(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction");
-        function defineIteratorMethods(prototype) {
-          ["next", "throw", "return"].forEach(function(method) {
-            define2(prototype, method, function(arg) {
-              return this._invoke(method, arg);
-            });
-          });
-        }
-        exports2.isGeneratorFunction = function(genFun) {
-          var ctor = typeof genFun === "function" && genFun.constructor;
-          return ctor ? ctor === GeneratorFunction || (ctor.displayName || ctor.name) === "GeneratorFunction" : false;
-        };
-        exports2.mark = function(genFun) {
-          if (Object.setPrototypeOf) {
-            Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
-          } else {
-            genFun.__proto__ = GeneratorFunctionPrototype;
-            define2(genFun, toStringTagSymbol, "GeneratorFunction");
-          }
-          genFun.prototype = Object.create(Gp);
-          return genFun;
-        };
-        exports2.awrap = function(arg) {
-          return { __await: arg };
-        };
-        function AsyncIterator(generator, PromiseImpl) {
-          function invoke(method, arg, resolve, reject) {
-            var record = tryCatch(generator[method], generator, arg);
-            if (record.type === "throw") {
-              reject(record.arg);
-            } else {
-              var result = record.arg;
-              var value = result.value;
-              if (value && typeof value === "object" && hasOwn.call(value, "__await")) {
-                return PromiseImpl.resolve(value.__await).then(function(value2) {
-                  invoke("next", value2, resolve, reject);
-                }, function(err) {
-                  invoke("throw", err, resolve, reject);
-                });
-              }
-              return PromiseImpl.resolve(value).then(function(unwrapped) {
-                result.value = unwrapped;
-                resolve(result);
-              }, function(error) {
-                return invoke("throw", error, resolve, reject);
-              });
-            }
-          }
-          var previousPromise;
-          function enqueue(method, arg) {
-            function callInvokeWithMethodAndArg() {
-              return new PromiseImpl(function(resolve, reject) {
-                invoke(method, arg, resolve, reject);
-              });
-            }
-            return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
-          }
-          this._invoke = enqueue;
-        }
-        defineIteratorMethods(AsyncIterator.prototype);
-        define2(AsyncIterator.prototype, asyncIteratorSymbol, function() {
-          return this;
-        });
-        exports2.AsyncIterator = AsyncIterator;
-        exports2.async = function(innerFn, outerFn, self, tryLocsList, PromiseImpl) {
-          if (PromiseImpl === void 0)
-            PromiseImpl = Promise;
-          var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl);
-          return exports2.isGeneratorFunction(outerFn) ? iter : iter.next().then(function(result) {
-            return result.done ? result.value : iter.next();
-          });
-        };
-        function makeInvokeMethod(innerFn, self, context) {
-          var state = GenStateSuspendedStart;
-          return function invoke(method, arg) {
-            if (state === GenStateExecuting) {
-              throw new Error("Generator is already running");
-            }
-            if (state === GenStateCompleted) {
-              if (method === "throw") {
-                throw arg;
-              }
-              return doneResult();
-            }
-            context.method = method;
-            context.arg = arg;
-            while (true) {
-              var delegate = context.delegate;
-              if (delegate) {
-                var delegateResult = maybeInvokeDelegate(delegate, context);
-                if (delegateResult) {
-                  if (delegateResult === ContinueSentinel)
-                    continue;
-                  return delegateResult;
-                }
-              }
-              if (context.method === "next") {
-                context.sent = context._sent = context.arg;
-              } else if (context.method === "throw") {
-                if (state === GenStateSuspendedStart) {
-                  state = GenStateCompleted;
-                  throw context.arg;
-                }
-                context.dispatchException(context.arg);
-              } else if (context.method === "return") {
-                context.abrupt("return", context.arg);
-              }
-              state = GenStateExecuting;
-              var record = tryCatch(innerFn, self, context);
-              if (record.type === "normal") {
-                state = context.done ? GenStateCompleted : GenStateSuspendedYield;
-                if (record.arg === ContinueSentinel) {
-                  continue;
-                }
-                return {
-                  value: record.arg,
-                  done: context.done
-                };
-              } else if (record.type === "throw") {
-                state = GenStateCompleted;
-                context.method = "throw";
-                context.arg = record.arg;
-              }
-            }
-          };
-        }
-        function maybeInvokeDelegate(delegate, context) {
-          var method = delegate.iterator[context.method];
-          if (method === undefined2) {
-            context.delegate = null;
-            if (context.method === "throw") {
-              if (delegate.iterator["return"]) {
-                context.method = "return";
-                context.arg = undefined2;
-                maybeInvokeDelegate(delegate, context);
-                if (context.method === "throw") {
-                  return ContinueSentinel;
-                }
-              }
-              context.method = "throw";
-              context.arg = new TypeError("The iterator does not provide a 'throw' method");
-            }
-            return ContinueSentinel;
-          }
-          var record = tryCatch(method, delegate.iterator, context.arg);
-          if (record.type === "throw") {
-            context.method = "throw";
-            context.arg = record.arg;
-            context.delegate = null;
-            return ContinueSentinel;
-          }
-          var info = record.arg;
-          if (!info) {
-            context.method = "throw";
-            context.arg = new TypeError("iterator result is not an object");
-            context.delegate = null;
-            return ContinueSentinel;
-          }
-          if (info.done) {
-            context[delegate.resultName] = info.value;
-            context.next = delegate.nextLoc;
-            if (context.method !== "return") {
-              context.method = "next";
-              context.arg = undefined2;
-            }
-          } else {
-            return info;
-          }
-          context.delegate = null;
-          return ContinueSentinel;
-        }
-        defineIteratorMethods(Gp);
-        define2(Gp, toStringTagSymbol, "Generator");
-        define2(Gp, iteratorSymbol, function() {
-          return this;
-        });
-        define2(Gp, "toString", function() {
-          return "[object Generator]";
-        });
-        function pushTryEntry(locs) {
-          var entry = { tryLoc: locs[0] };
-          if (1 in locs) {
-            entry.catchLoc = locs[1];
-          }
-          if (2 in locs) {
-            entry.finallyLoc = locs[2];
-            entry.afterLoc = locs[3];
-          }
-          this.tryEntries.push(entry);
-        }
-        function resetTryEntry(entry) {
-          var record = entry.completion || {};
-          record.type = "normal";
-          delete record.arg;
-          entry.completion = record;
-        }
-        function Context(tryLocsList) {
-          this.tryEntries = [{ tryLoc: "root" }];
-          tryLocsList.forEach(pushTryEntry, this);
-          this.reset(true);
-        }
-        exports2.keys = function(object) {
-          var keys = [];
-          for (var key in object) {
-            keys.push(key);
-          }
-          keys.reverse();
-          return function next() {
-            while (keys.length) {
-              var key2 = keys.pop();
-              if (key2 in object) {
-                next.value = key2;
-                next.done = false;
-                return next;
-              }
-            }
-            next.done = true;
-            return next;
-          };
-        };
-        function values(iterable) {
-          if (iterable) {
-            var iteratorMethod = iterable[iteratorSymbol];
-            if (iteratorMethod) {
-              return iteratorMethod.call(iterable);
-            }
-            if (typeof iterable.next === "function") {
-              return iterable;
-            }
-            if (!isNaN(iterable.length)) {
-              var i = -1, next = function next2() {
-                while (++i < iterable.length) {
-                  if (hasOwn.call(iterable, i)) {
-                    next2.value = iterable[i];
-                    next2.done = false;
-                    return next2;
-                  }
-                }
-                next2.value = undefined2;
-                next2.done = true;
-                return next2;
-              };
-              return next.next = next;
-            }
-          }
-          return { next: doneResult };
-        }
-        exports2.values = values;
-        function doneResult() {
-          return { value: undefined2, done: true };
-        }
-        Context.prototype = {
-          constructor: Context,
-          reset: function(skipTempReset) {
-            this.prev = 0;
-            this.next = 0;
-            this.sent = this._sent = undefined2;
-            this.done = false;
-            this.delegate = null;
-            this.method = "next";
-            this.arg = undefined2;
-            this.tryEntries.forEach(resetTryEntry);
-            if (!skipTempReset) {
-              for (var name in this) {
-                if (name.charAt(0) === "t" && hasOwn.call(this, name) && !isNaN(+name.slice(1))) {
-                  this[name] = undefined2;
-                }
-              }
-            }
-          },
-          stop: function() {
-            this.done = true;
-            var rootEntry = this.tryEntries[0];
-            var rootRecord = rootEntry.completion;
-            if (rootRecord.type === "throw") {
-              throw rootRecord.arg;
-            }
-            return this.rval;
-          },
-          dispatchException: function(exception) {
-            if (this.done) {
-              throw exception;
-            }
-            var context = this;
-            function handle(loc, caught) {
-              record.type = "throw";
-              record.arg = exception;
-              context.next = loc;
-              if (caught) {
-                context.method = "next";
-                context.arg = undefined2;
-              }
-              return !!caught;
-            }
-            for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-              var entry = this.tryEntries[i];
-              var record = entry.completion;
-              if (entry.tryLoc === "root") {
-                return handle("end");
-              }
-              if (entry.tryLoc <= this.prev) {
-                var hasCatch = hasOwn.call(entry, "catchLoc");
-                var hasFinally = hasOwn.call(entry, "finallyLoc");
-                if (hasCatch && hasFinally) {
-                  if (this.prev < entry.catchLoc) {
-                    return handle(entry.catchLoc, true);
-                  } else if (this.prev < entry.finallyLoc) {
-                    return handle(entry.finallyLoc);
-                  }
-                } else if (hasCatch) {
-                  if (this.prev < entry.catchLoc) {
-                    return handle(entry.catchLoc, true);
-                  }
-                } else if (hasFinally) {
-                  if (this.prev < entry.finallyLoc) {
-                    return handle(entry.finallyLoc);
-                  }
-                } else {
-                  throw new Error("try statement without catch or finally");
-                }
-              }
-            }
-          },
-          abrupt: function(type, arg) {
-            for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-              var entry = this.tryEntries[i];
-              if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) {
-                var finallyEntry = entry;
-                break;
-              }
-            }
-            if (finallyEntry && (type === "break" || type === "continue") && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc) {
-              finallyEntry = null;
-            }
-            var record = finallyEntry ? finallyEntry.completion : {};
-            record.type = type;
-            record.arg = arg;
-            if (finallyEntry) {
-              this.method = "next";
-              this.next = finallyEntry.finallyLoc;
-              return ContinueSentinel;
-            }
-            return this.complete(record);
-          },
-          complete: function(record, afterLoc) {
-            if (record.type === "throw") {
-              throw record.arg;
-            }
-            if (record.type === "break" || record.type === "continue") {
-              this.next = record.arg;
-            } else if (record.type === "return") {
-              this.rval = this.arg = record.arg;
-              this.method = "return";
-              this.next = "end";
-            } else if (record.type === "normal" && afterLoc) {
-              this.next = afterLoc;
-            }
-            return ContinueSentinel;
-          },
-          finish: function(finallyLoc) {
-            for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-              var entry = this.tryEntries[i];
-              if (entry.finallyLoc === finallyLoc) {
-                this.complete(entry.completion, entry.afterLoc);
-                resetTryEntry(entry);
-                return ContinueSentinel;
-              }
-            }
-          },
-          "catch": function(tryLoc) {
-            for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-              var entry = this.tryEntries[i];
-              if (entry.tryLoc === tryLoc) {
-                var record = entry.completion;
-                if (record.type === "throw") {
-                  var thrown = record.arg;
-                  resetTryEntry(entry);
-                }
-                return thrown;
-              }
-            }
-            throw new Error("illegal catch attempt");
-          },
-          delegateYield: function(iterable, resultName, nextLoc) {
-            this.delegate = {
-              iterator: values(iterable),
-              resultName,
-              nextLoc
-            };
-            if (this.method === "next") {
-              this.arg = undefined2;
-            }
-            return ContinueSentinel;
-          }
-        };
-        return exports2;
-      }(typeof module === "object" ? module.exports : {});
-      try {
-        regeneratorRuntime = runtime;
-      } catch (accidentalStrictMode) {
-        if (typeof globalThis === "object") {
-          globalThis.regeneratorRuntime = runtime;
-        } else {
-          Function("r", "regeneratorRuntime = r")(runtime);
-        }
-      }
-    }
-  });
-
-  // app/js-src/util.js
-  var util_exports = {};
-  var import_runtime, u;
-  var init_util = __esm({
-    "app/js-src/util.js"() {
-      import_runtime = __toESM(require_runtime());
-      u = {};
-      u.replaceStrings = (str) => {
-        const wikireg = /\[\[(.*?)\]\]/g;
-        const out = str.matchAll(wikireg);
-        for (const rep of out) {
-          const slug = rep[1];
-          const wiki = rep[0];
-          const f = slug.toLowerCase().replace(/ /g, "-");
-          str = str.replace(wiki, `<a href='/${f}'>${wiki}</a>`);
-        }
-        return str;
-      };
-      u.downloadPage = async (userId, pageName) => {
-        console.log("downloading", pageName);
-        let route = `${config.ctznhost}/${userId}-${pageName}`;
-        let res = await fetch(route);
-        res.text();
-      };
-      window.Util = u;
-    }
-  });
-
-  // app/js-src/editor.js
-  var require_editor = __commonJS({
-    "app/js-src/editor.js"() {
-      $(() => {
-        console.log("loaded");
-        main();
+    if (autoPullLocal) {
+      console.log("auto pulling local resources!");
+      $(".pull-node").each(function(e) {
+        console.log("auto pulling node");
+        this.click();
       });
-      var accessToken = localStorage["gitea-token"];
-      var user;
-      async function getUser() {
-        user = await $.ajax({
-          url: `https://git.anagora.org/api/v1/user`,
-          headers: { "Authorization": `token ${accessToken}` }
-        });
-        console.log("USER", user);
-        return user.login;
-      }
-      window.saveData = async function() {
-        const text = $("#node-editor").val();
-        console.log("SAVING", text);
-        let body;
-        try {
-          body = await $.ajax({
-            url: `https://git.anagora.org/api/v1/repos/${user}/notes/contents/${NODENAME}.md`,
-            headers: { "Authorization": `token ${accessToken}` }
-          });
-          console.log("BODY", body);
-          const sha = body.sha;
-          const result = await $.ajax({
-            method: "PUT",
-            contentType: "application/json",
-            url: `https://git.anagora.org/api/v1/repos/${user}/notes/contents/${NODENAME}.md`,
-            headers: { "Authorization": `token ${accessToken}` },
-            data: JSON.stringify({
-              content: btoa(text),
-              sha
-            })
-          });
-          console.log("RESULT", result);
-        } catch (e) {
-          console.error();
-          const result = await $.ajax({
-            method: "POST",
-            contentType: "application/json",
-            url: `https://git.anagora.org/api/v1/repos/${user}/notes/contents/${NODENAME}.md`,
-            headers: { "Authorization": `token ${accessToken}` },
-            data: JSON.stringify({
-              content: btoa(text)
-            })
-          });
-        }
-      };
-      async function main() {
-        user = localStorage["gitea-user"] || await getUser();
-        console.log("USER", user);
-        const subnode = `
-	<div class="subnode" data-author="${user}">
-	<div class="subnode-header">
-							<span class="subnode-id">
-									<a href="/@${user}/${NODENAME}">\u{1F4D3}</a>
-									<span class="subnode-links"><a href="/raw/garden/${user}/${NODENAME}.md">garden/${user}/${NODENAME}.md</a> by <a href="/@${user}">@<span class="subnode-user">${user}</span>
-									</a></span><a href="/@${user}">
-									</a>
-							</span>
-							<span class="subnode-contrib">
-									
-	
-									
-							</span>
-	
-							
-					</div>
-					<span class="subnode-content"><textarea style="width: 100%" id="node-editor" cols="60" rows="10">
-</textarea>
-	<br>
-	<button onclick="saveData()">Save</button></span>
-
-
-					</div>
-
-
-	`;
-        const repo = localStorage["gitea-repo"];
-        const selector = "div.subnode[data-author='" + user + "'] .subnode-content";
-        const snode = $(selector).first();
-        console.log("SNODE", snode, snode.length);
-        const saved = snode.html();
-        if (snode.length) {
-          const text = await grabMarkdown();
-          snode.html(`<textarea style="width: 100%" id=node-editor cols=60 rows=10>${text}</textarea>
-
-	
-	<br>
-	<button onClick="saveData()">Save</button>`);
-        } else {
-          nh = $(".node-header").first();
-          $(subnode).insertAfter(nh);
-        }
-      }
-      async function grabMarkdown() {
-        let text;
-        try {
-          text = await fetch(`/raw/garden/${user}/${NODENAME}.md`).then((response) => response.text());
-        } catch (e) {
-          console.error(e);
-          text = "";
-        }
-        console.log("GOT MARKDOWN", text);
-        return text;
-      }
+    }
+    if (autoPullExternal) {
+      console.log("auto pulling external resources!");
+      $(".pull-mastodon-status").each(function(e) {
+        console.log("auto pulling activity");
+        this.click();
+      });
+      $(".pull-tweet").each(function(e) {
+        console.log("auto pulling tweet");
+        this.click();
+      });
+    }
+    function sleep(ms2) {
+      return new Promise((resolve) => setTimeout(resolve, ms2));
+    }
+    if (autoPullStoa) {
+      console.log("queueing auto pull");
+      setTimeout(pullStoa, ms);
+      console.log("auto pulled");
+    }
+    function pullStoa() {
+      console.log("auto pulling stoa");
+      $("#pull-stoa").each(function(e) {
+        this.click();
+      });
+    }
+    if (localStorage["ranking"]) {
+      let subnodes = $(".subnode");
+      let sortList = Array.prototype.sort.bind(subnodes);
+      sortList(function(a, b) {
+        if (rawRanking.indexOf(a.dataset.author) === -1)
+          return 1;
+        if (rawRanking.indexOf(b.dataset.author) === -1)
+          return -1;
+        if (rawRanking.indexOf(a.dataset.author) < rawRanking.indexOf(b.dataset.author))
+          return -1;
+        if (rawRanking.indexOf(a.dataset.author) > rawRanking.indexOf(b.dataset.author))
+          return 1;
+        return 0;
+      });
+      subnodes.remove();
+      subnodes.insertAfter($(".main-header"));
     }
   });
-
-  // app/js-src/hover.js
-  var require_hover = __commonJS({
-    "app/js-src/hover.js"() {
-      var mouseX;
-      var mouseY;
-      var locked = false;
-      $(document).mousemove(function(e) {
-        mouseX = e.pageX;
-        mouseY = e.pageY + 50;
-      });
-      function closePopup() {
-        $("#popup").css("display", "none");
-      }
-      $(".wikilink").hover(async function() {
-        locked = true;
-        const url = `/pull/${$(this).text().replaceAll(" ", "-")}`;
-        setTimeout(() => showBox(url), 1e3);
-      }, async function() {
-        locked = false;
-      });
-      function showBox(url) {
-        $.get(url, function(data) {
-          if (!locked)
-            return;
-          $("#popup").css({ "top": mouseY, "left": mouseX, "background-color": "var(--main-bg)" });
-          $("#popup").html(`<div><button onclick='closePopup()'>Close X</button></div>` + data).show();
-        });
-      }
-      $(document).click(closePopup);
-    }
-  });
-
-  // app/js-src/index.ts
-  init_main();
-  init_util();
-  require_editor();
-  require_hover();
 })();
 /*!
  * jQuery JavaScript Library v3.6.0
