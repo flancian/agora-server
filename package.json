@@ -1,23 +1,10 @@
 {
-	"main": "app/js-src/index.ts",
 	"scripts": {
-		"build": "parcel build app/js-src/index.ts --dist-dir app/static/js --no-cache"
+		"build": "esbuild app/js-src/index.ts --bundle --outfile=app/static/js/index.js"
 	},
 	"dependencies": {
-		"@parcel/config-default": "^2.0.0-nightly.731",
-		"@parcel/transformer-typescript-tsc": "^2.0.0-nightly.731",
-		"@types/jquery": "^3.5.5",
-		"babel-preset-solid": "^0.26.5",
-		"hybrids": "^5.3.3",
-		"jquery": "^3.6.0",
-		"react": "^17.0.2",
-		"solid-js": "^0.26.5",
-		"solid-scripts": "^0.0.56",
-		"webpack": "5.0.0"
-	},
-	"devDependencies": {
-		"add": "^2.0.6",
-		"parcel": "^2.0.0-rc.0",
-		"yarn": "^1.22.11"
+		"esbuild": "^0.14.37",
+		"fs": "^0.0.1-security",
+		"jquery": "^3.6.0"
 	}
 }
