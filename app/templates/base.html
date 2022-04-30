@@ -42,6 +42,7 @@
     {% if node is defined and not embed %}
         <script>
             const NODENAME = "{{node.uri}}"
+						const WIKILINK = "{{node.wikilink}}"
             const NODEDESC = "{{node.description}}"
             const AGORANAME = "{{config['URI_BASE']}}"
             const AGORAURL = "{{config['URL_BASE']}}"

@@ -5,7 +5,7 @@ $(() => {
 
 const accessToken = localStorage["gitea-token"]
 let user
-
+let raw
 
 
 
@@ -97,7 +97,9 @@ async function main() {
 
 
 	const repo = localStorage["gitea-repo"]
-	const selector = "div.subnode[data-author='" + user + "'] .subnode-content"
+	const snelement = "div.subnode[data-author='" + user + "']"
+	const selector = `${snelement} .subnode-content`
+	raw = $(`${snelement} .subnode-links a`).attr("href")
 	const snode = $(selector).first()
 	console.log("SNODE", snode,snode.length)
 	const saved = snode.html()
@@ -119,7 +121,7 @@ async function main() {
 async function grabMarkdown() {
 	let text
 	try {
-		text = await fetch(`/raw/garden/${user}/${NODENAME}.md`).then(response => response.text())
+		text = await fetch(raw).then(response => response.text())
 	} catch (e) {
 		console.error(e)
 		text = ""
