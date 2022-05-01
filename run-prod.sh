@@ -16,7 +16,7 @@
 # npm install ./app/js-src --prefix ./app/js-src
 # npx parcel-bundler build app/js-src/*.js --out-dir ../static/js
 . venv/bin/activate
-parcel watch app/js-src/index.ts --dist-dir app/static/js &
+# parcel watch app/js-src/index.ts --dist-dir app/static/js &
 export FLASK_ENV="production"
 export AGORA_CONFIG="ProductionConfig"
 uwsgi prod.ini
