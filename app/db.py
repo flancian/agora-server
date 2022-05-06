@@ -23,6 +23,8 @@ import random
 import re
 import os
 from flask import current_app
+
+import app.sql
 from . import config
 from . import feed
 from . import regexes
@@ -75,12 +77,16 @@ class Graph:
     def node(self, uri):
         # looks up a node by uri (essentially [[wikilink]]).
         # this used to be even worse :)
+        nodes = self.nodes()
+        print(nodes, uri)
         try:
             node = self.nodes()[uri.lower()]
+            print(nodes, uri)
             return node
         except (KeyError, IndexError):
             # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
             # Return an empty.
+            print("FAIL")
             return Node(uri)
 
     def existing_permutations(self, uri, max_length=4):
@@ -121,7 +127,7 @@ class Graph:
         return nodes
 
     # @cache.memoize(timeout=30)
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
+    # @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def nodes(self, include_journals=True, only_canonical=True):
         # this is where a lot of the 'magic' happens.
         # this:
@@ -137,7 +143,6 @@ class Graph:
         # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
         # hack hack -- there's probably something in itertools better than this?
         node_to_subnodes = defaultdict(list)
-
         for subnode in self.subnodes():
             node_to_subnodes[subnode.node].append(subnode)
             if subnode.canonical_wikilink != subnode.wikilink and not only_canonical:
@@ -173,7 +178,7 @@ class Graph:
 
     # does this belong here?
     # @cache.memoize(timeout=30)
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
+    # @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def subnodes(self, sort=lambda x: x.uri.lower()):
         # this is where the magic happens (?)
         # as in -- this is where the rubber meets the road.
@@ -181,20 +186,23 @@ class Graph:
         # which makes caching important :)
         begin = datetime.datetime.now()
         current_app.logger.debug(f'*** Loading subnodes at {begin}.')
-        base = current_app.config['AGORA_PATH']
+        # Commenting this out for now to test cache layer
+        # base = current_app.config['AGORA_PATH']
         # Markdown.
-        subnodes = [Subnode(f) for f in glob.glob(os.path.join(base, '**/*.md'), recursive=True)]
-        # Org mode.
-        # This should check for files, this blows up for directories like doc.anagora.org, so only globbing for garden for now.
-        subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.org'), recursive=True)])
-        # [[mycorrhiza]]
-        subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.myco'), recursive=True)])
-        # Image formats.
-        subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpg'), recursive=True)])
-        subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpeg'), recursive=True)])
-        subnodes.extend([Subnode(f, mediatype='image/png') for f in glob.glob(os.path.join(base, '**/*.png'), recursive=True)])
-        subnodes.extend([Subnode(f, mediatype='image/gif') for f in glob.glob(os.path.join(base, '**/*.gif'), recursive=True)])
-        subnodes.extend([Subnode(f, mediatype='image/webp') for f in glob.glob(os.path.join(base, '**/*.webp'), recursive=True)])
+        # subnodes = [Subnode(f) for f in glob.glob(os.path.join(base, '**/*.md'), recursive=True)]
+        # # Org mode.
+        # # This should check for files, this blows up for directories like doc.anagora.org, so only globbing for garden for now.
+        # subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.org'), recursive=True)])
+        # # [[mycorrhiza]]
+        # subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.myco'), recursive=True)])
+        # # Image formats.
+        # subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpg'), recursive=True)])
+        # subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpeg'), recursive=True)])
+        # subnodes.extend([Subnode(f, mediatype='image/png') for f in glob.glob(os.path.join(base, '**/*.png'), recursive=True)])
+        # subnodes.extend([Subnode(f, mediatype='image/gif') for f in glob.glob(os.path.join(base, '**/*.gif'), recursive=True)])
+        # subnodes.extend([Subnode(f, mediatype='image/webp') for f in glob.glob(os.path.join(base, '**/*.webp'), recursive=True)])
+
+        subnodes = app.sql.all_subnodes()
 
         end = datetime.datetime.now()
         current_app.logger.debug(f'*** Loaded subnodes from {begin} to {end}.')
