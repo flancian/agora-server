@@ -41,6 +41,8 @@ from typing import Union
 import lxml.html
 import lxml.etree
 
+import inspect
+
 con = sqlite3.connect('agora.db', check_same_thread=False)
 
 # This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
@@ -82,15 +84,16 @@ class Graph:
     def node(self, uri):
         # looks up a node by uri (essentially [[wikilink]]).
         # this used to be even worse :)
-        nodes = self.nodes()
-        try:
-            node = nodes[uri.lower()]
-            return node
-        except (KeyError, IndexError):
-            # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
-            # Return an empty.
-            print("FAIL")
-            return Node(uri)
+        # nodes = self.nodes()
+        # try:
+        #     node = nodes[uri.lower()]
+        #     return node
+        # except (KeyError, IndexError):
+        #     # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
+        #     # Return an empty.
+        #     return Node(uri)
+        node = query_node(uri.lower())
+        return node
 
     def existing_permutations(self, uri, max_length=4):
         # looks up nodes matching a permutation of the tokenized uri.
@@ -132,8 +135,9 @@ class Graph:
         return nodes
 
     # @cache.memoize(timeout=30)
-    # @cachetools.func.ttl_cache(ttl=CACHE_TTL)
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def nodes(self, include_journals=True, only_canonical=True):
+        print("BREEEEEAD", inspect.stack()[1].function)
         # this is where a lot of the 'magic' happens.
         # this:
         #   - reads and coalesces (integrates) [[subnodes]] into [[nodes]]
@@ -308,7 +312,6 @@ class Node:
         for subnode in self.subnodes:
             print(subnode.pull_nodes())
             nodes.extend(subnode.pull_nodes())
-        print(nodes)
         return sorted(set(nodes), key=lambda x: x.uri)
 
     def auto_pull_nodes(self):
@@ -488,8 +491,6 @@ class Node:
         return subnodes
 
     def back_nodes(self):
-        print("OUTLINK", self.wikilink)
-        print(nodes_by_outlink(self.wikilink))
         return sorted([x for x in nodes_by_outlink(self.wikilink) if x.wikilink != self.wikilink])
 
     def back_links(self):
@@ -514,13 +515,14 @@ class Subnode:
     It maps to a particular file in the Agora repository, stored (relative to
     the Agora root) in the attribute 'uri'."""
 
-    def __init__(self, user, node, content, mediatype='text/plain'):
+    def __init__(self, user, node, content, mtime, mediatype='text/plain'):
         # Use a subnode's URI as its identifier.
-        self.uri = node
+        self.uri = f'{user}/{node}'
         self.url = node
         self.content = content
         self.node = node
         self.forward_links = content_to_forward_links(self.content)
+        self.mtime = mtime
 
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
@@ -627,7 +629,7 @@ class Subnode:
         #     content = render.orgmode(content)
         content = render.preprocess(self.content, subnode=self)
         content = render.markdown(content)
-        ret = render.postprocess(self.content)
+        ret = render.postprocess(content)
         return ret
 
     def raw(self):
@@ -892,7 +894,7 @@ def content_to_obsidian_embeds(content):
 
 
 def latest():
-    return sorted(G.subnodes(), key=lambda x: -x.mtime)
+    return sorted(G.subnodes(), key=lambda x: x.mtime)
 
 
 def top():
@@ -1022,12 +1024,12 @@ def subnode_by_uri(uri):
         return subnode[0]
     else:
         # TODO: handle.
-        return Subnode(uri)
+        print(f'No subnode found for uri: {uri}')
+        [user, node] = uri.split('/')
+        return Subnode(user, node, "")
 
 
 def nodes_by_outlink(wikilink):
-    print("BACKLINKS",  wikilink)
-    print(G.nodes(only_canonical=True).values())
     nodes = [node for node in G.nodes(
         only_canonical=True).values() if wikilink in node.forward_links()]
     return sorted(nodes, key=attrgetter('wikilink'))
@@ -1046,7 +1048,19 @@ def all_subnodes():
     cur = con.cursor()
 
     for row in cur.execute("SELECT * FROM subnodes"):
-        print(row)
-        subnode = Subnode(user=row[1], content=row[2], node=row[3])
+        subnode = Subnode(user=row[1], content=row[2],
+                          node=row[3], mtime=row[4])
         subnodes.append(subnode)
     return subnodes
+
+
+def query_node(node):
+    subnodes = []
+    cur = con.cursor()
+    for row in cur.execute("SELECT * FROM subnodes where node = ?", [node]):
+        subnode = Subnode(user=row[1], content=row[2],
+                          node=row[3], mtime=row[4])
+        subnodes.append(subnode)
+    node = Node(node)
+    node.subnodes = subnodes
+    return node

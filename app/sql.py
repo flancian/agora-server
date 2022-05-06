@@ -17,7 +17,6 @@ def all_subnodes():
     cur = con.cursor()
     subnodes = []
     for row in cur.execute("SELECT * FROM subnodes"):
-        print(row)
         subnode = Subnode(user=row[1], content=row[2], node=row[3])
         subnodes.append(subnode)
     return subnodes

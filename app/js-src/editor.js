@@ -68,7 +68,7 @@ async function main() {
 	<div class="subnode-header">
 							<span class="subnode-id">
 									<a href="/@${user}/${NODENAME}">📓</a>
-									<span class="subnode-links"><a href="/raw/garden/${user}/${NODENAME}.md">garden/${user}/${NODENAME}.md</a> by <a href="/@${user}">@<span class="subnode-user">${user}</span>
+									<span class="subnode-links"><a href="/raw/${user}/${NODENAME}.md">${user}/${NODENAME}</a> by <a href="/@${user}">@<span class="subnode-user">${user}</span>
 									</a></span><a href="/@${user}">
 									</a>
 							</span>
