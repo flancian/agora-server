@@ -14,7 +14,7 @@
 //
 
 let u = {}
-import 'regenerator-runtime/runtime'
+// import 'regenerator-runtime/runtime'
 // consider if we need this, it used to be for CTZN
 // let config = JSON.parse(fs.readFileSync('config.json', 'utf-8'))
 

@@ -42,7 +42,6 @@ import lxml.html
 import lxml.etree
 
 con = sqlite3.connect('agora.db', check_same_thread=False)
-cur = con.cursor()
 
 # This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
 # https://anagora.org/auto-pull
@@ -224,7 +223,7 @@ G = Graph()
 class Node:
     """Nodes map 1:1 to wikilinks.
     They resolve to a series of subnodes when being rendered (see below).
-    It maps to a particular file in the Agora repository, stored (relative to 
+    It maps to a particular file in the Agora repository, stored (relative to
     the Agora root) in the attribute 'uri'."""
 
     def __init__(self, wikilink):
@@ -382,7 +381,8 @@ class Node:
         # should cover different date formats :)
         regex = re.sub(r'[-_ ]', '.?', self.uri) + '$'
         try:
-            nodes.extend([node for node in G.match(regex) if node.uri != self.uri])
+            nodes.extend([node for node in G.match(
+                regex) if node.uri != self.uri])
         except re.error:
             # sometimes node names might contain invalid regexes.
             pass
@@ -394,7 +394,8 @@ class Node:
         nodes = []
         regex = re.sub(r'[-_ ]', '.*', self.uri)
         try:
-            nodes.extend([node for node in G.search(regex) if node.uri != self.uri and node.uri not in [x.uri for x in self.pull_nodes()]])
+            nodes.extend([node for node in G.search(regex) if node.uri !=
+                         self.uri and node.uri not in [x.uri for x in self.pull_nodes()]])
         except re.error:
             # sometimes node names might contain invalid regexes.
             pass
@@ -508,10 +509,9 @@ class Node:
         return annotations
 
 
-
 class Subnode:
     """A subnode is a note or media resource volunteered by a user of the Agora.
-    It maps to a particular file in the Agora repository, stored (relative to 
+    It maps to a particular file in the Agora repository, stored (relative to
     the Agora root) in the attribute 'uri'."""
 
     def __init__(self, user, node, content, mediatype='text/plain'):
@@ -605,31 +605,33 @@ class Subnode:
         # this breaks pull buttons
         # content = bleach.clean(content)
         # hack: parse [[mycorrhiza]] as Markdown for [[melanocarpa]] while we work on better support.
-        if self.uri.endswith('md') or self.uri.endswith('MD') or self.uri.endswith('myco'):
-            try:
-                content = render.preprocess(self.content, subnode=self)
-                content = render.markdown(content)
-            except:
-                # which exception exactly? this should be improved.
-                # as of 2022-04-20, this seems to be AttributeError most of the time.
-                # caused by: 'BlankLine' object has no attribute 'children' in html_renderer.py:84 in marko.
-                current_app.logger.exception(f'Subnode {self.uri} could not be rendered, retrying once (Heisenbug).')
-                try:
-                    # try reloading on demand, working around caches.
-                    self.load_text_subnode()
-                    content = render.preprocess(self.content, subnode=self)
-                    content = render.markdown(content)
-                except:
-                    content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
-                    current_app.logger.exception(f'Subnode {self.uri} could not be rendered even after retrying read (Heisenbug).')
-        if self.uri.endswith('org') or self.uri.endswith('ORG'):
-            content = render.preprocess(self.content, subnode=self)
-            content = render.orgmode(content)
-        ret = render.postprocess(content)
+        # if self.uri.endswith('md') or self.uri.endswith('MD') or self.uri.endswith('myco'):
+        #     try:
+        #         content = render.preprocess(self.content, subnode=self)
+        #         content = render.markdown(content)
+        #     except:
+        #         # which exception exactly? this should be improved.
+        #         # as of 2022-04-20, this seems to be AttributeError most of the time.
+        #         # caused by: 'BlankLine' object has no attribute 'children' in html_renderer.py:84 in marko.
+        #         current_app.logger.exception(f'Subnode {self.uri} could not be rendered, retrying once (Heisenbug).')
+        #         try:
+        #             # try reloading on demand, working around caches.
+        #             self.load_text_subnode()
+        #             content = render.preprocess(self.content, subnode=self)
+        #             content = render.markdown(content)
+        #         except:
+        #             content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
+        #             current_app.logger.exception(f'Subnode {self.uri} could not be rendered even after retrying read (Heisenbug).')
+        # if self.uri.endswith('org') or self.uri.endswith('ORG'):
+        #     content = render.preprocess(self.content, subnode=self)
+        #     content = render.orgmode(content)
+        content = render.preprocess(self.content, subnode=self)
+        content = render.markdown(content)
+        ret = render.postprocess(self.content)
         return ret
 
     def raw(self):
-        return content
+        return self.content
 
     def parse(self):
         """Try to extract structured information from the subnode in question, 
@@ -945,11 +947,13 @@ def all_journals(skip_future=True):
             node.wikilink, '%Y-%m-%d') and quiet_strptime(node.wikilink, '%Y-%m-%d') < now]
     return ret
 
+
 def consolidate_nodes(nodes) -> Node:
     node = Node("journals")
     for n in nodes:
         node.subnodes.extend(n.subnodes)
     return node
+
 
 def random_node():
     nodes = list(G.nodes().values())
@@ -1039,6 +1043,8 @@ def subnodes_by_outlink(wikilink):
 
 def all_subnodes():
     subnodes = []
+    cur = con.cursor()
+
     for row in cur.execute("SELECT * FROM subnodes"):
         print(row)
         subnode = Subnode(user=row[1], content=row[2], node=row[3])

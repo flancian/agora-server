@@ -381,7 +381,6 @@ def push(node):
 def context(node):
     # returns by default an html view for the 'context' section: graph, links (including pushes, which can be costly)
     n = build_node(node)
-    print("LOADING CONTEXT")
     return render_template(
             'context.html', 
             embed=True,

@@ -14,7 +14,6 @@
 # limitations under the License.
 
 . venv/bin/activate
-parcel watch app/js-src/index.ts --dist-dir app/static/js &
 export FLASK_APP=app
 export FLASK_ENV="development"
 # defaults to localhost:5000
