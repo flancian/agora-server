@@ -77,7 +77,7 @@ def build_node(node, extension='', user_list=''):
     node = util.slugify(node)
 
     n = copy(G.node(node))
-
+    
     if n.subnodes:
         # earlier in the list means more highly ranked.
         n.subnodes = util.uprank(n.subnodes, users=rank)
@@ -115,6 +115,7 @@ def build_node(node, extension='', user_list=''):
 def node(node, extension='', user_list=''):
 
     n = build_node(node, extension=extension, user_list=user_list)
+    print("NOOOOODES", n.back_nodes())
 
     return render_template(
             # yuck
@@ -380,7 +381,7 @@ def push(node):
 def context(node):
     # returns by default an html view for the 'context' section: graph, links (including pushes, which can be costly)
     n = build_node(node)
-
+    print("LOADING CONTEXT")
     return render_template(
             'context.html', 
             embed=True,

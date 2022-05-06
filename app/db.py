@@ -14,6 +14,8 @@
 
 # this breaks pull buttons.
 # import bleach
+import json
+import sqlite3
 import cachetools.func
 
 import datetime
@@ -24,7 +26,6 @@ import re
 import os
 from flask import current_app
 
-import app.sql
 from . import config
 from . import feed
 from . import regexes
@@ -40,6 +41,9 @@ from typing import Union
 import lxml.html
 import lxml.etree
 
+con = sqlite3.connect('agora.db', check_same_thread=False)
+cur = con.cursor()
+
 # This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
 # https://anagora.org/auto-pull
 FUZZ_FACTOR = 95
@@ -47,7 +51,7 @@ FUZZ_FACTOR = 95
 # Spreading over a range prevents thundering herd affected by I/O throughput.
 CACHE_TTL = random.randint(60, 120)
 
-# URIs are ids. 
+# URIs are ids.
 # - In the case of nodes, their [[wikilink]].
 #   - Example: 'foo', meaning the node that is rendered when you click on [[foo]] somewhere.
 # - In the case of subnodes, a relative path within the Agora.
@@ -55,6 +59,8 @@ CACHE_TTL = random.randint(60, 120)
 #   - Note the example subnode above gets rendered in node [[README]], so fetching node with uri README would yield it (and others).
 
 # TODO: implement.
+
+
 class Graph:
     def __init__(self):
         # Revisit.
@@ -78,10 +84,8 @@ class Graph:
         # looks up a node by uri (essentially [[wikilink]]).
         # this used to be even worse :)
         nodes = self.nodes()
-        print(nodes, uri)
         try:
-            node = self.nodes()[uri.lower()]
-            print(nodes, uri)
+            node = nodes[uri.lower()]
             return node
         except (KeyError, IndexError):
             # We'll handle 404 in the template, as we want to show backlinks to non-existent nodes.
@@ -91,7 +95,7 @@ class Graph:
 
     def existing_permutations(self, uri, max_length=4):
         # looks up nodes matching a permutation of the tokenized uri.
-        # 
+        #
         # example use: if [[server-agora]] does not exist, serve [[agora-server]]
         #
         # this is, of course, a terrible implementation and dangerous :)
@@ -99,30 +103,32 @@ class Graph:
         tokens = uri.split('-')
         permutations = itertools.permutations(tokens, max_length)
         permutations = ['-'.join(permutation) for permutation in permutations]
-        nodes = [node for node in G.nodes(only_canonical=True).values() if node.wikilink in permutations and node.subnodes]
+        nodes = [node for node in G.nodes(only_canonical=True).values(
+        ) if node.wikilink in permutations and node.subnodes]
         return nodes
 
     def match(self, regex):
         # returns a list of nodes reasonably matching a regex.
         current_app.logger.debug(f'*** Looking for nodes matching {regex}.')
-        nodes = [node for node in G.nodes(only_canonical=True).values() if 
-                    # has some content
-                    node.subnodes and
-                    # its wikilink matches the regex
-                    re.match(regex, node.wikilink)
-                ]
+        nodes = [node for node in G.nodes(only_canonical=True).values() if
+                 # has some content
+                 node.subnodes and
+                 # its wikilink matches the regex
+                 re.match(regex, node.wikilink)
+                 ]
         current_app.logger.debug(f'*** Found related nodes: {nodes}.')
         return nodes
 
     def search(self, regex):
         # returns a list of nodes reasonably freely matching a regex.
-        current_app.logger.debug(f'*** Looking for nodes matching {regex} freely.')
-        nodes = [node for node in G.nodes(only_canonical=True).values() if 
-                    # has some content
-                    node.subnodes and
-                    # its wikilink matches the regex
-                    re.search(regex, node.wikilink)
-                ]
+        current_app.logger.debug(
+            f'*** Looking for nodes matching {regex} freely.')
+        nodes = [node for node in G.nodes(only_canonical=True).values() if
+                 # has some content
+                 node.subnodes and
+                 # its wikilink matches the regex
+                 re.search(regex, node.wikilink)
+                 ]
         current_app.logger.debug(f'*** Found related nodes: {nodes}.')
         return nodes
 
@@ -131,7 +137,7 @@ class Graph:
     def nodes(self, include_journals=True, only_canonical=True):
         # this is where a lot of the 'magic' happens.
         # this:
-        #   - reads and coalesces (integrates) [[subnodes]] into [[nodes]] 
+        #   - reads and coalesces (integrates) [[subnodes]] into [[nodes]]
         #   - ocassionally provides some code-generated utility by virtue of provisioning [[virtual subnodes]]
         # most node lookups in the Agora just look up a node in this list.
         # this is expensive but less so than subnodes().
@@ -147,7 +153,7 @@ class Graph:
             node_to_subnodes[subnode.node].append(subnode)
             if subnode.canonical_wikilink != subnode.wikilink and not only_canonical:
                 node_to_subnodes[subnode.wikilink].append(subnode)
-        
+
         # then we iterate over its values and construct nodes for each list of subnodes.
         nodes = {}
         for node in node_to_subnodes:
@@ -166,7 +172,7 @@ class Graph:
 
     # The following method is unused; it is far too slow given the current control flow.
     # Running something like this would be ideal eventually though.
-    # It might also work better once all pulling/pushing logic moves to Graph, where it belongs, 
+    # It might also work better once all pulling/pushing logic moves to Graph, where it belongs,
     # and can make use of more sensible algorithms.
     # @cache.memoize(timeout=30)
     def compute_transclusion(self, include_journals=True):
@@ -202,7 +208,7 @@ class Graph:
         # subnodes.extend([Subnode(f, mediatype='image/gif') for f in glob.glob(os.path.join(base, '**/*.gif'), recursive=True)])
         # subnodes.extend([Subnode(f, mediatype='image/webp') for f in glob.glob(os.path.join(base, '**/*.webp'), recursive=True)])
 
-        subnodes = app.sql.all_subnodes()
+        subnodes = all_subnodes()
 
         end = datetime.datetime.now()
         current_app.logger.debug(f'*** Loaded subnodes from {begin} to {end}.')
@@ -214,11 +220,13 @@ class Graph:
 
 G = Graph()
 
+
 class Node:
     """Nodes map 1:1 to wikilinks.
     They resolve to a series of subnodes when being rendered (see below).
     It maps to a particular file in the Agora repository, stored (relative to 
     the Agora root) in the attribute 'uri'."""
+
     def __init__(self, wikilink):
         # Use a node's URI as its identifier.
         # Subnodes are attached to the node matching their wikilink.
@@ -226,7 +234,7 @@ class Node:
         self.wikilink = wikilink
         # hack hack
         # TODO: revamp the whole notion of wikilink; it should default to free form text, with slugs being generated
-        # explicitly. will probably require coalescing different takes on what the 'canonical' description for a 
+        # explicitly. will probably require coalescing different takes on what the 'canonical' description for a
         # node should be, and perhaps having some precedence rules.
         # DEPRECATED -- use {qstr} in rendering code as needed (for now?).
         self.description = wikilink.replace('-', ' ')
@@ -269,7 +277,7 @@ class Node:
         # for subnode in self.subnodes + self.pushed_subnodes():
         for subnode in self.subnodes:
             links.extend(subnode.go())
-        return links 
+        return links
 
     def filter(self, other):
         # There's surely a much better way to do this. Alas :)
@@ -278,7 +286,7 @@ class Node:
         for subnode in self.subnodes:
             links.extend(subnode.filter(other))
             current_app.logger.debug(f"subnode {subnode.uri}, {links}")
-        return links 
+        return links
 
     # The following section is particularly confusing.
     # Some functions return wikilinks, some return full blown nodes.
@@ -299,7 +307,9 @@ class Node:
         # the nodes *being pulled* by this node.
         nodes = []
         for subnode in self.subnodes:
+            print(subnode.pull_nodes())
             nodes.extend(subnode.pull_nodes())
+        print(nodes)
         return sorted(set(nodes), key=lambda x: x.uri)
 
     def auto_pull_nodes(self):
@@ -343,7 +353,7 @@ class Node:
         # I think [[push]] and [[pull]] are fair game as they mean an [[agora]] user has thought these were strongly related.
         nodes.extend(self.pushing_nodes())
         nodes.extend(self.pulling_nodes())
-        
+
         # bug: for some reason set() doesn't dedup here, even though I've checked and the hash from duplicate nodes is identical (!).
         # test case: [[hypha]].
         ret = sorted(set(nodes), key=lambda x: x.uri)
@@ -416,8 +426,8 @@ class Node:
         # arg other should be a Node.
         # TODO: actually add type annotations, this is 2021.
         #
-        # TLDR: 
-        # - [[push]] [[other]] 
+        # TLDR:
+        # - [[push]] [[other]]
         # pushes all children (indented subitems) to [[other]].
         #
         # TODO: implement also:
@@ -445,24 +455,27 @@ class Node:
                     # link is of the form (element, attribute, link, pos) -- see https://lxml.de/3.1/lxmlhtml.html.
                     if link[2] == 'push':
                         # ugly, but hey, it works... for now.
-                        # this is *flaky* as it depends on an exact number of html elements to separate 
+                        # this is *flaky* as it depends on an exact number of html elements to separate
                         # [[push]] and its [[target node]].
                         # could be easily improved by just looking for the next <a>.
                         try:
-                            argument = link[0].getnext().getnext().getnext().text_content() 
+                            argument = link[0].getnext(
+                            ).getnext().getnext().text_content()
                             if re.search(other.wikilink, argument, re.IGNORECASE) or re.search(other.wikilink.replace('-', ' '), argument, re.IGNORECASE):
                                 # go one level up to find the <li>
                                 parent = link[0].getparent()
                                 # the block to be pushed is this level and its children.
                                 # TODO: replace [[push]] [[other]] with something like [[pushed from]] [[node]], which makes more sense in the target.
                                 block = lxml.etree.tostring(parent)
-                                subnodes.append(VirtualSubnode(subnode, other, block))
+                                subnodes.append(VirtualSubnode(
+                                    subnode, other, block))
                         except AttributeError:
                             # Better luck next time -- or when I fix this code :)
                             pass
         if not subnodes:
             # could be a failure in parsing, as of the time of writing #push isn't well supported.
-            subnodes.append(VirtualSubnode(subnode, other, f"<em>Couldn't parse #push. See source for content</em>."))
+            subnodes.append(VirtualSubnode(
+                subnode, other, f"<em>Couldn't parse #push. See source for content</em>."))
         return subnodes
 
     def exec(self):
@@ -474,6 +487,8 @@ class Node:
         return subnodes
 
     def back_nodes(self):
+        print("OUTLINK", self.wikilink)
+        print(nodes_by_outlink(self.wikilink))
         return sorted([x for x in nodes_by_outlink(self.wikilink) if x.wikilink != self.wikilink])
 
     def back_links(self):
@@ -498,84 +513,68 @@ class Subnode:
     """A subnode is a note or media resource volunteered by a user of the Agora.
     It maps to a particular file in the Agora repository, stored (relative to 
     the Agora root) in the attribute 'uri'."""
-    def __init__(self, path, mediatype='text/plain'):
-        self.path = path
+
+    def __init__(self, user, node, content, mediatype='text/plain'):
         # Use a subnode's URI as its identifier.
-        self.uri: str = path_to_uri(path)
-        self.url = '/subnode/' + self.uri
+        self.uri = node
+        self.url = node
+        self.content = content
+        self.node = node
+        self.forward_links = content_to_forward_links(self.content)
 
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         # will often have spaces; not lossy (or as lossy as the filesystem)
-        self.wikilink = path_to_wikilink(path)
+        self.wikilink = node
         # essentially a slug.
-        self.canonical_wikilink = util.canonical_wikilink(self.wikilink)
-        self.user = path_to_user(path)
+        self.canonical_wikilink = node
+        self.user = user
         self.user_config = User(self.user).config
-        if self.user_config:
-            self.load_user_config()
+        # if self.user_config:
+        #     try:
+        #         self.edit_path = os.path.join(*self.uri.split('/')[2:])
+        #     except TypeError:
+        #         current_app.logger.debug(f'{self.uri} resulted in no edit_path')
+        #     self.support = self.user_config.get('support', False)
+        #     self.edit: Union[str, False] = self.user_config.get('edit', False)
+        #     self.web: Union[str, False] = self.user_config.get('web', False)
+        #     if self.edit:
+        #         # for edit paths with {path}
+        #         self.edit = self.edit.replace("{path}", self.edit_path)
+        #         # for edit paths with {slug}
+        #         # hack hack, the stoa doesn't expect an .md extension so we just cut out the extension from the path for now.
+        #         self.edit = self.edit.replace("{slug}", self.edit_path[:-3])
+        #     if self.web:
+        #         # same as the above but for views
+        #         # for web paths with {path}
+        #         self.web = self.web.replace("{path}", self.edit_path)
+        #         # for web paths with {slug}
+        #         self.web = self.web.replace("{slug}", self.edit_path[:-3])
 
         self.mediatype = mediatype
 
-        if self.mediatype == 'text/plain':
-            self.load_text_subnode()
-        elif self.mediatype.startswith('image'):
-            self.load_image_subnode()
-        else:
-            raise ValueError
+        # if self.mediatype == 'text/plain':
+        #     try:
+        #         with open(path) as f:
+        #             self.content = f.read()
+        #             # Marko raises IndexError on render if the file doesn't terminate with a newline.
+        #             if not self.content.endswith('\n'):
+        #                 self.content = self.content + '\n'
+        #             self.forward_links = content_to_forward_links(self.content)
+        #     except IsADirectoryError:
+        #         self.content = "(A directory).\n"
+        #         self.forward_links = []
+        # elif self.mediatype.startswith('image'):
+        #     with open(path, 'rb') as f:
+        #         self.content = f.read()
+        #         self.forward_links = []
+        # else:
+        #     raise ValueError
 
-        self.mtime = os.path.getmtime(path)
-        self.node = self.canonical_wikilink
-
-    def load_text_subnode(self):
-        try:
-            with open(self.path) as f:
-                self.content = f.read()
-                # Marko raises IndexError on render if the file doesn't terminate with a newline.
-                if not self.content.endswith('\n'):
-                    self.content = self.content + '\n'
-                self.forward_links = content_to_forward_links(self.content)
-        except IsADirectoryError:
-            self.content = "(A directory).\n"
-            self.forward_links = []
-        except FileNotFoundError:
-            self.content = "(File not found).\n"
-            self.forward_links = []
-            current_app.logger.exception(f'Could not read file due to FileNotFoundError in Subnode __init__ (Heisenbug).')
-        except OSError:
-            self.content = "(File could not be read).\n"
-            self.forward_links = []
-            current_app.logger.exception(f'Could not read file due to OSError in Subnode __init__ (Heisenbug).')
-        except:
-            self.content = "(Unhandled exception when trying to read).\n"
-            self.forward_links = []
-            current_app.logger.exception(f'Could not read file due to unhandled exception in Subnode __init__ (Heisenbug).')
-
-    def load_image_subnode(self):
-        with open(self.path, 'rb') as f:
-            self.content = f.read()
-            self.forward_links = []
-
-    def load_user_config(self):
-        try:
-            self.edit_path = os.path.join(*self.uri.split('/')[2:])
-        except TypeError:
-            current_app.logger.debug(f'{self.uri} resulted in no edit_path')
-        self.support = self.user_config.get('support', False)
-        self.edit: Union[str, False] = self.user_config.get('edit', False)
-        self.web: Union[str, False] = self.user_config.get('web', False)
-        if self.edit:
-            # for edit paths with {path}
-            self.edit = self.edit.replace("{path}", self.edit_path)
-            # for edit paths with {slug}
-            # hack hack, the stoa doesn't expect an .md extension so we just cut out the extension from the path for now.
-            self.edit = self.edit.replace("{slug}", self.edit_path[:-3])
-        if self.web:
-            # same as the above but for views
-            # for web paths with {path}
-            self.web = self.web.replace("{path}", self.edit_path)
-            # for web paths with {slug}
-            self.web = self.web.replace("{slug}", self.edit_path[:-3])
+        # self.mtime = os.path.getmtime(path)
+        # self.node = self.canonical_wikilink
+        # Initiate node for wikilink if this is the first subnode, append otherwise.
+        # G.addsubnode(self)
 
     def __hash__(self):
         return hash(self.uri)
@@ -595,7 +594,7 @@ class Subnode:
         # hack hack
         return 100-fuzz.ratio(self.wikilink, other.wikilink)
 
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
+    # @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def render(self):
         if self.mediatype != 'text/plain':
             # hack hack
@@ -639,7 +638,8 @@ class Subnode:
         # not really finished nor tested.
         raise NotImplementedError
         import yaml
-        front_matter = re.search('---(\n.*)*---', self.content, flags=re.MULTILINE)
+        front_matter = re.search(
+            '---(\n.*)*---', self.content, flags=re.MULTILINE)
         if front_matter:
             front_matter = re.sub('---', '', front_matter[0])
             return yaml.safe_load(front_matter)
@@ -729,7 +729,6 @@ class Subnode:
         # nodes.extend(self.pull_nodes())
         return nodes
 
-
     @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def push_nodes(self):
         """
@@ -747,8 +746,9 @@ class Subnode:
         push_nodes = content_to_forward_links("\n".join(push_blocks))
         return [G.node(node) for node in push_nodes]
 
+
 class VirtualSubnode(Subnode):
-    # For instantiating a virtual subnode -- a subnode derived from another subnode. 
+    # For instantiating a virtual subnode -- a subnode derived from another subnode.
     # Used by [[push]] (transclusion).
     # Used by [[exec]] (general actions).
     def __init__(self, source_subnode, target_node, block):
@@ -781,9 +781,9 @@ def subnode_to_actions(subnode, action, blocks_only=False):
     if subnode.mediatype != 'text/plain':
         return []
     if blocks_only:
-        wikilink_regex ='- \[\[' + action + '\]\] (.*?)$'
+        wikilink_regex = '- \[\[' + action + '\]\] (.*?)$'
     else:
-        wikilink_regex ='\[\[' + action + '\]\] (.*?)$'
+        wikilink_regex = '\[\[' + action + '\]\] (.*?)$'
     content = subnode.content
     actions = []
     for line in content.splitlines():
@@ -792,13 +792,14 @@ def subnode_to_actions(subnode, action, blocks_only=False):
             actions.append(m.group(1))
     return actions
 
+
 def subnode_to_taglink(subnode, tag, blocks_only=False):
     if subnode.mediatype != 'text/plain':
         return []
     if blocks_only:
-        tag_regex =f'- #{tag} (.*?)$'
+        tag_regex = f'- #{tag} (.*?)$'
     else:
-        tag_regex =f'#{tag} (.*?)$'
+        tag_regex = f'#{tag} (.*?)$'
     content = subnode.content
     tags = []
     for line in content.splitlines():
@@ -807,15 +808,16 @@ def subnode_to_taglink(subnode, tag, blocks_only=False):
             tags.append(m.group(1))
     return tags
 
+
 class User:
     def __init__(self, user):
         self.user = user
         self.uri = user
         # yikes
         self.url = '/@' + self.uri
-        try: 
-            self.config = [x for x in current_app.config['YAML_CONFIG'] if 
-            x['target'].split('/')[-1] == self.user.split('@')[-1]][0]
+        try:
+            self.config = [x for x in current_app.config['YAML_CONFIG'] if
+                           x['target'].split('/')[-1] == self.user.split('@')[-1]][0]
         except IndexError:
             self.config = {}
         if self.config:
@@ -827,7 +829,7 @@ class User:
             self.support = self.config.get('support', '')
 
     def subnodes(self):
-         return subnodes_by_user(self.user)
+        return subnodes_by_user(self.user)
 
     def __str__(self):
         return self.user
@@ -838,8 +840,10 @@ class User:
     def size(self):
         return len(self.subnodes())
 
+
 def path_to_uri(path):
     return path.replace(current_app.config['AGORA_PATH'] + '/', '')
+
 
 def path_to_user(path):
     m = re.search('garden/(.+?)/', path)
@@ -853,8 +857,10 @@ def path_to_user(path):
         return m.group(1)
     return 'agora'
 
+
 def path_to_wikilink(path):
     return os.path.splitext(os.path.basename(path))[0]
+
 
 def content_to_forward_links(content):
     # hack hack.
@@ -871,6 +877,7 @@ def content_to_forward_links(content):
                 continue
     return links
 
+
 def content_to_obsidian_embeds(content):
     # hack hack.
     match = regexes.OBSIDIAN_EMBED.findall(content)
@@ -881,11 +888,14 @@ def content_to_obsidian_embeds(content):
     else:
         return []
 
+
 def latest():
     return sorted(G.subnodes(), key=lambda x: -x.mtime)
 
+
 def top():
     return sorted(G.nodes(only_canonical=True).values(), key=lambda x: -x.size())
+
 
 def stats():
     stats = {}
@@ -897,24 +907,30 @@ def stats():
 
     return stats
 
+
 def all_users():
     # hack hack.
-    users = os.listdir(os.path.join(current_app.config['AGORA_PATH'], 'garden'))
+    users = os.listdir(os.path.join(
+        current_app.config['AGORA_PATH'], 'garden'))
     return sorted([User(u) for u in users], key=lambda x: x.uri.lower())
 
+
 def user_journals(user):
-    nodes = [node for node in subnodes_by_user(user) if util.is_journal(node.wikilink)]
+    nodes = [node for node in subnodes_by_user(
+        user) if util.is_journal(node.wikilink)]
     return sorted(nodes, key=attrgetter('wikilink'), reverse=True)
+
 
 def all_journals(skip_future=True):
     # hack hack.
     # we could presumably have a more efficient nodes_by_regex? but it might be benchmark-level.
     nodes = G.nodes()
-    nodes = [node for node in nodes.values() if util.is_journal(node.wikilink) and node.wikilink]
+    nodes = [node for node in nodes.values() if util.is_journal(
+        node.wikilink) and node.wikilink]
 
     def datekey(x):
         return re.sub(r'[-_ ]', '', x.wikilink)
-        
+
     ret = sorted(nodes, key=datekey, reverse=True)
     if skip_future:
         def quiet_strptime(s, format):
@@ -925,7 +941,8 @@ def all_journals(skip_future=True):
 
         import datetime
         now = datetime.datetime.now() + datetime.timedelta(days=1)
-        ret = [node for node in ret if quiet_strptime(node.wikilink, '%Y-%m-%d') and quiet_strptime(node.wikilink, '%Y-%m-%d') < now]
+        ret = [node for node in ret if quiet_strptime(
+            node.wikilink, '%Y-%m-%d') and quiet_strptime(node.wikilink, '%Y-%m-%d') < now]
     return ret
 
 def consolidate_nodes(nodes) -> Node:
@@ -939,11 +956,15 @@ def random_node():
     return random.choice(nodes)
 
 # Deprecated.
+
+
 def nodes_by_wikilink(wikilink):
     nodes = [node for node in G.nodes().values() if node.wikilink == wikilink]
     return nodes
 
 # Deprecated.
+
+
 def wikilink_to_node(node):
     try:
         return nodes_by_wikilink(node)[0]
@@ -952,33 +973,44 @@ def wikilink_to_node(node):
         # Return an empty.
         return Node(node)
 
+
 def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
     if fuzzy_matching:
         # TODO
-        subnodes = [subnode for subnode in G.subnodes() if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]
+        subnodes = [subnode for subnode in G.subnodes() if fuzz.ratio(
+            subnode.wikilink, wikilink) > FUZZ_FACTOR]
     else:
-        subnodes = [subnode for subnode in G.subnodes() if subnode.wikilink == wikilink]
+        subnodes = [subnode for subnode in G.subnodes()
+                    if subnode.wikilink == wikilink]
     return subnodes
+
 
 def search_subnodes(query):
     current_app.logger.debug(f'query: {query}, searching subnodes.')
-    subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype == 'text/plain' and re.search(query, subnode.content, re.IGNORECASE)]
+    subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype ==
+                'text/plain' and re.search(query, subnode.content, re.IGNORECASE)]
     current_app.logger.debug(f'query: {query}, searched subnodes.')
     return subnodes
 
+
 def search_subnodes_by_user(query, user):
-    subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype == 'text/plain' and subnode.user == user and re.search(query, subnode.content, re.IGNORECASE)]
+    subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype == 'text/plain' and subnode.user ==
+                user and re.search(query, subnode.content, re.IGNORECASE)]
     return subnodes
+
 
 def subnodes_by_user(user, sort_by='mtime', reverse=True):
     subnodes = [subnode for subnode in G.subnodes() if subnode.user == user]
     return sorted(subnodes, key=attrgetter(sort_by), reverse=reverse)
 
+
 def user_readmes(user):
     # hack hack
     # fix duplication.
-    subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype == 'text/plain' and subnode.user == user and re.search('readme', subnode.wikilink, re.IGNORECASE)]
+    subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype == 'text/plain' and subnode.user ==
+                user and re.search('readme', subnode.wikilink, re.IGNORECASE)]
     return subnodes
+
 
 def subnode_by_uri(uri):
     subnode = [subnode for subnode in G.subnodes() if subnode.uri == uri]
@@ -988,12 +1020,27 @@ def subnode_by_uri(uri):
         # TODO: handle.
         return Subnode(uri)
 
+
 def nodes_by_outlink(wikilink):
-    nodes = [node for node in G.nodes(only_canonical=True).values() if wikilink in node.forward_links()]
+    print("BACKLINKS",  wikilink)
+    print(G.nodes(only_canonical=True).values())
+    nodes = [node for node in G.nodes(
+        only_canonical=True).values() if wikilink in node.forward_links()]
     return sorted(nodes, key=attrgetter('wikilink'))
+
 
 def subnodes_by_outlink(wikilink):
     # This doesn't work. It matches too much/too little for some reason. Debug someday?
     # subnodes = [subnode for subnode in all_subnodes() if [wikilink for wikilink in subnode.forward_links if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]]
-    subnodes = [subnode for subnode in G.subnodes() if util.canonical_wikilink(wikilink) in subnode.forward_links]
+    subnodes = [subnode for subnode in G.subnodes() if util.canonical_wikilink(
+        wikilink) in subnode.forward_links]
+    return subnodes
+
+
+def all_subnodes():
+    subnodes = []
+    for row in cur.execute("SELECT * FROM subnodes"):
+        print(row)
+        subnode = Subnode(user=row[1], content=row[2], node=row[3])
+        subnodes.append(subnode)
     return subnodes

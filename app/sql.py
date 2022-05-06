@@ -4,31 +4,6 @@ from . import util
 
 con = sqlite3.connect('agora.db', check_same_thread=False)
 
-class Subnode():
-    def __init__(self, user, node, content, type='text/markdown'):
-
-        # Need to reconfigure these
-        self.uri = node
-        self.url = node
-        self.wikilink = node
-        self.canonical_wikilink = node
-        self.forward_links = content_to_forward_links(content)
-
-        self.user = user
-        self.node = node
-        self.content = content
-        self.mediatype = type
-
-    def __str__(self):
-        return {'user': self.user, 'node': self.node, 'content': self.content}
-
-    def pull_nodes(self):
-        return self.forward_links
-    def auto_pull_nodes(self):
-        return self.forward_links
-    def render(self):
-        return self.content
-
 def subnodes(node):
     cur = con.cursor()
     subnodes = []
