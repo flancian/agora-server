@@ -187,7 +187,7 @@ class Graph:
 
     # does this belong here?
     # @cache.memoize(timeout=30)
-    # @cachetools.func.ttl_cache(ttl=CACHE_TTL)
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def subnodes(self, sort=lambda x: x.uri.lower()):
         # this is where the magic happens (?)
         # as in -- this is where the rubber meets the road.
@@ -1026,7 +1026,7 @@ def subnode_by_uri(uri):
         # TODO: handle.
         print(f'No subnode found for uri: {uri}')
         [user, node] = uri.split('/')
-        return Subnode(user, node, "")
+        return Subnode(user, node, "","")
 
 
 def nodes_by_outlink(wikilink):
