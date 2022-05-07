@@ -587,7 +587,6 @@ class Subnode:
         # hack hack
         return 100-fuzz.ratio(self.wikilink, other.wikilink)
 
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def render(self):
         if self.mediatype != 'text/plain':
             # hack hack
