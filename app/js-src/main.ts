@@ -25,7 +25,7 @@ const autoPullLocal = JSON.parse(localStorage["auto-pull-local"] || 'false')
 const autoPullExternal = JSON.parse(localStorage["auto-pull-external"] || 'false')
 const autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || 'false')
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
-const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'false')
+const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
 document.addEventListener("DOMContentLoaded", function () {
   // Select button

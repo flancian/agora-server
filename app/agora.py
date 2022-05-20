@@ -67,14 +67,14 @@ def build_node(node, extension='', user_list=''):
 
     # there are some ill-slugged links to anagora.org out there, special casing here for a while at least.
     # this should probably be made irrelevant by the Big Refactor that we need to do to make the canonical node identifier non-lossy.
-    node = node.replace(',', '').replace(':', '')
+    # node = node.replace(',', '').replace(':', '')
 
     # unquote in case the node came in urlencoded, then slugify again to gain the 'dimensionality reduction' effects of
     # slugs -- and also because G.node() expects a slug as of 2022-01.
     # yeah, this is a hack.
     # TODO: fix this, make decoded unicode strings the main IDs within db.py.
     node = urllib.parse.unquote_plus(node)
-    node = util.slugify(node)
+    # node = util.slugify(node)
 
     n = copy(G.node(node))
 
@@ -182,7 +182,7 @@ def graph_js_node(node):
 def subnode(node, user):
 
     node = urllib.parse.unquote_plus(node)
-    node = util.slugify(node)
+    # node = util.slugify(node)
     n = G.node(node)
 
     n.subnodes = util.filter(n.subnodes, user)

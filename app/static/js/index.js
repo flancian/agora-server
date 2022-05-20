@@ -5918,7 +5918,7 @@
       autoPullExternal = JSON.parse(localStorage["auto-pull-external"] || "false");
       autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || "false");
       autoExec = JSON.parse(localStorage["auto-exec"] || "true");
-      pullRecursive = JSON.parse(localStorage["pull-recursive"] || "false");
+      pullRecursive = JSON.parse(localStorage["pull-recursive"] || "true");
       document.addEventListener("DOMContentLoaded", function() {
         const btn = document.querySelector(".theme-toggle");
         var theme = document.querySelector("#theme-link");
