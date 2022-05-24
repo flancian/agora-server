@@ -282,6 +282,14 @@ input[type="text"] {
     padding: 10px;
 }
 
+.left {
+    border-color: red;
+}
+
+.right {
+    border-color: blue;
+}
+
 .pulled-node {
     /*border-color: #7f5af0;*/
     border-color: gray;

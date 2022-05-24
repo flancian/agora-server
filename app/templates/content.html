@@ -2,19 +2,26 @@
 
 {% block content %}
 
-{% include "node.html" %}
+<div class="content">
 
-{% if not embed %}
+    {% include "node.html" %}
 
-    {% include "stoa.html" %}
+    {# {% include "left.html" %}
 
-    <div class="context">
-    <em>Loading context... (requires JavaScript)</em>
-    </div>
+    {% include "right.html" %} #}
 
-    {% include "search.html" %}
+    {% if not embed %}
 
-{% endif %}
+	{% include "stoa.html" %}
+
+	<div class="context">
+	<em>Loading context... (requires JavaScript)</em>
+	</div>
+
+	{% include "search.html" %}
+
+    {% endif %}
+
+</div>
 
 {% endblock %}
-

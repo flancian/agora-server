@@ -138,10 +138,9 @@
 
     {% endif %}
 
-    <div class="content">
-        {% block content %}
-        {% endblock %}
-    </div>
+    {% block content %}
+    {% endblock %}
+
     <div id='popup' style='display: none; position: absolute;'>{{popup|default("What could we show here?")}}</div>
     {% if not embed %}
     <hr>
