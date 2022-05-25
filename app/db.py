@@ -685,6 +685,7 @@ class Subnode:
         """
         current_app.logger.debug(f"in subnode filter({self.uri}, {other}")
         links = subnode_to_actions(self, other, blocks_only=False)
+        links += subnode_to_taglink(self, other, blocks_only=False)
         current_app.logger.debug(f"links {links}")
         sanitized_links = []
         for link in links:
