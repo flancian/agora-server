@@ -21,6 +21,7 @@ import glob
 import itertools
 import random
 import re
+import time
 import os
 from flask import current_app
 from . import config
@@ -516,7 +517,12 @@ class Subnode:
         else:
             raise ValueError
 
-        self.mtime = os.path.getmtime(path)
+        try:
+            self.mtime = os.path.getmtime(path)
+        except FileNotFoundError:
+            # Perhaps it makes senses to treat this as a 'virtual file'? give it now() as mtime?
+            self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
+            
         self.node = self.canonical_wikilink
 
     def load_text_subnode(self):
