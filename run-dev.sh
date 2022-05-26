@@ -18,4 +18,4 @@
 export FLASK_APP=app
 export FLASK_ENV="development"
 export AGORA_CONFIG="DevelopmentConfig"
-flask run
+flask run -p 5017
