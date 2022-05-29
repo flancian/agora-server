@@ -50,8 +50,8 @@ license; please reach out to flancian@ or some other maintainer if this concerns
 ## About the project
 As you might have inferred from the above, this project is based on [Flask](https://flask.palletsprojects.com). ```/app``` hosts the Flask app. In it:
 
-```app/__init__.py``` has the high level Flask setup.
-```app/agora.py``` does rendering (url maps, views).
-```app/db.py``` has logic to read/process notes. The db is actually the filesystem :)
-```app/js-src``` has Javascript and Typescript sources.
-```app/templates``` are Jinja2 templates.
+- ```app/__init__.py``` has the high level Flask setup.
+- ```app/agora.py``` does rendering (url maps, views).
+- ```app/db.py``` has logic to read/process notes. The db is actually the filesystem :)
+- ```app/js-src``` has Javascript and Typescript sources.
+- ```app/templates``` are Jinja2 templates.
