@@ -102,7 +102,7 @@
             <div class="topline-node">
                 <div class="topline-node-wrapper">
                 <div class="topline-query">
-                    <button id="mini-cli-exec" value="exec">🔍</button>
+                    <button id="mini-cli-exec" value="exec">search</button>
                 </div>
                 <div class="topline-cli">
                     <form action="/exec" method="get">
@@ -127,10 +127,10 @@
             {% endif %}
 
                 <div class="topline-agora">
-                    {% if not embed %}
+                    {% if embed %}
                     <strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of {{config['MAINTAINER']}} ⬎</strong>
                     {% else %}
-                    <strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of {{config['MAINTAINER']}} ⬎</strong>
+                    <strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> ⬎</strong>
                     {% endif %}
                     <div>
                         <button id="pull-all" value="pull-all" title="Clicks on pull buttons for nodes and posts below.">pull all</button>
@@ -153,7 +153,7 @@
     <hr>
     <!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
     <div id='footer'>
-        <strong>This request was served by <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of {{config['MAINTAINER']}} in <strong>__EXECTIME__ seconds</strong> around <strong>__NOW__</strong>.
+        This request was served by <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of <strong>{{config['MAINTAINER']}}</strong> in <strong>__EXECTIME__ seconds</strong> around <strong>__NOW__</strong>.
     </div>
 
     {% endif %}
