@@ -24,10 +24,13 @@ def rank(l, user):
 
 def is_valid_url(url):
     # from https://stackoverflow.com/a/36283503
-    tokens = urlparse(url)
-    min_attributes = ('scheme', 'netloc')
-    return all([getattr(tokens, qualifying_attr)
+    try:
+        tokens = urlparse(url)
+        min_attributes = ('scheme', 'netloc')
+        return all([getattr(tokens, qualifying_attr)
                 for qualifying_attr in min_attributes])
+    except AttributeError:
+        return False
 
 def uprank(l, users):
     # hack hack

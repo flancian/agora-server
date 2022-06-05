@@ -282,6 +282,7 @@ def ctzn_login():
 # This is still a hack (works for n=1, n=2), needs to be replaced with proper generic node/block "algebra"?
 # TODO(2022-06-05): maybe through providers.py? This feels like arbitrary query handling, unsure where to draw the line as of yet.
 @bp.route('/go/<node0>/<node1>')
+@bp.route('/go/<node0>/')
 @bp.route('/go/<node0>')
 def go(node0, node1=''):
     """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
@@ -291,24 +292,34 @@ def go(node0, node1=''):
     # current_app.logger.debug = print
     current_app.logger.debug(f'running composite_go for {node0}, {node1}.')
     base = current_app.config['URL_BASE']
+
+    if not node1:
+        # this may be surprising, but I find that using [[foo]] in node [[foo]] near a link is sometimes a useful pattern.
+        # this also lets us do stuff like [[foo]] <URL> in pushes and stream updates and define go links like this (if there aren't any better.)
+        node1 = node0
     n0 = build_node(node0)
-    if node1:
-        n1 = build_node(node1)
-    else:
-        # this may be surprising, but I find that using [[foo]] in node [[foo]] near a link provides signal.
-        # this also lets us do stuff like [[foo]] <URL> in stream updates?
-        n1 = build_node(node0)
+    n1 = build_node(node1)
 
     links = n0.go() + n1.go()
     # we go through n0 looking for n1 as a tag.
     for subnode in n0.subnodes:
-        links.extend(subnode.filter(node1))
+        if node0 == node1:
+            links.extend(subnode.filter(node1))
+        else:
+            # this needs to be higher priority, e.g. go/move/7 > go/move
+            links = subnode.filter(node1) + links
+
     current_app.logger.debug(
         f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
 
     # ...and through n1 looking for n0 as a tag.
     for subnode in n1.subnodes:
-        links.extend(subnode.filter(node0))
+        if node0 == node1:
+            links.extend(subnode.filter(node0))
+        else:
+            # this needs to be higher priority, e.g. go/7/move > go/move
+            links = subnode.filter(node0) + links
+
     current_app.logger.debug(
         f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
 
@@ -339,7 +350,7 @@ def go(node0, node1=''):
 
     # No matching viable links found after all tries.
     # TODO(flancian): flash an explanation :)
-    if node1:
+    if node0 != node1:
         return redirect(f'{base}/{node0}/{node1}')
     else:
         return redirect(f'{base}/{node0}')
