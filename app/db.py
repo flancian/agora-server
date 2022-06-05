@@ -478,6 +478,7 @@ class Node:
         subnodes = []
         for node in self.pushing_nodes():
             for subnode in node.pushing(self):
+                current_app.logger.debug(f"in pushed_subnodes, found subnode ({subnode.uri}")
                 subnodes.append(subnode)
         return subnodes
 
@@ -657,6 +658,8 @@ class Subnode:
 
         (protocol defaults to https.)
         """
+        # Currently this only applies to non-Virtual subnodes. Virtual subnodes override.
+        current_app.logger.debug(f"in subnode go ({self.uri}")
         golinks = subnode_to_actions(self, 'go')
         # TODO change this to something better after we figure out [[agora actions]] in [[agora proposals]]
         golinks.extend(subnode_to_taglink(self, 'go'))
@@ -760,8 +763,8 @@ class VirtualSubnode(Subnode):
         self.wikilink = target_node.wikilink
         self.canonical_wikilink = self.wikilink
         self.user = source_subnode.user
-        # Only text transclusion supported.
-        self.mediatype = 'text/plain'
+        # LOG(2022-06-05): As of the time of writing we treat VirtualSubnodes as prerendered.
+        self.mediatype = 'text/html'
 
         try:
             self.content = block.decode('UTF-8')
@@ -772,6 +775,29 @@ class VirtualSubnode(Subnode):
 
         self.mtime = source_subnode.mtime
         self.node = self.canonical_wikilink
+    
+    # We special case go for Virtual Subnodes as they're 'precooked', that is, content is html.
+    # We could fix the special casing / at least use media types?
+    def go(self):
+        # lxml to the rescue again :)
+        try:
+            tree = lxml.html.fromstring(self.content)
+        except lxml.etree.ParserError:
+            return []
+
+        for link in tree.iterlinks():
+            # link is of the form (element, attribute, link, pos) -- see https://lxml.de/3.1/lxmlhtml.html.
+            # yikes -- this was adapted from our other polemical lxml use :)
+            if link[2] == 'go':
+                # ugly, but hey, it works... for now.
+                # yolo?
+                try:
+                    # below seems to work for the test of [[2022-06-05]] pushing to [[testing]].
+                    go = link[0].getnext().getnext().text_content() 
+                    return [go]
+                except AttributeError:
+                    # Better luck next time -- or when I fix this code :)
+                    return []
 
 
 def subnode_to_actions(subnode, action, blocks_only=False):
