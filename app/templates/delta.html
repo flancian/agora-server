@@ -25,23 +25,6 @@
         {% endfor %}
     </div>
 
-    <div class="delta-annotations">
-        <span class="backlinks-header">Recent web annotations</span><br />
-    {% if annotations.entries %}
-        {% for annotation in annotations.entries %}
-        hypothes.is user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
-        annotated <a href="{{annotation.link}}">{{annotation.title}}</a>
-        on {{annotation.published[:10]}}<br />
-        <blockquote>
-        <em>{{annotation.summary|linkify|safe}}</em>
-        </blockquote>
-        {% endfor %}
-    {% else %}
-        No annotations found. <br />
-        <em>Start using <a href="https://hypothes.is">hypothes.is</a> today! Web annotations are an open web standard.</em>
-    {% endif %}
-    </div>
-
 </div>
 
 {% endblock %}
