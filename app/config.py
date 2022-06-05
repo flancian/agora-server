@@ -17,7 +17,8 @@ class DefaultConfig(object):
     # system account goes first, then people who write *about the Agora* in their gardens, in order of joining.
     # note: I don't like being first among the humans, I still do it because my subnodes are often of the summary/tldr kind whenever they overlap with others.
     # I'd like to relinquish control of ranking functions in favour of [[flancia collective]], [[agora discuss]] in that order.
-    RANK = ['agora', 'flancian', 'vera', 'neil', 'maya', 'Jayu']
+    # Jayu temporarily out as they left the Agora while rebooting their garden.
+    RANK = ['agora', 'flancian', 'vera', 'neil', 'maya', 'j0lms']
     # deprecated/check if unused
     AGORA_VERSION = '0.9'
     # standard: no trailing slashes anywhere in variables.
