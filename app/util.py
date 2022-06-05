@@ -14,12 +14,20 @@
 import re
 from dateparser import DateDataParser
 from functools import lru_cache
+from urllib.parse import urlparse
 
 parser = DateDataParser(languages=['en'])
 
 def rank(l, user):
     # hack hack
     return sorted(l, key=lambda x: x.user)
+
+def is_valid_url(url):
+    # from https://stackoverflow.com/a/36283503
+    tokens = urlparse(url)
+    min_attributes = ('scheme', 'netloc')
+    return all([getattr(tokens, qualifying_attr)
+                for qualifying_attr in min_attributes])
 
 def uprank(l, users):
     # hack hack

@@ -68,7 +68,7 @@ def build_node(node, extension='', user_list=''):
 
     # there are some ill-slugged links to anagora.org out there, special casing here for a while at least.
     # this should probably be made irrelevant by the Big Refactor that we need to do to make the canonical node identifier non-lossy.
-    # update(2022-06-05): this could probably be removed, needs testing, but with the move to using [[quote plus]] across the board we should be fine? 
+    # UPDATE(2022-06-05): this could probably be removed, needs testing, but with the move to using [[quote plus]] across the board we should be fine? 
     node = node.replace(',', '').replace(':', '')
 
     # unquote in case the node came in urlencoded, then slugify again to gain the 'dimensionality reduction' effects of
@@ -76,15 +76,19 @@ def build_node(node, extension='', user_list=''):
     # yeah, this is a hack.
     # TODO: fix this, make decoded unicode strings the main IDs within db.py.
     node = urllib.parse.unquote_plus(node)
+    # hmm, I don't like this slugify.
+    # TODO(2022-06-05): will try to remove it and see what happens.
+    # *but this after fixing go links?*
     node = util.slugify(node)
 
+    # we copy because we'll potentially modify subnode order, maybe add [[virtual subnodes]].
     n = copy(G.node(node))
 
     if n.subnodes:
         # earlier in the list means more highly ranked.
         n.subnodes = util.uprank(n.subnodes, users=rank)
         if extension:
-            # this is pretty hacky but it works for now
+            # this is pretty hacky but it works for now.
             # should probably move to a filter method in the node? and get better template support to make what's happening clearer.
             current_app.logger.debug(f'filtering down to extension {extension}')
             n.subnodes = [subnode for subnode in n.subnodes if subnode.uri.endswith(f'.{extension}')]
@@ -269,91 +273,78 @@ def regexsearch():
 def ctzn_login():
     return render_template('ctzn_login.html')
 
+#
 # Actions
-# Simple go.
+#
 
-
-@bp.route('/go/<node>')
-def go(node):
-    """Redirects to the URL in the given node in a block that starts with [[go]], if there is one."""
-    # TODO(flancian): all node-scoped stuff should move to actually use node objects.
-
-    n = build_node(node)
-
-    # we should do ranking :)
-    links = n.go()
-    if len(links) == 0:
-        # No go links detected in this node -- just redirect to the node.
-        # TODO(flancian): flash an explanation :)
-        return redirect(f"{current_app.config['URL_BASE']}/{node}")
-
-    if len(links) > 1:
-        # TODO(flancian): to be implemented.
-        # Likely default to one of the links, show all of them but redirect to default within n seconds.
-        current_app.logger.warning(
-            'Code to manage nodes with more than one go link is not Not implemented.')
-
-    return redirect(links[0])
-
-# Composite go.
-# This is a hack, needs to be replaced with proper generic node/block "algebra".
-
-
+# I love [[go links]] :)
+# This was composite go, now graduated to handling all supported cases :)
+# This is still a hack (works for n=1, n=2), needs to be replaced with proper generic node/block "algebra"?
+# TODO(2022-06-05): maybe through providers.py? This feels like arbitrary query handling, unsure where to draw the line as of yet.
 @bp.route('/go/<node0>/<node1>')
-def composite_go(node0, node1):
+@bp.route('/go/<node0>')
+def go(node0, node1=''):
     """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
     # TODO(flancian): all node-scoped stuff should move to actually use node objects.
+    # perhaps we need merge_node(n0, n1) in db.py?
     # TODO(flancian): make [[go]] call this?
     # current_app.logger.debug = print
     current_app.logger.debug(f'running composite_go for {node0}, {node1}.')
-    n0 = build_node(node0)
-    n1 = build_node(node1)
-
     base = current_app.config['URL_BASE']
-    if not n0.subnodes and not n1.subnodes:
-        # No content in either node.
-        # Redirect to the first node.
-        current_app.logger.debug(f'redirect in composite')
-        return redirect(f'{base}/{node0}')
+    n0 = build_node(node0)
+    if node1:
+        n1 = build_node(node1)
+    else:
+        # this may be surprising, but I find that using [[foo]] in node [[foo]] near a link provides signal.
+        # this also lets us do stuff like [[foo]] <URL> in stream updates?
+        n1 = build_node(node0)
 
-    links = []
-    if n0.subnodes:
-        links.extend(n0.subnodes[0].filter(node1))
-        current_app.logger.debug(
-            f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
+    links = n0.go() + n1.go()
+    # we go through n0 looking for n1 as a tag.
+    for subnode in n0.subnodes:
+        links.extend(subnode.filter(node1))
+    current_app.logger.debug(
+        f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
 
-    if n1.subnodes:
-        links.extend(n1.subnodes[0].filter(node0))
-        current_app.logger.debug(
-            f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
+    # ...and through n1 looking for n0 as a tag.
+    for subnode in n1.subnodes:
+        links.extend(subnode.filter(node0))
+    current_app.logger.debug(
+        f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
 
+    # look further if needed.
     if len(links) == 0:
         # No matching links found so far.
         # Try using also pushed_subnodes(), which are relative expensive (slow) to compute.
+        # Note that this actually is needed for 'simple go' as well, points again in the direction of refactoring/joining?
 
-        if n0.pushed_subnodes():
-            links.extend(n0.pushed_subnodes()[0].filter(node1))
-            current_app.logger.debug(
-                f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
+        for subnode in n0.pushed_subnodes:
+            links.extend(subnode.filter(node1))
+        current_app.logger.debug(
+            f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
 
-        if n1.pushed_subnodes():
-            links.extend(n1.pushed_subnodes()[0].filter(node0))
-            current_app.logger.debug(
-                f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
+        for subnode in n1.pushed_subnodes:
+            links.extend(subnode.filter(node0))
+        current_app.logger.debug(
+            f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
 
+    # give up (for now? :))
     if len(links) == 0:
-        # No matching links found after all tries.
-        # Redirect to the first node.
-        # TODO(flancian): flash an explanation :)
-        return redirect(f'{base}/{node0}')
+        return redirect(f'{base}/{node0}/{node1}')
 
-    if len(links) > 1:
-        # TODO(flancian): to be implemented.
-        # Likely default to one of the links, show all of them but redirect to default within n seconds.
-        current_app.logger.warning(
-            'Code to manage nodes with more than one go link is not implemented.')
+    for link in links:
+        if util.is_valid_url(link):
+            current_app.logger.info(
+                f'Detected go link was a valid URL: {link}.')
+            return redirect(link)
+        else:
+            current_app.logger.info(
+                f'Detected go link was not a valid URL: {link}.')
 
-    return redirect(links[0])
+    # No matching viable links found after all tries.
+    # TODO(flancian): flash an explanation :)
+    return redirect(f'{base}/{node0}/{node1}')
+
 
 @bp.route('/push/<node>/<other>')
 def push2(node, other):
