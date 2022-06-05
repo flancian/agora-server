@@ -318,19 +318,15 @@ def go(node0, node1=''):
         # Try using also pushed_subnodes(), which are relative expensive (slow) to compute.
         # Note that this actually is needed for 'simple go' as well, points again in the direction of refactoring/joining?
 
-        for subnode in n0.pushed_subnodes:
-            links.extend(subnode.filter(node1))
+        for subnode in n0.pushed_subnodes():
+            links.extend(subnode.go())
         current_app.logger.debug(
             f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
 
-        for subnode in n1.pushed_subnodes:
-            links.extend(subnode.filter(node0))
+        for subnode in n1.pushed_subnodes():
+            links.extend(subnode.go())
         current_app.logger.debug(
             f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
-
-    # give up (for now? :))
-    if len(links) == 0:
-        return redirect(f'{base}/{node0}/{node1}')
 
     for link in links:
         if util.is_valid_url(link):
@@ -343,8 +339,10 @@ def go(node0, node1=''):
 
     # No matching viable links found after all tries.
     # TODO(flancian): flash an explanation :)
-    return redirect(f'{base}/{node0}/{node1}')
-
+    if node1:
+        return redirect(f'{base}/{node0}/{node1}')
+    else:
+        return redirect(f'{base}/{node0}')
 
 @bp.route('/push/<node>/<other>')
 def push2(node, other):
