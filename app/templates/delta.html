@@ -17,13 +17,24 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="delta">
-    <div class="delta-nodes">
-        <span class="backlinks-header">Recently edited nodes</span><br />
-        {% for subnode in subnodes %}
-        <a href="/@{{subnode.user}}/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
-        {% endfor %}
-    </div>
+<div class="listing node">
+    <h1>Recently edited</h1>
+    <table>
+        <thead>
+            <th>📚 Node</th>
+            <th>🧍User</th>
+            <th>📕 Subnode</th>
+        </thead>
+        <tbody>
+            {% for subnode in subnodes %}
+            <tr>
+            <td><a href="/{{subnode.wikilink}}">{{subnode.wikilink}}</a></td>
+            <td><a href="/@{{subnode.user}}">@{{subnode.user}}</a><br /></td>
+            <td><a href="/@{{subnode.user}}/{{subnode.wikilink}}">@{{subnode.user}}/{{subnode.wikilink}}</a></td> 
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 </div>
 

@@ -34,25 +34,26 @@
     <meta name="description" content="The Agora is a crowdsourced distributed knowledge graph: {{config['URI_BASE']}}." />
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% if not embed %}
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{url_for('agora.search_xml')}}>
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
-    {% if not embed %}
-    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached124" id="theme-link" />
+    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached125" id="theme-link" />
     {% endif %}
-    {% if node is defined and not embed %}
-        <script>
-            const NODENAME = "{{node.uri}}"
-						const WIKILINK = "{{node.wikilink}}"
-            const NODEDESC = "{{node.description}}"
-            const AGORANAME = "{{config['URI_BASE']}}"
-            const AGORAURL = "{{config['URL_BASE']}}"
-        </script>
-    {% endif %}
-    
+
     <script>
         const APIBASE = "{{config['API_BASE']}}"
+        const AGORANAME = "{{config['URI_BASE']}}"
+        const AGORAURL = "{{config['URL_BASE']}}"
     </script>
 
+    {% if node is defined %}
+    <script>
+        const NODENAME = "{{node.uri}}"
+        const WIKILINK = "{{node.wikilink}}"
+        const NODEDESC = "{{node.description}}"
+    </script>
+    {% endif %}
+    
     {% if not embed %}
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -70,20 +71,20 @@
 </head>
 
 <body>
-    {% if not embed %}
     <nav>
         <div class="navigation">
+            {% if not embed %}
             <div class="navigation-links">
-                <a href="/"><img src="/static/img/agora.png" class="logo" width="20px" height="20px"></a>
-                <a href="/">{{config['URI_BASE']}}</a>
-                |
+                <a href="/"><img src="/static/img/agora.png" class="logo" width="35px" height="35px"></a> 
                 <a href="/nodes">nodes</a>
                 |
                 <a href="/users">users</a>
                 |
                 <a href="/latest">latest</a>
                 |
-                <a href="/today">today</a>
+                <a href="/annotations">annotations</a>
+                |
+                <a href="/now">now</a>
                 |
                 <a href="/journals">journals</a>
                 |
@@ -95,37 +96,42 @@
                 |
                 <a href="/agora-help" style="text-decoration: none;" class="help-button">❓</a>
             </div>
+
             <hr />
 
             <div class="topline-node">
                 <div class="topline-node-wrapper">
-                    <div class="topline-query">
-                        <strong>query:</strong>
-                    </div>
-                    <div class="topline-cli">
-                        <form action="/exec" method="get">
-                            <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
-                        </form>
-                    </div>
-                    <button id="mini-cli-exec" value="exec">exec</button>
-                    <button id="mini-cli-go" value="go">go</button>
-                    <button id="mini-cli-clear" value="clear">clear</button>
+                <div class="topline-query">
+                    <button id="mini-cli-exec" value="exec">🔍</button>
                 </div>
+                <div class="topline-cli">
+                    <form action="/exec" method="get">
+                        <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
+                    </form>
+                </div>
+                <button id="mini-cli-go" value="go">go</button>
+                <button id="mini-cli-clear" value="clear">clear</button>
+            </div>
+
+            <hr />
 
                 <div class="topline-search">
-                    <strong>↳ on the Internet:</strong>
+                    <strong>↳ on the Internet → </strong>
                     <a href="https://www.google.com/search?q={{node.q}}">Google</a>
-                    | <a href="https://www.duckduckgo.com/{{node.q}}">DuckDuckGo</a>
-                    | <a href="https://searx.bar/search?q={{node.q}}&categories=general&language=en-US">Searx</a>
-                    | <a href="https://en.wikipedia.org/wiki/Special:Search/{{node.q}}">Wikipedia</a>
-                    <!--
-                    | <a href="https://twitter.com/search/?f=live&q={{node.q}}">Twitter</a>
-                    | <a href="https://github.com/search?q={{node.q}}">GitHub</a>
-                    -->
+                    · <a href="https://www.duckduckgo.com/{{node.q}}">DuckDuckGo</a>
+                    · <a href="https://searx.bar/search?q={{node.q}}&categories=general&language=en-US">Searx</a>
+                    · <a href="https://twitter.com/search/?f=live&q={{node.q}}">Twitter</a>
+                    · <a href="https://github.com/search?q={{node.q}}">Github</a>
                 </div>
 
+            {% endif %}
+
                 <div class="topline-agora">
-                    <strong>↳ in this Agora ⬎</strong>
+                    {% if not embed %}
+                    <strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of {{config['MAINTAINER']}} ⬎</strong>
+                    {% else %}
+                    <strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of {{config['MAINTAINER']}} ⬎</strong>
+                    {% endif %}
                     <div>
                         <button id="pull-all" value="pull-all" title="Clicks on pull buttons for nodes and posts below.">pull all</button>
                     </div>
@@ -136,7 +142,8 @@
 
     </nav>
 
-    {% endif %}
+
+    
 
     {% block content %}
     {% endblock %}
@@ -146,10 +153,10 @@
     <hr>
     <!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
     <div id='footer'>
-        This [[<a href="/agora">Agora</a>]] took <strong>__EXECTIME__ seconds</strong> to render your request on <strong>__NOW__</strong>.
-        <br><a href="{{config['URL_BASE']}}">{{config['URI_BASE']}}</a> is brought to you by {{config['MAINTAINER']}} and the Agora community.</div>
-    {% endif %}
+        <strong>This request was served by <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of {{config['MAINTAINER']}} in <strong>__EXECTIME__ seconds</strong> around <strong>__NOW__</strong>.
+    </div>
 
+    {% endif %}
     <script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
 
 </body>

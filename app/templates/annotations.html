@@ -1,0 +1,39 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+{% extends "base.html" %}
+{% block content %}
+
+<div class="listing node">
+    <h1>Web annotations</h1>
+
+    {% if annotations.entries %}
+        {% for annotation in annotations.entries %}
+        hypothes.is user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
+        annotated <a href="{{annotation.link}}">{{annotation.title}}</a>
+        on {{annotation.published[:10]}}<br />
+        <blockquote>
+        <em>{{annotation.summary|linkify|safe}}</em>
+        </blockquote>
+        {% endfor %}
+    {% else %}
+        No annotations found. <br />
+        <em>Start using <a href="https://hypothes.is">hypothes.is</a> today! Web annotations are an open web standard.</em>
+    {% endif %}
+
+</div>
+
+{% endblock %}

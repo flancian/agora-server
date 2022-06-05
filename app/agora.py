@@ -219,7 +219,6 @@ def subnode(node, user):
 def index():
     return redirect(url_for('.node', node='index'))
 
-
 @bp.route('/Δ')
 @bp.route('/delta')
 @bp.route('/latest')
@@ -228,6 +227,15 @@ def latest():
     return render_template('delta.html',
                            header="Recent deltas",
                            subnodes=db.latest(),
+                           node=n
+                           )
+
+@bp.route('/annotations/')
+@bp.route('/annotations')
+def annotations():
+    n = build_node('annotations')
+    return render_template('annotations.html',
+                           header="Recent annotations",
                            annotations=feed.get_latest(),
                            node=n
                            )
@@ -399,8 +407,7 @@ def pull(node):
     rank = ['agora', 'flancian', 'vera', 'neil']
 
     return render_template(
-            # yuck
-            'content.html', 
+            'base.html', 
             node=n,
             embed=True,
             config=current_app.config,

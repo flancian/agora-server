@@ -30,21 +30,16 @@ def wp(node):
     wikidata_url = f'https://www.wikidata.org/wiki/{wikibase_item}'
     inferred_node = title.replace('_', '-')
     return Response(f"""
-        <div class='exec'>
-        <ul>
-        <li><a href='/wp' title='Wikipedia search'>wp</a> → </a><a href='{url}'><strong>{url}</strong></a> 
+        <div class='exec topline-search'>
+        <strong>↳ in Wikipedia → </strong><a href='{url}'>{url}</a> 
         <button class='pull-exec' value='{url}'>pull</button>
         <ul>
-        <!-- <button class="go-exec" value="exec-wp">go</button>-->
-        <li>Wikidata <a href='{wikidata_url}'>{wikibase_item}</a>
+        ↳ Wikidata <a href='{wikidata_url}'>{wikibase_item}</a>
         <button class='pull-exec' value='{wikidata_url}'>pull</button>
-        </li>
-        <li>Agora <a href='/{inferred_node}'>[[{title}]]</a>
+        → Agora <a href='/{inferred_node}'>[[{title}]]</a>
         <button class='pull-exec' value='/{inferred_node}'>pull</button>
-        </li>
         </ul>
-        </li>
-        </ul>
-        <!--{result}--></div>""", 
+        <!--{result}-->
+        </div>""", 
         mimetype='text/html'
     )
