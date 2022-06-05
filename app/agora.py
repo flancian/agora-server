@@ -14,6 +14,7 @@
 
 import collections
 import datetime
+from distutils.command.config import config
 import json
 import re
 import time
@@ -55,11 +56,11 @@ def after_request(response):
 # Nodes are the heart of the [[agora]].
 def build_node(node, extension='', user_list=''):
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
-    # default uprank: system account and maintainers
-    # TODO: move to config.py
-    rank = ['agora', 'flancian', 'vera', 'neil', 'maya', 'Jayu']
+    # default uprank: system account and maintainers, see config.py.
+    rank = current_app.config['RANK'] or ['agora']
     if user_list:
         # override rank
+        # this comes e.g. from query strings and composition functions.
         if ',' in user_list:
             rank = user_list.split(",")
         else:
@@ -67,6 +68,7 @@ def build_node(node, extension='', user_list=''):
 
     # there are some ill-slugged links to anagora.org out there, special casing here for a while at least.
     # this should probably be made irrelevant by the Big Refactor that we need to do to make the canonical node identifier non-lossy.
+    # update(2022-06-05): this could probably be removed, needs testing, but with the move to using [[quote plus]] across the board we should be fine? 
     node = node.replace(',', '').replace(':', '')
 
     # unquote in case the node came in urlencoded, then slugify again to gain the 'dimensionality reduction' effects of

@@ -13,6 +13,11 @@ def getcfg(path):
 class DefaultConfig(object):
     AGORA_PATH = os.getenv('AGORA_PATH', os.path.join('/home', getpass.getuser(), 'agora'))
     YAML_CONFIG = getcfg(os.path.join(AGORA_PATH, 'sources.yaml'))
+    # yes, it's this simple currently -- but this is just a server-side default :)
+    # system account goes first, then people who write *about the Agora* in their gardens, in order of joining.
+    # note: I don't like being first among the humans, I still do it because my subnodes are often of the summary/tldr kind whenever they overlap with others.
+    # I'd like to relinquish control of ranking functions in favour of [[flancia collective]], [[agora discuss]] in that order.
+    RANK = ['agora', 'flancian', 'vera', 'neil', 'maya', 'Jayu']
     # deprecated/check if unused
     AGORA_VERSION = '0.9'
     # standard: no trailing slashes anywhere in variables.
