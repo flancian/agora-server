@@ -587,10 +587,10 @@ table {
 td,
 th {
     border: 1px solid var(--border);
-    text-align: left;
     padding: .5rem;
     word-wrap: break-word;
     white-space: pre-wrap;
+    text-align: left;
 }
 
 th {
