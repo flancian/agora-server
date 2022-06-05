@@ -22,14 +22,14 @@
     <table>
         <thead>
             <th>📚 Node</th>
-            <th>🧍User</th>
+            <th>🧍 User</th>
             <th>📕 Subnode</th>
         </thead>
         <tbody>
             {% for subnode in subnodes %}
             <tr>
             <td><a href="/{{subnode.wikilink}}">{{subnode.wikilink}}</a></td>
-            <td><a href="/@{{subnode.user}}">@{{subnode.user}}</a><br /></td>
+            <td><a href="/@{{subnode.user}}">@{{subnode.user}}</a></td>
             <td><a href="/@{{subnode.user}}/{{subnode.wikilink}}">@{{subnode.user}}/{{subnode.wikilink}}</a></td> 
             </tr>
             {% endfor %}

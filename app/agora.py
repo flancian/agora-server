@@ -226,7 +226,7 @@ def latest():
     n = build_node('latest')
     return render_template('delta.html',
                            header="Recent deltas",
-                           subnodes=db.latest(),
+                           subnodes=db.latest(max=200),
                            node=n
                            )
 

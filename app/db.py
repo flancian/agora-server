@@ -905,8 +905,11 @@ def content_to_obsidian_embeds(content):
     else:
         return []
 
-def latest():
-    return sorted(G.subnodes(), key=lambda x: -x.mtime)
+def latest(max=False):
+    if max:
+        return sorted(G.subnodes(), key=lambda x: -x.mtime)[:max]
+    else:
+        return sorted(G.subnodes(), key=lambda x: -x.mtime)
 
 def top():
     return sorted(G.nodes(only_canonical=True).values(), key=lambda x: -x.size())
