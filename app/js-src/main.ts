@@ -24,8 +24,9 @@ import { SingleEntryPlugin } from "webpack";
 const autoPullLocal = JSON.parse(localStorage["auto-pull-local"] || 'false')
 const autoPullExternal = JSON.parse(localStorage["auto-pull-external"] || 'false')
 const autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || 'false')
+const autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || 'true')
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
-const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'false')
+const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
 document.addEventListener("DOMContentLoaded", function () {
   // Select button
@@ -163,10 +164,9 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       console.log('pulling node');
-      // now with two methods! you can choose the nerdy one (fully recursive) in settings.
-      // doesn't work yet, but I'll fix it :)
+      // now with two methods! you can choose the simpler/faster one (just pulls static content) or the nerdy one (recursive) in settings.
       if (pullRecursive) {
-        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
+        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
       }
       else {
         $.get(AGORAURL + '/pull/' + node, function (data) {
@@ -180,19 +180,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // pull full text search 
   $(".pull-search").click(function (e) {
-    if (this.classList.contains('pulled')) {
-      $("#pulled-search.pulled-search-embed").html('');
-      this.innerText = 'pull';
-      this.classList.remove('pulled');
-    }
-    else {
-      this.innerText = 'pulling';
-      let qstr = this.value;
-      $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
-        $("#pulled-search.pulled-search-embed").html(data);
-      });
-      this.classList.add('pulled');
-      this.innerText = 'fold';
+    if (autoPullSearch) {
+      if (this.classList.contains('pulled')) {
+        $("#pulled-search.pulled-search-embed").html('');
+        this.innerText = 'pull';
+        this.classList.remove('pulled');
+      }
+      else {
+        this.innerText = 'pulling';
+        let qstr = this.value;
+        $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
+          $("#pulled-search.pulled-search-embed").html(data);
+        });
+        this.classList.add('pulled');
+        this.innerText = 'fold';
+      }
     }
   });
 
@@ -374,7 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
       let id = '.context'
       console.log('auto pulling context, will write to id: ' + id);
       $.get(AGORAURL + '/context/' + node, function (data) {
-        $('.context').html(data);
+        $(id).html(data);
       });
       // end auto pull pushed subnodes.
       console.log('auto pulled pushed subnodes, hopefully :)');
@@ -440,13 +442,6 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('auto pulling node');
       this.click();
     });
-    /*
-    $(".pull-search").each(function (e) {
-      console.log('auto pulling search');
-      this.click();
-    });
-    */
-
   }
 
   if (autoPullExternal) {
@@ -473,9 +468,16 @@ document.addEventListener("DOMContentLoaded", function () {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  // this should be autoPullStoas?
   if (autoPullStoa) {
     console.log('queueing auto pull');
     setTimeout(pullStoa, ms);
+    console.log('auto pulled');
+  }
+
+  if (autoPullSearch) {
+    console.log('queueing auto pull');
+    setTimeout(pullSearch, ms);
     console.log('auto pulled');
   }
 

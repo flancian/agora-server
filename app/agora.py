@@ -126,23 +126,11 @@ def node(node, extension='', user_list=''):
             # yuck
             'content.html', 
             node=n,
-            #back_nodes=n.back_nodes(),
-            #pull_nodes=n.pull_nodes() if n.subnodes else [],
-            #auto_pull_nodes=n.auto_pull_nodes() if current_app.config['ENABLE_AUTO_PULL'] else [],
-            #related_nodes=n.related() if current_app.config['ENABLE_AUTO_PULL'] else [],
-            #forward_nodes=n.forward_nodes() if n else [],
-            #search=[],
-            #pulling_nodes=n.pulling_nodes(),
-            #pushing_nodes=n.pushing_nodes(),
-            # the q part of the query string -- can be forwarded to other sites, expected to preserve all information we got from the user.
-            #q=urllib.parse.quote_plus(n.qstr),
-            # the decoded q parameter in the query string or inferred human-readable query for the slug. it should be ready for rendering.
-            #qstr=n.qstr,
-            #render_graph=True if n.back_nodes() or n.subnodes else False,
             config=current_app.config,
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
             # sorry for the fuzzy thinking but I'm short on time and want to get things done.
             # (...famous last words).
+            # TODO(2022-06-06): this should now be done in the async path, essentially embedding /annotations/X from node X
             # annotations=n.annotations(),
             # annotations_enabled=True,
             )
@@ -397,17 +385,27 @@ def context(node):
             node=n,
             )
 
-# good for embedding just node content.
+# good for embedding the whole Agora (this is called by recursive pulls)
+@bp.route('/embed/<node>')
+def embed(node):
+    current_app.logger.debug(f'embed [[{node}]]: Assembling node.')
+    n = build_node(node)
+
+    return render_template(
+            'content.html', 
+            node=n,
+            embed=True,
+            config=current_app.config,
+            )
+
+# good for embedding just node content (this is called by non-recursive pulls)
 @bp.route('/pull/<node>')
 def pull(node):
     current_app.logger.debug(f'pull [[{node}]]: Assembling node.')
     n = build_node(node)
-    # default uprank: system account and maintainers
-    # TODO: move to config.py
-    rank = ['agora', 'flancian', 'vera', 'neil']
 
     return render_template(
-            'base.html', 
+            'content.html', 
             node=n,
             embed=True,
             config=current_app.config,

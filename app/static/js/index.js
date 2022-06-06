@@ -22,9 +22,9 @@
   var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // node_modules/.pnpm/jquery@3.6.0/node_modules/jquery/dist/jquery.js
+  // node_modules/jquery/dist/jquery.js
   var require_jquery = __commonJS({
-    "node_modules/.pnpm/jquery@3.6.0/node_modules/jquery/dist/jquery.js"(exports, module) {
+    "node_modules/jquery/dist/jquery.js"(exports, module) {
       (function(global, factory) {
         "use strict";
         if (typeof module === "object" && typeof module.exports === "object") {
@@ -5918,7 +5918,7 @@
       autoPullExternal = JSON.parse(localStorage["auto-pull-external"] || "false");
       autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || "false");
       autoExec = JSON.parse(localStorage["auto-exec"] || "true");
-      pullRecursive = JSON.parse(localStorage["pull-recursive"] || "false");
+      pullRecursive = JSON.parse(localStorage["pull-recursive"] || "true");
       document.addEventListener("DOMContentLoaded", function() {
         const btn = document.querySelector(".theme-toggle");
         var theme = document.querySelector("#theme-link");
@@ -5999,7 +5999,7 @@
             this.innerText = "pulling";
             console.log("pulling node");
             if (pullRecursive) {
-              $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + "/" + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
+              $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + "/embed/" + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
             } else {
               $.get(AGORAURL + "/pull/" + node, function(data) {
                 $("#" + node + ".pulled-node-embed").html(data);
@@ -6171,7 +6171,7 @@
             let id = ".context";
             console.log("auto pulling context, will write to id: " + id);
             $.get(AGORAURL + "/context/" + node, function(data) {
-              $(".context").html(data);
+              $(id).html(data);
             });
             console.log("auto pulled pushed subnodes, hopefully :)");
           });
@@ -6256,9 +6256,9 @@
     }
   });
 
-  // ../node_modules/regenerator-runtime/runtime.js
+  // node_modules/regenerator-runtime/runtime.js
   var require_runtime = __commonJS({
-    "../node_modules/regenerator-runtime/runtime.js"(exports, module) {
+    "node_modules/regenerator-runtime/runtime.js"(exports, module) {
       var runtime = function(exports2) {
         "use strict";
         var Op = Object.prototype;

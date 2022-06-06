@@ -10,17 +10,17 @@
 
     {% include "right.html" %} #}
 
-    {% if not embed %}
+    {% include "pulled.html" %}
 
-	{% include "stoa.html" %}
+    <div class="context">
+    <em>Loading context... (requires JavaScript)</em>
+    </div>
 
-	<div class="context">
-	<em>Loading context... (requires JavaScript)</em>
-	</div>
+    {% include "stoa.html" %}
 
-	{% include "search.html" %}
+    {% include "search.html" %}
 
-    {% endif %}
+    {% include "related.html" %}
 
 </div>
 

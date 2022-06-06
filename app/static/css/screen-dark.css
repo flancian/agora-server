@@ -276,8 +276,8 @@ input[type="text"] {
 .node, .context, .stoa, .ctzn, .search {
     /*border-color: #7f5af0;*/
     border-color: gray;
-    border-width: 1px;
     border-style: solid;
+    border-width: 1px;
     /*border-style: dotted;*/
     margin: 10px;
     /*border-radius: 20px;*/
@@ -296,13 +296,22 @@ input[type="text"] {
     /*border-color: #7f5af0;*/
     border-color: gray;
     border-width: 1px;
-    border-style: dotted;
+    border-style: solid;
     /*border-style: dotted;*/
     margin: 10px;
     /*border-radius: 20px;*/
     padding: 10px;
 }
 
+.related-node {
+    /*border-color: #7f5af0;*/
+    border-color: gray;
+    border-width: 1px;
+    border-style: dotted;
+    margin: 10px;
+    /*border-radius: 20px;*/
+    padding: 10px;
+}
 
 .image-embed {
     display: block;
@@ -369,6 +378,12 @@ input[type="text"] {
 
 .subnode-id a {
     text-decoration: none;
+}
+
+.search {
+    overflow: auto;
+    gap: 10px;
+    max-height: 400px;
 }
 
 .search-agora-header, .search-internet-header {
@@ -488,7 +503,7 @@ input[type="text"] {
 
 .search-agora {
     float: right;
-    width: 65%;
+    width: 100%;
 }
 
 .search-internet {

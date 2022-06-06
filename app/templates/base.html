@@ -71,7 +71,6 @@
 <body>
     <nav>
         <div class="navigation">
-            {% if not embed %}
             <div class="navigation-links">
                 <a href="/"><img src="/static/img/agora.png" class="logo" width="35px" height="35px"></a> 
                 <a href="/nodes">nodes</a>
@@ -122,9 +121,8 @@
                     · <a href="https://github.com/search?q={{node.q}}">Github</a>
                 </div>
 
-            {% endif %}
-
                 <div class="topline-agora">
+                    <!-- :) -->
                     {% if embed %}
                     <strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of {{config['MAINTAINER']}} ⬎</strong>
                     {% else %}

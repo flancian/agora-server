@@ -23,7 +23,9 @@
 <div class="pulled-node auto-pull">
 
     <span class="node-header">⥅ node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled above</span>
+    {% if not pull %} 
     <button class="pull-node auto-pull-button" value="{{n.uri}}">pull</button>
+    {% endif %}
     <div class="pulled-node-embed" id="{{n.uri}}"></div>                           
 
 </div>
