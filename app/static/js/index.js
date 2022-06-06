@@ -5909,7 +5909,7 @@
 
   // app/js-src/main.ts
   var main_exports = {};
-  var import_jquery, autoPullLocal, autoPullExternal, autoPullStoa, autoExec, pullRecursive;
+  var import_jquery, autoPullLocal, autoPullExternal, autoPullStoa, autoPullSearch, autoExec, pullRecursive;
   var init_main = __esm({
     "app/js-src/main.ts"() {
       import_jquery = __toESM(require_jquery());
@@ -5917,6 +5917,7 @@
       autoPullLocal = JSON.parse(localStorage["auto-pull-local"] || "false");
       autoPullExternal = JSON.parse(localStorage["auto-pull-external"] || "false");
       autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || "false");
+      autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || "true");
       autoExec = JSON.parse(localStorage["auto-exec"] || "true");
       pullRecursive = JSON.parse(localStorage["pull-recursive"] || "true");
       document.addEventListener("DOMContentLoaded", function() {
@@ -6010,18 +6011,20 @@
           }
         });
         $(".pull-search").click(function(e) {
-          if (this.classList.contains("pulled")) {
-            $("#pulled-search.pulled-search-embed").html("");
-            this.innerText = "pull";
-            this.classList.remove("pulled");
-          } else {
-            this.innerText = "pulling";
-            let qstr = this.value;
-            $.get(AGORAURL + "/fullsearch/" + qstr, function(data) {
-              $("#pulled-search.pulled-search-embed").html(data);
-            });
-            this.classList.add("pulled");
-            this.innerText = "fold";
+          if (autoPullSearch) {
+            if (this.classList.contains("pulled")) {
+              $("#pulled-search.pulled-search-embed").html("");
+              this.innerText = "pull";
+              this.classList.remove("pulled");
+            } else {
+              this.innerText = "pulling";
+              let qstr = this.value;
+              $.get(AGORAURL + "/fullsearch/" + qstr, function(data) {
+                $("#pulled-search.pulled-search-embed").html(data);
+              });
+              this.classList.add("pulled");
+              this.innerText = "fold";
+            }
           }
         });
         const showBrackets = JSON.parse(localStorage["showBrackets"] || "false");
@@ -6099,53 +6102,58 @@
           this.innerText = "going";
           window.location.replace(url);
         });
+        $("#fold-all").click(function(e) {
+          $(".pull-node").each(function(e2) {
+            if (this.classList.contains("pulled")) {
+              console.log("auto folding nodes");
+              this.click();
+            }
+          });
+          $(".pull-mastodon-status").each(function(e2) {
+            if (this.classList.contains("pulled")) {
+              console.log("auto folding activity");
+              this.click();
+            }
+          });
+          $(".pull-tweet").each(function(e2) {
+            if (this.classList.contains("pulled")) {
+              console.log("auto folding tweet");
+              this.click();
+            }
+          });
+          $(".pull-search").each(function(e2) {
+            if (this.classList.contains("pulled")) {
+              console.log("auto folding search");
+              this.click();
+            }
+          });
+        });
         $("#pull-all").click(function(e) {
-          if (this.classList.contains("pulled")) {
-            console.log("auto folding all!");
-            $(".pull-node").each(function(e2) {
-              if (this.classList.contains("pulled")) {
-                console.log("auto folding nodes");
-                this.click();
-              }
-            });
-            $(".pull-mastodon-status").each(function(e2) {
-              if (this.classList.contains("pulled")) {
-                console.log("auto folding activity");
-                this.click();
-              }
-            });
-            $(".pull-tweet").each(function(e2) {
-              if (this.classList.contains("pulled")) {
-                console.log("auto folding tweet");
-                this.click();
-              }
-            });
-            this.classList.remove("pulled");
-            this.innerText = "pull all";
-          } else {
-            this.innerText = "pulling all";
-            console.log("auto pulling all!");
-            $(".pull-node").each(function(e2) {
-              if (!this.classList.contains("pulled")) {
-                console.log("auto pulling nodes");
-                this.click();
-              }
-            });
-            $(".pull-mastodon-status").each(function(e2) {
-              if (!this.classList.contains("pulled")) {
-                console.log("auto pulling activity");
-                this.click();
-              }
-            });
-            $(".pull-tweet").each(function(e2) {
-              if (!this.classList.contains("pulled")) {
-                console.log("auto pulling tweet");
-                this.click();
-              }
-            });
-            this.classList.add("pulled");
-            this.innerText = "fold all";
-          }
+          console.log("auto pulling all!");
+          $(".pull-node").each(function(e2) {
+            if (!this.classList.contains("pulled")) {
+              console.log("auto pulling nodes");
+              this.click();
+            }
+          });
+          $(".pull-mastodon-status").each(function(e2) {
+            if (!this.classList.contains("pulled")) {
+              console.log("auto pulling activity");
+              this.click();
+            }
+          });
+          $(".pull-tweet").each(function(e2) {
+            if (!this.classList.contains("pulled")) {
+              console.log("auto pulling tweet");
+              this.click();
+            }
+          });
+          $(".pull-search").each(function(e2) {
+            if (!this.classList.contains("pulled")) {
+              console.log("auto pulling search");
+              this.click();
+            }
+          });
         });
         if (autoExec) {
           console.log("autoexec is enabled");
@@ -6221,19 +6229,8 @@
             this.click();
           });
         }
-        function sleep(ms2) {
-          return new Promise((resolve) => setTimeout(resolve, ms2));
-        }
-        if (autoPullStoa) {
-          console.log("queueing auto pull");
-          setTimeout(pullStoa, ms);
-          console.log("auto pulled");
-        }
-        function pullStoa() {
-          console.log("auto pulling stoa");
-          $("#pull-stoa").each(function(e) {
-            this.click();
-          });
+        function sleep(ms) {
+          return new Promise((resolve) => setTimeout(resolve, ms));
         }
         if (localStorage["ranking"]) {
           let subnodes = $(".subnode");

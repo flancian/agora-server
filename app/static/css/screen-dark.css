@@ -383,7 +383,7 @@ input[type="text"] {
 .search {
     overflow: auto;
     gap: 10px;
-    max-height: 400px;
+    max-height: 600px;
 }
 
 .search-agora-header, .search-internet-header {

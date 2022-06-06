@@ -14,7 +14,9 @@
 # limitations under the License.
 
 . venv/bin/activate
-npm run watch &
+npm run build
+# this doesn't work for now for some reason?
+npm run watch app/js-src/* &
 export FLASK_APP=app
 export FLASK_ENV="development"
 export AGORA_CONFIG="DevelopmentConfig"

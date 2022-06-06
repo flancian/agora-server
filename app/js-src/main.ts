@@ -289,11 +289,8 @@ document.addEventListener("DOMContentLoaded", function () {
     window.location.replace(url);
   });
 
-  // pull all button
-  $("#pull-all").click(function (e) {
-    if (this.classList.contains('pulled')) {
-      console.log('auto folding all!');
-      // already pulled.
+  // fold all button
+  $("#fold-all").click(function (e) {
       $(".pull-node").each(function (e) {
         if (this.classList.contains('pulled')) {
           console.log('auto folding nodes');
@@ -312,11 +309,25 @@ document.addEventListener("DOMContentLoaded", function () {
           this.click();
         }
       });
-      this.classList.remove('pulled');
-      this.innerText = 'pull all';
-    }
-    else {
-      this.innerText = 'pulling all';
+      /*
+      $(".pull-stoa").each(function (e) {
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding stoa');
+          this.click();
+        }
+      });
+      */
+      $(".pull-search").each(function (e) {
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding search');
+          this.click();
+        }
+      });
+    });
+
+
+  $("#pull-all").click(function (e) {
+      // this.innerText = 'pulling all';
       console.log('auto pulling all!');
       $(".pull-node").each(function (e) {
         if (!this.classList.contains('pulled')) {
@@ -336,9 +347,20 @@ document.addEventListener("DOMContentLoaded", function () {
           this.click();
         }
       });
-      this.classList.add('pulled');
-      this.innerText = 'fold all';
-    }
+      /*
+      $(".pull-stoa").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling stoa');
+          this.click();
+        }
+      });
+      */
+      $(".pull-search").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling search');
+          this.click();
+        }
+      });
   });
 
   if (autoExec) {
@@ -468,7 +490,8 @@ document.addEventListener("DOMContentLoaded", function () {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  // this should be autoPullStoas?
+  /* this should be autoPullStoas?
+  or maybe just let this go and embrace pull all / fold all?
   if (autoPullStoa) {
     console.log('queueing auto pull');
     setTimeout(pullStoa, ms);
@@ -487,6 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.click();
     });
   }
+  */
 
  if (localStorage["ranking"]) {
     let subnodes = $(".subnode")

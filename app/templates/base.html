@@ -36,7 +36,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{url_for('agora.search_xml')}}>
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
-    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached128" id="theme-link" />
+    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached129" id="theme-link" />
 
     <script>
         const APIBASE = "{{config['API_BASE']}}"
@@ -99,15 +99,15 @@
             <div class="topline-node">
                 <div class="topline-node-wrapper">
                 <div class="topline-query">
-                    <button id="mini-cli-exec" value="exec">search</button>
+                    <button id="mini-cli-exec" value="exec" title="Searches known Agoras">search</button>
                 </div>
                 <div class="topline-cli">
                     <form action="/exec" method="get">
                         <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
                     </form>
                 </div>
-                <button id="mini-cli-go" value="go">go</button>
-                <button id="mini-cli-clear" value="clear">clear</button>
+                <button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>
+                <button id="mini-cli-go" value="go" title="Redirects to a [[go]] link if one is found">go</button>
             </div>
 
             <hr />
@@ -129,7 +129,8 @@
                     <strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> ⬎</strong>
                     {% endif %}
                     <div>
-                        <button id="pull-all" value="pull-all" title="Clicks on pull buttons for nodes and posts below.">pull all</button>
+                        <button id="pull-all" value="pull-all" title="Pulls embeds below">pull all</button>
+                        <button id="fold-all" value="fold-all" title="Folds embeds below">fold all</button>
                     </div>
                 </div>
 

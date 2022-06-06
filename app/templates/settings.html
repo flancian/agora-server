@@ -46,13 +46,16 @@ const form = `
 		Do you want to auto pull external resources? <input id="auto-pull-external"  type="checkbox"   />
 	</div>
 	<div>
-		Do you want to auto pull the Stoa? <input id="auto-pull-stoa"  type="checkbox"  />
+		Do you want to auto pull Stoas (might be disruptive)? <input id="auto-pull-stoa"  type="checkbox"  />
+	</div>
+	<div>
+		Do you want to auto pull full text search? <input id="auto-pull-search"  type="checkbox"  />
 	</div>
 	<div>
 		Do you want to render wikilinks with brackets? <input id="render-wikilinks"  type="checkbox"  />
 	</div>
 	<div>
-		Do you want to use recursive pulls within the Agora (advanced)? <input id="pull-recursive"  type="checkbox"  />
+		Do you want to use recursive pulls within the Agora (advanced)? <input id="pull-recursive" type="checkbox" checked />
 	</div>
 	<button onClick=saveSettings()>Save</button>
 </div>
@@ -83,8 +86,9 @@ function setValues(){
 	$("#auto-pull-agora").prop("checked", JSON.parse(localStorage["auto-pull-agora"]))
 	$("#auto-pull-external").prop("checked", JSON.parse(localStorage["auto-pull-external"]))
 	$("#auto-pull-stoa").prop("checked", JSON.parse(localStorage["auto-pull-stoa"]))
+	$("#auto-pull-search").prop("checked", JSON.parse(localStorage["auto-pull-search"]))
 	$("#render-wikilinks").prop("checked", JSON.parse(localStorage["render-wikilinks"]))
-	$("#pull-recursive").prop("checked", JSON.parse(localStorage["pull-recursive"]))
+	$("#pull-recursive").prop("checked", JSON.parse(localStorage["pull-recursive"]) || true)
 }
 
 function saveGitea(){
@@ -97,6 +101,7 @@ function saveSettings(){
 		localStorage["auto-pull-agora"] = document.getElementById("auto-pull-agora").checked
 		localStorage["auto-pull-external"] = document.getElementById("auto-pull-external").checked
 		localStorage["auto-pull-stoa"] = document.getElementById("auto-pull-stoa").checked
+		localStorage["auto-pull-search"] = document.getElementById("auto-pull-search").checked
 		localStorage["render-wikilinks"] = document.getElementById("render-wikilinks").checked
 		localStorage["pull-recursive"] = document.getElementById("pull-recursive").checked
 }
