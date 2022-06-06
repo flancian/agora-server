@@ -595,7 +595,7 @@ class Subnode:
         return 100-fuzz.ratio(self.wikilink, other.wikilink)
 
     def render(self):
-        if self.mediatype != 'text/plain':
+        if self.mediatype not in ['text/plain', 'text/html']:
             # hack hack
             return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /> <br />'.format(self.uri)
         if 'subnode/virtual' in self.url:
