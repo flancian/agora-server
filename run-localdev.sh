@@ -17,7 +17,6 @@
 parcel watch app/js-src/index.ts --dist-dir app/static/js &
 export FLASK_APP=app
 export FLASK_ENV="development"
-# defaults to localhost:5000
-# I use this on my laptop with vscode -- I tried using ssh remote development but it had issues
+# I use this on my laptop with vscode/vim when I'm not developing directly on [[thecla]] (dev.anagora.org).
 export AGORA_CONFIG="LocalDevelopmentConfig"
-flask run
+flask run -h 0.0.0.0 -p 5017
