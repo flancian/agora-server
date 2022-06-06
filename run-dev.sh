@@ -14,7 +14,7 @@
 # limitations under the License.
 
 . venv/bin/activate
-# parcel watch app/js-src/index.ts --dist-dir app/static/js &
+npm run watch &
 export FLASK_APP=app
 export FLASK_ENV="development"
 export AGORA_CONFIG="DevelopmentConfig"
