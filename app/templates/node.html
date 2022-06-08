@@ -67,7 +67,8 @@
         {% endif %} 
 
         {% for subnode in node.subnodes %}
-            <div class="subnode" data-author="{{subnode.user}}">
+            <div class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}">
+							<div style="text-align: right;"><button onClick="upvote('{{loop.index}}')">Up Vote</button> / <button onClick="downvote('{{loop.index}}')">Down Vote</button></div>
                 <div class="subnode-header">
                     <span class="subnode-id">
                         <a href="/@{{subnode.user}}/{{node.uri}}">📓</a>
@@ -106,3 +107,66 @@
     </div>
 
 </div> <!-- closes node div-->
+
+
+<script>
+	function getAuthors(){
+		const authors = $.map($(".subnode"), function(subnode){
+			console.log(subnode)
+			return $(subnode).data("author")
+		})
+
+		return authors
+	}
+
+	function saveAuthors(){
+		const authors = getAuthors()
+		const stringed = JSON.stringify(authors)
+		localStorage[`authors-${NODENAME}`] = stringed
+	}
+
+	function loadAuthors(){
+		const authors = localStorage[`authors-${NODENAME}`]
+		if (typeof authors == 'undefined'){
+			return
+		}
+		const parsed = JSON.parse(authors)
+		return parsed
+	}
+
+	function sort(){
+		let authors = loadAuthors()
+		let first = authors.shift()
+		const main = element(first)
+		console.log(main)
+		for(const author of authors){
+			const ele = element(author)
+			console.log(ele)
+			ele.insertAfter(main)
+			first = ele;
+		}
+	}
+
+	function element(author){
+		return $(`div[data-author='${author}']`);
+	}
+
+	function downvote(n){
+		const sn = $(`#subnode-${n}`)
+		const next = sn.next()
+		sn.insertAfter(next)
+		saveAuthors()
+	}
+
+	function upvote(n){
+		const sn = $(`#subnode-${n}`)
+		const prev = sn.prev()
+		sn.insertBefore(prev)
+		saveAuthors()
+	}
+
+
+	$(function(){
+		sort();
+	})
+</script>

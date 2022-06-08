@@ -18,3 +18,4 @@ node_modules
 app/.parcel-cache/
 .parcel-cache
 app/clojurescript
+.pnpm-debug.log
