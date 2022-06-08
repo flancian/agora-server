@@ -14,13 +14,11 @@ async function getUser() {
 		url: `https://git.anagora.org/api/v1/user`,
 		headers: { "Authorization": `token ${accessToken}` },
 	});
-	console.log("USER", user)
 	return user.login
 }
 
 window.saveData = async function () {
 	const text = $("#node-editor").val()
-	console.log("SAVING", text)
 
 	let body
 
@@ -29,7 +27,6 @@ window.saveData = async function () {
 			url: `https://git.anagora.org/api/v1/repos/${user}/notes/contents/${NODENAME}.md`,
 			headers: { "Authorization": `token ${accessToken}` },
 		});
-		console.log("BODY", body)
 
 		const sha = body.sha
 		const result = await $.ajax({
@@ -58,10 +55,9 @@ window.saveData = async function () {
 
 }
 
-
+let saved
 async function main() {
 	user = localStorage["gitea-user"] || await getUser()
-	console.log("USER", user)
 
 	const subnode = `
 	<div class="subnode" data-author="${user}">
@@ -83,7 +79,7 @@ async function main() {
 					<span class="subnode-content"><textarea style="width: 100%" id="node-editor" cols="60" rows="10">
 </textarea>
 	<br>
-	<button onclick="saveData()">Save</button></span>
+	<button onclick="saveData()">Save</button> <button onClick="toggle()">Toggle</button></span>
 
 
 					</div>
@@ -101,20 +97,34 @@ async function main() {
 	const selector = `${snelement} .subnode-content`
 	raw = $(`${snelement} .subnode-links a`).attr("href")
 	const snode = $(selector).first()
-	console.log("SNODE", snode,snode.length)
-	const saved = snode.html()
+	saved = snode.html()
 	if (snode.length) {
 		const text = await grabMarkdown()
 		snode.html(`<textarea style="width: 100%" id=node-editor cols=60 rows=10>${text}</textarea>
 
 	
 	<br>
-	<button onClick="saveData()">Save</button>`)
+	<button onClick="saveData()">Save</button> <button onClick="toggle()">Toggle</button>`)
 	} else {
 		nh = $(".node-header").first()
 		$(subnode).insertAfter(nh)
 	}
 
+}
+
+window.main = main
+
+window.toggle = async function toggle(){
+	console.log("toggle")
+	const user = localStorage["gitea-user"] || await getUser()
+	const snelement = "div.subnode[data-author='" + user + "']"
+	const selector = `${snelement} .subnode-content`
+	raw = $(`${snelement} .subnode-links a`).attr("href")
+	const snode = $(selector).first()
+	if(!saved.match(/toggle/i)){
+		saved += "<button onClick='main()'>Toggle</button>"
+	}
+	snode.html(saved)
 }
 
 
@@ -126,7 +136,6 @@ async function grabMarkdown() {
 		console.error(e)
 		text = ""
 	}
-	console.log("GOT MARKDOWN", text)
 	return text
 }
 
