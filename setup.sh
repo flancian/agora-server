@@ -13,8 +13,12 @@ if ! command -v npm || ! command -v esbuild; then
     exit 43
 fi
 
+echo "Installing virtualenv."
 python3 -m venv venv &&
 . venv/bin/activate &&
 pip3 install -r requirements.txt
+
+echo "Installing npm modules."
+npm install
 
 echo "see agora-server.service and https://anagora.org/systemd for pointers on how to set up a production agora as a system service."
