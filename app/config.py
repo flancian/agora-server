@@ -65,8 +65,8 @@ class DevelopmentConfig(DefaultConfig):
     ENABLE_AUTO_STOA = True
 
 class LocalDevelopmentConfig(DefaultConfig):
-    URL_BASE = "http://localhost:5000"
-    URI_BASE = "http://localhost:5000"
+    URL_BASE = "http://localhost:5017"
+    URI_BASE = "http://localhost:5017"
     API_BASE = "http://localhost:3000"
 
     # EXPERIMENTS
