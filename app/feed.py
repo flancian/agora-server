@@ -16,8 +16,10 @@ import glob
 import itertools
 import os
 from feedgen.feed import FeedGenerator
+from flask import current_app
 import feedparser
 import pprint
+import urllib.parse
 
 HYPOTHESIS_USERS = {
         'flancian': 'flancian',
@@ -38,12 +40,10 @@ def get_user_feeds():
     return feeds
 
 def get_tag_feeds():
-    import urllib.parse
     feeds = []
     for tag in HYPOTHESIS_TAGS:
         tag = urllib.parse.quote_plus(tag)
         url = f'https://hypothes.is/stream.atom?tags={tag}'
-        print(url)
         feeds.append(feedparser.parse(url))
     return feeds
 
@@ -63,8 +63,8 @@ def get_latest():
     url = f'https://hypothes.is/stream.atom?wildcard_uri={uri}'
     try:
         feed = feedparser.parse(url)
-    except UnicodeEncodeError:
-        pass
+    except (UnicodeEncodeError, urllib.error.URLError):
+        current_app.logger.exception(f"Couldn't get annotations in feed.get_latest().")
     return feed
 
 def rss(node):
