@@ -71,13 +71,13 @@
                 <div class="subnode-header">
                     <span class="subnode-id">
                         <span class="subnode-links">
-			    <a href="/raw/{{subnode.uri}}" title="{{subnode.basename}}">📕</a> 
+			    <a href="/raw/{{subnode.uri}}" title="{{subnode.basename}} (click for raw)">📕</a> 
 			    contributed by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span>
                         </a> 
 			</span>
                     </span>
                     <span class="subnode-contrib">
-			<a href="/@{{subnode.user}}/{{node.uri}}" style="text-decoration: none;">🔗</a>
+			<a href="/@{{subnode.user}}/{{node.uri}}" style="text-decoration: none;" title="link to subnode">🔗</a>
                         {% if subnode.web %}
                         <a href="{{subnode.web}}" title="view in website" style="text-decoration: none;">️👁</a>
                         {% endif %}
@@ -87,8 +87,8 @@
                         {% if subnode.support %}
                         <a href="{{subnode.support}}" title="support">🤗</a>
                         {% endif %}
-			<button onClick="downvote('{{loop.index}}')" title="Downranks this subnode">⇣</button>
-			<button onClick="upvote('{{loop.index}}')" title="Upranks this subnode">⇡</button> 
+			<button onClick="downvote('{{loop.index}}')" title="uprank this subnode">⇣</button>
+			<button onClick="upvote('{{loop.index}}')" title="uprank this subnode">⇡</button> 
                     </span>
 
                     </span>
