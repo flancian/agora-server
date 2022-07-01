@@ -7,6 +7,6 @@
 		"esbuild": "^0.14.37",
 		"fs": "^0.0.1-security",
 		"jquery": "^3.6.0",
-		"regenerator-runtime": "^0.13.9"
+		"regenerator": "^0.14.7"
 	}
 }
