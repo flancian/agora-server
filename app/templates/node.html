@@ -71,13 +71,13 @@
                 <div class="subnode-header">
                     <span class="subnode-id">
                         <span class="subnode-links">
-			    <a href="/@{{subnode.user}}/{{node.uri}}">📕 </a>
-			    <a href="/raw/{{subnode.uri}}">{{subnode.basename}}</a> 
-			    contributed by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span> 
+			    <a href="/raw/{{subnode.uri}}" title="{{subnode.basename}}">📕</a> 
+			    contributed by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span>
                         </a> 
 			</span>
                     </span>
                     <span class="subnode-contrib">
+			<a href="/@{{subnode.user}}/{{node.uri}}" style="text-decoration: none;">🔗</a>
                         {% if subnode.web %}
                         <a href="{{subnode.web}}" title="view in website" style="text-decoration: none;">️👁</a>
                         {% endif %}
