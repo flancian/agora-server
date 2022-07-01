@@ -68,7 +68,6 @@
 
         {% for subnode in node.subnodes %}
             <div class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}">
-							<div style="text-align: right;"><button onClick="upvote('{{loop.index}}')">Up Vote</button> / <button onClick="downvote('{{loop.index}}')">Down Vote</button></div>
                 <div class="subnode-header">
                     <span class="subnode-id">
                         <a href="/@{{subnode.user}}/{{node.uri}}">📓</a>
@@ -87,6 +86,8 @@
                         {% if subnode.support %}
                         <a href="{{subnode.support}}" title="support">🤗</a>
                         {% endif %}
+			<button onClick="downvote('{{loop.index}}')" title="Downranks this subnode">⇣</button>
+			<button onClick="upvote('{{loop.index}}')" title="Upranks this subnode">⇡</button> 
                     </span>
 
                     </span>

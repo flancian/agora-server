@@ -368,12 +368,12 @@ input[type="text"] {
 .subnode-contrib {
     text-align: right;
     text-decoration: none;
-    max-width: 10%;
+    max-width: 15%;
     margin-left: auto;
 }
 
 .subnode-id {
-    max-width: 90%;
+    max-width: 85%;
 }
 
 .subnode-id a {
