@@ -1,14 +1,16 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 specifiers:
   esbuild: ^0.14.37
   fs: ^0.0.1-security
   jquery: ^3.6.0
+  regenerator-runtime: ^0.13.9
 
 dependencies:
   esbuild: 0.14.37
   fs: 0.0.1-security
   jquery: 3.6.0
+  regenerator-runtime: 0.13.9
 
 packages:
 
@@ -226,4 +228,8 @@ packages:
 
   /jquery/3.6.0:
     resolution: {integrity: sha512-JVzAR/AjBvVt2BmYhxRCSYysDsPcssdmTFnzyLEts9qNwmjmu4JTAMYubEfwVOSwpQ1I1sKKFcxhZCI2buerfw==}
+    dev: false
+
+  /regenerator-runtime/0.13.9:
+    resolution: {integrity: sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==}
     dev: false

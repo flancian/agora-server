@@ -18,140 +18,145 @@
 <html>
 
 <head>
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+		integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
-    <meta charset="utf-8" />
-    {% if node is defined %}
-    <title>[[{{node.qstr}}]] - {{config['URI_BASE']}}</title>
-    {% else %}
-    <title>Agora</title>
-    {% endif %}
-    <!-- This Agora is: {{config['URI_BASE']}} -->
-    {% if 'dev.' in config['URI_BASE'] %}
-    <!-- This is a development Agora, so it's likely better if it's not indexed (it might not be up most of the time). -->
-    <meta name="robots" content="noindex" />
-    {% endif %}
-    <meta name="description" content="The Agora is a crowdsourced distributed knowledge graph: {{config['URI_BASE']}}." />
-    <meta name="HandheldFriendly" content="True" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{url_for('agora.search_xml')}}>
-    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
-    <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached129" id="theme-link" />
+	<meta charset="utf-8" />
+	{% if node is defined %}
+	<title>[[{{node.qstr}}]] - {{config['URI_BASE']}}</title>
+	{% else %}
+	<title>Agora</title>
+	{% endif %}
+	<!-- This Agora is: {{config['URI_BASE']}} -->
+	{% if 'dev.' in config['URI_BASE'] %}
+	<!-- This is a development Agora, so it's likely better if it's not indexed (it might not be up most of the time). -->
+	<meta name="robots" content="noindex" />
+	{% endif %}
+	<meta name="description" content="The Agora is a crowdsourced distributed knowledge graph: {{config['URI_BASE']}}." />
+	<meta name="HandheldFriendly" content="True" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{url_for('agora.search_xml')}}>
+	<link rel="stylesheet" type="text/css"
+		href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+	<link rel="stylesheet" media="screen" type="text/css"
+		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached129" id="theme-link" />
 
-    <script>
-        const APIBASE = "{{config['API_BASE']}}"
-        const AGORANAME = "{{config['URI_BASE']}}"
-        const AGORAURL = "{{config['URL_BASE']}}"
-    </script>
+	<script>
+		const APIBASE = "{{config['API_BASE']}}"
+		const AGORANAME = "{{config['URI_BASE']}}"
+		const AGORAURL = "{{config['URL_BASE']}}"
+	</script>
 
-    {% if node is defined %}
-    <script>
-        const NODENAME = "{{node.uri}}"
-        const WIKILINK = "{{node.wikilink}}"
-        const NODEDESC = "{{node.description}}"
-    </script>
-    {% endif %}
-    
-    {% if not embed %}
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	{% if node is defined %}
+	<script>
+		const NODENAME = "{{node.uri}}"
+		const WIKILINK = "{{node.wikilink}}"
+		const NODEDESC = "{{node.description}}"
+	</script>
+	{% endif %}
 
-        <script src="//unpkg.com/force-graph"></script>
-        <!--
+	{% if not embed %}
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+	<script src="//unpkg.com/force-graph"></script>
+	<!--
         <script type="application/json" class="js-hypothesis-config">
               {
                   "externalContainerSelector": ".hypothesis-frame",
               }
         </script>
         -->
-        <script async src="https://hypothes.is/embed.js"></script>
-    {% endif %}
+	<script async src="https://hypothes.is/embed.js"></script>
+	{% endif %}
 
 </head>
 
 <body>
-    <nav>
-        <div class="navigation">
-            <div class="navigation-links">
-                <a href="/"><img src="/static/img/agora.png" class="logo" width="35px" height="35px"></a> 
-                <a href="/nodes">nodes</a>
-                |
-                <a href="/users">users</a>
-                |
-                <a href="/latest">latest</a>
-                |
-                <a href="/now">now</a>
-                |
-                <a href="/journals">journals</a>
-                |
-                <a href="/random" style="text-decoration: none;">🎲️</a>
-                |
-                <a href="/annotations" style="text-decoration: none;">💬</a>
-                |
-                <a href="/settings" style="text-decoration: none;">⚙️</a>
-                |
-                <a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
-                |
-                <a href="/agora-help" style="text-decoration: none;" class="help-button">❓</a>
-            </div>
+	<nav>
+		<div class="navigation">
+			<div class="navigation-links">
+				<a href="/"><img src="/static/img/agora.png" class="logo" width="35px" height="35px"></a>
+				<a href="/nodes">nodes</a>
+				|
+				<a href="/users">users</a>
+				|
+				<a href="/latest">latest</a>
+				|
+				<a href="/now">now</a>
+				|
+				<a href="/journals">journals</a>
+				|
+				<a href="/random" style="text-decoration: none;">🎲️</a>
+				|
+				<a href="/annotations" style="text-decoration: none;">💬</a>
+				|
+				<a href="/settings" style="text-decoration: none;">⚙️</a>
+				|
+				<a href="#" style="text-decoration: none;" class="theme-toggle">🌙</a>
+				|
+				<a href="/agora-help" style="text-decoration: none;" class="help-button">❓</a>
+			</div>
 
-            <hr />
+			<hr />
 
-            <div class="topline-node">
-                <div class="topline-node-wrapper">
-                <div class="topline-query">
-                    <button id="mini-cli-exec" value="exec" title="Searches known Agoras">search</button>
-                </div>
-                <div class="topline-cli">
-                    <form action="/exec" method="get">
-                        <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
-                    </form>
-                </div>
-                <button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>
-                <button id="mini-cli-go" value="go" title="Redirects to a [[go]] link if one is found">go</button>
-            </div>
+			<div class="topline-node">
+				<div class="topline-node-wrapper">
+					<div class="topline-query">
+						<button id="mini-cli-exec" value="exec" title="Searches known Agoras">search</button>
+					</div>
+					<div class="topline-cli">
+						<form action="/exec" method="get">
+							<input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
+						</form>
+					</div>
+					<button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>
+					<button id="mini-cli-go" value="go" title="Redirects to a [[go]] link if one is found">go</button>
+				</div>
 
-            <hr />
+				<hr />
 
-                <div class="topline-search">
-                    <strong>↳ on the Internet → </strong>
-                    <a href="https://www.google.com/search?q={{node.q}}">Google</a>
-                    · <a href="https://www.duckduckgo.com/{{node.q}}">DuckDuckGo</a>
-                    · <a href="https://searx.bar/search?q={{node.q}}&categories=general&language=en-US">Searx</a>
-                    · <a href="https://twitter.com/search/?f=live&q={{node.q}}">Twitter</a>
-                    · <a href="https://github.com/search?q={{node.q}}">Github</a>
-                </div>
+				<div class="topline-search">
+					<strong>↳ on the Internet → </strong>
+					<a href="https://www.google.com/search?q={{node.q}}">Google</a>
+					· <a href="https://www.duckduckgo.com/{{node.q}}">DuckDuckGo</a>
+					· <a href="https://searx.bar/search?q={{node.q}}&categories=general&language=en-US">Searx</a>
+					· <a href="https://twitter.com/search/?f=live&q={{node.q}}">Twitter</a>
+					· <a href="https://github.com/search?q={{node.q}}">Github</a>
+				</div>
 
-                <div class="topline-agora">
-                    <!-- :) -->
-                    {% if embed %}
-                    <strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of {{config['MAINTAINER']}} ⬎</strong>
-                    {% else %}
-                    <strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> ⬎</strong>
-                    {% endif %}
-                    <div>
-                        <button id="pull-all" value="pull-all" title="Pulls embeds below">pull all</button>
-                        <button id="fold-all" value="fold-all" title="Folds embeds below">fold all</button>
-                    </div>
-                </div>
+				<div class="topline-agora">
+					<!-- :) -->
+					{% if embed %}
+					<strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of {{config['MAINTAINER']}} ⬎</strong>
+					{% else %}
+					<strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> ⬎</strong>
+					{% endif %}
+					<div>
+						<button id="pull-all" value="pull-all" title="Pulls embeds below">pull all</button>
+						<button id="fold-all" value="fold-all" title="Folds embeds below">fold all</button>
+					</div>
+				</div>
 
-            </div>
-        </div>
+			</div>
+		</div>
 
-    </nav>
+	</nav>
 
-    {% block content %}
-    {% endblock %}
+	{% block content %}
+	{% endblock %}
 
-    <div id='popup' style='display: none; position: absolute;'>{{popup|default("What could we show here?")}}</div>
-    {% if not embed %}
-    <hr>
-    <!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
-    <div id='footer'>
-        This request was served by <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of <strong>{{config['MAINTAINER']}}</strong> in <strong>__EXECTIME__ seconds</strong> around <strong>__NOW__</strong>.
-    </div>
+	<div id='popup' style='display: none; position: absolute;'>{{popup|default("What could we show here?")}}</div>
+	{% if not embed %}
+	<hr>
+	<!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
+	<div id='footer'>
+		This request was served by <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of
+		<strong>{{config['MAINTAINER']}}</strong> in <strong>__EXECTIME__ seconds</strong> around <strong>__NOW__</strong>.
+	</div>
 
-    {% endif %}
-    <script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
+	{% endif %}
+	<script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
+
 
 </body>
 

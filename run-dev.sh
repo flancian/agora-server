@@ -16,7 +16,7 @@
 . venv/bin/activate
 npm run build
 # this doesn't work for now for some reason?
-npm run watch app/js-src/* &
+# npm run watch app/js-src/* &
 export FLASK_APP=app
 export FLASK_ENV="development"
 export AGORA_CONFIG="DevelopmentConfig"
