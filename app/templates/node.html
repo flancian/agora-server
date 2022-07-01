@@ -70,11 +70,12 @@
             <div class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}">
                 <div class="subnode-header">
                     <span class="subnode-id">
-                        <a href="/@{{subnode.user}}/{{node.uri}}">📓</a>
-                        <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                                href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span> 
-                        </span>
-                        </a>
+                        <span class="subnode-links">
+			    <a href="/@{{subnode.user}}/{{node.uri}}">📕 </a>
+			    <a href="/raw/{{subnode.uri}}">{{subnode.basename}}</a> 
+			    contributed by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span> 
+                        </a> 
+			</span>
                     </span>
                     <span class="subnode-contrib">
                         {% if subnode.web %}

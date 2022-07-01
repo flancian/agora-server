@@ -497,6 +497,7 @@ class Subnode:
         # Use a subnode's URI as its identifier.
         self.uri: str = path_to_uri(path)
         self.url = '/subnode/' + self.uri
+        self.basename: str = path_to_basename(path)
 
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
@@ -879,6 +880,9 @@ def path_to_user(path):
 
 def path_to_wikilink(path):
     return os.path.splitext(os.path.basename(path))[0]
+
+def path_to_basename(path):
+    return os.path.basename(path)
 
 def content_to_forward_links(content):
     # hack hack.

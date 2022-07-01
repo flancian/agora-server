@@ -363,6 +363,11 @@ input[type="text"] {
     font-weight: bolder;
     width: 100%;
     display: flex;
+    padding-bottom: 2px;
+}
+
+.subnode-header{
+    border-bottom: 1px solid #ccc;
 }
 
 .subnode-contrib {
