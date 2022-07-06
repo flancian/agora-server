@@ -26,7 +26,7 @@ body            { color: #000000; overflow-x: hidden;}
 a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 .wikilink:visited { color: #1e53a6; }
 .wikilink:link { color: #1e53a6; }
-.logo           { filter: none; vertical-align: middle; width: 20px; height: 20px; }
+.logo           { filter: none; }
 
 .node, .search, .search-internet { 
     background: #f0f0f0; 
