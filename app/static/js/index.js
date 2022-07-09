@@ -5921,22 +5921,29 @@
       autoExec = JSON.parse(localStorage["auto-exec"] || "true");
       pullRecursive = JSON.parse(localStorage["pull-recursive"] || "true");
       document.addEventListener("DOMContentLoaded", function() {
-        const btn = document.querySelector(".theme-toggle");
         var theme = document.querySelector("#theme-link");
+        var toggle = document.querySelector("#theme-toggle");
         const currentTheme = localStorage.getItem("theme");
+        console.log("DomContentLoaded");
         if (currentTheme == "dark") {
           theme.href = "/static/css/screen-dark.css";
+          toggle.innerHTML = "\u{1F31E}";
         } else if (currentTheme == "light") {
           theme.href = "/static/css/screen-light.css";
+          theme.innerHTML = "\u{1F319}";
         }
-        btn.addEventListener("click", function() {
+        toggle.addEventListener("click", function() {
+          console.log("click!");
           var theme2 = document.querySelector("#theme-link");
+          var toggle2 = document.querySelector("#theme-toggle");
           if (theme2.getAttribute("href") == "/static/css/screen-light.css") {
             theme2.href = "/static/css/screen-dark.css";
             localStorage.setItem("theme", "dark");
+            toggle2.innerHTML = "\u{1F31E}";
           } else {
             theme2.href = "/static/css/screen-light.css";
             localStorage.setItem("theme", "light");
+            toggle2.innerHTML = "\u{1F319}";
           }
         });
         $("#mini-cli-clear").click(() => {
