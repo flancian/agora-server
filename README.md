@@ -29,12 +29,6 @@ Then run the development server:
 ./run-dev.sh
 ```
 
-If you change Typescript, you'll want to use parcel to watch for changes and recompile:
-
-```
-parcel watch app/js-src/index.ts --dist-dir app/static/js
-```
-
 If you don't have parcel, see https://v2.parceljs.org/getting-started/webapp/. You need parcel 2 for the above command to work. `sudo yarn global add parcel@next` should get you that if you're using yarn (it might end up in /usr/local/bin/parcel).
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for instructions on how to
