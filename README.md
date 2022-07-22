@@ -12,30 +12,29 @@ To see the Agora Server in action with the example Agora, please visit
 
 Install OS dependencies:
 ```
-$ apt-get install python3 python3-venv python3-pip
+$ apt-get install python3 python3-pip
 ```
 
-Then install Flask (and other required packages) inside a Python virtual environment in this directory:
+Install poetry [https://python-poetry.org/docs/]
 ```
-python3 -m venv venv
-. venv/bin/activate  # you'll need to run this every time before running the server.
-pip install -r requirements.txt
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 ```
 
-If you get errors while running pip, you might need to install additional OS level dependencies. On a recent run, `apt install libmemcached-dev` was needed.
+Init poetry
+```
+source $HOME/.poetry/env
+```
+
+Install dependencies
+```
+poetry install
+```
 
 Then run the development server:
 ```
 ./run-dev.sh
 ```
 
-If you change Typescript, you'll want to use parcel to watch for changes and recompile:
-
-```
-parcel watch app/js-src/index.ts --dist-dir app/static/js
-```
-
-If you don't have parcel, see https://v2.parceljs.org/getting-started/webapp/. You need parcel 2 for the above command to work. `sudo yarn global add parcel@next` should get you that if you're using yarn (it might end up in /usr/local/bin/parcel).
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for instructions on how to
 contribute; it may require a one-time signing of a Google CLA.
