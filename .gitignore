@@ -8,14 +8,7 @@ agora.log
 app/node_modules
 app/.cache
 config.json
-app/static/js/ctzn.js
-app/static/js/ctzn.js.map
-app/static/js/util.js
-app/static/js/util.js.map
 .cache
-app/js-src/node_modules
 node_modules
-app/.parcel-cache/
-.parcel-cache
-app/clojurescript
 .pnpm-debug.log
+app/static/js/index.js
