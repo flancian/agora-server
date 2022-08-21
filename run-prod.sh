@@ -15,8 +15,13 @@
 
 # npm install ./app/js-src --prefix ./app/js-src
 # npx parcel-bundler build app/js-src/*.js --out-dir ../static/js
-. venv/bin/activate
+# . venv/bin/activate
 # parcel watch app/js-src/index.ts --dist-dir app/static/js &
+#
+# This shouldn't be needed but systemd somehow wasn't reading this from ~/.profile
+export PATH="$HOME/.poetry/bin:$PATH"
+
+npm run build
 export FLASK_ENV="production"
 export AGORA_CONFIG="ProductionConfig"
-uwsgi prod.ini
+poetry run uwsgi prod.ini

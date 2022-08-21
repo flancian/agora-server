@@ -16,6 +16,12 @@ Install OS dependencies:
 $ apt-get install python3 python3-pip
 ```
 
+Install npm. Then install JavaScript dependencies:
+
+```
+npm install
+```
+
 Install poetry (as per https://python-poetry.org/docs/ and the pip3 repository, this is the recommended way of installing):
 ```
 curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
@@ -26,7 +32,7 @@ Init poetry in your current shell (if you've just installed):
 source $HOME/.poetry/env
 ```
 
-Install dependencies:
+Install Python dependencies:
 ```
 poetry install
 ```

@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This shouldn't be needed but systemd somehow wasn't reading this from ~/.profile
+export PATH="$HOME/.poetry/bin:$PATH"
+
 npm run build
 export FLASK_APP=app
 export FLASK_ENV="development"
