@@ -142,6 +142,11 @@ def node_feed(node):
 
 @bp.route('/feed/@<user>')
 def user_feed(user):
+    subnodes = db.subnodes_by_user(user, mediatype='text/plain')
+    return Response(feed.user_rss(user, subnodes), mimetype='application/rss+xml')
+
+@bp.route('/feed/journals/@<user>')
+def user_journals_feed(user):
     subnodes = db.user_journals(user)
     return Response(feed.user_rss(user, subnodes), mimetype='application/rss+xml')
 
