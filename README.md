@@ -1,4 +1,5 @@
 # To use
+
 This Agora Server is meant to be used in conjunction with an Agora. An Agora is
 a collection of digital gardens and other information sources that are assembled
 into a distributed knowledge graph.
@@ -15,26 +16,27 @@ Install OS dependencies:
 $ apt-get install python3 python3-pip
 ```
 
-Install poetry [https://python-poetry.org/docs/]
+Install poetry (as per https://python-poetry.org/docs/ and the pip3 repository, this is the recommended way of installing):
 ```
 curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 ```
 
-Init poetry
+Init poetry in your current shell (if you've just installed):
 ```
 source $HOME/.poetry/env
 ```
 
-Install dependencies
+Install dependencies:
 ```
 poetry install
 ```
+
+If you get a virtualenv-related error above, try removing virtualenv if you had installed it separately: `pip3 uninstall virtualenv`.
 
 Then run the development server:
 ```
 ./run-dev.sh
 ```
-
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for instructions on how to
 contribute; it may require a one-time signing of a Google CLA.
