@@ -138,8 +138,29 @@ def node(node, extension='', user_list=''):
 @bp.route('/feed/<node>') 
 def node_feed(node):
     n = G.node(node)
-    return Response(feed.rss(n), mimetype='application/rss+xml')
+    return Response(feed.node_rss(n), mimetype='application/rss+xml')
 
+@bp.route('/feed/@<user>')
+def user_feed(user):
+    subnodes = db.user_journals(user)
+    return Response(feed.user_rss(user, subnodes), mimetype='application/rss+xml')
+
+@bp.route('/feed/journals')
+def journals_feed():
+    nodes = db.all_journals()[0:30]
+    n = db.consolidate_nodes(nodes)
+    n.subnodes.reverse()
+    # This is an abuse of node_rss?
+    return Response(feed.node_rss(n), mimetype='application/rss+xml')
+
+@bp.route('/feed/latest')
+def latest_feed():
+    # empty node, we'll fake this one.
+    n = G.node('')
+    n.subnodes = db.latest()[:100]
+    n.subnodes.reverse()
+    # This is an abuse of node_rss?
+    return Response(feed.node_rss(n), mimetype='application/rss+xml')
 
 @bp.route('/ttl/<node>') # perhaps deprecated
 @bp.route('/turtle/<node>')
@@ -233,14 +254,6 @@ def random():
     today = datetime.date.today()
     random = db.random_node()
     return redirect(f"/{random.uri}")
-
-@bp.route('/feed/latest') 
-def latest_feed():
-    # empty node, we'll fake this one.
-    n = G.node('')
-    n.subnodes = db.latest()[:100]
-    n.subnodes.reverse()
-    return Response(feed.rss(n), mimetype='application/rss+xml')
 
 @bp.route('/now')
 @bp.route('/tonight')
@@ -515,6 +528,7 @@ def nodes_json():
     links = list(map(lambda x: x.wikilink, nodes))
     return jsonify(jsons.dump(links))
 
+
 @bp.route('/similar/<term>.json')
 def similar_json(term):
     nodes = util.similar(db.top(), term)
@@ -536,20 +550,16 @@ def users_json():
 
 @bp.route('/journal/<user>')
 def user_journal(user):
+    # doesn't really work currently.
     n = build_node(user)
     return render_template('subnodes.html', header="Journals for user", subnodes=db.user_journals(user))
+
 
 @bp.route('/journal/<user>.json')
 def user_journal_json(user):
     return jsonify(jsons.dump(db.user_journals(user)))
 
-@bp.route('/feed/journals')
-def journals_feed():
-    nodes = db.all_journals()[0:30]
-    n = db.consolidate_nodes(nodes)
-    n.subnodes.reverse()
-    return Response(feed.rss(n), mimetype='application/rss+xml')
-  
+
 @bp.route('/journals/<entries>')
 @bp.route('/journals/', defaults={'entries': None})
 @bp.route('/journals', defaults={'entries': None})

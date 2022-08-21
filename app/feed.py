@@ -67,14 +67,14 @@ def get_latest():
         current_app.logger.exception(f"Couldn't get annotations in feed.get_latest().")
     return feed
 
-def rss(node):
+def node_rss(node):
     fg = FeedGenerator()
     # not sure what this field is for
     fg.id(f'https://anagora.org/{node.wikilink}.rss')
     fg.title(f'Agora feed for node [[{node.wikilink}]]')
     fg.author( {'name':'anagora.org users','email':'anagora@flancia.org'} )
     fg.logo('https://anagora.org/favicon.ico')
-    fg.subtitle('The Agora is a crowdsourced distributed knowledge graph')
+    fg.subtitle('The Agora is a crowdsourced distributed knowledge graph.')
     fg.link(href=f'https://anagora.org/{node.wikilink}', rel='self' )
     fg.language('en')
     for subnode in node.subnodes:
@@ -85,6 +85,27 @@ def rss(node):
         fe.description(f'A post by user @{subnode.user} in node [[{subnode.node}]].')
         fe.link(href=f'https://anagora.org/@{subnode.user}/{subnode.node}')
     return fg.rss_str(pretty=True)
+
+def user_rss(user, subnodes):
+    fg = FeedGenerator()
+    # not sure what this field is for
+    fg.id(f'https://anagora.org/feed/@{user}.rss')
+    fg.title(f'Agora feed for user @{user}')
+    fg.author( {'name':'anagora.org/@{user}', 'email':'anagora@flancia.org'} )
+    fg.logo('https://anagora.org/favicon.ico')
+    fg.subtitle('The Agora is a crowdsourced distributed knowledge graph.')
+    fg.link(href=f'https://anagora.org/feed/@{user}', rel='self' )
+    fg.language('en')
+    for subnode in subnodes:
+        fe = fg.add_entry()
+        fe.id(f'{subnode.uri}')
+        fe.title(f'{subnode.uri}')
+        fe.content(f'{subnode.content}')
+        fe.description(f'A post by user @{user} in node [[{subnode.node}]].')
+        fe.link(href=f'https://anagora.org/@{user}/{subnode.node}')
+    return fg.rss_str(pretty=True)
+
+
 
 def main():
     if DEBUG:

@@ -936,8 +936,8 @@ def all_users():
     return sorted([User(u) for u in users], key=lambda x: x.uri.lower())
 
 def user_journals(user):
-    nodes = [node for node in subnodes_by_user(user) if util.is_journal(node.wikilink)]
-    return sorted(nodes, key=attrgetter('wikilink'), reverse=True)
+    subnodes = [subnode for subnode in subnodes_by_user(user) if util.is_journal(subnode.wikilink) and subnode.mediatype == 'text/plain']
+    return sorted(subnodes, key=attrgetter('wikilink'))
 
 def all_journals(skip_future=True):
     # hack hack.
