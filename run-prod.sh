@@ -19,7 +19,7 @@
 # parcel watch app/js-src/index.ts --dist-dir app/static/js &
 #
 # This shouldn't be needed but systemd somehow wasn't reading this from ~/.profile
-export PATH="$HOME/.poetry/bin:$PATH"
+source $HOME/.poetry/env
 
 npm run build
 export FLASK_ENV="production"
