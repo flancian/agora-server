@@ -514,7 +514,7 @@ class Subnode:
 
         if self.mediatype == 'text/plain':
             self.load_text_subnode()
-            self.type = 'text'
+            self.type = 'note'
         elif self.mediatype.startswith('image'):
             self.load_image_subnode()
             self.type = 'image'

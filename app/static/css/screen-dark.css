@@ -373,12 +373,12 @@ input[type="text"] {
 .subnode-contrib {
     text-align: right;
     text-decoration: none;
-    max-width: 17%;
+    max-width: 19%;
     margin-left: auto;
 }
 
 .subnode-id {
-    max-width: 83%;
+    max-width: 81%;
 }
 
 .subnode-id a {

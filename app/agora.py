@@ -226,6 +226,37 @@ def subnode(node, user):
         subnode=f'@{user}/'+n.wikilink,
     )
 
+@bp.route('/export/<node>@<user>')
+@bp.route('/export/@<user>/<node>')
+def subnode_export(node, user):
+
+    node = urllib.parse.unquote_plus(node)
+    node = util.slugify(node)
+    n = G.node(node)
+
+    n.subnodes = util.filter(n.subnodes, user)
+    n.subnodes = util.uprank(n.subnodes, user)
+    search_subnodes = db.search_subnodes_by_user(node, user)
+
+    # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
+    # query is meant to be user parsable / readable text, to be used for example in the UI
+    n.qstr = request.args.get('q') 
+
+    if not n.qstr: 
+        # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
+        n.qstr = n.wikilink.replace('-', ' ')
+
+    n.qstr=f'@{user}/'+n.wikilink.replace('-', ' ')
+    n.q = n.qstr
+
+    return render_template(
+        'node.html',
+        node=n,
+        subnode=f'@{user}/'+n.wikilink,
+    )
+
+
+
 # Special
 
 
