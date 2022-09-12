@@ -32,11 +32,11 @@ def wp(node):
     return Response(f"""
         <div class='exec topline-search'>
         <strong>↳ in Wikipedia → </strong><a href='{url}'>{url}</a> 
-        <button class='pull-exec' value='{url}'>pull</button><br />
+        <button class='pull-exec wp' value='{url}'>pull</button><br />
         &nbsp &nbsp ↳ Wikidata <a href='{wikidata_url}'>{wikibase_item}</a>
-        <button class='pull-exec' value='{wikidata_url}'>pull</button><br />
+        <button class='pull-exec wd' value='{wikidata_url}'>pull</button><br />
         &nbsp &nbsp ↳ Agora <a href='/{inferred_node}'>[[{title}]]</a>
-        <button class='pull-exec' value='/{inferred_node}'>pull</button>
+        <button class='pull-exec ag' value='/{inferred_node}'>pull</button>
         <!--{result}-->
         </div>""", 
         mimetype='text/html'

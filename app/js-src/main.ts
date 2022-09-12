@@ -174,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('pulling node');
       // now with two methods! you can choose the simpler/faster one (just pulls static content) or the nerdy one (recursive) in settings.
       if (pullRecursive) {
-        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
+        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%; border: 0" width="960px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
       }
       else {
         $.get(AGORAURL + '/pull/' + node, function (data) {
@@ -373,6 +373,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (autoExec) {
     console.log('autoexec is enabled')
+
+    setTimeout(autoPullWpOnEmpty, 3000)
     // auto pull search by default.
     $(".pull-search").each(function (e) {
       console.log('auto pulling search');
@@ -396,7 +398,6 @@ document.addEventListener("DOMContentLoaded", function () {
         $(id).html(data);
       });
       // end auto pull pushed subnodes.
-      console.log('auto pulled pushed subnodes, hopefully :)');
     });
 
     $(".context").each(function (e) {
@@ -409,21 +410,7 @@ document.addEventListener("DOMContentLoaded", function () {
         $(id).html(data);
       });
       // end auto pull pushed subnodes.
-      console.log('auto pulled pushed subnodes, hopefully :)');
     });
-
-
-
-    /*
-      this.innerText = 'pulling';
-      console.log('pulling node');
-      $.get(AGORAURL + '/pull/' + node, function (data) {
-        $("#" + node + ".pulled-node-embed").html(data);
-      });
-      this.innerText = 'fold';
-      this.classList.add('pulled');
-    }
-    */
 
     console.log('executing node: ' + NODENAME)
     req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME)
@@ -448,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
           this.innerText = 'pulling';
           let url = this.value;
           console.log('pull exec: ' + url)
-          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="910px" height="800px" allowfullscreen="allowfullscreen"></iframe>')
+          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="960px" height="800px" allowfullscreen="allowfullscreen"></iframe>')
           this.innerText = 'fold';
           this.classList.add('pulled');
           $(".node-hint").hide();
@@ -460,7 +447,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("in go-exec!")
         window.location.href = $('#exec-wp').contentWindow.location.href
       });
-
 
     });
 
@@ -484,6 +470,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('auto pulling tweet');
       this.click();
     });
+
     /*
      * this might be too disruptive?
     $(".pull-url").each(function(e) {
@@ -492,6 +479,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     */
   }
+
+  function autoPullWpOnEmpty() {
+    console.log('trying to auto pull wp');
+    if ($(".not-found").length > 0) {
+	$(".pull-exec.wp").each(function (e) {
+	  console.log('auto pulling wp');
+	  this.click();
+	  console.log('wp: click?');
+	});
+     }
+  }
+
 
   function sleep(ms) {
     // https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
