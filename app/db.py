@@ -32,7 +32,6 @@ from . import util
 from collections import defaultdict
 from fuzzywuzzy import fuzz
 from operator import attrgetter
-# guys! I wanna stay sane
 from typing import Union
 
 # For [[push]] parsing, perhaps move elsewhere?
@@ -44,7 +43,7 @@ import lxml.etree
 FUZZ_FACTOR = 95
 
 # Spreading over a range prevents thundering herd affected by I/O throughput.
-CACHE_TTL = random.randint(60, 120)
+CACHE_TTL = random.randint(120, 240)
 
 # URIs are ids. 
 # - In the case of nodes, their [[wikilink]].
@@ -177,20 +176,28 @@ class Graph:
     @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def subnodes(self, sort=lambda x: x.uri.lower()):
         # this is where the magic happens (?)
-        # as in -- this is where the rubber meets the road.
+        # as in -- this is where the rubber meets the road, meaning where we actually find all subnodes we can serve. This is called by G.nodes() which actually builds the Agora graph.
         # as of [[2022-01-28]] this takes about 20s to run with an Agora of about 17k subnodes.
         # which makes caching important :)
         begin = datetime.datetime.now()
         current_app.logger.debug(f'*** Loading subnodes at {begin}.')
         base = current_app.config['AGORA_PATH']
+        current_app.logger.debug(f'*** Loading subnodes: markdown.')
+        # As of 2022-09-13 I've tried:
+        # - pathlib and rglob
+        # - os.walk
+        # ...and neither made any positive difference speed wise. If anything good old glob.glob is speedier.
+        # Most of the time (>60%?) seems to go into building the actual Subnodes and not to file system traversal.
         # Markdown.
         subnodes = [Subnode(f) for f in glob.glob(os.path.join(base, '**/*.md'), recursive=True)]
         # Org mode.
+        current_app.logger.debug(f'*** Loading subnodes: org mode and mycomarkup.')
         # This should check for files, this blows up for directories like doc.anagora.org, so only globbing for garden for now.
         subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.org'), recursive=True)])
         # [[mycorrhiza]]
         subnodes.extend([Subnode(f) for f in glob.glob(os.path.join(base, 'garden', '**/*.myco'), recursive=True)])
         # Image formats.
+        current_app.logger.debug(f'*** Loading subnodes: images.')
         subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpg'), recursive=True)])
         subnodes.extend([Subnode(f, mediatype='image/jpg') for f in glob.glob(os.path.join(base, '**/*.jpeg'), recursive=True)])
         subnodes.extend([Subnode(f, mediatype='image/png') for f in glob.glob(os.path.join(base, '**/*.png'), recursive=True)])
@@ -718,7 +725,7 @@ class Subnode:
         """
         pull_blocks = subnode_to_actions(self, 'pull')
         pull_blocks += subnode_to_taglink(self, 'pull')
-        current_app.logger.debug(f'in pull_nodes for {self.uri}')
+        # current_app.logger.debug(f'in pull_nodes for {self.uri}')
         # hack hack
         pull_nodes = content_to_forward_links("\n".join(pull_blocks))
 
