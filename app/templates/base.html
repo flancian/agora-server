@@ -126,11 +126,7 @@
 
 				<div class="topline-agora">
 					<!-- :) -->
-					{% if embed %}
-					<strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of {{config['MAINTAINER']}} ⬎</strong>
-					{% else %}
-					<strong>↳ in <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> ⬎</strong>
-					{% endif %}
+					<strong>↳ in the <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> ⬎</strong>
 					<div>
 						<button id="pull-all" value="pull-all" title="Pulls embeds below">pull all</button>
 						<button id="fold-all" value="fold-all" title="Folds embeds below">fold all</button>
@@ -150,8 +146,8 @@
 	<hr>
 	<!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
 	<div id='footer'>
-		This request was served by <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of
-		<strong>{{config['MAINTAINER']}}</strong> in <strong>__EXECTIME__ seconds</strong> around <strong>__NOW__</strong>.
+		This request was served by the <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> of
+		in <strong>__EXECTIME__ seconds</strong> around <strong>__NOW__</strong>.
 	</div>
 
 	{% endif %}

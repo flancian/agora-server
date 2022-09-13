@@ -25,9 +25,9 @@ class DefaultConfig(object):
     # with protocol
     URL_BASE = "https://anagora.org"
     API_BASE = "https://api.anagora.org"
-    # https://anagora.org, a reference Agora, is run by [[Flancia Collective]].
-    NAME = "an Agora"
-    MAINTAINER = "Flancia"   
+    # https://anagora.org, the reference Agora as of 2022, is run by [[Flancia Collective]].
+    # See https://anagora.org/agora+doc for more.
+    NAME = "Agora of Flancia"
 
     #TODO change this to whatever prod is going to be
     # without protocol
