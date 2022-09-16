@@ -481,17 +481,21 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function autoPullWpOnEmpty() {
-    console.log('trying to auto pull wp');
     if ($(".not-found").length > 0) {
-	$(".pull-exec.wp").each(function (e) {
-	  console.log('auto pulling wp');
-	  this.click();
-	  console.log('wp: click?');
-	});
-     }
+      $(".pull-exec.wp").each(function (e) {
+        console.log('trying to auto pull wp');
+        this.innerText = 'autopulling in 3s';
+      });
+      setTimeout(autoPullWp, 3000);
+    }
   }
 
-
+  function autoPullWp() {
+    $(".pull-exec.wp").each(function (e) {
+        this.click();
+        console.log('auto pulled wp');
+    })
+  }
   function sleep(ms) {
     // https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
     return new Promise(resolve => setTimeout(resolve, ms));
