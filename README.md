@@ -24,12 +24,7 @@ npm install
 
 Install poetry (as per https://python-poetry.org/docs/ and the pip3 repository, this is the recommended way of installing):
 ```
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-```
-
-Init poetry in your current shell (if you've just installed):
-```
-source $HOME/.poetry/env
+curl -sSL  https://install.python-poetry.org | python3 -
 ```
 
 Install Python dependencies:
