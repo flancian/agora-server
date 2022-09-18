@@ -86,6 +86,27 @@ def node_rss(node):
         fe.link(href=f'https://anagora.org/@{subnode.user}/{subnode.node}')
     return fg.rss_str(pretty=True)
 
+def latest_rss(subnodes):
+    fg = FeedGenerator()
+    # not sure what this field is for
+    fg.id(f'https://anagora.org/feed/latest')
+    fg.title(f'Agora feed for latest updates')
+    fg.author( {'name':'anagora.org users','email':'anagora@flancia.org'} )
+    fg.logo('https://anagora.org/favicon.ico')
+    fg.subtitle('The Agora is a crowdsourced distributed knowledge graph.')
+    fg.link(href=f'https://anagora.org/feed/latest', rel='self' )
+    fg.language('en')
+    for subnode in subnodes:
+        fe = fg.add_entry()
+        fe.id(f'{subnode.uri}')
+        fe.title(f'{subnode.uri}')
+        fe.content(f'{subnode.content}')
+        fe.description(f'A post by user @{subnode.user} in node [[{subnode.node}]].')
+        fe.link(href=f'https://anagora.org/{subnode.node}')
+    return fg.rss_str(pretty=True)
+
+
+
 def user_rss(user, subnodes):
     fg = FeedGenerator()
     # not sure what this field is for

@@ -160,12 +160,9 @@ def journals_feed():
 
 @bp.route('/feed/latest')
 def latest_feed():
-    # empty node, we'll fake this one.
-    n = G.node('')
-    n.subnodes = db.latest()[:100]
-    n.subnodes.reverse()
-    # This is an abuse of node_rss?
-    return Response(feed.node_rss(n), mimetype='application/rss+xml')
+    subnodes = db.latest()[:100]
+    subnodes.reverse()
+    return Response(feed.latest_rss(subnodes), mimetype='application/rss+xml')
 
 @bp.route('/ttl/<node>') # perhaps deprecated
 @bp.route('/turtle/<node>')
@@ -190,7 +187,7 @@ def graph_js():
     return Response(graph.json_nodes(nodes), mimetype='application/json')
 
 
-@bp.route('/graph/json/<node>')
+
 def graph_js_node(node):
     n = G.node(node)
     return Response(graph.json_node(n), mimetype='application/json')
