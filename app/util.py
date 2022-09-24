@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
+import urllib.parse
 from dateparser import DateDataParser
 from functools import lru_cache
 from urllib.parse import urlparse
@@ -64,7 +65,15 @@ def canonical_wikilink(wikilink):
             pass
 
     # hack hack
-    wikilink = (
+    # I didn't like slugs at all as of 2022-09, ditching slug-like for simpler quote logic (percent/url encoding)
+    # It's nice to support slugs, but we don't want them to be canonical as they are too lossy.
+    return urllib.parse.quote_plus(wikilink)
+    # Dead code follows
+    return slugify(wikilink)
+
+
+def slugify(wikilink):
+    slug = (
         wikilink.lower()
         .strip()
         # we replace a bunch of non-slug characters with -, then replace all runs of - with a single -.
@@ -85,16 +94,12 @@ def canonical_wikilink(wikilink):
         .replace("\'", '-')
         .replace("+", '-')
     )
-    wikilink = re.sub('-+', '-', wikilink)
-    return wikilink
-
-
-slugify = canonical_wikilink
-
+    slug = re.sub('-+', '-', slug)
+    return slug 
 
 @lru_cache(maxsize=None)
 def canonical_date(wikilink):
-    # this is best effort, returns the wikilink for non-dates (check before you use).
+    # this is best effort, returns the wikilink as-is for non-dates (check before you use).
     try:
         date = parser.get_date_data(wikilink, date_formats=['%Y-%m-%d', '%Y_%m_%d', '%Y%m%d']).date_obj
         return date.isoformat().split("T")[0]
