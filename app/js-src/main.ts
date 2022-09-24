@@ -375,6 +375,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('autoexec is enabled')
 
     setTimeout(autoPullWpOnEmpty, 3000)
+
     // auto pull search by default.
     $(".pull-search").each(function (e) {
       console.log('auto pulling search');
@@ -484,15 +485,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if ($(".not-found").length > 0) {
       $(".pull-exec.wp").each(function (e) {
         console.log('trying to auto pull wp');
-        this.innerText = 'autopulling in 3s';
+        if (!this.classList.contains('pulled')) {
+          this.innerText = 'autopulling in empty node...';
+        }
       });
-      setTimeout(autoPullWp, 3000);
+      setTimeout(autoPullWp, 2000);
     }
   }
 
   function autoPullWp() {
     $(".pull-exec.wp").each(function (e) {
-        this.click();
+        if (!this.classList.contains('pulled')) {
+          this.click();
+        }
         console.log('auto pulled wp');
     })
   }
