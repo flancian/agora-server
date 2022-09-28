@@ -374,7 +374,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (autoExec) {
     console.log('autoexec is enabled')
 
-    setTimeout(autoPullWpOnEmpty, 3000)
+    setTimeout(autoPullWpOnEmpty, 2000)
 
     // auto pull search by default.
     $(".pull-search").each(function (e) {

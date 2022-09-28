@@ -187,7 +187,7 @@ def graph_js():
     return Response(graph.json_nodes(nodes), mimetype='application/json')
 
 
-
+@bp.route('/graph/json/<node>')
 def graph_js_node(node):
     n = G.node(node)
     return Response(graph.json_node(n), mimetype='application/json')
