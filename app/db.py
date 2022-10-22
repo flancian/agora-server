@@ -33,6 +33,7 @@ from collections import defaultdict
 from fuzzywuzzy import fuzz
 from operator import attrgetter
 from typing import Union
+from pathlib import Path
 
 # For [[push]] parsing, perhaps move elsewhere?
 import lxml.html
@@ -578,13 +579,13 @@ class Subnode:
             self.edit = self.edit.replace("{path}", self.edit_path)
             # for edit paths with {slug}
             # hack hack, the stoa doesn't expect an .md extension so we just cut out the extension from the path for now.
-            self.edit = self.edit.replace("{slug}", self.edit_path[:-3])
+            self.edit = self.edit.replace("{slug}", str(Path(self.edit_path).with_suffix('')))
         if self.web:
             # same as the above but for views
             # for web paths with {path}
             self.web = self.web.replace("{path}", self.edit_path)
             # for web paths with {slug}
-            self.web = self.web.replace("{slug}", self.edit_path[:-3])
+            self.web = self.web.replace("{slug}", str(Path(self.edit_path).with_suffix('')))
 
     def __hash__(self):
         return hash(self.uri)
