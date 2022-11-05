@@ -142,6 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // pull a node from the default [[stoa]]
   $("#pull-stoa").click(function (e) {
+    console.log('clicked stoa button')
     if (this.classList.contains('pulled')) {
       // already pulled.
       this.innerText = 'pull';
@@ -375,7 +376,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('autoexec is enabled')
 
     setTimeout(autoPullWpOnEmpty, 2000)
-    setTimeout(autoPullStoaOnEmpty, 2000)
+    setTimeout(autoPullStoaOnEmpty, 5000)
 
     // auto pull search by default.
     $(".pull-search").each(function (e) {
@@ -496,11 +497,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function autoPullStoaOnEmpty() {
     console.log('trying to auto pull stoa if empty');
+    // if we're doing this, 'uprank' the Stoa by pushing it above of the actual empty node (below Wikipedia, setting up a lightweight note taking activity.)
     if ($(".not-found").length > 0) {
+      let stoa = $(".stoa")
+      stoa.remove()
+      stoa.insertBefore($(".node"))
       $("#pull-stoa").each(function (e) {
         if (!this.classList.contains('pulled')) {
           this.innerText = 'autopulling in empty node...';
         }
+
+    // hack hack
+    // this is copy/pasted from the first bind, as for some reason we need to re-bind after insert/remove.
+    $("#pull-stoa").click(function (e) {
+      console.log('clicked stoa button')
+      if (this.classList.contains('pulled')) {
+        // already pulled.
+        this.innerText = 'pull';
+        $(e.currentTarget).nextAll('iframe').remove()
+        $("#stoa-iframe").html('');
+        this.classList.remove('pulled');
+      }
+      else {
+        this.innerText = 'pulling';
+        let node = this.value;
+        $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="500" frameborder="0"></iframe>');
+        this.innerText = 'fold';
+        this.classList.add('pulled');
+      }
+    });
+
+
       });
       setTimeout(autoPullStoa2, 2000);
     }
