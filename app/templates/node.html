@@ -16,11 +16,11 @@
 
 {% if not node.subnodes and not node.pushed_subnodes() %}
 <div class="node" id="{{node.uri}}">
-    <span class="node-header main-header">📚 node <a href="/{{node}}">[[{{node.qstr}}]]</a></span>
+    <div class="node-header main-header"><span>📚 node <a href="/{{node}}">[[{{node.qstr}}]]</a></span></div>
     <div class="not-found subnode" data-author="agora">
-           <span>Welcome to the Agora!</span>
-           <strong>Nobody has noded "<em>{{node.qstr}}</em>" yet.</strong>
-            You can: 
+           <strong>Nobody has explicitly noded "<em>{{node.qstr}}</em>" yet.</strong>
+
+            You can contribute something here if you want to :) 
 
             <ul>
             <li>
@@ -59,11 +59,17 @@
     <div class="node" id="{{node.uri}}">
 
         {% if subnode %}
-            <span class="node-header main-header">📕 subnode <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a>
-            in 📚 node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
-            </span>
+            <div class="node-header main-header"><span>📕 subnode <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a>
+            of 📚 node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span></div>
         {% else %}
-            <span class="node-header main-header">📚 node <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a></span>
+            <div class="node-header main-header"><span>📚 node <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a></strong></span>
+            <!--
+            <span class="node-actions">
+                <button id="pull-all" value="pull-all" title="Pulls embeds below">pull all</button>
+                <button id="fold-all" value="fold-all" title="Folds embeds below">fold all</button>
+            </span> 
+            -->
+            </div>
         {% endif %} 
 
         {% for subnode in node.subnodes %}
@@ -71,15 +77,17 @@
                 <div class="subnode-header">
                     <span class="subnode-id">
                         <span class="subnode-links">
-			    <a href="@{{subnode.user}}/{{node.uri}}"" title="see subnode {{subnode.basename}}">📕</a> 
-                {{subnode.type}} contributed by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a> 
-			</span>
+			    <a href="@{{subnode.user}}/{{node.uri}}"" title="subnode {{subnode.basename}}">📕</a> 
+                {{subnode.type}} file <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> contributed by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a> 
+                    </span>
                     </span>
             <span class="subnode-contrib">
-                <a href="/raw/{{subnode.uri}}" style="text-decoration: none;" title="view original (source)">本</a>
-                <!--<a href="/export/@{{subnode.user}}/{{node.uri}}" style="text-decoration: none;" title="export (html)">⤓</a>-->
+                <!-- 
+                <a href="/raw/{{subnode.uri}}" style="text-decoration: none;" title="view original (source)"></a>
+                <a href="/export/@{{subnode.user}}/{{node.uri}}" style="text-decoration: none;" title="export (html)">⤓</a>
+                -->
                 {% if subnode.web %}
-                    <a href="{{subnode.web}}" title="view original (website)" style="text-decoration: none;">️👁</a> 
+                    <a href="{{subnode.web}}" title="view original (website)" style="text-decoration: none;">️本</a> 
                 {% endif %}
                 {% if subnode.edit %}
                     <a href="{{subnode.edit}}" title="edit (external)" style="text-decoration: none;">📝</a>

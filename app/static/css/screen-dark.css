@@ -345,8 +345,8 @@ input[type="text"] {
 }
 
 .node-header, .context-header, .stoa-header, .ctzn-header {
+    display: flex;
     text-align: left;
-    margin-bottom: 1em;
     margin-left: 10px;
     font-weight: bolder;
 }
@@ -371,6 +371,13 @@ input[type="text"] {
 }
 
 .subnode-contrib {
+    text-align: right;
+    text-decoration: none;
+    max-width: 19%;
+    margin-left: auto;
+}
+
+.node-actions {
     text-align: right;
     text-decoration: none;
     max-width: 19%;

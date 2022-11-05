@@ -39,7 +39,7 @@
 	<link rel="stylesheet" type="text/css"
 		href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached134" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached135" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}"
@@ -125,12 +125,11 @@
 				</div>
 
 				<div class="topline-agora">
-					<!-- :) -->
-					<strong>↳ in this <a href="{{config['URL_BASE']}}" title="{{config['NAME']}}">Agora</a> ⬎</strong>
+					<strong>↳ in the <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> ⬎</strong>
 					<div>
 						<button id="pull-all" value="pull-all" title="Pulls embeds below">pull all</button>
 						<button id="fold-all" value="fold-all" title="Folds embeds below">fold all</button>
-					</div>
+					</div> 
 				</div>
 
 			</div>
@@ -146,7 +145,8 @@
 	<hr>
 	<!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
 	<div id='footer'>
-		This request was served by the <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> in <strong>__EXECTIME__ seconds</strong> around <strong>__NOW__</strong>.
+		This page was served by the <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> in <strong>__EXECTIME__ seconds</strong> on <strong>__NOW__</strong>.
+		Have a nice day!
 	</div>
 
 	{% endif %}

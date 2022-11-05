@@ -19,9 +19,9 @@
     {% for n in related %}
         {% if n.subnodes %}
         <div class="related-node">
-        <span class="node-header">⥅ maybe related node <a href="/{{n.uri}}">[[{{n.description}}]]</a></span> 
-        <button class="pull-node" value="{{n.uri}}">pull</button>
-        <div class="pulled-node-embed" id="{{n.uri}}"></div>                           
+        <div class="node-header"><span>⥅ potentially related node <a href="/{{n.uri}}">[[{{n.description}}]]</a>
+        <button class="pull-node" value="{{n.uri}}">pull</button></span></div>
+        <div class="pulled-node-embed" id="{{n.uri}}"></div>
         </div>
         {% endif %}
     {% endfor %}

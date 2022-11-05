@@ -31,7 +31,7 @@ def wp(node):
     inferred_node = title.replace('_', '-')
     return Response(f"""
         <div class='exec topline-search'>
-        <strong>↳ in Wikipedia → </strong><a href='{url}'>{url}</a> 
+        <strong>↳ on Wikipedia → </strong><a href='{url}'>{url}</a> 
         <button class='pull-exec wp' value='{url}'>pull</button><br />
         &nbsp &nbsp ↳ Wikidata <a href='{wikidata_url}'>{wikibase_item}</a>
         <button class='pull-exec wd' value='{wikidata_url}'>pull</button><br />
