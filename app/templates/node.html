@@ -16,39 +16,39 @@
 
 {% if not node.subnodes and not node.pushed_subnodes() %}
 <div class="node" id="{{node.uri}}">
-    <div class="node-header main-header"><span>📚 node <a href="/{{node}}">[[{{node.qstr}}]]</a></span></div>
+    <div class="node-header main-header"><span>📚 node <a href="/{{node}}" title="A node in {{config['NAME']}}.">[[{{node.qstr}}]]</a></span></div>
     <div class="not-found subnode" data-author="agora">
-           <strong>Nobody has explicitly noded "<em>{{node.qstr}}</em>" yet.</strong>
+           <p><strong>Nobody has noded "<em>{{node.qstr}}</em>" yet.</strong></p>
 
-            You can contribute something here if you want to :) 
+           <p>You can contribute in the following ways:
 
             <ul>
             <li>
-                <strong>Write something here!</strong>
+                <strong>Write something anonymously.</strong>
                 <ul>
                 <li>
-                There should be at least one public document for you to write in anywhere in the Agora. Look for it in the Stoas section below :)
+                Please feel free to write something in the Stoa below. At least one such public document such can be found in every Agora location.
                 </li>
                 </ul>
             </li> 
             <li>
-                <strong>Write to the Agora elsewhere!</strong>
+                <strong><a href="/sign-up">Sign in</a> to contribute your self-hosted writing.</strong>
+                <ul>
+                    <li>You can contribute resources directly from your blog, digital garden or personal wiki into the Agora <a href="/knowledge-commons">Knowledge Commons</a>.
+                    <li>Some setup required :) Please <a href="/agora-discuss">reach out</a> if interested and we'll try to help!</li>
+                </ul>
+                </li>
+            </li>
+            <li>
+                <strong>Contribute posts from social media.</strong>
                 <ul>
                 <li>
                 If you interact with an <a href="/agora-bot">Agora bot</a> on Twitter, Mastodon or Matrix and mention a <a href='/wikilink'>wikilink</a> like [[<a href="/{{node.qstr}}">{{node.qstr}}</a>]], the Agora will try to link your post in the matching nodes and optionally save a copy of your writing.
                 </li>
                 </ul>
             </li> 
-            <li>
-                <strong><a href="/sign-up">Sign in</a> to contribute your self hosted writing :)</strong>
-                <ul>
-                    <li>You can contribute resources directly from your blog, digital garden or personal wiki into this <a href="/knowledge-commons">knowledge commons</a>.
-                    <li>Some setup required :) Please <a href="/agora-discuss">reach out</a> if interested and we'll try to help!</li>
-                </ul>
-                </li>
-                </ul>
-            </li>
-            </ul>
+           </ul>
+        </p>
            <span>The Agora will try to surface related nodes below.</span>
     </div>
 
@@ -62,14 +62,13 @@
             <div class="node-header main-header"><span>📕 subnode <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a>
             of 📚 node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span></div>
         {% else %}
-            <div class="node-header main-header"><span>📚 node <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a></strong></span>
+            <div class="node-header main-header"><span>📚 node <a href="/{{node}}" title="A node is a collection of resources with a matching name or an explicit relationship to a context.">[[{{node.qstr}}]]</a></span></div>
             <!--
             <span class="node-actions">
                 <button id="pull-all" value="pull-all" title="Pulls embeds below">pull all</button>
                 <button id="fold-all" value="fold-all" title="Folds embeds below">fold all</button>
             </span> 
             -->
-            </div>
         {% endif %} 
 
         {% for subnode in node.subnodes %}

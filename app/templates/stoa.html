@@ -15,17 +15,16 @@
 -->
 
 <div class="stoa">
-    <div class="stoa-header"><span>📖 stoas (collaborative spaces) for <a href="/{{node}}">[[{{node.qstr}}]]</a></span></div>
-    <ul>
-        <li>
-        Open document (Hedgedoc) at <a href="https://doc.anagora.org/{{node.uri}}?edit">https://doc.anagora.org/{{node.uri}}</a>
+    <div class="subnode-header"><span><strong title="A Stoa is a resource meant for collaboration.">🏛️ stoas</strong> in <a href="/{{node}}">[[{{node.qstr}}]]</a></span></div>
+        <div class="subnode">
+        📖 Open document (Hedgedoc) at <a href="https://doc.anagora.org/{{node.uri}}?edit">https://doc.anagora.org/{{node.uri}}</a>
         <button id="pull-stoa" value="{{node.uri}}">pull</button>
         <div id="stoa-iframe"></div>
-        </li>
-        <li>
+        <!--
         Video call (Jitsi) at <a href="https://meet.jit.si/{{node.uri}}">https://meet.jit.si/{{node.uri}}</a>
         <button class="pull-url value="https://meet.jit.si/{{node.uri}}">pull</button>
-        </li>
+        -->
+    </div>
 </div>
 
 

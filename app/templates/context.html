@@ -1,8 +1,17 @@
 <!-- <div class="context"> now meant to be loaded async through /context/x -->
+
 <div class="context-header"><span>⥱ context for <a href="/{{node}}">[[{{node.qstr}}]]</a></span></div>
+
+{% if node.subnodes %}
 
 {% include "graph.html" %}
 
 {% include "links.html" %}
+
+{% else %}
+
+No context found.
+
+{% endif %}
 
 
