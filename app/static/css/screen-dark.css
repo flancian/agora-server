@@ -307,7 +307,7 @@ input[type="text"] {
     /*border-color: #7f5af0;*/
     border-color: gray;
     border-width: 1px;
-    border-style: dotted;
+    border-style: solid;
     margin: 10px;
     /*border-radius: 20px;*/
     padding: 10px;
