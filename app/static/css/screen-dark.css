@@ -349,6 +349,7 @@ input[type="text"] {
     text-align: left;
     margin-left: 10px;
     font-weight: bolder;
+    padding-bottom: 2px;
 }
 
 .not-found {
@@ -366,7 +367,7 @@ input[type="text"] {
     padding-bottom: 2px;
 }
 
-.subnode-header{
+.subnode-header, .node-header {
     border-bottom: 1px solid #ccc;
 }
 
