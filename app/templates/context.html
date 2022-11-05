@@ -2,7 +2,7 @@
 
 <div class="context-header"><span>⥱ context for <a href="/{{node}}">[[{{node.qstr}}]]</a></span></div>
 
-{% if node.subnodes %}
+{% if node.back_nodes or node.pushing_nodes or node.pulling_nodes or node.forward_nodes %}
 
 {% include "graph.html" %}
 
@@ -13,5 +13,4 @@
 No context found.
 
 {% endif %}
-
 

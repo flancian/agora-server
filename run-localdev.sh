@@ -13,12 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-. venv/bin/activate
-npm run build
-# this doesn't work for now for some reason?
-npm run watch app/js-src/* &
-export FLASK_APP=app
-export FLASK_ENV="development"
-# I use this on my laptop with vscode/vim when I'm not developing directly on [[thecla]] (dev.anagora.org).
-export AGORA_CONFIG="LocalDevelopmentConfig"
-flask run -h 0.0.0.0 -p 5017
+./run-dev.sh Local
+
