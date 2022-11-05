@@ -375,6 +375,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('autoexec is enabled')
 
     setTimeout(autoPullWpOnEmpty, 2000)
+    setTimeout(autoPullStoaOnEmpty, 2000)
 
     // auto pull search by default.
     $(".pull-search").each(function (e) {
@@ -493,6 +494,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function autoPullStoaOnEmpty() {
+    console.log('trying to auto pull stoa if empty');
+    if ($(".not-found").length > 0) {
+      $("#pull-stoa").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          this.innerText = 'autopulling in empty node...';
+        }
+      });
+      setTimeout(autoPullStoa2, 2000);
+    }
+  }
+
   function autoPullWp() {
     $(".pull-exec.wp").each(function (e) {
         if (!this.classList.contains('pulled')) {
@@ -501,6 +514,17 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log('auto pulled wp');
     })
   }
+
+  function autoPullStoa2() {
+    // terrible name because autoPullStoa is a setting -- yolo.
+    $("#pull-stoa").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          this.click();
+        }
+        console.log('auto pulled stoa');
+    })
+  }
+
   function sleep(ms) {
     // https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
     return new Promise(resolve => setTimeout(resolve, ms));
