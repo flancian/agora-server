@@ -15,8 +15,8 @@
 
 # This shouldn't be needed I think but systemd somehow wasn't reading this from ~/.profile
 # I've been reading on systemd environment setup, but having this here might actually be preferable?
-
-source $HOME/.poetry/env
+# Hmm, as of [[2022-11-05]] apparently this isn't needed anymore -- at least not on [[paramita]].
+# source $HOME/.poetry/env
 
 npm run build
 export FLASK_APP=app

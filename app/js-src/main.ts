@@ -375,8 +375,9 @@ document.addEventListener("DOMContentLoaded", function () {
   if (autoExec) {
     console.log('autoexec is enabled')
 
-    setTimeout(autoPullWpOnEmpty, 2000)
-    setTimeout(autoPullStoaOnEmpty, 5000)
+    // when these run, we update labels; then later we push.
+    setTimeout(queueAutoPullWp, 2000)
+    setTimeout(queueAutoPullStoa, 5000)
 
     // auto pull search by default.
     $(".pull-search").each(function (e) {
@@ -483,21 +484,32 @@ document.addEventListener("DOMContentLoaded", function () {
     */
   }
 
-  function autoPullWpOnEmpty() {
+  function queueAutoPullWp() {
     if ($(".not-found").length > 0) {
       $(".pull-exec.wp").each(function (e) {
         console.log('trying to auto pull wp');
         if (!this.classList.contains('pulled')) {
           this.innerText = 'autopulling in empty node...';
+          setTimeout(autoPullWp, 2000);
         }
       });
-      setTimeout(autoPullWp, 2000);
+    }
+    else {
+      // pull anyway, later, maybe?
+      $(".pull-exec.wp").each(function (e) {
+        console.log('trying to auto pull wp');
+        if (!this.classList.contains('pulled')) {
+          // maybe this doesn't work as it'll displace the page while you're reading?
+          // this.innerText = 'autopulling in 10 seconds (click to cancel)'
+          // setTimeout(autoPullWp, 60000);
+        }
+      });
     }
   }
 
-  function autoPullStoaOnEmpty() {
-    console.log('trying to auto pull stoa if empty');
+  function queueAutoPullStoa() {
     // if we're doing this, 'uprank' the Stoa by pushing it above of the actual empty node (below Wikipedia, setting up a lightweight note taking activity.)
+    console.log('trying to auto pull stoa');
     if ($(".not-found").length > 0) {
       let stoa = $(".stoa")
       stoa.remove()
@@ -505,30 +517,40 @@ document.addEventListener("DOMContentLoaded", function () {
       $("#pull-stoa").each(function (e) {
         if (!this.classList.contains('pulled')) {
           this.innerText = 'autopulling in empty node...';
+          setTimeout(autoPullStoa2, 2000);
         }
       });
-
-      // hack hack
-      // this is copy/pasted from the first bind, as for some reason we need to re-bind after insert/remove.
-      $("#pull-stoa").click(function (e) {
-        console.log('clicked stoa button')
-        if (this.classList.contains('pulled')) {
-          // already pulled.
-          this.innerText = 'pull';
-          $(e.currentTarget).nextAll('iframe').remove()
-          $("#stoa-iframe").html('');
-          this.classList.remove('pulled');
-        }
-        else {
-          this.innerText = 'pulling';
-          let node = this.value;
-          $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="500" frameborder="0"></iframe>');
-          this.innerText = 'fold';
-          this.classList.add('pulled');
-        }
-      });
-      setTimeout(autoPullStoa2, 2000);
     }
+    else {
+      $("#pull-stoa").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          // maybe? it grabs focus so it could be disruptive by default.
+          // this.innerText = 'autopulling in 10 seconds...';
+          // setTimeout(autoPullStoa2, 10000);
+        }
+      });
+    }
+    // hack hack
+    // TODO: fix this, we're re-binding click here
+    // this is copy/pasted from the first bind, as for some reason we need to re-bind after insert/remove.
+    // maybe angular/react/svelte would somehow deal with this stuff? :)
+    $("#pull-stoa").click(function (e) {
+      console.log('clicked stoa button')
+      if (this.classList.contains('pulled')) {
+        // already pulled.
+        this.innerText = 'pull';
+        $(e.currentTarget).nextAll('iframe').remove()
+        $("#stoa-iframe").html('');
+        this.classList.remove('pulled');
+      }
+      else {
+        this.innerText = 'pulling';
+        let node = this.value;
+        $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="500" frameborder="0"></iframe>');
+        this.innerText = 'fold';
+        this.classList.add('pulled');
+      }
+    });
   }
 
   function autoPullWp() {
