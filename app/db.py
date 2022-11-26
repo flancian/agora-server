@@ -21,6 +21,8 @@ import glob
 import itertools
 import random
 import re
+# For executable nodes. This probably should not be in db.py but it is fun anyway.
+import subprocess
 import time
 import os
 from flask import current_app
@@ -138,11 +140,20 @@ class Graph:
         # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
         # hack hack -- there's probably something in itertools better than this?
         node_to_subnodes = defaultdict(list)
+        node_to_executable_subnodes = defaultdict(list)
 
         for subnode in self.subnodes():
             node_to_subnodes[subnode.node].append(subnode)
+            # Hmm, this is where the [[equivalence class]] is actually defined implicitly nowadays?
+            # TODO(2022-11-26): review if this is the only mechanism?
             if subnode.canonical_wikilink != subnode.wikilink and not only_canonical:
                 node_to_subnodes[subnode.wikilink].append(subnode)
+
+        for executable_subnode in self.executable_subnodes():
+            node_to_executable_subnodes[executable_subnode.node].append(executable_subnode)
+            # This is a smell but I'm hacking here :)
+            if executable_subnode.canonical_wikilink != executable_subnode.wikilink and not only_canonical:
+                node_to_subnodes[executable_subnode.wikilink].append(executable_subnode)
         
         # then we iterate over its values and construct nodes for each list of subnodes.
         nodes = {}
@@ -151,6 +162,12 @@ class Graph:
                 pass
             n = Node(node)
             n.subnodes = node_to_subnodes[node]
+
+            # New as per 2022-11 :)
+            # These need to execute before producing something usable (run exec() on them, probably
+            # in an "async" path (like pushes).)
+            n.executable_subnodes = node_to_executable_subnodes[node]
+
             nodes[node] = n
 
         end = datetime.datetime.now()
@@ -212,8 +229,26 @@ class Graph:
         else:
             return subnodes
 
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
+    def executable_subnodes(self, sort=lambda x: x.uri.lower()):
+        """Executable subnodes: subnodes that require execution to produce a resource.
 
+        I feel this is one of the most anarchistic bits of the Agora and I like it a lot, let's see what happens in practice though ;)
+
+        -- [[flancian]] like most of these comments.
+        """
+
+        begin = datetime.datetime.now()
+        current_app.logger.debug(f'*** Looking for executable subnodes at {begin}.')
+        base = current_app.config['AGORA_PATH']
+        current_app.logger.debug(f'*** Looking for executable subnodes: Python.')
+        subnodes = [ExecutableSubnode(f) for f in glob.glob(os.path.join(base, '**/*.py'), recursive=True)]
+        return subnodes
+
+
+# This is cheap as subnode search / node creation does not happen here, but rather later on node lookup.
 G = Graph()
+
 
 class Node:
     """Nodes map 1:1 to wikilinks.
@@ -242,8 +277,11 @@ class Node:
         # Yikes, I really did whatever I wanted here. This is clearly not a full url. More like a 'url_path'.
         self.url = '/node/' + self.uri
         self.actual_uri = current_app.config['URI_BASE'] + '/' + self.uri
-        # This will be filled in by G as it generates all nodes.
+        # These two will be filled in by G as it generates all nodes.
+        # These are ready to call render() on.
         self.subnodes = []
+        # These need a call to exec().
+        self.executable_subnodes = []
 
     def __lt__(self, other):
         return self.wikilink.lower() < other.wikilink.lower()
@@ -410,6 +448,18 @@ class Node:
                 nodes.append(n)
         return nodes
 
+    def exec():
+        """
+        Executes known executable subnodes for this node.
+
+        Returns VirtualSubnodes for them (blocks which don't come directly from the filesystem.)
+        """
+        subnodes = []
+        for subnode in self.executable_subnodes:
+            # could be a failure in parsing, as of the time of writing #push isn't well supported.
+            subnodes.append(VirtualSubnode(subnode, self.wikilink, subnode.exec()))
+        return subnodes
+
     def pushing(self, other):
         # returns the blocks that this node pushes to one other as "virtual subnodes"
         # [[push]] as in anagora.org/node/push.
@@ -468,8 +518,7 @@ class Node:
 
     def exec(self):
         # returns the blocks (subnodes/resources) that this node *execution* results in, if any.
-        # to add node-specific code, see exec/<node>.py (if it exists).
-        # currently *unused*, unsure if we're going this way or straight to client-side rendering.
+        # to add node-specific code, add it to your garden ;)
         subnodes = []
         subnodes.append(VirtualSubnode('wp', '', 'test'))
         return subnodes
@@ -481,13 +530,18 @@ class Node:
         return sorted([x.wikilink for x in self.back_nodes()])
 
     def pushed_subnodes(self):
-        # returning long lists here makes the Agora slow as each of these requires processing.
-        # better to only call this in async paths to keep basic node rendering fast.
+        # This returns a list of VirtualSubnodes.
+        # Returning long lists here makes the Agora slow as each of these requires processing.
+        # Better to only call this in async paths to keep basic node rendering fast.
         subnodes = []
         for node in self.pushing_nodes():
             for subnode in node.pushing(self):
-                current_app.logger.debug(f"in pushed_subnodes, found subnode ({subnode.uri}")
+                current_app.logger.debug(f"In pushed_subnodes, found subnode ({subnode.uri}.")
                 subnodes.append(subnode)
+        # This can be expensive ;)
+        for subnode in self.executable_subnodes:
+            current_app.logger.debug(f"In pushed_subnodes, found virtual subnode ({subnode.uri}.")
+            subnodes.append(subnode)
         return subnodes
 
     def annotations(self):
@@ -527,6 +581,8 @@ class Subnode:
             self.load_image_subnode()
             self.type = 'image'
         else:
+            # Should executable nodes load here?
+            # They could be expensive so my instinct is to keep them in the separate path for VirtualSubnode.
             raise ValueError
 
         try:
@@ -760,9 +816,9 @@ class Subnode:
         return [G.node(node) for node in push_nodes]
 
 class VirtualSubnode(Subnode):
-    # For instantiating a virtual subnode -- a subnode derived from another subnode. 
+    # For instantiating a virtual subnode -- a subnode derived from another subnode or from a program (through its execution. 
     # Used by [[push]] (transclusion).
-    # Used by [[exec]] (general actions).
+    # Used by [[exec]] (general actions contributed in gardens).
     def __init__(self, source_subnode, target_node, block):
         """
         source_subnode: where this virtual subnode came from.
@@ -810,6 +866,46 @@ class VirtualSubnode(Subnode):
                     # Better luck next time -- or when I fix this code :)
                     return []
 
+class ExecutableSubnode(Subnode):
+    # For instantiating an executable subnode -- one that you need to call .exec() on to receive blocks or a resource.
+    # Used for garden-sourced executables.
+    # Call exec(), get an actual subnode (tm).
+    def __init__(self, path):
+        """
+        subnode: where this subnode came from.
+        node: where this virtual subnode will attach (go to).
+        block: the actual payload, as pre rendered html."""
+        self.path = path
+        # Use a subnode's URI as its identifier.
+        self.uri: str = path_to_uri(path)
+        self.url = '/subnode/' + self.uri
+        self.basename: str = path_to_basename(path)
+
+        # Subnodes are attached to the node matching their wikilink.
+        # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
+        # will often have spaces; not lossy (or as lossy as the filesystem)
+        self.wikilink = path_to_wikilink(path)
+        # essentially a slug.
+        self.canonical_wikilink = util.canonical_wikilink(self.wikilink)
+        self.user = path_to_user(path)
+        self.user_config = User(self.user).config
+        self.node = self.canonical_wikilink
+
+        # LOG(2022-06-05): As of the time of writing we treat VirtualSubnodes as prerendered.
+        self.mediatype = 'text/html'
+        self.content = f'This should be the output of script {self.uri}.'
+
+    def render(self):
+        # YOLO
+        self.content = '```\n' + subprocess.run([self.path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") + '\n```'
+        content = render.preprocess(self.content, subnode=self)
+        content = render.markdown(content)
+        ret = render.postprocess(content)
+        return ret
+
+    def exec(self):
+        pass
+    
 
 def subnode_to_actions(subnode, action, blocks_only=False):
     # hack hack.
