@@ -23,7 +23,7 @@
 
 	<meta charset="utf-8" />
 	{% if node is defined %}
-	<title>[[{{node.qstr}}]] - {{config['URI_BASE']}}</title>
+	<title>Node [[{{node.qstr}}]] in {{config['URI_BASE']}}</title>
 	{% else %}
 	<title>Agora</title>
 	{% endif %}
@@ -76,21 +76,21 @@
 		<div class="navigation">
 			<div class="navigation-links">
 				<a href="/"><img src="/static/img/agora.png" class="logo" width="35px" height="35px"></a>
-				<a href="/nodes">nodes</a>
+                <a href="/"><strong>{{config['URI_BASE']}}</strong></a>
+                ⸖
+				<a href="/nodes" style="text-decoration: none;">📚 all nodes</a>
 				|
-				<a href="/users">users</a>
+				<a href="/latest" style="text-decoration: none;">🌀 latest edited</a>
 				|
-				<a href="/latest">latest</a>
+				<a href="/today" style="text-decoration: none;">📅 today</a>
 				|
-				<a href="/now">now</a>
+				<a href="/users" style="text-decoration: none;">🫂 users</a>
+                |
+                <a href="/annotations" style="text-decoration: none;">✍ annotations</a>
+                |
+				<a href="/random" style="text-decoration: none;">🎲️ random</a>
 				|
-				<a href="/journals">journals</a>
-				|
-				<a href="/random" style="text-decoration: none;">🎲️</a>
-				|
-				<a href="/annotations" style="text-decoration: none;">💬</a>
-				|
-				<a href="/settings" style="text-decoration: none;">⚙️</a>
+				<a href="/settings" style="text-decoration: none;">⚙️  settings</a>
 				|
 				<a href="#" style="text-decoration: none;" id="theme-toggle">🌙</a>
 				|
