@@ -59,10 +59,12 @@
     <div class="node" id="{{node.uri}}">
 
         {% if subnode %}
-            <div class="node-header main-header"><span>📕 subnode <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a>
-            of 📚 node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span></div>
+            <div class="node-header main-header"><span>📕 node <a href="/{{node.uri}}">[[{{node.uri}}]]</a> ⸖ subnode <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a>
+</span>
+
+            </div>
         {% else %}
-            <div class="node-header main-header"><span>📚 node <a href="/{{node}}" title="A node is a collection of resources with a matching name or an explicit relationship to a context.">[[{{node.qstr}}]]</a></span></div>
+            <div class="node-header main-header"><span>📕 node <a href="/{{node}}" title="A node is a collection of resources with a matching name or an explicit relationship to a context.">[[{{node.qstr}}]]</a></span></div>
             <!--
             <span class="node-actions">
                 <button id="pull-all" value="pull-all" title="Pulls embeds below">pull all</button>
@@ -76,8 +78,8 @@
                 <div class="subnode-header">
                     <span class="subnode-id">
                         <span class="subnode-links">
-			    <a href="@{{subnode.user}}/{{node.uri}}"" title="subnode {{subnode.basename}}">📕</a> 
-                {{subnode.type}} file <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> contributed by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a> 
+			    <a href="@{{subnode.user}}/{{node.uri}}"" title="subnode {{subnode.basename}}">📁</a> 
+                {{subnode.type}} <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> contributed by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a> 
                     </span>
                     </span>
             <span class="subnode-contrib">
