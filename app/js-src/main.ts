@@ -159,6 +159,27 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  // pull a node from the second [[stoa]] (ha!)
+  $("#pull-stoa2").click(function (e) {
+    console.log('clicked stoa2 button')
+    if (this.classList.contains('pulled')) {
+      // already pulled.
+      this.innerText = 'pull';
+      $(e.currentTarget).nextAll('iframe').remove()
+      $("#stoa2-iframe").html('');
+      this.classList.remove('pulled');
+    }
+    else {
+      this.innerText = 'pulling';
+      let node = this.value;
+      $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="100%" height="500" frameborder="0"></iframe>');
+      this.innerText = 'fold';
+      this.classList.add('pulled');
+    }
+  });
+
+
+
   // pull a node from the [[agora]]
   $(".pull-node").click(function (e) {
     let node = this.value;
@@ -527,6 +548,26 @@ document.addEventListener("DOMContentLoaded", function () {
           this.classList.add('pulled');
         }
       });
+    // also copy paste the second pull, yolo :)
+    $("#pull-stoa2").click(function (e) {
+        console.log('clicked stoa2 button')
+        if (this.classList.contains('pulled')) {
+        // already pulled.
+        this.innerText = 'pull';
+        $(e.currentTarget).nextAll('iframe').remove()
+        $("#stoa2-iframe").html('');
+        this.classList.remove('pulled');
+        }
+        else {
+        this.innerText = 'pulling';
+        let node = this.value;
+        $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="100%" height="500" frameborder="0"></iframe>');
+        this.innerText = 'fold';
+        this.classList.add('pulled');
+        }
+    });
+
+
       setTimeout(autoPullStoa2, 2000);
     }
   }
