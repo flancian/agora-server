@@ -38,6 +38,10 @@ G = db.G
 def before_request():
   g.start = time.time()
 
+  # hack hack -- try dynamic URI_BASE based on what the browser sent our way.
+  # this allows for easily provisioning an Agora in many virtual hosts, e.g. *.agor.ai.
+  current_app.config['URI_BASE'] = request.headers['Host']
+
 @bp.after_request
 def after_request(response):
     exectime = round(time.time() - g.start, 2)

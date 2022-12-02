@@ -29,8 +29,9 @@ class DefaultConfig(object):
     # See https://anagora.org/agora+doc for more.
     NAME = "Agora of Flancia"
 
-    #TODO change this to whatever prod is going to be
-    # without protocol
+    # change this to whatever your domain is going to be -- without protocol.
+    # this is what gets rendered in the header.
+    # 2022-12-02: maybe deprecated in favour of using request headers to infer the host that the client wants to see? see before_request in agora.py. 
     URI_BASE = "anagora.org"
     AGORA = URI_BASE
     JOURNAL_ENTRIES = 31 # number of journal entries to load
