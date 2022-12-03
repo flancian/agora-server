@@ -260,9 +260,11 @@ def subnode_export(node, user):
 
 # Special
 
-
 @bp.route('/')
 def index():
+    # this should use this pattern:
+    # first, render address specific functionality.
+    # then, pull /node/foo if we're in location foo.
     return redirect(url_for('.node', node='index'))
 
 @bp.route('/Δ')
