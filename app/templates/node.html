@@ -82,9 +82,13 @@
                     <span class="subnode-id">
                         <span class="subnode-links">
 			    <a href="@{{subnode.user}}/{{node.uri}}"" title="subnode {{subnode.basename}}">📓</a> 
-                File <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a>  ({{subnode.type}}) by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a>                    </span>
+                                                                                                      {{subnode.type|title}} file <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a></span>
                     </span>
+
             <span class="subnode-contrib">
+                <span class="subnode-metadata">
+                    updated {{subnode.datetime}} 
+                </span>
                 <!-- 
                 <a href="/raw/{{subnode.uri}}" style="text-decoration: none;" title="view original (source)"></a>
                 <a href="/export/@{{subnode.user}}/{{node.uri}}" style="text-decoration: none;" title="export (html)">⤓</a>

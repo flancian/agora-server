@@ -532,8 +532,9 @@ class Subnode:
         try:
             self.mtime = os.path.getmtime(path)
         except FileNotFoundError:
-            # Perhaps it makes senses to treat this as a 'virtual file'? give it now() as mtime?
+            # Perhaps it makes sense to treat this as a 'virtual file'? give it now() as mtime?
             self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
+        self.datetime = datetime.datetime.fromtimestamp(self.mtime).replace(microsecond=0)
             
         self.node = self.canonical_wikilink
 
