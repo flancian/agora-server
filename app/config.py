@@ -11,6 +11,8 @@ def getcfg(path):
 
 
 class DefaultConfig(object):
+    # I wonder how much of this should be in [[agora.yaml]] instead :)
+
     AGORA_PATH = os.getenv('AGORA_PATH', os.path.join('/home', getpass.getuser(), 'agora'))
     YAML_CONFIG = getcfg(os.path.join(AGORA_PATH, 'sources.yaml'))
     # yes, it's this simple currently -- but this is just a server-side default :)

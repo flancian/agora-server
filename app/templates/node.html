@@ -61,13 +61,14 @@
         {% if subnode %}
             <div class="node-header main-header">
                 <span>📕 Node <a href="/{{node.uri}}">[[{{node.uri}}]]</a> <br /> 
-                   ↳ 📓 Projection <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a>
+                   ↳ 📓 Subnode <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a>
                 </span>
-
             </div>
         {% else %}
             <div class="node-header main-header">
-                <span>📕 Node <a href="/{{node}}" title="A node is a collection of resources with a matching name or an explicit relationship to a context.">[[{{node.qstr}}]]</a></span></div>
+                <span>📕 Node <a href="/{{node}}" title="A node is a collection of resources with a matching name or an explicit relationship to a context.">[[{{node.qstr}}]]</a>
+                </span>
+            </div>
             <!--
             <span class="node-actions">
                 <button id="pull-all" value="pull-all" title="Pulls embeds below">pull all</button>
@@ -81,34 +82,45 @@
                 <div class="subnode-header">
                     <span class="subnode-id">
                         <span class="subnode-links">
-			    <a href="@{{subnode.user}}/{{node.uri}}"" title="subnode {{subnode.basename}}">📓</a> 
-                                                                                                      {{subnode.type|title}} file <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a></span>
+                            <a href="@{{subnode.user}}/{{node.uri}}"" title="subnode {{subnode.basename}}">📓</a> 
+                            <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> ({{subnode.type}}) by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a>
+                        </span>
                     </span>
 
-            <span class="subnode-contrib">
-                <span class="subnode-metadata">
-                    updated {{subnode.datetime}} 
-                </span>
-                <!-- 
-                <a href="/raw/{{subnode.uri}}" style="text-decoration: none;" title="view original (source)"></a>
-                <a href="/export/@{{subnode.user}}/{{node.uri}}" style="text-decoration: none;" title="export (html)">⤓</a>
-                -->
-                {% if subnode.web %}
-                    <a href="{{subnode.web}}" title="view original (website)" style="text-decoration: none;">️本</a> 
-                {% endif %}
-                {% if subnode.edit %}
-                    <a href="{{subnode.edit}}" title="edit (external)" style="text-decoration: none;">📝</a>
-                {% endif %}
-                {% if subnode.support %}
-                    <a href="{{subnode.support}}" title="support (user specified)">🤗</a>
-                {% endif %}
-			<button onClick="downvote('{{loop.index}}')" title="uprank this subnode">⇣</button>
-			<button onClick="upvote('{{loop.index}}')" title="uprank this subnode">⇡</button> 
-                    </span>
+                    <span class="subnode-contrib">
+                        <!-- 
+                        <a href="/raw/{{subnode.uri}}" style="text-decoration: none;" title="view original (source)"></a>
+                        <a href="/export/@{{subnode.user}}/{{node.uri}}" style="text-decoration: none;" title="export (html)">⤓</a>
+                    -->
+                        {% if subnode.web %}
+                            <a href="{{subnode.web}}" title="view original (website)" style="text-decoration: none;">️本</a> 
+                        {% endif %}
+                        {% if subnode.edit %}
+                            <a href="{{subnode.edit}}" title="edit (external)" style="text-decoration: none;">📝</a>
+                        {% endif %}
+                        {% if subnode.support %}
+                            <a href="{{subnode.support}}" title="support (user specified)">🤗</a>
+                        {% endif %}
+                        <button onClick="downvote('{{loop.index}}')" title="uprank this subnode">⇣</button>
+                        <button onClick="upvote('{{loop.index}}')" title="uprank this subnode">⇡</button> 
+                        </span>
 
+                            </span>
+                    </div>
+
+            <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+
+                <div class="subnode-footer">
+                    <span class="footer-id">
+                        <!--
+                        <span class="footer-links">
+                            <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a>
+                        </span>
+                        -->
+                        ⸎ last updated {{subnode.datetime.astimezone()}}
                     </span>
                 </div>
-                <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+
             </div>
         {% endfor %}
 

@@ -371,11 +371,27 @@ input[type="text"] {
     border-bottom: 1px solid #ccc;
 }
 
+.subnode-footer, .node-footer {
+    border-top: 1px solid #ccc;
+    font-weight: normal;
+    font-style: italic;
+}
+
 .subnode-contrib {
     text-align: right;
     text-decoration: none;
-    max-width: 45%;
+    max-width: 19%;
     margin-left: auto;
+}
+
+.subnode-footer {
+    text-align: left;
+}
+
+.footer-links, .footer-id {
+    text-align: left;
+    margin-left: auto;
+    text-decoration: none;
 }
 
 .node-actions {
@@ -386,7 +402,7 @@ input[type="text"] {
 }
 
 .subnode-id {
-    max-width: 55%;
+    max-width: 81%;
 }
 
 .subnode-id a {
