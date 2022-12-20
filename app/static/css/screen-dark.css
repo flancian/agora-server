@@ -360,7 +360,7 @@ input[type="text"] {
 /*.subnode li     { margin: 0.8em 1.2em; }*/
 /*.subnode li h2  { margin-left: -1em; }*/
 
-.subnode-header, .subnode-footer, .links-header, .search-header, .subnode-id {
+.subnode-header, .links-header, .search-header, .subnode-id {
     font-weight: bolder;
     width: 100%;
     display: flex;
@@ -372,9 +372,12 @@ input[type="text"] {
 }
 
 .subnode-footer, .node-footer {
+    font-weight: bolder;
+    width: 100%;
+    display: flex;
+    padding-top: 6px;
     border-top: 1px solid #ccc;
-    font-weight: normal;
-    font-style: italic;
+    text-align: left;
 }
 
 .subnode-contrib {
@@ -384,14 +387,11 @@ input[type="text"] {
     margin-left: auto;
 }
 
-.subnode-footer {
-    text-align: left;
-}
-
 .footer-links, .footer-id {
-    text-align: left;
+    text-align: right;
     margin-left: auto;
     text-decoration: none;
+    font-weight: normal;
 }
 
 .node-actions {
