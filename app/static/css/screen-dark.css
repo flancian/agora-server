@@ -114,6 +114,14 @@ li img {
     line-height: var(--line-height);
 }
 
+#popup {
+    display: none;
+    position: absolute;
+    max-width: 60%;
+    max-height: 50%;
+    overflow: scroll;
+}
+
 /* Format headers */
 h1, h2, h3 {
     color: #bfbfbf;
