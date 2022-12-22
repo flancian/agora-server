@@ -183,7 +183,6 @@ h6 {
 
 .navigation {
     vertical-align: middle;
-    overflow-y: auto;
     /* border-color: gray;
     border-style: dotted;
     margin: 10px; 
@@ -194,7 +193,10 @@ h6 {
 
 .navigation-links {
     vertical-align: middle;
-    overflow-y: auto;
+    /* why doesn't this work? */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .topline-node {
