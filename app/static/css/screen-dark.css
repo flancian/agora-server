@@ -191,12 +191,19 @@ h6 {
     */
 }
 
+.navigation-links::-webkit-scrollbar {
+    display: none;
+}
+
 .navigation-links {
     vertical-align: middle;
     /* why doesn't this work? */
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-x: scroll;
     white-space: nowrap;
+
+    /* hide scrollbar if one is needed, but allow scrolling */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
 }
 
 .topline-node {
