@@ -60,14 +60,16 @@
 
 	<script src="//unpkg.com/force-graph"></script>
 
-	<script type="application/json" class="js-hypothesis-config">
+	<!-- 
 			{
 				"externalContainerSelector": "#hypothesis-frame",
-				"openSidebar": false
+				"openSidebar": true,
 			}
-	</script>
-	<script async src="https://hypothes.is/embed.js"></script>
 
+	<script type="application/json" class="js-hypothesis-config">
+	</script>
+	-->
+	<script async src="https://hypothes.is/embed.js"></script>
 	{% endif %}
 
 </head>
@@ -82,18 +84,19 @@
                 <strong>|</strong>
 				<a href="/nodes" style="text-decoration: none;">📚&nbsp;all nodes</a>
 				|
-				<a href="/latest" style="text-decoration: none;">🌀&nbsp;recent</a>
+				<a href="/latest" style="text-decoration: none;">🌀&nbsp;latest</a>
 				|
 				<a href="/today" style="text-decoration: none;">📅&nbsp;today</a>
 				|
 				<a href="/random" style="text-decoration: none;">🎲️&nbsp;random</a>
 				|
-				<a href="/users" style="text-decoration: none;">🫂&nbsp;users</a>
-                |
 				<a href="/journals" style="text-decoration: none;">📔&nbsp;journals</a>
                 |
-                <!-- trying out a more common term -->
-                <a href="/annotations" style="text-decoration: none;">✍&nbsp;comments</a>
+                <a href="/annotations" style="text-decoration: none;">✍&nbsp;annotations</a>
+                |
+				<a href="/users" style="text-decoration: none;">🫂&nbsp;users</a>
+                |
+                <a href="/join" style="text-decoration: none;">🙏&nbsp;join</a>
                 <strong>|</strong>
                 <a href="/settings" style="text-decoration: none;">⚙️ </a>
 				|
@@ -142,15 +145,15 @@
 
 	</nav>
 
+	<!-- hypothesis -->
+	<div id='hypothesis-frame' style="display: none;""></div>
+
 	{% block content %}
 	{% endblock %}
 
 	<!-- Thank you [[vera]] for this contribution! -->
 	<div id='popup'>{{popup|default("What could we show here?")}}</div>
 
-
-	<!-- hypothesis -->
-	<div id='hypothesis-frame' style="display: none;""></div>
 
 	{% if not embed %}
 	<hr>

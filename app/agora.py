@@ -618,7 +618,7 @@ def journals(entries):
             # we only support numbers and all (handled above), other suffixes must be a broken link from /all or /30 or such...
             # long story, this is a hack working around a bug for now.
             return redirect(url_for('.node', node=entries))
-    return render_template('journals.html', node=n, header=f"Journals for the last {entries} days with entries", nodes=db.all_journals()[0:entries])
+    return render_template('journals.html', node=n, header=f"Journal entries in the last {entries} days", nodes=db.all_journals()[0:entries])
 
 
 @bp.route('/journals.json')

@@ -19,9 +19,18 @@
 {% block content %}
 <div class="listing node">
 
+
+{% if header %}
+<h1> {{header}} </h1>
+{% else %}
+<h1> Nodes </h1>
+{% endif %}
+
 {% if stats %}
-There are <strong>{{stats['nodes']}} nodes</strong> integrated out of <strong>{{stats['subnodes']}} subnodes</strong> by <strong>{{stats['users']}} users</strong>.</strong><br />
-There are <strong>{{stats['edges']}} edges</strong>.
+<p>
+This Agora contains <strong>{{stats['nodes']}} nodes</strong> integrated out of <strong>{{stats['subnodes']}} resources</strong> by <strong>{{stats['users']}} users</strong>.</strong><br />
+There are <strong>{{stats['edges']}} links</strong>.
+</p>
 
 <!--
 <div id="agoragraph">
@@ -30,12 +39,6 @@ There are <strong>{{stats['edges']}} edges</strong>.
 #}
 </div>
 -->
-{% endif %}
-
-{% if header %}
-<h1> {{header}} </h1>
-{% else %}
-<h1> Nodes </h1>
 {% endif %}
 
 {% for node in nodes %}
