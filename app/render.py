@@ -53,11 +53,11 @@ class WikilinkRendererMixin(object):
                 second = element.target
             target = util.canonical_wikilink(first.rstrip())
             label = second.lstrip()
-            return f'<span class="wikilink-marker">[[</span><a href="{target}" title="[[{element.target}]]" class="wikilink">{label}</a><span class="wikilink-marker">]]</span>'
+            return f'<span class="wikilink-marker">[[</span><a href="/{target}" title="[[{element.target}]]" class="wikilink">{label}</a><span class="wikilink-marker">]]</span>'
         else:
             target = util.canonical_wikilink(element.target)
             label = self.render_children(element)
-            return f'<span class="wikilink-marker">[[</span><a href="{target}" title="[[{element.target}]]"class="wikilink">{label}</a><span class="wikilink-marker">]]</span>'
+            return f'<span class="wikilink-marker">[[</span><a href="/{target}" title="[[{element.target}]]"class="wikilink">{label}</a><span class="wikilink-marker">]]</span>'
 
 class TiddlylinkElement(inline.InlineElement):
     # is this regexes pattern a good idea?
