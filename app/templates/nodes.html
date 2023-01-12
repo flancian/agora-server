@@ -18,8 +18,7 @@
 
 {% block content %}
 <div class="listing node">
-
-
+    
 {% if header %}
 <h1> {{header}} </h1>
 {% else %}
@@ -28,21 +27,24 @@
 
 {% if stats %}
 <p>
-This Agora contains <strong>{{stats['nodes']}} nodes</strong> integrated out of <strong>{{stats['subnodes']}} resources</strong> by <strong>{{stats['users']}} users</strong>.</strong><br />
+This Agora contains <strong>{{stats['nodes']}} nodes</strong> integrated out of <strong>{{stats['subnodes']}} subnodes by <strong>{{stats['users']}} users</strong>.</strong><br />
 There are <strong>{{stats['edges']}} links</strong>.
 </p>
 
-<!--
-<div id="agoragraph">
-{# 
-     {% include "agoragraph.html" %}
-#}
+<div class='context-all'>
+    <p>
+    <em>Loading graph, please wait... (slow, requires JavaScript, may crash your browser tab)</em>
+    </p>
 </div>
--->
+
 {% endif %}
 
-{% for node in nodes %}
-<a href="{{node.url}}">{{node.wikilink}}</a> ({{node.size()}})<br />
+The <strong>top 1000 nodes</strong> by cardinality (number of resources attached) follow.<br />
+{% for node in nodes[:1000] %}
+
+<a href="{{node.url}}">{{node.wikilink}}</a> <span style="font-weight: lighter">({{node.size()}})</span>
+<br />
+
 {% endfor %}
 
 </div>

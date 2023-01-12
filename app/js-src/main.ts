@@ -436,6 +436,16 @@ document.addEventListener("DOMContentLoaded", function () {
       // end auto pull pushed subnodes.
     });
 
+    $(".context-all").each(function (e) {
+      // auto pull whole Agora graph in /nodes.
+      let id = '.context-all'
+      console.log('auto pulling whole Agora graph, will write to id: ' + id);
+      $.get(AGORAURL + '/context/all', function (data) {
+        $(id).html(data);
+      });
+      // end auto pull pushed subnodes.
+    });
+
     console.log('executing node: ' + NODENAME)
     req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME)
     console.log('req: ' + req)

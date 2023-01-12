@@ -437,6 +437,13 @@ def context(node):
             node=n,
             )
 
+@bp.route('/context/all')
+def context_all():
+    # Returns by default a full Agora graph, by default embedded in /nodes.
+    return render_template(
+            'agoragraph.html', 
+            )
+
 # good for embedding the whole Agora (this is called by recursive pulls)
 @bp.route('/embed/<node>')
 def embed(node):

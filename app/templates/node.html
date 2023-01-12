@@ -60,13 +60,13 @@
 
         {% if subnode %}
             <div class="node-header main-header">
-                <span>📕 Node <a href="/{{node.uri}}">[[{{node.uri}}]]</a> <br /> 
+                <span>📚 Node <a href="/{{node.uri}}">[[{{node.uri}}]]</a> <br /> 
                    ↳ 📓 Subnode <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a>
                 </span>
             </div>
         {% else %}
             <div class="node-header main-header">
-                <span>📕 Node <a href="/{{node}}" title="A node is a collection of resources with a matching name or an explicit relationship to a context.">[[{{node.qstr}}]]</a>
+                <span>📚 Node <a href="/{{node}}" title="A node is a collection of resources with a matching name or an explicit relationship to a context.">[[{{node.qstr}}]]</a>
                 </span>
             </div>
             <!--
