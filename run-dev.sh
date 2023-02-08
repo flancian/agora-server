@@ -16,11 +16,8 @@
 # This shouldn't be needed I think but systemd somehow wasn't reading this from ~/.profile
 # I've been reading on systemd environment setup, but having this here might actually be preferable?
 
-source $HOME/.poetry/env
-
 npm run build
 export FLASK_APP=app
 export FLASK_ENV="development"
-# lol
 export AGORA_CONFIG="${1}DevelopmentConfig"
 poetry run flask run -h 0.0.0.0 -p 5017
