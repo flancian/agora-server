@@ -332,6 +332,7 @@ def ctzn_login():
 @bp.route('/go/<node0>/<node1>')
 @bp.route('/go/<node0>/')
 @bp.route('/go/<node0>')
+@bp.route('/node/go/<node0>')
 def go(node0, node1=''):
     """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
     # TODO(flancian): all node-scoped stuff should move to actually use node objects.
