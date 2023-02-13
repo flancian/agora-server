@@ -599,7 +599,10 @@ def users_json():
 def user_journal(user):
     # doesn't really work currently.
     n = build_node(user)
-    return render_template('subnodes.html', header="Journals for user", subnodes=db.user_journals(user))
+    subs = db.user_journals(user)
+    nodes = [G.node(subnode.node) for subnode in subs]
+    nodes.reverse()
+    return render_template('journals.html', header="Journals for user", node=n, nodes=nodes)
 
 
 @bp.route('/journal/<user>.json')
