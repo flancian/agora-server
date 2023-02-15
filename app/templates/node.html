@@ -142,7 +142,7 @@
 	function getAuthors(){
 		const authors = $.map($(".subnode"), function(subnode){
 			console.log(subnode)
-			return $(subnode).data("author")
+			return subnode.author
 		})
 
 		return authors

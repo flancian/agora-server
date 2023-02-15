@@ -1,0 +1,224 @@
+
+# - [[flancian]]
+#   - this file is meant to be consumed by [[agora bridge]]: https://github.com/flancian/agora-bridge.
+#   - for a specification of this format, please consult https://anagora.org/agora-bridge.
+#   - for instructions to set up a fully working [[agora]] using this and other repos, please consult https://anagora.org/agora-install or the root repository: https://github.com/flancian/agora.
+
+- target: garden/flancian
+  url: https://github.com/flancian/garden.git
+  edit: https://github.com/flancian/garden/edit/master/{path}
+  web: https://github.com/flancian/garden/blob/master/{path}
+  protocol: git
+  format: foam
+
+- target: garden/bmann
+  protocol: git
+  url: https://github.com/bmann/bmcgarden.git
+  format: jekyll
+
+- target: garden/s5bug 
+  url: https://gitdab.com/s/garden.git 
+  format: foam
+
+- target: garden/jonathan 
+  url: https://github.com/JonathanLorand/AgoraGarden 
+  format: obsidian
+
+- target: garden/luciana 
+  url: https://github.com/malfattti/garden.git 
+  format: foam
+
+- target: garden/ArghZero 
+  url: https://github.com/arghzero/agora-garden.git 
+  format: roam2agora
+
+- target: garden/olofl 
+  url: https://github.com/oloflindholm/garden 
+  format: foam
+
+- target: garden/KGBicheno 
+  url: https://github.com/KGBicheno/KGB_Agora 
+  format: foam
+
+- target: garden/dr_kvj
+  url: https://github.com/drkvj/agora 
+  format: foam
+
+- target: garden/bbchase
+  url: https://github.com/bbchase/agora 
+  format: foam
+
+- target: garden/houshuang
+  url: https://github.com/houshuang/stian-notes.git 
+  format: roam 
+
+- target: garden/tilda
+  url: https://github.com/tilda/agora 
+  format: foam
+
+- target: garden/binnyva
+  url: https://github.com/binnyva/DZG 
+  format: foam
+
+- target: garden/vera
+  url: https://git.anagora.org/vera/notes.git 
+  format: foam
+  
+- target: garden/vera-logseq
+  url: https://github.com/fuck-capitalism/logseq.git
+  format: logseq
+
+- target: garden/law
+  url: https://github.com/zavislak/law.md.git 
+  format: foam
+
+- target: garden/rusp
+  url: https://github.com/Rusp1972/vault
+  format: obsidian
+
+- target: garden/seph
+  url: https://github.com/bathrobe/sephagora.git 
+  format: foam
+
+- target: garden/jakeisnt
+  url: https://github.com/jakeisnt/wiki.git 
+  format: foam
+
+- target: garden/mwt
+  url: https://github.com/mwt/agora.git 
+  format: foam
+
+- target: garden/plantey
+  url: https://github.com/Ejipuh/Plantey-Garden 
+  format: foam
+
+- target: garden/ankostis
+  url: https://github.com/ankostis/Garden 
+  format: foam
+
+- target: garden/danielarmengolaltayo
+  url: https://github.com/danielarmengolaltayo/agora 
+  format: foam
+
+- target: garden/neil
+  url: https://gitlab.com/ngm/commonplace-agora.git
+  edit: https://gitlab.com/ngm/commonplace-agora/-/edit/master/{path}
+  web: https://commonplace.doubleloop.net/{slug}
+  format: ox-agora
+
+- target: garden/patterning
+  url: https://github.com/JonathanLorand/patterning.git
+  format: stoa 
+  
+- target: garden/moa-party
+  url: https://gitlab.com/fedstoa/moaparty/moaparty.com.git
+  format: jekyll
+
+- target: garden/karlicoss
+  url: https://github.com/karlicoss/exobrain-md.git
+  format: org2md
+
+- target: garden/volt4ire 
+  url: https://github.com/volt4ire/agora 
+  format: obsidian
+
+- target: garden/ryan
+  url: https://github.com/rfaulhaber/roam
+  format: ox-agora
+
+- target: garden/gyuri
+  url: https://github.com/gyuri-lajos/gyuri
+  format: foam
+
+- target: garden/unrival
+  url: https://github.com/unrival-protocol/protocol
+  format: foam
+
+- target: garden/forshaper
+  url: https://github.com/ray-dorai/ray-dorai.github.io
+  format: foam
+
+- target: garden/j0lms
+  url: https://codeberg.org/j0lms/notes-md
+  format: foam
+  
+- target: garden/vera.wiki.anagora.org
+  url: http://vera.wiki.anagora.org
+  format: fedwiki
+
+- target: garden/evan
+  url: https://git.sr.ht/~boehs/oasis.git
+  protocol: git
+  format: obsidian
+  support: https://flattr.com/@evan
+
+- target: garden/xiq
+  url: https://github.com/TheExGenesis/agora
+  format: obsidian
+
+- target: garden/JackKausch
+  url: https://github.com/JackKausch/vaults
+  format: obsidian
+
+- target: stoa/doc.anagora.org
+  url: https://github.com/flancia-coop/doc.anagora.org
+  protocol: git
+  edit: https://doc.anagora.org/{slug}?edit
+  format: stoa
+
+- target: garden/flancia.org
+  url: https://github.com/flancian/flancia
+  protocol: git
+  format: nikola
+  edit: https://github.com/flancian/flancia/edit/master/{path}
+  support: https://flancia.org
+
+- target: garden/maya
+  url: https://teapot.systems/maya/mayagora.git
+  format: tiddlywiki
+
+- target: garden/darlim
+  url: https://github.com/hdarlim/quartz
+  format: quartz
+
+- target: garden/protopian
+  url: https://git.anagora.org/ProtopianFox/Agora-Garden.git 
+  format: obsidian
+
+- target: garden/melanocarpa
+  url: https://github.com/bouncepaw/melanocarpa.git
+  format: mycorrhiza
+  edit: https://melanocarpa.lesarbr.es/edit/{slug}
+  web: https://melanocarpa.lesarbr.es/hypha/{slug}
+  
+- target: garden/blindpill
+  url: https://github.com/blindpill/notes.git
+  format: foam
+
+- target: garden/the_one
+  url: https://github.com/mnenoff/flancia01
+  format: foam
+  
+- target: garden/wilde-at-heart
+  url: https://github.com/jlcolbert/jlcolbert.github.io.git
+  format: hugo
+
+- target: garden/rel8
+  url: https://github.com/OpenGlobalMind/rel8-wiki
+  web: https://wiki.rel8.dev/scalingsynthesis.com/{path}
+  edit: https://github.com/OpenGlobalMind/rel8-wiki/edit/master/{path}
+  format: obsidian
+
+- target: garden/scalingsynthesis
+  url: https://github.com/classicrob/quartz
+  web: https://scalingsynthesis.com/{path}
+  edit: https://github.com/classicrob/quartz/edit/master/{path}
+  format: quartz
+
+- target: garden/khinsen
+  url: https://github.com/khinsen/agora-garden
+  format: ox-agora
+
+- target: garden/tekakutli
+  url: https://github.com/tekakutli/agora-garden
+  format: foam
