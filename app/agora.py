@@ -38,11 +38,11 @@ G = db.G
 
 @bp.before_request
 def before_request():
-  g.start = time.time()
+    g.start = time.time()
 
-  # hack hack -- try dynamic URI_BASE based on what the browser sent our way.
-  # this allows for easily provisioning an Agora in many virtual hosts, e.g. *.agor.ai.
-  current_app.config['URI_BASE'] = request.headers['Host']
+    # hack hack -- try dynamic URI_BASE based on what the browser sent our way.
+    # this allows for easily provisioning an Agora in many virtual hosts, e.g. *.agor.ai.
+    current_app.config['URI_BASE'] = request.headers['Host']
 
 
 @bp.after_request
@@ -52,7 +52,7 @@ def after_request(response):
 
     if ((response.response) and
         (200 <= response.status_code < 300) and
-        (response.content_type.startswith('text/html'))):
+            (response.content_type.startswith('text/html'))):
         response.set_data(response.get_data().replace(
             b'__EXECTIME__', bytes(str(exectime), 'utf-8')).replace(
             b'__NOW__', bytes(str(now), 'utf-8')))
@@ -132,21 +132,23 @@ def build_node(node, extension='', user_list=''):
 @bp.route('/<node>.<extension>')
 @bp.route('/<node>')
 def node(node, extension='', user_list=''):
-
+    current_app.logger.debug(f"NODE: {node}")
+    if node == "favicon.ico":
+        return
     n = build_node(node, extension=extension, user_list=user_list)
 
     return render_template(
-            # yuck
-            'content.html',
-            node=n,
-            config=current_app.config,
-            # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
-            # sorry for the fuzzy thinking but I'm short on time and want to get things done.
-            # (...famous last words).
-            # TODO(2022-06-06): this should now be done in the async path, essentially embedding /annotations/X from node X
-            # annotations=n.annotations(),
-            # annotations_enabled=True,
-            )
+        # yuck
+        'content.html',
+        node=n,
+        config=current_app.config,
+        # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
+        # sorry for the fuzzy thinking but I'm short on time and want to get things done.
+        # (...famous last words).
+        # TODO(2022-06-06): this should now be done in the async path, essentially embedding /annotations/X from node X
+        # annotations=n.annotations(),
+        # annotations_enabled=True,
+    )
 
 
 @bp.route('/feed/<node>')
@@ -443,11 +445,11 @@ def push(node):
     n = build_node(node)
 
     return render_template(
-            'push.html',
-            pushed_subnodes=n.pushed_subnodes(),
-            embed=True,
-            node=n,
-            )
+        'push.html',
+        pushed_subnodes=n.pushed_subnodes(),
+        embed=True,
+        node=n,
+    )
 
 
 @bp.route('/context/<node>')
@@ -456,18 +458,18 @@ def context(node):
     n = build_node(node)
 
     return render_template(
-            'context.html',
-            embed=True,
-            node=n,
-            )
+        'context.html',
+        embed=True,
+        node=n,
+    )
 
 
 @bp.route('/context/all')
 def context_all():
     # Returns by default a full Agora graph, by default embedded in /nodes.
     return render_template(
-            'agoragraph.html',
-            )
+        'agoragraph.html',
+    )
 
 # good for embedding the whole Agora (this is called by recursive pulls)
 
@@ -478,11 +480,11 @@ def embed(node):
     n = build_node(node)
 
     return render_template(
-            'content.html',
-            node=n,
-            embed=True,
-            config=current_app.config,
-            )
+        'content.html',
+        node=n,
+        embed=True,
+        config=current_app.config,
+    )
 
 # good for embedding just node content (this is called by non-recursive pulls)
 
@@ -493,11 +495,11 @@ def pull(node):
     n = build_node(node)
 
     return render_template(
-            'content.html',
-            node=n,
-            embed=True,
-            config=current_app.config,
-            )
+        'content.html',
+        node=n,
+        embed=True,
+        config=current_app.config,
+    )
 
 
 # for embedding search (at bottom of node).
@@ -507,12 +509,12 @@ def fullsearch(qstr):
     search_subnodes = db.search_subnodes(qstr)
 
     return render_template(
-            'fullsearch.html',
-            qstr=qstr,
-            q=qstr,
-            node=qstr,
-            search=search_subnodes
-            )
+        'fullsearch.html',
+        qstr=qstr,
+        q=qstr,
+        node=qstr,
+        search=search_subnodes
+    )
 
 
 # This receives whatever you type in the mini-cli up to the top of anagora.org.
@@ -568,12 +570,14 @@ def old_subnode(subnode):
 @bp.route('/@<user>')
 def user(user):
     n = build_node(user)
-    n.qstr='@' + n.qstr
-    return render_template('user.html', user=db.User(user), readmes=db.user_readmes(user), 
-        subnodes=db.subnodes_by_user(user, sort_by='node', reverse=False),
-        latest=db.subnodes_by_user(user, sort_by='mtime', reverse=True)[:100],
-        node=n
-        )
+    n.qstr = '@' + n.qstr
+    return render_template('user.html', user=db.User(user), readmes=db.user_readmes(user),
+                           subnodes=db.subnodes_by_user(
+                               user, sort_by='node', reverse=False),
+                           latest=db.subnodes_by_user(
+                               user, sort_by='mtime', reverse=True)[:100],
+                           node=n
+                           )
 
 
 @bp.route('/user/<user>.json')
@@ -642,12 +646,12 @@ def user_journal_json(user):
 def journals(entries):
     n = build_node('journals')
     if entries:
-        n.qstr=f"journals/{entries}"
+        n.qstr = f"journals/{entries}"
     if not entries:
-        n.qstr=f"journals"
+        n.qstr = f"journals"
         entries = current_app.config['JOURNAL_ENTRIES']
     elif entries == 'all':
-        entries = 2000000 # ~ 365 * 5500 ~ 3300 BC
+        entries = 2000000  # ~ 365 * 5500 ~ 3300 BC
     else:
         try:
             entries = int(entries)
@@ -667,7 +671,8 @@ def journals_json():
 def asset(user, asset):
     # An asset is a binary in someone's garden/<user>/assets directory.
     # Currently unused.
-    path = '/'.join([current_app.config['AGORA_PATH'], "garden", user, 'assets', asset])
+    path = '/'.join([current_app.config['AGORA_PATH'],
+                    "garden", user, 'assets', asset])
     return send_file(path)
 
 
@@ -693,6 +698,7 @@ def settings():
 def search_xml():
     return render_template('search.xml'), 200, {'Content-Type': 'application/opensearchdescription+xml'}
 
+
 def count_votes(subnode):
     match = re.search("\#(\w+)", subnode.content)
     if not match:
@@ -700,19 +706,19 @@ def count_votes(subnode):
     tag = match.group(1)
     return {"user": subnode.user, "vote": tag}
 
+
 @bp.route('/proposal/<user>/<node>')
-def proposal(user,node):
+def proposal(user, node):
     n = G.node(node)
     subnode = next(x for x in n.subnodes if x.user == user)
     other_nodes = [x for x in n.subnodes if x.user != user]
-    print("subnode", subnode)
-    print("other nodes", other_nodes)
-    votes = list(filter(None,map(count_votes, other_nodes)))
-    print("votes", votes)
+
+    votes = list(filter(None, map(count_votes, other_nodes)))
+
     vote_options = [x.get('vote') for x in votes]
-    print("options", vote_options)
+
     vote_counts = collections.Counter(vote_options)
-    print("counts", vote_counts)
+
     return render_template(
         'proposal.html',
         node=n,
@@ -725,8 +731,7 @@ def proposal(user,node):
 
 @bp.route('/api/callback')
 def callback():
-    print("ACCESS TOKEN FROM GITEA")
-    print(request.values['code'])
+
     return f'TOKEN {request.values["code"]}<script>alert("{request.values["code"]}")</script>'
 
 # https://git.anagora.org/login/oauth/authorize?client_id=f88fe801-c51b-456e-ac20-2a967555cec0&redirect_uri=http://localhost:5000/api/callback&response_type=code

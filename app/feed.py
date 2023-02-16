@@ -133,14 +133,10 @@ def main():
         feeds = get_user_feeds()
         #for user, feed in feeds.items():
         #    for item in feed.entries:
-        #        print(f'user: {user}')
-        #        pprint.pprint(item)
-        #        print('***\n')
+        #    
+        #    
                 
-        feeds = get_tag_feeds()
-        for item in feeds:
-            pprint.pprint(item)
-            print('***\n')
+        
     else:
         api.update_status(phrase)
 

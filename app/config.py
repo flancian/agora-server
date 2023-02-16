@@ -7,7 +7,7 @@ def getcfg(path):
         try:
             return yaml.safe_load(stream)
         except yaml.YAMLError as exc:
-            print(exc)
+        
 
 
 class DefaultConfig(object):

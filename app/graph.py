@@ -92,9 +92,9 @@ def turtle_nodes(nodes) -> str:
     agora = Namespace("{base}/")
     g.namespace_manager.bind('agora', agora)
 
-    print(f"turtling agora using forward links only")
+
     node_count = len(nodes)
-    print(f"node count: {node_count}")
+
 
     for node in nodes:
         add_node(node, g, only_forward=True)
@@ -141,7 +141,7 @@ def parse_node(node: db.Node) -> dict:
             if backlinking_node in ['pull', 'push']:
                 continue
             if backlinking_node in pushing_nodes or backlinking_node in pulling_nodes:
-                print(f'discarded {node} because of being in pushed/pull list.')
+            
                 continue
             n0 = backlinking_node
             n1 = this
@@ -215,9 +215,9 @@ def json_nodes(nodes):
     agora = Namespace(f"{base}/")
     g.namespace_manager.bind('agora', agora)
 
-    print(f"jsoing agora using forward links only")
+
     node_count = len(nodes)
-    print(f"node count: {node_count}")
+
 
     unique_nodes = set()
     for node in nodes:

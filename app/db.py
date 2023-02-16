@@ -57,11 +57,15 @@ CACHE_TTL = random.randint(120, 240)
 
 # TODO: implement.
 
+dbpath = os.getenv('AGORA_DB_PATH')
+
+
 
 class Graph:
     def __init__(self):
         # Revisit.
-        pass
+        dbconnection = sqlite3.connect(dbpath, check_same_thread=False)
+        self.cursor = dbconnection.cursor()
 
     def edge(self, n0, n1):
         pass
@@ -94,7 +98,6 @@ class Graph:
         ) if node.wikilink in permutations and node.subnodes]
         return nodes
 
-
     def nodes(self, include_journals=True, only_canonical=True):
         # this is where a lot of the 'magic' happens.
         # this:
@@ -108,14 +111,11 @@ class Graph:
         # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
         # hack hack -- there's probably something in itertools better than this?
         node_to_subnodes = defaultdict(list)
-        path = "app/agora.db"
-        connection = sqlite3.connect(path)
-        cursor = connection.cursor()
-        cursor.execute("select * from files")
-        results = cursor.fetchall()
+        self.cursor.execute("select * from files")
+        results = self.cursor.fetchall()
         for result in results:
-            cursor.execute(f"select * from users where id={result[5]}")
-            user = cursor.fetchone()
+            self.cursor.execute(f"select * from users where id={result[5]}")
+            user = self.cursor.fetchone()
             subnode = Subnode(result[1])
             subnode.content = result[3].decode()
             subnode.author = user[1]
@@ -210,6 +210,9 @@ class Node:
     the Agora root) in the attribute 'uri'."""
 
     def __init__(self, wikilink):
+        dbconnection = sqlite3.connect(dbpath)
+        self.cursor = dbconnection.cursor()
+
         # Use a node's URI as its identifier.
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
@@ -335,7 +338,6 @@ class Node:
                 nodes.append(n)
         return nodes
 
-
     def push_nodes(self):
         # nodes pushed to from this node.
         links = []
@@ -424,10 +426,9 @@ class Subnode:
     the Agora root) in the attribute 'uri'."""
 
     def __init__(self, path, mediatype='text/plain'):
-        dbpath = "app/agora.db"
-        connection = sqlite3.connect(dbpath)
-        cursor = connection.cursor()
-        self.cursor = cursor
+        dbconnection = sqlite3.connect(dbpath)
+        self.cursor = dbconnection.cursor()
+
         self.path = path
         # Use a subnode's URI as its identifier.
         self.uri: str = path_to_uri(path)
@@ -467,14 +468,14 @@ class Subnode:
         self.node = self.canonical_wikilink
 
     def populate_content(self):
-        print("WHY ARENT YOU LOGGING")
+    
         current_app.logger.info("IN CHECK FUNCTION")
         self.cursor.execute(f"select * from users where name='{self.user}'")
         user = self.cursor.fetchone()
         self.cursor.execute(
             f"select * from files where node_name='{self.node}' and user_id={user[0]}")
         file = self.cursor.fetchone()
-        current_app.logger.info("FILE INFO",file)
+        current_app.logger.info("FILE INFO", file)
         self.content = file[3].decode()
 
     def load_text_subnode(self):
@@ -558,17 +559,14 @@ class Subnode:
         if 'subnode/virtual' in self.url:
             # virtual subnodes should come pre-rendered (as they were extracted post-rendering from other subnodes)
             return self.content
-        print(self.__dict__)
-        current_app.logger.info("checking content")
         if not hasattr(self, "content"):
-            current_app.logger.info("GETTING CONTENT")
             self.populate_content()
         content = render.preprocess(self.content, subnode=self)
         content = render.markdown(content)
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
             content = render.preprocess(self.content, subnode=self)
             content = render.orgmode(content)
-        print("URI", self.uri)
+    
         ret = render.postprocess(content)
         return ret
 
@@ -779,6 +777,9 @@ def subnode_to_taglink(subnode, tag, blocks_only=False):
 
 class User:
     def __init__(self, user):
+        dbconnection = sqlite3.connect(dbpath)
+        self.cursor = dbconnection.cursor()
+
         self.user = user
         self.uri = user
         # yikes
