@@ -49,11 +49,15 @@ FUZZ_FACTOR = 95
 CACHE_TTL = random.randint(120, 240)
 dbpath = os.getenv('AGORA_DB_PATH')
 
+def regexp(pattern, string):
+    return re.search(pattern, string) is not None
 
 class Graph:
     def __init__(self):
         # Revisit.
         dbconnection = sqlite3.connect(dbpath, check_same_thread=False)
+        dbconnection.create_function("REGEXP", 2, regexp)
+
         self.cursor = dbconnection.cursor()
 
     def edge(self, n0, n1):
@@ -80,7 +84,7 @@ class Graph:
         nodes = [node for node in G.nodes(only_canonical=True).values(
         ) if node.wikilink in permutations and node.subnodes]
         return nodes
-    
+
     def users(self):
         users = []
         results = self.cursor.execute("select * from users").fetchall()
@@ -88,6 +92,16 @@ class Graph:
             user = User(result[1])
             users.append(user)
         return users
+    
+    def journals(self):
+        current_app.logger.info(util.get_combined_date_regex())
+        results = self.cursor.execute(f"SELECT * FROM files WHERE node_name REGEXP '{util.get_combined_date_regex()}' order by node_name desc").fetchmany(30)
+        nodes = []
+        for result in results:
+            node = Node(result[1])
+            nodes.append(node)
+        return nodes
+
 
 
 class Node:
@@ -112,23 +126,19 @@ class Node:
         # LOL, this is *not* a uri.
         # TODO(flancian): check where this is used and fix.
         self.uri = wikilink
-        # ensure wikilinks to journal entries are all shown in iso format
-        # (important to do it after self.uri = wikilink to avoid breaking
-        # links)
-        if util.is_journal(wikilink):
-            self.wikilink = util.canonical_wikilink(wikilink)
-        # Yikes, I really did whatever I wanted here. This is clearly not a full url. More like a 'url_path'.
         self.url = '/node/' + self.uri
         self.actual_uri = current_app.config['URI_BASE'] + '/' + self.uri
-        results = self.cursor.execute(f"select * from files where node_name='{wikilink}'").fetchall()
+        results = self.cursor.execute(
+            f"select * from files where node_name='{wikilink}'").fetchall()
         subnodes = []
         for result in results:
-            userresult = self.cursor.execute(f"select * from users where id={result[5]}").fetchone()
+            userresult = self.cursor.execute(
+                f"select * from users where id={result[5]}").fetchone()
             node = result[1]
             content = result[3]
             url = result[2]
             user = userresult[1]
-            subnode = Subnode(node=node,content=content,user=user,url=url)
+            subnode = Subnode(node=node, content=content, user=user, url=url)
             subnodes.append(subnode)
 
         self.subnodes = subnodes
@@ -175,8 +185,9 @@ class Node:
     def pull_nodes(self):
         # set in database
         return []
+
     def auto_pull_nodes(self):
-        #set in database
+        # set in database
         return []
 
     def related_nodes(self):
@@ -302,11 +313,12 @@ class Subnode:
         self.cursor = dbconnection.cursor()
 
         self.node = node
+        self.wikilink = node
         self.content = content.decode()
         self.user = user
         self.url = url
-        self.uri = url
-        self.datetime = datetime.datetime.now() # put in database
+        self.uri = node.replace(" ", "-")
+        self.datetime = datetime.datetime.now()  # put in database
         self.basename = node
         self.type = type
         current_app.logger.debug(f"{node}, {user}, {url}")
@@ -340,7 +352,6 @@ class Subnode:
         return ret
 
 
-
 class User:
     def __init__(self, user):
         dbconnection = sqlite3.connect(dbpath)
@@ -365,20 +376,36 @@ class User:
             self.support = self.config.get('support', '')
 
     def subnodes(self):
-        user = self.cursor.execute(f"select * from users where name='{self.name}'").fetchone()
-        results = self.cursor.execute(f"select * from files where user_id={user[0]}").fetchall()
+        user = self.cursor.execute(
+            f"select * from users where name='{self.name}'").fetchone()
+        results = self.cursor.execute(
+            f"select * from files where user_id={user[0]}").fetchall()
         subnodes = []
         for result in results:
             node = result[1]
             content = result[3]
             url = result[2]
-            user = user
-            subnode = Subnode(node=node,content=content,user=user,url=url)
+            user = self.name
+            subnode = Subnode(node=node, content=content, user=user, url=url)
             subnodes.append(subnode)
 
         return subnodes
 
-
+    def readmes(self):
+        user = self.cursor.execute(
+            f"select * from users where name='{self.name}'").fetchone()
+        results = self.cursor.execute(
+            f"select * from files where user_id={user[0]} and node_name='readme'").fetchall()
+        subnodes = []
+        for result in results:
+            node = result[1]
+            content = result[3]
+            url = result[2]
+            user = self.name
+            subnode = Subnode(node=node, content=content, user=user, url=url)
+            subnodes.append(subnode)
+        return subnodes
+    
     def __str__(self):
         return self.user
 

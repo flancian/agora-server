@@ -85,11 +85,6 @@ def build_node(node, extension='', user_list=''):
     # yeah, this is a hack.
     # TODO: fix this, make decoded unicode strings the main IDs within db.py.
     node = urllib.parse.unquote_plus(node)
-    # hmm, I don't like this slugify.
-    # TODO(2022-06-05): will try to remove it and see what happens.
-    # *but this after fixing go links?*
-    node = util.slugify(node)
-
     n = copy(G.node(node))
 
     if n.subnodes:
@@ -219,11 +214,7 @@ def graph_js_node(node):
 def subnode(node, user):
 
     node = urllib.parse.unquote_plus(node)
-    node = util.slugify(node)
     n = G.node(node)
-
-    n.subnodes = util.filter(n.subnodes, user)
-    n.subnodes = util.uprank(n.subnodes, user)
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
@@ -570,11 +561,10 @@ def old_subnode(subnode):
 def user(user):
     n = build_node(user)
     n.qstr = '@' + n.qstr
-    return render_template('user.html', user=db.User(user), readmes=db.user_readmes(user),
-                           subnodes=db.subnodes_by_user(
-                               user, sort_by='node', reverse=False),
-                           latest=db.subnodes_by_user(
-                               user, sort_by='mtime', reverse=True)[:100],
+    user = db.User(user)
+    return render_template('user.html', user=user, readmes=user.readmes(),
+                           subnodes=user.subnodes(),
+                           latest=user.subnodes()[:100],
                            node=n
                            )
 
@@ -658,7 +648,10 @@ def journals(entries):
             # we only support numbers and all (handled above), other suffixes must be a broken link from /all or /30 or such...
             # long story, this is a hack working around a bug for now.
             return redirect(url_for('.node', node=entries))
-    return render_template('journals.html', node=n, header=f"Journal entries in the last {entries} days", nodes=db.all_journals()[0:entries])
+    return render_template('journals.html', 
+                           node=n, 
+                           header=f"Journal entries in the last {entries} days", 
+                           nodes=G.journals()[0:entries])
 
 
 @bp.route('/journals.json')

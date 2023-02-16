@@ -18,9 +18,11 @@ from urllib.parse import urlparse
 
 parser = DateDataParser(languages=['en'])
 
+
 def rank(l, user):
     # hack hack
     return sorted(l, key=lambda x: x.user)
+
 
 def is_valid_url(url):
     # from https://stackoverflow.com/a/36283503
@@ -28,9 +30,10 @@ def is_valid_url(url):
         tokens = urlparse(url)
         min_attributes = ('scheme', 'netloc')
         return all([getattr(tokens, qualifying_attr)
-                for qualifying_attr in min_attributes])
+                    for qualifying_attr in min_attributes])
     except AttributeError:
         return False
+
 
 def uprank(l, users):
     # hack hack
@@ -41,65 +44,31 @@ def uprank(l, users):
             # the earlier in the list a user comes, the more highly ranked it is.
             score = users.index(n.user) - len(users) - 1
         return score
-            
-    return sorted(l, key=score) 
+
+    return sorted(l, key=score)
+
 
 def similar(l, term):
     return [n.wikilink for n in l if n.wikilink.startswith(term)]
 
+
 def filter(l, projection):
     # hack hack
     return [n for n in l if n.user == projection]
-
-def canonical_wikilink(wikilink):
-
-    if is_journal(wikilink):
-        try:
-            wikilink = canonical_date(wikilink)
-        except:
-            # TODO: if we add logging, maybe log that we couldn't parse a date here
-            pass
-
-    # hack hack
-    wikilink = (
-        wikilink.lower()
-        .strip()
-        # we replace a bunch of non-slug characters with -, then replace all runs of - with a single -.
-        # we don't want to just s#/#-# because that breaks action handling (which looks like foo/bar/baz, and we want to keep intact for path-based handlers)
-        .replace("/ ", '-')
-        .replace(" /", '-')
-        # the following ones could be a regex
-        .replace(' ', '-')
-        # this seemed to make sense but I found it too limiting. it makes the following lossy:
-        # - example.tld
-        # - filename.ext
-        # .replace('.', '-')
-        .replace('\'', '-')
-        .replace('%', '-')
-        .replace('.', '-')
-        .replace(',', '-')
-        .replace(':', '-')
-        .replace("\'", '-')
-        .replace("+", '-')
-    )
-    wikilink = re.sub('-+', '-', wikilink)
-    return wikilink
-
-
-slugify = canonical_wikilink
 
 
 @lru_cache(maxsize=None)
 def canonical_date(wikilink):
     # this is best effort, returns the wikilink for non-dates (check before you use).
     try:
-        date = parser.get_date_data(wikilink, date_formats=['%Y-%m-%d', '%Y_%m_%d', '%Y%m%d']).date_obj
+        date = parser.get_date_data(wikilink, date_formats=[
+                                    '%Y-%m-%d', '%Y_%m_%d', '%Y%m%d']).date_obj
         return date.isoformat().split("T")[0]
     except AttributeError:
         return wikilink
 
 
-@lru_cache(maxsize=1)  #memoize this
+@lru_cache(maxsize=1)  # memoize this
 def get_combined_date_regex():
     date_regexes = [
         # iso format, lax
@@ -116,9 +85,4 @@ def get_combined_date_regex():
     # TODO: it'd really be better to compile this regex once rather than on
     # each request, but as the knuth would say premature optimization is the
     # root of all evil, etc. etc.
-    return re.compile(f'^({"|".join(date_regexes)})')
-
-
-@lru_cache(maxsize=None)
-def is_journal(wikilink):
-    return get_combined_date_regex().match(wikilink)
+    return f'^({"|".join(date_regexes)})'

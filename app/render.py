@@ -51,11 +51,11 @@ class WikilinkRendererMixin(object):
                 # probably more than one pipe; not supported for now
                 first = element.target
                 second = element.target
-            target = util.canonical_wikilink(first.rstrip())
+            target = first.rstrip()
             label = second.lstrip()
             return f'<span class="wikilink-marker">[[</span><a href="{target}" title="[[{element.target}]]" class="wikilink">{label}</a><span class="wikilink-marker">]]</span>'
         else:
-            target = util.canonical_wikilink(element.target)
+            target = element.target
             label = self.render_children(element)
             return f'<span class="wikilink-marker">[[</span><a href="{target}" title="[[{element.target}]]"class="wikilink">{label}</a><span class="wikilink-marker">]]</span>'
 
@@ -90,7 +90,7 @@ class HashtagRendererMixin(object):
         # return '<span class="wikilink-marker">[[</span><a href="{}">{}</a><span class="wikilink-marker">]]</span>'.format(
         return '<span class="hashtag-marker">#</span><a href="{}" class="wikilink">{}</a><span class="hashtag-marker"></span>'.format(
             # util.canonical_wikilink(self.escape_url(element.target)), self.render_children(element)
-            util.canonical_wikilink(element.target), self.render_children(element)
+            element.target, self.render_children(element)
         )
 
 class Wikilinks():

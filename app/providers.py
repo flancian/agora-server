@@ -122,7 +122,7 @@ def node(q, tokens):
     # This will always bid to show an [[agora]] node, even if "empty" (there is no check for content at this point).
     # This serves as a "constructive 404" in case nothing else beats it.
     qstr = urllib.parse.unquote_plus(q)
-    uri = util.slugify(qstr)
+    uri = qstr
     if uri.replace('-', ' ') != qstr:
         # lossy node slug, attach query string to URL to preserve information.
         suffix = f'?q={q}'
