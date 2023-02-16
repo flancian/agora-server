@@ -94,30 +94,6 @@ class Graph:
         ) if node.wikilink in permutations and node.subnodes]
         return nodes
 
-    def match(self, regex):
-        # returns a list of nodes reasonably matching a regex.
-        current_app.logger.debug(f'*** Looking for nodes matching {regex}.')
-        nodes = [node for node in G.nodes(only_canonical=True).values() if
-                 # has some content
-                 node.subnodes and
-                 # its wikilink matches the regex
-                 re.match(regex, node.wikilink)
-                 ]
-        current_app.logger.debug(f'*** Found related nodes: {nodes}.')
-        return nodes
-
-    def search(self, regex):
-        # returns a list of nodes reasonably freely matching a regex.
-        current_app.logger.debug(
-            f'*** Looking for nodes matching {regex} freely.')
-        nodes = [node for node in G.nodes(only_canonical=True).values() if
-                 # has some content
-                 node.subnodes and
-                 # its wikilink matches the regex
-                 re.search(regex, node.wikilink)
-                 ]
-        current_app.logger.debug(f'*** Found related nodes: {nodes}.')
-        return nodes
 
     def nodes(self, include_journals=True, only_canonical=True):
         # this is where a lot of the 'magic' happens.
@@ -323,9 +299,6 @@ class Node:
         # too noisy and full text search seems to provide more utility on my use cases, disabling for now.
         # nodes = [node for node in nodes if node not in self.pull_nodes() and node.uri not in banned_nodes]
 
-        # this should add at least things like equivalent dates.
-        nodes.extend(self.equivalent())
-
         # bug: for some reason set() doesn't dedup here, even though I've checked and the hash from duplicate nodes is identical (!).
         # test case: [[hypha]].
         ret = sorted(set(nodes), key=lambda x: x.uri)
@@ -362,39 +335,6 @@ class Node:
                 nodes.append(n)
         return nodes
 
-    def equivalent(self):
-        # nodes that are really pretty much "the same as" this one, e.g. different representations for the same date/time or edit distance (within a useful window)
-        nodes = []
-        # too aggressive
-        # regex = '.*' + re.escape(uri.replace('-', '.*')) + '.*'
-
-        # the slug/uri assumption here is a hack, points in the direction of cleanup.
-        # this should probably work based on tokens, which are available... somewhere?
-        # hmm, probably providers.py.
-        # too much for 'equivalence'? probably somewhere in 'related': prefix match.
-        # regex = re.escape(uri.replace('-', '.*')) + '.*'
-        # should cover different date formats :)
-        regex = re.sub(r'[-_ ]', '.?', self.uri) + '$'
-        try:
-            nodes.extend([node for node in G.match(
-                regex) if node.uri != self.uri])
-        except re.error:
-            # sometimes node names might contain invalid regexes.
-            pass
-        return nodes
-
-    def related(self):
-        # nodes that are probably heavily related; right now it does fuzzy prefix matching.
-        # same caveats as for equivalent() :)
-        nodes = []
-        regex = re.sub(r'[-_ ]', '.*', self.uri)
-        try:
-            nodes.extend([node for node in G.search(regex) if node.uri !=
-                         self.uri and node.uri not in [x.uri for x in self.pull_nodes()]])
-        except re.error:
-            # sometimes node names might contain invalid regexes.
-            pass
-        return nodes
 
     def push_nodes(self):
         # nodes pushed to from this node.
