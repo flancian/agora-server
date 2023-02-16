@@ -72,7 +72,7 @@ class TiddlylinkRendererMixin(object):
     # This name is magic; it must match render_<class_name_in_snake_case>.
     def render_tiddlylink_element(self, element):
         return '<span class="wikilink-marker">[[</span><a href="{}" class="wikilink">{}</a><span class="wikilink-marker">]]</span>'.format(
-            util.canonical_wikilink(element.target), element.anchor
+            element.target, element.anchor
         )
 
 class HashtagElement(inline.InlineElement):

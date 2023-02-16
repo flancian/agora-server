@@ -76,9 +76,9 @@ def get_combined_date_regex():
         # week format
         '[0-9]{4}-W',
         # roam format (what a monstrosity!)
-        '(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}(st|nd|th), [0-9]{4}',
+        # '(January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}(st|nd|th), [0-9]{4}',
         # roam format (after filename sanitization)
-        '(january|february|march|april|may|june|july|august|september|october|november|december)-[0-9]{1,2}(st|nd|th)-[0-9]{4}',
+        # '(january|february|march|april|may|june|july|august|september|october|november|december)-[0-9]{1,2}(st|nd|th)-[0-9]{4}',
     ]
 
     # combine all the date regexes into one super regex

@@ -101,6 +101,10 @@ class Graph:
             node = Node(result[1])
             nodes.append(node)
         return nodes
+    
+    def random_node(self):
+        result = self.cursor.execute(f"select * from files order by random()").fetchone()
+        return result[1]
 
 
 

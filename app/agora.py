@@ -299,9 +299,7 @@ def annotations():
 
 @bp.route('/random')
 def random():
-    today = datetime.date.today()
-    random = db.random_node()
-    return redirect(f"/{random.uri}")
+    return redirect(f"/{G.random_node()}")
 
 
 @bp.route('/now')
@@ -607,8 +605,7 @@ def similar_json(term):
 @bp.route('/@')
 @bp.route('/users')
 def users():
-    n = build_node('users')
-    return render_template('users.html', users=G.users(), node=n)
+    return render_template('users.html', users=G.users(), node=db.Node("dsfsdfsd"))
 
 
 @bp.route('/users.json')
