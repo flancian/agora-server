@@ -30,7 +30,7 @@ from copy import copy
 from . import db, feed, forms, graph, providers, util
 
 bp = Blueprint('agora', __name__)
-G = db.G
+G = db.Graph()
 
 # For footer / timing information.
 # Adapted from https://stackoverflow.com/questions/12273889/calculate-execution-time-for-every-page-in-pythons-flask
@@ -90,7 +90,6 @@ def build_node(node, extension='', user_list=''):
     # *but this after fixing go links?*
     node = util.slugify(node)
 
-    # we copy because we'll potentially modify subnode order, maybe add [[virtual subnodes]].
     n = copy(G.node(node))
 
     if n.subnodes:
@@ -619,7 +618,7 @@ def similar_json(term):
 @bp.route('/users')
 def users():
     n = build_node('users')
-    return render_template('users.html', users=db.all_users(), node=n)
+    return render_template('users.html', users=G.users(), node=n)
 
 
 @bp.route('/users.json')

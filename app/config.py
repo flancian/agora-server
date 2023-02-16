@@ -2,18 +2,17 @@ import os
 import getpass
 import yaml
 
+
 def getcfg(path):
     with open(path, "r") as stream:
-        try:
-            return yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-        
+        return yaml.safe_load(stream)
 
 
 class DefaultConfig(object):
     # I wonder how much of this should be in [[agora.yaml]] instead :)
 
-    AGORA_PATH = os.getenv('AGORA_PATH', os.path.join('/home', getpass.getuser(), 'agora'))
+    AGORA_PATH = os.getenv('AGORA_PATH', os.path.join(
+        '/home', getpass.getuser(), 'agora'))
     YAML_CONFIG = getcfg(os.path.join(AGORA_PATH, 'sources.yaml'))
     if os.getenv('YAML_CONFIG'):
         YAML_CONFIG = getcfg(os.getenv('YAML_CONFIG'))
@@ -35,11 +34,11 @@ class DefaultConfig(object):
 
     # change this to whatever your domain is going to be -- without protocol.
     # this is what gets rendered in the header.
-    # 2022-12-02: maybe deprecated in favour of using request headers to infer the host that the client wants to see? see before_request in agora.py. 
+    # 2022-12-02: maybe deprecated in favour of using request headers to infer the host that the client wants to see? see before_request in agora.py.
     URI_BASE = "anagora.org"
     AGORA = URI_BASE
-    JOURNAL_ENTRIES = 31 # number of journal entries to load
-    
+    JOURNAL_ENTRIES = 31  # number of journal entries to load
+
     # EXPERIMENTS
     # experiments can be booleans or probabilities (reals in 0..1).
     # release process: set them initially to False/0 in the DefaultConfig and then override in the right environment.
@@ -49,13 +48,15 @@ class DefaultConfig(object):
     ENABLE_AUTO_PULL = False
     ENABLE_AUTO_STOA = False
 
+
 class ProductionConfig(DefaultConfig):
-    
+
     # EXPERIMENTS
     ENABLE_CTZN = False
     ENABLE_STATS = True
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_STOA = False
+
 
 class DevelopmentConfig(DefaultConfig):
     URL_BASE = "http://dev.anagora.org"
@@ -68,6 +69,7 @@ class DevelopmentConfig(DefaultConfig):
     ENABLE_OBSIDIAN_ATTACHMENTS = True
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_STOA = True
+
 
 class LocalDevelopmentConfig(DefaultConfig):
     URL_BASE = "http://localhost:5017"
