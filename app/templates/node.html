@@ -14,7 +14,7 @@
  limitations under the License.
 -->
 
-{% if not node.subnodes and not node.pushed_subnodes() %}
+{% if not node.subnodes  %}
 <div class="node" id="{{node.uri}}">
     <div class="node-header main-header"><span>📚 Node <a href="/{{node}}" title="A node in {{config['NAME']}}.">[[{{node.qstr}}]]</a></span></div>
     <div class="not-found subnode" data-author="agora">
@@ -55,7 +55,7 @@
 {% endif %} <!-- node without subnodes -->
 <!-- node div left open to share context code with the next case -->
 
-{% if node.subnodes or node.pushed_subnodes() %}
+{% if node.subnodes %}
     <div class="node" id="{{node.uri}}">
 
         {% if subnode %}

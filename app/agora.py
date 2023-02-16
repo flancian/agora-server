@@ -34,6 +34,8 @@ G = db.G
 
 # For footer / timing information.
 # Adapted from https://stackoverflow.com/questions/12273889/calculate-execution-time-for-every-page-in-pythons-flask
+
+
 @bp.before_request
 def before_request():
   g.start = time.time()
@@ -41,6 +43,7 @@ def before_request():
   # hack hack -- try dynamic URI_BASE based on what the browser sent our way.
   # this allows for easily provisioning an Agora in many virtual hosts, e.g. *.agor.ai.
   current_app.config['URI_BASE'] = request.headers['Host']
+
 
 @bp.after_request
 def after_request(response):
@@ -58,6 +61,8 @@ def after_request(response):
 
 # The [[agora]] is a [[distributed knowledge graph]].
 # Nodes are the heart of the [[agora]].
+
+
 def build_node(node, extension='', user_list=''):
     current_app.logger.debug(f'[[{node}]]: Assembling node.')
     # default uprank: system account and maintainers, see config.py.
@@ -72,7 +77,7 @@ def build_node(node, extension='', user_list=''):
 
     # there are some ill-slugged links to anagora.org out there, special casing here for a while at least.
     # this should probably be made irrelevant by the Big Refactor that we need to do to make the canonical node identifier non-lossy.
-    # UPDATE(2022-06-05): this could probably be removed, needs testing, but with the move to using [[quote plus]] across the board we should be fine? 
+    # UPDATE(2022-06-05): this could probably be removed, needs testing, but with the move to using [[quote plus]] across the board we should be fine?
     node = node.replace(',', '').replace(':', '')
 
     # unquote in case the node came in urlencoded, then slugify again to gain the 'dimensionality reduction' effects of
@@ -94,16 +99,18 @@ def build_node(node, extension='', user_list=''):
         if extension:
             # this is pretty hacky but it works for now.
             # should probably move to a filter method in the node? and get better template support to make what's happening clearer.
-            current_app.logger.debug(f'filtering down to extension {extension}')
-            n.subnodes = [subnode for subnode in n.subnodes if subnode.uri.endswith(f'.{extension}')]
+            current_app.logger.debug(
+                f'filtering down to extension {extension}')
+            n.subnodes = [
+                subnode for subnode in n.subnodes if subnode.uri.endswith(f'.{extension}')]
             n.uri = n.uri + f'.{extension}'
             n.wikilink = n.wikilink + f'.{extension}'
     # n.subnodes.extend(n.exec())
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
-    n.qstr = request.args.get('q') 
-    if not n.qstr: 
+    n.qstr = request.args.get('q')
+    if not n.qstr:
         # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
         n.qstr = n.wikilink.replace('-', ' ')
     # search_subnodes = db.search_subnodes(node)
@@ -116,6 +123,8 @@ def build_node(node, extension='', user_list=''):
 # The [[agora]] is in some ways thus a [[search engine]]: anagora.org/agora-search
 #
 # Flask routes work so that the one closest to the function is the canonical one.
+
+
 @bp.route('/wikilink/<node>')
 @bp.route('/node/<node>/uprank/<user_list>')
 @bp.route('/node/<node>')
@@ -128,7 +137,7 @@ def node(node, extension='', user_list=''):
 
     return render_template(
             # yuck
-            'content.html', 
+            'content.html',
             node=n,
             config=current_app.config,
             # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
@@ -139,20 +148,24 @@ def node(node, extension='', user_list=''):
             # annotations_enabled=True,
             )
 
-@bp.route('/feed/<node>') 
+
+@bp.route('/feed/<node>')
 def node_feed(node):
     n = G.node(node)
     return Response(feed.node_rss(n), mimetype='application/rss+xml')
+
 
 @bp.route('/feed/@<user>')
 def user_feed(user):
     subnodes = db.subnodes_by_user(user, mediatype='text/plain')
     return Response(feed.user_rss(user, subnodes), mimetype='application/rss+xml')
 
+
 @bp.route('/feed/journals/@<user>')
 def user_journals_feed(user):
     subnodes = db.user_journals(user)
     return Response(feed.user_rss(user, subnodes), mimetype='application/rss+xml')
+
 
 @bp.route('/feed/journals')
 def journals_feed():
@@ -162,13 +175,15 @@ def journals_feed():
     # This is an abuse of node_rss?
     return Response(feed.node_rss(n), mimetype='application/rss+xml')
 
+
 @bp.route('/feed/latest')
 def latest_feed():
     subnodes = db.latest()[:100]
     subnodes.reverse()
     return Response(feed.latest_rss(subnodes), mimetype='application/rss+xml')
 
-@bp.route('/ttl/<node>') # perhaps deprecated
+
+@bp.route('/ttl/<node>')  # perhaps deprecated
 @bp.route('/turtle/<node>')
 @bp.route('/graph/turtle/<node>')
 def turtle(node):
@@ -208,17 +223,16 @@ def subnode(node, user):
 
     n.subnodes = util.filter(n.subnodes, user)
     n.subnodes = util.uprank(n.subnodes, user)
-    search_subnodes = db.search_subnodes_by_user(node, user)
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
-    n.qstr = request.args.get('q') 
+    n.qstr = request.args.get('q')
 
-    if not n.qstr: 
+    if not n.qstr:
         # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
         n.qstr = n.wikilink.replace('-', ' ')
 
-    n.qstr=f'@{user}/'+n.wikilink.replace('-', ' ')
+    n.qstr = f'@{user}/'+n.wikilink.replace('-', ' ')
     n.q = n.qstr
 
     return render_template(
@@ -226,6 +240,7 @@ def subnode(node, user):
         node=n,
         subnode=f'@{user}/'+n.wikilink,
     )
+
 
 @bp.route('/export/<node>@<user>')
 @bp.route('/export/@<user>/<node>')
@@ -241,13 +256,13 @@ def subnode_export(node, user):
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
-    n.qstr = request.args.get('q') 
+    n.qstr = request.args.get('q')
 
-    if not n.qstr: 
+    if not n.qstr:
         # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
         n.qstr = n.wikilink.replace('-', ' ')
 
-    n.qstr=f'@{user}/'+n.wikilink.replace('-', ' ')
+    n.qstr = f'@{user}/'+n.wikilink.replace('-', ' ')
     n.q = n.qstr
 
     return render_template(
@@ -255,7 +270,6 @@ def subnode_export(node, user):
         node=n,
         subnode=f'@{user}/'+n.wikilink,
     )
-
 
 
 # Special
@@ -266,6 +280,7 @@ def index():
     # first, render address specific functionality.
     # then, pull /node/foo if we're in location foo.
     return redirect(url_for('.node', node='index'))
+
 
 @bp.route('/Δ')
 @bp.route('/delta')
@@ -278,6 +293,7 @@ def latest():
                            node=n
                            )
 
+
 @bp.route('/annotations/')
 @bp.route('/annotations')
 def annotations():
@@ -288,11 +304,13 @@ def annotations():
                            node=n
                            )
 
+
 @bp.route('/random')
 def random():
     today = datetime.date.today()
     random = db.random_node()
     return redirect(f"/{random.uri}")
+
 
 @bp.route('/now')
 @bp.route('/tonight')
@@ -300,6 +318,7 @@ def random():
 def today():
     today = datetime.date.today()
     return redirect("/%s" % today.strftime("%Y-%m-%d"))
+
 
 @bp.route('/tomorrow')
 def tomorrow():
@@ -329,6 +348,8 @@ def ctzn_login():
 # This was composite go, now graduated to handling all supported cases :)
 # This is still a hack (works for n=1, n=2), needs to be replaced with proper generic node/block "algebra"?
 # TODO(2022-06-05): maybe through providers.py? This feels like arbitrary query handling, unsure where to draw the line as of yet.
+
+
 @bp.route('/go/<node0>/<node1>')
 @bp.route('/go/<node0>/')
 @bp.route('/go/<node0>')
@@ -403,6 +424,7 @@ def go(node0, node1=''):
     else:
         return redirect(f'{base}/{node0}')
 
+
 @bp.route('/push/<node>/<other>')
 def push2(node, other):
     # OLD, maybe unused?
@@ -414,17 +436,19 @@ def push2(node, other):
 
     return Response(pushing)
 
+
 @bp.route('/push/<node>')
 def push(node):
     # returns by default an html view for the 'pushing here' section / what is being received in associated feeds
     n = build_node(node)
 
     return render_template(
-            'push.html', 
+            'push.html',
             pushed_subnodes=n.pushed_subnodes(),
             embed=True,
             node=n,
             )
+
 
 @bp.route('/context/<node>')
 def context(node):
@@ -432,39 +456,44 @@ def context(node):
     n = build_node(node)
 
     return render_template(
-            'context.html', 
+            'context.html',
             embed=True,
             node=n,
             )
+
 
 @bp.route('/context/all')
 def context_all():
     # Returns by default a full Agora graph, by default embedded in /nodes.
     return render_template(
-            'agoragraph.html', 
+            'agoragraph.html',
             )
 
 # good for embedding the whole Agora (this is called by recursive pulls)
+
+
 @bp.route('/embed/<node>')
 def embed(node):
     current_app.logger.debug(f'embed [[{node}]]: Assembling node.')
     n = build_node(node)
 
     return render_template(
-            'content.html', 
+            'content.html',
             node=n,
             embed=True,
             config=current_app.config,
             )
 
 # good for embedding just node content (this is called by non-recursive pulls)
+
+
 @bp.route('/pull/<node>')
 def pull(node):
     current_app.logger.debug(f'pull [[{node}]]: Assembling node.')
     n = build_node(node)
 
     return render_template(
-            'content.html', 
+            'content.html',
             node=n,
             embed=True,
             config=current_app.config,
@@ -478,7 +507,7 @@ def fullsearch(qstr):
     search_subnodes = db.search_subnodes(qstr)
 
     return render_template(
-            'fullsearch.html', 
+            'fullsearch.html',
             qstr=qstr,
             q=qstr,
             node=qstr,
@@ -506,7 +535,8 @@ def search():
     # should result in a reasonable ranking; bids are a list of tuples (confidence, proposal)
     results.sort(reverse=True)
     current_app.logger.info(f'Search results for {qstr}: {results}')
-    result = results[0] # the agora always returns at least one result: the offer to render the node for the query.
+    # the agora always returns at least one result: the offer to render the node for the query.
+    result = results[0]
 
     # perhaps here there could be special logic to flash a string at the top of the result node if what we got back from search is a string.
 

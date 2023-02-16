@@ -66,17 +66,9 @@ class Graph:
     def edge(self, n0, n1):
         pass
 
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def edges(self):
         pass
 
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
-    def n_edges(self):
-        subnodes = G.subnodes()
-        edges = sum([len(subnode.forward_links) for subnode in subnodes])
-        return edges
-
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def node(self, uri):
         # looks up a node by uri (essentially [[wikilink]]).
         # this used to be even worse :)
@@ -127,8 +119,6 @@ class Graph:
         current_app.logger.debug(f'*** Found related nodes: {nodes}.')
         return nodes
 
-    # @cache.memoize(timeout=30)
-    # @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def nodes(self, include_journals=True, only_canonical=True):
         # this is where a lot of the 'magic' happens.
         # this:
@@ -137,8 +127,6 @@ class Graph:
         # most node lookups in the Agora just look up a node in this list.
         # this is expensive but less so than subnodes().
         begin = datetime.datetime.now()
-        current_app.logger.debug(f'*** CACHE_TTL is {CACHE_TTL}.')
-        current_app.logger.debug('*** Loading nodes at {begin}.')
         # returns a list of all nodes
 
         # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
@@ -180,7 +168,6 @@ class Graph:
     # Running something like this would be ideal eventually though.
     # It might also work better once all pulling/pushing logic moves to Graph, where it belongs,
     # and can make use of more sensible algorithms.
-    # @cache.memoize(timeout=30)
     def compute_transclusion(self, include_journals=True):
 
         # Add artisanal virtual subnodes (resulting from transclusion/[[push]]) to all nodes.
@@ -190,7 +177,6 @@ class Graph:
 
     # does this belong here?
     # @cache.memoize(timeout=30)
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def subnodes(self, sort=lambda x: x.uri.lower()):
         # this is where the magic happens (?)
         # as in -- this is where the rubber meets the road, meaning where we actually find all subnodes we can serve. This is called by G.nodes() which actually builds the Agora graph.
@@ -308,16 +294,6 @@ class Node:
             current_app.logger.debug(f"subnode {subnode.uri}, {links}")
         return links
 
-    # The following section is particularly confusing.
-    # Some functions return wikilinks, some return full blown nodes.
-    # We probably want to converge on the latter.
-    # TODO: fix.
-    def forward_links(self):
-        links = []
-        for subnode in self.subnodes:
-            links.extend(subnode.forward_links)
-        return sorted(set(links))
-
     def forward_nodes(self):
         return [G.node(x) for x in self.forward_links()]
 
@@ -427,18 +403,6 @@ class Node:
             links.extend(subnode.push_nodes())
         return sorted(set(links))
 
-    def pushing_nodes(self):
-        # the nodes pushing to *this* node.
-        # compare with: push_nodes.
-        nodes = []
-        for n in self.back_nodes():
-            if self.wikilink == n.wikilink:
-                # ignore nodes pushing to themselves.
-                continue
-            if self.wikilink != n.wikilink and self.wikilink in [n.wikilink for n in n.push_nodes()]:
-                nodes.append(n)
-        return nodes
-
     def pushing(self, other):
         # returns the blocks that this node pushes to one other as "virtual subnodes"
         # [[push]] as in anagora.org/node/push.
@@ -506,22 +470,8 @@ class Node:
         subnodes.append(VirtualSubnode('wp', '', 'test'))
         return subnodes
 
-    def back_nodes(self):
-        return sorted([x for x in nodes_by_outlink(self.wikilink) if x.wikilink != self.wikilink])
-
     def back_links(self):
         return sorted([x.wikilink for x in self.back_nodes()])
-
-    def pushed_subnodes(self):
-        # returning long lists here makes the Agora slow as each of these requires processing.
-        # better to only call this in async paths to keep basic node rendering fast.
-        subnodes = []
-        for node in self.pushing_nodes():
-            for subnode in node.pushing(self):
-                current_app.logger.debug(
-                    f"in pushed_subnodes, found subnode ({subnode.uri}")
-                subnodes.append(subnode)
-        return subnodes
 
     def annotations(self):
         annotations = feed.get_by_uri(self.actual_uri)
@@ -534,6 +484,10 @@ class Subnode:
     the Agora root) in the attribute 'uri'."""
 
     def __init__(self, path, mediatype='text/plain'):
+        dbpath = "app/agora.db"
+        connection = sqlite3.connect(dbpath)
+        cursor = connection.cursor()
+        self.cursor = cursor
         self.path = path
         # Use a subnode's URI as its identifier.
         self.uri: str = path_to_uri(path)
@@ -571,6 +525,17 @@ class Subnode:
             self.mtime).replace(microsecond=0)
 
         self.node = self.canonical_wikilink
+
+    def populate_content(self):
+        print("WHY ARENT YOU LOGGING")
+        current_app.logger.info("IN CHECK FUNCTION")
+        self.cursor.execute(f"select * from users where name='{self.user}'")
+        user = self.cursor.fetchone()
+        self.cursor.execute(
+            f"select * from files where node_name='{self.node}' and user_id={user[0]}")
+        file = self.cursor.fetchone()
+        current_app.logger.info("FILE INFO",file)
+        self.content = file[3].decode()
 
     def load_text_subnode(self):
         return
@@ -654,6 +619,10 @@ class Subnode:
             # virtual subnodes should come pre-rendered (as they were extracted post-rendering from other subnodes)
             return self.content
         print(self.__dict__)
+        current_app.logger.info("checking content")
+        if not hasattr(self, "content"):
+            current_app.logger.info("GETTING CONTENT")
+            self.populate_content()
         content = render.preprocess(self.content, subnode=self)
         content = render.markdown(content)
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
@@ -742,7 +711,6 @@ class Subnode:
                 sanitized_links.append('https://' + link)
         return sanitized_links
 
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def pull_nodes(self):
         """
         returns a set of nodes pulled (see [[pull]]) in this subnode
@@ -767,7 +735,6 @@ class Subnode:
         # nodes.extend(self.pull_nodes())
         return nodes
 
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def push_nodes(self):
         """
         returns a set of push links contained in this subnode
@@ -970,7 +937,6 @@ def stats():
 
     stats['nodes'] = len(G.nodes(only_canonical=True))
     stats['subnodes'] = len(G.subnodes())
-    stats['edges'] = G.n_edges()
     stats['users'] = len(all_users())
 
     return stats
@@ -1063,12 +1029,6 @@ def search_subnodes(query):
     return subnodes
 
 
-def search_subnodes_by_user(query, user):
-    subnodes = [subnode for subnode in G.subnodes() if subnode.mediatype == 'text/plain' and subnode.user ==
-                user and re.search(query, subnode.content, re.IGNORECASE)]
-    return subnodes
-
-
 def subnodes_by_user(user, sort_by='mtime', mediatype=None, reverse=True):
     subnodes = [subnode for subnode in G.subnodes() if subnode.user == user]
     if mediatype:
@@ -1092,12 +1052,6 @@ def subnode_by_uri(uri):
     else:
         # TODO: handle.
         return Subnode(uri)
-
-
-def nodes_by_outlink(wikilink):
-    nodes = [node for node in G.nodes(
-        only_canonical=True).values() if wikilink in node.forward_links()]
-    return sorted(nodes, key=attrgetter('wikilink'))
 
 
 def subnodes_by_outlink(wikilink):
