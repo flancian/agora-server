@@ -15,6 +15,8 @@ class DefaultConfig(object):
 
     AGORA_PATH = os.getenv('AGORA_PATH', os.path.join('/home', getpass.getuser(), 'agora'))
     YAML_CONFIG = getcfg(os.path.join(AGORA_PATH, 'sources.yaml'))
+    if os.getenv('YAML_CONFIG'):
+        YAML_CONFIG = getcfg(os.getenv('YAML_CONFIG'))
     # yes, it's this simple currently -- but this is just a server-side default :)
     # system account goes first, then people who write *about the Agora* in their gardens, in order of joining.
     # note: I don't like being first among the humans, I still do it because my subnodes are often of the summary/tldr kind whenever they overlap with others.

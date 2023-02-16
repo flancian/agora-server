@@ -12,4 +12,5 @@ config.json
 node_modules
 .pnpm-debug.log
 app/static/js/index.js
+sources.yaml
 app/agora.db
