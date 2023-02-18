@@ -665,10 +665,10 @@ def asset(user, asset):
     return send_file(path)
 
 
-@bp.route('/raw/<path:subnode>')
-def raw(subnode):
-    s = db.subnode_by_uri(subnode)
-    return Response(s.content, mimetype=s.mediatype)
+@bp.route('/raw/<path:url>')
+def raw(url):
+   content = G.grab_raw(url)
+   return Response(content)
 
 
 @bp.route('/backlinks/<node>')

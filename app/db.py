@@ -34,6 +34,7 @@ from fuzzywuzzy import fuzz
 from operator import attrgetter
 from typing import Union
 from pathlib import Path
+from dateparser import DateDataParser
 
 # For [[push]] parsing, perhaps move elsewhere?
 import lxml.html
@@ -49,8 +50,10 @@ FUZZ_FACTOR = 95
 CACHE_TTL = random.randint(120, 240)
 dbpath = os.getenv('AGORA_DB_PATH')
 
+
 def regexp(pattern, string):
     return re.search(pattern, string) is not None
+
 
 class Graph:
     def __init__(self):
@@ -92,20 +95,27 @@ class Graph:
             user = User(result[1])
             users.append(user)
         return users
-    
+
     def journals(self):
         current_app.logger.info(util.get_combined_date_regex())
-        results = self.cursor.execute(f"SELECT * FROM files WHERE node_name REGEXP '{util.get_combined_date_regex()}' order by node_name desc").fetchmany(30)
+        results = self.cursor.execute(
+            f"SELECT * FROM files WHERE node_name REGEXP '{util.get_combined_date_regex()}' order by node_name desc").fetchmany(100)
         nodes = []
         for result in results:
             node = Node(result[1])
             nodes.append(node)
+        nodes.sort(key=lambda x: x.canonical_date(), reverse=True)
+        seen = set()
+        nodes = [obj for obj in nodes if obj.wikilink not in seen and not seen.add(obj.wikilink)]
         return nodes
-    
-    def random_node(self):
-        result = self.cursor.execute(f"select * from files order by random()").fetchone()
-        return result[1]
 
+    def random_node(self):
+        result = self.cursor.execute(
+            f"select * from files order by random()").fetchone()
+        return result[1]
+    def grab_raw(self, url):
+        file = self.cursor.execute(f"select * from files where path = '{url}'").fetchone()
+        return file[3].decode()
 
 
 class Node:
@@ -121,6 +131,7 @@ class Node:
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         self.wikilink = wikilink
+        self.slug = wikilink.lower().replace(" ","-")
         # hack hack
         # TODO: revamp the whole notion of wikilink; it should default to free form text, with slugs being generated
         # explicitly. will probably require coalescing different takes on what the 'canonical' description for a
@@ -231,6 +242,14 @@ class Node:
         for subnode in self.subnodes:
             links.extend(subnode.push_nodes())
         return sorted(set(links))
+
+    def canonical_date(self):
+        parser = DateDataParser(languages=['en'])
+        date = parser.get_date_data(self.wikilink, date_formats=[
+            '%Y-%m-%d', '%Y_%m_%d', '%Y%m%d']).date_obj
+        if date is None:
+            return ""
+        return date.isoformat().split("T")[0]
 
     def pushing(self, other):
         # returns the blocks that this node pushes to one other as "virtual subnodes"
@@ -409,7 +428,7 @@ class User:
             subnode = Subnode(node=node, content=content, user=user, url=url)
             subnodes.append(subnode)
         return subnodes
-    
+
     def __str__(self):
         return self.user
 
