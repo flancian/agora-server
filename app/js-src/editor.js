@@ -57,6 +57,7 @@ window.saveData = async function () {
 
 let saved
 async function main() {
+	if(accessToken == "") return
 	user = localStorage["gitea-user"] || await getUser()
 
 	const subnode = `

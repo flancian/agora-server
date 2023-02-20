@@ -59,8 +59,8 @@ class ProductionConfig(DefaultConfig):
 
 
 class DevelopmentConfig(DefaultConfig):
-    URL_BASE = "http://dev.anagora.org"
-    URI_BASE = "dev.anagora.org"
+    URL_BASE = f"//{os.getenv('DOMAIN')}"
+    URI_BASE = os.getenv('DOMAIN')
     API_BASE = "http://localhost:3000"
 
     # EXPERIMENTS

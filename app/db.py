@@ -41,6 +41,7 @@ import lxml.html
 import lxml.etree
 import sqlite3
 from dotmap import DotMap
+import json
 
 # This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
 # https://anagora.org/auto-pull
@@ -106,15 +107,18 @@ class Graph:
             nodes.append(node)
         nodes.sort(key=lambda x: x.canonical_date(), reverse=True)
         seen = set()
-        nodes = [obj for obj in nodes if obj.wikilink not in seen and not seen.add(obj.wikilink)]
+        nodes = [obj for obj in nodes if obj.wikilink not in seen and not seen.add(
+            obj.wikilink)]
         return nodes
 
     def random_node(self):
         result = self.cursor.execute(
             f"select * from files order by random()").fetchone()
         return result[1]
+
     def grab_raw(self, url):
-        file = self.cursor.execute(f"select * from files where path = '{url}'").fetchone()
+        file = self.cursor.execute(
+            f"select * from files where path = '{url}'").fetchone()
         return file[3].decode()
 
 
@@ -131,7 +135,7 @@ class Node:
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         self.wikilink = wikilink
-        self.slug = wikilink.lower().replace(" ","-")
+        self.slug = wikilink.lower().replace(" ", "-")
         # hack hack
         # TODO: revamp the whole notion of wikilink; it should default to free form text, with slugs being generated
         # explicitly. will probably require coalescing different takes on what the 'canonical' description for a
@@ -144,7 +148,7 @@ class Node:
         self.url = '/node/' + self.uri
         self.actual_uri = current_app.config['URI_BASE'] + '/' + self.uri
         results = self.cursor.execute(
-            f"select * from files where node_name='{wikilink}'").fetchall()
+            f"select * from files where node_name='{wikilink.lower()}'").fetchall()
         subnodes = []
         for result in results:
             userresult = self.cursor.execute(
@@ -157,6 +161,14 @@ class Node:
             subnodes.append(subnode)
 
         self.subnodes = subnodes
+
+    def back_nodes(self):
+        backlinks = []
+        results = self.cursor.execute(f"select * from files where outlinks like '%{self.wikilink}%'").fetchall()
+        for result in results:
+            backlinks.append(Node(result[1]))
+        return backlinks
+        
 
     def __lt__(self, other):
         return self.wikilink.lower() < other.wikilink.lower()
@@ -195,7 +207,14 @@ class Node:
         return links
 
     def forward_nodes(self):
-        return [G.node(x) for x in self.forward_links()]
+        results = self.cursor.execute(f"select * from files where node_name ='{self.wikilink}'").fetchall()
+        nodes = []
+        for result in results:
+            outlinks = json.loads(result[4])
+            for outlink in outlinks:
+                nodes.append(Node(outlink))
+        return nodes
+        
 
     def pull_nodes(self):
         # set in database
@@ -230,11 +249,7 @@ class Node:
     def pulling_nodes(self):
         # the nodes pulling *this* node.
         # compare with: pull_nodes.
-        nodes = []
-        for n in self.back_nodes():
-            if self.wikilink in [n.wikilink for n in n.pull_nodes()]:
-                nodes.append(n)
-        return nodes
+        return self.back_nodes()
 
     def push_nodes(self):
         # nodes pushed to from this node.
@@ -320,6 +335,9 @@ class Node:
 
     def back_links(self):
         return sorted([x.wikilink for x in self.back_nodes()])
+    
+    def forward_links(self):
+        return sorted([x.wikilink for x in self.forward_nodes()])
 
     def annotations(self):
         annotations = feed.get_by_uri(self.actual_uri)

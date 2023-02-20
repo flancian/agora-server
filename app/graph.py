@@ -110,38 +110,14 @@ def parse_node(node: db.Node) -> dict:
     unique_nodes = set()
 
     this = node.wikilink
-    forward_links = node.forward_links()
     back_links = node.back_links()
-    pushing_nodes = [n.wikilink for n in node.pushing_nodes()]
-    pulling_nodes = [n.wikilink for n in node.pulling_nodes()]
+    forward_links = node.forward_links()
 
-    if pushing_nodes:
-        unique_nodes.add('push')
-        for pushing_node in pushing_nodes:
-            n0 = this
-            n1 = pushing_node
-            d["links"].append({'source': n1, 'target': "push"})
-            d["links"].append({'source': "push", 'target': n0})
-            unique_nodes.add(n0)
-            unique_nodes.add(n1)
-
-    if pulling_nodes:
-        unique_nodes.add('pull')
-        for pulling_node in pulling_nodes:
-            n0 = this
-            n1 = pulling_node
-            d["links"].append({'source': n0, 'target': "pull"})
-            d["links"].append({'source': "pull", 'target': n1})
-            unique_nodes.add(n0)
-            unique_nodes.add(n1)
 
     if back_links:
         unique_nodes.add('back')
         for backlinking_node in back_links:
             if backlinking_node in ['pull', 'push']:
-                continue
-            if backlinking_node in pushing_nodes or backlinking_node in pulling_nodes:
-            
                 continue
             n0 = backlinking_node
             n1 = this
@@ -186,10 +162,6 @@ def parse_node(node: db.Node) -> dict:
             d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 1})
         elif n in forward_links:
             d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 3})
-        elif n in pulling_nodes:
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 4})
-        elif n in pushing_nodes:
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 5})
         else:
             d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 10})
 
