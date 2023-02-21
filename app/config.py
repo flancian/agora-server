@@ -56,8 +56,8 @@ class ProductionConfig(DefaultConfig):
     ENABLE_AUTO_STOA = False
 
 class DevelopmentConfig(DefaultConfig):
-    URL_BASE = "http://dev.anagora.org"
-    URI_BASE = "dev.anagora.org"
+    URL_BASE = "https://agor.ai"
+    URI_BASE = "agor.ai"
     API_BASE = "http://localhost:3000"
 
     # EXPERIMENTS
