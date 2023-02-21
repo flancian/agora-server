@@ -344,76 +344,10 @@ def ctzn_login():
 @bp.route('/go/<node0>/')
 @bp.route('/go/<node0>')
 def go(node0, node1=''):
-    """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
-    # TODO(flancian): all node-scoped stuff should move to actually use node objects.
-    # perhaps we need merge_node(n0, n1) in db.py?
-    # TODO(flancian): make [[go]] call this?
-    # current_app.logger.debug = print
-    current_app.logger.debug(f'running composite_go for {node0}, {node1}.')
-    base = current_app.config['URL_BASE']
-
-    if not node1:
-        # this may be surprising, but I find that using [[foo]] in node [[foo]] near a link is sometimes a useful pattern.
-        # this also lets us do stuff like [[foo]] <URL> in pushes and stream updates and define go links like this (if there aren't any better.)
-        node1 = node0
-    n0 = build_node(node0)
-    n1 = build_node(node1)
-
-    links = n0.go() + n1.go()
-    # we go through n0 looking for n1 as a tag.
-    for subnode in n0.subnodes:
-        if node0 == node1:
-            links.extend(subnode.filter(node1))
-        else:
-            # this needs to be higher priority, e.g. go/move/7 > go/move
-            links = subnode.filter(node1) + links
-
-    current_app.logger.debug(
-        f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
-
-    # ...and through n1 looking for n0 as a tag.
-    for subnode in n1.subnodes:
-        if node0 == node1:
-            links.extend(subnode.filter(node0))
-        else:
-            # this needs to be higher priority, e.g. go/7/move > go/move
-            links = subnode.filter(node0) + links
-
-    current_app.logger.debug(
-        f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
-
-    # look further if needed.
-    if len(links) == 0:
-        # No matching links found so far.
-        # Try using also pushed_subnodes(), which are relative expensive (slow) to compute.
-        # Note that this actually is needed for 'simple go' as well, points again in the direction of refactoring/joining?
-
-        for subnode in n0.pushed_subnodes():
-            links.extend(subnode.go())
-        current_app.logger.debug(
-            f'n0 [[{n0}]]: filtered to {node1} yields {links}.')
-
-        for subnode in n1.pushed_subnodes():
-            links.extend(subnode.go())
-        current_app.logger.debug(
-            f'n1 [[{n1}]]: filtered to {node0} finalizes to {links}.')
-
-    for link in links:
-        if util.is_valid_url(link):
-            current_app.logger.info(
-                f'Detected go link was a valid URL: {link}.')
-            return redirect(link)
-        else:
-            current_app.logger.info(
-                f'Detected go link was not a valid URL: {link}.')
-
-    # No matching viable links found after all tries.
-    # TODO(flancian): flash an explanation :)
-    if node0 != node1:
-        return redirect(f'{base}/{node0}/{node1}')
-    else:
-        return redirect(f'{base}/{node0}')
-
+    node = db.Node(node0)
+    url = node.go()
+    if url != "":
+        return redirect(url)
 
 @bp.route('/push/<node>/<other>')
 def push2(node, other):

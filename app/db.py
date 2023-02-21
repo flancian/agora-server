@@ -147,8 +147,9 @@ class Node:
         self.uri = wikilink
         self.url = '/node/' + self.uri
         self.actual_uri = current_app.config['URI_BASE'] + '/' + self.uri
+        current_app.logger.debug(f"select * from files where node_name='{wikilink.lower()}'")
         results = self.cursor.execute(
-            f"select * from files where node_name='{wikilink.lower()}'").fetchall()
+            f"select * from files where node_name=?",[wikilink.lower()]).fetchall()
         subnodes = []
         for result in results:
             userresult = self.cursor.execute(
@@ -189,13 +190,11 @@ class Node:
         return len(self.subnodes)
 
     def go(self):
-        # There's surely a much better way to do this. Alas :)
-        links = []
-        # worried about pushed_subnodes() speed -- perhaps measure?
-        # for subnode in self.subnodes + self.pushed_subnodes():
-        for subnode in self.subnodes:
-            links.extend(subnode.go())
-        return links
+        result = self.cursor.execute(f"select * from files where node_name = ? and golink != ''", [self.wikilink]).fetchone()
+        if result:
+            return result[6]
+        return ""
+
 
     def filter(self, other):
         # There's surely a much better way to do this. Alas :)
