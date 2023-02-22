@@ -61,7 +61,7 @@ class Graph:
         # Revisit.
         dbconnection = sqlite3.connect(dbpath, check_same_thread=False)
         dbconnection.create_function("REGEXP", 2, regexp)
-
+        dbconnection.row_factory = sqlite3.Row
         self.cursor = dbconnection.cursor()
 
     def edge(self, n0, n1):
@@ -114,12 +114,25 @@ class Graph:
     def random_node(self):
         result = self.cursor.execute(
             f"select * from files order by random()").fetchone()
-        return result[1]
+        return result['node_name']
 
     def grab_raw(self, url):
         file = self.cursor.execute(
             f"select * from files where path = '{url}'").fetchone()
-        return file[3].decode()
+        return file['content'].decode()
+    
+    def fullsearch(self, term):
+        results = self.cursor.execute(f"select * from files where node_name like '%{term}%'").fetchall()
+        subnodes = []
+        for result in results:
+            node = Node(result['node_name'])
+            s = node.subnodes()
+            subnodes = subnodes + s
+        return subnodes
+        
+
+
+        
 
 
 class Node:
@@ -130,6 +143,7 @@ class Node:
 
     def __init__(self, wikilink):
         dbconnection = sqlite3.connect(dbpath)
+        dbconnection.row_factory = sqlite3.Row
         self.cursor = dbconnection.cursor()
         # Use a node's URI as its identifier.
         # Subnodes are attached to the node matching their wikilink.
@@ -147,29 +161,31 @@ class Node:
         self.uri = wikilink
         self.url = '/node/' + self.uri
         self.actual_uri = current_app.config['URI_BASE'] + '/' + self.uri
-        current_app.logger.debug(f"select * from files where node_name='{wikilink.lower()}'")
+        current_app.logger.debug(
+            f"select * from files where node_name='{wikilink.lower()}'")
         results = self.cursor.execute(
-            f"select * from files where node_name=?",[wikilink.lower()]).fetchall()
+            f"select * from files where node_name=?", [wikilink.lower()]).fetchall()
         subnodes = []
         for result in results:
             userresult = self.cursor.execute(
-                f"select * from users where id={result[5]}").fetchone()
-            node = result[1]
-            content = result[3]
-            url = result[2]
-            user = userresult[1]
-            subnode = Subnode(node=node, content=content, user=user, url=url)
+                f"select * from users where id={result['user_id']}").fetchone()
+            node = result['node_name']
+            content = result['content']
+            url = result['path']
+            user = userresult['name']
+            rendered = result['rendered']
+            subnode = Subnode(node=node, content=content, rendered=rendered, user=user, url=url)
             subnodes.append(subnode)
 
         self.subnodes = subnodes
 
     def back_nodes(self):
         backlinks = []
-        results = self.cursor.execute(f"select * from files where outlinks like '%{self.wikilink}%'").fetchall()
+        results = self.cursor.execute(
+            f"select * from files where outlinks like '%{self.wikilink}%'").fetchall()
         for result in results:
             backlinks.append(Node(result[1]))
         return backlinks
-        
 
     def __lt__(self, other):
         return self.wikilink.lower() < other.wikilink.lower()
@@ -190,11 +206,11 @@ class Node:
         return len(self.subnodes)
 
     def go(self):
-        result = self.cursor.execute(f"select * from files where node_name = ? and golink != ''", [self.wikilink]).fetchone()
+        result = self.cursor.execute(
+            f"select * from files where node_name = ? and golink != ''", [self.wikilink]).fetchone()
         if result:
             return result[6]
         return ""
-
 
     def filter(self, other):
         # There's surely a much better way to do this. Alas :)
@@ -206,14 +222,14 @@ class Node:
         return links
 
     def forward_nodes(self):
-        results = self.cursor.execute(f"select * from files where node_name ='{self.wikilink}'").fetchall()
+        results = self.cursor.execute(
+            f"select * from files where node_name ='{self.wikilink}'").fetchall()
         nodes = []
         for result in results:
-            outlinks = json.loads(result[4])
+            outlinks = json.loads(result['outlinks'])
             for outlink in outlinks:
                 nodes.append(Node(outlink))
         return nodes
-        
 
     def pull_nodes(self):
         # set in database
@@ -334,7 +350,7 @@ class Node:
 
     def back_links(self):
         return sorted([x.wikilink for x in self.back_nodes()])
-    
+
     def forward_links(self):
         return sorted([x.wikilink for x in self.forward_nodes()])
 
@@ -348,13 +364,15 @@ class Subnode:
     It maps to a particular file in the Agora repository, stored (relative to
     the Agora root) in the attribute 'uri'."""
 
-    def __init__(self, node=None, content=None, user=None, url=None, type="text"):
+    def __init__(self, node=None, content=None, user=None, url=None, rendered=None, type="text"):
         dbconnection = sqlite3.connect(dbpath)
+        dbconnection.row_factory = sqlite3.Row
         self.cursor = dbconnection.cursor()
 
         self.node = node
         self.wikilink = node
         self.content = content.decode()
+        self.rendered = rendered.decode()
         self.user = user
         self.url = url
         self.uri = node.replace(" ", "-")
@@ -382,14 +400,14 @@ class Subnode:
         return 100-fuzz.ratio(self.wikilink, other.wikilink)
 
     def render(self):
-        content = render.preprocess(self.content, subnode=self)
-        content = render.markdown(content)
-        if self.uri.endswith('org') or self.uri.endswith('ORG'):
-            content = render.preprocess(self.content, subnode=self)
-            content = render.orgmode(content)
+        # content = render.preprocess(self.content, subnode=self)
+        # content = render.markdown(content)
+        # if self.uri.endswith('org') or self.uri.endswith('ORG'):
+        #     content = render.preprocess(self.content, subnode=self)
+        #     content = render.orgmode(content)
 
-        ret = render.postprocess(content)
-        return ret
+        # ret = render.postprocess(content)
+        return self.rendered
 
 
 class User:

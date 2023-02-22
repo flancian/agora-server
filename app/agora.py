@@ -428,7 +428,7 @@ def pull(node):
 @bp.route('/fullsearch/<qstr>')
 def fullsearch(qstr):
     current_app.logger.debug(f'full text search for [[{qstr}]].')
-    search_subnodes = db.search_subnodes(qstr)
+    search_subnodes = G.fullsearch(qstr)
 
     return render_template(
         'fullsearch.html',
