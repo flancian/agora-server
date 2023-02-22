@@ -209,7 +209,7 @@ class Node:
         result = self.cursor.execute(
             f"select * from files where node_name = ? and golink != ''", [self.wikilink]).fetchone()
         if result:
-            return result[6]
+            return result['golink']
         return ""
 
     def filter(self, other):

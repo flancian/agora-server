@@ -346,6 +346,7 @@ def ctzn_login():
 def go(node0, node1=''):
     node = db.Node(node0)
     url = node.go()
+    current_app.logger.info(f"Golink is: {url}")
     if url != "":
         return redirect(url)
 

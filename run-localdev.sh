@@ -13,5 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-./run-dev.sh Local
+export AGORA_DB_PATH=/home/$USER/agora-bridge/garden/agora.db
+export DOMAIN=localhost:5017
+
+./run-dev.sh
 
