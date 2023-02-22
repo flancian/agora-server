@@ -119,14 +119,14 @@ class Graph:
     def grab_raw(self, url):
         file = self.cursor.execute(
             f"select * from files where path = '{url}'").fetchone()
-        return file['content'].decode()
+        return file['content']
     
     def fullsearch(self, term):
-        results = self.cursor.execute(f"select * from files where node_name like '%{term}%'").fetchall()
+        results = self.cursor.execute(f"select * from files where content like '%{term}%'").fetchall()
         subnodes = []
         for result in results:
             node = Node(result['node_name'])
-            s = node.subnodes()
+            s = node.subnodes
             subnodes = subnodes + s
         return subnodes
         
@@ -413,6 +413,7 @@ class Subnode:
 class User:
     def __init__(self, user):
         dbconnection = sqlite3.connect(dbpath)
+        dbconnection.row_factory = sqlite3.Row
         self.cursor = dbconnection.cursor()
 
         self.user = user
@@ -437,14 +438,15 @@ class User:
         user = self.cursor.execute(
             f"select * from users where name='{self.name}'").fetchone()
         results = self.cursor.execute(
-            f"select * from files where user_id={user[0]}").fetchall()
+            f"select * from files where user_id={user['id']}").fetchall()
         subnodes = []
         for result in results:
-            node = result[1]
-            content = result[3]
-            url = result[2]
+            node = result['node_name']
+            content = result['content']
+            url = result['path']
             user = self.name
-            subnode = Subnode(node=node, content=content, user=user, url=url)
+            rendered = result['rendered']
+            subnode = Subnode(node=node, content=content, user=user, url=url, rendered=rendered)
             subnodes.append(subnode)
 
         return subnodes
@@ -456,11 +458,12 @@ class User:
             f"select * from files where user_id={user[0]} and node_name='readme'").fetchall()
         subnodes = []
         for result in results:
-            node = result[1]
-            content = result[3]
-            url = result[2]
+            node = result['node_name']
+            content = result['content']
+            url = result['path']
             user = self.name
-            subnode = Subnode(node=node, content=content, user=user, url=url)
+            rendered = result['rendered']
+            subnode = Subnode(node=node, content=content, user=user, url=url, rendered=rendered)
             subnodes.append(subnode)
         return subnodes
 

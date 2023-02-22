@@ -602,7 +602,7 @@ def asset(user, asset):
 @bp.route('/raw/<path:url>')
 def raw(url):
    content = G.grab_raw(url)
-   return Response(content)
+   return Response(content, mimetype='text/plain')
 
 
 @bp.route('/backlinks/<node>')
