@@ -164,15 +164,13 @@ class Node:
         current_app.logger.debug(
             f"select * from files where node_name='{wikilink.lower()}'")
         results = self.cursor.execute(
-            f"select * from files where node_name=?", [wikilink.lower()]).fetchall()
+            f"select * from files join users on files.user_id = users.id where node_name=?", [wikilink.lower()]).fetchall()
         subnodes = []
         for result in results:
-            userresult = self.cursor.execute(
-                f"select * from users where id={result['user_id']}").fetchone()
             node = result['node_name']
             content = result['content']
             url = result['path']
-            user = userresult['name']
+            user = result['name']
             rendered = result['rendered']
             subnode = Subnode(node=node, content=content, rendered=rendered, user=user, url=url)
             subnodes.append(subnode)
@@ -379,7 +377,6 @@ class Subnode:
         self.datetime = datetime.datetime.now()  # put in database
         self.basename = node
         self.type = type
-        current_app.logger.debug(f"{node}, {user}, {url}")
 
     def __hash__(self):
         return hash(self.uri)

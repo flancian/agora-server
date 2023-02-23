@@ -17,6 +17,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans&display=swap');
 
+
 :root {
     --base-fontsize: 0.93rem;
     --header-scale: 1.125;
@@ -25,6 +26,10 @@
     --accent-bg: #2B2B2B;
     --border: #666;
     --main-bg: #000;
+}
+
+pre {
+	white-space: pre-line;
 }
 
 html {
