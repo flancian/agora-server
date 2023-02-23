@@ -44,6 +44,10 @@ body {
     font-size: var(--base-fontsize);
 }
 
+pre {
+    white-space: pre-line;
+}
+
 a {
     color: #9fc6e0;
 }
