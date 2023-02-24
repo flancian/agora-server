@@ -22,10 +22,11 @@ $(".wikilink").hover(async function () {
 });
 
 function showBox(url){
+
   $.get(url, function (data) {
     if (!locked) return
     $("#popup").css({ 'top': mouseY, 'left': mouseX, 'background-color': 'var(--main-bg)' })
-    $("#popup").html(`<div><button onclick='closePopup()'>Close X</button></div>` + data).show()
+    $("#popup").html(`<div><button onclick='closePopup()'>Close X</button></div>` + '<iframe src="' + AGORAURL + url + '" width="700" height="500" frameborder="0"></iframe>').show()
   });
 }
 

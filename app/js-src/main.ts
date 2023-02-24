@@ -37,10 +37,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // If the user's preference in localStorage is dark...
   if (currentTheme == "dark") {
     theme.href = "/static/css/screen-dark.css";
-    toggle.innerHTML = '🌞&nbsp;mode';
+    toggle.innerHTML = '🌞';
   } else if (currentTheme == "light") {
     theme.href = "/static/css/screen-light.css";
-    theme.innerHTML = '🌙&nbsp;mode';
+    theme.innerHTML = '🌙';
   }
 
   // Listen for a click on the button
