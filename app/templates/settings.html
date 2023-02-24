@@ -49,7 +49,7 @@ const form = `
 		Do you want to auto pull Stoas (might be disruptive)? <input id="auto-pull-stoa"  type="checkbox"  />
 	</div>
 	<div>
-		Do you want to auto pull full text search? <input id="auto-pull-search"  type="checkbox"  />
+		Do you want to auto pull full text search? <input id="auto-pull-search"  type="checkbox" checked />
 	</div>
 	<div>
 		Do you want to render wikilinks with brackets? <input id="render-wikilinks"  type="checkbox"  />
@@ -82,13 +82,13 @@ $("#form-body").html(form)
 setValues()
 
 function setValues(){
-	$("#ranking").val(localStorage["ranking"])
-	$("#auto-pull-agora").prop("checked", JSON.parse(localStorage["auto-pull-agora"]))
-	$("#auto-pull-external").prop("checked", JSON.parse(localStorage["auto-pull-external"]))
-	$("#auto-pull-stoa").prop("checked", JSON.parse(localStorage["auto-pull-stoa"]))
-	$("#auto-pull-search").prop("checked", JSON.parse(localStorage["auto-pull-search"]))
-	$("#render-wikilinks").prop("checked", JSON.parse(localStorage["render-wikilinks"]))
-	$("#pull-recursive").prop("checked", JSON.parse(localStorage["pull-recursive"]) || true)
+    $("#ranking").val(localStorage["ranking"])
+    $("#auto-pull-agora").prop("checked", JSON.parse(localStorage["auto-pull-agora"]))
+    $("#auto-pull-external").prop("checked", JSON.parse(localStorage["auto-pull-external"]))
+    $("#auto-pull-stoa").prop("checked", JSON.parse(localStorage["auto-pull-stoa"]))
+    $("#auto-pull-search").prop("checked", JSON.parse(localStorage["auto-pull-search"]) || true)
+    $("#render-wikilinks").prop("checked", JSON.parse(localStorage["render-wikilinks"]))
+    $("#pull-recursive").prop("checked", JSON.parse(localStorage["pull-recursive"]) || true)
 }
 
 function saveGitea(){
