@@ -9,6 +9,7 @@ $(document).mousemove(function (e) {
 
 function closePopup() {
   $("#popup").css("display", "none");
+  locked = false
 }
 
 $(".wikilink").hover(async function () {
@@ -18,7 +19,6 @@ $(".wikilink").hover(async function () {
   setTimeout(() => showBox(url), 1000)
 
 }, async function () {
-  locked = false
 });
 
 function showBox(url){
@@ -26,7 +26,7 @@ function showBox(url){
   $.get(url, function (data) {
     if (!locked) return
     $("#popup").css({ 'top': mouseY, 'left': mouseX, 'background-color': 'var(--main-bg)' })
-    $("#popup").html(`<div><button onclick='closePopup()'>Close X</button></div>` + '<iframe src="' + AGORAURL + url + '" width="700" height="500" frameborder="0"></iframe>').show()
+    $("#popup").html(`<div><button onclick='closePopup()'>Close X</button></div>` + '<iframe src="' + AGORAURL + url + '" width="960" height="500" frameborder="0"></iframe>').show()
   });
 }
 
