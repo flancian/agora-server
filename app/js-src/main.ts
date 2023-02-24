@@ -211,6 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // pull full text search 
   $(".pull-search").click(function (e) {
     if (autoPullSearch) {
+      console.log('pulling full text search');
       if (this.classList.contains('pulled')) {
         $("#pulled-search.pulled-search-embed").html('');
         this.innerText = 'pull';
