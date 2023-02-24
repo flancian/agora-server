@@ -397,7 +397,8 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('autoexec is enabled')
 
     setTimeout(autoPullWpOnEmpty, 2000)
-    setTimeout(autoPullStoaOnEmpty, 5000)
+    // commenting out as focus stealing issues are just too disruptive.
+    // setTimeout(autoPullStoaOnEmpty, 5000)
 
     // auto pull search by default.
     $(".pull-search").each(function (e) {
@@ -526,6 +527,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+// hedgedoc steals focus on being transcluded and that just doesn't work well.
+/*
   function autoPullStoaOnEmpty() {
     console.log('trying to auto pull stoa if empty');
     // if we're doing this, 'uprank' the Stoa by pushing it above of the actual empty node (below Wikipedia, setting up a lightweight note taking activity.)
@@ -581,6 +584,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setTimeout(autoPullStoa2, 2000);
     }
   }
+*/
 
   function autoPullWp() {
     $(".pull-exec.wp").each(function (e) {
