@@ -23,7 +23,7 @@ from . import util
 from json import dumps
 from rdflib import Graph, Namespace, URIRef
 
-import graph_tool
+import igraph as ig
 
 
 def add_node(node: db.Node, g: Graph, only_forward=False):
@@ -267,7 +267,7 @@ def render_nodes(nodes) -> str:
     agora = Namespace(f"{base}/")
     rdfg.namespace_manager.bind('agora', agora)
     # This is the graph_tool graph - https://graph-tool.skewed.de/static/doc/quickstart.html
-    g = graph_tool.Graph()
+    g = ig.Graph()
 
     print(f"Rendering Agora Graph.")
     node_count = len(nodes)
