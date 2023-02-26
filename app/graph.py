@@ -23,6 +23,8 @@ from . import util
 from json import dumps
 from rdflib import Graph, Namespace, URIRef
 
+import graph_tool
+
 
 def add_node(node: db.Node, g: Graph, only_forward=False):
 
@@ -250,4 +252,55 @@ def json_nodes(nodes):
             # d["nodes"].append({'id': n1, 'name': n1, 'val': 1})
         
     return dumps(d)
-  
+
+def render_nodes(nodes) -> str:
+    """
+    Return an image file with a graph representation of this Agora.
+
+    Presumably returns a PNG.
+
+    Doesn't work currently, I was trying to use graph-tool but it ended up being tricky to install and I'd like to keep this simple currently (poetry install something.)
+    """
+    # This is actually the RDF graph.
+    rdfg = Graph()
+    base = current_app.config['URL_BASE']
+    agora = Namespace(f"{base}/")
+    rdfg.namespace_manager.bind('agora', agora)
+    # This is the graph_tool graph - https://graph-tool.skewed.de/static/doc/quickstart.html
+    g = graph_tool.Graph()
+
+    print(f"Rendering Agora Graph.")
+    node_count = len(nodes)
+    print(f"Node count: {node_count}")
+
+    unique_nodes = set()
+    for node in nodes:
+        unique_nodes.add(node)
+        add_node(node, rdfg, only_forward=True)
+
+
+
+    d = {}
+    nodes_to_render = []
+    d["nodes"] = []
+    d["links"] = []
+
+    # for n0, _, n1 in g.triples((None, None, None)):
+    #    # this step needed because dicts don't fit in sets in python because they're not hashable.
+    #    unique_nodes.add(n0)
+    #    unique_nodes.add(n1)
+
+    for node in unique_nodes:
+        # hack hack
+        size = node.size()
+        # Use size here?
+        g.add_vertex(node)
+        # nodes_to_render.append(f"{base}/{node.uri}")
+        d["nodes"].append({'id': f"{base}/{node.uri}", 'name': node.description, 'val': size})
+
+    for n0, link, n1 in g.triples((None, None, None)):
+        # if str(n0) in nodes_to_render and str(n1) in nodes_to_render:
+        g.add_edge(n0, n1)
+        
+    graph_tool.graph_draw(g, vertex_text=g.vertex_index, output="testing.pdf")
+    return "Rendered."

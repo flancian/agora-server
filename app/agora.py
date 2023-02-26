@@ -196,6 +196,12 @@ def graph_js_node(node):
     n = G.node(node)
     return Response(graph.json_node(n), mimetype='application/json')
 
+@bp.route('/graph/png/all')
+@bp.route('/graph/png')
+def png_all():
+
+    nodes = G.nodes().values()
+    return Response(graph.render_nodes(nodes), mimetype='image/png')
 
 @bp.route('/node/<node>@<user>')
 @bp.route('/node/@<user>/<node>')
