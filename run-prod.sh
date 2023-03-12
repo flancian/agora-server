@@ -18,8 +18,8 @@
 # . venv/bin/activate
 # parcel watch app/js-src/index.ts --dist-dir app/static/js &
 #
-# This shouldn't be needed but systemd somehow wasn't reading this from ~/.profile
-source $HOME/.poetry/env
+# This shouldn't be needed but it is when running as a systemd service for some reason.
+export PATH=$HOME/.local/bin:${PATH}
 
 npm run build
 export FLASK_ENV="production"
