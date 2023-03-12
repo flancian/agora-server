@@ -70,8 +70,12 @@ webencodings = "0.5.1"
 Werkzeug = "1.0.1"
 WTForms = "2.3.3"
 zipp = "3.4.0"
+orgora = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
+
+[tool.poetry.group.dev.dependencies]
+autopep8 = "^2.0.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
