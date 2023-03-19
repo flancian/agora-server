@@ -5,7 +5,7 @@ description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.9"
 black = "22.3.0"
 bleach = "3.2.1"
 cachelib = "0.2.0"
