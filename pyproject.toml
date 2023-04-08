@@ -5,7 +5,7 @@ description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.9"
 black = "22.3.0"
 bleach = "3.2.1"
 cachelib = "0.2.0"
@@ -70,7 +70,7 @@ webencodings = "0.5.1"
 Werkzeug = "1.0.1"
 WTForms = "2.3.3"
 zipp = "3.4.0"
-orgora = "^0.1.0"
+orgora = "^0.1.1"
 
 [tool.poetry.dev-dependencies]
 
