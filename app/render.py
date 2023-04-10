@@ -207,8 +207,12 @@ def add_url_pull(content, subnode):
     # [^\s/]* at the beginning makes it so that these strings are only matched in the domain part of the URL
     # (so e.g. twitter.com/flancian doesn't match).  makes sense as iframe policies are usually per-domain.
     # if you don't understand this *or* think you could do it better at no great cost please reach out to [[flancian]] :)
-    URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|anagora|doc|pad|flancia)\S+[^\s.,:;])'
-    URL_EMBED = '\\1 <button class="pull-url" value="\\1">pull</button>'
+    # URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|anagora|doc|pad|flancia)\S+[^\s.,:;])'
+    URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|agora|stoa|doc|pad|social|flancia)\S+[^\s.,:;])'
+    # URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|anagora|doc|pad|flancia)\S+[^\s.,:;])'
+
+    #URL_REGEX= r'http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*'
+    URL_EMBED = '\\1 <button class="pull-url auto-pull-button" value="\\1">pull</button>'
 
     ret = re.sub(URL_REGEX, URL_EMBED, content)
     # hack hack -- "fixes" pulling for markdown style links, e.g. [text](anchor).

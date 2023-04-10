@@ -13,6 +13,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
+
+<!-- I don't understand a lot of this, this probably could use revamping. -->
+
 {% extends "base.html" %}
 {% block content %}
 <div>
@@ -20,33 +23,32 @@
 	<h1> {{header}} </h1>
 	{% endif %}
 
-
 	<div id="form-body"></div>
 
 
 </div>
 
-
-
-
 <script>
 console.log("form js")
-const ranking = ""
+
+// text inputs go here, checkboxes are tracked differently (see setValues()).
+var ranking = ""
+
 const form = `
 
 <div>
 	<div>
-		Enter comma separated list of users to uprank
+		Uprank users (comma separated):
 		<input id="ranking" type="text" placeholder="e.g. flancian, vera" value="${ranking}" />
 	</div>
 	<div>
-		Do you want to auto pull Agora resources? <input id="auto-pull-agora" type="checkbox"  />
+        Automatically pull (embed) resources? <input id="auto-pull" type="checkbox"  />
 	</div>
 	<div>
-		Do you want to auto pull external resources? <input id="auto-pull-external"  type="checkbox"   />
+		Automatically pull more resources (optimistic)? <input id="auto-pull-extra"  type="checkbox"   />
 	</div>
 	<div>
-		Do you want to auto pull Stoas (might be disruptive)? <input id="auto-pull-stoa"  type="checkbox"  />
+		Automatically pull stoas (can steal focus)? <input id="auto-pull-stoa"  type="checkbox" />
 	</div>
 	<div>
 		Do you want to auto pull full text search? <input id="auto-pull-search"  type="checkbox" checked />
@@ -67,15 +69,14 @@ const form = `
 	Thank you!</div>
 	</div>
 
-<div>
-	<h1>Gitea Integration Settings</h1>
-	<div>This feature currently only works with repositories in <a href="https://git.anagora.org">git.anagora.org</a> and is <em>experimental</em>, which means it's probably broken -- but being worked on :) </div>
-	<div>First create a repository in the instance if you don't have one, then <a href='https://git.anagora.org/user/settings/applications'>create an access token here</a>.</div>
-	<div>personal token: <input type="text" id="gitea-token" size=60 value="${localStorage["gitea-token"]}" /></div>
-	<div>repo name: <input type="text" id="gitea-repo" value="${localStorage["gitea-repo"]}" /></div>
-	<button onClick=saveGitea()>Save</button>
-</div>
-
+    <div style="display: none;">
+        <h1>Gitea Integration Settings</h1>
+        <div>This feature currently only works with repositories in <a href="https://git.anagora.org">git.anagora.org</a> and is <em>experimental</em>, which means it's probably broken -- but being worked on :) </div>
+        <div>First create a repository in the instance if you don't have one, then <a href='https://git.anagora.org/user/settings/applications'>create an access token here</a>.</div>
+        <div>personal token: <input type="text" id="gitea-token" size=60 value="${localStorage["gitea-token"]}" /></div>
+        <div>repo name: <input type="text" id="gitea-repo" value="${localStorage["gitea-repo"]}" /></div>
+        <button onClick=saveGitea()>Save</button>
+    </div>
 `
 $("#form-body").html(form)
 
@@ -83,10 +84,10 @@ setValues()
 
 function setValues(){
     $("#ranking").val(localStorage["ranking"])
-    $("#auto-pull-agora").prop("checked", JSON.parse(localStorage["auto-pull-agora"]))
-    $("#auto-pull-external").prop("checked", JSON.parse(localStorage["auto-pull-external"]))
-    $("#auto-pull-stoa").prop("checked", JSON.parse(localStorage["auto-pull-stoa"]))
+    $("#auto-pull").prop("checked", JSON.parse(localStorage["auto-pull"]))
+    $("#auto-pull-extra").prop("checked", JSON.parse(localStorage["auto-pull-extra"]))
     $("#auto-pull-search").prop("checked", JSON.parse(localStorage["auto-pull-search"]) || true)
+    $("#auto-pull-stoa").prop("checked", JSON.parse(localStorage["auto-pull-stoa"]))
     $("#render-wikilinks").prop("checked", JSON.parse(localStorage["render-wikilinks"]))
     $("#pull-recursive").prop("checked", JSON.parse(localStorage["pull-recursive"]) || true)
 }
@@ -98,8 +99,8 @@ function saveGitea(){
 
 function saveSettings(){
 		localStorage["ranking"] = document.getElementById("ranking").value
-		localStorage["auto-pull-agora"] = document.getElementById("auto-pull-agora").checked
-		localStorage["auto-pull-external"] = document.getElementById("auto-pull-external").checked
+		localStorage["auto-pull"] = document.getElementById("auto-pull").checked
+		localStorage["auto-pull-extra"] = document.getElementById("auto-pull-extra").checked
 		localStorage["auto-pull-stoa"] = document.getElementById("auto-pull-stoa").checked
 		localStorage["auto-pull-search"] = document.getElementById("auto-pull-search").checked
 		localStorage["render-wikilinks"] = document.getElementById("render-wikilinks").checked

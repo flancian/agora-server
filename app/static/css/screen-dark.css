@@ -40,7 +40,7 @@ body {
     background: var(--main-bg);
     color: #bfbfbf;
     overflow-x: hidden;
-    max-width: 60em;
+    max-width: 77em;
     font-size: var(--base-fontsize);
 }
 
@@ -200,10 +200,18 @@ h6 {
 }
 
 .navigation-links {
+    display: block;
     vertical-align: middle;
+    align-items: center;
+    margin: 0 auto;
+    text-align: justify;
+    /* text-align: center; */
     /* why doesn't this work? */
     overflow-x: scroll;
     white-space: nowrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
 
     /* hide scrollbar if one is needed, but allow scrolling */
     -ms-overflow-style: none;  /* Internet Explorer 10+ */

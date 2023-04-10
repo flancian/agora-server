@@ -21,12 +21,14 @@ import { SingleEntryPlugin } from "webpack";
 
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
-const autoPullLocal = JSON.parse(localStorage["auto-pull-local"] || 'false')
-const autoPullExternal = JSON.parse(localStorage["auto-pull-external"] || 'false')
+const autoPull = JSON.parse(localStorage["auto-pull"] || 'true')
+const autoPullExtra = JSON.parse(localStorage["auto-pull-extra"] || 'false')
+// This would make sense but Hedgedoc currently steals focus on embed and I've been unable to fix it so far :).
 const autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || 'false')
 const autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || 'true')
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
+const showBrackets = JSON.parse(localStorage["showBrackets"] || 'false')
 
 document.addEventListener("DOMContentLoaded", function () {
   // Select button
@@ -34,13 +36,14 @@ document.addEventListener("DOMContentLoaded", function () {
   var toggle = document.querySelector("#theme-toggle");
   const currentTheme = localStorage.getItem("theme");
   console.log("DomContentLoaded");
+  console.log("Settings are: " + autoPull + " " + autoPullExtra);
   // If the user's preference in localStorage is dark...
   if (currentTheme == "dark") {
     theme.href = "/static/css/screen-dark.css";
-    toggle.innerHTML = '🌞';
+    toggle.innerHTML = '🌞 theme';
   } else if (currentTheme == "light") {
     theme.href = "/static/css/screen-light.css";
-    theme.innerHTML = '🌙';
+    theme.innerHTML = '🌙 theme';
   }
 
   // Listen for a click on the button
@@ -53,11 +56,11 @@ document.addEventListener("DOMContentLoaded", function () {
       theme.href = "/static/css/screen-dark.css";
       // this doesn't work and I don't know why, but it also doesn't seem like a priority :)
       localStorage.setItem("theme", "dark");
-      toggle.innerHTML = '🌞';
+      toggle.innerHTML = '🌞 theme';
     } else {
       theme.href = "/static/css/screen-light.css";
       localStorage.setItem("theme", "light");
-      toggle.innerHTML = '🌙';
+      toggle.innerHTML = '🌙 theme';
     }
   });
 
@@ -102,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulling';
       let url = this.value;
       console.log('pull url : ' + url)
-      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%; border: 0" width="800px" height="600px"></iframe>')
+      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%; border: 0" width="960px" height="800px"></iframe>')
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -153,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       let node = this.value;
-      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="500" frameborder="0"></iframe>');
+      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="800px" frameborder="0"></iframe>');
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -172,15 +175,33 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       let node = this.value;
-      $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="100%" height="500" frameborder="0"></iframe>');
+      $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="100%" height="800px" frameborder="0"></iframe>');
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
   });
 
+  // pull jitsi [[stoa]] (ha!)
+  $("#pull-jitsi").click(function (e) {
+    console.log('clicked jitsi button')
+    if (this.classList.contains('pulled')) {
+      // already pulled.
+      this.innerText = 'pull';
+      $(e.currentTarget).nextAll('iframe').remove()
+      $("#meet-iframe").html('');
+      this.classList.remove('pulled');
+    }
+    else {
+      this.innerText = 'pulling';
+      let value = this.value;
+      $("#meet-iframe").html('<iframe id="meet-iframe" allow="camera; microphone; fullscreen; display-capture; autoplay" name="embed_readwrite" src="' + value + '" width="100%" + height="800px" frameborder="0"></iframe>');
+      this.innerText = 'fold';
+      this.classList.add('pulled');
+    }
+  });
 
-
-  // pull a node from the [[agora]]
+  // pull nodes from the [[agora]]
+  // pull-node are high-ranking (above the 'fold' of context), .pull-related-node are looser links below.
   $(".pull-node").click(function (e) {
     let node = this.value;
 
@@ -196,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('pulling node');
       // now with two methods! you can choose the simpler/faster one (just pulls static content) or the nerdy one (recursive) in settings.
       if (pullRecursive) {
-        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%; border: 0" width="960px" height="800px" allowfullscreen="allowfullscreen"></iframe>');
+        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%; border: 0" width="100%" height="800px" allowfullscreen="allowfullscreen"></iframe>');
       }
       else {
         $.get(AGORAURL + '/pull/' + node, function (data) {
@@ -229,7 +250,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  const showBrackets = JSON.parse(localStorage["showBrackets"] || 'false')
   if (showBrackets) {
     elements = document.getElementsByClassName("wikilink-marker");
     console.log("should show brackets");
@@ -354,6 +374,12 @@ document.addEventListener("DOMContentLoaded", function () {
           this.click();
         }
       });
+      $(".pull-url").each(function(e) {
+        if (this.classList.contains('pulled')) {
+            console.log('auto pulling url');
+            this.click();
+        }
+      });
     });
 
 
@@ -392,6 +418,11 @@ document.addEventListener("DOMContentLoaded", function () {
           this.click();
         }
       });
+      $(".pull-url").each(function(e) {
+        console.log('auto pulling url');
+        this.click();
+      });
+
   });
 
   if (autoExec) {
@@ -407,14 +438,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.click();
     });
 
-    // auto pull everything with class auto-pull by default.
-    // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
-    $(".auto-pull-button").each(function (e) {
-      console.log('auto pulling node, trying to press button' + this)
-      this.click()
-    });
-
-    $(".pushed-subnodes-embed").each(function (e) {
+   $(".pushed-subnodes-embed").each(function (e) {
       // auto pull pushed subnodes by default.
       // it would be better to infer this from node div id?
       let node = NODENAME
@@ -471,7 +495,7 @@ document.addEventListener("DOMContentLoaded", function () {
           this.innerText = 'pulling';
           let url = this.value;
           console.log('pull exec: ' + url)
-          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="960px" height="800px" allowfullscreen="allowfullscreen"></iframe>')
+          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="100%" height="800px" allowfullscreen="allowfullscreen"></iframe>')
           this.innerText = 'fold';
           this.classList.add('pulled');
           $(".node-hint").hide();
@@ -488,15 +512,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
   }
  
-  if (autoPullLocal) {
-    console.log('auto pulling local resources!');
-    $(".pull-node").each(function (e) {
-      console.log('auto pulling node');
-      this.click();
+  if (autoPull) {
+    console.log('auto pulling recommended (local, friendly-looking domains) resources!');
+     // auto pull everything with class auto-pull by default.
+    // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
+    $(".auto-pull-button").each(function (e) {
+      console.log('auto pulling node, trying to press button' + this)
+      this.click()
     });
+ 
   }
-
-  if (autoPullExternal) {
+  if (autoPullExtra) {
     console.log('auto pulling external resources!');
     $(".pull-mastodon-status").each(function (e) {
       console.log('auto pulling activity');
@@ -506,14 +532,18 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('auto pulling tweet');
       this.click();
     });
-
-    /*
-     * this might be too disruptive?
+    $(".pull-related-node").each(function (e) {
+      console.log('auto pulling related node');
+      this.click();
+    });
     $(".pull-url").each(function(e) {
         console.log('auto pulling url');
         this.click();
     });
-    */
+   $(".pull-node").each(function (e) {
+      console.log('auto pulling node');
+      this.click();
+    });
   }
 
   function autoPullWpOnEmpty() {
