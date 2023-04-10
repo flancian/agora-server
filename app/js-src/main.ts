@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulling';
       let url = this.value;
       console.log('pull url : ' + url)
-      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%; border: 0" width="960px" height="800px"></iframe>')
+      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%;" width="960px" height="800px"></iframe>')
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       let node = this.value;
-      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="800px" frameborder="0"></iframe>');
+      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="99%" height="800px"></iframe>');
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       let node = this.value;
-      $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="100%" height="800px" frameborder="0"></iframe>');
+      $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="99%" height="800px"></iframe>');
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       let value = this.value;
-      $("#meet-iframe").html('<iframe id="meet-iframe" allow="camera; microphone; fullscreen; display-capture; autoplay" name="embed_readwrite" src="' + value + '" width="100%" + height="800px" frameborder="0"></iframe>');
+      $("#meet-iframe").html('<iframe id="meet-iframe" allow="camera; microphone; fullscreen; display-capture; autoplay" name="embed_readwrite" src="' + value + '" width="99%" + height="800px"></iframe>');
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -217,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('pulling node');
       // now with two methods! you can choose the simpler/faster one (just pulls static content) or the nerdy one (recursive) in settings.
       if (pullRecursive) {
-        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%; border: 0" width="100%" height="800px" allowfullscreen="allowfullscreen"></iframe>');
+        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%;" width="99%" height="800px" allowfullscreen="allowfullscreen"></iframe>');
       }
       else {
         $.get(AGORAURL + '/pull/' + node, function (data) {
@@ -329,7 +329,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // pull a pleroma status (toot) using the laziest way I found, might be a better one
   $(".pull-pleroma-status").click(function (e) {
     let toot = this.value;
-    $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"></script>')
+    $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%;" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"></script>')
     this.innerText = 'pulled';
   });
 
@@ -495,7 +495,7 @@ document.addEventListener("DOMContentLoaded", function () {
           this.innerText = 'pulling';
           let url = this.value;
           console.log('pull exec: ' + url)
-          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%; border: 0" width="100%" height="800px" allowfullscreen="allowfullscreen"></iframe>')
+          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%;" width="99%" height="800px" allowfullscreen="allowfullscreen"></iframe>')
           this.innerText = 'fold';
           this.classList.add('pulled');
           $(".node-hint").hide();
@@ -587,7 +587,7 @@ document.addEventListener("DOMContentLoaded", function () {
         else {
           this.innerText = 'pulling';
           let node = this.value;
-          $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="500" frameborder="0"></iframe>');
+          $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="500"></iframe>');
           this.innerText = 'fold';
           this.classList.add('pulled');
         }
@@ -605,7 +605,7 @@ document.addEventListener("DOMContentLoaded", function () {
         else {
         this.innerText = 'pulling';
         let node = this.value;
-        $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="100%" height="500" frameborder="0"></iframe>');
+        $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="100%" height="500"></iframe>');
         this.innerText = 'fold';
         this.classList.add('pulled');
         }

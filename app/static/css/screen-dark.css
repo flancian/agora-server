@@ -66,6 +66,14 @@ li img {
     vertical-align: top;
 }
 
+iframe {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border-color: gray;
+    border-style: dashed;
+    border-width: 2px;
+}
+
 .page {
     margin: 2em auto;
     width: 35em;
@@ -396,7 +404,7 @@ input[type="text"] {
     padding-bottom: 2px;
 }
 
-.subnode-header, .node-header {
+.subnode-header {
     border-bottom: 1px solid #ccc;
 }
 
