@@ -203,7 +203,7 @@ h6 {
     display: block;
     vertical-align: middle;
     align-items: center;
-    margin: 0 auto;
+    /*margin: 0 auto;*/
     text-align: justify;
     /* text-align: center; */
     /* why doesn't this work? */

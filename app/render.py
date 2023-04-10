@@ -208,7 +208,7 @@ def add_url_pull(content, subnode):
     # (so e.g. twitter.com/flancian doesn't match).  makes sense as iframe policies are usually per-domain.
     # if you don't understand this *or* think you could do it better at no great cost please reach out to [[flancian]] :)
     # URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|anagora|doc|pad|flancia)\S+[^\s.,:;])'
-    URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|agora|stoa|doc|pad|social|flancia)\S+[^\s.,:;])'
+    URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|agora|stoa|doc|pad|flancia)\S+[^\s.,:;])'
     # URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|anagora|doc|pad|flancia)\S+[^\s.,:;])'
 
     #URL_REGEX= r'http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*'
