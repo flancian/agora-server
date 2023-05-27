@@ -21,8 +21,7 @@
 {% if not embed %}
 {% for n in pull_nodes %}
 <div class="pulled-node auto-pull">
-
-    <div class="node-header"><span>🌉 bridge to <a href="/{{n.uri}}">[[{{n.description}}]]</a> built by an Agora user
+    <div class="node-header"><span>📚 Node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled above 
     <button class="pull-node auto-pull-button" value="{{n.uri}}">pull</button></span></div>
     <div class="pulled-node-embed" id="{{n.uri}}"></div>
 
@@ -33,7 +32,7 @@
 {% for n in auto_pull_nodes %}
 <div class="pulled-node">
     <!-- <span class="node-header">⭕ wormhole to <a href="/{{n.uri}}">[[{{n.description}}]]</a> offered by the Agora</span> -->
-    <div class="node-header"><span>🌉 bridge to <a href="/{{n.uri}}">[[{{n.description}}]]</a> offered by the Agora</span></div>
+    <div class="node-header"><span>📚 Node <a href="/{{n.uri}}">[[{{n.description}}]]</a> pulled by the Agora</span></div>
 
     {% if n.subnodes %}
     {% for subnode in n.subnodes %}

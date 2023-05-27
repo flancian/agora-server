@@ -19,10 +19,13 @@
 
 <div class="listing node">
     <h1>Web annotations</h1>
+    <p>
+    <strong>These are powered by <a href="https://hypothes.is">hypothes.is</a> and open web standards. Expand the sidebar (look for it on the top right), sign up/log in, and start annotating the Agora!</strong>
+    </p>
 
     {% if annotations.entries %}
         {% for annotation in annotations.entries %}
-        hypothes.is user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
+        → hypothes.is user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
         annotated <a href="{{annotation.link}}">{{annotation.title}}</a>
         on {{annotation.published[:10]}}<br />
         <blockquote>

@@ -18,7 +18,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans&display=swap');
 
 :root {
-    --base-fontsize: 1rem;
+    --base-fontsize: 0.93rem;
     --header-scale: 1.125;
     --line-height: 1.618;
 
@@ -40,8 +40,12 @@ body {
     background: var(--main-bg);
     color: #bfbfbf;
     overflow-x: hidden;
-    max-width: 60em;
+    max-width: 77em;
     font-size: var(--base-fontsize);
+}
+
+pre {
+    white-space: pre-line;
 }
 
 a {
@@ -60,6 +64,14 @@ img {
 
 li img {
     vertical-align: top;
+}
+
+iframe {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border-color: gray;
+    border-style: dashed;
+    border-width: 2px;
 }
 
 .page {
@@ -112,6 +124,14 @@ li img {
 
 .content {
     line-height: var(--line-height);
+}
+
+#popup {
+    display: none;
+    position: absolute;
+    max-width: 60%;
+    max-height: 50%;
+    overflow: scroll;
 }
 
 /* Format headers */
@@ -175,7 +195,6 @@ h6 {
 
 .navigation {
     vertical-align: middle;
-    overflow-y: auto;
     /* border-color: gray;
     border-style: dotted;
     margin: 10px; 
@@ -184,9 +203,27 @@ h6 {
     */
 }
 
+.navigation-links::-webkit-scrollbar {
+    display: none;
+}
+
 .navigation-links {
+    display: block;
     vertical-align: middle;
-    overflow-y: auto;
+    align-items: center;
+    /*margin: 0 auto;*/
+    text-align: justify;
+    /* text-align: center; */
+    /* why doesn't this work? */
+    overflow-x: scroll;
+    white-space: nowrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+
+    /* hide scrollbar if one is needed, but allow scrolling */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
 }
 
 .topline-node {
@@ -360,15 +397,25 @@ input[type="text"] {
 /*.subnode li     { margin: 0.8em 1.2em; }*/
 /*.subnode li h2  { margin-left: -1em; }*/
 
-.subnode-header, .subnode-footer, .links-header, .search-header, .subnode-id {
+.subnode-header, .links-header, .search-header, .subnode-id {
     font-weight: bolder;
     width: 100%;
     display: flex;
     padding-bottom: 2px;
 }
 
-.subnode-header, .node-header {
+.subnode-header {
     border-bottom: 1px solid #ccc;
+}
+
+.subnode-footer, .node-footer {
+    font-size: smaller;
+    font-weight: bolder;
+    width: 100%;
+    display: flex;
+    padding-top: 6px;
+    border-top: 1px solid #ccc;
+    text-align: left;
 }
 
 .subnode-contrib {
@@ -376,6 +423,13 @@ input[type="text"] {
     text-decoration: none;
     max-width: 19%;
     margin-left: auto;
+}
+
+.footer-links, .footer-id {
+    text-align: right;
+    margin-left: auto;
+    text-decoration: none;
+    font-weight: normal;
 }
 
 .node-actions {

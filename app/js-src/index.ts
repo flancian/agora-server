@@ -1,4 +1,5 @@
 require("./main.ts")
 require("./util.js")
 require("./editor.js")
-require("./hover.js")
+// disabled due to weird looping bug which gets worse with the nth hover.
+// require("./hover.js")

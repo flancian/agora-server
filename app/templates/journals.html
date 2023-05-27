@@ -18,16 +18,22 @@
 
 {% block content %}
 
+<div class="listing node">
+
 {% if header %}
 <h1> {{header}} </h1>
-<a href="/journals/7">last week</a> | <a href="/journals/30">last month</a>| <a href="/journals/365">last year</a> | <a href="/journals/all">all entries</a>
+<p>
+<a href="/journals/7">last week</a> | <a href="/journals/30">last month</a> | <a href="/journals/365">last year</a> | <a href="/journals/all">all entries</a>
+</p>
 {% else %}
 <h1> Nodes </h1>
 {% endif %}
 
 {% for node in nodes %}
 <div class="node">
-     <span class="node-header">→ node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
+     <div class="node-header main-header">
+        <span>📅 day <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
+     </div>
      
          {% for subnode in node.subnodes %}
 
@@ -47,5 +53,6 @@
 {% endfor %}
 </div>
 
+</div>
 
 {% endblock %}

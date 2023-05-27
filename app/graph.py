@@ -34,9 +34,10 @@ def add_node(node: db.Node, g: Graph, only_forward=False):
         if '|' in linked_node:
             # early support for https://anagora.org/go/agora-rfc/2
             linked_node = re.sub('|.*', '', linked_node)
+
         # this does away with lots of encoding problems in irregular links, but also encodes unicode characters, so some legibility is lost in the final result unless it is urldecoded.
         linked_node = urllib.parse.quote_plus(linked_node)
-        n0 = node.wikilink
+        n0 = urllib.parse.quote_plus(node.wikilink)
         n1 = linked_node
         g.add((
             URIRef(f"{base}/{n0}"),

@@ -38,6 +38,10 @@ G = db.G
 def before_request():
   g.start = time.time()
 
+  # hack hack -- try dynamic URI_BASE based on what the browser sent our way.
+  # this allows for easily provisioning an Agora in many virtual hosts, e.g. *.agor.ai.
+  current_app.config['URI_BASE'] = request.headers['Host']
+
 @bp.after_request
 def after_request(response):
     exectime = round(time.time() - g.start, 2)
@@ -256,9 +260,11 @@ def subnode_export(node, user):
 
 # Special
 
-
 @bp.route('/')
 def index():
+    # this should use this pattern:
+    # first, render address specific functionality.
+    # then, pull /node/foo if we're in location foo.
     return redirect(url_for('.node', node='index'))
 
 @bp.route('/Δ')
@@ -326,6 +332,7 @@ def ctzn_login():
 @bp.route('/go/<node0>/<node1>')
 @bp.route('/go/<node0>/')
 @bp.route('/go/<node0>')
+@bp.route('/node/go/<node0>')
 def go(node0, node1=''):
     """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
     # TODO(flancian): all node-scoped stuff should move to actually use node objects.
@@ -429,6 +436,13 @@ def context(node):
             'context.html', 
             embed=True,
             node=n,
+            )
+
+@bp.route('/context/all')
+def context_all():
+    # Returns by default a full Agora graph, by default embedded in /nodes.
+    return render_template(
+            'agoragraph.html', 
             )
 
 # good for embedding the whole Agora (this is called by recursive pulls)
@@ -585,7 +599,10 @@ def users_json():
 def user_journal(user):
     # doesn't really work currently.
     n = build_node(user)
-    return render_template('subnodes.html', header="Journals for user", subnodes=db.user_journals(user))
+    subs = db.user_journals(user)
+    nodes = [G.node(subnode.node) for subnode in subs]
+    nodes.reverse()
+    return render_template('journals.html', header="Journals for user", node=n, nodes=nodes)
 
 
 @bp.route('/journal/<user>.json')
@@ -612,7 +629,7 @@ def journals(entries):
             # we only support numbers and all (handled above), other suffixes must be a broken link from /all or /30 or such...
             # long story, this is a hack working around a bug for now.
             return redirect(url_for('.node', node=entries))
-    return render_template('journals.html', node=n, header=f"Journals for the last {entries} days with entries", nodes=db.all_journals()[0:entries])
+    return render_template('journals.html', node=n, header=f"Journal entries in the last {entries} days", nodes=db.all_journals()[0:entries])
 
 
 @bp.route('/journals.json')
