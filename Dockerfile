@@ -63,7 +63,7 @@ RUN poetry lock
 RUN poetry install
 EXPOSE 5017
 
-CMD ./docker-entrypoint.sh
+CMD ./entrypoint.sh
 
 # For debugging only.
 # CMD bash
