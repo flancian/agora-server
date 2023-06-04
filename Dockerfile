@@ -16,15 +16,15 @@
 #
 # $ podman unshare chgrp -R 1001 agora  # I only tested this with podman so far.
 #
-# To then run an Agora Bridge interactively based directly on the upstream container on port 5017:
+# To then run an Agora Server interactively based directly on the upstream container on port 5017:
 #
 # $ docker run -it -p 5017:5017 -v ${PWD}/agora:/home/agora/agora:Z -u agora agora
 #
-# To run the Agora Bridge detached (serving mode): 
+# To run the Agora Server detached (serving mode): 
 #
 # $ docker run -dt -p 5017:5017 -v ${PWD}/agora:/home/agora/agora:Z -u agora agora
 #
-# To run the reference Agora Bridge directly from upstream packages, skipping building:
+# To run the reference Agora Server directly from upstream packages, skipping building:
 #
 # $ docker run -dt -p 5017:5017 -v ${PWD}/agora:/home/agora/agora:Z -u agora git.coopcloud.tech/flancian/agora-server
 #
