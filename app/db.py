@@ -642,8 +642,7 @@ class Subnode:
             return self.content
         # this breaks pull buttons
         # content = bleach.clean(content)
-        # hack: parse [[mycorrhiza]] as Markdown for [[melanocarpa]] while we work on better support.
-        if self.uri.endswith('md') or self.uri.endswith('MD') or self.uri.endswith('myco'):
+        if self.uri.endswith('md') or self.uri.endswith('MD'):
             try:
                 content = render.preprocess(self.content, subnode=self)
                 content = render.markdown(content)
@@ -665,6 +664,10 @@ class Subnode:
         if self.uri.endswith('org') or self.uri.endswith('ORG'):
             content = render.preprocess(self.content, subnode=self)
             content = render.orgmode(content)
+        # note we might parse [[mycorrhiza]] as Markdown if the [[mycomarkup]] binary is not found.
+        if self.uri.endswith('myco') or self.uri.endswith('MYCO'):
+            content = render.preprocess(self.content, subnode=self)
+            content = render.mycomarkup(content)
         ret = render.postprocess(content)
         return ret
 
