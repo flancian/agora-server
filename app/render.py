@@ -121,9 +121,10 @@ orgmode = parse_string
 def mycomarkup(src):
 
     if shutil.which('mycomarkup'):
-        ret = subprocess.check_output('mycomarkup', input=src)
+        ret = subprocess.check_output('mycomarkup', input=bytes(src, 'utf-8'))
+        ret = ret.decode('utf-8')
     else:
-        ret = '<em>(Mycomarkup binary not found, the following was rendered in Markdown compatibility mode.)</em>'
+        ret = '<mark>Mycomarkup binary not found, the following was rendered in Markdown compatibility mode.</mark>'
         ret += markdown(src)
 
     return ret
