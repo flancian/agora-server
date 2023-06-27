@@ -23,7 +23,7 @@
 
 	<meta charset="utf-8" />
 	{% if node is defined %}
-	<title>Node [[{{node.qstr}}]] in {{config['URI_BASE']}}</title>
+	<title>[[{{node.qstr}}]] at {{config['URI_BASE']}}</title>
 	{% else %}
 	<title>Agora</title>
 	{% endif %}
@@ -79,11 +79,10 @@
         <div class="navigation">
             <div class="navigation-links">
 				<a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px"></a>
-                <!-- <a href="/" style="text-decoration: none;"><strong>{{config['NAME']}}</strong> at <strong>{{config['URI_BASE']}}</strong></a>-->
-                <a href="/" style="text-decoration: none;"><strong>{{config['URI_BASE']}}</strong></a>
+                <a href="/" style="text-decoration: none;"><strong>{{config['NAME']}}</strong> at <strong>{{config['URI_BASE']}}</strong></a>
                 <!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
-                &nbsp;⟶&nbsp;
-				<a href="/nodes" style="text-decoration: none;">📚&nbsp;all nodes</a>
+				|
+				<a href="/nodes" style="text-decoration: none;">📚&nbsp;nodes</a>
 				|
 				<a href="/latest" style="text-decoration: none;">🌀&nbsp;latest</a>
 				|
@@ -135,7 +134,7 @@
 				</div>
 
 				<div class="topline-agora">
-                    <strong>↳ in the <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> ⬎</strong>
+                    <strong>↳ in this Agora ⬎</strong>
 					<div>
 						<button id="pull-all" value="pull-all" title="Pulls (embeds) some resources below">pull</button>
 						<button id="fold-all" value="fold-all" title="Folds (collapses) embeds below">fold</button>
