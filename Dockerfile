@@ -43,6 +43,9 @@ RUN apk add --no-cache git python3 py3-pip npm
 # Needed for lxml in Python
 RUN apk add libxml2-dev libxslt-dev
 
+# Installing uwsgi with pip requires a full build environment, which we're trying to avoid.
+RUN apk add uwsgi-python3
+
 RUN pip3 install poetry
 RUN addgroup --system agora --gid 1000 && adduser --uid 1000 --system --ingroup agora --home /home/agora agora
 # RUN mkdir -p /home/agora && chown -R agora:agora /home/agora

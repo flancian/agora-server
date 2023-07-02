@@ -759,14 +759,6 @@ socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
-name = "uwsgi"
-version = "2.0.21"
-description = "The uWSGI server"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "webencodings"
 version = "0.5.1"
 description = "Character encoding aliases for legacy web content"
@@ -817,7 +809,7 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "b0e9b96f16e676e4124392ef9f45a1256401519a3f1a7781220b712e2e1b9bb2"
+content-hash = "db8da84e4c8281f434060fcc90dcbc50be6fbca6d6aba1d04680e40ae25df5e0"
 
 [metadata.files]
 async-timeout = [
@@ -1749,9 +1741,6 @@ unidecode = [
 urllib3 = [
     {file = "urllib3-2.0.3-py3-none-any.whl", hash = "sha256:48e7fafa40319d358848e1bc6809b208340fafe2096f1725d05d67443d0483d1"},
     {file = "urllib3-2.0.3.tar.gz", hash = "sha256:bee28b5e56addb8226c96f7f13ac28cb4c301dd5ea8a6ca179c0b9835e032825"},
-]
-uwsgi = [
-    {file = "uwsgi-2.0.21.tar.gz", hash = "sha256:35a30d83791329429bc04fe44183ce4ab512fcf6968070a7bfba42fc5a0552a9"},
 ]
 webencodings = [
     {file = "webencodings-0.5.1-py2.py3-none-any.whl", hash = "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78"},
