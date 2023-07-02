@@ -19,6 +19,8 @@
 # - orgmode
 
 import re
+import shutil
+import subprocess
 from . import config
 from . import regexes
 from . import util
@@ -111,10 +113,21 @@ class Wikilinks():
 markdown = gfm
 markdown.use(Wikilinks, Footnote)
 
-
-# Org-mode -- simple but, well, bad for now.
+# Org-mode, now much improved through orgora.
 orgmode = parse_string
 
+# Mycomarkup
+# If we can, use mycomarkup parser; if not, fall back to markdown which gets us something half readable.
+def mycomarkup(src):
+
+    if shutil.which('mycomarkup'):
+        ret = subprocess.check_output('mycomarkup', input=bytes(src, 'utf-8'))
+        ret = ret.decode('utf-8')
+    else:
+        ret = '<mark>Mycomarkup binary not found, the following was rendered in Markdown compatibility mode.</mark>'
+        ret += markdown(src)
+
+    return ret
 
 # Embeds.
 # The *application* of this pattern could perhaps be here instead of in... hmm, db.py? Yeah, that doesn't make sense.
