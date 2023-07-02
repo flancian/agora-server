@@ -16,39 +16,31 @@
 #
 # $ podman unshare chgrp -R 1001 agora  # I only tested this with podman so far.
 #
-# To then run an Agora Server interactively based directly on the upstream container on port 5017:
+# To then run an Agora Server interactively port 5017 (this assumes $HOME/agora contains an Agora, replace that path with your Agora root):
 #
-# $ docker run -it -p 5017:5017 -v ${PWD}/agora:/home/agora/agora:Z -u agora agora
+# $ docker run -it -p 5017:5017 -v ${HOME}/agora:/home/agora/agora:Z -u agora agora-server
 #
-# To run the Agora Server detached (serving mode): 
+# To run the Agora Server detached (in serving mode): 
 #
-# $ docker run -dt -p 5017:5017 -v ${PWD}/agora:/home/agora/agora:Z -u agora agora
+# $ docker run -dt -p 5017:5017 -v ${HOME}/agora:/home/agora/agora:Z -u agora agora-server
 #
 # To run the reference Agora Server directly from upstream packages, skipping building:
 #
-# $ docker run -dt -p 5017:5017 -v ${PWD}/agora:/home/agora/agora:Z -u agora git.coopcloud.tech/flancian/agora-server
+# $ docker run -dt -p 5017:5017 -v ${HOME}/agora:/home/agora/agora:Z -u agora git.coopcloud.tech/flancian/agora-server
 #
 # Enjoy!
 
-FROM alpine
+FROM debian
 
 MAINTAINER Flancian "0@flancia.org"
 
 # We install first as root.
 USER root
 
-# Base dependencies
-RUN apk add --no-cache git python3 py3-pip npm
-
-# Needed for lxml in Python
-RUN apk add libxml2-dev libxslt-dev
-
-# Installing uwsgi with pip requires a full build environment, which we're trying to avoid.
-RUN apk add uwsgi-python3
-
-RUN pip3 install poetry
-RUN addgroup --system agora --gid 1000 && adduser --uid 1000 --system --ingroup agora --home /home/agora agora
-# RUN mkdir -p /home/agora && chown -R agora:agora /home/agora
+RUN apt-get update
+RUN apt-get install -y git python3 python3-pip python3-poetry npm
+RUN groupadd -r agora -g 1000 && useradd -u 1000 -r -g agora -s /bin/bash -c "Agora" agora
+RUN mkdir -p /home/agora && chown -R agora:agora /home/agora
 
 WORKDIR /home/agora
 USER agora

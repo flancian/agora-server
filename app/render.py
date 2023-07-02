@@ -25,8 +25,7 @@ from . import config
 from . import regexes
 from . import util
 from marko import Markdown, inline
-from marko.ext.gfm import gfm
-from marko.ext.footnote import Footnote
+from marko.helpers import MarkoExtension
 from orgorapython import parse_string
 
 # we add and then remove this from detected Tiddlylinks to opt out from default Marko rendering.
@@ -104,14 +103,15 @@ class HashtagRendererMixin(object):
         )
 
 
-class Wikilinks():
-    elements = [WikilinkElement, TiddlylinkElement, HashtagElement]
-    renderer_mixins = [WikilinkRendererMixin,
+Wikilinks = MarkoExtension(
+    elements=[WikilinkElement, TiddlylinkElement, HashtagElement],
+    renderer_mixins=[WikilinkRendererMixin,
                        TiddlylinkRendererMixin, HashtagRendererMixin]
+    )
 
 
-markdown = gfm
-markdown.use(Wikilinks, Footnote)
+markdown = Markdown(extensions=['footnote', 'gfm'])
+markdown.use(Wikilinks)
 
 # Org-mode, now much improved through orgora.
 orgmode = parse_string
