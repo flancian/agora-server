@@ -30,18 +30,22 @@
 #
 # Enjoy!
 
-FROM debian
+FROM alpine
 
 MAINTAINER Flancian "0@flancia.org"
 
 # We install first as root.
 USER root
 
-RUN apt-get update
-RUN apt-get install -y git python3 python3-pip npm
+# Base dependencies
+RUN apk add --no-cache git python3 py3-pip npm
+
+# Needed for lxml in Python
+RUN apk add libxml2-dev libxslt-dev
+
 RUN pip3 install poetry
-RUN groupadd -r agora -g 1000 && useradd -u 1000 -r -g agora -s /bin/bash -c "Agora" agora
-RUN mkdir -p /home/agora && chown -R agora:agora /home/agora
+RUN addgroup --system agora --gid 1000 && adduser --uid 1000 --system --ingroup agora --home /home/agora agora
+# RUN mkdir -p /home/agora && chown -R agora:agora /home/agora
 
 WORKDIR /home/agora
 USER agora
