@@ -228,7 +228,7 @@ def json_nodes(nodes):
         add_node(node, g, only_forward=True)
 
     d = {}
-    nodes_to_render = []
+    nodes_to_render = set()
     d["nodes"] = []
     d["links"] = []
 
@@ -243,11 +243,15 @@ def json_nodes(nodes):
         # if size <= 4:
         #     continue
         d["nodes"].append({'id': f"{base}/{node.uri}", 'name': node.description, 'val': size})
-        nodes_to_render.append(f"{base}/{node.uri}")
+        nodes_to_render.add(f"{base}/{node.uri}")
+    
+    print(f"Have unique nodes, building triples...")
 
     for n0, link, n1 in g.triples((None, None, None)):
+        # This was slow when we were using a list instead of a set.
         if str(n0) in nodes_to_render and str(n1) in nodes_to_render:
             d["links"].append({'source': n0, 'target': n1})
+            # print(f".", end="", flush=True)
             # this takes care of links to non-existent nodes, added with value 1 by default.
             # now commented as we don't graph those by default.
             # d["nodes"].append({'id': n1, 'name': n1, 'val': 1})
