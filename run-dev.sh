@@ -20,4 +20,4 @@ npm run build
 export FLASK_APP=app
 export FLASK_ENV="development"
 export AGORA_CONFIG="${1}DevelopmentConfig"
-poetry run flask run -h 0.0.0.0 -p 5017
+poetry run flask --debug run -h 0.0.0.0 -p 5017

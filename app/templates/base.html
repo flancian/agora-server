@@ -68,8 +68,8 @@
 
 	<script type="application/json" class="js-hypothesis-config">
 	</script>
-	-->
 	<script async src="https://hypothes.is/embed.js"></script>
+	-->
 	{% endif %}
 
 </head>
@@ -79,34 +79,24 @@
         <div class="navigation">
             <div class="navigation-links">
 				<a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px"></a>
-                <a href="/" style="text-decoration: none;"><strong>{{config['NAME']}}</strong> at <strong>{{config['URI_BASE']}}</strong></a>
+                <a href="/" style="text-decoration: none;"><strong>{{config['URI_BASE']}}</strong></a>
+                |
                 <!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
-				|
-				<a href="/nodes" style="text-decoration: none;">📚&nbsp;nodes</a>
-				|
-				<a href="/latest" style="text-decoration: none;">🌀&nbsp;latest</a>
-				|
-				<a href="/today" style="text-decoration: none;">📅&nbsp;today</a>
-				|
-				<a href="/random" style="text-decoration: none;">🎲️&nbsp;random</a>
-				|
-				<a href="/users" style="text-decoration: none;">🫂&nbsp;users</a>
-                |
-				<a href="/journals" style="text-decoration: none;">📔&nbsp;journals</a>
-                |
-                <a href="/annotations" style="text-decoration: none;">✍&nbsp;annotations</a>
-				|
-                <a href="/settings" style="text-decoration: none;"><strong>⚙</strong>&nbsp;settings</a>
-				|
-				<a href="#" style="text-decoration: none;" id="theme-toggle">🌙&nbsp;theme</a>
-				|
-                <a href="/agora-help" style="text-decoration: none;" class="help-button"><strong>?</strong>&nbsp;help</a>
-                |
+				<a href="/nodes" style="text-decoration: none;">📚&nbsp;nodes</a> |
+                <a href="/latest" style="text-decoration: none;">🌀&nbsp;latest</a> |
+				<a href="/today" style="text-decoration: none;">📅&nbsp;today</a> |
+				<a href="/random" style="text-decoration: none;">🎲️&nbsp;random</a> |
+				<a href="/users" style="text-decoration: none;">🫂&nbsp;users</a> | 
+				<a href="/journals" style="text-decoration: none;">📔&nbsp;journals</a> |
+                <a href="/annotations" style="text-decoration: none;">✍&nbsp;annotations</a> |
+                <a href="/settings" style="text-decoration: none;"><strong>⚙</strong>&nbsp;settings</a> |
+                <a href="#" style="text-decoration: none;" id="theme-toggle">🌙&nbsp;theme</a> |
+                <a href="/agora-help" style="text-decoration: none;" class="help-button"><strong>?</strong>&nbsp;help</a> |
                 <a href="/join" style="text-decoration: none;">🙏&nbsp;join</a>
 			</div>
         </div>
 
-			<hr />
+        <hr />
 
 			<div class="topline-node">
 				<div class="topline-node-wrapper">
@@ -118,14 +108,14 @@
 							<input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
 						</form>
 					</div>
+                    <!--
 					<button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>
 					<button id="mini-cli-go" value="go" title="Redirects to a [[go]] link if one is found">go</button>
+                    -->
 				</div>
 
-				<hr />
-
 				<div class="topline-search">
-					<strong>↳ on the Internet → </strong>
+					<strong>↳ on the Internet ⟶ </strong>
 					<a href="https://www.google.com/search?q={{node.q}}">Google</a>
 					· <a href="https://www.duckduckgo.com/{{node.q}}">DuckDuckGo</a>
 					· <a href="https://searx.bar/search?q={{node.q}}&categories=general&language=en-US">Searx</a>
@@ -134,10 +124,12 @@
 				</div>
 
 				<div class="topline-agora">
-                    <strong>↳ in this Agora ⬎</strong>
+                    <strong>↳ in the <a href="{{config['URL']}}"><strong>{{config['NAME']}}</strong></a> ⬎</strong>
 					<div>
-						<button id="pull-all" value="pull-all" title="Pulls (embeds) some resources below">pull</button>
-						<button id="fold-all" value="fold-all" title="Folds (collapses) embeds below">fold</button>
+						<button id="pull-all" value="pull-all" title="Pulls (embeds) some resources below">pull all</button>
+                        <!--
+						<button id="fold-all" value="fold-all" title="Folds (collapses) embeds below">fold all</button>
+                        -->
                         <button id="retry-elsewhere" value="retry-elsewhere" title="Retries elsewhere if possible">retry</button>
 					</div> 
 				</div>
@@ -158,10 +150,9 @@
 
 
 	{% if not embed %}
-	<hr>
 	<!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
 	<div id='footer'>
-		This page was served by the <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> in <strong>__EXECTIME__ seconds</strong> on <strong>__NOW__</strong>.
+		Served by the <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> in <strong>__EXECTIME__ seconds</strong> on <strong>__NOW__</strong>.
 		May you be happy!
 	</div>
 

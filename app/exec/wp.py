@@ -31,12 +31,13 @@ def wp(node):
     inferred_node = title.replace('_', '-')
     return Response(f"""
         <div class='exec topline-search'>
-        <strong>↳ on Wikipedia → </strong><a href='{url}'>{url}</a> 
+        <strong>↳ on Wikipedia ⟶ </strong><a href='{url}'>{url}</a> 
         <button class='pull-exec wp' value='{url}'>pull</button><br />
-        &nbsp &nbsp ↳ Wikidata <a href='{wikidata_url}'>{wikibase_item}</a>
+        <!-- find a better way to present this data which is only useful for some users. -->
+        <!-- &nbsp &nbsp ↳ Wikidata <a href='{wikidata_url}'>{wikibase_item}</a>
         <button class='pull-exec wd' value='{wikidata_url}'>pull</button><br />
         &nbsp &nbsp ↳ Agora <a href='/{inferred_node}'>[[{title}]]</a>
-        <button class='pull-exec ag' value='/{inferred_node}'>pull</button>
+        <button class='pull-exec ag' value='/{inferred_node}'>pull</button>-->
         <!--{result}-->
         </div>""", 
         mimetype='text/html'
