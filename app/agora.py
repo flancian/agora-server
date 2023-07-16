@@ -52,7 +52,7 @@ def after_request(response):
         (response.content_type.startswith('text/html'))):
         response.set_data(response.get_data().replace(
             b'__EXECTIME__', bytes(str(exectime), 'utf-8')).replace(
-            b'__NOW__', bytes(str(now), 'utf-8')))
+            b'__NOW__', bytes(str(now.astimezone()), 'utf-8')))
     return response
 # End footer / timing information.
 

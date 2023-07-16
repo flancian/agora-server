@@ -42,7 +42,8 @@ There are <strong>{{stats['edges']}} links</strong>.
 
 {% endif %}
 
-<strong>Top 1000</strong> nodes:<br /><br />
+<strong>Top 1000 nodes:</strong>
+<br />
 {% for node in nodes[:1000] %}
 
 <a href="{{node.url}}">{{node.wikilink}}</a> <span style="font-weight: lighter">({{node.size()}})</span>
