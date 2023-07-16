@@ -220,6 +220,7 @@ h6 {
 
 .navigation-links {
     display: block;
+    text-transform: capitalize;
     vertical-align: middle;
     align-items: center;
     /*margin: 0 auto;*/

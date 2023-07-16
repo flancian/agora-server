@@ -39,7 +39,7 @@
 	<link rel="stylesheet" type="text/css"
 		href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached161" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached162" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}"
@@ -79,20 +79,19 @@
         <div class="navigation">
             <div class="navigation-links">
 				<a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px"></a>
-                <a href="/" style="text-decoration: none;"><strong>{{config['URI_BASE']}}</strong></a>
-                |
+                <a href="/" style="text-decoration: none;"><strong>{{config['URI_BASE']}}</strong></a> <strong>⟶</strong>
                 <!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
 				<a href="/nodes" style="text-decoration: none;">📚&nbsp;all nodes</a> |
                 <a href="/latest" style="text-decoration: none;">🌀&nbsp;latest</a> |
 				<a href="/today" style="text-decoration: none;">📅&nbsp;today</a> |
 				<a href="/random" style="text-decoration: none;">🎲️&nbsp;random</a> |
-				<a href="/users" style="text-decoration: none;">🫂&nbsp;users</a> | 
-				<a href="/journals" style="text-decoration: none;">📔&nbsp;journals</a> |
+				<a href="/users" style="text-decoration: none;">🫂&nbsp;users</a> |
+				<a href="/journals" style="text-decoration: none;">📔&nbsp;journals</a> | 
                 <a href="/annotations" style="text-decoration: none;">✍&nbsp;annotations</a> |
                 <a href="/settings" style="text-decoration: none;"><strong>⚙</strong>&nbsp;settings</a> |
                 <a href="#" style="text-decoration: none;" id="theme-toggle">🌙&nbsp;theme</a> |
-                <a href="/agora-help" style="text-decoration: none;" class="help-button"><strong>?</strong>&nbsp;help</a> |
-                <a href="/join" style="text-decoration: none;">🙏&nbsp;join</a>
+                <a href="/agora-help" style="text-decoration: none;" class="help-button">🙏&nbsp;help</a> |
+                <a href="/join" style="text-decoration: none;">💪&nbsp;join</a>
 			</div>
         </div>
 
@@ -117,14 +116,14 @@
 				<div class="topline-search">
 					<strong>↳ on the Internet ⟶ </strong>
 					<a href="https://www.google.com/search?q={{node.q}}">Google</a>
-					· <a href="https://www.duckduckgo.com/{{node.q}}">DuckDuckGo</a>
-					· <a href="https://searx.bar/search?q={{node.q}}&categories=general&language=en-US">Searx</a>
-					· <a href="https://twitter.com/search?q={{node.q}}%20filter%3Afollows%20-filter%3Areplies&src=typed_query&f=live">Twitter</a>
-					· <a href="https://github.com/search?q={{node.q}}">Github</a>
+					• <a href="https://www.duckduckgo.com/{{node.q}}">DuckDuckGo</a>
+					• <a href="https://www.bing.com/search?q={{node.q}}">Bing</a>
+					• <a href="https://search.marginalia.nu/search?query={{node.q}}">Marginalia</a>
+					• <a href="https://github.com/search?q={{node.q}}">Github</a>
 				</div>
 
 				<div class="topline-agora">
-                    <strong>↳ in the <a href="{{config['URL']}}"><strong>{{config['NAME']}}</strong></a> ⬎</strong>
+                    <strong>↳ in this <a href="{{config['URL']}}"><strong>{{config['NAME']}}</strong></a> ⬎</strong>
 					<div>
 						<button id="pull-all" value="pull-all" title="Pulls (embeds) some resources below">pull all</button>
                         <!--
@@ -158,9 +157,9 @@
         </p>
         <p>
         {% if not embed %}
-        May you be happy!
+        <strong>May you be happy!</strong>
         {% else %}
-        May you be free from suffering!
+        <strong>May you be free from suffering!</strong>
         {% endif %}
         </p>
         </center>
