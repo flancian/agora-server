@@ -304,7 +304,7 @@ document.addEventListener("DOMContentLoaded", function () {
       let oembed_req = domain + '/api/oembed?url=' + actual_url
       $.get(oembed_req, function (data) {
         console.log('oembed: ' + data['html'])
-        let html = data['html']
+        let html = '<br /> ' + data['html']
         $(self).after(html);
       });
     });
@@ -315,6 +315,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (this.classList.contains('pulled')) {
       div = $(e.currentTarget).nextAll('.mastodon-embed')
       div.remove()
+      br = $(e.currentTarget).nextAll('')
+      br.remove()
       this.innerText = 'pull';
       this.classList.remove('pulled');
     }
