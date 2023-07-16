@@ -20,7 +20,7 @@
     console.log("loading graph...")
     fetch("{{config['URL_BASE']}}/graph/json/{{node.uri}}").then(res => res.json()).then(data => {
     const container = document.getElementById('graph');
-    const currentTheme = localStorage.getItem("theme");
+    const currentTheme = localStorage.getItem("theme") || 'light';
     // const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
     const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
     const edgeColor = (currentTheme == 'light' ? 'rgba(50, 50, 50, 1)' : 'rgba(200, 200, 200, 1)')
