@@ -234,8 +234,8 @@ def add_url_pull(content, subnode):
 
     ret = re.sub(URL_REGEX, URL_EMBED, content)
     # hack hack -- "fixes" pulling for markdown style links, e.g. [text](anchor).
-    # but would break actual articles that start with ()
-    ret = ret.replace(')"', '"')
+    # As of 2023-07-16, this hack is disabled as it was breaking Wikipedia articles that end with ) while not providing obvious value -- I tried reproducing the issue with Markdown links but they are rendering fine, it seems we're only missing pulling functionality for them but that seems preferrable to breaking a fraction of Wikipedia pulls!
+    # ret = ret.replace(')"', '"')
     return ret
 
 

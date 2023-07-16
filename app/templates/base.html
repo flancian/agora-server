@@ -39,7 +39,7 @@
 	<link rel="stylesheet" type="text/css"
 		href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached160" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached161" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}"
@@ -56,8 +56,9 @@
 	{% endif %}
 
 	{% if not embed %}
+    <!-- we used to not load some of these JS modules in embeds, but that breaks graphs -->
+	{% endif %}
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 	<script src="//unpkg.com/force-graph"></script>
 
 	<!-- 
@@ -70,7 +71,6 @@
 	</script>
 	<script async src="https://hypothes.is/embed.js"></script>
 	-->
-	{% endif %}
 
 </head>
 
@@ -82,7 +82,7 @@
                 <a href="/" style="text-decoration: none;"><strong>{{config['URI_BASE']}}</strong></a>
                 |
                 <!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
-				<a href="/nodes" style="text-decoration: none;">📚&nbsp;nodes</a> |
+				<a href="/nodes" style="text-decoration: none;">📚&nbsp;all nodes</a> |
                 <a href="/latest" style="text-decoration: none;">🌀&nbsp;latest</a> |
 				<a href="/today" style="text-decoration: none;">📅&nbsp;today</a> |
 				<a href="/random" style="text-decoration: none;">🎲️&nbsp;random</a> |
@@ -149,14 +149,19 @@
 	<div id='popup'>{{popup|default("What could we show here?")}}</div>
 
 
-	{% if not embed %}
 	<!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
 	<div id='footer'>
-		Served by the <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> in <strong>__EXECTIME__ seconds</strong> on <strong>__NOW__</strong>.
-		May you be happy!
+        <center>
+		This page was served by the <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> at <strong>__NOW__</strong> in ~<strong>__EXECTIME__ seconds</strong>.
+        <br />
+        {% if not embed %}
+        May you be happy!
+        {% else %}
+        May you be free from suffering!
+        {% endif %}
+        </center>
 	</div>
 
-	{% endif %}
 	<script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
 
 

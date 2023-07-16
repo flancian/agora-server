@@ -335,6 +335,17 @@ input[type="text"] {
     padding: 10px;
 }
 
+.context-all {
+    /*border-color: #7f5af0;*/
+    position: relative;
+    height: 800px;
+    border-color: gray;
+    border-style: solid;
+    border-width: 1px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
 .left {
     border-color: red;
 }
@@ -571,15 +582,10 @@ Served by the Agora of Flancia in 15.67 seconds on 2023-07-15 22:09:20. May you 
 }
 
 #agoragraph {
-    overflow: hidden;
-    /*border-radius: 20px;*/
-    padding: 10px;
-    margin: 10px;
-    max-width: 900px;
-    max-height: 600px;
+    height: 100%;
+    width: 100%;
+    position: absolute;
 }
-
-
 
 .search-header {
     font-weight: bolder;

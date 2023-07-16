@@ -39,7 +39,8 @@
             location.assign(url)
         })
         .graphData(data);
-    // AgoraGraph.zoom(3);
+    AgoraGraph.zoom(0.1);
+    AgoraGraph.cooldownTime(60000); // default is 15000ms
     // AgoraGraph.onEngineStop(() => AgoraGraph.zoomToFit(400));
     });
 

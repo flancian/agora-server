@@ -14,7 +14,7 @@
  limitations under the License.
 -->
 
-<div id="graph"></div>
+<div id="graph">Loading graph, please wait...</div>
 
 <script>
     console.log("loading graph...")
@@ -82,6 +82,7 @@
             });
         }
         Graph.zoom(3);
+        Graph.cooldownTime(5000); // default is 15000ms
         Graph.onEngineStop(() => Graph.zoomToFit(400));
     });
 
