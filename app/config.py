@@ -30,7 +30,7 @@ class DefaultConfig(object):
 
     try:
         NAME = YAML_CONFIG['agora_name']
-    except KeyError:
+    except (KeyError, TypeError):
         # Just a hopefully sane, well intentioned default ;)
         NAME = "Agora of Flancia"
         # https://anagora.org, the reference Agora as of 2022, is run by [[Flancia Collective]].
@@ -38,19 +38,19 @@ class DefaultConfig(object):
 
     try:
         URL_BASE = YAML_CONFIG['url_base']
-    except KeyError:
+    except (KeyError, TypeError):
         # standard: no trailing slashes anywhere in variables.
         # with protocol
         URL_BASE = "https://anagora.org"
 
     try:
         URI_BASE = YAML_CONFIG['uri_base']
-    except KeyError:
+    except (KeyError, TypeError):
         URI_BASE = "anagora.org"
 
     try:
         API_BASE = YAML_CONFIG['api_base']
-    except KeyError:
+    except (KeyError, TypeError):
         API_BASE = "https://api.anagora.org"
 
     AGORA = URI_BASE
