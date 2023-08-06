@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker build -t git.coopcloud.tech/flancian/agora-server .
+docker build -t git.coopcloud.tech/flancian/agora-server $@ .

@@ -14,42 +14,49 @@ class DefaultConfig(object):
     # I wonder how much of this should be in [[agora.yaml]] instead :)
 
     AGORA_PATH = os.getenv('AGORA_PATH', os.path.join('/home', getpass.getuser(), 'agora'))
-    YAML_CONFIG = getcfg(os.path.join(AGORA_PATH, 'sources.yaml'))
-    # yes, it's this simple currently -- but this is just a server-side default :)
-    # system account goes first, then people who write *about the Agora* in their gardens, in order of joining.
-    # note: I don't like being first among the humans, I still do it because my subnodes are often of the summary/tldr kind whenever they overlap with others.
-    # I'd like to relinquish control of ranking functions in favour of [[flancia collective]], [[agora discuss]] in that order.
-    # Jayu temporarily out as they left the Agora while rebooting their garden.
+    SOURCES_CONFIG = getcfg(os.path.join(AGORA_PATH, 'sources.yaml'))
+    try:
+        # try to load settings from a new-style Agora config if present.
+        AGORA_CONFIG = getcfg(os.path.join(AGORA_PATH, 'agora.yaml'))
+    except:
+        # we will catch missing settings anyway and use defaults below.
+        AGORA_CONFIG = {}
+
+    # ranking
+    # up to 2023: system account goes first, then people who write *about the Agora* in their gardens, in order of joining.
+    # note: I didn't like being first among the humans, I still did it because my subnodes were often of the summary/tldr kind whenever they overlapped with others.
+    # ideally I'd like to relinquish control of all ranking functions to [[flancia collective]] and [[agora discuss]].
     # RANK = ['agora', 'flancian', 'vera', 'neil', 'maya', 'j0lms']
 
     # Uprank the system user only (again).
+    # I think this is simpler and makes more sense as a default for arbitrary agoras, so let's try it again.
     RANK = ['agora']
 
     # deprecated/check if unused
-    AGORA_VERSION = '0.9'
+    AGORA_VERSION = '0.99'
 
     try:
-        NAME = YAML_CONFIG['agora_name']
+        AGORA_NAME = AGORA_CONFIG['agora_name']
     except (KeyError, TypeError):
         # Just a hopefully sane, well intentioned default ;)
-        NAME = "Agora of Flancia"
+        AGORA_NAME = "Agora of Flancia"
         # https://anagora.org, the reference Agora as of 2022, is run by [[Flancia Collective]].
         # See https://anagora.org/agora+doc for more.
 
     try:
-        URL_BASE = YAML_CONFIG['url_base']
+        URL_BASE = AGORA_CONFIG['url_base']
     except (KeyError, TypeError):
         # standard: no trailing slashes anywhere in variables.
         # with protocol
         URL_BASE = "https://anagora.org"
 
     try:
-        URI_BASE = YAML_CONFIG['uri_base']
+        URI_BASE = AGORA_CONFIG['uri_base']
     except (KeyError, TypeError):
         URI_BASE = "anagora.org"
 
     try:
-        API_BASE = YAML_CONFIG['api_base']
+        API_BASE = AGORA_CONFIG['api_base']
     except (KeyError, TypeError):
         API_BASE = "https://api.anagora.org"
 
@@ -77,13 +84,12 @@ class ProductionConfig(DefaultConfig):
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_STOA = False
 
-
 class DevelopmentConfig(DefaultConfig):
     URL_BASE = "http://dev.anagora.org"
     URI_BASE = "dev.anagora.org"
     API_BASE = "http://localhost:3000"
 
-    NAME = "Alpha Agora of Flancia"
+    AGORA_NAME = "Alpha " + DefaultConfig.AGORA_NAME
 
     # EXPERIMENTS
     ENABLE_CTZN = True
@@ -97,7 +103,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     URI_BASE = "localhost:5017"
     API_BASE = "http://localhost:3000"
 
-    NAME = "Development Agora of Flancia"
+    AGORA_NAME = "Development " + DefaultConfig.AGORA_NAME
     # EXPERIMENTS
     ENABLE_CTZN = True
     ENABLE_STATS = True

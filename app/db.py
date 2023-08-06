@@ -885,7 +885,7 @@ class User:
         # yikes
         self.url = '/@' + self.uri
         try:
-            self.config = [x for x in current_app.config['YAML_CONFIG'] if
+            self.config = [x for x in current_app.config['SOURCES_CONFIG'] if
                            x['target'].split('/')[-1] == self.user.split('@')[-1]][0]
         except IndexError:
             self.config = {}

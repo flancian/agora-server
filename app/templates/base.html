@@ -43,7 +43,8 @@
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}"
-		const AGORANAME = "{{config['URI_BASE']}}"
+		const AGORANAME = "{{config['AGORA_NAME']}}"
+		const AGORAURI= "{{config['URI_BASE']}}"
 		const AGORAURL = "{{config['URL_BASE']}}"
 	</script>
 
@@ -124,13 +125,13 @@
 				</div>
 
 				<div class="topline-agora">
-                    <strong>↳ in this <a href="{{config['URL']}}"><strong>Agora</strong></a> ⬎</strong>
+                    <strong>↳ on the <a href="{{config['URL']}}"><strong>{{config['AGORA_NAME']}}</strong></a> ⬎</strong>
 					<div>
-						<button id="pull-all" value="pull-all" title="Pulls (embeds) some resources below">pull all</button>
+						<button id="pull-all" value="pull-all" title="Pulls (embeds) all links that can be pulled below">pull all</button>
                         <!--
 						<button id="fold-all" value="fold-all" title="Folds (collapses) embeds below">fold all</button>
                         -->
-                        <button id="retry-elsewhere" value="retry-elsewhere" title="Retries elsewhere if possible">retry</button>
+                        <button id="retry-elsewhere" value="retry-elsewhere" title="Retries elsewhere (if possible); useful if any of the subnodes below surfaced errors">retry</button>
 					</div> 
 				</div>
 
@@ -153,7 +154,7 @@
 	<div id='footer'>
         <center>
         ⸎
-		Served by the <a href="{{config['URL_BASE']}}">{{config['NAME']}}</a> at <strong>__NOW__</strong> in <strong>__EXECTIME__s</strong>
+		Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong> in <strong>__EXECTIME__s</strong>
         <p>
         {% if not embed %}
         <strong>May you be happy!</strong>
