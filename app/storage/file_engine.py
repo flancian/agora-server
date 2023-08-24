@@ -40,6 +40,7 @@ import lxml.html
 import lxml.etree
 
 import urllib
+from copy import copy
 
 # This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
 # https://anagora.org/auto-pull
@@ -1277,12 +1278,12 @@ def build_node(node, extension="", user_list=""):
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
-    n.qstr = request.args.get("q")
-    if not n.qstr:
-        # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
-        n.qstr = n.wikilink.replace("-", " ")
+    # n.qstr = request.args.get("q")
+    # if not n.qstr:
+    #     # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
+    #     n.qstr = n.wikilink.replace("-", " ")
     # search_subnodes = db.search_subnodes(node)
-    n.q = n.qstr
+    # n.q = n.qstr
 
     current_app.logger.debug(f"[[{node}]]: Assembled node.")
     return n
