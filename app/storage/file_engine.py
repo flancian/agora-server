@@ -957,6 +957,7 @@ class User:
         self.uri = user
         # yikes
         self.url = "/@" + self.uri
+        current_app.logger.debug(f"{current_app.config['SOURCES_CONFIG']}")
         try:
             self.config = [
                 x
