@@ -1231,7 +1231,7 @@ def subnodes_by_outlink(wikilink):
     return subnodes
 
 
-def build_node(node, extension="", user_list=""):
+def build_node(node, extension="", user_list="", qstr=""):
     current_app.logger.debug(f"[[{node}]]: Assembling node.")
     # default uprank: system account and maintainers, see config.py.
     rank = current_app.config["RANK"] or ["agora"]
@@ -1279,10 +1279,10 @@ def build_node(node, extension="", user_list=""):
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
-    # n.qstr = request.args.get("q")
-    # if not n.qstr:
-    #     # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
-    #     n.qstr = n.wikilink.replace("-", " ")
+    n.qstr = qstr
+    if not n.qstr:
+        # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
+        n.qstr = n.wikilink.replace("-", " ")
     # search_subnodes = db.search_subnodes(node)
     # n.q = n.qstr
 
