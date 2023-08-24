@@ -38,11 +38,11 @@ from flask import (
 from markupsafe import escape
 from copy import copy
 
-from .storage import file_engine as db, feed, graph
+from .storage import feed, graph
 from . import providers, util, forms
 
 bp = Blueprint("agora", __name__)
-G = db.G
+G = api.Graph()
 
 
 # For footer / timing information.
@@ -115,20 +115,20 @@ def node_feed(node):
 
 @bp.route("/feed/@<user>")
 def user_feed(user):
-    subnodes = db.subnodes_by_user(user, mediatype="text/plain")
+    subnodes = api.subnodes_by_user(user, mediatype="text/plain")
     return Response(feed.user_rss(user, subnodes), mimetype="application/rss+xml")
 
 
 @bp.route("/feed/journals/@<user>")
 def user_journals_feed(user):
-    subnodes = db.user_journals(user)
+    subnodes = api.user_journals(user)
     return Response(feed.user_rss(user, subnodes), mimetype="application/rss+xml")
 
 
 @bp.route("/feed/journals")
 def journals_feed():
-    nodes = db.all_journals()[0:30]
-    n = db.consolidate_nodes(nodes)
+    nodes = api.all_journals()[0:30]
+    n = api.consolidate_nodes(nodes)
     n.subnodes.reverse()
     # This is an abuse of node_rss?
     return Response(feed.node_rss(n), mimetype="application/rss+xml")
@@ -136,7 +136,7 @@ def journals_feed():
 
 @bp.route("/feed/latest")
 def latest_feed():
-    subnodes = db.latest()[:100]
+    subnodes = api.latest()[:100]
     subnodes.reverse()
     return Response(feed.latest_rss(subnodes), mimetype="application/rss+xml")
 
@@ -179,7 +179,7 @@ def subnode(node, user):
 
     n.subnodes = util.filter(n.subnodes, user)
     n.subnodes = util.uprank(n.subnodes, user)
-    search_subnodes = db.search_subnodes_by_user(node, user)
+    search_subnodes = api.search_subnodes_by_user(node, user)
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
@@ -208,7 +208,7 @@ def subnode_export(node, user):
 
     n.subnodes = util.filter(n.subnodes, user)
     n.subnodes = util.uprank(n.subnodes, user)
-    search_subnodes = db.search_subnodes_by_user(node, user)
+    search_subnodes = api.search_subnodes_by_user(node, user)
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
@@ -245,7 +245,7 @@ def index():
 def latest():
     n = api.build_node("latest")
     return render_template(
-        "delta.html", header="Recent deltas", subnodes=db.latest(max=200), node=n
+        "delta.html", header="Recent deltas", subnodes=api.latest(max=200), node=n
     )
 
 
@@ -264,7 +264,7 @@ def annotations():
 @bp.route("/random")
 def random():
     today = datetime.date.today()
-    random = db.random_node()
+    random = api.random_node()
     return redirect(f"/{random.uri}")
 
 
@@ -291,7 +291,7 @@ def regexsearch():
         return render_template(
             "regexsearch.html",
             form=form,
-            subnodes=db.search_subnodes(form.query.data),
+            subnodes=api.search_subnodes(form.query.data),
             node=n,
         )
     return render_template("regexsearch.html", form=form, node=n)
@@ -318,7 +318,7 @@ def ctzn_login():
 def go(node0, node1=""):
     """Redirects to the URL in the given node in a block that starts with [[<action>]], if there is one."""
     # TODO(flancian): all node-scoped stuff should move to actually use node objects.
-    # perhaps we need merge_node(n0, n1) in db.py?
+    # perhaps we need merge_node(n0, n1) in api.py?
     # TODO(flancian): make [[go]] call this?
     # current_app.logger.debug = print
     current_app.logger.debug(f"running composite_go for {node0}, {node1}.")
@@ -460,7 +460,7 @@ def pull(node):
 @bp.route("/fullsearch/<qstr>")
 def fullsearch(qstr):
     current_app.logger.debug(f"full text search for [[{qstr}]].")
-    search_subnodes = db.search_subnodes(qstr)
+    search_subnodes = api.search_subnodes(qstr)
 
     return render_template(
         "fullsearch.html", qstr=qstr, q=qstr, node=qstr, search=search_subnodes
@@ -511,10 +511,10 @@ def search():
 
 @bp.route("/subnode/<path:subnode>")
 def old_subnode(subnode):
-    sn = db.subnode_by_uri(subnode)
+    sn = api.subnode_by_uri(subnode)
     n = api.build_node(sn.wikilink)
     return render_template(
-        "subnode.html", node=n, subnode=sn, backlinks=db.subnodes_by_outlink(subnode)
+        "subnode.html", node=n, subnode=sn, backlinks=api.subnodes_by_outlink(subnode)
     )
 
 
@@ -527,17 +527,17 @@ def user(user):
     n.qstr = "@" + n.qstr
     return render_template(
         "user.html",
-        user=db.User(user),
-        readmes=db.user_readmes(user),
-        subnodes=db.subnodes_by_user(user, sort_by="node", reverse=False),
-        latest=db.subnodes_by_user(user, sort_by="mtime", reverse=True)[:100],
+        user=api.User(user),
+        readmes=api.user_readmes(user),
+        subnodes=api.subnodes_by_user(user, sort_by="node", reverse=False),
+        latest=api.subnodes_by_user(user, sort_by="mtime", reverse=True)[:100],
         node=n,
     )
 
 
 @bp.route("/user/<user>.json")
 def user_json(user):
-    subnodes = list(map(lambda x: x.wikilink, db.subnodes_by_user(user)))
+    subnodes = list(map(lambda x: x.wikilink, api.subnodes_by_user(user)))
     return jsonify(jsons.dump(subnodes))
 
 
@@ -555,9 +555,9 @@ def garden(garden):
 def nodes():
     n = api.build_node("nodes")
     if current_app.config["ENABLE_STATS"]:
-        return render_template("nodes.html", nodes=db.top(), node=n, stats=db.stats())
+        return render_template("nodes.html", nodes=api.top(), node=n, stats=api.stats())
     else:
-        return render_template("nodes.html", nodes=db.top(), node=n, stats=None)
+        return render_template("nodes.html", nodes=api.top(), node=n, stats=None)
 
 
 @bp.route("/nodes.json")
@@ -569,7 +569,7 @@ def nodes_json():
 
 @bp.route("/similar/<term>.json")
 def similar_json(term):
-    nodes = util.similar(db.top(), term)
+    nodes = util.similar(api.top(), term)
     return jsonify(nodes)
 
 
@@ -577,12 +577,12 @@ def similar_json(term):
 @bp.route("/users")
 def users():
     n = api.build_node("users")
-    return render_template("users.html", users=db.all_users(), node=n)
+    return render_template("users.html", users=api.all_users(), node=n)
 
 
 @bp.route("/users.json")
 def users_json():
-    users = list(map(lambda x: x.uri, db.all_users()))
+    users = list(map(lambda x: x.uri, api.all_users()))
     return jsonify(jsons.dump(users))
 
 
@@ -590,7 +590,7 @@ def users_json():
 def user_journal(user):
     # doesn't really work currently.
     n = api.build_node(user)
-    subs = db.user_journals(user)
+    subs = api.user_journals(user)
     nodes = [G.node(subnode.node) for subnode in subs]
     nodes.reverse()
     return render_template(
@@ -600,7 +600,7 @@ def user_journal(user):
 
 @bp.route("/journal/<user>.json")
 def user_journal_json(user):
-    return jsonify(jsons.dump(db.user_journals(user)))
+    return jsonify(jsons.dump(api.user_journals(user)))
 
 
 @bp.route("/journals/<entries>")
@@ -626,13 +626,13 @@ def journals(entries):
         "journals.html",
         node=n,
         header=f"Journal entries in the last {entries} days",
-        nodes=db.all_journals()[0:entries],
+        nodes=api.all_journals()[0:entries],
     )
 
 
 @bp.route("/journals.json")
 def journals_json():
-    return jsonify(jsons.dump(db.all_journals()))
+    return jsonify(jsons.dump(api.all_journals()))
 
 
 @bp.route("/asset/<user>/<asset>")
@@ -645,14 +645,14 @@ def asset(user, asset):
 
 @bp.route("/raw/<path:subnode>")
 def raw(subnode):
-    s = db.subnode_by_uri(subnode)
+    s = api.subnode_by_uri(subnode)
     return Response(s.content, mimetype=s.mediatype)
 
 
 @bp.route("/backlinks/<node>")
 def backlinks(node):
     # Currently unused.
-    return render_template("nodes.html", nodes=db.nodes_by_outlink(node))
+    return render_template("nodes.html", nodes=api.nodes_by_outlink(node))
 
 
 @bp.route("/settings")
