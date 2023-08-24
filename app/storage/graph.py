@@ -17,15 +17,14 @@
 import re
 import urllib
 from flask import current_app, redirect, url_for
-from . import db
-from . import util
+from . import file_engine as db
+from .. import util
 
 from json import dumps
 from rdflib import Graph, Namespace, URIRef
 
 
 def add_node(node: db.Node, g: Graph, only_forward=False):
-
     base = current_app.config["URL_BASE"]
     for linked_node in node.forward_links():
         if re.search("<.*>", linked_node):
@@ -85,7 +84,6 @@ def add_node(node: db.Node, g: Graph, only_forward=False):
 
 
 def turtle_node(node) -> str:
-
     base = current_app.config["URL_BASE"]
     g = Graph()
     agora = Namespace("{base}/")
@@ -96,7 +94,6 @@ def turtle_node(node) -> str:
 
 
 def turtle_nodes(nodes) -> str:
-
     base = current_app.config["URL_BASE"]
     g = Graph()
     agora = Namespace("{base}/")
@@ -113,7 +110,6 @@ def turtle_nodes(nodes) -> str:
 
 
 def parse_node(node: db.Node) -> dict:
-
     base = current_app.config["URL_BASE"]
     d = dict()
     d["nodes"] = []
