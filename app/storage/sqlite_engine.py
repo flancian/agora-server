@@ -75,16 +75,18 @@ class User:
         self.uri = username
         self.url = "/@" + self.uri
         # get subnodes for user from database
-        self.subnodes = [sample_subnode]
+        cursor = get_cursor()
+        cursor.execute("select * from subnodes where user=?", [self.username])
+        self.subnodes = [
+            Subnode(subnode["title"], subnode["body"], subnode["user"])
+            for subnode in cursor.fetchall()
+        ]
 
     def size(self):
         return len(self.subnodes)
 
     def __str__(self):
         return self.username
-
-
-sample_subnode = Subnode("test title", "testing body", "testuser")
 
 
 def build_node(title):
@@ -114,4 +116,7 @@ def subnodes_by_user(user, sort_by="mtime", mediatype=None, reverse=True):
 
 def all_users():
     # get all users from database
-    return [User("testuser")]
+    cursor = get_cursor()
+    cursor.execute("select distinct user from subnodes")
+    users = [User(subnode["user"]) for subnode in cursor.fetchall()]
+    return users
