@@ -1,5 +1,6 @@
 import datetime
 import sqlite3
+import dateutil
 
 
 def dict_factory(cursor, row):
@@ -21,6 +22,7 @@ class Node:
         self.title = title
         self.qstr = title
         self.uri = title
+        self.url = title
         self.wikilink = title
 
     def pushed_subnodes(self):
@@ -36,20 +38,25 @@ class Node:
         return []
 
     def subnodes(self):
-        return []
+        cursor = get_cursor()
+        subnodes = cursor.execute("select * from subnodes where title=?", [self.title])
+        return [subnode_from_row(subnode) for subnode in subnodes]
 
     def __str__(self) -> str:
         return self.title
 
+    def size(self):
+        return len(self.subnodes())
+
 
 class Subnode:
-    def __init__(self, title, body, user, type="text"):
+    def __init__(self, title, body, user, updated, type="text"):
         self.title = title
         self.body = body
         self.user = user
         self.type = type
         self.wikilink = title
-        self.datetime = datetime.datetime.now()
+        self.datetime = dateutil.parser.parse(updated)
 
     def render(self):
         return self.body
@@ -69,6 +76,15 @@ class Graph:
         return build_node(title)
 
 
+def subnode_from_row(row):
+    return Subnode(
+        title=row["title"],
+        body=row["body"],
+        user=row["user"],
+        updated=row["updated_at"],
+    )
+
+
 class User:
     def __init__(self, username):
         self.username = username
@@ -77,10 +93,7 @@ class User:
         # get subnodes for user from database
         cursor = get_cursor()
         cursor.execute("select * from subnodes where user=?", [self.username])
-        self.subnodes = [
-            Subnode(subnode["title"], subnode["body"], subnode["user"])
-            for subnode in cursor.fetchall()
-        ]
+        self.subnodes = [subnode_from_row(subnode) for subnode in cursor.fetchall()]
 
     def size(self):
         return len(self.subnodes)
@@ -95,10 +108,7 @@ def build_node(title):
     cursor = get_cursor()
     cursor.execute("select * from subnodes where title=?", [title])
     # search database for subnnodes that match title
-    node.subnodes = [
-        Subnode(subnode["title"], subnode["body"], subnode["user"])
-        for subnode in cursor.fetchall()
-    ]
+    node.subnodes = [subnode_from_row(subnode) for subnode in cursor.fetchall()]
     return node
 
 
@@ -106,11 +116,7 @@ def subnodes_by_user(user, sort_by="mtime", mediatype=None, reverse=True):
     # lookup subnodes by user in database
     cursor = get_cursor()
     cursor.execute("select * from subnodes where user=?", [user])
-    subnodes = [
-        Subnode(subnode["title"], subnode["body"], subnode["user"])
-        for subnode in cursor.fetchall()
-    ]
-    print(subnodes)
+    subnodes = [subnode_from_row(subnode) for subnode in cursor.fetchall()]
     return subnodes
 
 
@@ -120,3 +126,11 @@ def all_users():
     cursor.execute("select distinct user from subnodes")
     users = [User(subnode["user"]) for subnode in cursor.fetchall()]
     return users
+
+
+def top():
+    # get top nodes from database
+    cursor = get_cursor()
+    # add datetime to database
+    cursor.execute("select distinct title from subnodes  limit 1000")
+    return [Node(subnode["title"]) for subnode in cursor.fetchall()]

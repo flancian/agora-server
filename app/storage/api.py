@@ -105,6 +105,8 @@ def top():
     match STORAGE_ENGINE:
         case "file":
             return file_engine.top()
+        case "sqlite":
+            return sqlite_engine.top()
         case _:
             return
 
