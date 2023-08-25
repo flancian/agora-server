@@ -24,6 +24,10 @@ class Node:
         self.uri = title
         self.url = title
         self.wikilink = title
+        cursor = get_cursor()
+        cursor.execute("select * from subnodes where title=?", [title])
+        # search database for subnnodes that match title
+        self.subnodes = [subnode_from_row(subnode) for subnode in cursor.fetchall()]
 
     def pushed_subnodes(self):
         return []
@@ -37,16 +41,18 @@ class Node:
     def related(self):
         return []
 
-    def subnodes(self):
-        cursor = get_cursor()
-        subnodes = cursor.execute("select * from subnodes where title=?", [self.title])
-        return [subnode_from_row(subnode) for subnode in subnodes]
+    # def subnodes(self):
+    #     cursor = get_cursor()
+    #     subnodes = cursor.execute("select * from subnodes where title=?", [self.title])
+    #     return [subnode_from_row(subnode) for subnode in subnodes]
 
     def __str__(self) -> str:
         return self.title
 
     def size(self):
-        return len(self.subnodes())
+        cursor = get_cursor()
+        cursor.execute("select count(*) from subnodes where title=?", [self.title])
+        return cursor.fetchone()["count(*)"]
 
 
 class Subnode:
@@ -105,10 +111,6 @@ class User:
 def build_node(title):
     print(title)
     node = Node(title)
-    cursor = get_cursor()
-    cursor.execute("select * from subnodes where title=?", [title])
-    # search database for subnnodes that match title
-    node.subnodes = [subnode_from_row(subnode) for subnode in cursor.fetchall()]
     return node
 
 
@@ -132,5 +134,24 @@ def top():
     # get top nodes from database
     cursor = get_cursor()
     # add datetime to database
-    cursor.execute("select distinct title from subnodes  limit 1000")
+    cursor.execute(
+        "select distinct title from subnodes order by updated_at desc limit 1000"
+    )
     return [Node(subnode["title"]) for subnode in cursor.fetchall()]
+
+
+def all_journals():
+    current_year = datetime.datetime.now().year
+    current_month = datetime.datetime.now().strftime("%m")
+    current_day = datetime.datetime.now().strftime("%d")
+    dates = []
+    for i in range(1, int(current_day) + 1):
+        dates.append(f"'{current_year}-{current_month}-{str(i).zfill(2)}'")
+    for i in range(1, 30):
+        last_month = int(current_month) - 1
+        dates.append(f"'{current_year}-{str(last_month).zfill(2)}-{str(i).zfill(2)}'")
+    date_str = ",".join(dates)
+    cursor = get_cursor()
+    cursor.execute(f"select * from subnodes where title in ({date_str})")
+    nodes = [Node(subnode["title"]) for subnode in cursor.fetchall()]
+    return nodes

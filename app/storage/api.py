@@ -43,6 +43,8 @@ def all_journals():
     match STORAGE_ENGINE:
         case "file":
             return file_engine.all_journals()
+        case "sqlite":
+            return sqlite_engine.all_journals()
         case _:
             return
 
