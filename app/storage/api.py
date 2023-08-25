@@ -17,6 +17,8 @@ def Graph():
     match STORAGE_ENGINE:
         case "file":
             return file_engine.Graph()
+        case "sqlite":
+            return sqlite_engine.Graph()
         case _:
             return
 
@@ -57,6 +59,8 @@ def User(username):
     match STORAGE_ENGINE:
         case "file":
             return file_engine.User(username)
+        case "sqlite":
+            return sqlite_engine.User(username)
         case _:
             return
 
@@ -73,6 +77,8 @@ def subnodes_by_user(username, sort_by="mtime", mediatype=None, reverse=True):
     match STORAGE_ENGINE:
         case "file":
             return file_engine.subnodes_by_user(username, sort_by, mediatype, reverse)
+        case "sqlite":
+            return sqlite_engine.subnodes_by_user(username, sort_by, mediatype, reverse)
         case _:
             return
 
