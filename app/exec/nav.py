@@ -17,12 +17,13 @@ import requests
 import pprint
 
 # As of [[2022-09-29]] unfinished/unused.
-@bp.route('/exec/nav/<node>')
+@bp.route("/exec/nav/<node>")
 def nav(node):
-    return Response(f"""
+    return Response(
+        f"""
         <div class='exec topline-nav'>
         <strong><- previous </strong><a href='{url}'>{url}</a> 
         <strong>next → </strong><a href='{url}'>{url}</a> 
-        </div>""", 
-        mimetype='text/html'
+        </div>""",
+        mimetype="text/html",
     )

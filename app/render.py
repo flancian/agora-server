@@ -30,7 +30,7 @@ from orgorapython import parse_string
 
 # we add and then remove this from detected Tiddlylinks to opt out from default Marko rendering.
 # pretty dirty but it works (tm) and prevents an excursion deeper into Marko.
-TIDDLYHACK = ' TIDDLYLINK'
+TIDDLYHACK = " TIDDLYLINK"
 
 # Markdown
 
@@ -48,9 +48,9 @@ class WikilinkRendererMixin(object):
 
     # This name is magic; it must match render_<class_name_in_snake_case>.
     def render_wikilink_element(self, element):
-        if '|' in element.target:
+        if "|" in element.target:
             try:
-                first, second = element.target.split('|')
+                first, second = element.target.split("|")
             except ValueError:
                 # probably more than one pipe; not supported for now
                 first = element.target
@@ -70,7 +70,7 @@ class TiddlylinkElement(inline.InlineElement):
 
     def __init__(self, match):
         self.anchor = match.group(1)
-        self.target = match.group(2).replace(TIDDLYHACK, '')
+        self.target = match.group(2).replace(TIDDLYHACK, "")
 
 
 class TiddlylinkRendererMixin(object):
@@ -98,19 +98,22 @@ class HashtagRendererMixin(object):
         # return '<span class="wikilink-marker">[[</span><a href="{}">{}</a><span class="wikilink-marker">]]</span>'.format(
         return '<span class="hashtag-marker">#</span><a href="{}" class="wikilink">{}</a><span class="hashtag-marker"></span>'.format(
             # util.canonical_wikilink(self.escape_url(element.target)), self.render_children(element)
-            util.canonical_wikilink(
-                element.target), self.render_children(element)
+            util.canonical_wikilink(element.target),
+            self.render_children(element),
         )
 
 
 Wikilinks = MarkoExtension(
     elements=[WikilinkElement, TiddlylinkElement, HashtagElement],
-    renderer_mixins=[WikilinkRendererMixin,
-                       TiddlylinkRendererMixin, HashtagRendererMixin]
-    )
+    renderer_mixins=[
+        WikilinkRendererMixin,
+        TiddlylinkRendererMixin,
+        HashtagRendererMixin,
+    ],
+)
 
 
-markdown = Markdown(extensions=['footnote', 'gfm'])
+markdown = Markdown(extensions=["footnote", "gfm"])
 markdown.use(Wikilinks)
 
 # Org-mode, now much improved through orgora.
@@ -120,14 +123,15 @@ orgmode = parse_string
 # If we can, use mycomarkup parser; if not, fall back to markdown which gets us something half readable.
 def mycomarkup(src):
 
-    if shutil.which('mycomarkup'):
-        ret = subprocess.check_output('mycomarkup', input=bytes(src, 'utf-8'))
-        ret = ret.decode('utf-8')
+    if shutil.which("mycomarkup"):
+        ret = subprocess.check_output("mycomarkup", input=bytes(src, "utf-8"))
+        ret = ret.decode("utf-8")
     else:
-        ret = '<mark>Mycomarkup binary not found, the following was rendered in Markdown compatibility mode.</mark>'
+        ret = "<mark>Mycomarkup binary not found, the following was rendered in Markdown compatibility mode.</mark>"
         ret += markdown(src)
 
     return ret
+
 
 # Embeds.
 # The *application* of this pattern could perhaps be here instead of in... hmm, db.py? Yeah, that doesn't make sense.
@@ -136,7 +140,7 @@ def mycomarkup(src):
 # Twitter embeds.
 # Now disabled, we prefer to embed client side.
 def add_twitter_embeds(content, subnode):
-    TWITTER_REGEX = '(https://twitter.com/\w+/status/[0-9]+)'
+    TWITTER_REGEX = "(https://twitter.com/\w+/status/[0-9]+)"
     TWITTER_EMBED = '<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="\\1"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
@@ -144,7 +148,7 @@ def add_twitter_embeds(content, subnode):
 def add_twitter_pull(content, subnode):
     # negative lookbehind tries to only match twitter links not preceded by a ", which would be there if the URL is being used as part of an <a href="..."> tag (adding an embed in that case using regexes would break the link).
     # https://www.regular-expressions.info/lookaround.html if you're wondering how this works.
-    if subnode and 'subnode/virtual' in subnode.url:
+    if subnode and "subnode/virtual" in subnode.url:
         # trouble at the mill.
         # virtual subnodes are prerendered by virtue of how they are generated (from the final html)
         # they should be "pre cooked".
@@ -156,13 +160,13 @@ def add_twitter_pull(content, subnode):
 
 
 def add_mastodon_pull(content, subnode):
-    if subnode and 'subnode/virtual' in subnode.url:
+    if subnode and "subnode/virtual" in subnode.url:
         # as per the above.
         return content
 
     # hack: negative lookbehind tries to only match for anchors not preceded by a span... just because in the agora we have
     # spans just preceding every anchor that is a wikilink.
-    if re.search(r'(?<!</span>)<a href', content):
+    if re.search(r"(?<!</span>)<a href", content):
         # don't apply filters when content has html links that are not result of a wikilink.
         # this works around a bug in some org mode translated files we have.
         pass
@@ -181,11 +185,11 @@ def add_mastodon_pull(content, subnode):
 def add_pleroma_pull(content, subnode):
     # hack: negative lookbehind tries to only match for anchors not preceded by a span... just because in the agora we have
     # spans just preceding every anchor that is a wikilink.
-    if re.search(r'(?<!</span>)<a href', content):
+    if re.search(r"(?<!</span>)<a href", content):
         # don't apply filters when content has html links that are not result of a wikilink.
         # this works around a bug in some org mode translated files we have.
         return content
-    PLEROMA_REGEX = '(https://[a-zA-Z-.]+/notice/\w+)'
+    PLEROMA_REGEX = "(https://[a-zA-Z-.]+/notice/\w+)"
     PLEROMA_EMBED = '\\1 <button class="pull-pleroma-status" value="\\1">pull</button>'
     ret = re.sub(PLEROMA_REGEX, PLEROMA_EMBED, content)
     return ret
@@ -194,7 +198,7 @@ def add_pleroma_pull(content, subnode):
 def old_add_url_pull(content, subnode):
     # deprecated in favour of arbitrary url pulling.
     # writer side signals like [[pull]] in subnodes should be interpreted as a petition to [[auto pull]].
-    URL_REGEX = '(\[\[pull\]\]) (.+:\/\/.+)'
+    URL_REGEX = "(\[\[pull\]\]) (.+:\/\/.+)"
     URL_EMBED = '<button class="pull-url" value="\\2">pull</button> \\2'
     ret = re.sub(URL_REGEX, URL_EMBED, content)
     return ret
@@ -221,13 +225,17 @@ def add_url_pull(content, subnode):
     # (so e.g. twitter.com/flancian doesn't match).  makes sense as iframe policies are usually per-domain.
     # if you don't understand this *or* think you could do it better at no great cost please reach out to [[flancian]] :)
     # URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|anagora|doc|pad|flancia)\S+[^\s.,:;])'
-    URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|agora|stoa|doc|pad|flancia)\S+[^\s.,:;])'
+    URL_REGEX = (
+        "((?<!\()https?:\/\/[^\s/]*(wiki|agora|stoa|doc|pad|flancia)\S+[^\s.,:;])"
+    )
     # URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|anagora|doc|pad|flancia)\S+[^\s.,:;])'
 
-    #URL_REGEX= r'http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*'
-    URL_EMBED = '\\1 <button class="pull-url auto-pull-button" value="\\1">pull</button>'
+    # URL_REGEX= r'http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*'
+    URL_EMBED = (
+        '\\1 <button class="pull-url auto-pull-button" value="\\1">pull</button>'
+    )
 
-    if re.search(r'(a href|=> http|\[\[http)', content):
+    if re.search(r"(a href|=> http|\[\[http)", content):
         # don't apply filters when content has html links or rocket links to URLs, as we risk adding a button inside an anchor
         # and breaking the Agora in interesting ways, see https://anagora.org/2023-05-27 :)
         return content
@@ -240,51 +248,67 @@ def add_url_pull(content, subnode):
 
 
 def add_go_button(content, subnode):
-    URL_REGEX = '(\[\[go\]\]) (.+:\/\/.+)'
+    URL_REGEX = "(\[\[go\]\]) (.+:\/\/.+)"
     URL_EMBED = '<button class="go-url" value="\\2">go</button> \\2'
     ret = re.sub(URL_REGEX, URL_EMBED, content)
     return ret
+
 
 # Trim front matter until we do something useful with it.
 
 
 def trim_front_matter(content, subnode):
-    FRONT_MATTER_REGEX = '---(\n.*)*---'
-    return re.sub(FRONT_MATTER_REGEX, '', content, flags=re.MULTILINE)
+    FRONT_MATTER_REGEX = "---(\n.*)*---"
+    return re.sub(FRONT_MATTER_REGEX, "", content, flags=re.MULTILINE)
+
 
 # Trim obsidian block anchors until we do something useful with them.
 
 
 def trim_block_anchors(content, subnode):
-    BLOCK_ANCHOR_REGEX = r'\^[0-9-]+$'
-    return re.sub(BLOCK_ANCHOR_REGEX, '', content, flags=re.MULTILINE)
+    BLOCK_ANCHOR_REGEX = r"\^[0-9-]+$"
+    return re.sub(BLOCK_ANCHOR_REGEX, "", content, flags=re.MULTILINE)
+
 
 # Trim Logseq :LOGBOOK: .. :END: blocks until we do something useful with them
 
 
 def trim_logbook(content, subnode):
-    LOGBOOK_REGEX = r':LOGBOOK:.*?:END:'
-    return re.sub(LOGBOOK_REGEX, '', content, flags=re.MULTILINE + re.DOTALL)
+    LOGBOOK_REGEX = r":LOGBOOK:.*?:END:"
+    return re.sub(LOGBOOK_REGEX, "", content, flags=re.MULTILINE + re.DOTALL)
+
 
 # Trim liquid templates (Jekyll stuff) until we do something useful with them.
 
 
 def trim_liquid(content, subnode):
-    LIQUID_REGEX = r'{%.*?%}'
-    return re.sub(LIQUID_REGEX, '<em>(Unsupported content elided by the Agora.)</em>', content, flags=re.MULTILINE)
+    LIQUID_REGEX = r"{%.*?%}"
+    return re.sub(
+        LIQUID_REGEX,
+        "<em>(Unsupported content elided by the Agora.)</em>",
+        content,
+        flags=re.MULTILINE,
+    )
+
 
 # Trim margin notes (Jekyll stuff).
 
 
 def trim_margin_notes(content, subnode):
-    MARGIN_NOTES_REGEX = r'\[\[[^\]]*?::...\]\]'
-    return re.sub(MARGIN_NOTES_REGEX, '', content, flags=re.MULTILINE)
+    MARGIN_NOTES_REGEX = r"\[\[[^\]]*?::...\]\]"
+    return re.sub(MARGIN_NOTES_REGEX, "", content, flags=re.MULTILINE)
 
 
 # Make it so that Tiddlylinks (links of the form [foo](#bar), wish octothorpe) aren't handled by
 # [foo](bar) standard Markdown link parsing in Marko.
 def force_tiddlylink_parsing(content, subnode):
-    return re.sub(regexes.TIDDLYLINK.pattern, fr'[\1](#\2{TIDDLYHACK})', content, flags=re.MULTILINE)
+    return re.sub(
+        regexes.TIDDLYLINK.pattern,
+        fr"[\1](#\2{TIDDLYHACK})",
+        content,
+        flags=re.MULTILINE,
+    )
+
 
 # def content_to_obsidian_embeds(content):
 #    match = regexes.WIKILINKS.findall(content)
@@ -299,7 +323,7 @@ def force_tiddlylink_parsing(content, subnode):
 
 
 def add_obsidian_embeds(content, subnode):
-    OBSIDIAN_REGEX = re.compile('!' + regexes.WIKILINK.pattern)
+    OBSIDIAN_REGEX = re.compile("!" + regexes.WIKILINK.pattern)
     OBSIDIAN_EMBED = f'<a href="/raw/garden/{subnode.user}/\\1"><img class="image-embed" src="/raw/garden/{subnode.user}/\\1"></img><p class="obsidian-embed"></a>⥅ [[\\1]]</p>'
     # also include something like this to move to a lazily loaded div?
     # <script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
@@ -307,25 +331,37 @@ def add_obsidian_embeds(content, subnode):
 
 
 def add_logseq_embeds(content, subnode):
-    LOGSEQ_REGEX = re.compile(r'(\./assets/.*)')
-    LOGSEQ_FIX = f'/raw/garden/{subnode.user}/\\1'
+    LOGSEQ_REGEX = re.compile(r"(\./assets/.*)")
+    LOGSEQ_FIX = f"/raw/garden/{subnode.user}/\\1"
     # also include something like this to move to a lazily loaded div?
     # <script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
     content = re.sub(LOGSEQ_REGEX, LOGSEQ_FIX, content)
     return content
 
 
-def preprocess(content, subnode=''):
+def preprocess(content, subnode=""):
     # add_logseq_embeds breaks links everywhere, there's an issue with the regex :)
     # filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_logseq_embeds, add_obsidian_embeds, add_url_pull, add_twitter_pull]
-    filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes,
-               add_obsidian_embeds, add_logseq_embeds, add_url_pull, add_twitter_pull, add_mastodon_pull, add_pleroma_pull]
+    filters = [
+        trim_front_matter,
+        trim_block_anchors,
+        trim_logbook,
+        force_tiddlylink_parsing,
+        trim_liquid,
+        trim_margin_notes,
+        add_obsidian_embeds,
+        add_logseq_embeds,
+        add_url_pull,
+        add_twitter_pull,
+        add_mastodon_pull,
+        add_pleroma_pull,
+    ]
     for f in filters:
         content = f(content, subnode)
     return content
 
 
-def postprocess(content, subnode=''):
+def postprocess(content, subnode=""):
     # filters = [add_twitter_embeds]
     # these all ended up moving to preprocess() -- might mean there's not a need for postprocessing overall?
     filters = []
