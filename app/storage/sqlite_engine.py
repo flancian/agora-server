@@ -1,4 +1,19 @@
 import datetime
+import sqlite3
+
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
+def get_cursor():
+    conn = sqlite3.connect("garden.db")
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    return cur
 
 
 class Node:
@@ -42,6 +57,9 @@ class Subnode:
     def mediatype(self):
         return self.type
 
+    def __str__(self) -> str:
+        return self.title
+
 
 class Graph:
     def __init__(self):
@@ -70,15 +88,28 @@ sample_subnode = Subnode("test title", "testing body", "testuser")
 
 
 def build_node(title):
+    print(title)
     node = Node(title)
+    cursor = get_cursor()
+    cursor.execute("select * from subnodes where title=?", [title])
     # search database for subnnodes that match title
-    node.subnodes = [sample_subnode]
+    node.subnodes = [
+        Subnode(subnode["title"], subnode["body"], subnode["user"])
+        for subnode in cursor.fetchall()
+    ]
     return node
 
 
 def subnodes_by_user(user, sort_by="mtime", mediatype=None, reverse=True):
-    # lookup users by subnode in database
-    return [sample_subnode]
+    # lookup subnodes by user in database
+    cursor = get_cursor()
+    cursor.execute("select * from subnodes where user=?", [user])
+    subnodes = [
+        Subnode(subnode["title"], subnode["body"], subnode["user"])
+        for subnode in cursor.fetchall()
+    ]
+    print(subnodes)
+    return subnodes
 
 
 def all_users():
