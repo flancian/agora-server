@@ -1,5 +1,6 @@
 import os
 import app.storage.file_engine as file_engine
+import app.storage.sqlite_engine as sqlite_engine
 
 STORAGE_ENGINE = os.environ.get("STORAGE_ENGINE", "file")
 
@@ -8,6 +9,8 @@ def build_node(title):
     match STORAGE_ENGINE:
         case "file":
             return file_engine.build_node(title)
+        case "sqlite":
+            return sqlite_engine.build_node(title)
 
 
 def Graph():
