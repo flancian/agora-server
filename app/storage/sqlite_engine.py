@@ -54,6 +54,13 @@ class Graph:
 class User:
     def __init__(self, username):
         self.username = username
+        self.uri = username
+        self.url = "/@" + self.uri
+        # get subnodes for user from database
+        self.subnodes = [sample_subnode]
+
+    def size(self):
+        return len(self.subnodes)
 
     def __str__(self):
         return self.username
@@ -72,3 +79,8 @@ def build_node(title):
 def subnodes_by_user(user, sort_by="mtime", mediatype=None, reverse=True):
     # lookup users by subnode in database
     return [sample_subnode]
+
+
+def all_users():
+    # get all users from database
+    return [User("testuser")]

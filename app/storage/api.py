@@ -51,6 +51,8 @@ def all_users():
     match STORAGE_ENGINE:
         case "file":
             return file_engine.all_users()
+        case "sqlite":
+            return sqlite_engine.all_users()
         case _:
             return
 
