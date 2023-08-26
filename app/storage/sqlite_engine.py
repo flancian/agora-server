@@ -1,6 +1,7 @@
 import datetime
 import sqlite3
 import dateutil
+from app.storage import render
 
 
 def dict_factory(cursor, row):
@@ -64,11 +65,14 @@ class Subnode:
         self.mediatype = type
         self.content = body
         self.uri = f"{user}/{title}"
+        self.url = self.uri
         self.wikilink = title
         self.datetime = dateutil.parser.parse(updated)
 
     def render(self):
-        return self.body
+        content = render.preprocess(self.content, subnode=self)
+        content = render.markdown(content)
+        return content
 
     def __str__(self) -> str:
         return self.title
