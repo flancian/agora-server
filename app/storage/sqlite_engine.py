@@ -168,3 +168,9 @@ def random_node():
     cursor = get_cursor()
     cursor.execute("select title from subnodes order by random() limit 1")
     return [Node(subnode["title"]) for subnode in cursor.fetchall()][0]
+
+
+def latest(max):
+    cursor = get_cursor()
+    cursor.execute("select * from subnodes order by updated_at desc limit ?", [max])
+    return [subnode_from_row(subnode) for subnode in cursor.fetchall()]

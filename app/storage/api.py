@@ -103,6 +103,8 @@ def latest(max):
     match STORAGE_ENGINE:
         case "file":
             return file_engine.latest(max)
+        case "sqlite":
+            return sqlite_engine.latest(max)
         case _:
             return
 
