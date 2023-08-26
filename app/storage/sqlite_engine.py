@@ -67,6 +67,7 @@ class Subnode:
         self.uri = f"{user}/{title}"
         self.url = self.uri
         self.wikilink = title
+        self.basename = title
         self.datetime = dateutil.parser.parse(updated)
 
     def render(self):
@@ -156,7 +157,9 @@ def all_journals():
         dates.append(f"'{current_year}-{str(last_month).zfill(2)}-{str(i).zfill(2)}'")
     date_str = ",".join(dates)
     cursor = get_cursor()
-    cursor.execute(f"select * from subnodes where title in ({date_str})")
+    cursor.execute(
+        f"select * from subnodes where title in ({date_str}) order by title desc"
+    )
     nodes = [Node(subnode["title"]) for subnode in cursor.fetchall()]
     return nodes
 

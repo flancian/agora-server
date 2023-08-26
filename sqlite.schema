@@ -6,4 +6,4 @@ CREATE TABLE "subnodes" (
 	"updated_at"	TEXT,
 	UNIQUE("user","title"),
 	PRIMARY KEY("title")
-)
+);
