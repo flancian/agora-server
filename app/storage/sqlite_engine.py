@@ -61,14 +61,14 @@ class Subnode:
         self.body = body
         self.user = user
         self.type = type
+        self.mediatype = type
+        self.content = body
+        self.uri = f"{user}/{title}"
         self.wikilink = title
         self.datetime = dateutil.parser.parse(updated)
 
     def render(self):
         return self.body
-
-    def mediatype(self):
-        return self.type
 
     def __str__(self) -> str:
         return self.title
@@ -155,3 +155,16 @@ def all_journals():
     cursor.execute(f"select * from subnodes where title in ({date_str})")
     nodes = [Node(subnode["title"]) for subnode in cursor.fetchall()]
     return nodes
+
+
+def subnode_by_uri(uri):
+    cursor = get_cursor()
+    [user, title] = uri.split("/")
+    cursor.execute("select * from subnodes where user=? and title=?", [user, title])
+    return [subnode_from_row(subnode) for subnode in cursor.fetchall()][0]
+
+
+def random_node():
+    cursor = get_cursor()
+    cursor.execute("select title from subnodes order by random() limit 1")
+    return [Node(subnode["title"]) for subnode in cursor.fetchall()][0]

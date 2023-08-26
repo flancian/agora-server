@@ -646,6 +646,7 @@ def asset(user, asset):
 @bp.route("/raw/<path:subnode>")
 def raw(subnode):
     s = api.subnode_by_uri(subnode)
+    print(s.content)
     return Response(s.content, mimetype=s.mediatype)
 
 

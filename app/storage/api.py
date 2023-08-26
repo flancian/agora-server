@@ -27,6 +27,8 @@ def subnode_by_uri(uri):
     match STORAGE_ENGINE:
         case "file":
             return file_engine.subnode_by_uri(uri)
+        case "sqlite":
+            return sqlite_engine.subnode_by_uri(uri)
         case _:
             return
 
@@ -35,6 +37,8 @@ def random_node():
     match STORAGE_ENGINE:
         case "file":
             return file_engine.random_node()
+        case "sqlite":
+            return sqlite_engine.random_node()
         case _:
             return
 
