@@ -1,9 +1,0 @@
-CREATE TABLE "subnodes" (
-	"title"	TEXT,
-	"user"	TEXT,
-	"body"	TEXT,
-	"links_to"	TEXT,
-	"updated_at"	TEXT,
-	UNIQUE("user","title"),
-	PRIMARY KEY("title")
-);
