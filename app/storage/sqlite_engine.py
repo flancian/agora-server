@@ -2,6 +2,7 @@ import datetime
 import sqlite3
 import dateutil
 from app.storage import render
+import os
 
 
 def dict_factory(cursor, row):
@@ -12,7 +13,8 @@ def dict_factory(cursor, row):
 
 
 def get_cursor():
-    conn = sqlite3.connect("garden.db")
+    GARDEN_DATABASE = os.environ.get("GARDEN_DATABASE", "garden.db")
+    conn = sqlite3.connect(GARDEN_DATABASE)
     conn.row_factory = dict_factory
     cur = conn.cursor()
     return cur
