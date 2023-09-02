@@ -16,20 +16,26 @@ from . import bp, Response
 import requests
 import pprint
 
-@bp.route('/exec/wp/<node>')
+
+@bp.route("/exec/wp/<node>")
 def wp(node):
-    search = requests.get(f'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={node}&format=json')
+    search = requests.get(
+        f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={node}&format=json"
+    )
     try:
-        pageid = search.json()['query']['search'][0]['pageid']
+        pageid = search.json()["query"]["search"][0]["pageid"]
     except IndexError:
         return Response("")
-    result = requests.get(f'https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json').json()
-    title = result['query']['pages'][str(pageid)]['title']
-    url = result['query']['pages'][str(pageid)]['canonicalurl']
-    wikibase_item = result['query']['pages'][str(pageid)]['pageprops']['wikibase_item']
-    wikidata_url = f'https://www.wikidata.org/wiki/{wikibase_item}'
-    inferred_node = title.replace('_', '-')
-    return Response(f"""
+    result = requests.get(
+        f"https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json"
+    ).json()
+    title = result["query"]["pages"][str(pageid)]["title"]
+    url = result["query"]["pages"][str(pageid)]["canonicalurl"]
+    wikibase_item = result["query"]["pages"][str(pageid)]["pageprops"]["wikibase_item"]
+    wikidata_url = f"https://www.wikidata.org/wiki/{wikibase_item}"
+    inferred_node = title.replace("_", "-")
+    return Response(
+        f"""
         <div class='exec topline-search'>
         <strong>↳ on Wikipedia ⟶ </strong><a href='{url}'>{url}</a> 
         <button class='pull-exec wp' value='{url}'>pull</button><br />
@@ -39,6 +45,6 @@ def wp(node):
         &nbsp &nbsp ↳ Agora <a href='/{inferred_node}'>[[{title}]]</a>
         <button class='pull-exec ag' value='/{inferred_node}'>pull</button>-->
         <!--{result}-->
-        </div>""", 
-        mimetype='text/html'
+        </div>""",
+        mimetype="text/html",
     )

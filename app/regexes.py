@@ -14,21 +14,20 @@
 
 import re
 
-# pattern: 
+# pattern:
 # - regexes are always compiled
 #   - .pattern attribute if you want the raw string.
-WIKILINK = re.compile(r'\[\[ *(.+?) *\]\]')
+WIKILINK = re.compile(r"\[\[ *(.+?) *\]\]")
 
 # These are of the form: [text to show](#page to link to)
-TIDDLYLINK = re.compile(r'\[([^\]]+?)\]\(#([^\)]+?)\)', re.MULTILINE)
+TIDDLYLINK = re.compile(r"\[([^\]]+?)\]\(#([^\)]+?)\)", re.MULTILINE)
 
 # Hashtags
 # Negative lookbehind is needed to prevent matching html entities:
 # https://github.com/flancian/agora-server/issues/39
-HASHTAG = re.compile(r'(?<!&)#(.+?)\b')
+HASHTAG = re.compile(r"(?<!&)#(.+?)\b")
 
 
 # TODO: move action extractor regex here as well.
 # is this the best way?
-ACTION_2 = re.compile(r'\[\[(.*?)\]\]\s*\[\[(.*?)\]\]')
-
+ACTION_2 = re.compile(r"\[\[(.*?)\]\]\s*\[\[(.*?)\]\]")

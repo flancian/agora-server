@@ -14,12 +14,17 @@
 
 from . import bp, Response
 
-@bp.route('/exec/dice')
-def dice():
-    return Response(f"This is where a dice UI would show up if we had one!", mimetype='text/html')
 
-@bp.route('/exec/dice/<n>')
+@bp.route("/exec/dice")
+def dice():
+    return Response(
+        f"This is where a dice UI would show up if we had one!", mimetype="text/html"
+    )
+
+
+@bp.route("/exec/dice/<n>")
 def dice_throw(n):
     import random
+
     r = random.randint(1, int(n))
-    return Response(f"{r}", mimetype='text/html')
+    return Response(f"{r}", mimetype="text/html")
