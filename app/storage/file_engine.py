@@ -24,11 +24,11 @@ import re
 import time
 import os
 from flask import current_app
-from . import config
+from .. import config
 from . import feed
 from . import regexes
 from . import render
-from . import util
+from .. import util
 from collections import defaultdict
 from fuzzywuzzy import fuzz
 from operator import attrgetter
@@ -38,6 +38,9 @@ from pathlib import Path
 # For [[push]] parsing, perhaps move elsewhere?
 import lxml.html
 import lxml.etree
+
+import urllib
+from copy import copy
 
 # This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
 # https://anagora.org/auto-pull
@@ -178,7 +181,6 @@ class Graph:
     # and can make use of more sensible algorithms.
     # @cache.memoize(timeout=30)
     def compute_transclusion(self, include_journals=True):
-
         # Add artisanal virtual subnodes (resulting from transclusion/[[push]]) to all nodes.
         for node in self.nodes():
             pushed_subnodes = node.pushed_subnodes()
@@ -955,6 +957,7 @@ class User:
         self.uri = user
         # yikes
         self.url = "/@" + self.uri
+        current_app.logger.debug(f"{current_app.config['SOURCES_CONFIG']}")
         try:
             self.config = [
                 x
@@ -1226,3 +1229,62 @@ def subnodes_by_outlink(wikilink):
         if util.canonical_wikilink(wikilink) in subnode.forward_links
     ]
     return subnodes
+
+
+def build_node(node, extension="", user_list="", qstr=""):
+    current_app.logger.debug(f"[[{node}]]: Assembling node.")
+    # default uprank: system account and maintainers, see config.py.
+    rank = current_app.config["RANK"] or ["agora"]
+    if user_list:
+        # override rank
+        # this comes e.g. from query strings and composition functions.
+        if "," in user_list:
+            rank = user_list.split(",")
+        else:
+            rank = user_list
+
+    # there are some ill-slugged links to anagora.org out there, special casing here for a while at least.
+    # this should probably be made irrelevant by the Big Refactor that we need to do to make the canonical node identifier non-lossy.
+    # UPDATE(2022-06-05): this could probably be removed, needs testing, but with the move to using [[quote plus]] across the board we should be fine?
+    node = node.replace(",", "").replace(":", "")
+
+    # unquote in case the node came in urlencoded, then slugify again to gain the 'dimensionality reduction' effects of
+    # slugs -- and also because G.node() expects a slug as of 2022-01.
+    # yeah, this is a hack.
+    # TODO: fix this, make decoded unicode strings the main IDs within db.py.
+    node = urllib.parse.unquote_plus(node)
+    # hmm, I don't like this slugify.
+    # TODO(2022-06-05): will try to remove it and see what happens.
+    # *but this after fixing go links?*
+    node = util.slugify(node)
+
+    # we copy because we'll potentially modify subnode order, maybe add [[virtual subnodes]].
+    n = copy(G.node(node))
+
+    if n.subnodes:
+        # earlier in the list means more highly ranked.
+        n.subnodes = util.uprank(n.subnodes, users=rank)
+        if extension:
+            # this is pretty hacky but it works for now.
+            # should probably move to a filter method in the node? and get better template support to make what's happening clearer.
+            current_app.logger.debug(f"filtering down to extension {extension}")
+            n.subnodes = [
+                subnode
+                for subnode in n.subnodes
+                if subnode.uri.endswith(f".{extension}")
+            ]
+            n.uri = n.uri + f".{extension}"
+            n.wikilink = n.wikilink + f".{extension}"
+    # n.subnodes.extend(n.exec())
+
+    # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
+    # query is meant to be user parsable / readable text, to be used for example in the UI
+    n.qstr = qstr
+    if not n.qstr:
+        # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
+        n.qstr = n.wikilink.replace("-", " ")
+    # search_subnodes = db.search_subnodes(node)
+    # n.q = n.qstr
+
+    current_app.logger.debug(f"[[{node}]]: Assembled node.")
+    return n

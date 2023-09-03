@@ -13,3 +13,4 @@ node_modules
 .pnpm-debug.log
 app/static/js/index.js
 .vscode/
+garden.db*

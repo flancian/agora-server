@@ -5,5 +5,9 @@
 		"**/.git/subtree-cache/**": true,
 		"**/node_modules/*/**": true,
 		"**/venv/*/**": true
-  }
+},
+"[python]": {
+	"editor.defaultFormatter": "ms-python.black-formatter"
+},
+"python.formatting.provider": "none"
 }

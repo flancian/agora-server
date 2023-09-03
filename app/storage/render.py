@@ -21,9 +21,9 @@
 import re
 import shutil
 import subprocess
-from . import config
+from .. import config
 from . import regexes
-from . import util
+from .. import util
 from marko import Markdown, inline
 from marko.helpers import MarkoExtension
 from orgorapython import parse_string
@@ -45,7 +45,6 @@ class WikilinkElement(inline.InlineElement):
 
 
 class WikilinkRendererMixin(object):
-
     # This name is magic; it must match render_<class_name_in_snake_case>.
     def render_wikilink_element(self, element):
         if "|" in element.target:
@@ -74,7 +73,6 @@ class TiddlylinkElement(inline.InlineElement):
 
 
 class TiddlylinkRendererMixin(object):
-
     # This name is magic; it must match render_<class_name_in_snake_case>.
     def render_tiddlylink_element(self, element):
         return '<span class="wikilink-marker">[[</span><a href="{}" class="wikilink">{}</a><span class="wikilink-marker">]]</span>'.format(
@@ -92,7 +90,6 @@ class HashtagElement(inline.InlineElement):
 
 
 class HashtagRendererMixin(object):
-
     # This name is magic; it must match render_<class_name_in_snake_case>.
     def render_hashtag_element(self, element):
         # return '<span class="wikilink-marker">[[</span><a href="{}">{}</a><span class="wikilink-marker">]]</span>'.format(
@@ -119,10 +116,10 @@ markdown.use(Wikilinks)
 # Org-mode, now much improved through orgora.
 orgmode = parse_string
 
+
 # Mycomarkup
 # If we can, use mycomarkup parser; if not, fall back to markdown which gets us something half readable.
 def mycomarkup(src):
-
     if shutil.which("mycomarkup"):
         ret = subprocess.check_output("mycomarkup", input=bytes(src, "utf-8"))
         ret = ret.decode("utf-8")
@@ -136,6 +133,7 @@ def mycomarkup(src):
 # Embeds.
 # The *application* of this pattern could perhaps be here instead of in... hmm, db.py? Yeah, that doesn't make sense.
 # TODO: [[refactor]].
+
 
 # Twitter embeds.
 # Now disabled, we prefer to embed client side.
@@ -304,7 +302,7 @@ def trim_margin_notes(content, subnode):
 def force_tiddlylink_parsing(content, subnode):
     return re.sub(
         regexes.TIDDLYLINK.pattern,
-        fr"[\1](#\2{TIDDLYHACK})",
+        rf"[\1](#\2{TIDDLYHACK})",
         content,
         flags=re.MULTILINE,
     )
