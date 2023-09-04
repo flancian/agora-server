@@ -33,7 +33,11 @@ class Node:
         self.subnodes = [subnode_from_row(subnode) for subnode in cursor.fetchall()]
 
     def pushed_subnodes(self):
-        return []
+        cursor = get_cursor()
+        cursor.execute(
+            "select * from subnodes where pushes like ?", [f"%{self.title}%"]
+        )
+        return [subnode_from_row(subnode) for subnode in cursor.fetchall()]
 
     def pull_nodes(self):
         return []
@@ -94,7 +98,7 @@ def subnode_from_row(row):
         title=row["title"],
         body=row["body"],
         user=row["user"],
-        updated=row["updated_at"],
+        updated=row["updatedAt"],
     )
 
 
