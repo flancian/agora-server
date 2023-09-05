@@ -146,7 +146,7 @@ def top():
     cursor = get_cursor()
     # add datetime to database
     cursor.execute(
-        "select distinct title from subnodes order by updated_at desc limit 1000"
+        "select distinct title from subnodes order by updatedAt desc limit 1000"
     )
     return [Node(subnode["title"]) for subnode in cursor.fetchall()]
 
@@ -185,5 +185,5 @@ def random_node():
 
 def latest(max):
     cursor = get_cursor()
-    cursor.execute("select * from subnodes order by updated_at desc limit ?", [max])
+    cursor.execute("select * from subnodes order by updatedAt desc limit ?", [max])
     return [subnode_from_row(subnode) for subnode in cursor.fetchall()]
