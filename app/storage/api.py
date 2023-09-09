@@ -90,6 +90,13 @@ def subnodes_by_user(username, sort_by="mtime", mediatype=None, reverse=True):
         case _:
             return
 
+def search_subnodes(query):
+    match STORAGE_ENGINE:
+        case "file":
+            return file_engine.search_subnodes(query)
+        case _:
+            return
+
 
 def search_subnodes_by_user(query, username):
     match STORAGE_ENGINE:
