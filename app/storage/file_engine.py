@@ -23,7 +23,7 @@ import random
 import re
 import time
 import os
-from flask import current_app
+from flask import current_app, request
 from .. import config
 from . import feed
 from . import regexes
@@ -1280,12 +1280,12 @@ def build_node(node, extension="", user_list="", qstr=""):
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
-    n.qstr = qstr
+    n.qstr = qstr or request.args.get("q")
     if not n.qstr:
         # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
         n.qstr = n.wikilink.replace("-", " ")
     # search_subnodes = db.search_subnodes(node)
-    # n.q = n.qstr
+    n.q = n.qstr
 
     current_app.logger.debug(f"[[{node}]]: Assembled node.")
     return n
