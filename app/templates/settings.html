@@ -98,6 +98,7 @@ function saveGitea(){
 }
 
 function saveSettings(){
+        console.log("trying to save settings...")
 		localStorage["ranking"] = document.getElementById("ranking").value
 		localStorage["auto-pull"] = document.getElementById("auto-pull").checked
 		localStorage["auto-pull-extra"] = document.getElementById("auto-pull-extra").checked

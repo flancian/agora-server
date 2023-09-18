@@ -204,33 +204,22 @@ h6 {
     font-style: italic;
 }
 
-.navigation {
-    vertical-align: middle;
-    /* border-color: gray;
-    border-style: dotted;
-    margin: 10px; 
-    border-radius: 20px;
-    padding: 10px;
-    */
-}
-
-.navigation-links::-webkit-scrollbar {
+.navigation::-webkit-scrollbar {
     display: none;
 }
 
-.navigation-links {
-    display: block;
+.navigation {
+    display: flex;
+    gap: 5px; /* but will grow to fit, aren't we living in the future? :)
     vertical-align: middle;
     align-items: center;
-    /*margin: 0 auto;*/
-    text-align: justify;
-    /* text-align: center; */
     /* why doesn't this work? */
     overflow-x: scroll;
     white-space: nowrap;
-    justify-content: center;
     align-content: center;
     align-items: center;
+    width: 100%;
+    justify-content: space-between;
 
     /* hide scrollbar if one is needed, but allow scrolling */
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
