@@ -32,14 +32,14 @@
 	<!-- This is a development Agora, so it's likely better if it's not indexed (it might not be up most of the time). -->
 	<meta name="robots" content="noindex" />
 	{% endif %}
-	<meta name="description" content="The Agora is a crowdsourced distributed knowledge graph: {{config['URI_BASE']}}." />
+	<meta name="description" content="The Agora is a free knowledge commons: {{config['URI_BASE']}}." />
 	<meta name="HandheldFriendly" content="True" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{url_for('agora.search_xml')}}>
 	<link rel="stylesheet" type="text/css"
 		href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached163" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached164" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}"
@@ -125,11 +125,10 @@
 				<div class="topline-agora">
                     <strong>↳ in the <a href="{{config['URL']}}"><strong>{{config['AGORA_NAME']}}</strong></a> ⬎</strong>
 					<div>
-						<button id="pull-all" value="pull-all" title="Pulls (embeds) all links that can be pulled below">pull all</button>
                         <!--
 						<button id="fold-all" value="fold-all" title="Folds (collapses) embeds below">fold all</button>
-                        -->
                         <button id="retry-elsewhere" value="retry-elsewhere" title="Retries elsewhere (if possible); useful if any of the subnodes below surfaced errors">retry</button>
+                        -->
 					</div> 
 				</div>
 
@@ -152,14 +151,12 @@
 	<div id='footer'>
         <center>
         ⸎
-		Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong> in <strong>__EXECTIME__s</strong>
-        <p>
+		Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong> in <strong>__EXECTIME__s</strong>.
         {% if not embed %}
-        <strong>May you be happy!</strong>
+        May you be happy!
         {% else %}
-        <strong>May you be free from suffering!</strong>
+        May you be free!
         {% endif %}
-        </p>
         </center>
 	</div>
 

@@ -401,9 +401,14 @@ input[type="text"] {
 
 .node-header, .context-header, .stoa-header, .ctzn-header {
     display: flex;
+    justify-content: space-between;
     text-align: left;
     font-weight: bolder;
     padding-bottom: 2px;
+}
+
+.node-name {
+    text-transform: capitalize;
 }
 
 .not-found {
