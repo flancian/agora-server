@@ -18,23 +18,26 @@
 <div class="node" id="{{node.uri}}">
     <div class="node-header main-header"><span>📚 Node <a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">[[{{node.qstr}}]]</span></a></span></div>
     <div class="not-found subnode" data-author="agora">
-           <strong>Nobody has noded "<em>{{node.qstr}}</em>"</strong> in this Agora yet, but you can do it if you want to:
+           <strong>Nobody has noded "<a href="/{{node.qstr}}">{{node.qstr}}</a>"</strong> in this Agora yet, but you can do it if you want to:
 
             <ul>
             <li>
                 <strong><a href="/join">Join</a> and contribute your self-hosted writing and media.</strong>
                 <ul>
-                    <li>You can integrate your blog, digital garden or wiki into this <a href="/knowledge-commons">Knowledge Commons</a>.
+                    <li>You can integrate your blog, digital garden or wiki into this <a href="/knowledge-commons">knowledge commons</a>.
                     <li>Some setup required :) Please <a href="/agora-discuss">reach out</a> if interested and we'll try to help!</li>
                 </ul>
                 </li>
             </li>
             <li>
-                <strong><a href="/post">Post</a> from social media.</strong>
+                <strong><a href="/post">Post</a> from social media and chat.</strong>
                 <ul>
                 <li>
-                    You can post from your social media accounts and chat rooms.
-                    If you are in the <a href="/fediverse">Fediverse</a>, follow an <a href="/agora-bot">Agora bot</a> and mention a <a href='/node'>node</a> like [[<a href="/{{node.qstr}}">{{node.qstr}}</a>]] and the Agora will try to link your post and optionally save a copy of your contribution.
+                    You can cross-post from the <a href="/fediverse">Fediverse</a> and <a href="/matrix">Matrix</a>.
+                </li>
+                <li>
+                    Follow an <a href="/agora-bot">Agora bot</a> and mention an entity using double square brackets notation (like [[<a href="/{{node.qstr}}">{{node.qstr}}</a>]]) and an Agora will try to link your post and optionally save a copy of your contribution.
+                </li>
                 </li>
                 </ul>
             </li> 
@@ -42,10 +45,10 @@
                 <strong><a href="/write">Write</a> in a Stoa.</strong>
                 <ul>
                 <li>
-                What you write in documents found above or below might be imported into this Agora node later or found by other visitors to the same Stoa.
+                    What you write in locations marked as <a href="/stoas">Stoas</a> might be imported into this node later or otherwise found by future visitors.
                 </li>
                 <li>
-                Doesn't require signup.
+                Doesn't require signup. Go ahead and play :)
                 </li>
                 </ul>
             </li> 
