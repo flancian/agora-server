@@ -340,6 +340,8 @@ class Node:
         self.actual_uri = current_app.config["URI_BASE"] + "/" + self.uri
         # This will be filled in by G as it generates all nodes.
         self.subnodes = []
+        # Same here.
+        self.executable_subnodes = []
 
     def __lt__(self, other):
         return self.wikilink.lower() < other.wikilink.lower()
