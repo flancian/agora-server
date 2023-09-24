@@ -6,7 +6,13 @@
                         href="/@{{subnode.user}}">@{{subnode.user}}</a></span></span>
         </div>
         <ul>
+        {% if argument %}
+            <!-- executable subnode -->
+            {{ subnode.render(argument)|linkify|safe }}
+        {% else %}
             {{ subnode.render()|linkify|safe }}
+        {% endif %}
+
         </ul>
     </div>
     {% endfor %}

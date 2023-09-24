@@ -185,9 +185,9 @@ class Graph:
             n.subnodes = node_to_subnodes[node]
             nodes[node] = n
 
-        # New as per 2023-09 :)
-        # These need to execute before producing something usable (run exec() on them, usually 
-        # in an "async" path (as pushes).
+            # New as per 2023-09 :)
+            # These need to execute before producing something usable (run exec() on them, usually 
+            # in an "async" path (as pushes).
             n.executable_subnodes = node_to_executable_subnodes[node]
 
         end = datetime.datetime.now()
@@ -289,8 +289,7 @@ class Graph:
         else:
             return subnodes
 
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
-    def executable_subnodes(self, sort=lambda x: x.uri.lower()):
+    def executable_subnodes(self):
         """Executable subnodes: subnodes that require execution to produce a resource.
 
         I feel this is one of the most anarchistic bits of the Agora and I like it a lot, let's see what happens in practice though ;)
@@ -589,11 +588,13 @@ class Node:
     def exec(self):
         # returns the blocks (subnodes/resources) that this node *execution* outputs if any.
         # This means node-specific code contributed as ({exec,bin}/<node>.py) by users in high-trust Agoras.
+        # TODO: do we call this? Or instead just call render()?
         subnodes = []
 
         for subnode in self.executable_subnodes:
             # Note as of 2023-09 we don't support #push (or other actions?) from executable subnodes.
-            subnodes.append(VirtualSubnode(subnode, self.wikilink, subnode.exec()))
+            if parameters:
+                subnodes.append(VirtualSubnode(subnode, self.wikilink, subnode.exec(parameters)))
 
         return subnodes
 
@@ -756,7 +757,7 @@ class Subnode:
         # hack hack
         return 100 - fuzz.ratio(self.wikilink, other.wikilink)
 
-    def render(self):
+    def render(self, argument=''):
         if self.mediatype not in ["text/plain", "text/html"]:
             # hack hack
             return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /> <br />'.format(
@@ -1001,9 +1002,15 @@ class ExecutableSubnode(Subnode):
         self.mediatype = 'text/html'
         self.content = f'This should be the output of script {self.uri}.'
 
-    def render(self):
+    def render(self, argument=''):
+
+        current_app.logger.info(f"In ExecutableSubnode render (args: {argument})")
         # YOLO, use with caution only in high trust Agoras -- which will hopefully remain most of them ;)
-        self.content = '```\n' + subprocess.run([self.path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") + '\n```'
+        if argument:
+            output = subprocess.run([self.path, argument], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
+        else:
+            output = subprocess.run([self.path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
+        self.content = '```\n' + output + '```'
         content = render.preprocess(self.content, subnode=self)
         content = render.markdown(content)
         ret = render.postprocess(content)
@@ -1383,3 +1390,12 @@ def build_node(node, extension="", user_list="", qstr=""):
 
     current_app.logger.debug(f"[[{node}]]: Assembled node.")
     return n
+
+def build_multinode(node0, node1, extension="", user_list="", qstr=""):
+    current_app.logger.debug(f"[[{node0}/{node1}]]: Assembling multinode (composition).")
+
+    n0 = build_node(node0, extension, user_list, qstr)
+    n1 = build_node(node1, extension, user_list, qstr)
+
+    current_app.logger.debug(f"[[{node0}/{node1}]]: Assembled multinode.")
+    return n0

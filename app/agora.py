@@ -94,7 +94,6 @@ def node(node, extension="", user_list=""):
     n = api.build_node(node)
 
     return render_template(
-        # yuck
         "content.html",
         node=n,
         config=current_app.config,
@@ -106,6 +105,17 @@ def node(node, extension="", user_list=""):
         # annotations_enabled=True,
     )
 
+@bp.route("/<node0>/<node1>")
+def node2(node0, node1):
+    n = api.build_multinode(node0, node1)
+
+    return render_template(
+        "content.html",
+        node=n,
+        argument=node1,
+        config=current_app.config,
+        # annotations_enabled=True,
+    )
 
 @bp.route("/feed/<node>")
 def node_feed(node):
@@ -385,15 +395,18 @@ def go(node0, node1=""):
 
 @bp.route("/push/<node>/<other>")
 def push2(node, other):
-    # OLD, maybe unused?
-    n = G.node(node)
-    o = G.node(other)
-    pushing = n.pushing(o)
-    # This is a list of VirtualSubnodes now, which make sense but doesn't work here.
-    # TODO: do something useful.
 
-    return Response(pushing)
+    current_app.logger.info(f">>> push2 arg: {other}.")
+    # returns by default an html view for the 'pushing here' section / what is being received in associated feeds
+    n = api.build_node(node)
 
+    return render_template(
+        "push.html",
+        argument=other,
+        pushed_subnodes=n.pushed_subnodes(),
+        embed=True,
+        node=n,
+    )
 
 @bp.route("/push/<node>")
 def push(node):

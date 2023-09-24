@@ -443,12 +443,20 @@ document.addEventListener("DOMContentLoaded", function () {
    $(".pushed-subnodes-embed").each(function (e) {
       // auto pull pushed subnodes by default.
       // it would be better to infer this from node div id?
-      let node = NODENAME
+      let node = NODENAME;
+      let arg = ARG;
       let id = "#" + node + " .pushed-subnodes-embed";
       console.log('auto pulling pushed subnodes, will write to id: ' + id);
-      $.get(AGORAURL + '/push/' + node, function (data) {
-        $(id).html(data);
-      });
+      if (arg != '') {
+        $.get(AGORAURL + '/push/' + node + '/' + arg, function (data) {
+            $(id).html(data);
+        });
+      }
+      else {
+        $.get(AGORAURL + '/push/' + node, function (data) {
+            $(id).html(data);
+        });
+      }
       // end auto pull pushed subnodes.
     });
 

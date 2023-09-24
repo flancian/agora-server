@@ -12,6 +12,14 @@ def build_node(title):
         case "sqlite":
             return sqlite_engine.build_node(title)
 
+def build_multinode(node0, node1):
+    match STORAGE_ENGINE:
+        case "file":
+            return file_engine.build_multinode(node0, node1)
+        case "sqlite":
+            # TODO: implement
+            # return sqlite_engine.build_node(title)
+            return file_engine.build_multinode(node0, node1)
 
 def Graph():
     match STORAGE_ENGINE:
