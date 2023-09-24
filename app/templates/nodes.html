@@ -20,14 +20,17 @@
 <div class="listing node">
     
 {% if header %}
+<div class="node-header main-header"><span>📚 {{header}}</span></div>
 <h1> {{header}} </h1>
 {% else %}
-<h1> Nodes </h1>
+<div class="node-header main-header"><span>📚 All nodes</span></div>
 {% endif %}
 
 {% if stats %}
 <p>
-This Agora contains <strong>{{stats['nodes']}} nodes</strong> integrated out of <strong>{{stats['subnodes']}} subnodes by <strong>{{stats['users']}} users</strong>.</strong><br />
+This Agora contains <strong>{{stats['nodes']}}</strong> nodes integrated out of <strong>{{stats['subnodes']}}</strong> resources contributed by <a href="/users"><strong>{{stats['users']}} users</a></strong>.</strong>
+</p>
+<p>
 There are <strong>{{stats['edges']}} links</strong>.
 </p>
 
@@ -39,11 +42,11 @@ There are <strong>{{stats['edges']}} links</strong>.
 
 {% endif %}
 
-The <strong>top 1000 nodes</strong> by cardinality (number of resources attached) follow.<br />
+<strong>Top 1000 nodes:</strong>
+<br />
 {% for node in nodes[:1000] %}
 
 <a href="{{node.url}}">{{node.wikilink}}</a> <span style="font-weight: lighter">({{node.size()}})</span>
-<br />
 
 {% endfor %}
 

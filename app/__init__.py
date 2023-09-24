@@ -21,26 +21,27 @@ from . import util
 from app.exec import *
 from flask_cors import CORS
 
+
 def create_app():
 
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    config = os.environ.get('AGORA_CONFIG', 'DevelopmentConfig')
-    app.config.from_object('app.config.' + config)
+    config = os.environ.get("AGORA_CONFIG", "DevelopmentConfig")
+    app.config.from_object("app.config." + config)
     CORS(app)
 
     # there's probably a better way to make this distinction, but this works.
-    if config == 'ProductionConfig':
+    if config == "ProductionConfig":
         logging.basicConfig(
-            filename='agora.log', 
+            filename="agora.log",
             level=logging.WARNING,
-            format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
-            )
+            format="%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s",
+        )
     else:
         logging.basicConfig(
             level=logging.DEBUG,
-            format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
-            )
+            format="%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s",
+        )
 
     # ensure the instance folder exists
     try:
@@ -52,19 +53,19 @@ def create_app():
     app.register_blueprint(agora.bp)
     # Actions (mounted under "exec").
     app.register_blueprint(default.bp)
-    app.add_url_rule('/', endpoint='index')
+    app.add_url_rule("/", endpoint="index")
 
-    @app.template_filter('linkify')
+    @app.template_filter("linkify")
     def linkify(s):
-         return bleach.linkify(s)
+        return bleach.linkify(s)
 
     @app.before_request
     def log_entry():
-      app.logger.debug('Initiating request handling.')
+        app.logger.debug("Initiating request handling.")
 
     @app.after_request
     def log_exit(req):
-      app.logger.debug(f'Finished handling {req}.')
-      return req
+        app.logger.debug(f"Finished handling {req}.")
+        return req
 
     return app

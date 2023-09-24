@@ -14,6 +14,10 @@
 
 from . import bp, Response
 
-@bp.route('/exec/default')
+
+@bp.route("/exec/default")
 def default():
-    return Response(f"Default exec handler, no-op. Pass /exec/action or /exec/action/parameter to roll.", mimetype='text/html')
+    return Response(
+        f"Default exec handler, no-op. Pass /exec/action or /exec/action/parameter to roll.",
+        mimetype="text/html",
+    )

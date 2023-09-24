@@ -40,10 +40,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // If the user's preference in localStorage is dark...
   if (currentTheme == "dark") {
     theme.href = "/static/css/screen-dark.css";
-    toggle.innerHTML = '🌞 theme';
+    toggle.innerHTML = '🌞 Theme';
   } else if (currentTheme == "light") {
     theme.href = "/static/css/screen-light.css";
-    theme.innerHTML = '🌙 theme';
+    theme.innerHTML = '🌙 Theme';
   }
 
   // Listen for a click on the button
@@ -56,11 +56,11 @@ document.addEventListener("DOMContentLoaded", function () {
       theme.href = "/static/css/screen-dark.css";
       // this doesn't work and I don't know why, but it also doesn't seem like a priority :)
       localStorage.setItem("theme", "dark");
-      toggle.innerHTML = '🌞 theme';
+      toggle.innerHTML = '🌞 Theme';
     } else {
       theme.href = "/static/css/screen-light.css";
       localStorage.setItem("theme", "light");
-      toggle.innerHTML = '🌙 theme';
+      toggle.innerHTML = '🌙 Theme';
     }
   });
 
@@ -304,7 +304,7 @@ document.addEventListener("DOMContentLoaded", function () {
       let oembed_req = domain + '/api/oembed?url=' + actual_url
       $.get(oembed_req, function (data) {
         console.log('oembed: ' + data['html'])
-        let html = data['html']
+        let html = '<br /> ' + data['html']
         $(self).after(html);
       });
     });
@@ -315,6 +315,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (this.classList.contains('pulled')) {
       div = $(e.currentTarget).nextAll('.mastodon-embed')
       div.remove()
+      br = $(e.currentTarget).nextAll('')
+      br.remove()
       this.innerText = 'pull';
       this.classList.remove('pulled');
     }

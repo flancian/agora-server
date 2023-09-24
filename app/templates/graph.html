@@ -14,59 +14,76 @@
  limitations under the License.
 -->
 
-<div id="graph"></div>
+<div id="graph">Loading graph, please wait...</div>
 
 <script>
     console.log("loading graph...")
     fetch("{{config['URL_BASE']}}/graph/json/{{node.uri}}").then(res => res.json()).then(data => {
     const container = document.getElementById('graph');
-    const currentTheme = localStorage.getItem("theme");
+    const currentTheme = localStorage.getItem("theme") || 'light';
     // const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
     const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
     const edgeColor = (currentTheme == 'light' ? 'rgba(50, 50, 50, 1)' : 'rgba(200, 200, 200, 1)')
 
     console.log('graph center:' + NODENAME)
     const Graph = ForceGraph()(container);
-    Graph.height(container.clientHeight)
-        .width(container.clientWidth)
-        .onNodeClick(node => {
-            let url = "{{config['URL_BASE']}}/" + node.id;
-            location.assign(url)
-        })
-        .graphData(data)
-        .nodeId('id')
-        .nodeVal('val')
-        .nodeAutoColorBy('group')
-        .nodeCanvasObject((node, ctx, globalScale) => {
-          const label = node.name;
-          var fontSize = 12/globalScale;
-          if (node.id == NODENAME) {
-            fontSize = 24/globalScale;
-            }
-          ctx.font = `${fontSize}px Sans-Serif`;
-          const textWidth = ctx.measureText(label).width;
-          const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+    if (data.nodes.length > 20) {
+        // for "large" graphs, render nodes as circles.
+        Graph.height(container.clientHeight)
+            .width(container.clientWidth)
+            .onNodeClick(node => {
+                let url = "{{config['URL_BASE']}}/" + node.id;
+                location.assign(url)
+            })
+            .graphData(data)
+            .nodeId('id')
+            .nodeVal('val')
+            .nodeAutoColorBy('group')
+        }
+        else {
+        // for "small" graphs, render nodes as labels.
+            Graph.height(container.clientHeight)
+            .width(container.clientWidth)
+            .onNodeClick(node => {
+                let url = "{{config['URL_BASE']}}/" + node.id;
+                location.assign(url)
+            })
+            .graphData(data)
+            .nodeId('id')
+            .nodeVal('val')
+            .nodeAutoColorBy('group')
+            .nodeCanvasObject((node, ctx, globalScale) => {
+            const label = node.name;
+            var fontSize = 12/globalScale;
+            if (node.id == NODENAME) {
+                fontSize = 24/globalScale;
+                }
+            ctx.font = `${fontSize}px Sans-Serif`;
+            const textWidth = ctx.measureText(label).width;
+            const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
 
-          ctx.fillStyle = backgroundColor;
-          ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
 
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = node.color;
-          ctx.fillText(label, node.x, node.y);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = node.color;
+            ctx.fillText(label, node.x, node.y);
 
-          node.__bckgDimensions = bckgDimensions; // to re-use in nodePointerAreaPaint
-        })
-        .linkDirectionalArrowLength(3)
-        .linkColor(() => edgeColor)
-        //.d3Force('collision', d3.forceCollide(node => Math.sqrt(100 / (node.level + 1)) * NODE_REL_SIZE))
-        .nodePointerAreaPaint((node, color, ctx) => {
-          ctx.fillStyle = color;
-          const bckgDimensions = node.__bckgDimensions;
-          bckgDimensions && ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
-        });
-    Graph.zoom(3);
-    Graph.onEngineStop(() => Graph.zoomToFit(400));
+            node.__bckgDimensions = bckgDimensions; // to re-use in nodePointerAreaPaint
+            })
+            .linkDirectionalArrowLength(3)
+            .linkColor(() => edgeColor)
+            //.d3Force('collision', d3.forceCollide(node => Math.sqrt(100 / (node.level + 1)) * NODE_REL_SIZE))
+            .nodePointerAreaPaint((node, color, ctx) => {
+            ctx.fillStyle = color;
+            const bckgDimensions = node.__bckgDimensions;
+            bckgDimensions && ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+            });
+        }
+        Graph.zoom(3);
+        Graph.cooldownTime(5000); // default is 15000ms
+        Graph.onEngineStop(() => Graph.zoomToFit(400));
     });
 
     // fit to canvas when engine stops

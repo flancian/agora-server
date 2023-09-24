@@ -42,6 +42,7 @@ body {
     overflow-x: hidden;
     max-width: 77em;
     font-size: var(--base-fontsize);
+    align-content: center;
 }
 
 pre {
@@ -53,13 +54,23 @@ a {
 }
 
 nav {
-    font-family: sans-serif
+    font-family: sans-serif;
+    max-width: 100%;
+    align-content: center;
 }
 
 /* this prevents too large images from breaking layouts */
 img {
     max-width: 100%;
     height: auto;
+}
+
+button {
+    border: 1px #999 solid;
+    font-size: 12px;
+    border-radius: 4px;
+    background: #ddd;
+    text-transform: capitalize;
 }
 
 li img {
@@ -193,33 +204,22 @@ h6 {
     font-style: italic;
 }
 
-.navigation {
-    vertical-align: middle;
-    /* border-color: gray;
-    border-style: dotted;
-    margin: 10px; 
-    border-radius: 20px;
-    padding: 10px;
-    */
-}
-
-.navigation-links::-webkit-scrollbar {
+.navigation::-webkit-scrollbar {
     display: none;
 }
 
-.navigation-links {
-    display: block;
+.navigation {
+    display: flex;
+    gap: 5px; /* but will grow to fit, aren't we living in the future? :)
     vertical-align: middle;
     align-items: center;
-    /*margin: 0 auto;*/
-    text-align: justify;
-    /* text-align: center; */
     /* why doesn't this work? */
     overflow-x: scroll;
     white-space: nowrap;
-    justify-content: center;
     align-content: center;
     align-items: center;
+    width: 100%;
+    justify-content: space-between;
 
     /* hide scrollbar if one is needed, but allow scrolling */
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
@@ -271,8 +271,10 @@ input[type="text"] {
     vertical-align: middle;
     /* does not work, will be removed shortly */
     overflow-y: auto;
-    margin: 10px;
     width: auto;
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-left: 10px;
 }
 
 .topline-query {
@@ -316,9 +318,21 @@ input[type="text"] {
     border-style: solid;
     border-width: 1px;
     /*border-style: dotted;*/
-    margin: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     /*border-radius: 20px;*/
     padding: 10px;
+}
+
+.context-all {
+    /*border-color: #7f5af0;*/
+    position: relative;
+    height: 800px;
+    border-color: gray;
+    border-style: solid;
+    border-width: 1px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .left {
@@ -335,7 +349,8 @@ input[type="text"] {
     border-width: 1px;
     border-style: solid;
     /*border-style: dotted;*/
-    margin: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     /*border-radius: 20px;*/
     padding: 10px;
 }
@@ -345,7 +360,8 @@ input[type="text"] {
     border-color: gray;
     border-width: 1px;
     border-style: solid;
-    margin: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     /*border-radius: 20px;*/
     padding: 10px;
 }
@@ -369,7 +385,8 @@ input[type="text"] {
     /* background: #150d38; */
     color: #cfcfcf;
     padding: 10px;
-    margin: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     /*border-radius: 20px;*/
 }
 
@@ -377,16 +394,21 @@ input[type="text"] {
     background: #101010;
     color: #cfcfcf;
     padding: 10px;
-    margin: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     /*border-radius: 20px;*/
 }
 
 .node-header, .context-header, .stoa-header, .ctzn-header {
     display: flex;
+    justify-content: space-between;
     text-align: left;
-    margin-left: 10px;
     font-weight: bolder;
     padding-bottom: 2px;
+}
+
+.node-name {
+    text-transform: capitalize;
 }
 
 .not-found {
@@ -432,6 +454,9 @@ input[type="text"] {
     font-weight: normal;
 }
 
+.footer {
+}
+
 .node-actions {
     text-align: right;
     text-decoration: none;
@@ -442,7 +467,7 @@ input[type="text"] {
 .subnode-id {
     max-width: 81%;
 }
-
+Served by the Agora of Flancia in 15.67 seconds on 2023-07-15 22:09:20. May you be happy!
 .subnode-id a {
     text-decoration: none;
 }
@@ -551,15 +576,10 @@ input[type="text"] {
 }
 
 #agoragraph {
-    overflow: hidden;
-    /*border-radius: 20px;*/
-    padding: 10px;
-    margin: 10px;
-    max-width: 900px;
-    max-height: 600px;
+    height: 100%;
+    width: 100%;
+    position: absolute;
 }
-
-
 
 .search-header {
     font-weight: bolder;

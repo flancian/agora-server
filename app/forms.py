@@ -13,10 +13,12 @@
 # limitations under the License.
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextField, SubmitField
+from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length
+
 
 class SearchForm(FlaskForm):
     """Search form."""
-    query = StringField('Query', [DataRequired()])
-    submit = SubmitField('Search')
+
+    query = StringField("Query", [DataRequired()])
+    submit = SubmitField("Search")

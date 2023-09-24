@@ -17,33 +17,34 @@
 import re
 import urllib
 from flask import current_app, redirect, url_for
-from . import db
-from . import util
+from . import file_engine as db
+from .. import util
 
 from json import dumps
 from rdflib import Graph, Namespace, URIRef
 
 
 def add_node(node: db.Node, g: Graph, only_forward=False):
-
-    base = current_app.config['URL_BASE']
+    base = current_app.config["URL_BASE"]
     for linked_node in node.forward_links():
-        if re.search('<.*>', linked_node):
+        if re.search("<.*>", linked_node):
             # work around links with html in them (?)
             continue
-        if '|' in linked_node:
+        if "|" in linked_node:
             # early support for https://anagora.org/go/agora-rfc/2
-            linked_node = re.sub('|.*', '', linked_node)
+            linked_node = re.sub("|.*", "", linked_node)
 
         # this does away with lots of encoding problems in irregular links, but also encodes unicode characters, so some legibility is lost in the final result unless it is urldecoded.
         linked_node = urllib.parse.quote_plus(linked_node)
         n0 = urllib.parse.quote_plus(node.wikilink)
         n1 = linked_node
-        g.add((
-            URIRef(f"{base}/{n0}"),
-            URIRef(f"{base}/links"),
-            URIRef(f"{base}/{n1}"),
-        ))
+        g.add(
+            (
+                URIRef(f"{base}/{n0}"),
+                URIRef(f"{base}/links"),
+                URIRef(f"{base}/{n1}"),
+            )
+        )
 
     if only_forward:
         return
@@ -51,46 +52,52 @@ def add_node(node: db.Node, g: Graph, only_forward=False):
     for backlinking_node in node.back_links():
         n0 = backlinking_node
         n1 = node.wikilink
-        g.add((
-            URIRef(f"{base}/{n0}"),
-            URIRef(f"{base}/links"),
-            URIRef(f"{base}/{n1}"),
-        ))
+        g.add(
+            (
+                URIRef(f"{base}/{n0}"),
+                URIRef(f"{base}/links"),
+                URIRef(f"{base}/{n1}"),
+            )
+        )
 
     for pushing_node in node.pushing_nodes():
         n0 = node.wikilink
         n1 = linked_node
-        g.add((
-            URIRef(f"{base}/{n0}"),
-            URIRef(f"{base}/pushes"),
-            URIRef(f"{base}/{n1}"),
-        ))
+        g.add(
+            (
+                URIRef(f"{base}/{n0}"),
+                URIRef(f"{base}/pushes"),
+                URIRef(f"{base}/{n1}"),
+            )
+        )
 
     for pulling_node in node.pulling_nodes():
         n0 = pulling_node
         n1 = node.wikilink
-        g.add((
-            URIRef(f"{base}/{n0}"),
-            URIRef(f"{base}/pulls"),
-            URIRef(f"{base}/{n1}"),
-        ))
+        g.add(
+            (
+                URIRef(f"{base}/{n0}"),
+                URIRef(f"{base}/pulls"),
+                URIRef(f"{base}/{n1}"),
+            )
+        )
+
 
 def turtle_node(node) -> str:
-
-    base = current_app.config['URL_BASE']
+    base = current_app.config["URL_BASE"]
     g = Graph()
     agora = Namespace("{base}/")
-    g.namespace_manager.bind('agora', agora)
+    g.namespace_manager.bind("agora", agora)
 
     add_node(node, g)
     return g.serialize(format="turtle")
 
-def turtle_nodes(nodes) -> str:
 
-    base = current_app.config['URL_BASE']
+def turtle_nodes(nodes) -> str:
+    base = current_app.config["URL_BASE"]
     g = Graph()
     agora = Namespace("{base}/")
-    g.namespace_manager.bind('agora', agora)
+    g.namespace_manager.bind("agora", agora)
 
     print(f"turtling agora using forward links only")
     node_count = len(nodes)
@@ -101,9 +108,9 @@ def turtle_nodes(nodes) -> str:
 
     return g.serialize(format="turtle")
 
-def parse_node(node: db.Node) -> dict:
 
-    base = current_app.config['URL_BASE']
+def parse_node(node: db.Node) -> dict:
+    base = current_app.config["URL_BASE"]
     d = dict()
     d["nodes"] = []
     d["links"] = []
@@ -116,56 +123,56 @@ def parse_node(node: db.Node) -> dict:
     pulling_nodes = [n.wikilink for n in node.pulling_nodes()]
 
     if pushing_nodes:
-        unique_nodes.add('push')
+        unique_nodes.add("push")
         for pushing_node in pushing_nodes:
             n0 = this
             n1 = pushing_node
-            d["links"].append({'source': n1, 'target': "push"})
-            d["links"].append({'source': "push", 'target': n0})
+            d["links"].append({"source": n1, "target": "push"})
+            d["links"].append({"source": "push", "target": n0})
             unique_nodes.add(n0)
             unique_nodes.add(n1)
 
     if pulling_nodes:
-        unique_nodes.add('pull')
+        unique_nodes.add("pull")
         for pulling_node in pulling_nodes:
             n0 = this
             n1 = pulling_node
-            d["links"].append({'source': n0, 'target': "pull"})
-            d["links"].append({'source': "pull", 'target': n1})
+            d["links"].append({"source": n0, "target": "pull"})
+            d["links"].append({"source": "pull", "target": n1})
             unique_nodes.add(n0)
             unique_nodes.add(n1)
 
     if back_links:
-        unique_nodes.add('back')
+        unique_nodes.add("back")
         for backlinking_node in back_links:
-            if backlinking_node in ['pull', 'push']:
+            if backlinking_node in ["pull", "push"]:
                 continue
             if backlinking_node in pushing_nodes or backlinking_node in pulling_nodes:
-                print(f'discarded {node} because of being in pushed/pull list.')
+                print(f"discarded {node} because of being in pushed/pull list.")
                 continue
             n0 = backlinking_node
             n1 = this
-            d["links"].append({'source': n0, 'target': "back"})
-            d["links"].append({'source': "back", 'target': n1})
+            d["links"].append({"source": n0, "target": "back"})
+            d["links"].append({"source": "back", "target": n1})
             unique_nodes.add(n0)
             unique_nodes.add(n1)
 
     if forward_links:
-        unique_nodes.add('forward')
+        unique_nodes.add("forward")
         for linked_node in forward_links:
-            if linked_node in ['pull', 'push']:
+            if linked_node in ["pull", "push"]:
                 continue
-            if re.search('<.*>', linked_node):
+            if re.search("<.*>", linked_node):
                 # work around links with html in them (?)
                 continue
-            if '|' in linked_node:
+            if "|" in linked_node:
                 # early support for {base}/go/agora-rfc/2
-                linked_node = re.sub('|.*', '', linked_node)
+                linked_node = re.sub("|.*", "", linked_node)
             n0 = this
             n1 = linked_node
             # without these intermediate nodes, the force graph layout kind of sucks -- backlinks and outlinks intermingle in a symmetrical wheel.
-            d["links"].append({'source': n0, 'target': "forward"})
-            d["links"].append({'source': "forward", 'target': n1})
+            d["links"].append({"source": n0, "target": "forward"})
+            d["links"].append({"source": "forward", "target": n1})
             # seems more reasonable but doesn't work (for now?)
             # d["links"].append({'source': n0, 'target': n1})
             unique_nodes.add(n0)
@@ -173,25 +180,48 @@ def parse_node(node: db.Node) -> dict:
 
     for n in unique_nodes:
         if n == node.wikilink:
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 16, 'group': 2})
-        elif n == 'pull':
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
-        elif n == 'push':
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
-        elif n == 'back':
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
-        elif n == 'forward':
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 4, 'group': 8})
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 6, "group": 1}
+            )
+        elif n == "back":
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 3, "group": 2}
+            )
+        elif n == "forward":
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 3, "group": 2}
+            )
+        elif n == "pull":
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 3, "group": 3}
+            )
+        elif n == "push":
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 3, "group": 3}
+            )
         elif n in back_links:
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 1})
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 1, "group": 4}
+            )
         elif n in forward_links:
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 3})
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 1, "group": 5}
+            )
         elif n in pulling_nodes:
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 4})
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 1, "group": 6}
+            )
         elif n in pushing_nodes:
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 5})
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 1, "group": 7}
+            )
+        elif n == "":
+            # sometimes we get an empty forward link.
+            continue
         else:
-            d["nodes"].append({'id': n, 'name': n.replace('-', ' '), 'val': 1, 'group': 10})
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 1, "group": 8}
+            )
 
     return d
 
@@ -210,10 +240,10 @@ def json_nodes(nodes):
     # the code duplication can be fixed with refactoring; more important is whether going through RDF makes sense at all.
     # I think because RDF does some cleanup to get to "well formed ids" there might be enough of a benefit from reusing that.
 
-    base = current_app.config['URL_BASE']
+    base = current_app.config["URL_BASE"]
     g = Graph()
     agora = Namespace(f"{base}/")
-    g.namespace_manager.bind('agora', agora)
+    g.namespace_manager.bind("agora", agora)
 
     print(f"jsoing agora using forward links only")
     node_count = len(nodes)
@@ -225,7 +255,7 @@ def json_nodes(nodes):
         add_node(node, g, only_forward=True)
 
     d = {}
-    nodes_to_render = []
+    nodes_to_render = set()
     d["nodes"] = []
     d["links"] = []
 
@@ -239,15 +269,20 @@ def json_nodes(nodes):
         size = node.size()
         # if size <= 4:
         #     continue
-        d["nodes"].append({'id': f"{base}/{node.uri}", 'name': node.description, 'val': size})
-        nodes_to_render.append(f"{base}/{node.uri}")
+        d["nodes"].append(
+            {"id": f"{base}/{node.uri}", "name": node.description, "val": size}
+        )
+        nodes_to_render.add(f"{base}/{node.uri}")
+
+    print(f"Have unique nodes, building triples...")
 
     for n0, link, n1 in g.triples((None, None, None)):
+        # This was slow when we were using a list instead of a set.
         if str(n0) in nodes_to_render and str(n1) in nodes_to_render:
-            d["links"].append({'source': n0, 'target': n1})
+            d["links"].append({"source": n0, "target": n1})
+            # print(f".", end="", flush=True)
             # this takes care of links to non-existent nodes, added with value 1 by default.
             # now commented as we don't graph those by default.
             # d["nodes"].append({'id': n1, 'name': n1, 'val': 1})
-        
+
     return dumps(d)
-  

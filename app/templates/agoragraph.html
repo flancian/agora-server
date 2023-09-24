@@ -14,7 +14,7 @@
  limitations under the License.
 -->
 
-<div id="agoragraph">Graph still loading...</div>
+<div id="agoragraph">Graph loading, please wait...</div>
 
 <script>
     console.log("loading graph...")
@@ -39,7 +39,8 @@
             location.assign(url)
         })
         .graphData(data);
-    // AgoraGraph.zoom(3);
+    AgoraGraph.zoom(0.1);
+    AgoraGraph.cooldownTime(60000); // default is 15000ms
     // AgoraGraph.onEngineStop(() => AgoraGraph.zoomToFit(400));
     });
 
