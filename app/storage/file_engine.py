@@ -1400,4 +1400,8 @@ def build_multinode(node0, node1, extension="", user_list="", qstr=""):
     n1 = build_node(node1, extension, user_list, qstr)
 
     current_app.logger.debug(f"[[{node0}/{node1}]]: Assembled multinode.")
+    # hack hack
+    n0.qstr = node0 + '/' + node1
+    n0.q = n0.qstr
+
     return n0
