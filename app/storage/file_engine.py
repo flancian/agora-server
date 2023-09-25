@@ -1009,9 +1009,9 @@ class ExecutableSubnode(Subnode):
         current_app.logger.info(f"In ExecutableSubnode render (args: {argument})")
         # YOLO, use with caution only in high trust Agoras -- which will hopefully remain most of them ;)
         if argument:
-            output = subprocess.run([self.path, argument], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
+            output = subprocess.run(['/usr/bin/timeout', '-v', '3', self.path, argument], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
         else:
-            output = subprocess.run([self.path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
+            output = subprocess.run(['/usr/bin/timeout', '-v', '3', self.path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
         self.content = '```\n' + output + '```'
         content = render.preprocess(self.content, subnode=self)
         content = render.markdown(content)
