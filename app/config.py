@@ -125,6 +125,9 @@ class DevelopmentConfig(DefaultConfig):
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_STOA = True
 
+    # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
+    ENABLE_EXECUTABLE_NODES = True
+
 
 class LocalDevelopmentConfig(DefaultConfig):
     URL_BASE = "http://localhost:5017"
@@ -138,3 +141,6 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_OBSIDIAN_ATTACHMENTS = True
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_STOA = True
+
+    # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
+    ENABLE_EXECUTABLE_NODES = True
