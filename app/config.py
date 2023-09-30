@@ -79,6 +79,10 @@ class DefaultConfig(object):
     ENABLE_AUTO_PULL = False
     ENABLE_AUTO_STOA = False
 
+    # EXPERIMENTS WHICH ARE SECURITY SENSITIVE.
+    # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
+    ENABLE_EXECUTABLE_NODES = False
+
 
 class ProductionConfig(DefaultConfig):
 
@@ -86,7 +90,25 @@ class ProductionConfig(DefaultConfig):
     ENABLE_CTZN = False
     ENABLE_STATS = True
     ENABLE_AUTO_PULL = True
+    ENABLE_AUTO_PUSH = False
     ENABLE_AUTO_STOA = False
+
+    # EXPERIMENTS WHICH ARE SECURITY SENSITIVE.
+    ENABLE_EXECUTABLE_NODES = False
+
+
+class AlphaConfig(DefaultConfig):
+
+    # EXPERIMENTS 
+    # we need to remove as CTZN is no longer a thing? or use to implement something similar in-place?
+    ENABLE_CTZN = False
+    ENABLE_STATS = True
+    ENABLE_AUTO_PULL = True
+    ENABLE_AUTO_PUSH = True
+    ENABLE_AUTO_STOA = False
+
+    # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
+    ENABLE_EXECUTABLE_NODES = True
 
 
 class DevelopmentConfig(DefaultConfig):

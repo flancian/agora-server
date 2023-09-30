@@ -1005,13 +1005,23 @@ class ExecutableSubnode(Subnode):
         self.content = f'This should be the output of script {self.uri}.'
 
     def render(self, argument=''):
+        """
+        This is where subnode execution happens, as of 2023-09 only for .py files.
+        """
 
         current_app.logger.info(f"In ExecutableSubnode render (args: {argument})")
         # YOLO, use with caution only in high trust Agoras -- which will hopefully remain most of them ;)
-        if argument:
-            output = subprocess.run(['/usr/bin/timeout', '-v', '3', self.path, argument], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
+
+        if current_app.config["ENABLE_EXECUTABLE_NODES"]:
+            if argument:
+                output = subprocess.run(['/usr/bin/timeout', '-v', '3', self.path, argument], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
+            else:
+                output = subprocess.run(['/usr/bin/timeout', '-v', '3', self.path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
         else:
-            output = subprocess.run(['/usr/bin/timeout', '-v', '3', self.path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
+                output = """
+                Executable subnodes have been disabled by the stewards of this Agora.
+
+                Please reach out to them or refer to Agora documentation if you think this is a mistake.\n"""
         self.content = '```\n' + output + '```'
         content = render.preprocess(self.content, subnode=self)
         content = render.markdown(content)
