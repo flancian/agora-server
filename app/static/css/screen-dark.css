@@ -400,11 +400,14 @@ input[type="text"] {
 }
 
 .node-header, .context-header, .stoa-header, .ctzn-header {
-    display: flex;
     justify-content: space-between;
     text-align: left;
     font-weight: bolder;
     padding-bottom: 2px;
+}
+
+details > summary {
+    cursor: pointer;
 }
 
 .node-name {

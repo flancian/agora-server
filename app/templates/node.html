@@ -15,8 +15,8 @@
 -->
 
 {% if not node.subnodes and not node.pushed_subnodes() %}
-<div class="node" id="{{node.uri}}">
-    <div class="node-header main-header"><span>📚 Node <a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">[[{{node.qstr}}]]</span></a></span></div>
+<details class="node" id="{{node.uri}}" open>
+    <summary class="node-header main-header"><span>📚 Node <a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">[[{{node.qstr}}]]</span></a></span></summary>
     <div class="not-found subnode" data-author="agora">
            <strong>Nobody has noded "<a href="/{{node.qstr}}">{{node.qstr}}</a>"</strong> in this Agora yet, but you can do it if you want to:
 
@@ -55,31 +55,25 @@
 
            </ul>
         </p>
-    </div>
+    </details>
 
 {% endif %} <!-- node without subnodes -->
 <!-- node div left open to share context code with the next case -->
 
 {% if node.subnodes or node.pushed_subnodes() %}
-    <div class="node" id="{{node.uri}}">
+    <details class="node" id="{{node.uri}}" open>
 
         {% if subnode %}
-            <div class="node-header main-header">
-                <span>📚 Node <a href="/{{node.uri}}"><span class="node-name">[[{{node.uri}}]]</span></a> <br /> 
+            <summary class="node-header main-header">
+                📚 Node <a href="/{{node.uri}}"><span class="node-name">[[{{node.uri}}]]</span></a> <br /> 
                    ↳ 📓 Resource <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a>
-                </span>
-                <span>
-                <button id="pull-all" value="pull-all" title='Tries to retrieve most resources that can be pulled below'>pull below</button>
-                </span>
-            </div>
+                
+           </summary>
         {% else %}
-            <div class="node-header main-header">
+            <summary class="node-header main-header">
                 <span>📚 Node <a href="/{{node}}" title="A node is a collection of resources with a matching name or an explicit relationship to a context."><span class="node-name">[[{{node.qstr}}]]</span></a>
                 </span>
-                <span>
-                <button id="pull-all" value="pull-all" title='Tries to retrieve most resources that can be pulled below'>pull all</button>
-                </span>
-            </div>
+            </summary>
             <!--
             <span class="node-actions">
                 <button id="pull-all" value="pull-all" title="Pulls embeds below">pull all</button>
@@ -112,8 +106,10 @@
                         {% if subnode.support %}
                             <a href="{{subnode.support}}" title="support (user specified)">🤗</a>
                         {% endif %}
+                        <!-- disabled 2023-10 as we never made these persist, and ranking code was seeding the console with exceptions.
                         <button onClick="downvote('{{loop.index}}')" title="uprank this subnode">⇣</button>
                         <button onClick="upvote('{{loop.index}}')" title="uprank this subnode">⇡</button> 
+                        -->
                         </span>
 
                             </span>
@@ -146,10 +142,12 @@
         -->
     </div>
 
-</div> <!-- closes node div-->
+</details> <!-- closes node div-->
 
 
 <script>
+    // This is not currently used actively and it throws exceptions, so disabling.
+    /*
 	function getAuthors(){
 		const authors = $.map($(".subnode"), function(subnode){
 			console.log(subnode)
@@ -209,4 +207,5 @@
 	$(function(){
 		sort();
 	})
+    */
 </script>

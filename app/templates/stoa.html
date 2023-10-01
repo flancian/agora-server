@@ -14,8 +14,8 @@
  limitations under the License.
 -->
 
-<div class="stoa">
-    <div class="node-header main-header"><span><strong title="A Stoa is a semi-public space where a group might gather for collaboration.">🏛 Stoas</strong> near <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a><span></span></div>
+<details class="stoa">
+    <summary class="stoa-header"><span><strong title="A Stoa is a semi-public space where a group might gather for collaboration.">🏛 Stoas</strong> near <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a></span></span></summary>
         📖 HedgeDoc at <a href="https://doc.anagora.org/{{node.uri}}?edit">https://doc.anagora.org/{{node.uri}}</a>
         <button id="pull-stoa" value="{{node.uri}}">pull</button>
         <div id="stoa-iframe"></div>
@@ -25,8 +25,5 @@
         📹 Jitsi at <a href="https://meet.jit.si/{{node.uri}}">https://meet.jit.si/{{node.uri}}</a>
         <button id="pull-jitsi" value="https://meet.jit.si/{{node.uri}}">pull</button>
         <div id="meet-iframe"></div>
-</div>
-
-
-
+</details>
 

@@ -18,11 +18,11 @@
 {% if node and related and not embed %}
     {% for n in related %}
         {% if n.subnodes %}
-        <div class="related-node">
-            <div class="node-header"><span>📚 Node <a href="/{{n.uri}}"><span class="node-name">[[{{n.description}}]]</span></a> seems related
-        <button class="pull-node" value="{{n.uri}}">pull</button></span></div>
+        <details class="related-node">
+            <summary class="node-header"><span>📚 Node <a href="/{{n.uri}}"><span class="node-name">[[{{n.description}}]]</span></a> maybe related 
+        <button class="pull-node" value="{{n.uri}}">pull</button></span></summary>
         <div class="pulled-node-embed" id="{{n.uri}}"></div>
-        </div>
+        </details>
         {% endif %}
     {% endfor %}
 {% endif %}

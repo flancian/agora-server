@@ -200,6 +200,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+
+  // This doesn't work... yet? :)
+  var details = document.querySelector("details");
+
+  details.addEventListener("toggle", function() {
+      console.log("this was a details widget expanding.");
+
+  });
+
   // pull nodes from the [[agora]]
   // pull-node are high-ranking (above the 'fold' of context), .pull-related-node are looser links below.
   $(".pull-node").click(function (e) {
@@ -671,6 +680,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.click();
     });
   }
+
   */
 
  if (localStorage["ranking"]) {
@@ -726,5 +736,5 @@ function loadGraph() {
     },
 
   });
-
 }
+
