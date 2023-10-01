@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
 
-  // This doesn't work... yet? :)
+  // this works and has already replaced most pull buttons for Agora sections.
   // this is for 'zippies' that require pulling (e.g. pulled nodes).
   var details = document.querySelectorAll("details");
   details.forEach((item) => {
