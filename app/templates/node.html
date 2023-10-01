@@ -16,7 +16,7 @@
 
 {% if not node.subnodes and not node.pushed_subnodes() %}
 <details class="node" id="{{node.uri}}" open>
-    <summary class="node-header main-header"><span>📚 Node <a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">[[{{node.qstr}}]]</span></a></span></summary>
+    <summary class="node-header main-header"><span title="A Node is an Agora location. It contains resources contributed by users having to do with a location according to the Agora you're using.">📚 Node <a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">[[{{node.qstr}}]]</span></a></span></summary>
     <div class="not-found subnode" data-author="agora">
            <strong>Nobody has noded "<a href="/{{node.qstr}}">{{node.qstr}}</a>"</strong> in this Agora yet, but you can do it if you want to:
 
@@ -71,7 +71,7 @@
            </summary>
         {% else %}
             <summary class="node-header main-header">
-                <span>📚 Node <a href="/{{node}}" title="A node is a collection of resources with a matching name or an explicit relationship to a context."><span class="node-name">[[{{node.qstr}}]]</span></a>
+                <span title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">📚 Node <a href="/{{node}}"><span class="node-name">[[{{node.qstr}}]]</span></a>
                 </span>
             </summary>
             <!--

@@ -18,7 +18,8 @@
 {% if not subnode %}
 <details class="search">
 
-    <summary class="search-agora-header">🔎 Text search <a href="/{{node}}">[[{{node.qstr}}]]</a>
+    <summary> <span class="search-agora-header" title="Full text search for the exact terms you entered. May be slow.">🔎 Text search for <a href="/{{node}}">[[{{node.qstr}}]]</a></span>
+    </summary>
 
     <div class="pulled-search-embed" id="{{node.qstr}}"></div>                           
 
