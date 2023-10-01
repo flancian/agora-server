@@ -224,6 +224,35 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
   });
+
+  var details = document.querySelectorAll("details.search");
+  details.forEach((item) => {
+    item.addEventListener("toggle", async (event) => {
+        if (item.open) {
+            console.log("Details have been shown");
+            embed = item.querySelector(".pulled-search-embed");
+            if (embed) {
+                let qstr = embed.id;
+                console.log("Embed found, here we would pull.");
+                /*
+                $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
+                    $("#pulled-search.pulled-search-embed").html(data);
+                });
+                */
+                response = await fetch(AGORAURL + '/fullsearch/' + qstr);
+                embed.innerHTML = await response.text();
+            }
+        } else {
+            console.log("Details have been hidden");
+            embed = item.querySelector(".pulled-search-embed");
+            if (embed) {
+                console.log("Embed found, here we would fold.");
+                embed.innerHTML = '';
+            }
+        }
+    });
+  });
+
   // end zippies.
 
   // pull nodes from the [[agora]]
