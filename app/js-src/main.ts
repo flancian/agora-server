@@ -202,12 +202,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   // This doesn't work... yet? :)
-  var details = document.querySelector("details");
-
-  details.addEventListener("toggle", function() {
-      console.log("this was a details widget expanding.");
-
+  // this is for 'zippies' that require pulling (e.g. pulled nodes).
+  var details = document.querySelectorAll("details");
+  details.forEach((item) => {
+    item.addEventListener("toggle", (event) => {
+        if (item.open) {
+            console.log("Details have been shown");
+            embed = item.querySelector(".pulled-node-embed");
+            if (embed) {
+                let node = embed.id;
+                console.log("Embed found, here we would pull.");
+                embed.innerHTML = '<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%;" width="99%" height="800px" allowfullscreen="allowfullscreen"></iframe>';
+            }
+        } else {
+            console.log("Details have been hidden");
+            embed = item.querySelector(".pulled-node-embed");
+            if (embed) {
+                console.log("Embed found, here we would fold.");
+                embed.innerHTML = '';
+            }
+        }
+    });
   });
+  // end zippies.
 
   // pull nodes from the [[agora]]
   // pull-node are high-ranking (above the 'fold' of context), .pull-related-node are looser links below.
