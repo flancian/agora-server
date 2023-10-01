@@ -37,7 +37,7 @@ def wp(node):
     return Response(
         f"""
         <div class='exec topline-search'>
-        <strong>↳ on Wikipedia ⟶ </strong><a href='{url}'>{url}</a> 
+        <strong title="We love Wikipedia! Here is the top known article for this location.">↳ on Wikipedia ⟶ </strong><a href='{url}'>{url}</a>
         <button class='pull-exec wp' value='{url}'>pull</button><br />
         <!-- find a better way to present this data which is only useful for some users. -->
         <!-- &nbsp &nbsp ↳ Wikidata <a href='{wikidata_url}'>{wikibase_item}</a>

@@ -23,11 +23,11 @@
     const currentTheme = localStorage.getItem("theme") || 'light';
     // const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
     const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
-    const edgeColor = (currentTheme == 'light' ? 'rgba(50, 50, 50, 1)' : 'rgba(200, 200, 200, 1)')
+    const edgeColor = (currentTheme == 'light' ? 'rgba(100, 100, 100, 1)' : 'rgba(150, 150, 150, 1)')
 
     console.log('graph center:' + NODENAME)
     const Graph = ForceGraph()(container);
-    if (data.nodes.length > 20) {
+    if (data.nodes.length > 100) {
         // for "large" graphs, render nodes as circles.
         Graph.height(container.clientHeight)
             .width(container.clientWidth)

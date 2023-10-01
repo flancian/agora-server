@@ -79,8 +79,8 @@
 <body>
 	<nav>
         <div class="navigation">
-            <a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px"></a>
-            <a href="/" style="text-decoration: none;"><strong>{{config['URI_BASE']}}</strong></a> <strong>⟶</strong>
+            <a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px" title="An Agora is a Free Knowledge Commons."></a>
+            <a href="/" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a> <strong>⟶</strong>
             <!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
             <span><a href="/nodes" style="text-decoration: none;">📚&nbsp;Nodes</a></span>
             | <span><a href="/users" style="text-decoration: none;">🫂&nbsp;Users</a></span>
@@ -100,7 +100,7 @@
 			<div class="topline-node">
 				<div class="topline-node-wrapper">
 					<div class="topline-query">
-						<button id="mini-cli-exec" value="exec" title="Searches known Agoras">search</button>
+						<button id="mini-cli-exec" value="exec" title="Searches in this Agora, and maybe others.">search</button>
 					</div>
 					<div class="topline-cli">
 						<form action="/exec" method="get">
