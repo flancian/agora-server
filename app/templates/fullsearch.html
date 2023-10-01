@@ -14,31 +14,27 @@
  limitations under the License.
 -->
 
-    <div class="search-flex">
+<div class="search-flex">
         <div class="search-agora">
-            <!-- <span class="search-agora-header">ά in this Agora ⬎</span> <br /> -->
-            {% if search %}
-            {% for subnode in search %}
-            <a href="/@{{subnode.user}}/{{subnode.canonical_wikilink}}">@{{subnode.user}}/{{subnode.wikilink}}</a><br />
-            {% endfor %}
-            {% else %}
-            No search results.
-            {% endif %}
-        </div>
 
-        <!-- replaced by navbar integration.
-        <div class="search-internet">
-            <span class="search-internet-header">🌎 around the internet ⬎</span> <br />
-            ↪ <a href="https://www.google.com/search?q={{q}}">Google</a> <br />
-            ↪ <a href="https://www.duckduckgo.com/{{q}}">DuckDuckGo</a> <br />
-            ↪ <a href="https://en.wikipedia.org/wiki/Special:Search/{{q}}">Wikipedia</a> <br />
-            ↪ <a href="https://searx.bar/search?q={{q}}&categories=general&language=en-US">Searx</a> <br />
-            ↪ <a href="https://twitter.com/search/?f=live&q={{q}}">Twitter</a> <br />
-            ↪ <a href="https://github.com/search?q={{q}}">Github</a> <br />
-            ↪ <a href="https://forum.effectivealtruism.org/search?terms={{q}}">Effective Altruism</a> <br />
-            ↪ <a href="https://www.lesswrong.com/search?terms={{q}}">Less Wrong</a> <br />
-            ↪ <a href="http://encyclopedia.uia.org/en/problems?combine={{q}}">Encyclopedia of World Problems</a> <br />
-            ↪ <a href="https://www.pubpub.org/search?q={{q}}">PubPub</a> <br />
+            <table style="width: 100%"">
+                <thead>
+                    <th style="width: 30%">📚 Node</th>
+                    <th style="width: 30%">📕 Resource</th>
+                    <th style="width: 30%">🧍 User</th>
+                </thead>
+                <tbody>
+                    {% for subnode in search %}
+                    <tr>
+                    <td><a href="/{{subnode.wikilink}}">{{subnode.wikilink}}</a></td>
+                    <td><a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.uri}}</a></td> 
+                    <td><a href="/@{{subnode.user}}">@{{subnode.user}}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
         </div>
-        -->
-    </div>
+</div>
+
+

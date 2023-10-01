@@ -18,24 +18,22 @@
 {% block content %}
 
 <div class="listing node">
-    <h1>Recently edited</h1>
     <table style="width: 100%"">
         <thead>
-            <th>📚 Node</th>
+            <th style="width: 30%">📚 Node</th>
+            <th style="width: 30%">📕 Resource</th>
             <th style="width: 30%">🧍 User</th>
-            <th style="width: 15%">📕 Subnode</th>
         </thead>
         <tbody>
             {% for subnode in subnodes %}
             <tr>
             <td><a href="/{{subnode.wikilink}}">{{subnode.wikilink}}</a></td>
+            <td><a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.uri}}</a></td> 
             <td><a href="/@{{subnode.user}}">{{subnode.user}}</a></td>
-            <td><a href="/@{{subnode.user}}/{{subnode.wikilink}}">🔗</a></td> 
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
 </div>
 
 {% endblock %}

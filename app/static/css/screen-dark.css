@@ -478,7 +478,6 @@ Served by the Agora of Flancia in 15.67 seconds on 2023-07-15 22:09:20. May you 
 .search {
     overflow: auto;
     gap: 10px;
-    max-height: 600px;
 }
 
 .search-agora-header, .search-internet-header {

@@ -17,9 +17,11 @@
 
 {% if not subnode %}
 <details class="search">
-    <summary class="search-agora-header">🔎 Full text search for <a href="/{{node}}">[[{{node.qstr}}]]</a>
+
+    <summary class="search-agora-header">🔎 Text search <a href="/{{node}}">[[{{node.qstr}}]]</a>
 
     <div class="pulled-search-embed" id="{{node.qstr}}"></div>                           
+
 </details>
 {% endif %}
 
