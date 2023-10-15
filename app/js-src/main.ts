@@ -253,6 +253,28 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  var details = document.querySelectorAll("details.url");
+  details.forEach((item) => {
+    item.addEventListener("toggle", async (event) => {
+        if (item.open) {
+            console.log("Details have been shown");
+            embed = item.querySelector(".stoa-iframe");
+            if (embed) {
+                let url = embed.getAttribute('src');
+                embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 99%;" height="700px"></iframe>';
+            }
+        } else {
+            console.log("Details have been hidden");
+            embed = item.querySelector(".stoa-iframe");
+            if (embed) {
+                console.log("Embed found, here we would fold.");
+                embed.innerHTML = '';
+            }
+        }
+    });
+  });
+
+
   // end zippies.
 
   // pull nodes from the [[agora]]

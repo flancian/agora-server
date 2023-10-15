@@ -16,14 +16,27 @@
 
 <details class="stoa">
     <summary class="stoa-header"><span><strong title="A Stoa is a digital semi-public space where a group can gather to collaborate freely.">🏛 Stoas</strong> near <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a></span></span></summary>
-        📖 HedgeDoc at <a href="https://doc.anagora.org/{{node.uri}}?edit">https://doc.anagora.org/{{node.uri}}</a>
-        <button id="pull-stoa" value="{{node.uri}}">pull</button>
-        <div id="stoa-iframe"></div>
+
+    <div style="margin-left: 0.7em">
+
+    <details class="url">
+        <summary>📖 HedgeDoc at <a href="https://doc.anagora.org/{{node.uri}}?edit">https://doc.anagora.org/{{node.uri}}</a></summary>
+        <div class="stoa-iframe" src="https://doc.anagora.org/{{node.uri}}">
+        </div>
+    </details>
+
+    <details class="url">
         <!-- pull-stoa2 is a yolo moment -->
-        📖 Etherpad at <a href="https://stoa.anagora.org/p/{{node.uri}}?edit">https://stoa.anagora.org/p/{{node.uri}}</a> <button id="pull-stoa2" value="{{node.uri}}">pull</button>
-        <div id="stoa2-iframe"></div>
-        📹 Jitsi at <a href="https://meet.jit.si/{{node.uri}}">https://meet.jit.si/{{node.uri}}</a>
-        <button id="pull-jitsi" value="https://meet.jit.si/{{node.uri}}">pull</button>
-        <div id="meet-iframe"></div>
+        <summary>📖 Etherpad at <a href="https://stoa.anagora.org/p/{{node.uri}}?edit">https://stoa.anagora.org/p/{{node.uri}}</a></summary>
+        <div class="stoa-iframe" src="https://stoa.anagora.org/p/{{node.uri}}">
+        </div>
+    </details>
+    <details class="url">
+        <summary>📹 Jitsi at <a href="https://meet.jit.si/{{node.uri}}">https://meet.jit.si/{{node.uri}}</a></summary>
+        <div class="stoa-iframe" src="https://meet.jit.si/{{node.uri}}">
+        </div>
+    </details>
+
+    </div>
 </details>
 
