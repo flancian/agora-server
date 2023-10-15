@@ -282,6 +282,15 @@ class Graph:
             ]
         )
 
+        # Executable subnodes.
+        current_app.logger.debug(f"*** Loading subnodes: executable.")
+        subnodes.extend(
+            [
+                Subnode(f, mediatype="text/x-python")
+                for f in glob.glob(os.path.join(base, "**/*.py"), recursive=True)
+            ]
+        )
+
         end = datetime.datetime.now()
         current_app.logger.debug(f"*** Loaded subnodes from {begin} to {end}.")
         if sort:
@@ -665,9 +674,10 @@ class Subnode:
         elif self.mediatype.startswith("image"):
             self.load_image_subnode()
             self.type = "image"
+        elif self.mediatype.startswith("text/x-python"):
+            self.load_text_subnode()
+            self.type = "text"
         else:
-            # Should executable nodes load here?
-            # They could be expensive so my instinct is to keep them in the separate path for VirtualSubnode.
             raise ValueError
 
         try:
@@ -760,7 +770,7 @@ class Subnode:
         return 100 - fuzz.ratio(self.wikilink, other.wikilink)
 
     def render(self, argument=''):
-        if self.mediatype not in ["text/plain", "text/html"]:
+        if self.mediatype not in ["text/plain", "text/html", 'text/x-python']:
             # hack hack
             return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /> <br />'.format(
                 self.uri
@@ -798,6 +808,8 @@ class Subnode:
         if self.uri.endswith("myco") or self.uri.endswith("MYCO"):
             content = render.preprocess(self.content, subnode=self)
             content = render.mycomarkup(content)
+        if self.uri.endswith("py") or self.uri.endswith("PY"):
+            content = '<br /><em>(Python source.)</em><br /><br />'
         ret = render.postprocess(content)
         return ret
 
