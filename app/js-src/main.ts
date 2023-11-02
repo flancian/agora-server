@@ -203,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // this works and has already replaced most pull buttons for Agora sections.
   // this is for 'zippies' that require pulling (e.g. pulled nodes).
-  var details = document.querySelectorAll("details");
+  var details = document.querySelectorAll("details.pulled-node");
   details.forEach((item) => {
     item.addEventListener("toggle", (event) => {
         if (item.open) {
@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (embed) {
                 let node = embed.id;
                 console.log("Embed found, here we would pull.");
-                embed.innerHTML = '<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%;" width="99%" height="800px" allowfullscreen="allowfullscreen"></iframe>';
+                embed.innerHTML = '<iframe src="' + AGORAURL + '/node/' + node + '" style="max-width: 100%;" width="99%" height="800px" allowfullscreen="allowfullscreen"></iframe>';
             }
         } else {
             console.log("Details have been hidden");
@@ -224,6 +224,30 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
   });
+
+  var details = document.querySelectorAll("details.node");
+  details.forEach((item) => {
+    item.addEventListener("toggle", (event) => {
+        if (item.open) {
+            console.log("Details have been shown");
+            embed = item.querySelector(".node-embed");
+            if (embed) {
+                let node = embed.id;
+                console.log("Embed found, here we would pull.");
+                embed.innerHTML = '<iframe src="' + AGORAURL + '/node/' + node + '" style="max-width: 100%;" width="99%" height="800px" allowfullscreen="allowfullscreen"></iframe>';
+            }
+        } else {
+            console.log("Details have been hidden");
+            embed = item.querySelector(".node-embed");
+            if (embed) {
+                console.log("Embed found, here we would fold.");
+                embed.innerHTML = '';
+            }
+        }
+    });
+  });
+
+
 
   var details = document.querySelectorAll("details.search");
   details.forEach((item) => {

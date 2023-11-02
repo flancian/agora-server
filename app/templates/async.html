@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% include "stoa.html" %}
+
+{% include "node.html" %}
+
+<details class="context" open>
+<em>Loading context... (requires JavaScript)</em>
+</details>
+
+{% include "pulled.html" %}
+
+{% include "related.html" %}
+
+{% include "search.html" %}
+
+{% endblock %}
