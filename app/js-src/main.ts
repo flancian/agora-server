@@ -277,10 +277,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // end zippies.
   
   // start async content code.
-  var details = document.querySelectorAll(".async-content");
-  details.forEach((item) => {
-      item.innerHTML = 'Content fake-loaded.';
-    });
+  setTimeout(autoPullAsyncContent, 10)
+
+  async function autoPullAsyncContent() {
+    var content = document.querySelector("#async-content");
+    response = await fetch(AGORAURL + '/node/testing');
+    content.innerHTML = await response.text();
+  }
   // end async content code.
 
   // pull nodes from the [[agora]]

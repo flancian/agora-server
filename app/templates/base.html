@@ -148,20 +148,6 @@
 	<!-- Thank you [[vera]] for this contribution! -->
 	<div id='popup'>{{popup|default("What could we show here?")}}</div>
 
-
-	<!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
-	<div id='footer'>
-        <center>
-        ⸎
-		Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong> in <strong>__EXECTIME__s</strong>.
-        {% if not embed %}
-        May you be happy!
-        {% else %}
-        May you be free!
-        {% endif %}
-        </center>
-	</div>
-
 	<script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
 
 
