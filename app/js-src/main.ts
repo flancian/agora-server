@@ -200,91 +200,124 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-
-  // this works and has already replaced most pull buttons for Agora sections.
-  // this is for 'zippies' that require pulling (e.g. pulled nodes).
-  var details = document.querySelectorAll("details.node");
-  details.forEach((item) => {
-    item.addEventListener("toggle", (event) => {
-        if (item.open) {
-            console.log("Details have been shown");
-            embed = item.querySelector(".node-embed");
-            if (embed) {
-                let node = embed.id;
-                console.log("Embed found, here we would pull.");
-                embed.innerHTML = '<iframe src="' + AGORAURL + '/node/' + node + '" style="max-width: 100%;" width="100%" height="700em" allowfullscreen="allowfullscreen"></iframe>';
-            }
-        } else {
-            console.log("Details have been hidden");
-            embed = item.querySelector(".node-embed");
-            if (embed) {
-                console.log("Embed found, here we would fold.");
-                embed.innerHTML = '';
-            }
-        }
-    });
-  });
-
-  var details = document.querySelectorAll("details.search");
-  details.forEach((item) => {
-    item.addEventListener("toggle", async (event) => {
-        if (item.open) {
-            console.log("Details have been shown");
-            embed = item.querySelector(".pulled-search-embed");
-            if (embed) {
-                let qstr = embed.id;
-                console.log("Embed found, here we would pull.");
-                /*
-                $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
-                    $("#pulled-search.pulled-search-embed").html(data);
-                });
-                */
-                response = await fetch(AGORAURL + '/fullsearch/' + qstr);
-                embed.innerHTML = await response.text();
-            }
-        } else {
-            console.log("Details have been hidden");
-            embed = item.querySelector(".pulled-search-embed");
-            if (embed) {
-                console.log("Embed found, here we would fold.");
-                embed.innerHTML = '';
-            }
-        }
-    });
-  });
-
-  var details = document.querySelectorAll("details.url");
-  details.forEach((item) => {
-    item.addEventListener("toggle", async (event) => {
-        if (item.open) {
-            console.log("Details have been shown");
-            embed = item.querySelector(".stoa-iframe");
-            if (embed) {
-                let url = embed.getAttribute('src');
-                embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 100%;" height="700px"></iframe>';
-            }
-        } else {
-            console.log("Details have been hidden");
-            embed = item.querySelector(".stoa-iframe");
-            if (embed) {
-                console.log("Embed found, here we would fold.");
-                embed.innerHTML = '';
-            }
-        }
-    });
-  });
-
-  // end zippies.
-  
   // start async content code.
-  setTimeout(autoPullAsyncContent, 10)
+  setTimeout(loadAsyncContent, 10)
 
-  async function autoPullAsyncContent() {
+  async function loadAsyncContent() {
     var content = document.querySelector("#async-content");
     console.log("loading " + NODENAME + " async");
     response = await fetch(AGORAURL + '/node/' + NODENAME);
     content.innerHTML = await response.text();
+    setTimeout(bindEvents, 10)
   }
+
+  async function bindEvents() {
+    // this works and has already replaced most pull buttons for Agora sections.
+    // this is for 'zippies' that require pulling (e.g. pulled nodes).
+    var details = document.querySelectorAll("details.node");
+    details.forEach((item) => {
+        item.addEventListener("toggle", (event) => {
+            if (item.open) {
+                console.log("Details have been shown");
+                embed = item.querySelector(".node-embed");
+                if (embed) {
+                    let node = embed.id;
+                    console.log("Embed found, here we would pull.");
+                    embed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" width="100%" height="700em" allowfullscreen="allowfullscreen"></iframe>';
+                }
+            } else {
+                console.log("Details have been hidden");
+                embed = item.querySelector(".node-embed");
+                if (embed) {
+                    console.log("Embed found, here we would fold.");
+                    embed.innerHTML = '';
+                }
+            }
+        });
+    });
+
+    var details = document.querySelectorAll("details.search");
+    details.forEach((item) => {
+        item.addEventListener("toggle", async (event) => {
+            if (item.open) {
+                console.log("Details have been shown");
+                embed = item.querySelector(".pulled-search-embed");
+                if (embed) {
+                    let qstr = embed.id;
+                    console.log("Embed found, here we would pull.");
+                    /*
+                    $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
+                        $("#pulled-search.pulled-search-embed").html(data);
+                    });
+                    */
+                    response = await fetch(AGORAURL + '/fullsearch/' + qstr);
+                    embed.innerHTML = await response.text();
+                }
+            } else {
+                console.log("Details have been hidden");
+                embed = item.querySelector(".pulled-search-embed");
+                if (embed) {
+                    console.log("Embed found, here we would fold.");
+                    embed.innerHTML = '';
+                }
+            }
+        });
+    });
+
+    var details = document.querySelectorAll("details.url");
+    details.forEach((item) => {
+        item.addEventListener("toggle", async (event) => {
+            if (item.open) {
+                console.log("Details have been shown");
+                embed = item.querySelector(".stoa-iframe");
+                if (embed) {
+                    let url = embed.getAttribute('src');
+                    embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 100%;" height="700px"></iframe>';
+                }
+            } else {
+                console.log("Details have been hidden");
+                embed = item.querySelector(".stoa-iframe");
+                if (embed) {
+                    console.log("Embed found, here we would fold.");
+                    embed.innerHTML = '';
+                }
+            }
+        });
+    });
+
+    // end zippies.
+
+   $(".pushed-subnodes-embed").each(function (e) {
+      // auto pull pushed subnodes by default.
+      // it would be better to infer this from node div id?
+      let node = NODENAME;
+      let arg = ARG;
+      let id = "#" + node + " .pushed-subnodes-embed";
+      console.log('auto pulling pushed subnodes, will write to id: ' + id);
+      if (arg != '') {
+        $.get(AGORAURL + '/push/' + node + '/' + arg, function (data) {
+            $(id).html(data);
+        });
+      }
+      else {
+        $.get(AGORAURL + '/push/' + node, function (data) {
+            $(id).html(data);
+        });
+      }
+      // end auto pull pushed subnodes.
+    });
+
+    $(".context").each(function (e) {
+      // auto pull context by default.
+      // it would be better to infer this from node div id?
+      let node = NODENAME
+      let id = '.context'
+      console.log('auto pulling context, will write to id: ' + id);
+      $.get(AGORAURL + '/context/' + node, function (data) {
+        $(id).html(data);
+      });
+      // end auto pull pushed subnodes.
+    });
   // end async content code.
 
   // pull nodes from the [[agora]]
@@ -315,6 +348,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.classList.add('pulled');
     }
   });
+  }
 
   // pull full text search 
   $(".pull-search").click(function (e) {
