@@ -2,14 +2,10 @@
 
 {% block content %}
 
-<div class="content">
-
-    <details class="node auto-pull">
-        <summary><span class="node-header" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">📚 Node <a href="/{{node.uri}}"><span class="node-name">[[{{node.description}}]]</span></a></span></summary>
-        <div class="node-embed" id="{{node.uri}}"></div>
-
-    </details>
-
+<div class="async-content">
+    <br />
+    <center><em>Loading...</em></center>
+    <br />
 </div>
 
 {% endblock %}
