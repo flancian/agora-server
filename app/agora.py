@@ -217,10 +217,8 @@ def graph_js_node(node):
     return Response(graph.json_node(n), mimetype="application/json")
 
 
-@bp.route("/node/<node>@<user>")
-@bp.route("/node/@<user>/<node>")
 @bp.route("/@<user>/<node>")
-def subnode(node, user):
+def root_subnode(node, user):
     node = urllib.parse.unquote_plus(node)
     node = util.slugify(node)
     G = api.Graph()
@@ -243,6 +241,36 @@ def subnode(node, user):
 
     return render_template(
         "sync.html",
+        node=n,
+        subnode=f"@{user}/" + n.wikilink,
+    )
+
+
+@bp.route("/node/<node>@<user>")
+@bp.route("/node/@<user>/<node>")
+def subnode(node, user):
+    node = urllib.parse.unquote_plus(node)
+    node = util.slugify(node)
+    G = api.Graph()
+    n = G.node(node)
+
+    n.subnodes = util.filter(n.subnodes, user)
+    n.subnodes = util.uprank(n.subnodes, user)
+    search_subnodes = api.search_subnodes_by_user(node, user)
+
+    # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
+    # query is meant to be user parsable / readable text, to be used for example in the UI
+    n.qstr = request.args.get("q")
+
+    if not n.qstr:
+        # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
+        n.qstr = n.wikilink.replace("-", " ")
+
+    n.qstr = f"@{user}/" + n.wikilink.replace("-", " ")
+    n.q = n.qstr
+
+    return render_template(
+        "async.html",
         node=n,
         subnode=f"@{user}/" + n.wikilink,
     )
