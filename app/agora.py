@@ -41,6 +41,8 @@ from copy import copy
 from .storage import feed, graph
 from . import providers, util, forms
 
+from app.storage.lib import update
+
 bp = Blueprint("agora", __name__)
 G = api.Graph()
 
@@ -54,6 +56,7 @@ def before_request():
     # hack hack -- try dynamic URI_BASE based on what the browser sent our way.
     # this allows for easily provisioning an Agora in many virtual hosts, e.g. *.agor.ai.
     current_app.config["URI_BASE"] = request.headers["Host"]
+    update()
 
 
 @bp.after_request
@@ -105,6 +108,7 @@ def node(node, extension="", user_list=""):
         # annotations_enabled=True,
     )
 
+
 @bp.route("/<node0>/<node1>")
 def node2(node0, node1):
     n = api.build_multinode(node0, node1)
@@ -116,6 +120,7 @@ def node2(node0, node1):
         config=current_app.config,
         # annotations_enabled=True,
     )
+
 
 @bp.route("/feed/<node>")
 def node_feed(node):
@@ -395,7 +400,6 @@ def go(node0, node1=""):
 
 @bp.route("/push/<node>/<other>")
 def push2(node, other):
-
     current_app.logger.info(f">>> push2 arg: {other}.")
     # returns by default an html view for the 'pushing here' section / what is being received in associated feeds
     n = api.build_node(node)
@@ -407,6 +411,7 @@ def push2(node, other):
         embed=True,
         node=n,
     )
+
 
 @bp.route("/push/<node>")
 def push(node):
