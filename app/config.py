@@ -85,7 +85,6 @@ class DefaultConfig(object):
 
 
 class ProductionConfig(DefaultConfig):
-
     # EXPERIMENTS
     ENABLE_CTZN = False
     ENABLE_STATS = True
@@ -98,8 +97,7 @@ class ProductionConfig(DefaultConfig):
 
 
 class AlphaConfig(DefaultConfig):
-
-    # EXPERIMENTS 
+    # EXPERIMENTS
     # we need to remove as CTZN is no longer a thing? or use to implement something similar in-place?
     ENABLE_CTZN = False
     ENABLE_STATS = True
