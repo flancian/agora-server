@@ -14,7 +14,8 @@
 
 import collections
 import datetime
-from distutils.command.config import config
+
+# from distutils.command.config import config
 import json
 import re
 import time
@@ -105,6 +106,7 @@ def node(node, extension="", user_list=""):
         # annotations_enabled=True,
     )
 
+
 @bp.route("/<node0>/<node1>")
 def node2(node0, node1):
     n = api.build_multinode(node0, node1)
@@ -116,6 +118,7 @@ def node2(node0, node1):
         config=current_app.config,
         # annotations_enabled=True,
     )
+
 
 @bp.route("/feed/<node>")
 def node_feed(node):
@@ -395,7 +398,6 @@ def go(node0, node1=""):
 
 @bp.route("/push/<node>/<other>")
 def push2(node, other):
-
     current_app.logger.info(f">>> push2 arg: {other}.")
     # returns by default an html view for the 'pushing here' section / what is being received in associated feeds
     n = api.build_node(node)
@@ -407,6 +409,7 @@ def push2(node, other):
         embed=True,
         node=n,
     )
+
 
 @bp.route("/push/<node>")
 def push(node):

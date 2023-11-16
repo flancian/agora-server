@@ -1,0 +1,18 @@
+[project]
+name = "agora-server"
+version = "0.1.0"
+description = "Add a short description here"
+authors = ["Veronika Gillies <veronikamwinters@gmail.com>"]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tasks]
+pip_deps = "pip install -r requirements.txt"
+dev = {cmd="run-localdev.sh", depends_on=["pip_deps"]}
+[dependencies]
+nodejs = "20.8.1.*"
+flask = "3.0.0.*"
+pip = "23.3.1.*"
+python = "==3.10"
+pipreqs = "0.4.13.*"
+
