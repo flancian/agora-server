@@ -1415,7 +1415,6 @@ def build_node(node, extension="", user_list="", qstr=""):
     current_app.logger.debug(f"[[{node}]]: Assembled node.")
     return n
 
-
 def build_multinode(node0, node1, extension="", user_list="", qstr=""):
     current_app.logger.debug(f"[[{node0}/{node1}]]: Assembling multinode (composition).")
 

@@ -18,10 +18,10 @@
 {% if node and related and not embed %}
     {% for n in related %}
         {% if n.subnodes %}
-        <details class="node related">
+        <details class="related-node">
             <summary><span class="node-header" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">📚 Node <a href="/{{n.uri}}"><span class="node-name">[[{{n.description}}]]</span></a></span> maybe related 
         </summary>
-        <div class="node-embed" id="{{n.uri}}"></div>
+        <div class="pulled-node-embed" id="{{n.uri}}"></div>
         </details>
         {% endif %}
     {% endfor %}

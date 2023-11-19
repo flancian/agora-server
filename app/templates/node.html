@@ -55,16 +55,6 @@
 
            </ul>
         </p>
-
-    <div class="pushed-subnodes-embed">
-        <em>Receiving pushes...</em>
-        <!-- removed from the sync rendering path as this is expensive (i.e. slow).
-        interested clients can call GET /push/x to get all subnodes being pushed to x.
-
-        some day maybe: POST/PUT to it to push ;)
-        -->
-    </div>
-
     </details>
 
 {% endif %} <!-- node without subnodes -->
@@ -141,16 +131,16 @@
             </div>
         {% endfor %}
 
+{% endif %} <!-- node with subnodes -->
+
     <div class="pushed-subnodes-embed">
-        <em>Receiving pushes...</em>
+        <em>Receiving pushes... (requires JavaScript)</em>
         <!-- removed from the sync rendering path as this is expensive (i.e. slow).
         interested clients can call GET /push/x to get all subnodes being pushed to x.
 
         some day maybe: POST/PUT to it to push ;)
         -->
     </div>
-
-{% endif %} <!-- node with subnodes -->
 
 </details> <!-- closes node div-->
 
