@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulling';
       let url = this.value;
       console.log('pull url : ' + url)
-      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%;" width="960px" height="800px"></iframe>')
+      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%;" width="960px" height="700em"></iframe>')
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       let node = this.value;
-      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="99%" height="800px"></iframe>');
+      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="700em"></iframe>');
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       let node = this.value;
-      $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="99%" height="800px"></iframe>');
+      $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="100%" height="700em"></iframe>');
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -194,88 +194,132 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       let value = this.value;
-      $("#meet-iframe").html('<iframe id="meet-iframe" allow="camera; microphone; fullscreen; display-capture; autoplay" name="embed_readwrite" src="' + value + '" width="99%" + height="800px"></iframe>');
+      $("#meet-iframe").html('<iframe id="meet-iframe" allow="camera; microphone; fullscreen; display-capture; autoplay" name="embed_readwrite" src="' + value + '" width="100%" + height="700em"></iframe>');
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
   });
 
+  // start async content code.
+  setTimeout(loadAsyncContent, 10)
 
-  // this works and has already replaced most pull buttons for Agora sections.
-  // this is for 'zippies' that require pulling (e.g. pulled nodes).
-  var details = document.querySelectorAll("details");
-  details.forEach((item) => {
-    item.addEventListener("toggle", (event) => {
-        if (item.open) {
-            console.log("Details have been shown");
-            embed = item.querySelector(".pulled-node-embed");
-            if (embed) {
-                let node = embed.id;
-                console.log("Embed found, here we would pull.");
-                embed.innerHTML = '<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%;" width="99%" height="800px" allowfullscreen="allowfullscreen"></iframe>';
+  async function loadAsyncContent() {
+    var content = document.querySelector("#async-content");
+    let node = content.getAttribute('src');
+    console.log("loading " + node + " async");
+    response = await fetch(AGORAURL + '/node/' + node);
+    content.innerHTML = await response.text();
+    setTimeout(bindEvents, 10)
+  }
+
+  async function bindEvents() {
+    // this works and has already replaced most pull buttons for Agora sections.
+    // this is for 'zippies' that require pulling (e.g. pulled nodes).
+    var details = document.querySelectorAll("details.node");
+    details.forEach((item) => {
+        item.addEventListener("toggle", (event) => {
+            if (item.open) {
+                console.log("Details have been shown");
+                embed = item.querySelector(".node-embed");
+                if (embed) {
+                    let node = embed.id;
+                    console.log("Embed found, here we would pull.");
+                    embed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" width="100%" height="700em" allowfullscreen="allowfullscreen"></iframe>';
+                }
+            } else {
+                console.log("Details have been hidden");
+                embed = item.querySelector(".node-embed");
+                if (embed) {
+                    console.log("Embed found, here we would fold.");
+                    embed.innerHTML = '';
+                }
             }
-        } else {
-            console.log("Details have been hidden");
-            embed = item.querySelector(".pulled-node-embed");
-            if (embed) {
-                console.log("Embed found, here we would fold.");
-                embed.innerHTML = '';
-            }
-        }
+        });
     });
-  });
 
-  var details = document.querySelectorAll("details.search");
-  details.forEach((item) => {
-    item.addEventListener("toggle", async (event) => {
-        if (item.open) {
-            console.log("Details have been shown");
-            embed = item.querySelector(".pulled-search-embed");
-            if (embed) {
-                let qstr = embed.id;
-                console.log("Embed found, here we would pull.");
-                /*
-                $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
-                    $("#pulled-search.pulled-search-embed").html(data);
-                });
-                */
-                response = await fetch(AGORAURL + '/fullsearch/' + qstr);
-                embed.innerHTML = await response.text();
+    var details = document.querySelectorAll("details.search");
+    details.forEach((item) => {
+        item.addEventListener("toggle", async (event) => {
+            if (item.open) {
+                console.log("Details have been shown");
+                embed = item.querySelector(".pulled-search-embed");
+                if (embed) {
+                    let qstr = embed.id;
+                    console.log("Embed found, here we would pull.");
+                    /*
+                    $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
+                        $("#pulled-search.pulled-search-embed").html(data);
+                    });
+                    */
+                    response = await fetch(AGORAURL + '/fullsearch/' + qstr);
+                    embed.innerHTML = await response.text();
+                }
+            } else {
+                console.log("Details have been hidden");
+                embed = item.querySelector(".pulled-search-embed");
+                if (embed) {
+                    console.log("Embed found, here we would fold.");
+                    embed.innerHTML = '';
+                }
             }
-        } else {
-            console.log("Details have been hidden");
-            embed = item.querySelector(".pulled-search-embed");
-            if (embed) {
-                console.log("Embed found, here we would fold.");
-                embed.innerHTML = '';
-            }
-        }
+        });
     });
-  });
 
-  var details = document.querySelectorAll("details.url");
-  details.forEach((item) => {
-    item.addEventListener("toggle", async (event) => {
-        if (item.open) {
-            console.log("Details have been shown");
-            embed = item.querySelector(".stoa-iframe");
-            if (embed) {
-                let url = embed.getAttribute('src');
-                embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 99%;" height="700px"></iframe>';
+    var details = document.querySelectorAll("details.url");
+    details.forEach((item) => {
+        item.addEventListener("toggle", async (event) => {
+            if (item.open) {
+                console.log("Details have been shown");
+                embed = item.querySelector(".stoa-iframe");
+                if (embed) {
+                    let url = embed.getAttribute('src');
+                    embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 100%;" height="700px"></iframe>';
+                }
+            } else {
+                console.log("Details have been hidden");
+                embed = item.querySelector(".stoa-iframe");
+                if (embed) {
+                    console.log("Embed found, here we would fold.");
+                    embed.innerHTML = '';
+                }
             }
-        } else {
-            console.log("Details have been hidden");
-            embed = item.querySelector(".stoa-iframe");
-            if (embed) {
-                console.log("Embed found, here we would fold.");
-                embed.innerHTML = '';
-            }
-        }
+        });
     });
-  });
 
+    // end zippies.
 
-  // end zippies.
+   $(".pushed-subnodes-embed").each(function (e) {
+      // auto pull pushed subnodes by default.
+      // it would be better to infer this from node div id?
+      let node = NODENAME;
+      let arg = ARG;
+      let id = "#" + node + " .pushed-subnodes-embed";
+      console.log('auto pulling pushed subnodes, will write to id: ' + id);
+      if (arg != '') {
+        $.get(AGORAURL + '/push/' + node + '/' + arg, function (data) {
+            $(id).html(data);
+        });
+      }
+      else {
+        $.get(AGORAURL + '/push/' + node, function (data) {
+            $(id).html(data);
+        });
+      }
+      // end auto pull pushed subnodes.
+    });
+
+    $(".context").each(function (e) {
+      // auto pull context by default.
+      // it would be better to infer this from node div id?
+      let node = NODENAME
+      let id = '.context'
+      console.log('auto pulling context, will write to id: ' + id);
+      $.get(AGORAURL + '/context/' + node, function (data) {
+        $(id).html(data);
+      });
+      // end auto pull pushed subnodes.
+    });
+  // end async content code.
 
   // pull nodes from the [[agora]]
   // pull-node are high-ranking (above the 'fold' of context), .pull-related-node are looser links below.
@@ -294,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('pulling node');
       // now with two methods! you can choose the simpler/faster one (just pulls static content) or the nerdy one (recursive) in settings.
       if (pullRecursive) {
-        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%;" width="99%" height="800px" allowfullscreen="allowfullscreen"></iframe>');
+        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%;" width="100%" height="700em" allowfullscreen="allowfullscreen"></iframe>');
       }
       else {
         $.get(AGORAURL + '/pull/' + node, function (data) {
@@ -305,6 +349,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.classList.add('pulled');
     }
   });
+  }
 
   // pull full text search 
   $(".pull-search").click(function (e) {
@@ -582,7 +627,7 @@ document.addEventListener("DOMContentLoaded", function () {
           this.innerText = 'pulling';
           let url = this.value;
           console.log('pull exec: ' + url)
-          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%;" width="99%" height="800px" allowfullscreen="allowfullscreen"></iframe>')
+          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%;" width="100%" height="700em" allowfullscreen="allowfullscreen"></iframe>')
           this.innerText = 'fold';
           this.classList.add('pulled');
           $(".node-hint").hide();

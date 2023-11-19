@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if subnode %}
+<div id="async-content" src="{{subnode}}">
+{% else %}
+<div id="async-content" src="{{node}}">
+{% endif %}
+    <br />
+    <center><em>Loading...</em></center>
+    <br />
+</div>
+
+{% endblock %}

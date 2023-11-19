@@ -20,9 +20,9 @@
 
 {% if not embed %}
 {% for n in pull_nodes %}
-<details class="pulled-node auto-pull">
+<details class="node pulled">
     <summary><span class="node-header" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">📚 Node <a href="/{{n.uri}}"><span class="node-name">[[{{n.description}}]]</span></a></span> pulled by a user</summary>
-    <div class="pulled-node-embed" id="{{n.uri}}"></div>
+    <div class="node-embed" id="{{n.uri}}"></div>
 
 </details>
 {% endfor %}

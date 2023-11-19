@@ -30,6 +30,14 @@ def Graph():
         case _:
             return
 
+def Node(node):
+    match STORAGE_ENGINE:
+        case "file":
+            return file_engine.Node(node)
+        case "sqlite":
+            return sqlite_engine.Node(node)
+        case _:
+            return
 
 def subnode_by_uri(uri):
     match STORAGE_ENGINE:
