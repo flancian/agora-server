@@ -2,7 +2,11 @@
 
 {% block content %}
 
-<div id="async-content" src="testing">
+{% if subnode %}
+<div id="async-content" src="{{subnode}}">
+{% else %}
+<div id="async-content" src="{{node}}">
+{% endif %}
     <br />
     <center><em>Loading...</em></center>
     <br />

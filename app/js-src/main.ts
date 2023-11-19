@@ -205,8 +205,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function loadAsyncContent() {
     var content = document.querySelector("#async-content");
-    console.log("loading " + NODENAME + " async");
-    response = await fetch(AGORAURL + '/node/' + NODENAME);
+    let node = content.getAttribute('src');
+    console.log("loading " + node + " async");
+    response = await fetch(AGORAURL + '/node/' + node);
     content.innerHTML = await response.text();
     setTimeout(bindEvents, 10)
   }
