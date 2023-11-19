@@ -42,7 +42,6 @@ from .storage import feed, graph
 from . import providers, util, forms
 
 bp = Blueprint("agora", __name__)
-G = api.Graph()
 
 
 # For footer / timing information.
@@ -81,20 +80,35 @@ def after_request(response):
 
 
 # In the [[agora]] there are no 404s. Everything that can be described with words has a node in the [[agora]].
+
 # The [[agora]] is in some ways thus a [[search engine]]: anagora.org/agora-search
 #
 # Flask routes work so that the one closest to the function is the canonical one.
-@bp.route("/wikilink/<node>")
-@bp.route("/node/<node>/uprank/<user_list>")
-@bp.route("/node/<node>")
-@bp.route("/<node>/uprank/<user_list>")
 @bp.route("/<node>.<extension>")
 @bp.route("/<node>")
-def node(node, extension="", user_list=""):
-    n = api.build_node(node)
+def root(node, extension="", user_list=""):
+
+    # Builds a node with the bare minimum/stub metadata, should be quick.
+    current_app.logger.debug(f"[[{node}]]: Assembling light node.")
+
+    # We really need to get rid of this kind of hack :)
+    node = node.replace(",", "").replace(":", "")
+    node = urllib.parse.unquote_plus(node)
+    node = util.slugify(node)
+    n = api.Node(node)
+
+    # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
+    # query is meant to be user parsable / readable text, to be used for example in the UI
+    n.qstr = request.args.get("q")
+    if not n.qstr:
+        # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
+        n.qstr = n.wikilink.replace("-", " ")
+    # search_subnodes = db.search_subnodes(node)
+    n.q = n.qstr
+    current_app.logger.debug(f"[[{node}]]: Assembled light node.")
 
     return render_template(
-        "content.html",
+        "sync.html",
         node=n,
         config=current_app.config,
         # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
@@ -105,12 +119,32 @@ def node(node, extension="", user_list=""):
         # annotations_enabled=True,
     )
 
+# Flask routes work so that the one closest to the function is the canonical one.
+@bp.route("/wikilink/<node>")
+@bp.route("/node/<node>/uprank/<user_list>")
+@bp.route("/node/<node>")
+def node(node, extension="", user_list=""):
+    n = api.build_node(node)
+
+    return render_template(
+        "async.html",
+        node=n,
+        config=current_app.config,
+        # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
+        # sorry for the fuzzy thinking but I'm short on time and want to get things done.
+        # (...famous last words).
+        # TODO(2022-06-06): this should now be done in the async path, essentially embedding /annotations/X from node X
+        # annotations=n.annotations(),
+        # annotations_enabled=True,
+    )
+
+@bp.route("/node/<node0>/<node1>")
 @bp.route("/<node0>/<node1>")
 def node2(node0, node1):
     n = api.build_multinode(node0, node1)
 
     return render_template(
-        "content.html",
+        "sync.html",
         node=n,
         argument=node1,
         config=current_app.config,
@@ -119,6 +153,7 @@ def node2(node0, node1):
 
 @bp.route("/feed/<node>")
 def node_feed(node):
+    G = api.Graph()
     n = G.node(node)
     return Response(feed.node_rss(n), mimetype="application/rss+xml")
 
@@ -155,6 +190,7 @@ def latest_feed():
 @bp.route("/turtle/<node>")
 @bp.route("/graph/turtle/<node>")
 def turtle(node):
+    G = api.Graph()
     n = G.node(node)
     return Response(graph.turtle_node(n), mimetype="text/turtle")
 
@@ -162,6 +198,7 @@ def turtle(node):
 @bp.route("/graph/turtle/all")
 @bp.route("/graph/turtle")
 def turtle_all():
+    G = api.Graph()
     nodes = G.nodes().values()
     return Response(graph.turtle_nodes(nodes), mimetype="text/turtle")
 
@@ -169,22 +206,23 @@ def turtle_all():
 @bp.route("/graph/json/all")
 @bp.route("/graph/json")
 def graph_js():
+    G = api.Graph()
     nodes = G.nodes().values()
     return Response(graph.json_nodes(nodes), mimetype="application/json")
 
 
 @bp.route("/graph/json/<node>")
 def graph_js_node(node):
+    G = api.Graph()
     n = G.node(node)
     return Response(graph.json_node(n), mimetype="application/json")
 
 
-@bp.route("/node/<node>@<user>")
-@bp.route("/node/@<user>/<node>")
 @bp.route("/@<user>/<node>")
-def subnode(node, user):
+def root_subnode(node, user):
     node = urllib.parse.unquote_plus(node)
     node = util.slugify(node)
+    G = api.Graph()
     n = G.node(node)
 
     n.subnodes = util.filter(n.subnodes, user)
@@ -203,7 +241,37 @@ def subnode(node, user):
     n.q = n.qstr
 
     return render_template(
-        "content.html",
+        "sync.html",
+        node=n,
+        subnode=f"@{user}/" + n.wikilink,
+    )
+
+
+@bp.route("/node/<node>@<user>")
+@bp.route("/node/@<user>/<node>")
+def subnode(node, user):
+    node = urllib.parse.unquote_plus(node)
+    node = util.slugify(node)
+    G = api.Graph()
+    n = G.node(node)
+
+    n.subnodes = util.filter(n.subnodes, user)
+    n.subnodes = util.uprank(n.subnodes, user)
+    search_subnodes = api.search_subnodes_by_user(node, user)
+
+    # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
+    # query is meant to be user parsable / readable text, to be used for example in the UI
+    n.qstr = request.args.get("q")
+
+    if not n.qstr:
+        # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
+        n.qstr = n.wikilink.replace("-", " ")
+
+    n.qstr = f"@{user}/" + n.wikilink.replace("-", " ")
+    n.q = n.qstr
+
+    return render_template(
+        "async.html",
         node=n,
         subnode=f"@{user}/" + n.wikilink,
     )
@@ -214,6 +282,7 @@ def subnode(node, user):
 def subnode_export(node, user):
     node = urllib.parse.unquote_plus(node)
     node = util.slugify(node)
+    G = api.Graph()
     n = G.node(node)
 
     n.subnodes = util.filter(n.subnodes, user)
@@ -246,7 +315,7 @@ def index():
     # this should use this pattern:
     # first, render address specific functionality.
     # then, pull /node/foo if we're in location foo.
-    return redirect(url_for(".node", node="index"))
+    return redirect(url_for(".root", node="index"))
 
 
 @bp.route("/Δ")
@@ -448,21 +517,21 @@ def embed(node):
     n = api.build_node(node)
 
     return render_template(
-        "content.html",
+        "sync.html",
         node=n,
         embed=True,
         config=current_app.config,
     )
 
 
-# good for embedding just node content (this is called by non-recursive pulls)
+# good for embedding just node -onlycontent (this is called by non-recursive pulls)
 @bp.route("/pull/<node>")
 def pull(node):
     current_app.logger.debug(f"pull [[{node}]]: Assembling node.")
     n = api.build_node(node)
 
     return render_template(
-        "content.html",
+        "sync.html",
         node=n,
         embed=True,
         config=current_app.config,
@@ -519,7 +588,7 @@ def search():
     current_app.logger.warning(
         "Node catch-all in agora.py triggered; should never happen (tm)."
     )
-    return redirect(url_for(".node", node=util.slugify(q)))
+    return redirect(url_for(".root", node=util.slugify(q)))
 
 
 @bp.route("/subnode/<path:subnode>")
@@ -575,6 +644,7 @@ def nodes():
 
 @bp.route("/nodes.json")
 def nodes_json():
+    G = api.Graph()
     nodes = G.nodes(include_journals=False).values()
     links = list(map(lambda x: x.wikilink, nodes))
     return jsonify(jsons.dump(links))
@@ -604,6 +674,7 @@ def user_journal(user):
     # doesn't really work currently.
     n = api.build_node(user)
     subs = api.user_journals(user)
+    G = api.Graph()
     nodes = [G.node(subnode.node) for subnode in subs]
     nodes.reverse()
     return render_template(
@@ -634,7 +705,7 @@ def journals(entries):
         except ValueError:
             # we only support numbers and all (handled above), other suffixes must be a broken link from /all or /30 or such...
             # long story, this is a hack working around a bug for now.
-            return redirect(url_for(".node", node=entries))
+            return redirect(url_for(".root", node=entries))
     return render_template(
         "journals.html",
         node=n,
@@ -694,6 +765,7 @@ def count_votes(subnode):
 
 @bp.route("/proposal/<user>/<node>")
 def proposal(user, node):
+    G = api.Graph()
     n = G.node(node)
     subnode = next(x for x in n.subnodes if x.user == user)
     other_nodes = [x for x in n.subnodes if x.user != user]
