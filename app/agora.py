@@ -138,6 +138,7 @@ def node(node, extension="", user_list=""):
         # annotations_enabled=True,
     )
 
+@bp.route("/node/<node0>/<node1>")
 @bp.route("/<node0>/<node1>")
 def node2(node0, node1):
     n = api.build_multinode(node0, node1)
