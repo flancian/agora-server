@@ -43,6 +43,8 @@ from . import providers, util, forms
 
 bp = Blueprint("agora", __name__)
 
+# Global graph. We want this here as we have what amounts to a per-process cache.
+G = api.Graph()
 
 # For footer / timing information.
 # Adapted from https://stackoverflow.com/questions/12273889/calculate-execution-time-for-every-page-in-pythons-flask
@@ -153,7 +155,6 @@ def node2(node0, node1):
 
 @bp.route("/feed/<node>")
 def node_feed(node):
-    G = api.Graph()
     n = G.node(node)
     return Response(feed.node_rss(n), mimetype="application/rss+xml")
 
@@ -190,7 +191,6 @@ def latest_feed():
 @bp.route("/turtle/<node>")
 @bp.route("/graph/turtle/<node>")
 def turtle(node):
-    G = api.Graph()
     n = G.node(node)
     return Response(graph.turtle_node(n), mimetype="text/turtle")
 
@@ -198,7 +198,6 @@ def turtle(node):
 @bp.route("/graph/turtle/all")
 @bp.route("/graph/turtle")
 def turtle_all():
-    G = api.Graph()
     nodes = G.nodes().values()
     return Response(graph.turtle_nodes(nodes), mimetype="text/turtle")
 
@@ -206,14 +205,12 @@ def turtle_all():
 @bp.route("/graph/json/all")
 @bp.route("/graph/json")
 def graph_js():
-    G = api.Graph()
     nodes = G.nodes().values()
     return Response(graph.json_nodes(nodes), mimetype="application/json")
 
 
 @bp.route("/graph/json/<node>")
 def graph_js_node(node):
-    G = api.Graph()
     n = G.node(node)
     return Response(graph.json_node(n), mimetype="application/json")
 
@@ -222,7 +219,6 @@ def graph_js_node(node):
 def root_subnode(node, user):
     node = urllib.parse.unquote_plus(node)
     node = util.slugify(node)
-    G = api.Graph()
     n = G.node(node)
 
     n.subnodes = util.filter(n.subnodes, user)
@@ -252,7 +248,6 @@ def root_subnode(node, user):
 def subnode(node, user):
     node = urllib.parse.unquote_plus(node)
     node = util.slugify(node)
-    G = api.Graph()
     n = G.node(node)
 
     n.subnodes = util.filter(n.subnodes, user)
@@ -282,7 +277,6 @@ def subnode(node, user):
 def subnode_export(node, user):
     node = urllib.parse.unquote_plus(node)
     node = util.slugify(node)
-    G = api.Graph()
     n = G.node(node)
 
     n.subnodes = util.filter(n.subnodes, user)
@@ -644,7 +638,6 @@ def nodes():
 
 @bp.route("/nodes.json")
 def nodes_json():
-    G = api.Graph()
     nodes = G.nodes(include_journals=False).values()
     links = list(map(lambda x: x.wikilink, nodes))
     return jsonify(jsons.dump(links))
@@ -674,7 +667,6 @@ def user_journal(user):
     # doesn't really work currently.
     n = api.build_node(user)
     subs = api.user_journals(user)
-    G = api.Graph()
     nodes = [G.node(subnode.node) for subnode in subs]
     nodes.reverse()
     return render_template(
@@ -765,7 +757,6 @@ def count_votes(subnode):
 
 @bp.route("/proposal/<user>/<node>")
 def proposal(user, node):
-    G = api.Graph()
     n = G.node(node)
     subnode = next(x for x in n.subnodes if x.user == user)
     other_nodes = [x for x in n.subnodes if x.user != user]
