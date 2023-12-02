@@ -405,7 +405,7 @@ input[type="text"] {
     font-style: italic;
 }
 
-.subnode, .links, .not-found {
+.subnode, .not-found {
     background: #1f232b;
     /* background: #12091a; */
     /* background: #150d38; */
@@ -514,6 +514,10 @@ Served by the Agora of Flancia in 15.67 seconds on 2023-07-15 22:09:20. May you 
     display: flex;
 }
 
+.context-flex {
+    display: flex;
+}
+
 .listing-flex {
     display: flex;
 }
@@ -532,12 +536,6 @@ Served by the Agora of Flancia in 15.67 seconds on 2023-07-15 22:09:20. May you 
 
 .subnodes {
     width: 50%
-}
-
-.links {
-    overflow: auto;
-    gap: 10px;
-    max-height: 400px;
 }
 
 .annotations {
@@ -575,19 +573,23 @@ Served by the Agora of Flancia in 15.67 seconds on 2023-07-15 22:09:20. May you 
 
 .backlinks {
     float: left;
-    width: 33%;
+    width: 50%;
+    overflow: auto;
 }
 
 .pushlinks {
     width: 33%;
+    overflow: auto;
 }
 
 .pulllinks {
     width: 33%;
+    overflow: auto;
 }
 
 .forwardlinks {
-    width: 33%;
+    width: 50%;
+    overflow: auto;
 }
 
 .backlinks-header, .pushlinks-header, .pulllinks-header, .forwardlinks-header {
@@ -599,8 +601,8 @@ Served by the Agora of Flancia in 15.67 seconds on 2023-07-15 22:09:20. May you 
     /*border-radius: 20px;*/
     padding: 10px;
     margin: 10px;
-    max-width: 900px;
-    max-height: 400px;
+    max-height: 300px;
+    width: 50%;
 }
 
 #agoragraph {
@@ -608,6 +610,17 @@ Served by the Agora of Flancia in 15.67 seconds on 2023-07-15 22:09:20. May you 
     width: 100%;
     position: absolute;
 }
+
+.links {
+    overflow: auto;
+    padding: 10px;
+    margin: 10px;
+    gap: 10px;
+    max-height: 400px;
+    width: 50%;
+}
+
+
 
 .search-header {
     font-weight: bolder;

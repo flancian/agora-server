@@ -32,7 +32,7 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
     background: #f0f0f0; 
 }
 
-.subnode, .links, .not-found {
+.subnode, .not-found {
     /*background: #e6ffff; */
     background: #ffffff;
     color: #000;

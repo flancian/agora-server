@@ -2,12 +2,16 @@
 
 <summary class="context-header"><span title="Information about the surroundings and connections between this location and others. May load slowly.">⥱ Context for <a href="/{{node}}"><span class="node-name">[[{{node.qstr}}]]</span></a></span></summary>
 
+<div class="context-flex">
 {% if node.back_nodes or node.pushing_nodes or node.pulling_nodes or node.forward_nodes %}
 
 {% include "graph.html" %}
 
+{% include "links.html" %}
+
 {% else %}
 
 No context found.
+</div>
 
 {% endif %}
