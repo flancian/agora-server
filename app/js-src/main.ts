@@ -200,6 +200,45 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  function statusContent(self) {
+    let toot = self.value;
+    let domain, post;
+    // extract instance and :id, then use https://docs.joinmastodon.org/methods/statuses/ and get an oembed
+    // there are two kinds of statuses we want to be able to embed: /web/ led and @user led.
+    const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig
+    const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig
+
+    console.log("testing type of presumed mastodon embed: " + toot);
+    if (m = web_regex.exec(toot)) {
+      console.log("found status of type /web/");
+      domain = m[1];
+      post = m[2];
+    }
+    if (m = user_regex.exec(toot)) {
+      console.log("found status of type /@user/");
+      domain = m[1];
+      post = m[2];
+    }
+
+    req = domain + '/api/v1/statuses/' + post
+    console.log('req: ' + req)
+    $.get(req, function (data) {
+      console.log('status: ' + data['url'])
+      let actual_url = data['url']
+
+      let oembed_req = domain + '/api/oembed?url=' + actual_url
+      $.get(oembed_req, function (data) {
+        console.log('oembed: ' + data['html'])
+        let html = '<br /> ' + data['html']
+        $(self).after(html);
+      });
+    });
+    self.innerText = 'pulled';
+  }
+
+
+
+
   // start async content code.
   setTimeout(loadAsyncContent, 10)
 
@@ -349,8 +388,71 @@ document.addEventListener("DOMContentLoaded", function () {
       this.classList.add('pulled');
     }
   });
-  }
 
+  // pull arbitrary URL
+  $(".pull-url").click(function (e) {
+    console.log("in pull-url!")
+    if (this.classList.contains('pulled')) {
+      // already pulled.
+      this.innerText = 'pull';
+      $(e.currentTarget).nextAll('iframe').remove()
+      this.classList.remove('pulled');
+    }
+    else {
+      // pull.
+      this.innerText = 'pulling';
+      let url = this.value;
+      console.log('pull url : ' + url)
+      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%;" width="960px" height="700em"></iframe>')
+      this.innerText = 'fold';
+      this.classList.add('pulled');
+    }
+  });
+
+  $(".pull-tweet").click(function (e) {
+    if (this.classList.contains('pulled')) {
+      div = $(e.currentTarget).nextAll('.twitter-tweet')
+      div.remove()
+      this.innerText = 'pull';
+      this.classList.remove('pulled');
+    }
+    else {
+        this.innerText = 'pulling';
+        let tweet = this.value;
+        $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
+        this.classList.add('pulled');
+        this.innerText = 'fold';
+    }
+  });
+
+  // pull a mastodon status (toot) using the roughly correct way IIUC.
+  $(".pull-mastodon-status").click(function (e) {
+    if (this.classList.contains('pulled')) {
+      div = $(e.currentTarget).nextAll('.mastodon-embed')
+      div.remove()
+      br = $(e.currentTarget).nextAll('')
+      br.remove()
+      this.innerText = 'pull';
+      this.classList.remove('pulled');
+    }
+    else {
+        this.innerText = 'pulling';
+        statusContent(this)
+        this.classList.add('pulled');
+        this.innerText = 'fold';
+    }
+  });
+
+  // pull a pleroma status (toot) using the laziest way I found, might be a better one
+  $(".pull-pleroma-status").click(function (e) {
+    let toot = this.value;
+    $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%;" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"></script>')
+    this.innerText = 'pulled';
+  });
+
+  }
+  // end bindEvents();
+  
   // pull full text search 
   $(".pull-search").click(function (e) {
     if (autoPullSearch) {
@@ -380,82 +482,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-
-  $(".pull-tweet").click(function (e) {
-    if (this.classList.contains('pulled')) {
-      div = $(e.currentTarget).nextAll('.twitter-tweet')
-      div.remove()
-      this.innerText = 'pull';
-      this.classList.remove('pulled');
-    }
-    else {
-        this.innerText = 'pulling';
-        let tweet = this.value;
-        $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
-        this.classList.add('pulled');
-        this.innerText = 'fold';
-    }
-  });
-
-  function statusContent(self) {
-    let toot = self.value;
-    let domain, post;
-    // extract instance and :id, then use https://docs.joinmastodon.org/methods/statuses/ and get an oembed
-    // there are two kinds of statuses we want to be able to embed: /web/ led and @user led.
-    const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig
-    const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig
-
-    console.log("testing type of presumed mastodon embed: " + toot);
-    if (m = web_regex.exec(toot)) {
-      console.log("found status of type /web/");
-      domain = m[1];
-      post = m[2];
-    }
-    if (m = user_regex.exec(toot)) {
-      console.log("found status of type /@user/");
-      domain = m[1];
-      post = m[2];
-    }
-
-    req = domain + '/api/v1/statuses/' + post
-    console.log('req: ' + req)
-    $.get(req, function (data) {
-      console.log('status: ' + data['url'])
-      let actual_url = data['url']
-
-      let oembed_req = domain + '/api/oembed?url=' + actual_url
-      $.get(oembed_req, function (data) {
-        console.log('oembed: ' + data['html'])
-        let html = '<br /> ' + data['html']
-        $(self).after(html);
-      });
-    });
-    self.innerText = 'pulled';
-  }
-  // pull a mastodon status (toot) using the roughly correct way IIUC.
-  $(".pull-mastodon-status").click(function (e) {
-    if (this.classList.contains('pulled')) {
-      div = $(e.currentTarget).nextAll('.mastodon-embed')
-      div.remove()
-      br = $(e.currentTarget).nextAll('')
-      br.remove()
-      this.innerText = 'pull';
-      this.classList.remove('pulled');
-    }
-    else {
-        this.innerText = 'pulling';
-        statusContent(this)
-        this.classList.add('pulled');
-        this.innerText = 'fold';
-    }
-  });
-
-  // pull a pleroma status (toot) using the laziest way I found, might be a better one
-  $(".pull-pleroma-status").click(function (e) {
-    let toot = this.value;
-    $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%;" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"></script>')
-    this.innerText = 'pulled';
-  });
 
   // go to the specified URL
   $(".go-url").click(function (e) {
