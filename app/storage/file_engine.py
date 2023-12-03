@@ -35,7 +35,7 @@ from . import regexes
 from . import render
 from .. import util
 from collections import defaultdict
-from fuzzywuzzy import fuzz
+from thefuzz import fuzz
 from operator import attrgetter
 from typing import Union
 from pathlib import Path
