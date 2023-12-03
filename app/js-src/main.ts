@@ -357,6 +357,12 @@ document.addEventListener("DOMContentLoaded", function () {
         $(id).html(data);
       });
       // end auto pull pushed subnodes.
+      
+    $(".autopull").each(function (e) {
+      console.log('*** auto pulling item, trying to activate' + this)
+      this.click()
+    });
+ 
     });
   // end async content code.
 
@@ -678,7 +684,10 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('auto pulling node, trying to press button' + this)
       this.click()
     });
- 
+    $(".node-header").each(function (e) {
+      console.log('*** auto pulling node, trying to activate' + this)
+      this.click()
+    });
   }
   if (autoPullExtra) {
     console.log('auto pulling external resources!');

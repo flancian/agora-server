@@ -489,21 +489,27 @@ class Node:
     def related(self):
         # nodes that are probably heavily related; right now it does fuzzy prefix matching.
         # same caveats as for equivalent() :)
+        # as of 2023-12 trying just using actual fuzzy matching like we already do elsewhere, unsure why I used a regex approach here currently.
+        #
         nodes = []
-        regex = re.sub(r"[-_ ]", ".*", self.uri)
-        try:
-            nodes.extend(
-                [
-                    node
-                    for node in G.search(regex)
-                    if node.uri != self.uri
-                    and node.uri not in [x.uri for x in self.pull_nodes()]
-                ]
-            )
-        except re.error:
-            # sometimes node names might contain invalid regexes.
-            pass
-        return nodes
+        # regex = re.sub(r"[-_ ]", ".*", self.uri)
+        # try:
+        #     nodes.extend(
+        #         [
+        #             node
+        #             for node in G.search(regex)
+        #             if node.uri != self.uri
+        #             and node.uri not in [x.uri for x in self.pull_nodes()]
+        #         ]
+        #     )
+        # except re.error:
+        #     # sometimes node names might contain invalid regexes.
+        #     pass
+
+        nodes = G.nodes()
+        l = [node for node in G.nodes() if fuzz.ratio(node.uri, self.uri) > FUZZ_FACTOR and node.uri != self.uri]
+
+        return l
 
     def push_nodes(self):
         # nodes pushed to from this node.
