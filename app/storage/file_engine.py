@@ -49,7 +49,8 @@ from copy import copy
 
 # This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
 # https://anagora.org/auto-pull
-FUZZ_FACTOR = 95
+FUZZ_FACTOR_EQUIVALENT = 95
+FUZZ_FACTOR_RELATED = 75
 
 # Spreading over a range prevents thundering herd affected by I/O throughput.
 CACHE_TTL = random.randint(120, 240)
@@ -487,29 +488,37 @@ class Node:
         return nodes
 
     def related(self):
-        # nodes that are probably heavily related; right now it does fuzzy prefix matching.
-        # same caveats as for equivalent() :)
-        # as of 2023-12 trying just using actual fuzzy matching like we already do elsewhere, unsure why I used a regex approach here currently.
+        # nodes that are probably heavily related; right now it does:
         #
-        nodes = []
-        # regex = re.sub(r"[-_ ]", ".*", self.uri)
-        # try:
-        #     nodes.extend(
-        #         [
-        #             node
-        #             for node in G.search(regex)
-        #             if node.uri != self.uri
-        #             and node.uri not in [x.uri for x in self.pull_nodes()]
-        #         ]
-        #     )
-        # except re.error:
-        #     # sometimes node names might contain invalid regexes.
-        #     pass
+        # suffix/prefix matching
+        # levenshtein distance
+        #
+        # same caveats as for equivalent() :)
+        #
+        l = []
+        regex = re.sub(r"[-_ ]", ".*", self.uri)
+        try:
+            l.extend(
+                [
+                    node
+                    for node in G.search(regex)
+                    if node.uri != self.uri
+                    and node.uri not in [x.uri for x in self.pull_nodes()]
+                ]
+            )
+        except re.error:
+            # sometimes node names might contain invalid regexes.
+            pass
 
-        nodes = G.nodes()
-        l = [node for node in G.nodes() if fuzz.ratio(node.uri, self.uri) > FUZZ_FACTOR and node.uri != self.uri]
+        l.extend(
+            [
+                node for node in G.search('.*') 
+                if fuzz.ratio(node.uri, self.uri) > FUZZ_FACTOR_RELATED 
+                and node.uri != self.uri
+            ]
+        )
 
-        return l
+        return sorted(set(l), key=lambda x: x.uri)
 
     def push_nodes(self):
         # nodes pushed to from this node.
@@ -762,7 +771,7 @@ class Subnode:
 
     def __eq__(self, other):
         # hack hack
-        if fuzz.ratio(self.wikilink, other.wikilink) > FUZZ_FACTOR:
+        if fuzz.ratio(self.wikilink, other.wikilink) > FUZZ_FACTOR_EQUIVALENT:
             return True
         else:
             return False
@@ -1280,7 +1289,7 @@ def subnodes_by_wikilink(wikilink, fuzzy_matching=True):
         subnodes = [
             subnode
             for subnode in G.subnodes()
-            if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR
+            if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR_EQUIVALENT
         ]
     else:
         subnodes = [subnode for subnode in G.subnodes() if subnode.wikilink == wikilink]
@@ -1354,7 +1363,7 @@ def nodes_by_outlink(wikilink):
 
 def subnodes_by_outlink(wikilink):
     # This doesn't work. It matches too much/too little for some reason. Debug someday?
-    # subnodes = [subnode for subnode in all_subnodes() if [wikilink for wikilink in subnode.forward_links if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR]]
+    # subnodes = [subnode for subnode in all_subnodes() if [wikilink for wikilink in subnode.forward_links if fuzz.ratio(subnode.wikilink, wikilink) > FUZZ_FACTOR_EQUIVALENT]]
     subnodes = [
         subnode
         for subnode in G.subnodes()
