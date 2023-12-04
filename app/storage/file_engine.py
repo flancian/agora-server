@@ -600,6 +600,17 @@ class Node:
                         except AttributeError:
                             # Better luck next time -- or when I fix this code :)
                             pass
+
+                # Experimental on 2023-12-04. Try to support [[foo]]! syntax for pushes.
+                if True: #link[2] == other.wikilink or link[2] == other.wikilink.replace('-', ' '):
+                    subnodes.append(
+                        VirtualSubnode(
+                            subnode,
+                            other,
+                            f"<em>Experimental push. Not expected to work (yet :).</em>.",
+                        )
+                    )
+
         if not subnodes:
             # could be a failure in parsing, as of the time of writing #push isn't well supported.
             subnodes.append(
@@ -939,6 +950,8 @@ class Subnode:
         push links are blocks of the form:
         - [[push]] [[node]]
         - #push [[node]]
+        - [[node]]!
+        - [[node]]:
 
         TODO: refactor with the above.
         """
@@ -946,6 +959,7 @@ class Subnode:
         # TODO: test.
         push_blocks = subnode_to_actions(self, "push")
         push_blocks += subnode_to_taglink(self, "push")
+        push_blocks += subnode_to_pushes(self)
         push_nodes = content_to_forward_links("\n".join(push_blocks))
         return [G.node(node) for node in push_nodes]
 
@@ -1089,6 +1103,22 @@ def subnode_to_taglink(subnode, tag, blocks_only=False):
         if m:
             tags.append(m.group(1))
     return tags
+
+
+def subnode_to_pushes(subnode):
+    # This is actually only for pushes of the form [[foo]]! or [[foo]]:, meaning link-then-exclamation mark or colon.
+    # For #push or [[push]] prefixes, see above.
+    if subnode.mediatype != "text/plain":
+        return []
+    push_regex = f"(\[\[.*?\]\])[!:]"
+    content = subnode.content
+    pushes = []
+    for line in content.splitlines():
+        m = re.search(push_regex, line)
+        if m:
+            pushes.append(m.group(1))
+    current_app.logger.debug(f"*** Pushes from {subnode.uri}: {pushes}***")
+    return pushes
 
 
 class User:
