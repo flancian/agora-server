@@ -81,8 +81,12 @@
            </summary>
         {% else %}
             <summary class="node-header main-header">
-                <span title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">📚 Node <a href="/{{node}}"><span class="node-name">[[{{node.qstr}}]]</span></a>
-                </span>
+                <div class="inline-flex">
+                    <div style="flex: auto; flex-grow: 1;" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">📚 Node <a href="/{{node}}"><span class="node-name">[[{{node.qstr}}]]</span></a>
+                    </div>
+                    <div style="flex: auto; margin-left: auto; text-align: right;"> <button id="pull-all" value="pull-all" title='Tries to retrieve most resources that can be pulled below'>pull all</button>
+                    </div>
+                </div>
             </summary>
             <!--
             <span class="node-actions">

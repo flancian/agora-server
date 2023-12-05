@@ -39,7 +39,7 @@
 	<link rel="stylesheet" type="text/css"
 		href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached170" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached171" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}"
@@ -121,18 +121,11 @@
 					• <a href="https://search.marginalia.nu/search?query={{node.q}}">Marginalia</a>
                     • <a href="https://yandex.com/search/?text={{node.q}}">Yandex</a>
                     • <a href="https://tootfinder.ch/index.php?query={{node.q}}">Tootfinder</a>
-				</div>
-
-				<div class="topline-agora">
-                    <strong>↳ in the <a href="{{config['URL']}}"><strong>{{config['AGORA_NAME']}}</strong></a> ⬎</strong>
-					<div>
-                        <button id="pull-all" value="pull-all" title='Tries to retrieve most resources that can be pulled below'>pull all</button>
                         <!--
 						<button id="fold-all" value="fold-all" title="Folds (collapses) embeds below">fold all</button>
                         <button id="retry-elsewhere" value="retry-elsewhere" title="Retries elsewhere (if possible); useful if any of the subnodes below surfaced errors">retry</button>
                         -->
 					</div> 
-				</div>
 
 			</div>
 		</div>

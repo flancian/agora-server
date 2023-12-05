@@ -456,6 +456,48 @@ document.addEventListener("DOMContentLoaded", function () {
     this.innerText = 'pulled';
   });
 
+  $("#pull-all").click(function (e) {
+      // this.innerText = 'pulling all';
+      console.log('auto pulling all!');
+      $(".pull-node").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling nodes');
+          this.click();
+        }
+      });
+      $(".pull-mastodon-status").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling activity');
+          this.click();
+        }
+      });
+      $(".pull-tweet").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling tweet');
+          this.click();
+        }
+      });
+      /*
+      $(".pull-stoa").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling stoa');
+          this.click();
+        }
+      });
+      */
+      $(".pull-search").each(function (e) {
+        if (!this.classList.contains('pulled')) {
+          console.log('auto pulling search');
+          this.click();
+        }
+      });
+      $(".pull-url").each(function(e) {
+        console.log('auto pulling url');
+        this.click();
+      });
+
+  });
+
   }
   // end bindEvents();
   
@@ -538,48 +580,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-
-  $("#pull-all").click(function (e) {
-      // this.innerText = 'pulling all';
-      console.log('auto pulling all!');
-      $(".pull-node").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling nodes');
-          this.click();
-        }
-      });
-      $(".pull-mastodon-status").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling activity');
-          this.click();
-        }
-      });
-      $(".pull-tweet").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling tweet');
-          this.click();
-        }
-      });
-      /*
-      $(".pull-stoa").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling stoa');
-          this.click();
-        }
-      });
-      */
-      $(".pull-search").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling search');
-          this.click();
-        }
-      });
-      $(".pull-url").each(function(e) {
-        console.log('auto pulling url');
-        this.click();
-      });
-
-  });
 
   if (autoExec) {
     console.log('autoexec is enabled')

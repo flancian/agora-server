@@ -283,6 +283,7 @@ input[type="text"] {
     /* does not work, will be removed shortly */
     overflow-y: auto;
     margin: 10px;
+    margin-bottom: 0px;
     width: auto;
 }
 
@@ -432,6 +433,10 @@ input[type="text"] {
     padding-bottom: 2px;
 }
 
+.header-with-button {
+    display: flex;
+}
+
 details > summary {
     cursor: pointer;
 }
@@ -496,7 +501,7 @@ details > summary {
 .subnode-id {
     max-width: 81%;
 }
-Served by the Agora of Flancia in 15.67 seconds on 2023-07-15 22:09:20. May you be happy!
+
 .subnode-id a {
     text-decoration: none;
 }
@@ -524,6 +529,18 @@ Served by the Agora of Flancia in 15.67 seconds on 2023-07-15 22:09:20. May you 
 
 .flex {
     display: flex;
+}
+
+.inline-flex {
+    display: inline-flex;
+    justify-content: space-between;
+    /* it proved to be tough to use flex inside of summary... */
+    /* so here's a hack :) */
+    width: 98%;
+}
+
+.inline-flex > div {
+    flex: auto;
 }
 
 .search-flex {
