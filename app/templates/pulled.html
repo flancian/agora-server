@@ -21,7 +21,7 @@
 {% if not embed %}
 {% for n in pull_nodes %}
 <details class="node pulled">
-    <summary><span class="node-header autopull" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">📚 Node <a href="/{{n.uri}}"><span class="node-name">[[{{n.description}}]]</span></a></span> pulled above</summary>
+    <summary><span class="node-header autopull" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in."><strong>📚 Node</strong> <a href="/{{n.uri}}"><span class="node-name">[[{{n.description}}]]</span></a></span> pulled above</summary>
     <div class="node-embed" id="{{n.uri}}"></div>
 
 </details>
@@ -31,7 +31,7 @@
 {% for n in auto_pull_nodes %}
 <details class="pulled-node">
     <!-- <span class="node-header">⭕ wormhole to <a href="/{{n.uri}}">[[{{n.description}}]]</a> offered by the Agora</span> -->
-    <summary><span class="node-header" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">📚 Node <a href="/{{n.uri}}"><span class="node-name">[[{{n.description}}]]</span></a></span> pulled by Agora</summary>
+    <summary><span class="node-header" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in."><strong>📚 Node<strong> <a href="/{{n.uri}}"><span class="node-name">[[{{n.description}}]]</span></a></span> pulled by Agora</summary>
 
     {% if n.subnodes %}
     {% for subnode in n.subnodes %}

@@ -277,21 +277,6 @@ input[type="text"] {
     /* Opera/IE 8+ */
 }
 
-.web, .stoa {
-    display: block;
-    vertical-align: middle;
-    /* does not work, will be removed shortly */
-    overflow-y: auto;
-    margin: 10px;
-    margin-bottom: 0px;
-    width: auto;
-}
-
-.exec {
-    list-style-type: trad-chinese-informal;
-    /* why */
-}
-
 .topline-agora {
     display: flex;
     justify-content: space-between;
@@ -339,7 +324,20 @@ input[type="text"] {
     margin-right: 10px;
 }
 
-.node, .search {
+.web, .stoa {
+    display: block;
+    vertical-align: middle;
+    /* does not work, will be removed shortly */
+    overflow-y: auto;
+    width: auto;
+}
+
+.exec {
+    list-style-type: trad-chinese-informal;
+    /* why */
+}
+
+.node, .web, .stoa, .search {
     /*border-color: #7f5af0;*/
     border-color: gray;
     border-style: dashed;
@@ -441,7 +439,6 @@ input[type="text"] {
 .node-header, .context-header, .stoa-header, .ctzn-header {
     justify-content: space-between;
     text-align: left;
-    font-weight: bolder;
     padding-bottom: 2px;
 }
 
@@ -455,6 +452,7 @@ details > summary {
 
 .node-name {
     text-transform: capitalize;
+    font-weight: bolder;
 }
 
 .not-found {
@@ -466,7 +464,6 @@ details > summary {
 /*.subnode li h2  { margin-left: -1em; }*/
 
 .subnode-header, .links-header, .search-header, .subnode-id {
-    font-weight: bolder;
     width: 100%;
     display: flex;
     padding-bottom: 2px;
@@ -521,10 +518,6 @@ details > summary {
 .search {
     overflow: auto;
     gap: 10px;
-}
-
-.search-agora-header, .search-internet-header {
-    font-weight: bolder;
 }
 
 .links-flex {
@@ -650,9 +643,7 @@ details > summary {
 }
 
 
-
 .search-header {
-    font-weight: bolder;
     text-align: left;
     margin-bottom: 1em;
     margin-left: 0.2em;
