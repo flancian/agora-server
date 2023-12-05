@@ -36,8 +36,10 @@ def wp(node):
     inferred_node = title.replace("_", "-")
     return Response(
         f"""
-        <details class='exec topline-search'>
-        <summary><strong title="We love Wikipedia! Here is the top known article for this location.">Wikipedia ⟶ </strong><a href='{url}'>{url}</a></summary>
+        <!-- adding stoa gets this the right css for the 'done' state as of the time of writing -->
+        <details class='exec wiki-search stoa'>
+        <summary><strong title="We love Wikipedia! Here is the top known article for this location.">📖 Wikipedia </strong> article <a href='{url}'>{url}</a></summary>
+
         <!-- <button class='pull-exec wp' value='{url}'>pull</button> -->
         <!-- find a better way to present this data which is only useful for some users. -->
         <!-- &nbsp &nbsp ↳ Wikidata <a href='{wikidata_url}'>{wikibase_item}</a>
@@ -45,6 +47,9 @@ def wp(node):
         &nbsp &nbsp ↳ Agora <a href='/{inferred_node}'>[[{title}]]</a>
         <button class='pull-exec ag' value='/{inferred_node}'>pull</button>-->
         <!--{result}-->
+
+        <iframe id="exec-wp" src={url} style="max-width: 100%;" width="100%" height="700em" allowfullscreen="allowfullscreen"></iframe>'
+
         </details>
         """,
         mimetype="text/html",

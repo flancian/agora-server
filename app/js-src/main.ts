@@ -641,7 +641,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('req: ' + req)
     $.get(req, function (data) {
       // console.log('html: ' + data)
-      embed = $(".topline-search").after(data);
+      embed = $(".wiki-search").html(data);
 
       // figure out how to do this without code repetition -- ask [[vera]]?
       // also, could we scope this search to stuff inside embed? unsure if that points to the DOM, it didn't seem to work.
