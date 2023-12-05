@@ -601,15 +601,18 @@ class Node:
                             # Better luck next time -- or when I fix this code :)
                             pass
 
-                # Experimental on 2023-12-04. Try to support [[foo]]! syntax for pushes.
-                if True: #link[2] == other.wikilink or link[2] == other.wikilink.replace('-', ' '):
-                    subnodes.append(
-                        VirtualSubnode(
-                            subnode,
-                            other,
-                            f"<em>Experimental push. Not expected to work (yet :).</em>.",
-                        )
-                    )
+                    # New as of 2023-12-04. Try to support [[foo]]! and [[foo]]: syntax for pushes.
+                    if other.wikilink in link[2] or other.wikilink.replace('-', ' ') in link[2]:
+                        parent = link[0].getparent()
+                        block = lxml.etree.tostring(parent)
+                        subnodes.append(VirtualSubnode(subnode, other, block))
+                        # subnodes.append(
+                        #    VirtualSubnode(
+                        #        subnode,
+                        #        other,
+                        #        f"<em>Experimental push. Not expected to work (yet :).</em>.",
+                        #    )
+                        #)
 
         if not subnodes:
             # could be a failure in parsing, as of the time of writing #push isn't well supported.
