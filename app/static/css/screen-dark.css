@@ -82,7 +82,7 @@ iframe {
     margin-bottom: 2px;
     border-color: gray;
     border-style: dashed;
-    border-width: 2px;
+    border-width: 1px;
 }
 
 .page {
@@ -277,7 +277,7 @@ input[type="text"] {
     /* Opera/IE 8+ */
 }
 
-.topline-search {
+.web, .stoa {
     display: block;
     vertical-align: middle;
     /* does not work, will be removed shortly */
@@ -339,10 +339,22 @@ input[type="text"] {
     margin-right: 10px;
 }
 
-.node, .context, .stoa, .ctzn, .search {
+.node, .search {
     /*border-color: #7f5af0;*/
     border-color: gray;
-    border-style: solid;
+    border-style: dashed;
+    border-width: 1px;
+    /*border-style: dotted;*/
+    margin-top: 10px;
+    margin-bottom: 10px;
+    /*border-radius: 20px;*/
+    padding: 10px;
+}
+
+.context {
+    /*border-color: #7f5af0;*/
+    border-color: gray;
+    border-style: dotted;
     border-width: 1px;
     /*border-style: dotted;*/
     margin-top: 10px;

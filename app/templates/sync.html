@@ -2,6 +2,10 @@
 
 {% block content %}
 
+{% include "web.html" %}
+
+{% include "stoa.html" %}
+
 {% if subnode %}
 <div id="async-content" src="{{subnode}}">
 {% else %}
