@@ -38,7 +38,7 @@ def wp(node):
         f"""
         <!-- adding stoa gets this the right css for the 'done' state as of the time of writing -->
         <details class='exec wiki-search stoa'>
-        <summary><strong title="We love Wikipedia! Here is the top known article for this location.">📖 Wikipedia </strong> article <a href='{url}'>{url}</a></summary>
+        <summary><strong title="We love Wikipedia! Here is the top known article for this location.">📖 Wikipedia </strong> at <a href='{url}'>{url}</a></summary>
 
         <!-- <button class='pull-exec wp' value='{url}'>pull</button> -->
         <!-- find a better way to present this data which is only useful for some users. -->

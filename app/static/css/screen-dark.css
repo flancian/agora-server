@@ -541,7 +541,7 @@ details > summary {
     justify-content: space-between;
     /* it proved to be tough to use flex inside of summary... */
     /* so here's a hack :) */
-    width: 98%;
+    width: 97%;
 }
 
 .inline-flex > div {
