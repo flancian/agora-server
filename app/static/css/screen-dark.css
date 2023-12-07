@@ -92,7 +92,7 @@ iframe {
 /* but actually using ems seems to be better? */
 @media screen and (max-width: 900px) {
     iframe {
-        max-height: 30em;
+        max-height: 35em;
     }
 }
 
