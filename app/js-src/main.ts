@@ -236,19 +236,36 @@ document.addEventListener("DOMContentLoaded", function () {
     self.innerText = 'pulled';
   }
 
-
-
-
   // start async content code.
   setTimeout(loadAsyncContent, 10)
 
   async function loadAsyncContent() {
+    
+    // this loads everything from the local node down to the footer.
+    // prior to this as of 2023-12-06 we render the navbar, including search box, web search and stoas.
     var content = document.querySelector("#async-content");
     let node = content.getAttribute('src');
     console.log("loading " + node + " async");
+
+    // give some time to Wikipedia to search before trying to pull it (if it's considered relevant here).
+    setTimeout(autoPull, 1000)
+
+    // block on node loading (expensive if the task is freshly up)
     response = await fetch(AGORAURL + '/node/' + node);
     content.innerHTML = await response.text();
     setTimeout(bindEvents, 10)
+
+  }
+
+  async function autoPull() {
+    // autopull if the local node is empty.
+    // if ($(".not-found").length > 0) {
+    console.log('auto pulling resources');
+    var details = document.querySelectorAll(".autopull");
+    details.forEach((item) => {
+        item.click();
+    });
+    // }
   }
 
   async function bindEvents() {
@@ -358,10 +375,10 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       // end auto pull pushed subnodes.
       
-    $(".autopull").each(function (e) {
-      console.log('*** auto pulling item, trying to activate' + this)
-      this.click()
-    });
+    // $(".autopull").each(function (e) {
+    //   console.log('*** auto pulling item, trying to activate' + this)
+    //   this.click()
+    // });
  
     });
   // end async content code.
@@ -584,7 +601,6 @@ document.addEventListener("DOMContentLoaded", function () {
   if (autoExec) {
     console.log('autoexec is enabled')
 
-    setTimeout(autoPullWpOnEmpty, 2000)
     // commenting out as focus stealing issues are just too disruptive.
     // setTimeout(autoPullStoaOnEmpty, 5000)
 
@@ -711,18 +727,6 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('auto pulling node');
       this.click();
     });
-  }
-
-  function autoPullWpOnEmpty() {
-    if ($(".not-found").length > 0) {
-      $(".pull-exec.wp").each(function (e) {
-        console.log('trying to auto pull wp');
-        if (!this.classList.contains('pulled')) {
-          this.innerText = 'autopulling in empty node...';
-        }
-      });
-      setTimeout(autoPullWp, 2000);
-    }
   }
 
 // hedgedoc steals focus on being transcluded and that just doesn't work well.

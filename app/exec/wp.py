@@ -15,6 +15,7 @@
 from . import bp, Response
 import requests
 import pprint
+import thefuzz
 
 
 @bp.route("/exec/wp/<node>")
@@ -34,22 +35,22 @@ def wp(node):
     wikibase_item = result["query"]["pages"][str(pageid)]["pageprops"]["wikibase_item"]
     wikidata_url = f"https://www.wikidata.org/wiki/{wikibase_item}"
     inferred_node = title.replace("_", "-")
+
     return Response(
         f"""
         <!-- adding stoa gets this the right css for the 'done' state as of the time of writing -->
         <details class='exec wiki-search stoa'>
-        <summary><strong title="We love Wikipedia! Here is the top known article for this location.">📖 Wikipedia </strong> at <a href='{url}'>{url}</a></summary>
+        <summary class="autopull"><strong title="We love Wikipedia! Here is the top known article for this location.">📖 Wikipedia</strong> article <a href='{url}'>{title}</a></summary>
 
-        <!-- <button class='pull-exec wp' value='{url}'>pull</button> -->
         <!-- find a better way to present this data which is only useful for some users. -->
-        <!-- &nbsp &nbsp ↳ Wikidata <a href='{wikidata_url}'>{wikibase_item}</a>
+        <!-- 
+        &nbsp &nbsp ↳ Wikidata <a href='{wikidata_url}'>{wikibase_item}</a>
         <button class='pull-exec wd' value='{wikidata_url}'>pull</button><br />
         &nbsp &nbsp ↳ Agora <a href='/{inferred_node}'>[[{title}]]</a>
         <button class='pull-exec ag' value='/{inferred_node}'>pull</button>-->
         <!--{result}-->
 
-        <iframe id="exec-wp" src={url} style="max-width: 100%;" width="100%" height="700em" allowfullscreen="allowfullscreen"></iframe>'
-
+        <iframe id="exec-wp" src={url} style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>
         </details>
         """,
         mimetype="text/html",
