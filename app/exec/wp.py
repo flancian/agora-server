@@ -15,7 +15,7 @@
 from . import bp, Response
 import requests
 import pprint
-import thefuzz
+from thefuzz import fuzz
 
 
 @bp.route("/exec/wp/<node>")
@@ -36,11 +36,17 @@ def wp(node):
     wikidata_url = f"https://www.wikidata.org/wiki/{wikibase_item}"
     inferred_node = title.replace("_", "-")
 
+    # MAGIC :)
+    if fuzz.ratio(title, node) > 60:
+        summary_class = "autopull"
+    else:
+        summary_class = "noautopull"
+
     return Response(
         f"""
         <!-- adding stoa gets this the right css for the 'done' state as of the time of writing -->
         <details class='exec wiki-search stoa'>
-        <summary class="autopull"><strong title="We love Wikipedia! Here is the top known article for this location.">📖 Wikipedia</strong> article <a href='{url}'>{title}</a></summary>
+        <summary class="{summary_class}"><strong title="We love Wikipedia! Here is the top known article for this location.">📖 Wikipedia</strong> article <a href='{url}'>{title}</a></summary>
 
         <!-- find a better way to present this data which is only useful for some users. -->
         <!-- 
