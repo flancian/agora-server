@@ -77,12 +77,22 @@ li img {
     vertical-align: top;
 }
 
+
 iframe {
     margin-top: 2px;
     margin-bottom: 2px;
     border-color: gray;
     border-style: dashed;
     border-width: 1px;
+    height: 53em;
+    width: 99.5%;
+}
+
+/* this is meant to target mobile */
+@media screen and (max-width: 900px) {
+    iframe {
+        max-height: 30em;
+    }
 }
 
 .page {
@@ -305,16 +315,6 @@ input[type="text"] {
 #mini-cli {
     width: 100%;
 }
-
-/*
-@media screen and (min-width: 900px) {
-    .navigation {
-        width: 100%;
-        vertical-align: middle;
-        overflow-y: auto;
-    }
-}
-*/
 
 .topline-container {
     width: 100%;

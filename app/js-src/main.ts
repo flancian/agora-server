@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulling';
       let url = this.value;
       console.log('pull url : ' + url)
-      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%;" width="960px" height="700em"></iframe>')
+      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%;"></iframe>')
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       let node = this.value;
-      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="700em"></iframe>');
+      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit"></iframe>');
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       let node = this.value;
-      $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="100%" height="700em"></iframe>');
+      $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit"></iframe>');
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
       this.innerText = 'pulling';
       let value = this.value;
-      $("#meet-iframe").html('<iframe id="meet-iframe" allow="camera; microphone; fullscreen; display-capture; autoplay" name="embed_readwrite" src="' + value + '" width="100%" + height="700em"></iframe>');
+      $("#meet-iframe").html('<iframe id="meet-iframe" allow="camera; microphone; fullscreen; display-capture; autoplay" name="embed_readwrite" src="' + value + '"></iframe>');
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -280,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (embed) {
                     let node = embed.id;
                     console.log("Embed found, here we would pull.");
-                    embed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" width="100%" height="700em" allowfullscreen="allowfullscreen"></iframe>';
+                    embed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>';
                 }
             } else {
                 console.log("Details have been hidden");
@@ -400,7 +400,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('pulling node');
       // now with two methods! you can choose the simpler/faster one (just pulls static content) or the nerdy one (recursive) in settings.
       if (pullRecursive) {
-        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%;" width="100%" height="700em" allowfullscreen="allowfullscreen"></iframe>');
+        $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>');
       }
       else {
         $.get(AGORAURL + '/pull/' + node, function (data) {
@@ -426,7 +426,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.innerText = 'pulling';
       let url = this.value;
       console.log('pull url : ' + url)
-      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%;" width="960px" height="700em"></iframe>')
+      $(e.currentTarget).after('<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="max-width: 100%;"></iframe>')
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -675,7 +675,7 @@ document.addEventListener("DOMContentLoaded", function () {
           this.innerText = 'pulling';
           let url = this.value;
           console.log('pull exec: ' + url)
-          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%;" width="100%" height="700em" allowfullscreen="allowfullscreen"></iframe>')
+          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>')
           this.innerText = 'fold';
           this.classList.add('pulled');
           $(".node-hint").hide();
