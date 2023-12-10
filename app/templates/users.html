@@ -18,6 +18,13 @@
 {% block content %}
 <div class="listing">
 <h1>🧑‍🤝‍🧑 Users </h1>
+
+{% if stats %}
+<p>
+This Agora is being built by the following <strong>{{stats['users']}} users</strong>, plus people contributing from stoas and social networks.
+</p>
+{% endif %}
+
 {% for user in users %}
 <a href="{{user.url}}">{{user.uri}}</a> ({{user.size()}})<br />
 {% endfor %}

@@ -660,7 +660,7 @@ def similar_json(term):
 @bp.route("/users")
 def users():
     n = api.build_node("users")
-    return render_template("users.html", users=api.all_users(), node=n)
+    return render_template("users.html", users=api.all_users(), node=n, stats=api.stats())
 
 
 @bp.route("/users.json")
