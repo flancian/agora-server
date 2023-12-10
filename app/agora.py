@@ -556,9 +556,10 @@ def search():
     qstr = request.args.get("q")
     tokens = qstr.split(" ")
 
-    if '@' in qstr:
+    if '/' in qstr:
         # subnodes (of the form @user/node) currently (as of 2023-12-10) break if they are quote_plussed.
         # By break, I mean: URLs get their @ and / encoded, and that breaks pushes and other things.
+        # also e.g. go/x breaks when / is encoded as %252.
         q = qstr
     else:
         q = urllib.parse.quote_plus(qstr)
