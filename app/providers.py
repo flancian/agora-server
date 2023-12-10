@@ -137,7 +137,6 @@ def node(q, tokens):
     # This serves as a "constructive 404" in case nothing else beats it.
     return Bid(
         Confidence.default,
-        # lambda: redirect(url_for("agora.root", node=urllib.parse.unquote_plus(q))),
         lambda: redirect(url_for("agora.root", node=q)),
         "Agora node",
     )

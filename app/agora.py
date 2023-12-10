@@ -555,7 +555,13 @@ def search():
     """
     qstr = request.args.get("q")
     tokens = qstr.split(" ")
-    q = urllib.parse.quote_plus(qstr)
+
+    if '@' in qstr:
+        # subnodes (of the form @user/node) currently (as of 2023-12-10) break if they are quote_plussed.
+        # By break, I mean: URLs get their @ and / encoded, and that breaks pushes and other things.
+        q = qstr
+    else:
+        q = urllib.parse.quote_plus(qstr)
 
     # ask for bids from search providers.
     # both the raw query and tokens are passed for convenience; each provider is free to use or discard each.
@@ -582,7 +588,6 @@ def search():
     current_app.logger.warning(
         "Node catch-all in agora.py triggered; should never happen (tm)."
     )
-    # return redirect(url_for(".root", node=util.slugify(q)))
     return redirect(url_for(".root", node=q))
 
 
