@@ -96,8 +96,8 @@
         {% endif %} 
 
         {% for subnode in node.subnodes %}
-            <div class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}">
-                <div class="subnode-header" title="A subnode is a resource contributed by a user of this Agora that is believed to be relevant here.">
+            <details class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}" open>
+                <summary class="subnode-header" title="A subnode is a resource contributed by a user of this Agora that is believed to be relevant here.">
                     <span class="subnode-id">
                         <span class="subnode-links">
                             <a href="@{{subnode.user}}/{{node.uri}}"" title="subnode {{subnode.basename}}">📓</a> 
@@ -126,7 +126,7 @@
                         </span>
 
                             </span>
-                    </div>
+                    </summary>
 
             <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
 
@@ -141,7 +141,7 @@
                     </span>
                 </div>
 
-            </div>
+            </details>
         {% endfor %}
 
     <div class="pushed-subnodes-embed">
