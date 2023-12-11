@@ -554,11 +554,11 @@ details > summary {
 }
 
 .infobox {
-    width: 50%
+    width: 100%;
 }
 
 .subnodes {
-    width: 50%
+    width: 100%;
 }
 
 .annotations {

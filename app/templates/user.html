@@ -28,9 +28,6 @@
     {% endfor %}
     {% endif %}
 
-    <div class="listing">
-    <div class="listing-flex">
-
     <div class="infobox">
         <h1>About @{{user}}</h1>
         <ul>
@@ -44,34 +41,47 @@
             <li><strong>Support:</strong> <a href="{{user.support}}">{{user.support}}</a></li>
             {% endif %}
         </ul>
+    </div>
 
-        <h1>Latest nodes edited</h1>
+    <div class="subnodes">
+        <h1>Latest contributed</h1>
             {% if not subnodes %}
             No subnodes found for the given term or path.
             <br /><br />
             Go back to <a href="/nodes">/nodes</a>?
             {% endif %}
-    
+
             {% for subnode in latest %}
-            <a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.wikilink}}</a><br />
+            <a href="/{{subnode.wikilink}}">{{subnode.wikilink}}</a> &nbsp;
             {% endfor %}
     </div>
 
     <div class="subnodes">
-        <h1>Subnodes by @{{user}}</h1>
+        <h1>All nodes by @{{user}}</h1>
         {% if not subnodes %}
         No subnodes found for the given term or path.
         <br /><br />
         Go back to <a href="/nodes">/nodes</a>?
         {% endif %}
     
-        {% for subnode in subnodes %}
-        <a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.wikilink}}</a><br />
-        {% endfor %}
+        <table style="width: 100%"">
+            <thead>
+                <th style="width: 30%">📚 Node</th>
+                <th style="width: 30%">📕 Resource</th>
+            </thead>
+            <tbody>
+                {% for subnode in subnodes %}
+                <tr>
+                <td><a href="/{{subnode.wikilink}}">{{subnode.wikilink}}</a></td>
+                <td><a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.uri}}</a></td> 
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
         </div>
 
-    </div>
-    </div>
 
 </div>
 
