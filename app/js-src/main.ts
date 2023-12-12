@@ -236,6 +236,44 @@ document.addEventListener("DOMContentLoaded", function () {
     self.innerText = 'pulled';
   }
 
+  async function statusContent2(self) {
+    let toot = self;
+    let domain, post;
+    // extract instance and :id, then use https://docs.joinmastodon.org/methods/statuses/ and get an oembed
+    // there are two kinds of statuses we want to be able to embed: /web/ led and @user led.
+    const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig
+    const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig
+
+    console.log("testing type of presumed mastodon embed: " + toot);
+    if (m = web_regex.exec(toot)) {
+      console.log("found status of type /web/");
+      domain = m[1];
+      post = m[2];
+    }
+    if (m = user_regex.exec(toot)) {
+      console.log("found status of type /@user/");
+      domain = m[1];
+      post = m[2];
+    }
+
+    req = domain + '/api/v1/statuses/' + post
+    console.log('req: ' + req)
+
+    let response = await fetch(req);
+    let data = await response.json()
+
+    console.log('status: ' + data['url'])
+    let actual_url = data['url']
+    let oembed_req = domain + '/api/oembed?url=' + actual_url
+
+    response = await fetch(oembed_req);
+    data = await response.json();
+    console.log('oembed: ' + data['html'])
+    let oembed = data['html'];
+    return oembed;
+  }
+
+
   // start async content code.
   setTimeout(loadAsyncContent, 10)
 
@@ -326,20 +364,67 @@ document.addEventListener("DOMContentLoaded", function () {
         item.addEventListener("toggle", async (event) => {
             if (item.open) {
                 console.log("Details have been shown");
-                embed = item.querySelector(".stoa-iframe");
+                embed = item.querySelector(".url-iframe");
                 if (embed) {
                     let url = embed.getAttribute('src');
                     embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 100%;" height="700px"></iframe>';
                 }
             } else {
                 console.log("Details have been hidden");
-                embed = item.querySelector(".stoa-iframe");
+                embed = item.querySelector(".url-iframe");
                 if (embed) {
                     console.log("Embed found, here we would fold.");
                     embed.innerHTML = '';
                 }
             }
         });
+    });
+
+    var details = document.querySelectorAll("details.twitter");
+    details.forEach((item) => {
+        item.addEventListener("toggle", async (event) => {
+            if (item.open) {
+                console.log("Details are being shown");
+                embed = item.querySelector(".url-iframe");
+                if (embed) {
+                    let url = embed.getAttribute('src');
+                    embed.innerHTML += '<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + url + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
+                }
+            } else {
+                console.log("Details have been hidden");
+                embed = item.querySelector(".url-iframe");
+                if (embed) {
+                    console.log("Embed found, here we would fold.");
+                    embed.innerHTML = '';
+                }
+            }
+        });
+    });
+
+
+
+    var details = document.querySelectorAll("details.mastodon");
+    details.forEach((item) => {
+        item.addEventListener("toggle", async (event) => {
+            if (item.open) {
+                console.log("Trying to embed Mastodon post");
+                embed = item.querySelector(".url-iframe");
+                if (embed) {
+                    let url = embed.getAttribute('src');
+                    // embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 100%;" height="700px"></iframe>';
+                    let inner = await statusContent2(url);
+                    embed.innerHTML = inner;
+                }
+            } else {
+                console.log("Details have been hidden");
+                embed = item.querySelector(".url-iframe");
+                if (embed) {
+                    console.log("Embed found, here we would fold.");
+                    embed.innerHTML = '';
+                }
+            }
+        });
+
     });
 
     // end zippies.
@@ -675,7 +760,7 @@ document.addEventListener("DOMContentLoaded", function () {
           this.innerText = 'pulling';
           let url = this.value;
           console.log('pull exec: ' + url)
-          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>')
+          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%;" height="700em" allowfullscreen="allowfullscreen"></iframe>')
           this.innerText = 'fold';
           this.classList.add('pulled');
           $(".node-hint").hide();

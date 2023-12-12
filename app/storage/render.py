@@ -153,7 +153,9 @@ def add_twitter_pull(content, subnode):
         return content
 
     TWITTER_REGEX = r'(?<!")(https://twitter.com/\w+/status/[0-9]+)'
-    TWITTER_EMBED = r'\1 <button class="pull-tweet" value=\1>pull</button>'
+    # Old school button-based pulls.
+    # TWITTER_EMBED = r'\1 <button class="pull-tweet" value=\1>pull</button>'
+    TWITTER_EMBED = r'<details class="twitter"><summary>\1</summary><div class="url-iframe" src="\1"></div></details>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 
@@ -174,7 +176,9 @@ def add_mastodon_pull(content, subnode):
     #  1. quoted, which likely means it's part of an anchor
     #  2. preceded by a square bracket, which likely means it's an org mode (?) or mycorrhiza style link.
     MASTODON_REGEX_ALT = r'(?<!["[])(https://[a-zA-Z-.]+/@\w+/[0-9]+)'
-    MASTODON_EMBED = r'\1 <button class="pull-mastodon-status" value="\1">pull</button>'
+    # Old school button-based pulls.
+    # MASTODON_EMBED = r'\1 <button class="pull-mastodon-status" value="\1">pull</button>'
+    MASTODON_EMBED = r'<details class="mastodon"><summary>\1</summary><div class="url-iframe" src=\1></div></details>'
     ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, content)
     # ret = re.sub(MASTODON_REGEX_ALT, MASTODON_EMBED, ret)
     return ret

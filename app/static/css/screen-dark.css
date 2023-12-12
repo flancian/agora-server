@@ -88,6 +88,17 @@ iframe {
     width: 99.5%;
 }
 
+.mastodon-embed {
+    height: 30em;
+    width: 400px;
+}
+
+details .mastodon, .twitter {
+    display: inline;%
+    max-width: 100%;
+    vertical-align: top;
+}
+
 /* this is meant to target mobile */
 /* but actually using ems seems to be better? */
 @media screen and (max-width: 900px) {
