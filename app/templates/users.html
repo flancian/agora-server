@@ -21,7 +21,7 @@
 
 {% if stats %}
 <p>
-This Agora is being built by the following <strong>{{stats['users']}} users</strong>, including social <strong>streams</strong> and <strong>stoas</strong>.
+This Agora is made possible by the following <strong>{{stats['users']}} users</strong>. 
 </p>
 {% endif %}
 
@@ -29,4 +29,9 @@ This Agora is being built by the following <strong>{{stats['users']}} users</str
 <a href="{{user.url}}">{{user.uri}}</a> ({{user.size()}})<br />
 {% endfor %}
 </div>
+
+<p>
+Users with '@' come from <a href="/agora+bot">social media</a> or known <a href="/stoas">stoas</a>.
+</p>
+
 {% endblock %}
