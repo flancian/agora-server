@@ -93,9 +93,11 @@ def root(node, user_list=""):
     current_app.logger.debug(f"[[{node}]]: Assembling light node.")
 
     # We really need to get rid of this kind of hack :)
-    node = node.replace(",", "").replace(":", "")
+    # 2023-12-12: today is the day?
+    # node = node.replace(",", "").replace(":", "")
     node = urllib.parse.unquote_plus(node)
-    node = util.slugify(node)
+    # As of [[2023-12-12]] I'm trying to do away with slugify again and move to 'canonical nodes' by default, i.e. no information loss if we can help it in node IDs.
+    # node = util.slugify(node)
     n = api.Node(node)
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
@@ -103,7 +105,9 @@ def root(node, user_list=""):
     n.qstr = request.args.get("q")
     if not n.qstr:
         # could this come in better shape from the node proper when the node is actually defined? it'd be nice not to depend on de-slugifying.
-        n.qstr = n.wikilink.replace("-", " ")
+        # 2023-12-12: trying out sticking to the canonical name as much as we can, we used to s/-/ /g here.
+        # this means that 2023-12-12 no longer becomes '2023 12 12' "canonically" :)
+        n.qstr = n.uri
     # search_subnodes = db.search_subnodes(node)
     n.q = n.qstr
     current_app.logger.debug(f"[[{node}]]: Assembled light node.")
