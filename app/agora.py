@@ -86,9 +86,8 @@ def after_request(response):
 # The [[agora]] is in some ways thus a [[search engine]]: anagora.org/agora-search
 #
 # Flask routes work so that the one closest to the function is the canonical one.
-@bp.route("/<node>.<extension>")
 @bp.route("/<node>")
-def root(node, extension="", user_list=""):
+def root(node, user_list=""):
 
     # Builds a node with the bare minimum/stub metadata, should be quick.
     current_app.logger.debug(f"[[{node}]]: Assembling light node.")
@@ -125,7 +124,7 @@ def root(node, extension="", user_list=""):
 @bp.route("/wikilink/<node>")
 @bp.route("/node/<node>/uprank/<user_list>")
 @bp.route("/node/<node>")
-def node(node, extension="", user_list=""):
+def node(node, user_list=""):
     n = api.build_node(node)
 
     return render_template(
