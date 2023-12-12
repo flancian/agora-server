@@ -473,6 +473,7 @@ document.addEventListener("DOMContentLoaded", function () {
     this.innerText = 'pulled';
   });
 
+  // pull all button
   $("#pull-all").click(function (e) {
       // this.innerText = 'pulling all';
       console.log('auto pulling all!');
@@ -513,46 +514,6 @@ document.addEventListener("DOMContentLoaded", function () {
         this.click();
       });
 
-  });
-
-  }
-  // end bindEvents();
-  
-  // pull full text search 
-  $(".pull-search").click(function (e) {
-    if (autoPullSearch) {
-      console.log('pulling full text search');
-      if (this.classList.contains('pulled')) {
-        $("#pulled-search.pulled-search-embed").html('');
-        this.innerText = 'pull';
-        this.classList.remove('pulled');
-      }
-      else {
-        this.innerText = 'pulling';
-        let qstr = this.value;
-        $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
-          $("#pulled-search.pulled-search-embed").html(data);
-        });
-        this.classList.add('pulled');
-        this.innerText = 'fold';
-      }
-    }
-  });
-
-  if (showBrackets) {
-    elements = document.getElementsByClassName("wikilink-marker");
-    console.log("should show brackets");
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].style.display = 'inline';
-    }
-  }
-
-
-  // go to the specified URL
-  $(".go-url").click(function (e) {
-    let url = this.value;
-    this.innerText = 'going';
-    window.location.replace(url);
   });
 
   // fold all button
@@ -596,6 +557,48 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
     });
+
+
+
+  }
+  // end bindEvents();
+  
+  // pull full text search 
+  $(".pull-search").click(function (e) {
+    if (autoPullSearch) {
+      console.log('pulling full text search');
+      if (this.classList.contains('pulled')) {
+        $("#pulled-search.pulled-search-embed").html('');
+        this.innerText = 'pull';
+        this.classList.remove('pulled');
+      }
+      else {
+        this.innerText = 'pulling';
+        let qstr = this.value;
+        $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
+          $("#pulled-search.pulled-search-embed").html(data);
+        });
+        this.classList.add('pulled');
+        this.innerText = 'fold';
+      }
+    }
+  });
+
+  if (showBrackets) {
+    elements = document.getElementsByClassName("wikilink-marker");
+    console.log("should show brackets");
+    for (var i = 0; i < elements.length; i++) {
+      elements[i].style.display = 'inline';
+    }
+  }
+
+
+  // go to the specified URL
+  $(".go-url").click(function (e) {
+    let url = this.value;
+    this.innerText = 'going';
+    window.location.replace(url);
+  });
 
 
   if (autoExec) {
