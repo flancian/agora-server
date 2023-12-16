@@ -71,6 +71,7 @@ button {
     border-radius: 4px;
     background: #ddd;
     text-transform: capitalize;
+    padding: 3px 6px 3px 6px;
 }
 
 li img {
@@ -335,7 +336,7 @@ input[type="text"] {
     flex: auto;
     display: inline;
     vertical-align: middle;
-    margin-right: 5px;
+    margin-right: 4px;
 }
 
 .topline-cli {
@@ -346,6 +347,7 @@ input[type="text"] {
 
 #mini-cli {
     width: 100%;
+    padding: 2px;
 }
 
 .topline-container {
@@ -354,6 +356,13 @@ input[type="text"] {
 
 .cli-header {
     margin-right: 10px;
+}
+
+#mini-cli-clear {
+    margin-left: 4px;
+}
+
+#mini-cli-exec {
 }
 
 .web, .stoa {
