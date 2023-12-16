@@ -253,32 +253,31 @@ def add_go_button(content, subnode):
 
 
 # Trim front matter until we do something useful with it.
-
-
 def trim_front_matter(content, subnode):
     FRONT_MATTER_REGEX = "---(\n.*)*---"
     return re.sub(FRONT_MATTER_REGEX, "", content, flags=re.MULTILINE)
 
 
+# Hack: trim <p> and </p> to try to work around fix mastodon wikilinks.
+# Marko is ignoring wiki links in paragraphs for some reason?
+def trim_p(content, subnode):
+    P_REGEX = r'<\/?p>'
+    return re.sub(P_REGEX, "", content, flags=re.MULTILINE)
+
+
 # Trim obsidian block anchors until we do something useful with them.
-
-
 def trim_block_anchors(content, subnode):
     BLOCK_ANCHOR_REGEX = r"\^[0-9-]+$"
     return re.sub(BLOCK_ANCHOR_REGEX, "", content, flags=re.MULTILINE)
 
 
 # Trim Logseq :LOGBOOK: .. :END: blocks until we do something useful with them
-
-
 def trim_logbook(content, subnode):
     LOGBOOK_REGEX = r":LOGBOOK:.*?:END:"
     return re.sub(LOGBOOK_REGEX, "", content, flags=re.MULTILINE + re.DOTALL)
 
 
 # Trim liquid templates (Jekyll stuff) until we do something useful with them.
-
-
 def trim_liquid(content, subnode):
     LIQUID_REGEX = r"{%.*?%}"
     return re.sub(
@@ -290,8 +289,6 @@ def trim_liquid(content, subnode):
 
 
 # Trim margin notes (Jekyll stuff).
-
-
 def trim_margin_notes(content, subnode):
     MARGIN_NOTES_REGEX = r"\[\[[^\]]*?::...\]\]"
     return re.sub(MARGIN_NOTES_REGEX, "", content, flags=re.MULTILINE)
@@ -341,6 +338,7 @@ def preprocess(content, subnode=""):
     # add_logseq_embeds breaks links everywhere, there's an issue with the regex :)
     # filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_logseq_embeds, add_obsidian_embeds, add_url_pull, add_twitter_pull]
     filters = [
+        trim_p,
         trim_front_matter,
         trim_block_anchors,
         trim_logbook,

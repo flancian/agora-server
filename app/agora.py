@@ -765,7 +765,14 @@ def count_votes(subnode):
     return {"user": subnode.user, "vote": tag}
 
 
-@bp.route("/proposal/<user>/<node>")
+# API space is /api.
+# Elsewhere in the Agora we try to return HTML; even in system pages like /users, 
+# the intent is to offer the content of node [[users]] after the node-specific UI.
+#
+# Here we go wild ;)
+# (Here or wherever an Agora announces using .well-known or WebFinger some such...)
+
+@bp.route("/api/proposal/<user>/<node>")
 def proposal(user, node):
     n = G.node(node)
     subnode = next(x for x in n.subnodes if x.user == user)

@@ -124,7 +124,7 @@ class Graph:
             # its wikilink matches the regex
             re.match(regex, node.wikilink)
         ]
-        current_app.logger.debug(f"*** Found related nodes: {nodes}.")
+        # current_app.logger.debug(f"*** Found related nodes: {nodes}.")
         return nodes
 
     def search(self, regex):
@@ -139,7 +139,7 @@ class Graph:
             # its wikilink matches the regex
             re.search(regex, node.wikilink)
         ]
-        current_app.logger.debug(f"*** Found related nodes: {nodes}.")
+        # current_app.logger.debug(f"*** Found related nodes: {nodes}.")
         return nodes
 
     # @cache.memoize(timeout=30)
