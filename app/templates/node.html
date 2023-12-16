@@ -99,47 +99,11 @@
 
 <!-- "404" (but not really :) -->
 
+
 <details class="node" id="{{node.uri}}" open>
     <summary class="node-header main-header"><span title="A Node is an Agora location. It contains resources contributed by users having to do with a location according to the Agora you're using."><strong>📚 Node</strong> <a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">[[{{node.qstr}}]]</span></a></span></summary>
-    <div class="not-found subnode" data-author="agora">
-           <strong>Nobody has noded "<a href="/{{node.qstr}}">{{node.qstr}}</a>"</strong> in this Agora yet, but you can do it if you want to:
 
-            <ul>
-            <li>
-                <strong><a href="/join">Join</a> and contribute your self-hosted writing and media.</strong>
-                <ul>
-                    <li>You can integrate your blog, digital garden or wiki into this <a href="/knowledge-commons">knowledge commons</a>.
-                    <li>Some setup required :) Please <a href="/agora-discuss">reach out</a> if interested and we'll try to help!</li>
-                </ul>
-                </li>
-            </li>
-            <li>
-                <strong><a href="/post">Post</a> from social media and chat.</strong>
-                <ul>
-                <li>
-                    You can cross-post from the <a href="/fediverse">Fediverse</a> and <a href="/matrix">Matrix</a>.
-                </li>
-                <li>
-                    Follow an <a href="/agora-bot">Agora bot</a> and mention an entity using double square brackets notation (like [[<a href="/{{node.qstr}}">{{node.qstr}}</a>]]) and an Agora will try to link your post and optionally save a copy of your contribution.
-                </li>
-                </li>
-                </ul>
-            </li> 
-            <li>
-                <strong><a href="/write">Write</a> in a Stoa.</strong>
-                <ul>
-                <li>
-                    What you write in locations marked as <a href="/stoas">Stoas</a> might be imported into this node later or otherwise found by future visitors.
-                </li>
-                <li>
-                Doesn't require signup. Go ahead and play :)
-                </li>
-                </ul>
-            </li> 
-
-           </ul>
-        </p>
-    </div>
+{% include "empty.html" %}
 
 {% endif %} <!-- node without subnodes -->
 

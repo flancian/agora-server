@@ -255,6 +255,30 @@ document.addEventListener("DOMContentLoaded", function () {
     // give some time to Wikipedia to search before trying to pull it (if it's considered relevant here).
     setTimeout(autoPull, 1000)
 
+    // bind stoas early.
+    var details = document.querySelectorAll("details.url");
+    details.forEach((item) => {
+        item.addEventListener("toggle", async (event) => {
+            if (item.open) {
+                console.log("Details have been shown");
+                embed = item.querySelector(".stoa-iframe");
+                if (embed) {
+                    let url = embed.getAttribute('src');
+                    embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 100%;" height="700px"></iframe>';
+                }
+            } else {
+                console.log("Details have been hidden");
+                embed = item.querySelector(".stoa-iframe");
+                if (embed) {
+                    console.log("Embed found, here we would fold.");
+                    embed.innerHTML = '';
+                }
+            }
+        });
+    });
+
+
+
     // block on node loading (expensive if the task is freshly up)
     response = await fetch(AGORAURL + '/node/' + node);
     content.innerHTML = await response.text();
@@ -325,28 +349,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
-
-    var details = document.querySelectorAll("details.url");
-    details.forEach((item) => {
-        item.addEventListener("toggle", async (event) => {
-            if (item.open) {
-                console.log("Details have been shown");
-                embed = item.querySelector(".stoa-iframe");
-                if (embed) {
-                    let url = embed.getAttribute('src');
-                    embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 100%;" height="700px"></iframe>';
-                }
-            } else {
-                console.log("Details have been hidden");
-                embed = item.querySelector(".stoa-iframe");
-                if (embed) {
-                    console.log("Embed found, here we would fold.");
-                    embed.innerHTML = '';
-                }
-            }
-        });
-    });
-
     // end zippies.
 
    $(".pushed-subnodes-embed").each(function (e) {
