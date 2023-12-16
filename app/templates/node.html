@@ -26,7 +26,7 @@
         {% else %}
             <summary class="node-header main-header">
                 <!-- <div class="inline-flex"> -->
-                    <span style="flex: auto; flex-grow: 1;" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in."><strong>📚 Node </strong><a href="/{{node}}"><span class="node-name">[[{{node}}]]</span></a>
+                    <span style="flex: auto; flex-grow: 1;" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in."><strong>📚 Node </strong><a href="/{{node}}"><span class="node-name">[[{{node.qstr}}]]</span></a>
                     <span class="node-actions">
                        <button id="pull-all" value="pull-all" title="Pulls (embeds) all links that can be pulled below">pull</button>
 					   <button id="fold-all" value="fold-all" title="Folds (collapses) embeds below">fold</button>
@@ -98,7 +98,6 @@
 {% if not node.subnodes and not node.pushed_subnodes() %}
 
 <!-- "404" (but not really :) -->
-
 
 <details class="node" id="{{node.uri}}" open>
     <summary class="node-header main-header"><span title="A Node is an Agora location. It contains resources contributed by users having to do with a location according to the Agora you're using."><strong>📚 Node</strong> <a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">[[{{node.qstr}}]]</span></a></span></summary>
