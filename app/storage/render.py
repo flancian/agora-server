@@ -262,8 +262,11 @@ def trim_front_matter(content, subnode):
 # Marko is ignoring wiki links in paragraphs for some reason?
 def trim_p(content, subnode):
     P_REGEX = r'<\/?p>'
-    return re.sub(P_REGEX, "", content, flags=re.MULTILINE)
+    return re.sub(P_REGEX, '\n', content, flags=re.MULTILINE)
 
+def add_hr(content, subnode):
+    HR_REGEX = r'--+'
+    return re.sub(HR_REGEX, '<p><hr /></p>', content, flags=re.MULTILINE)
 
 # Trim obsidian block anchors until we do something useful with them.
 def trim_block_anchors(content, subnode):
@@ -351,6 +354,7 @@ def preprocess(content, subnode=""):
         add_twitter_pull,
         add_mastodon_pull,
         add_pleroma_pull,
+        add_hr,
     ]
     for f in filters:
         content = f(content, subnode)
