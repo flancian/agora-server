@@ -331,6 +331,8 @@ class Node:
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         self.wikilink = wikilink
+        # Handy with interfacing with systems that cannot accept arbitrary-enough text as ID; most stoas can safely accept this-format.
+        self.slug = util.slugify(wikilink)
         # hack hack
         # TODO: revamp the whole notion of wikilink; it should default to free form text, with slugs being generated
         # explicitly. will probably require coalescing different takes on what the 'canonical' description for a
@@ -1422,8 +1424,8 @@ def build_node(node, extension="", user_list="", qstr=""):
 
     # there are some ill-slugged links to anagora.org out there, special casing here for a while at least.
     # this should probably be made irrelevant by the Big Refactor that we need to do to make the canonical node identifier non-lossy.
-    # UPDATE(2022-06-05): this could probably be removed, needs testing, but with the move to using [[quote plus]] across the board we should be fine?
-    node = node.replace(",", "").replace(":", "")
+    # UPDATE(2022-06-05): this could probably be removed, needs testing, but with the move to using [[quote plus]] across the board we should be fine?quote
+    # node = node.replace(",", "").replace(":", "")
 
     # unquote in case the node came in urlencoded, then slugify again to gain the 'dimensionality reduction' effects of
     # slugs -- and also because G.node() expects a slug as of 2022-01.
