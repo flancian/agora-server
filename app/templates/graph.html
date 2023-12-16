@@ -39,6 +39,7 @@
 
     console.log('graph center:' + NODENAME)
     const Graph = ForceGraph()(container);
+
     if (data.nodes.length > 100) {
         // for "large" graphs, render nodes as circles.
         Graph.height(container.clientHeight)
