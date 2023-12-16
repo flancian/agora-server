@@ -162,7 +162,7 @@ details .mastodon, .twitter {
 
 .spinner2 {
     transform: translateZ(1px);
-    animation: flipping 20s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    animation: flipping 10s cubic-bezier(0, 0.2, 0.8, 1) infinite;
 }
 
 @keyframes heartbeat {

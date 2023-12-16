@@ -354,7 +354,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // it would be better to infer this from node div id?
       let node = NODENAME;
       let arg = ARG;
-      let id = "#" + node + " .pushed-subnodes-embed";
+      let id = ".pushed-subnodes-embed";
       console.log('auto pulling pushed subnodes, will write to id: ' + id);
       if (arg != '') {
         $.get(AGORAURL + '/push/' + node + '/' + arg, function (data) {
