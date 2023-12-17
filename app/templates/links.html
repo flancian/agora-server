@@ -24,7 +24,7 @@
                 <span class="backlinks-header">← West</span><br />
             {% if node.back_nodes %}
                 {% for n in node.back_nodes() %}
-                <a href="/{{n.uri}}">{{n.description}}</a><br />
+                <span class="node-name"><a href="/{{n.uri}}">{{n.description}}</a></span><br />
                 {% endfor %}
             {% else %}
                 (none)
@@ -63,7 +63,7 @@
             <span class="forwardlinks-header">East →</span><br />
             {% if node.forward_nodes %}
                 {% for n in node.forward_nodes() %}
-                <a href="/{{n.uri}}">{{n.description}}</a><br />
+                <span class="node-name"><a href="/{{n.uri}}">{{n.description}}</a></span><br />
                 {% endfor %}
             {% else %}
                 (none)

@@ -494,7 +494,6 @@ details > summary {
 
 .node-name {
     text-transform: capitalize;
-    font-weight: bolder;
 }
 
 .not-found {
