@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans&display=swap');
+/*
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+*/
 
 :root {
     --base-fontsize: 0.93rem;
@@ -220,7 +222,6 @@ h1, h2, h3 {
 }
 
 h1, h2, h3 {
-    font-family: 'Merriweather Sans';
 }
 
 /* Fix line height when title wraps */
