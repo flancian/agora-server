@@ -21,9 +21,7 @@
 import re
 import shutil
 import subprocess
-from .. import config
-from . import regexes
-from .. import util
+from . import config, regexes, util
 from marko import Markdown, inline
 from marko.helpers import MarkoExtension
 from orgorapython import parse_string

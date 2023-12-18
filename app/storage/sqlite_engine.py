@@ -1,7 +1,7 @@
 import datetime
 import sqlite3
 import dateutil
-from app.storage import render
+from app import render
 import os
 
 

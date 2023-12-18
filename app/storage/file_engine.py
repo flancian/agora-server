@@ -29,11 +29,8 @@ import time
 import os
 
 from flask import current_app, request
-from .. import config
 from . import feed
-from . import regexes
-from . import render
-from .. import util
+from .. import config, regexes, render, util
 from collections import defaultdict
 from thefuzz import fuzz
 from operator import attrgetter
