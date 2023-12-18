@@ -66,6 +66,7 @@ werkzeug = "^2.3.6"
 wtforms = "^3.0.1"
 thefuzz = "^0.20.0"
 smartypants = "^2.0.1"
+mistralai = "^0.0.8"
 
 [tool.poetry.dev-dependencies]
 

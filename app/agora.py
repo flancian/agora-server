@@ -802,4 +802,28 @@ def callback():
     return f'TOKEN {request.values["code"]}<script>alert("{request.values["code"]}")</script>'
 
 
-# https://git.anagora.org/login/oauth/authorize?client_id=f88fe801-c51b-456e-ac20-2a967555cec0&redirect_uri=http://localhost:5000/api/callback&response_type=code
+@bp.route("/api/complete/<prompt>")
+def complete(prompt):
+    import os
+    api_key = os.environ["MISTRAL_API_KEY"]
+    if api_key:
+        from mistralai.client import MistralClient
+        from mistralai.models.chat_completion import ChatMessage
+
+        model = "mistral-tiny"
+
+        client = MistralClient(api_key=api_key)
+
+        messages = [
+            ChatMessage(role="user", content=f"{prompt}")
+        ]
+
+        # No streaming
+        chat_response = client.chat(
+            model=model,
+            messages=messages,
+        )
+
+        return str(chat_response.choices[0].message.content.replace('\n', '<br />\n'))
+    else:
+        return("<em>No Mistral API key available, set environment variable $MISTRAL_API_KEY</em>.")

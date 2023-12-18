@@ -349,6 +349,30 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+
+    var genai = document.querySelectorAll("details.genai");
+    genai.forEach((item) => {
+        item.addEventListener("toggle", async (event) => {
+            if (item.open) {
+                console.log("Details have been shown");
+                embed = item.querySelector(".pulled-genai-embed");
+                if (embed) {
+                    let qstr = embed.id;
+                    console.log("Embed found, here we would pull.");
+                    response = await fetch(AGORAURL + '/api/complete/' + qstr);
+                    embed.innerHTML = await response.text();
+                }
+            } else {
+                console.log("Details have been hidden");
+                embed = item.querySelector(".pulled-genai-embed");
+                if (embed) {
+                    console.log("Embed found, here we would fold.");
+                    embed.innerHTML = '';
+                }
+            }
+        });
+
+    });
     // end zippies.
 
    $(".pushed-subnodes-embed").each(function (e) {
@@ -577,50 +601,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
   });
-
-  // fold all button
-  $("#fold-all").click(function (e) {
-      $(".pull-node").each(function (e) {
-        if (this.classList.contains('pulled')) {
-          console.log('auto folding nodes');
-          this.click();
-        }
-      });
-      $(".pull-mastodon-status").each(function (e) {
-        if (this.classList.contains('pulled')) {
-          console.log('auto folding activity');
-          this.click();
-        }
-      });
-      $(".pull-tweet").each(function (e) {
-        if (this.classList.contains('pulled')) {
-          console.log('auto folding tweet');
-          this.click();
-        }
-      });
-      /*
-      $(".pull-stoa").each(function (e) {
-        if (this.classList.contains('pulled')) {
-          console.log('auto folding stoa');
-          this.click();
-        }
-      });
-      */
-      $(".pull-search").each(function (e) {
-        if (this.classList.contains('pulled')) {
-          console.log('auto folding search');
-          this.click();
-        }
-      });
-      $(".pull-url").each(function(e) {
-        if (this.classList.contains('pulled')) {
-            console.log('auto pulling url');
-            this.click();
-        }
-      });
-    });
-
-
 
   }
   // end bindEvents();
