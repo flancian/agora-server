@@ -80,6 +80,14 @@ li img {
     vertical-align: top;
 }
 
+hr {
+    border: 0;
+    height: 1px;
+    /* trying this out -- fadeout effect for hr which mostly comes from user-contributed content.
+    /* background-image: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.0)); */
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.20), rgba(0, 0, 0, 0.0));
+    /* background-image: linear-gradient(to right, rgba(0, 0, 0, 0.40), rgba(0, 0, 0, 0.0), rgba(0, 0, 0, 0.40)); */
+}
 
 iframe {
     margin-top: 2px;
