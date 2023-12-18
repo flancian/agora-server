@@ -20,6 +20,7 @@
 
 import re
 import shutil
+import smartypants
 import subprocess
 from . import config, regexes, util
 from marko import Markdown, inline
@@ -263,7 +264,7 @@ def trim_p(content, subnode):
     return re.sub(P_REGEX, '', content, flags=re.MULTILINE)
 
 def add_hr(content, subnode):
-    HR_REGEX = r'--+'
+    HR_REGEX = r'^--+'
     return re.sub(HR_REGEX, '<p><hr /></p>', content, flags=re.MULTILINE)
 
 # Trim obsidian block anchors until we do something useful with them.
@@ -335,6 +336,10 @@ def add_logseq_embeds(content, subnode):
     return content
 
 
+def filter_smartypants(content, subnode):
+    return smartypants.smartypants(content)
+
+
 def preprocess(content, subnode=""):
     # add_logseq_embeds breaks links everywhere, there's an issue with the regex :)
     # filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_logseq_embeds, add_obsidian_embeds, add_url_pull, add_twitter_pull]
@@ -362,7 +367,7 @@ def preprocess(content, subnode=""):
 def postprocess(content, subnode=""):
     # filters = [add_twitter_embeds]
     # these all ended up moving to preprocess() -- might mean there's not a need for postprocessing overall?
-    filters = []
+    filters = [filter_smartypants]
     for f in filters:
         content = f(content, subnode)
     return content
