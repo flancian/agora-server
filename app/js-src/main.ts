@@ -480,8 +480,12 @@ document.addEventListener("DOMContentLoaded", function () {
     this.innerText = 'pulled';
   });
 
-  // pull all button
+  // pull all/fold all button in main node
   $("#pull-all").click(function (e) {
+    
+    if (!this.classList.contains('pulled')) {
+      // this hasn't been pulled yet, so go ahead and pull
+      
       // this.innerText = 'pulling all';
       console.log('auto pulling all!');
       $(".pull-node").each(function (e) {
@@ -520,6 +524,57 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log('auto pulling url');
         this.click();
       });
+      this.innerText = 'fold all';
+      this.title = 'Folds (hides) pulls below.';
+      this.classList.add('pulled');
+
+    }
+    else {
+      // Already pulled -> fold and flip back button.
+      $(".pull-node").each(function (e) {
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding nodes');
+          this.click();
+        }
+      });
+      $(".pull-mastodon-status").each(function (e) {
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding activity');
+          this.click();
+        }
+      });
+      $(".pull-tweet").each(function (e) {
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding tweet');
+          this.click();
+        }
+      });
+      /*
+      $(".pull-stoa").each(function (e) {
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding stoa');
+          this.click();
+        }
+      });
+      */
+      $(".pull-search").each(function (e) {
+        if (this.classList.contains('pulled')) {
+          console.log('auto folding search');
+          this.click();
+        }
+      });
+      $(".pull-url").each(function(e) {
+        if (this.classList.contains('pulled')) {
+            console.log('auto pulling url');
+            this.click();
+        }
+      });
+
+      this.innerText = 'pull all';
+      this.title = 'Pulls (embeds, transcludes) some links below.';
+      this.classList.remove('pulled');
+ 
+    }
 
   });
 
