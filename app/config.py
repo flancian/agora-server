@@ -83,6 +83,9 @@ class DefaultConfig(object):
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = False
 
+    # EXPERIMENTS WHICH REQUIRE FURTHER SETUP / MAY BE EXPENSIVE.
+    ENABLE_AI = False
+
 
 class ProductionConfig(DefaultConfig):
 
@@ -95,6 +98,9 @@ class ProductionConfig(DefaultConfig):
 
     # EXPERIMENTS WHICH ARE SECURITY SENSITIVE.
     ENABLE_EXECUTABLE_NODES = False
+
+    # EXPERIMENTS WHICH REQUIRE FURTHER SETUP / MAY BE EXPENSIVE.
+    ENABLE_AI = False
 
 
 class AlphaConfig(DefaultConfig):
@@ -109,6 +115,9 @@ class AlphaConfig(DefaultConfig):
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = True
+
+    # Set API key env variables as needed :)
+    ENABLE_AI = True
 
 
 class DevelopmentConfig(DefaultConfig):
