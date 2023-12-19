@@ -718,7 +718,8 @@ details > summary {
 .wikilink-marker {
     /* deemphasize */
     font-weight: lighter;
-    display: none;
+    color: grey;
+    /* display: none; */
 }
 
 .wikilink:link {
