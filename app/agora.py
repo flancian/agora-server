@@ -39,7 +39,7 @@ from markupsafe import escape
 from copy import copy
 
 from .storage import feed, graph
-from . import providers, util, forms
+from . import providers, util, forms, render
 
 bp = Blueprint("agora", __name__)
 
@@ -810,9 +810,11 @@ def complete(prompt):
         from mistralai.client import MistralClient
         from mistralai.models.chat_completion import ChatMessage
 
-        model = "mistral-tiny"
+        model = "mistral-small"
 
         client = MistralClient(api_key=api_key)
+
+        prompt = f"You are a helpful assistant named Socrates. Your task is to help people navigate a free knowledge graph we call the Agora. When responding, please ALWAYS surround a few interesting entities (things, people or concepts related to the current entity) with double square brackets to make it easier for the user to learn more about them. For example: in the location about Socrates, we would expect to see the link '[[Plato]]').\nNow please describe or answer '{prompt}'."
 
         messages = [
             ChatMessage(role="user", content=f"{prompt}")
@@ -824,6 +826,7 @@ def complete(prompt):
             messages=messages,
         )
 
-        return str(chat_response.choices[0].message.content.replace('\n', '<br />\n'))
+        answer = str(chat_response.choices[0].message.content)
+        return render.markdown(answer)
     else:
         return("<em>No Mistral API key available, set environment variable $MISTRAL_API_KEY</em>.")

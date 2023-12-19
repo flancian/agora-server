@@ -277,7 +277,30 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    // same for GenAI if we have it enabled.
+    var genai = document.querySelectorAll("details.genai");
+    genai.forEach((item) => {
+        item.addEventListener("toggle", async (event) => {
+            if (item.open) {
+                console.log("Details for GenAI have been shown");
+                embed = item.querySelector(".pulled-genai-embed");
+                if (embed) {
+                    let qstr = embed.id;
+                    console.log("Embed found, here we would pull.");
+                    response = await fetch(AGORAURL + '/api/complete/' + qstr);
+                    embed.innerHTML = await response.text();
+                }
+            } else {
+                console.log("Details for GenAI have been hidden");
+                embed = item.querySelector(".pulled-genai-embed");
+                if (embed) {
+                    console.log("Embed found, here we would fold.");
+                    embed.innerHTML = '';
+                }
+            }
+        });
 
+    });
 
     // block on node loading (expensive if the task is freshly up)
     response = await fetch(AGORAURL + '/node/' + node);
@@ -350,29 +373,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    var genai = document.querySelectorAll("details.genai");
-    genai.forEach((item) => {
-        item.addEventListener("toggle", async (event) => {
-            if (item.open) {
-                console.log("Details have been shown");
-                embed = item.querySelector(".pulled-genai-embed");
-                if (embed) {
-                    let qstr = embed.id;
-                    console.log("Embed found, here we would pull.");
-                    response = await fetch(AGORAURL + '/api/complete/' + qstr);
-                    embed.innerHTML = await response.text();
-                }
-            } else {
-                console.log("Details have been hidden");
-                embed = item.querySelector(".pulled-genai-embed");
-                if (embed) {
-                    console.log("Embed found, here we would fold.");
-                    embed.innerHTML = '';
-                }
-            }
-        });
-
-    });
     // end zippies.
 
    $(".pushed-subnodes-embed").each(function (e) {
@@ -600,7 +600,7 @@ document.addEventListener("DOMContentLoaded", function () {
  
     }
 
-  });
+    });
 
   }
   // end bindEvents();
