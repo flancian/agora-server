@@ -6,7 +6,11 @@
 
 {% include "wp.html" %}
 
-{% include "genai.html" %}
+{% if config['ENABLE_AI'] %}
+
+    {% include "genai.html" %}
+
+{% endif %}
 
 {% include "stoa.html" %}
 
