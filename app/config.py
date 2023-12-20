@@ -122,6 +122,22 @@ class ProductionConfig(DefaultConfig):
     ENABLE_AI = True
 
 
+class AlphaConfig(DefaultConfig):
+
+    # EXPERIMENTS 
+    # we need to remove as CTZN is no longer a thing? or use to implement something similar in-place?
+    ENABLE_CTZN = False
+    ENABLE_STATS = True
+    ENABLE_AUTO_PULL = True
+    ENABLE_AUTO_PUSH = True
+    ENABLE_AUTO_STOA = False
+    # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
+    ENABLE_EXECUTABLE_NODES = True
+
+    # Set API key env variables as needed :)
+    ENABLE_AI = True
+
+
 class DevelopmentConfig(DefaultConfig):
     URL_BASE = "http://dev.anagora.org"
     URI_BASE = "dev.anagora.org"
