@@ -83,8 +83,10 @@ class DefaultConfig(object):
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = False
 
-    # EXPERIMENTS WHICH REQUIRE FURTHER SETUP / MAY BE EXPENSIVE.
+    # AI features. ENABLE_AI controls the Agora trying to generate with providers; requires per-provider API keys to be available as environment variables.
     ENABLE_AI = False
+    # Set this when enabled.
+    MISTRAL_API_KEY = os.environ["MISTRAL_API_KEY"]
 
 
 class ProductionConfig(DefaultConfig):
@@ -102,9 +104,6 @@ class ProductionConfig(DefaultConfig):
     # EXPERIMENTS WHICH REQUIRE FURTHER SETUP / MAY BE EXPENSIVE.
     ENABLE_AI = False
 
-
-class AlphaConfig(DefaultConfig):
-
     # EXPERIMENTS 
     # we need to remove as CTZN is no longer a thing? or use to implement something similar in-place?
     ENABLE_CTZN = False
@@ -116,7 +115,7 @@ class AlphaConfig(DefaultConfig):
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = True
 
-    # Set API key env variables as needed :)
+    # Set MISTRAL_API_KEY env variable when enabling :)
     ENABLE_AI = True
 
 
@@ -137,6 +136,9 @@ class DevelopmentConfig(DefaultConfig):
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = True
 
+    # Set MISTRAL_API_KEY env variable when enabling :)
+    ENABLE_AI = True
+
 
 class LocalDevelopmentConfig(DefaultConfig):
     URL_BASE = "http://localhost:5017"
@@ -153,3 +155,8 @@ class LocalDevelopmentConfig(DefaultConfig):
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = True
+
+    # Set MISTRAL_API_KEY env variable when enabling :)
+    ENABLE_AI = True
+
+

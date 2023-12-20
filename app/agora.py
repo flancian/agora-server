@@ -804,9 +804,8 @@ def callback():
 
 @bp.route("/api/complete/<prompt>")
 def complete(prompt):
-    import os
-    api_key = os.environ["MISTRAL_API_KEY"]
-    if api_key:
+    if current_app.config["ENABLE_AI"]:
+        api_key = current_app.config["MISTRAL_API_KEY"]
         from mistralai.client import MistralClient
         from mistralai.models.chat_completion import ChatMessage
 
@@ -829,4 +828,4 @@ def complete(prompt):
         answer = str(chat_response.choices[0].message.content)
         return render.markdown(answer)
     else:
-        return("<em>No Mistral API key available, set environment variable $MISTRAL_API_KEY</em>.")
+        return("<em>This Agora is not AI enabled</em>.")
