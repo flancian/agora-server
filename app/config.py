@@ -85,8 +85,11 @@ class DefaultConfig(object):
 
     # AI features. ENABLE_AI controls the Agora trying to generate with providers; requires per-provider API keys to be available as environment variables.
     ENABLE_AI = False
-    # Set this when enabled.
-    MISTRAL_API_KEY = os.environ["MISTRAL_API_KEY"]
+    # Set os env variable MISTRAL_API_KEY when enabled.
+    try:
+        MISTRAL_API_KEY = os.environ["MISTRAL_API_KEY"]
+    except:
+        MISTRAL_API_KEY = False
 
 
 class ProductionConfig(DefaultConfig):
