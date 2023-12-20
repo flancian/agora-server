@@ -569,7 +569,8 @@ class Node:
                     pass
                 try:
                     tree = lxml.html.fromstring(html)
-                except lxml.etree.ParserError:
+                except lxml.etree.ParserError, lxml.etree.XMLSyntaxError:
+                    # We run a best-effort shop over here... ;)
                     continue
 
                 for link in tree.iterlinks():
