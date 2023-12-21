@@ -35,6 +35,7 @@ from flask import (
     g,
     send_file,
 )
+from flask_cors import CORS
 from markupsafe import escape
 from copy import copy
 
@@ -42,6 +43,7 @@ from .storage import feed, graph
 from . import providers, util, forms, render
 
 bp = Blueprint("agora", __name__)
+CORS(bp)
 
 # Global graph. We want this here as we have what amounts to a per-process cache.
 G = api.Graph()
