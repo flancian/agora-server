@@ -121,6 +121,7 @@ details summary > * {
 summary {
   list-style: none;
   display: flex;
+  gap: 0.2em;
   align-items: start;
   cursor: pointer;
 }
