@@ -28,6 +28,7 @@ from flask import (
     Response,
     current_app,
     jsonify,
+    make_response,
     redirect,
     render_template,
     request,
@@ -831,3 +832,88 @@ def complete(prompt):
         return render.markdown(answer)
     else:
         return("<em>This Agora is not AI enabled</em>.")
+
+
+
+# Fediverse space is: /inbox, /outbox, /users/<username>, .well-known/webfinger, .well-known/nodeinfo?
+
+@bp.route("/inbox", methods=['POST'])
+def inbox():
+    """Reserved."""
+    pass
+
+@bp.route("/outbox")
+def outbox():
+    """Reserved."""
+    pass
+
+@bp.route("/users/<username>")
+def ap_user(username):
+    """TODO: implement."""
+
+    pubkey = """-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhjLUimbAm4bNhqnHZa3Y
+9KWU5Q102CsAm9MJsPkk++w2pPyAr5hB/TwB8IH8S22yRwFfkDBE4d8N08/hlrv1
+7soL02Wu6IxCFJhytbb7eF4pIiochbYwqbeYYdbyoSTRcisli9qDHBhtwHkdXksD
+2sXBl3HrTVww/uxGd/YTc4qtAmqOTVns9nYGtQCy+Q/ar9MwsI80jhj2oQ3mfwdT
+dW9g+D8Q01uXRGgxHRQDJtrg/kTSKDAYUWNQWXlGi0LzvnFoNy1H+bmQEemGpc/a
+Jgq3asxw8PXeP/mAE6m5S1Nv2P4Xgh0T6yYJEzEXrH5StDCVfbK2G3yf9rDUqRpa
+1wIDAQAB
+-----END PUBLIC KEY-----"""
+
+    # The following doesn't make sense for this endpoint yet.
+    r = make_response({
+        '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            'https://w3id.org/security/v1',
+        ],
+        'inbox': 'https://' + current_app.config['URI_BASE'] + '/inbox',
+        'outbox': 'https://' + current_app.config['URI_BASE'] + '/outbox',
+        'name': 'Flancian',
+        'preferredUsername': '@flancian@panda.anagora.org',
+        'url': 'https://' + current_app.config['URI_BASE'] + '/users/flancian',
+        'discoverable': True,
+        'indexable': True,
+        'type': 'Person',
+        'summary': 'A test user in the Agora of Flancia.',
+        'publicKey': {
+            'id': 'https://' + current_app.config['URI_BASE'] + '/users/flancian' + '#main-key',
+            'owner': 'https://' + current_app.config['URI_BASE'] + '/users/flancian',
+            'publicKeyPem': pubkey,
+        }
+    })
+
+    r.headers['Content-Type'] = 'application/activity+json'
+    return r
+
+@bp.route("/.well-known/webfinger")
+def webfinger():
+    resource = request.args.get('resource')
+    r = make_response({
+        'subject': resource,
+        'links': [
+            {'rel': 'self', 
+             'href': 'https://' + current_app.config['URI_BASE'] + '/users/' + 'flancian',
+             'type': 'application/activity+json',
+             },
+            {'rel': 'http://webfinger.net/rel/profile-page', 
+             'href': 'https://' + current_app.config["URI_BASE"] + '/@' + 'flancian',
+             'type': 'application/activity+json',
+             }
+        ]
+    })
+    r.headers['Content-Type'] = 'application/jrd+json'
+    return r
+
+@bp.route("/.well-known/nodeinfo")
+def nodeinfo():
+    """Reserved."""
+    pass
+
+
+
+
+
+
+
+
