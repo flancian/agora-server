@@ -105,9 +105,34 @@ iframe {
 }
 
 details .mastodon, .twitter {
-    display: inline;%
+    display: inline;
     max-width: 100%;
     vertical-align: top;
+}
+
+details summary { 
+  cursor: pointer;
+}
+
+details summary > * {
+  display: inline;
+}
+
+summary {
+  list-style: none;
+  display: flex;
+  align-items: start;
+  cursor: pointer;
+}
+summary::before {
+  content: '▶︎';
+  width: 1em;
+  flex-shrink: 0;
+  transition: 0.3s;
+}
+details[open] > summary::before {
+  transform: rotate(90deg);
+  transform-origin: 40% 45% 0;
 }
 
 /* this is meant to target mobile */

@@ -46,7 +46,7 @@ def wp(node):
         f"""
         <!-- adding stoa gets this the right css for the 'done' state as of the time of writing -->
         <details class='exec wiki-search stoa'>
-        <summary class="{summary_class}"><strong title="We love Wikipedia! Here is the top known article for this location.">📖 Wikipedia</strong> article <a href='{url}'>{title}</a></summary>
+        <summary class="{summary_class}"><span><strong title="We love Wikipedia! Here is the top known article for this location.">📖 Wikipedia</strong> article <a href='{url}'>{title}</a></span></summary>
 
         <!-- find a better way to present this data which is only useful for some users. -->
         <!-- 
