@@ -110,6 +110,7 @@ details .mastodon, .twitter {
     vertical-align: top;
 }
 
+/*
 details summary { 
   cursor: pointer;
 }
@@ -135,6 +136,7 @@ details[open] > summary::before {
   transform: rotate(90deg);
   transform-origin: 40% 45% 0;
 }
+*/
 
 /* this is meant to target mobile */
 /* but actually using ems seems to be better? */
@@ -329,6 +331,27 @@ h6 {
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
     scrollbar-width: none;  /* Firefox */
 }
+
+.webnav::-webkit-scrollbar {
+    display: none;
+}
+
+.webnav{
+    vertical-align: middle;
+    align-items: center;
+    /* why doesn't this work? */
+    overflow-x: scroll;
+    white-space: nowrap;
+    align-content: center;
+    align-items: center;
+    justify-content: space-between;
+
+    /* hide scrollbar if one is needed, but allow scrolling */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+}
+
+
 
 .topline-node {
     vertical-align: middle;
