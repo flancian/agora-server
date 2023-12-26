@@ -16,6 +16,7 @@ import collections
 import datetime
 from distutils.command.config import config
 import json
+import os
 import re
 import time
 from urllib.parse import parse_qs
@@ -39,6 +40,9 @@ from flask import (
 from flask_cors import CORS
 from markupsafe import escape
 from copy import copy
+
+from Crypto.PublicKey import RSA
+from Crypto.Signature import pkcs1_15
 
 from .storage import feed, graph
 from . import providers, util, forms, render
@@ -837,6 +841,22 @@ def complete(prompt):
 
 # Fediverse space is: /inbox, /outbox, /users/<username>, .well-known/webfinger, .well-known/nodeinfo?
 
+def ap_key_setup():
+	if hasattr(g, 'private_key') and hasattr(g, 'public_key'):
+		return
+	if not os.path.isfile('public.pem') or not os.path.isfile('private.pem'):
+		g.private_key = RSA.generate(2048)
+		g.public_key = g.private_key.public_key()
+		with open('private.pem', 'wb') as fp:
+			fp.write(g.private_key.export_key('PEM'))
+		with open('public.pem', 'wb') as fp:
+			fp.write(g.public_key.export_key('PEM'))
+	else:
+		with open('private.pem', 'rb') as fp:
+			g.private_key = RSA.import_key(fp.read())
+		with open('public.pem', 'rb') as fp:
+			g.public_key = RSA.import_key(fp.read())
+
 @bp.route("/inbox", methods=['POST'])
 def inbox():
     """Reserved."""
@@ -851,17 +871,8 @@ def outbox():
 def ap_user(username):
     """TODO: implement."""
 
-    pubkey = """-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhjLUimbAm4bNhqnHZa3Y
-9KWU5Q102CsAm9MJsPkk++w2pPyAr5hB/TwB8IH8S22yRwFfkDBE4d8N08/hlrv1
-7soL02Wu6IxCFJhytbb7eF4pIiochbYwqbeYYdbyoSTRcisli9qDHBhtwHkdXksD
-2sXBl3HrTVww/uxGd/YTc4qtAmqOTVns9nYGtQCy+Q/ar9MwsI80jhj2oQ3mfwdT
-dW9g+D8Q01uXRGgxHRQDJtrg/kTSKDAYUWNQWXlGi0LzvnFoNy1H+bmQEemGpc/a
-Jgq3asxw8PXeP/mAE6m5S1Nv2P4Xgh0T6yYJEzEXrH5StDCVfbK2G3yf9rDUqRpa
-1wIDAQAB
------END PUBLIC KEY-----"""
+    ap_key_setup()
 
-    # The following doesn't make sense for this endpoint yet.
     r = make_response({
         '@context': [
             'https://www.w3.org/ns/activitystreams',
@@ -879,7 +890,7 @@ Jgq3asxw8PXeP/mAE6m5S1Nv2P4Xgh0T6yYJEzEXrH5StDCVfbK2G3yf9rDUqRpa
         'publicKey': {
             'id': 'https://' + current_app.config['URI_BASE'] + '/users/flancian' + '#main-key',
             'owner': 'https://' + current_app.config['URI_BASE'] + '/users/flancian',
-            'publicKeyPem': pubkey,
+			'publicKeyPem': g.public_key.exportKey(format='PEM').decode('ascii'),
         }
     })
 
