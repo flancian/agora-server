@@ -14,3 +14,4 @@ node_modules
 app/static/js/index.js
 .vscode/
 garden.db*
+*.pem

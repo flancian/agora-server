@@ -900,18 +900,26 @@ def ap_user(username):
 @bp.route("/.well-known/webfinger")
 def webfinger():
     resource = request.args.get('resource')
+
+    users = api.all_users()
+
+    links = []
+
+    for user in users:
+            links.append({'rel': 'self', 
+             'href': 'https://' + current_app.config['URI_BASE'] + '/user/' + f'{user}',
+             'type': 'application/activity+json',
+             'titles': {'und': f'{user}'},
+             })
+            links.append({'rel': 'http://webfinger.net/rel/profile-page', 
+             'href': 'https://' + current_app.config["URI_BASE"] + '/@' + f'{user}',
+             'type': 'application/activity+json',
+             'titles': {'und': f'{user}'},
+             })
+
     r = make_response({
         'subject': resource,
-        'links': [
-            {'rel': 'self', 
-             'href': 'https://' + current_app.config['URI_BASE'] + '/users/' + 'flancian',
-             'type': 'application/activity+json',
-             },
-            {'rel': 'http://webfinger.net/rel/profile-page', 
-             'href': 'https://' + current_app.config["URI_BASE"] + '/@' + 'flancian',
-             'type': 'application/activity+json',
-             }
-        ]
+        'links': links,
     })
     r.headers['Content-Type'] = 'application/jrd+json'
     return r
