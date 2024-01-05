@@ -905,17 +905,23 @@ def webfinger():
 
     links = []
 
+    URI_BASE = current_app.config['URI_BASE']
+
     for user in users:
             links.append({'rel': 'self', 
-             'href': 'https://' + current_app.config['URI_BASE'] + '/user/' + f'{user}',
+             'href': 'https://' + URI_BASE + '/user/' + f'{user}',
              'type': 'application/activity+json',
-             'titles': {'und': f'{user}'},
+             'titles': {'und': f'@{user}@{URI_BASE}'},
              })
             links.append({'rel': 'http://webfinger.net/rel/profile-page', 
-             'href': 'https://' + current_app.config["URI_BASE"] + '/@' + f'{user}',
+             'href': 'https://' + URI_BASE + '/@' + f'{user}',
              'type': 'application/activity+json',
-             'titles': {'und': f'{user}'},
+             'titles': {'und': f'@{user}@{URI_BASE}'},
              })
+
+    # filter down to the actual user requested if any
+    if resource:
+        links = [link for link in links if resource in link['titles']['und']]
 
     r = make_response({
         'subject': resource,
