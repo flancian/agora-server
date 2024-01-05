@@ -872,24 +872,25 @@ def ap_user(username):
     """TODO: implement."""
 
     ap_key_setup()
+    URI_BASE = current_app.config['URI_BASE']
 
     r = make_response({
         '@context': [
             'https://www.w3.org/ns/activitystreams',
             'https://w3id.org/security/v1',
         ],
-        'id': 'https://' + current_app.config['URI_BASE'] + '/users/flancian',
-        'inbox': 'https://' + current_app.config['URI_BASE'] + '/inbox',
-        'outbox': 'https://' + current_app.config['URI_BASE'] + '/outbox',
-        'name': 'Flancian',
-        'preferredUsername': 'flancian',
-        'url': 'https://' + current_app.config['URI_BASE'] + '/users/flancian',
+        'id': 'https://' + URI_BASE + f'/users/@{username}',
+        'inbox': 'https://' + URI_BASE + '/inbox',
+        'outbox': 'https://' + URI_BASE + '/outbox',
+        'name': f'@{username}@{URI_BASE}',
+        'preferredUsername': '{username}',
+        'url': 'https://' + URI_BASE + f'/@{username}',
         'discoverable': True,
         'type': 'Person',
-        'summary': 'A test user in the Agora of Flancia.',
+        'summary': 'A user in the Agora of Flancia.',
         'publicKey': {
-            'id': 'https://' + current_app.config['URI_BASE'] + '/users/flancian' + '#main-key',
-            'owner': 'https://' + current_app.config['URI_BASE'] + '/users/flancian',
+            'id': 'https://' + URI_BASE + f'/users/{username}' + '#main-key',
+            'owner': 'https://' + URI_BASE + f'/users/{username}',
 			'publicKeyPem': g.public_key.exportKey(format='PEM').decode('ascii'),
         }
     })
@@ -909,7 +910,7 @@ def webfinger():
 
     for user in users:
             links.append({'rel': 'self', 
-             'href': 'https://' + URI_BASE + '/user/' + f'{user}',
+             'href': 'https://' + URI_BASE + '/users/' + f'{user}',
              'type': 'application/activity+json',
              'titles': {'und': f'@{user}@{URI_BASE}'},
              })
