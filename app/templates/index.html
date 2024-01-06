@@ -20,6 +20,9 @@
     <summary>...this you <strong>find</strong> in the <strong>{{config['AGORA_NAME']}}</strong></summary>
 -->
 
+<div class="separator"> <span>This you find in the <strong>{{config['AGORA_NAME_SHORT']}}</strong><!-- for <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a></span>--> {{config['AGORA_FLAIR']}} </span> </div>
+
+
 {% if readmes %}
     {% for subnode in readmes %}
         <details class="subnode" data-author={{user}} open>
@@ -40,5 +43,7 @@
     <summary><strong>🫂 Users</strong></summary>
         <div class="node-embed" id="users"></div>
 </details>
+
+{% include "footer.html" %}
 
 {% endblock %}

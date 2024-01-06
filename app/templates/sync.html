@@ -30,39 +30,10 @@
     <br />
 </div>
 
+{% include "genai.html" %}
+
 {% include "search.html" %}
 
-{% if config['ENABLE_AI'] %}
-
-    {% include "genai.html" %}
-
-{% endif %}
-
-</div>
-
-<!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
-<!-- contains potentially useful 'development' easter egg :) -->
-
-    <div class="separator">
-    {% if range(0, 2) | random %}
-    May you be happy! 😄 
-    {% else %}
-    May you be free! ☮️  
-    {% endif %}
-    </div>
- 
-
-<div id='footer'>
-    <center>
-    ⸎
-    <!-- Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong> in <strong><a style="all: unset;"href="http://localhost:5017/{{node.qstr}}">__EXECTIME__s</a></strong>.
-    -->
-    Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> 
-    <a style="all: unset;"href="https://panda.anagora.org/{{node.qstr}}" > {% if 'Flan' in config['AGORA_NAME'] %} 🍮 {% else %} 🏛️ {% endif %} at <strong>__NOW__</strong>.     
-   </center>
-</div>
-
-
-
+{% include "footer.html" %}
 
 {% endblock %}
