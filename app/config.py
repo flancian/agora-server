@@ -15,9 +15,11 @@ class DefaultConfig(object):
     # I wonder how much of this should be in [[agora.yaml]] instead :)
 
     # This configures the main search/exec/go/visit/find button :)
-    AGORA_VERB = 'find'
+    AGORA_VERB = 'search'
 
     AGORA_NAME_SHORT = 'Agora'
+
+    AGORA_FLAIR = '🏛️'
 
     AGORA_PATH = os.getenv(
         "AGORA_PATH", os.path.join("/home", getpass.getuser(), "agora")
