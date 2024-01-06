@@ -16,8 +16,8 @@
 
 /*
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
 :root {
     --base-fontsize: 0.93rem;
@@ -413,6 +413,7 @@ input[type="text"] {
 }
 
 #mini-cli-exec {
+    min-width: 3em;
 }
 
 .web, .stoa {
@@ -426,6 +427,33 @@ input[type="text"] {
 .exec {
     list-style-type: trad-chinese-informal;
     /* why */
+}
+
+.separator {
+    /*border-color: #7f5af0;*/
+    /*border-style: dotted;*/
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    /*border-radius: 20px;*/
+    font-family: 'Montserrat', sans-serif;
+}
+
+.separator::before,
+.separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #000;
+}
+
+.separator:not(:empty)::before {
+  margin-right: 1em;
+}
+
+.separator:not(:empty)::after {
+  margin-left: 1em;
 }
 
 .node, .web, .stoa, .search, .genai {

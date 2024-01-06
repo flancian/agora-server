@@ -830,7 +830,7 @@ def callback():
 def complete(prompt):
     if current_app.config["ENABLE_AI"]:
         api_key = current_app.config["MISTRAL_API_KEY"]
-        from mistralai.client import MistralClient
+        from mistralai.client import MistralClient, MistralException
         from mistralai.models.chat_completion import ChatMessage
 
         model = "mistral-small"
@@ -844,12 +844,15 @@ def complete(prompt):
         ]
 
         # No streaming
-        chat_response = client.chat(
-            model=model,
-            messages=messages,
-        )
-
-        answer = str(chat_response.choices[0].message.content)
+        try:
+            chat_response = client.chat(
+                model=model,
+                messages=messages,
+            )
+            answer = str(chat_response.choices[0].message.content)
+        except MistralException:
+            # usually unauthorized; it happens if the key is invalid, for example.
+            answer = "[[Mistral]] is not properly set up. Please set the MISTRAL_API_KEY environment variable to a valid API key."
         return render.markdown(answer)
     else:
         return("<em>This Agora is not AI enabled</em>.")

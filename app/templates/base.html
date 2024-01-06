@@ -37,7 +37,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}}>
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached193" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached196" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}"
@@ -103,7 +103,7 @@
 			<div class="topline-node">
 				<div class="topline-node-wrapper">
 					<div class="topline-query">
-						<button id="mini-cli-exec" value="exec" title="Visits a node or Agora location. This searches the Agora and other sites for interesting resources and links to show to the user. If you double click, it might send you off-Agora.">search</button>
+                        <button id="mini-cli-exec" value="exec" title="Visits a node or Agora location. This searches the Agora and other sites for interesting resources and links to show to the user. If you double click, it might send you off-Agora.">{{config['AGORA_VERB']}}</button>
 					</div>
 					<div class="topline-cli">
 						<form action="/exec" method="get">
