@@ -22,20 +22,17 @@
 
 {% if readmes %}
     {% for subnode in readmes %}
-        <div class="subnode" data-author={{user}}>
-            <div class="subnode-header">
-                <span class="subnode-id"> <span class="subnode-links">🏡 <strong>README</strong> by <a href="/@{{user}}">@{{user}}</a></span>
-                </span>
-            </div>
+        <details class="subnode" data-author={{user}} open>
+            <summary>
+                🏡 <strong>README</strong> by <a href="/@{{user}}">@{{user}}</a>
+            </summary>
             {{ subnode.render()|linkify|safe }}
-        </div>
+        </details>
     {% endfor %}
     {% endif %}
 
-    {% if user.user != 'agora' %}
-
-    <div class="infobox">
-        <h1>About @{{user}}</h1>
+    <details class="node" open>
+        <summary>👤 <strong>About</strong> <a href="/@{{user}}">@{{user}}</summary>
         <ul>
             <li><strong>Repository URL:</strong> <a href="{{user.repo_url}}">{{user.repo_url}}</a></li>
             <li><strong>Repository type:</strong> {{user.repo_type}}</li>
@@ -86,9 +83,7 @@
         </table>
 
 
-        </div>
-
-    {% endif %}
+        </details>
 
     <!--
 </details>

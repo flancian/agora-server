@@ -34,17 +34,15 @@ html {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
-    align-content: center;
-    align-items: center;
 }
 
 body {
     background: var(--main-bg);
     color: #bfbfbf;
     overflow-x: hidden;
+    width: 100%;
     max-width: 77em;
     font-size: var(--base-fontsize);
-    align-content: center;
 }
 
 pre {
@@ -58,7 +56,6 @@ a {
 nav {
     font-family: sans-serif;
     max-width: 100%;
-    align-content: center;
 }
 
 /* this prevents too large images from breaking layouts */
@@ -319,7 +316,6 @@ h6 {
     /* why doesn't this work? */
     overflow-x: scroll;
     white-space: nowrap;
-    align-content: center;
     align-items: center;
     width: 100%;
     justify-content: space-between;
@@ -339,7 +335,6 @@ h6 {
     /* why doesn't this work? */
     overflow-x: scroll;
     white-space: nowrap;
-    align-content: center;
     align-items: center;
     justify-content: space-between;
 
@@ -723,7 +718,7 @@ details > summary {
 }
 
 #agoragraph {
-    height: 100%;
+    height: 90%;
     width: 100%;
     position: absolute;
 }

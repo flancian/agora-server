@@ -323,7 +323,7 @@ def index():
     n = api.build_node(user)
     n.qstr = ""
     return render_template(
-        "user.html",
+        "index.html",
         user=api.User(user),
         readmes=api.user_readmes(user),
         subnodes=api.subnodes_by_user(user, sort_by="node", reverse=False),
@@ -522,8 +522,12 @@ def context(node):
 @bp.route("/context/all")
 def context_all():
     # Returns by default a full Agora graph, by default embedded in /nodes.
+    n = api.build_node('context/all')
+    n.qstr = "context/all"
     return render_template(
         "agoragraph.html",
+        embed=True,
+        node=n,
     )
 
 

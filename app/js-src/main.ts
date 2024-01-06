@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+
   // clear mini cli on clicking clear button
   $("#mini-cli-clear").click(() => {
     console.log("clearing mini-cli")
@@ -249,8 +250,15 @@ document.addEventListener("DOMContentLoaded", function () {
     // this loads everything from the local node down to the footer.
     // prior to this as of 2023-12-06 we render the navbar, including search box, web search and stoas.
     var content = document.querySelector("#async-content");
-    let node = content.getAttribute('src');
-    console.log("loading " + node + " async");
+    var node;
+    if (content != null) {
+        node = content.getAttribute('src');
+        console.log("loading " + node + " async");
+    }
+    else {
+        node = NODENAME;
+        console.log("loading " + node + " sync");
+    }
 
     // give some time to Wikipedia to search before trying to pull it (if it's considered relevant here).
     setTimeout(autoPull, 1000)
@@ -302,9 +310,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 
-    // block on node loading (expensive if the task is freshly up)
-    response = await fetch(AGORAURL + '/node/' + node);
-    content.innerHTML = await response.text();
+    if (content != null) {
+        // block on node loading (expensive if the task is freshly up)
+        response = await fetch(AGORAURL + '/node/' + node);
+        content.innerHTML = await response.text();
+    }
     setTimeout(bindEvents, 10)
 
   }

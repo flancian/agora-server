@@ -14,29 +14,31 @@
  limitations under the License.
 -->
 
-<!-- DEPRECATED-->
-
 {% extends "base.html" %}
 {% block content %}
-<div class="subnode">
-Ahoy, matey!<br />
-<br />
-This is the <strong>Agora v{{version}}</strong>.<br />
-<br />
-This site is very much under construction, but feel free to look around: 
-<ul>
-	<li><a href="{{nodes_url}}">{{nodes}}</a> lists all non-journal nodes in this Agora; a node is the set of all subnodes with a given title, or otherwise about the same entity. Subnodes can come from a variety of sources; currently these are mostly notes as volunteered by users.</li>
-	<li><a href="{{journals_url}}">{{journals}}</a> displays all journal entries (these are just nodes matching YYYY-MM-DD).</li>
-	<li><a href="{{users_url}}">{{users}}</a> displays all users in this Agora. Click through to see their subnodes.</li>
-	<li><a href="{{subnodes_url}}">{{latest}}</a> shows which subnodes were added or modified recently.</li>
-	<li><a href="{{search_url}}">{{search}}</a> offers full text search over all subnodes (supports regexes).</li>
-</ul>
+<!-- <details class="node" open>
+    <summary>...this you <strong>find</strong> in the <strong>{{config['AGORA_NAME']}}</strong></summary>
+-->
 
-The <a href="/wikilink">[[wikilink]]</a> is the heart of the Agora. <a href="/foo">/foo</a> will render every subnode that resolves to wikilink <a href="/foo">[[foo]]</a>. For example: <a href="/agora">[[Agora]]</a>.
+{% if readmes %}
+    {% for subnode in readmes %}
+        <details class="subnode" data-author={{user}} open>
+            <summary>
+                🏡 <strong>README</strong> by <a href="/@{{user}}">@{{user}}</a>
+            </summary>
+            {{ subnode.render()|linkify|safe }}
+        </details>
+    {% endfor %}
+{% endif %}
 
-<br /><br />
-For more information, please visit the <a href="https://flancia.org/go/agora">Agora repository.</a> If you're interested in knowing what's coming, please refer to <a href="{{current_app.config['AGORA_URL']}/agora-plan">Agora plan</a>.
-</div>
+<details class="node">
+    <summary><strong>📚 Nodes</strong></summary>
+        <div class="node-embed" id="nodes"></div>
+</details>
 
-{% include "node_rendered.html" %}
+<details class="node">
+    <summary><strong>🫂 Users</strong></summary>
+        <div class="node-embed" id="users"></div>
+</details>
+
 {% endblock %}

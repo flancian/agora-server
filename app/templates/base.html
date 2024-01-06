@@ -22,10 +22,10 @@
 		integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
 	<meta charset="utf-8" />
-	{% if node is defined %}
+	{% if node is defined and node.qstr %}
 	<title>[[{{node.qstr}}]] at {{config['URI_BASE']}}</title>
 	{% else %}
-	<title>Agora</title>
+    <title>{{config['AGORA_NAME']}} at {{config['URI_BASE']}}</title>
 	{% endif %}
 	<!-- This Agora is: {{config['URI_BASE']}} -->
 	{% if 'dev.' in config['URI_BASE'] %}
@@ -35,9 +35,9 @@
 	<meta name="description" content="The Agora is a free knowledge commons: {{config['URI_BASE']}}." />
 	<meta name="HandheldFriendly" content="True" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{url_for('agora.search_xml')}}>
+    <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}}>
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached192" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached193" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}"
@@ -75,7 +75,10 @@
 </head>
 
 <body>
+
 	<nav>
+        {% if not embed %}
+        <!-- navigation chrome is simplified if embed=True -->
         <div class="navigation">
             <a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px" title="An Agora is a Free Knowledge Commons."></a>
             <a href="/" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a> <strong>⟶</strong>
@@ -94,6 +97,8 @@
         </div>
 
         <hr />
+   
+        {% endif %}
 
 			<div class="topline-node">
 				<div class="topline-node-wrapper">
@@ -112,8 +117,6 @@
 				</div>
 
 			</div>
-		</div>
-
 	</nav>
 
 	<!-- hypothesis -->
