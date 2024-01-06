@@ -37,15 +37,16 @@ def wp(node):
     inferred_node = title.replace("_", "-")
 
     # MAGIC :)
-    if fuzz.ratio(title, node) > 60:
-        summary_class = "autopull"
-    else:
-        summary_class = "noautopull"
+    # if fuzz.ratio(title, node) > 60:
+    #     summary_class = "autopull"
+    # else:
+    #     summary_class = "noautopull"
+    summary_class = "noautopull"
 
     return Response(
         f"""
         <!-- adding stoa gets this the right css for the 'done' state as of the time of writing -->
-        <details class='exec wiki-search stoa'>
+        <details class='exec wiki-search url'>
         <summary class="{summary_class}"><span><strong title="We love Wikipedia! Here is the top known article for this location.">📖 Wikipedia</strong> article <a href='{url}'>{title}</a></span></summary>
 
         <!-- find a better way to present this data which is only useful for some users. -->

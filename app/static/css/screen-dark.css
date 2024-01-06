@@ -413,6 +413,7 @@ input[type="text"] {
 }
 
 #mini-cli-exec {
+    min-width: 3em;
 }
 
 .web, .stoa {
@@ -426,6 +427,18 @@ input[type="text"] {
 .exec {
     list-style-type: trad-chinese-informal;
     /* why */
+}
+
+.toplevel {
+    /*border-color: #7f5af0;*/
+    border-color: gray;
+    border-style: solid;
+    border-width: 1px;
+    /*border-style: dotted;*/
+    margin-top: 10px;
+    margin-bottom: 10px;
+    /*border-radius: 20px;*/
+    padding: 10px;
 }
 
 .node, .web, .stoa, .search, .genai {

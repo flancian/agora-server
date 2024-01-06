@@ -2,15 +2,21 @@
 
 {% block content %}
 
-{% include "web.html" %}
+<details class="toplevel" open>
+    <summary class="webnav">
+        <span>🌐 Around the <strong> Internet</strong><!-- for <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a>--></span></summary>
 
-{% include "wp.html" %}
+    <div style="padding-left: 10px; line-height: 1.5;">
+    {% include "web.html" %}
 
-{% if config['ENABLE_AI'] %}
+    {% include "wp.html" %}
+    </div>
 
-    {% include "genai.html" %}
+</details>
+ 
 
-{% endif %}
+<details class="toplevel" open>
+    <summary>🏛️ In the <strong>{{config['AGORA_NAME']}}</strong><!-- for <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a></span>--></summary>
 
 {% include "stoa.html" %}
 
@@ -29,6 +35,32 @@
         <p><em>Loading Agora node...</em></p>
     </center>
     <br />
+</div>
+
+{% include "search.html" %}
+
+{% if config['ENABLE_AI'] %}
+
+    {% include "genai.html" %}
+
+{% endif %}
+
+</details>
+
+<!-- __EXECTIME__ and __NOW__ get replaced in after_request. -->
+<!-- contains potentially useful 'development' easter egg :) -->
+<div id='footer'>
+    <center>
+    ⸎
+    <!-- Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong> in <strong><a style="all: unset;"href="http://localhost:5017/{{node.qstr}}">__EXECTIME__s</a></strong>.
+    -->
+    Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong>.     
+    {% if range(0, 2) | random %}
+    May you be happy!
+    {% else %}
+    May you be free!
+    {% endif %}
+    </center>
 </div>
 
 
