@@ -319,7 +319,20 @@ def index():
     # this should use this pattern:
     # first, render address specific functionality.
     # then, pull /node/foo if we're in location foo.
-    return redirect(url_for(".root", node="index"))
+    user = 'agora'
+    n = api.build_node(user)
+    n.qstr = ""
+    return render_template(
+        "user.html",
+        user=api.User(user),
+        readmes=api.user_readmes(user),
+        subnodes=api.subnodes_by_user(user, sort_by="node", reverse=False),
+        latest=api.subnodes_by_user(user, sort_by="mtime", reverse=True)[:100],
+        node=n,
+    )
+
+
+    # return redirect(url_for(".root", node="index"))
 
 
 @bp.route("/Δ")

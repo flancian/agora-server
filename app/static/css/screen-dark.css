@@ -275,9 +275,6 @@ h1 {
     font-size: calc(var(--base-fontsize) * var(--header-scale) * var(--header-scale) * var(--header-scale) * var(--header-scale) * var(--header-scale));
 }
 
-h1:not(:first-child) {
-    margin-top: calc(var(--line-height) * 1.5rem);
-}
 
 h2 {
     font-size: calc(var(--base-fontsize) * var(--header-scale) * var(--header-scale) * var(--header-scale));
@@ -826,16 +823,8 @@ details > summary {
     display: none;
 }
 
-#ctzn-login {
-    text-align: right;
-}
-
 #focus-hack {
     display: none;
-}
-
-#ctzn-login {
-    margin-top: 20px;
 }
 
 /* Format tables.  Based on https://github.com/kevquirk/simple.css/. */

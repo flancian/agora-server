@@ -16,17 +16,23 @@
 
 {% extends "base.html" %}
 {% block content %}
+<!-- <details class="node" open>
+    <summary>...this you <strong>find</strong> in the <strong>{{config['AGORA_NAME']}}</strong></summary>
+-->
+
 {% if readmes %}
-<div class="node">
     {% for subnode in readmes %}
         <div class="subnode" data-author={{user}}>
-        <div class="subnode-header">
-            <span class="subnode-id"> <span class="subnode-links">🏡 <strong>README</strong> by <a href="/@{{user}}">@{{user}}</a></span></span>
-        </div>
-    {{ subnode.render()|linkify|safe }}
+            <div class="subnode-header">
+                <span class="subnode-id"> <span class="subnode-links">🏡 <strong>README</strong> by <a href="/@{{user}}">@{{user}}</a></span>
+                </span>
+            </div>
+            {{ subnode.render()|linkify|safe }}
         </div>
     {% endfor %}
     {% endif %}
+
+    {% if user.user != 'agora' %}
 
     <div class="infobox">
         <h1>About @{{user}}</h1>
@@ -82,7 +88,10 @@
 
         </div>
 
+    {% endif %}
 
-</div>
+    <!--
+</details>
+-->
 
 {% endblock %}

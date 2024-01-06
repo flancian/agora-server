@@ -17,27 +17,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="listing node">
+<details class="listing node">
     
+<summary>
 {% if header %}
-<div class="node-header main-header"><span>📚 {{header}}</span></div>
-<h1> {{header}} </h1>
+<span class="node-header main-header">📚 {{header}}</span>
 {% else %}
-<div class="node-header main-header"><span>📚 All nodes</span></div>
+<span class="node-header main-header">📚 All nodes</span>
 {% endif %}
+</summary>
 
 {% if stats %}
 <p>
-This Agora contains <strong>{{stats['nodes']}}</strong> nodes integrated out of <strong>{{stats['subnodes']}}</strong> resources contributed by <a href="/users"><strong>{{stats['users']}} users</a></strong>.</strong>
+This Agora contains <strong>{{stats['subnodes']}} resources</strong> contributed by <a href="/users"><strong>{{stats['users']}} users</a></strong>.</strong>
 </p>
 <p>
-There are <strong>{{stats['edges']}} links</strong>.
+There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']}} links</strong>.
 </p>
 
-<div class='context-all'>
-    <p>
-    <em>Loading graph, please wait... (slow, requires JavaScript, may crash your browser tab)</em>
-    </p>
+
+<div class='context-all' style="border: none;">
+    <center>
+        <p>
+        <div class="spinner">
+            <img src="/static/img/agora.png" class="logo"></img>
+        </div>
+        </p>
+        <p><em>Rendering graph, please wait... (slow, may crash your browser tab, good luck :)</em></p>
+    </center>
 </div>
 
 {% endif %}
@@ -50,6 +57,6 @@ There are <strong>{{stats['edges']}} links</strong>.
 
 {% endfor %}
 
-</div>
+</details>
 
 {% endblock %}
