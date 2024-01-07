@@ -73,6 +73,29 @@ button {
     padding: 3px 6px 3px 6px;
 }
 
+ul {
+    list-style-position: inside;
+    line-height: 1.7em;
+    padding-right: 0.34em;
+    padding-left: 2em;
+}
+
+li {
+    background-color: #f7f3f3;
+    /* padding: 0.34em; */
+    width: fit-content;
+    padding: 0.17em;
+}
+
+.subnode-content > ul::after{
+    content: 'Agora Protocol v0.9'; /* Custom bullet point */
+    font-size: smaller;
+    font-style: italic;
+    color: grey; /* Bullet point color */
+    position: relative;
+    display: inline-block;
+}
+
 li img {
     vertical-align: top;
 }
