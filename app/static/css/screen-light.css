@@ -42,3 +42,15 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
     background: #f8f8f8; 
     color: #000; 
 }
+
+li {
+    /* background-color: #030707; */
+    background-color: #f7f3f7;
+}
+
+.separator::before,
+.separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #222;
+}

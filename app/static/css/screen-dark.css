@@ -81,7 +81,8 @@ ul {
 }
 
 li {
-    background-color: #f7f3f3;
+    background-color: #070303; 
+    /* background-color: #030707; */
     /* padding: 0.34em; */
     width: fit-content;
     padding: 0.17em;
@@ -458,8 +459,8 @@ input[type="text"] {
     display: flex;
     align-items: center;
     text-align: center;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
     /*border-radius: 20px;*/
     font-family: 'Montserrat', sans-serif;
 }
@@ -468,7 +469,7 @@ input[type="text"] {
 .separator::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid #ddd;
 }
 
 .separator:not(:empty)::before {
