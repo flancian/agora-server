@@ -66,6 +66,7 @@ def canonical_wikilink(wikilink):
     if is_journal(wikilink):
         try:
             wikilink = canonical_date(wikilink)
+            return wikilink
         except:
             # TODO: if we add logging, maybe log that we couldn't parse a date here
             pass
@@ -92,7 +93,7 @@ def canonical_wikilink(wikilink):
         .replace("'", "-")
         .replace("+", "-")
     )
-    wikilink = re.sub("-+", "-", wikilink)
+    wikilink = re.sub("-+", " ", wikilink)
     return wikilink
 
 
