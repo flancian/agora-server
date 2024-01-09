@@ -1236,12 +1236,16 @@ def stats():
 
 
 def all_users():
-    # hack hack -- we treat all of gardens, streams and stoas as users -- does that make sense?
-    # ...maybe yes.
+    denylist = ['.git']
     users = os.listdir(os.path.join(current_app.config["AGORA_PATH"], "garden"))
-    users += os.listdir(os.path.join(current_app.config["AGORA_PATH"], "stream"))
-    users += os.listdir(os.path.join(current_app.config["AGORA_PATH"], "stoa"))
-    return sorted([User(u) for u in users], key=lambda x: x.uri.lower())
+    try:
+        # hack hack -- we treat all of gardens, streams and stoas as users -- does that make sense?
+        # ...maybe yes.
+        users += os.listdir(os.path.join(current_app.config["AGORA_PATH"], "stream"))
+        users += os.listdir(os.path.join(current_app.config["AGORA_PATH"], "stoa"))
+    except:
+        current_app.logger.info(f"Some of: streams, stoas not found.")
+    return sorted([User(u) for u in users if u not in denylist], key=lambda x: x.uri.lower())
 
 
 def user_journals(user):
