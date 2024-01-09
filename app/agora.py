@@ -361,7 +361,7 @@ def annotations():
 def random():
     today = datetime.date.today()
     random = api.random_node()
-    return redirect(f"/{random.uri}")
+    return redirect(f"/{random.description}")
 
 
 @bp.route("/now")
