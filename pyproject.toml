@@ -2,7 +2,7 @@
 name = "agora-server"
 version = "0.1.0"
 description = ""
-authors = ["Null Flancian <0@flancia.org"]
+authors = ["Null Flancian <0@flancia.org>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
