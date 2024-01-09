@@ -56,6 +56,8 @@ class DefaultConfig(object):
     try:
         URL_BASE = AGORA_CONFIG["url_base"]
     except (KeyError, TypeError):
+        # We could try to run this as a 'wildcard Agora', serving back whatever we got in client headers.
+        # pass
         # standard: no trailing slashes anywhere in variables.
         # with protocol
         URL_BASE = "https://anagora.org"
@@ -63,6 +65,8 @@ class DefaultConfig(object):
     try:
         URI_BASE = AGORA_CONFIG["uri_base"]
     except (KeyError, TypeError):
+        # We could try to run this as a 'wildcard Agora', serving back whatever we got in client headers.
+        # pass
         URI_BASE = "anagora.org"
 
     try:

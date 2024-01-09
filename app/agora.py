@@ -61,7 +61,10 @@ def before_request():
 
     # hack hack -- try dynamic URI_BASE based on what the browser sent our way.
     # this allows for easily provisioning an Agora in many virtual hosts, e.g. *.agor.ai.
-    current_app.config["URI_BASE"] = request.headers["Host"]
+    # If URI_BASE or URL_BASE are empty, try running this as a "wildcard Agora".
+    if not current_app.config.get("URL_BASE") or not current_app.config.get("URI_BASE"):
+        current_app.config["URI_BASE"] = request.headers["Host"]
+        current_app.config["URL_BASE"] = 'https://' + current_app.config["URI_BASE"]
 
 
 @bp.after_request
