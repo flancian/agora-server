@@ -772,7 +772,7 @@ def settings():
     return render_template("settings.html", header="Settings", node=n)
 
 
-@bp.route("/search.xml")
+@bp.route("/opensearch.xml")
 def search_xml():
     return (
         render_template("search.xml"),
@@ -790,7 +790,7 @@ def count_votes(subnode):
 
 
 # API space is /api.
-# Elsewhere in the Agora we try to return HTML; even in system pages like /users, 
+# Elsewhere in the Agora we try to return HTML; even in system pages like /users,
 # the intent is to offer the content of node [[users]] after the node-specific UI.
 #
 # Here we go wild ;)
@@ -929,12 +929,12 @@ def webfinger():
     URI_BASE = current_app.config['URI_BASE']
 
     for user in users:
-            links.append({'rel': 'self', 
+            links.append({'rel': 'self',
              'href': 'https://' + URI_BASE + '/users/' + f'{user}',
              'type': 'application/activity+json',
              'titles': {'und': f'@{user}@{URI_BASE}'},
              })
-            links.append({'rel': 'http://webfinger.net/rel/profile-page', 
+            links.append({'rel': 'http://webfinger.net/rel/profile-page',
              'href': 'https://' + URI_BASE + '/@' + f'{user}',
              'type': 'application/activity+json',
              'titles': {'und': f'@{user}@{URI_BASE}'},
