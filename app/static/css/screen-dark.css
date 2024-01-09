@@ -449,6 +449,10 @@ input[type="text"] {
     width: auto;
 }
 
+summary {
+    line-height: 1.7;
+}
+
 .exec {
     list-style-type: trad-chinese-informal;
     /* why */
