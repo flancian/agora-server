@@ -1,0 +1,8 @@
+Already up to date.
+Installing dependencies from lock file
+
+No dependencies to install or update
+
+> build
+> npx esbuild app/js-src/index.ts --bundle --outfile=app/static/js/index.js
+

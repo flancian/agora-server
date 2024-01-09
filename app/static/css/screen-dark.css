@@ -488,12 +488,12 @@ summary {
 .node, .web, .stoa, .search, .genai {
     /*border-color: #7f5af0;*/
     border-color: gray;
-    border-style: dashed;
+    /* border-style: dashed;*/
     border-width: 1px;
-    /*border-style: dotted;*/
+    border-style: dotted;
     margin-top: 10px;
     margin-bottom: 10px;
-    /*border-radius: 20px;*/
+    /*border-radius: 5px;*/
     padding: 10px;
 }
 
