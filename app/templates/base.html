@@ -35,23 +35,23 @@
 	<meta name="description" content="The Agora is a free knowledge commons: {{config['URI_BASE']}}." />
 	<meta name="HandheldFriendly" content="True" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}}>
+    <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
 		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached200" id="theme-link" />
 
 	<script>
-		const APIBASE = "{{config['API_BASE']}}"
-		const AGORANAME = "{{config['AGORA_NAME']}}"
-		const AGORAURI= "{{config['URI_BASE']}}"
-		const AGORAURL = "{{config['URL_BASE']}}"
+		const APIBASE = "{{config['API_BASE']}}";
+		const AGORANAME = "{{config['AGORA_NAME']}}";
+		const AGORAURI= "{{config['URI_BASE']}}";
+		const AGORAURL = "{{config['URL_BASE']}}";
 	</script>
 
 	{% if node is defined %}
 	<script>
-		const NODENAME = "{{node.uri}}"
-		const ARG = "{{argument}}"
-		const WIKILINK = "{{node.wikilink}}"
-		const NODEDESC = "{{node.description}}"
+		const NODENAME = "{{node.uri}}";
+		const ARG = "{{argument}}";
+		const WIKILINK = "{{node.wikilink}}";
+		const NODEDESC = "{{node.description}}";
 	</script>
 	{% endif %}
 
