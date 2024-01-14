@@ -326,8 +326,10 @@ def index():
         # Unfortunately this is needed to make Chrome trigger opensearch and let users
         # add the Agora as a search engine.
         # No, this doesn't make sense.
+        if qstr.startswith('go/'):
+            # special case go links for now -- this is terrible, yes :)
+            return redirect(url_for(".root", node=qstr))
 
-        node = qstr
         # As of [[2023-12-12]] I'm trying to do away with slugify again and move to 'canonical nodes' by default, i.e. no information loss if we can help it in node IDs.
         # node = util.slugify(node)
         n = api.Node(qstr)
