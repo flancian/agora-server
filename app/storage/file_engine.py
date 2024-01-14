@@ -567,6 +567,9 @@ class Node:
                     html = render.markdown(subnode.content)
                 except AssertionError:
                     pass
+                except KeyError:
+                    current_app.logger.debug(f"Error parsing subnode {subnode}.")
+                    html = 'There was an error parsing this subnode.'
                 try:
                     tree = lxml.html.fromstring(html)
                 except (lxml.etree.ParserError, lxml.etree.XMLSyntaxError):
@@ -977,6 +980,7 @@ class VirtualSubnode(Subnode):
         target_node: where this virtual subnode will attach (go to).
         block: the actual payload, as pre rendered html."""
         self.uri = source_subnode.uri
+        self.basename: str = path_to_basename(self.uri)
         self.url = "/subnode/virtual"
         # Virtual subnodes are attached to their target
         self.wikilink = target_node.wikilink
@@ -1032,7 +1036,7 @@ class ExecutableSubnode(Subnode):
         # Use a subnode's URI as its identifier.
         self.uri: str = path_to_uri(path)
         self.url = '/subnode/' + self.uri
-        self.basename: str = path_to_basename(path)
+        self.basename: str = path_to_basename(self.uri)
 
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].

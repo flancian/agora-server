@@ -2,7 +2,7 @@
     {% for subnode in pushed_subnodes %}
     <details class="pushed-subnode" open>
         <summary class="subnode-header">
-            <span class="subnode-id"><span class="subnode-links"><a href="/@{{subnode.user}}/{{subnode.wikilink}}">📄</a> pushed from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
+            <span class="subnode-id"><span class="subnode-links"><a href="/@{{subnode.user}}/{{subnode.wikilink}}">➔</a> pushed from <a href="/raw/{{subnode.uri}}">{{subnode.basename}}</a> by <a
                         href="/@{{subnode.user}}">@{{subnode.user}}</a></span></span>
         </summary>
         <ul>
