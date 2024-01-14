@@ -63,7 +63,7 @@ def go(q, tokens):
         return Bid(
             Confidence.high,
             lambda: redirect(
-                url_for("agora.go", node=util.slugify(" ".join(tokens[1:])))
+                url_for("agora.go", node=util.canonical_wikilink(" ".join(tokens[1:])))
             ),
             "Follow go link",
         )

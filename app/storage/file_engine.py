@@ -328,6 +328,8 @@ class Node:
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         self.wikilink = wikilink
+        # TODO(flancian): check where this is used and fix.
+        self.uri = wikilink
         # Handy with interfacing with systems that cannot accept arbitrary-enough text as ID; most stoas can safely accept this-format.
         self.slug = util.slugify(wikilink)
         # hack hack
@@ -337,8 +339,6 @@ class Node:
         # DEPRECATED -- use {qstr} in rendering code as needed (for now?).
         self.description = wikilink.replace("-", " ")
         # LOL, this is *not* a uri.
-        # TODO(flancian): check where this is used and fix.
-        self.uri = wikilink
         # ensure wikilinks to journal entries are all shown in iso format
         # (important to do it after self.uri = wikilink to avoid breaking
         # links)
@@ -688,7 +688,7 @@ class Subnode:
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
         # will often have spaces; not lossy (or as lossy as the filesystem)
         self.wikilink = path_to_wikilink(path)
-        # essentially a slug.
+        # essentially a slug but without '-' -- close to what the user would intuitively write in a search engine, all lower case.
         self.canonical_wikilink = util.canonical_wikilink(self.wikilink)
         self.user = path_to_user(path)
         self.user_config = User(self.user).config
@@ -1437,7 +1437,7 @@ def build_node(node, extension="", user_list="", qstr=""):
     # hmm, I don't like this slugify.
     # TODO(2022-06-05): will try to remove it and see what happens.
     # *but this after fixing go links?*
-    node = util.slugify(node)
+    node = util.canonical_wikilink(node)
 
     # we copy because we'll potentially modify subnode order, maybe add [[virtual subnodes]].
     n = copy(G.node(node))

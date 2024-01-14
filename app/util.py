@@ -97,7 +97,10 @@ def canonical_wikilink(wikilink):
     return wikilink
 
 
-slugify = canonical_wikilink
+def slugify(wikilink):
+    wikilink = canonical_wikilink(wikilink)
+    slug = re.sub(' +', '-', wikilink)
+    return slug
 
 
 @lru_cache(maxsize=None)

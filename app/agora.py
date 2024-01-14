@@ -231,7 +231,7 @@ def graph_js_node(node):
 @bp.route("/@<user>/<node>")
 def root_subnode(node, user):
     node = urllib.parse.unquote_plus(node)
-    node = util.slugify(node)
+    node = util.canonical_wikilink(node)
     n = G.node(node)
 
     n.subnodes = util.filter(n.subnodes, user)
@@ -260,7 +260,7 @@ def root_subnode(node, user):
 @bp.route("/node/@<user>/<node>")
 def subnode(node, user):
     node = urllib.parse.unquote_plus(node)
-    node = util.slugify(node)
+    node = util.canonical_wikilink(node)
     n = G.node(node)
 
     n.subnodes = util.filter(n.subnodes, user)
@@ -289,7 +289,7 @@ def subnode(node, user):
 @bp.route("/export/@<user>/<node>")
 def subnode_export(node, user):
     node = urllib.parse.unquote_plus(node)
-    node = util.slugify(node)
+    node = util.canonical_wikilink(node)
     n = G.node(node)
 
     n.subnodes = util.filter(n.subnodes, user)
