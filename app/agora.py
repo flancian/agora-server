@@ -619,7 +619,7 @@ def search():
     current_app.logger.warning(
         "Node catch-all in agora.py triggered; should never happen (tm)."
     )
-    return redirect(url_for(".root", node=q))
+    return redirect(url_for(".root", node=q), code=301)
 
 
 @bp.route("/subnode/<path:subnode>")
