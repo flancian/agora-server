@@ -334,6 +334,7 @@ def index():
         # node = util.slugify(node)
         n = api.Node(qstr)
         n.qstr = qstr
+        n.q = qstr
 
         return render_template(
             "sync.html",
