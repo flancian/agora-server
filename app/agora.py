@@ -319,9 +319,33 @@ def subnode_export(node, user):
 
 @bp.route("/")
 def index():
-    # this should use this pattern:
-    # first, render address specific functionality.
-    # then, pull /node/foo if we're in location foo.
+    qstr = request.args.get("q")
+    if qstr:
+        # This is a search. 
+        # We need to serve the node inline, without redirecting.
+        # Unfortunately this is needed to make Chrome trigger opensearch and let users
+        # add the Agora as a search engine.
+        # No, this doesn't make sense.
+
+        node = qstr
+        # As of [[2023-12-12]] I'm trying to do away with slugify again and move to 'canonical nodes' by default, i.e. no information loss if we can help it in node IDs.
+        # node = util.slugify(node)
+        n = api.Node(qstr)
+        n.qstr = qstr
+
+        return render_template(
+            "sync.html",
+            node=n,
+            config=current_app.config,
+            # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
+            # sorry for the fuzzy thinking but I'm short on time and want to get things done.
+            # (...famous last words).
+            # TODO(2022-06-06): this should now be done in the async path, essentially embedding /annotations/X from node X
+            # annotations=n.annotations(),
+            # annotations_enabled=True,
+        )
+
+    # GET / without query string -> serve the index.
     user = 'agora'
     n = api.build_node(user)
     n.qstr = ""
