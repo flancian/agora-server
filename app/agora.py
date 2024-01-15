@@ -326,7 +326,7 @@ def index():
         # Unfortunately this is needed to make Chrome trigger opensearch and let users
         # add the Agora as a search engine.
         # No, this doesn't make sense.
-        if qstr.startswith('go/'):
+        if re.match('^[a-z]+/', qstr):
             # special case go links for now -- this is terrible, yes :)
             return redirect(url_for(".root", node=qstr))
 
