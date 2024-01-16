@@ -1070,7 +1070,7 @@ class ExecutableSubnode(Subnode):
                 Executable subnodes have been disabled by the stewards of this Agora.
 
                 Please reach out to them or refer to Agora documentation if you think this is a mistake.\n"""
-        self.content = '```\n' + output + '```'
+        self.content = output.replace('\n', '\n\n')
         content = render.preprocess(self.content, subnode=self)
         content = render.markdown(content)
         ret = render.postprocess(content)
