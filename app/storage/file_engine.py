@@ -841,7 +841,7 @@ class Subnode:
             content = render.preprocess(self.content, subnode=self)
             content = render.mycomarkup(content)
         if self.uri.endswith("py") or self.uri.endswith("PY"):
-            content = '<br /><em>(Python source.)</em><br /><br />'
+            content = '<br /><em>(Python source, might be executed below.)</em><br /><br />'
         ret = render.postprocess(content)
         return ret
 
