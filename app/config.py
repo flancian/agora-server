@@ -76,6 +76,17 @@ class DefaultConfig(object):
 
     AGORA = URI_BASE
 
+    try:
+        SOURCE = AGORA_CONFIG["server"]
+    except (KeyError, TypeError):
+        SOURCE = 'https://github.com/flancian/agora-server'
+
+    try:
+        ROOT = AGORA_CONFIG["root"]
+    except (KeyError, TypeError):
+        ROOT = 'https://github.com/flancian/agora'
+
+
     # change this to whatever your domain is going to be -- without protocol.
     # this is what gets rendered in the header.
     # 2022-12-02: maybe deprecated in favour of using request headers to infer the host that the client wants to see? see before_request in agora.py.
