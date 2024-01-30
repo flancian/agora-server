@@ -35,9 +35,8 @@ def add_node(node: db.Node, g: Graph, only_forward=False):
             linked_node = re.sub("|.*", "", linked_node)
 
         # this does away with lots of encoding problems in irregular links, but also encodes unicode characters, so some legibility is lost in the final result unless it is urldecoded.
-        linked_node = urllib.parse.quote_plus(linked_node)
         n0 = urllib.parse.quote_plus(node.wikilink)
-        n1 = linked_node
+        n1 = urllib.parse.quote_plus(linked_node)
         g.add(
             (
                 URIRef(f"{base}/{n0}"),
@@ -50,8 +49,8 @@ def add_node(node: db.Node, g: Graph, only_forward=False):
         return
 
     for backlinking_node in node.back_links():
-        n0 = backlinking_node
-        n1 = node.wikilink
+        n0 = urllib.parse.quote_plus(backlinking_node)
+        n1 = urllib.parse.quote_plus(node.wikilink)
         g.add(
             (
                 URIRef(f"{base}/{n0}"),
@@ -61,8 +60,8 @@ def add_node(node: db.Node, g: Graph, only_forward=False):
         )
 
     for pushing_node in node.pushing_nodes():
-        n0 = node.wikilink
-        n1 = linked_node
+        n0 = urllib.parse.quote_plus(node.wikilink)
+        n1 = urllib.parse.quote_plus(linked_node)
         g.add(
             (
                 URIRef(f"{base}/{n0}"),
@@ -72,8 +71,8 @@ def add_node(node: db.Node, g: Graph, only_forward=False):
         )
 
     for pulling_node in node.pulling_nodes():
-        n0 = pulling_node
-        n1 = node.wikilink
+        n0 = urllib.parse.quote_plus(pulling_node)
+        n1 = urllib.parse.quote_plus(node.wikilink)
         g.add(
             (
                 URIRef(f"{base}/{n0}"),
@@ -87,7 +86,7 @@ def turtle_node(node) -> str:
     base = current_app.config["URL_BASE"]
     g = Graph()
     agora = Namespace("{base}/")
-    g.namespace_manager.bind("agora", agora)
+    g.namespace_manager.bind("a", agora)
 
     add_node(node, g)
     return g.serialize(format="turtle")
@@ -97,7 +96,7 @@ def turtle_nodes(nodes) -> str:
     base = current_app.config["URL_BASE"]
     g = Graph()
     agora = Namespace("{base}/")
-    g.namespace_manager.bind("agora", agora)
+    g.namespace_manager.bind("a", agora)
 
     print(f"turtling agora using forward links only")
     node_count = len(nodes)
@@ -272,7 +271,7 @@ def json_nodes(nodes):
         d["nodes"].append(
             {"id": f"{base}/{node.uri}", "name": node.description, "val": size}
         )
-        nodes_to_render.add(f"{base}/{node.uri}")
+        nodes_to_render.add(urllib.parse.quote_plus(f"{base}/{node.uri}"))
 
     print(f"Have unique nodes, building triples...")
 
