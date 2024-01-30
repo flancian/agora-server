@@ -85,8 +85,8 @@ def add_node(node: db.Node, g: Graph, only_forward=False):
 def turtle_node(node) -> str:
     base = current_app.config["URL_BASE"]
     g = Graph()
-    agora = Namespace("{base}/")
-    g.namespace_manager.bind("a", agora)
+    g.bind("a", f"{base}/")  # Binds the 'a' prefix to your namespace URI
+    # g.namespace_manager.bind("a", agora)
 
     add_node(node, g)
     return g.serialize(format="turtle")
@@ -95,8 +95,7 @@ def turtle_node(node) -> str:
 def turtle_nodes(nodes) -> str:
     base = current_app.config["URL_BASE"]
     g = Graph()
-    agora = Namespace("{base}/")
-    g.namespace_manager.bind("a", agora)
+    g.bind("a", f"{base}/")  # Binds the 'a' prefix to your namespace URI
 
     print(f"turtling agora using forward links only")
     node_count = len(nodes)
@@ -241,8 +240,7 @@ def json_nodes(nodes):
 
     base = current_app.config["URL_BASE"]
     g = Graph()
-    agora = Namespace(f"{base}/")
-    g.namespace_manager.bind("agora", agora)
+    g.namespace_manager.bind("a", agora)
 
     print(f"jsoing agora using forward links only")
     node_count = len(nodes)
