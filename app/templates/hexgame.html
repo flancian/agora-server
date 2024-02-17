@@ -21,12 +21,12 @@ const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 const centerX = canvas.width / 2;
 const centerY = canvas.height / 2;
-const ballRadius = 12; // Radius of each ball
+const ballRadius = 17; // Radius of each ball
 let angle = 0; // Initial rotation angle
 let numLayers = 5; // Total number of layers
 
 // Define an array of seven colors
-const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'];
+const colors = ['#FF0000', '#FF7F00', '#000000', '#00FF00', '#0000FF', '#4B0082', '#9400D3'];
 let ballColors = []; // Array to store the color of each ball
 
 function drawBall(x, y, index) {
@@ -75,7 +75,7 @@ function drawHexagon() {
   ctx.translate(centerX, centerY); // Move to the center of the canvas
   ctx.rotate(angle); // Rotate the entire canvas
 
-  let distance = 2 * ballRadius; // Distance between balls centers
+  let distance = 2 * ballRadius + 1; // Distance between balls centers
   let totalBalls = 1; // Start with 1 for the center ball
 
   // Draw the center ball
@@ -93,9 +93,9 @@ function drawHexagon() {
 
 document.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowLeft') {
-    angle -= Math.PI / 18; // Rotate left
+    angle -= Math.PI / 6; // Rotate left
   } else if (event.key === 'ArrowRight') {
-    angle += Math.PI / 18; // Rotate right
+    angle += Math.PI / 6; // Rotate right
   }
   drawHexagon(); // Redraw the hexagon with the same color assignments
 });
