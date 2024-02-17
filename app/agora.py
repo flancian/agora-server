@@ -789,10 +789,6 @@ def raw(subnode):
     print(s.content)
     return Response(s.content, mimetype=s.mediatype)
 
-@bp.route("/hexgame")
-def hexgame():
-    return render_template("hexgame.html")
-
 
 @bp.route("/backlinks/<node>")
 def backlinks(node):
