@@ -11,8 +11,6 @@
 
     <div class="separator"> <span>This you find in the {{config['AGORA_FLAIR']}} <strong>{{config['AGORA_NAME_SHORT']}}</strong><!-- for <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a></span>--> </span> </div>
 
-{% include "genai.html" %}
-
 {% include "stoa.html" %}
 
 {% if subnode %}
@@ -31,6 +29,8 @@
     </center>
     <br />
 </div>
+
+{% include "genai.html" %}
 
 {% include "search.html" %}
 
