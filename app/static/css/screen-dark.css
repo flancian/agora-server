@@ -74,7 +74,8 @@ button {
 }
 
 ul {
-    list-style-position: inside;
+    /* list-style-position: inside; */
+    /* this ^ is a nice idea but it screws up too much rendering, e.g. [[2024-02-25]], so skipping it for now. */
     line-height: 1.7em;
     padding-right: 0.34em;
     padding-left: 2em;
