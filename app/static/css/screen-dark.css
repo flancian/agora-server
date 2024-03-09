@@ -322,6 +322,11 @@ h6 {
     font-size: calc(var(--base-fontsize) / var(--header-scale) / var(--header-scale));
 }
 
+li > p {
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
 .content blockquote {
     padding-left: 0.5em;
     margin-left: 1em;
