@@ -20,7 +20,7 @@
     <summary>...this you <strong>find</strong> in the <strong>{{config['AGORA_NAME']}}</strong></summary>
 -->
 
-<div class="separator"> <span>This you find in the <strong>{{config['AGORA_NAME_SHORT']}}</strong><!-- for <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a></span>--> {{config['AGORA_FLAIR']}} </span> </div>
+<div class="separator"> <span>️{{config['AGORA_FLAIR']}} This you find in the <strong>{{config['AGORA_NAME']}}:</strong><!-- for <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a></span>--> </span> </div>
 
 
 {% if readmes %}
@@ -34,8 +34,8 @@
     {% endfor %}
 {% endif %}
 
-<details class="node autopulled">
-    <summary><strong>📕 Node [[<a href="/index">index</a>]]</strong></summary>
+<details class="node">
+    <summary class="autopull"><strong>📕 Node [[<a href="/index">index</a>]]</strong></summary>
         <div class="node-embed" id="index"></div>
 </details>
 

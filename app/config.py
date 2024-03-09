@@ -32,19 +32,22 @@ class DefaultConfig(object):
         # we will catch missing settings anyway and use defaults below.
         AGORA_CONFIG = {}
 
-    # ranking
+    # [[ranking]] happens here.
     # up to 2023: system account goes first, then people who write *about the Agora* in their gardens, in order of joining.
     # note: I didn't like being first among the humans, I still did it because my subnodes were often of the summary/tldr kind whenever they overlapped with others.
     # ideally I'd like to relinquish control of all ranking functions to [[flancia collective]] and [[agora discuss]].
-    # RANK = ['agora', 'flancian', 'vera', 'neil', 'maya', 'j0lms']
+    # update (2024): back to having an actual notion of ranking; PRs more than accepted, welcomed :D
+    RANK = ['agora', 'flancian', 'vera', 'neil', 'maya', 'j0lms', 'bouncepaw']
 
     # Uprank the system user only (again).
     # I think this is simpler and makes more sense as a default for arbitrary agoras, so let's try it again.
-    RANK = ["agora"]
+    # RANK = ["agora"]
+    # Update (2024): I think https://anagora.org is more readable when we uprank the above users. The list is, thankfully, ever growing!
 
     # deprecated/check if unused
-    AGORA_VERSION = "0.99"
+    AGORA_VERSION = "0.999"
 
+    # This is a lot of boilerplate, could be refactored? :)
     try:
         AGORA_NAME = AGORA_CONFIG["agora_name"]
     except (KeyError, TypeError):
