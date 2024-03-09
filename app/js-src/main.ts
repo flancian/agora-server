@@ -421,6 +421,15 @@ document.addEventListener("DOMContentLoaded", function () {
     //   this.click()
     // });
  
+    if (autoPull) {
+      console.log('auto pulling recommended (local, friendly-looking domains) resources!');
+      // auto pull everything with class auto-pull by default.
+      // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
+      $(".auto-pull-button").each(function (e) {
+        console.log('auto pulling URLs, trying to press button' + this)
+        this.click()
+      });
+    }
     });
   // end async content code.
 

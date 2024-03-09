@@ -229,7 +229,7 @@ def add_url_pull(content, subnode):
 
     # URL_REGEX= r'http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*'
     URL_EMBED = (
-        '\\1 <button class="pull-url auto-pull-button" value="\\1">pull</button>'
+        '\\1 <button class="pull-url autopull" value="\\1">pull</button>'
     )
 
     if re.search(r"(a href|=> http|\[\[http)", content):
