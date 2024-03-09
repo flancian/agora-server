@@ -2,14 +2,14 @@
 
 {% block content %}
 
-<div class="separator"><span>This you find around the 🌐 <strong>Internet</strong><!-- for <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a>--> </span></div>
+<div class="separator"><span>🌐 This you find around the beautiful <strong>Internet</strong>:<!-- for <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a>--> </span></div>
 
     {% include "web.html" %}
 
     {% include "wp.html" %}
 
 
-    <div class="separator"> <span>This you find in the {{config['AGORA_FLAIR']}} <strong>{{config['AGORA_NAME_SHORT']}}</strong><!-- for <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a></span>--> </span> </div>
+    <div class="separator"> <span>{{config['AGORA_FLAIR']}} This you find in the <strong>{{config['AGORA_NAME']}}:</strong><!-- for <span class="node-name"><a href="/{{node}}">[[{{node.qstr}}]]</a></span>--> </span> </div>
 
 {% if subnode %}
 <div id="async-content" src="{{subnode}}">
@@ -23,15 +23,15 @@
             <img src="/static/img/agora.png" class="logo"></img>
         </div>
         </p>
-        <p><em>Loading Agora location...</em></p>
+        <p><em>Loading Agora node...</em></p>
     </center>
     <br />
 </div>
 
-{% include "genai.html" %}
 
 {% include "stoa.html" %}
 
+{% include "genai.html" %}
 
 {% include "search.html" %}
 
