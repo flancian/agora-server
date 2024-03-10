@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var toggle = document.querySelector("#theme-toggle");
   const currentTheme = localStorage.getItem("theme");
   console.log("DomContentLoaded");
-  console.log("Settings are: " + autoPull + " " + autoPullExtra);
+  console.log("Autopull settings are: " + autoPull + ", " + autoPullExtra);
   // If the user's preference in localStorage is dark...
   if (currentTheme == "dark") {
     theme.href = "/static/css/screen-dark.css";
@@ -261,7 +261,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // give some time to Wikipedia to search before trying to pull it (if it's considered relevant here).
-    setTimeout(autoPull, 1000)
+    setTimeout(autoPullAsync, 1000)
 
     // bind stoas early.
     var details = document.querySelectorAll("details.url");
@@ -294,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   }
 
-  async function autoPull() {
+  async function autoPullAsync() {
     // autopull if the local node is empty.
     // if ($(".not-found").length > 0) {
     console.log('auto pulling resources');
@@ -369,7 +369,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     let qstr = genAIEmbed.id;
                     console.log("GenAI embed found, here we would pull.");
                     response = await fetch(AGORAURL + '/api/complete/' + qstr);
-                    console.log("Writing into " + genAIEmbed.outerHTML);
                     genAIEmbed.innerHTML = await response.text();
                 }
             } else {
