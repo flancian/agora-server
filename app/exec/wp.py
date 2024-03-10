@@ -43,7 +43,7 @@ def wp(node):
     #     summary_class = "noautopull"
     summary_class = "noautopull"
 
-    if inferred_node != node: 
+    if inferred_node.lower() != node.lower(): 
         leading = f"leading to Agora node [[<a href='/{inferred_node}'>{title}</a>]]"
     else:
         leading = ""

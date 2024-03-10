@@ -25,33 +25,35 @@
 
 {% if readmes %}
     {% for subnode in readmes %}
-        <details class="subnode" data-author={{user}} open>
+        <details class="node" data-author={{user}} open>
             <summary>
                 🏡 <strong>README</strong> by <a href="/@{{user}}">@{{user}}</a>
             </summary>
+            <div class="subnode">
             {{ subnode.render()|linkify|safe }}
+            </div>
         </details>
     {% endfor %}
 {% endif %}
 
 <details class="node">
-    <summary><strong>📚 All nodes in this Agora</strong></summary>
+    <summary><strong>📚 All nodes</strong> in this Agora</summary>
         <div class="node-embed" id="nodes"></div>
 </details>
 
 <details class="node">
-    <summary><strong>🫂 All users in this Agora</strong></summary>
+    <summary><strong>🫂 All users</strong> in this Agora</summary>
         <div class="node-embed" id="users"></div>
 </details>
 
 <details class="node">
-    <summary class="autopull"><strong>See also 📕 Node [[<a href="/index">Index</a>]]</strong> in this Agora</summary>
+    <summary class="autopull"><strong>📕 Node </strong>[[<a href="/index">Index</a>]] in this Agora</summary>
         <div class="node-embed" id="index"></div>
 </details>
 
 <details class="node">
-    <summary class="autopull"><strong>See also 📕 Node [[<a href="/agora">Agora</a>]]</strong> in this Agora</summary>
-        <div class="node-embed" id="index"></div>
+    <summary class="autopull"><strong>📕 Node </strong>[[<a href="/agora">Agora</a>]] in this Agora</summary>
+        <div class="node-embed" id="agora"></div>
 </details>
 
 {% include "footer.html" %}
