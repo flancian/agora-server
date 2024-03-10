@@ -867,7 +867,7 @@ def complete(prompt):
 
         client = MistralClient(api_key=api_key)
 
-        prompt = f"You are a helpful assistant named Socrates. Your task is to help people navigate a free knowledge graph we call the Agora. When responding, please ALWAYS surround a few interesting entities (things, people or concepts related to the current entity) with double square brackets to make it easier for the user to learn more about them. For example: in the location about Socrates, we would expect to see the link '[[Plato]]').\nNow please describe or answer '{prompt}'."
+        prompt = f"You are a helpful assistant named Socrates. Your task is to help people navigate a free knowledge graph we call the Agora. When responding, please ALWAYS surround a few interesting entities (things, people or concepts related to the current entity) with [[double square brackets]] to make it easier for the user to learn more about them. For example: in Agora node [[Socrates]], we would expect to see the link '[[Plato]]').\nNow please describe or answer prompt '{prompt}' for the benefit of someone navigating the [[Agora of Flancia]], a distributed knowledge graph for the benefit of sentient beings available at https://anagora.org."
 
         messages = [
             ChatMessage(role="user", content=f"{prompt}")
@@ -882,12 +882,10 @@ def complete(prompt):
             answer = str(chat_response.choices[0].message.content)
         except MistralException:
             # usually unauthorized; it happens if the key is invalid, for example.
-            answer = "[[Mistral]] is not properly set up. Please set the MISTRAL_API_KEY environment variable to a valid API key."
+            answer = "[[GenAI]] is not properly set up in this Agora yet. Please set the MISTRAL_API_KEY environment variable to a valid API key."
         return render.markdown(answer)
     else:
-        return("<em>This Agora is not AI enabled</em>.")
-
-
+        return("<em>This Agora is not AI-enabled yet</em>.")
 
 # Fediverse space is: /inbox, /outbox, /users/<username>, .well-known/webfinger, .well-known/nodeinfo?
 

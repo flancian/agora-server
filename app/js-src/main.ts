@@ -285,31 +285,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // same for GenAI if we have it enabled.
-    var genai = document.querySelectorAll("details.genai");
-    genai.forEach((item) => {
-        item.addEventListener("toggle", async (event) => {
-            if (item.open) {
-                console.log("Details for GenAI have been shown");
-                embed = item.querySelector(".pulled-genai-embed");
-                if (embed) {
-                    let qstr = embed.id;
-                    console.log("Embed found, here we would pull.");
-                    response = await fetch(AGORAURL + '/api/complete/' + qstr);
-                    embed.innerHTML = await response.text();
-                }
-            } else {
-                console.log("Details for GenAI have been hidden");
-                embed = item.querySelector(".pulled-genai-embed");
-                if (embed) {
-                    console.log("Embed found, here we would fold.");
-                    embed.innerHTML = '';
-                }
-            }
-        });
-
-    });
-
     if (content != null) {
         // block on node loading (expensive if the task is freshly up)
         response = await fetch(AGORAURL + '/node/' + node);
@@ -338,18 +313,18 @@ document.addEventListener("DOMContentLoaded", function () {
         item.addEventListener("toggle", (event) => {
             if (item.open) {
                 console.log("Details have been shown");
-                embed = item.querySelector(".node-embed");
-                if (embed) {
-                    let node = embed.id;
-                    console.log("Embed found, here we would pull.");
-                    embed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>';
+                nodeEmbed = item.querySelector(".node-embed");
+                if (nodeEmbed) {
+                    let node = nodeEmbed.id;
+                    console.log("Node embed found, here we would pull.");
+                    nodeEmbed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>';
                 }
             } else {
                 console.log("Details have been hidden");
-                embed = item.querySelector(".node-embed");
-                if (embed) {
-                    console.log("Embed found, here we would fold.");
-                    embed.innerHTML = '';
+                nodeEmbed = item.querySelector(".node-embed");
+                if (nodeEmbed) {
+                    console.log("Node embed found, here we would fold.");
+                    nodeEmbed.innerHTML = '';
                 }
             }
         });
@@ -360,28 +335,56 @@ document.addEventListener("DOMContentLoaded", function () {
         item.addEventListener("toggle", async (event) => {
             if (item.open) {
                 console.log("Details have been shown");
-                embed = item.querySelector(".pulled-search-embed");
-                if (embed) {
-                    let qstr = embed.id;
-                    console.log("Embed found, here we would pull.");
+                searchEmbed = item.querySelector(".pulled-search-embed");
+                if (searchEmbed) {
+                    let qstr = searchEmbed.id;
+                    console.log("Search embed found, here we would pull.");
                     /*
                     $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
                         $("#pulled-search.pulled-search-embed").html(data);
                     });
                     */
                     response = await fetch(AGORAURL + '/fullsearch/' + qstr);
-                    embed.innerHTML = await response.text();
+                    searchEmbed.innerHTML = await response.text();
                 }
             } else {
                 console.log("Details have been hidden");
-                embed = item.querySelector(".pulled-search-embed");
-                if (embed) {
-                    console.log("Embed found, here we would fold.");
-                    embed.innerHTML = '';
+                searchEmbed = item.querySelector(".pulled-search-embed");
+                if (searchEmbed) {
+                    console.log("Search embed found, here we would fold.");
+                    searchEmbed.innerHTML = '';
                 }
             }
         });
     });
+
+    // same for GenAI if we have it enabled.
+    var genai = document.querySelectorAll("details.genai");
+    genai.forEach((item) => {
+        item.addEventListener("toggle", async (event) => {
+            if (item.open) {
+                console.log("Details for GenAI have been shown");
+                genAIEmbed = item.querySelector(".pulled-genai-embed");
+                if (genAIEmbed) {
+                    let qstr = genAIEmbed.id;
+                    console.log("GenAI embed found, here we would pull.");
+                    response = await fetch(AGORAURL + '/api/complete/' + qstr);
+                    console.log("Writing into " + genAIEmbed.outerHTML);
+                    genAIEmbed.innerHTML = await response.text();
+                }
+            } else {
+                console.log("Details for GenAI have been hidden");
+                genAIEmbed = item.querySelector(".pulled-genai-embed");
+                if (genAIEmbed) {
+                    console.log("GenAI embed found, here we would fold.");
+                    genAIEmbed.innerHTML = '';
+                }
+            }
+        });
+
+    });
+
+
 
     // end zippies.
 
@@ -624,27 +627,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   // end bindEvents();
   
-  // pull full text search 
-  $(".pull-search").click(function (e) {
-    if (autoPullSearch) {
-      console.log('pulling full text search');
-      if (this.classList.contains('pulled')) {
-        $("#pulled-search.pulled-search-embed").html('');
-        this.innerText = 'pull';
-        this.classList.remove('pulled');
-      }
-      else {
-        this.innerText = 'pulling';
-        let qstr = this.value;
-        $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
-          $("#pulled-search.pulled-search-embed").html(data);
-        });
-        this.classList.add('pulled');
-        this.innerText = 'fold';
-      }
-    }
-  });
-
   if (showBrackets) {
     elements = document.getElementsByClassName("wikilink-marker");
     console.log("should show brackets");
@@ -652,7 +634,6 @@ document.addEventListener("DOMContentLoaded", function () {
       elements[i].style.display = 'inline';
     }
   }
-
 
   // go to the specified URL
   $(".go-url").click(function (e) {
@@ -792,65 +773,6 @@ document.addEventListener("DOMContentLoaded", function () {
       this.click();
     });
   }
-
-// hedgedoc steals focus on being transcluded and that just doesn't work well.
-/*
-  function autoPullStoaOnEmpty() {
-    console.log('trying to auto pull stoa if empty');
-    // if we're doing this, 'uprank' the Stoa by pushing it above of the actual empty node (below Wikipedia, setting up a lightweight note taking activity.)
-    if ($(".not-found").length > 0) {
-      let stoa = $(".stoa")
-      stoa.remove()
-      stoa.insertBefore($(".node"))
-      $("#pull-stoa").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          this.innerText = 'autopulling in empty node...';
-        }
-      });
-
-      // hack hack
-      // this is copy/pasted from the first bind, as for some reason we need to re-bind after insert/remove.
-      $("#pull-stoa").click(function (e) {
-        console.log('clicked stoa button')
-        if (this.classList.contains('pulled')) {
-          // already pulled.
-          this.innerText = 'pull';
-          $(e.currentTarget).nextAll('iframe').remove()
-          $("#stoa-iframe").html('');
-          this.classList.remove('pulled');
-        }
-        else {
-          this.innerText = 'pulling';
-          let node = this.value;
-          $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit" width="100%" height="500"></iframe>');
-          this.innerText = 'fold';
-          this.classList.add('pulled');
-        }
-      });
-    // also copy paste the second pull, yolo :)
-    $("#pull-stoa2").click(function (e) {
-        console.log('clicked stoa2 button')
-        if (this.classList.contains('pulled')) {
-        // already pulled.
-        this.innerText = 'pull';
-        $(e.currentTarget).nextAll('iframe').remove()
-        $("#stoa2-iframe").html('');
-        this.classList.remove('pulled');
-        }
-        else {
-        this.innerText = 'pulling';
-        let node = this.value;
-        $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit" width="100%" height="500"></iframe>');
-        this.innerText = 'fold';
-        this.classList.add('pulled');
-        }
-    });
-
-
-      setTimeout(autoPullStoa2, 2000);
-    }
-  }
-*/
 
   function autoPullWp() {
     $(".pull-exec.wp").each(function (e) {
