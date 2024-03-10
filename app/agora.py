@@ -14,38 +14,27 @@
 
 import collections
 import datetime
-from distutils.command.config import config
 import json
 import os
 import re
 import time
+import urllib.parse
+from copy import copy
+from distutils.command.config import config
 from urllib.parse import parse_qs
-from .storage import api
 
 import jsons
-import urllib.parse
-from flask import (
-    Blueprint,
-    Response,
-    current_app,
-    jsonify,
-    make_response,
-    redirect,
-    render_template,
-    request,
-    url_for,
-    g,
-    send_file,
-)
-from flask_cors import CORS
-from markupsafe import escape
-from copy import copy
-
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
+from flask import (Blueprint, Response, current_app, g, jsonify, make_response,
+                   redirect, render_template, request, send_file, url_for)
+from flask_cors import CORS
+from markupsafe import escape
+from mistralai.client import MistralClient, MistralException
+from mistralai.models.chat_completion import ChatMessage
 
-from .storage import feed, graph
-from . import providers, util, forms, render
+from . import forms, providers, render, util
+from .storage import api, feed, graph
 
 bp = Blueprint("agora", __name__)
 CORS(bp)
@@ -860,14 +849,30 @@ def callback():
 def complete(prompt):
     if current_app.config["ENABLE_AI"]:
         api_key = current_app.config["MISTRAL_API_KEY"]
-        from mistralai.client import MistralClient, MistralException
-        from mistralai.models.chat_completion import ChatMessage
-
         model = "mistral-small"
 
         client = MistralClient(api_key=api_key)
 
-        prompt = f"You are a helpful assistant named Socrates. Your task is to help people navigate a free knowledge graph we call the Agora. When responding, please ALWAYS surround a few interesting entities (things, people or concepts related to the current entity) with [[double square brackets]] to make it easier for the user to learn more about them. For example: in Agora node [[Socrates]], we would expect to see the link '[[Plato]]').\nNow please describe or answer prompt '{prompt}' for the benefit of someone navigating the [[Agora of Flancia]], a distributed knowledge graph for the benefit of sentient beings available at https://anagora.org."
+        prompt = f"""
+        You are a helpful assistant named Socrates whose task is to help people navigate a 
+        [[Knowledge Commons]] we call the Agora. 
+        
+        Unless the user overrides it, you can assume to be operating within the [[Agora of 
+        Flancia]], a free [[distributed knowledge graph]] provisioned for the benefit of 
+        sentient beings available for free at https://anagora.org.  
+        
+        When responding, please ALWAYS surround a few interesting entities (things, people 
+        or concepts) with [[double square brackets]] to link to them and thus make it easier
+        for the user to learn more about them. 
+
+        For example: in Agora node [[Socrates]], we would expect to see the link [[Plato]] 
+        in double square brackets somewhere in the response. 
+        
+        Remember to ALWAYS include a few interesting wikilinks using the double square 
+        brackets convention indicated above,.
+
+        Now please answer or analyze prompt '{prompt}' provided by an Agora user who is 
+        visiting the matching location."""
 
         messages = [
             ChatMessage(role="user", content=f"{prompt}")

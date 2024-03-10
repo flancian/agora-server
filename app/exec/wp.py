@@ -43,17 +43,24 @@ def wp(node):
     #     summary_class = "noautopull"
     summary_class = "noautopull"
 
+    if inferred_node != node: 
+        leading = f"leading to Agora node [[<a href='/{inferred_node}'>{title}</a>]]"
+    else:
+        leading = ""
+
     return Response(
         f"""
         <!-- adding stoa gets this the right css for the 'done' state as of the time of writing -->
         <details class='exec wiki-search stoa'>
-        <summary class="{summary_class}"><span><strong title="We love Wikipedia! Here is the top known article for this location.">📖 Wikipedia article</strong> <a href='{url}'>{title}</a></span></summary>
+        <summary class="{summary_class}"><span>
+        <strong title="We love Wikipedia! Here is the top known article for this location.">
+        📖 Wikipedia article</strong> '<a href='{url}'>{title}</a>'</span>
+        {leading} </summary> 
 
         <!-- find a better way to present this data which is only useful for some users. -->
         <!-- 
         &nbsp &nbsp ↳ Wikidata <a href='{wikidata_url}'>{wikibase_item}</a>
         <button class='pull-exec wd' value='{wikidata_url}'>pull</button><br />
-        &nbsp &nbsp ↳ Agora <a href='/{inferred_node}'>[[{title}]]</a>
         <button class='pull-exec ag' value='/{inferred_node}'>pull</button>-->
         <!--{result}-->
 
