@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
   $("#mini-cli-exec").click(() => {
     console.log("exec mini-cli")
     let val = $("#mini-cli").val()
-    // "Easter egg": "double" click.
+    // "Easter egg": "double" click == go.
     if (val == NODENAME) {
         $("#mini-cli").val('go/' + val)
     }

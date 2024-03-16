@@ -438,7 +438,7 @@ input[type="text"] {
     margin-right: 10px;
 }
 
-#mini-cli-clear {
+#mini-cli-clear, #mini-cli-go {
     margin-left: 4px;
 }
 
