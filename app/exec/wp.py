@@ -41,12 +41,15 @@ def wp(node):
     #     summary_class = "autopull"
     # else:
     #     summary_class = "noautopull"
+
     summary_class = "noautopull"
 
     if inferred_node.lower() != node.lower(): 
         leading = f"⟶ see also <span class='wikilink-marker'>[[</span><a href='/{inferred_node}'>{title}</a><span class='wikilink-marker'>]]</span>"
     else:
+        # Exact match, skip leading and just autopull wikipedia ;)
         leading = ""
+        summary_class = "autopull"
 
     return Response(
         f"""
