@@ -161,6 +161,11 @@ def add_mastodon_pull(content, subnode):
         # as per the above.
         return content
 
+    if subnode and 'agora' not in subnode.url:
+        # HACK:
+        # These pulls break inline posts (fully dumped by opted-in users) as of 2024-03-16, so skip pulls for those for now.
+        return content
+
     # hack: negative lookbehind tries to only match for anchors not preceded by a span... just because in the agora we have
     # spans just preceding every anchor that is a wikilink.
     if re.search(r"(?<!</span>)<a href", content):
