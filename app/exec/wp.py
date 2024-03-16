@@ -44,7 +44,7 @@ def wp(node):
     summary_class = "noautopull"
 
     if inferred_node.lower() != node.lower(): 
-        leading = f"⟶ see also [[<a href='/{inferred_node}'>{title}</a>]]"
+        leading = f"⟶ see also <span class='wikilink-marker'>[[</span><a href='/{inferred_node}'>{title}</a><span class='wikilink-marker'>]]</span>"
     else:
         leading = ""
 
