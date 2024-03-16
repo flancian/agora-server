@@ -44,7 +44,7 @@ def wp(node):
     summary_class = "noautopull"
 
     if inferred_node.lower() != node.lower(): 
-        leading = f"leading to Agora node [[<a href='/{inferred_node}'>{title}</a>]]"
+        leading = f"⟶ see also [[<a href='/{inferred_node}'>{title}</a>]]"
     else:
         leading = ""
 
@@ -54,7 +54,7 @@ def wp(node):
         <details class='exec wiki-search stoa'>
         <summary class="{summary_class}"><span>
         <strong title="We love Wikipedia! Here is the top known article for this location.">
-        📖 Wikipedia article</strong> '<a href='{url}'>{title}</a>'</span>
+        📖 Wikipedia article</strong> <em><a href='{url}'>{title}</a></em></span>
         {leading} </summary> 
 
         <!-- find a better way to present this data which is only useful for some users. -->

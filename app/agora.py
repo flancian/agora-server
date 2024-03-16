@@ -849,6 +849,8 @@ def callback():
 def complete(prompt):
     if current_app.config["ENABLE_AI"]:
         api_key = current_app.config["MISTRAL_API_KEY"]
+
+         # anything above small is too slow in practice IMHO, as of 2024-03-16.
         model = "mistral-small"
 
         client = MistralClient(api_key=api_key)
