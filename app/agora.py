@@ -53,7 +53,9 @@ def before_request():
     # If URI_BASE or URL_BASE are empty, try running this as a "wildcard Agora".
     if not current_app.config.get("URL_BASE") or not current_app.config.get("URI_BASE"):
         current_app.config["URI_BASE"] = request.headers["Host"]
-        current_app.config["URL_BASE"] = 'https://' + current_app.config["URI_BASE"]
+        # Try to keep using the same protocol we're using.
+        prefix = 'https://' if 'https' in request.base_url else 'http://'
+        current_app.config["URL_BASE"] = prefix + current_app.config["URI_BASE"]
 
 
 @bp.after_request
