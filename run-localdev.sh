@@ -13,5 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+MISTRAL_KEY=$(cat ~/flancia/secret/api/mistral.txt)
 ./run-dev.sh Local
 
