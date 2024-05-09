@@ -54,7 +54,9 @@ def before_request():
     if not current_app.config.get("URL_BASE") or not current_app.config.get("URI_BASE"):
         current_app.config["URI_BASE"] = request.headers["Host"]
         # Try to keep using the same protocol we're using.
-        prefix = 'https://' if 'https' in request.base_url else 'http://'
+        # Update: disabled as this doesn't really work / it seems to breaks agoras over https?
+        # prefix = 'https://' if 'https' in request.base_url else 'http://'
+        prefix = 'https://' # if 'https' in request.base_url else 'http://'
         current_app.config["URL_BASE"] = prefix + current_app.config["URI_BASE"]
 
 
