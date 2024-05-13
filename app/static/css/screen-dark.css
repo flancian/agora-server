@@ -828,7 +828,10 @@ details > summary {
 ul .wikilink-marker {
     display: inline;
 }
- 
+
+.wiki-search .wikilink-marker {
+    display: inline;
+}
 
 .wikilink:link {
     /* different color for wikilinks */
