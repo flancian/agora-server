@@ -331,6 +331,12 @@ def add_obsidian_embeds(content, subnode):
     # <script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
+def add_silverbullet_embeds(content, subnode):
+    SILVERBULLET_REGEX = re.compile(r"!\[\]\( *(.+?) *\)")
+    SILVERBULLET_EMBED = f'<a href="/raw/garden/{subnode.user}/\\1"><img class="image-embed" src="/raw/garden/{subnode.user}/\\1"></img><p class="obsidian-embed"></a>⥅ [[\\1]]</p>'
+    # also include something like this to move to a lazily loaded div?
+    # <script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
+    return re.sub(SILVERBULLET_REGEX, SILVERBULLET_EMBED, content)
 
 def add_logseq_embeds(content, subnode):
     LOGSEQ_REGEX = re.compile(r"(\./assets/.*)")
@@ -358,6 +364,7 @@ def preprocess(content, subnode=""):
         trim_margin_notes,
         add_obsidian_embeds,
         add_logseq_embeds,
+        add_silverbullet_embeds,
         add_url_pull,
         add_twitter_pull,
         add_mastodon_pull,
