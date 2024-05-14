@@ -107,7 +107,7 @@ hr {
     height: 1px;
     /* trying this out -- fadeout effect for hr which mostly comes from user-contributed content.
     /* background-image: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.00), rgba(0, 0, 0, 0.0)); */
-    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.20), rgba(0, 0, 0, 0.0));
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.20), rgba(0, 0, 0, 0.1));
     /* background-image: linear-gradient(to right, rgba(0, 0, 0, 0.40), rgba(0, 0, 0, 0.0), rgba(0, 0, 0, 0.40)); */
 }
 
@@ -466,16 +466,17 @@ summary {
 .separator {
     /*border-color: #7f5af0;*/
     /*border-style: dotted;*/
-    display: flex;
+    /*
     align-items: center;
     text-align: center;
+    */
     margin-top: 15px;
     margin-bottom: 15px;
     /*border-radius: 20px;*/
     font-family: 'Montserrat', sans-serif;
 }
 
-.separator::before,
+/*
 .separator::after {
   content: '';
   flex: 1;
@@ -489,6 +490,7 @@ summary {
 .separator:not(:empty)::after {
   margin-left: 1em;
 }
+*/
 
 .node, .web, .stoa, .search, .genai {
     /*border-color: #7f5af0;*/

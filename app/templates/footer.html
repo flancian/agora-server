@@ -2,16 +2,9 @@
 <!-- contains potentially useful 'development' easter egg :) -->
 
 <div id='footer'>
-<div class="separator">
-    <span>
-    {% if range(0, 2) | random %}
-    ☮️ May you be <strong>happy</strong>! 
-    {% else %}
-    ☸️ May you be <strong>free</strong> from suffering!
-    {% endif %}
-    </span>
 
-</div>
+    <hr />
+
     <center>
     <!-- Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong> in <strong><a style="all: unset;"href="http://localhost:5017/{{node.qstr}}">__EXECTIME__s</a></strong>.
     -->
@@ -22,6 +15,21 @@
     | <a href="{{config['ROOT']}}">Agora Root</a> 
     | <a href="{{config['SOURCE']}}">Source</a> 
    </center>
+
+    <!--
+    <center>
+    <span>
+    <em>
+    {% if range(0, 2) | random %}
+    May you be happy! 
+    {% else %}
+    May you be free!
+    {% endif %}
+    </em>
+    </span>
+    </center>
+    -->
+
 </div>
 
 
