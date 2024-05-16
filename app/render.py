@@ -228,7 +228,7 @@ def add_url_pull(content, subnode):
     # if you don't understand this *or* think you could do it better at no great cost please reach out to [[flancian]] :)
     # URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|anagora|doc|pad|flancia)\S+[^\s.,:;])'
     URL_REGEX = (
-        "((?<!\()https?:\/\/[^\s/]*(wiki|agora|stoa|doc|pad|flancia)\S+[^\s.,:;])"
+        "((?<!\()https?:\/\/[^\s/]*(wiki|agora|stoa|flancia)\S+[^\s.,:;])"
     )
     # URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|anagora|doc|pad|flancia)\S+[^\s.,:;])'
 
@@ -236,6 +236,7 @@ def add_url_pull(content, subnode):
     URL_EMBED = (
         '\\1 <button class="pull-url autopull" value="\\1">pull</button>'
     )
+
 
     if re.search(r"(a href|=> http|\[\[http)", content):
         # don't apply filters when content has html links or rocket links to URLs, as we risk adding a button inside an anchor
