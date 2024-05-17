@@ -11,9 +11,9 @@
 -->
 
 <!-- yolo :) -->
-<center>
-    <p><em>You search for '{{node.qstr}}' in the <strong>{{config['AGORA_NAME']}}</strong></em>.</p>
-</center>
+<div class="intro">
+    <em>You search for '{{node.qstr}}' in the <strong>{{config['AGORA_NAME']}}</strong>. You find this.</em>
+</div>
 
 
     {% include "web.html" %}
@@ -44,9 +44,9 @@
     <br />
 </div>
 
-{% include "stoa.html" %}
-
 {% include "genai.html" %}
+
+{% include "stoa.html" %}
 
 {% include "search.html" %}
 

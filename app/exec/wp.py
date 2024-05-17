@@ -45,7 +45,7 @@ def wp(node):
     summary_class = "noautopull"
 
     if inferred_node.lower() != node.lower(): 
-        leading = f"⟶ see node <span class='wikilink-marker'>[[</span><a href='/{inferred_node}'>{title}</a><span class='wikilink-marker'>]]</span>"
+        leading = f"from node <span class='wikilink-marker'>[[</span><a href='/{inferred_node}'>{title}</a><span class='wikilink-marker'>]]</span>"
     else:
         # Exact match, skip leading.
         leading = ""
@@ -58,7 +58,7 @@ def wp(node):
         <details class='exec wiki-search stoa'>
         <summary class="{summary_class}"><span>
         <strong title="We love Wikipedia! Here is the top known article for this location.">
-        📖 Wikipedia article</strong> <a href='{url}'>{title}</a></span>
+        📖 Wikipedia article</strong> <em><a href='{url}'>{title}</em></a></span>
         {leading} </summary> 
 
         <!-- find a better way to present this data which is only useful for some users. -->

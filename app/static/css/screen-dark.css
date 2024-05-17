@@ -582,6 +582,36 @@ summary {
     /*border-radius: 20px;*/
 }
 
+.help, .intro {
+    line-height: var(--line-height);
+    margin-top: 10px;
+    text-align: left;
+    background: #00112b;
+    color: #cfcfcf;
+    padding: 7px;
+}
+
+
+
+.help::before {
+  content: '︎❓';
+  width: 1em;
+  flex-shrink: 0;
+  transition: 0.3s;
+}
+
+.intro {
+    line-height: var(--line-height);
+    margin-top: 10px;
+}
+
+.intro::before {
+  content: '➼';
+  width: 1em;
+  flex-shrink: 0;
+  transition: 0.3s;
+}
+
 .pulled-subnode, .pushed-subnode, .stoa-public {
     background: #101010;
     color: #cfcfcf;
@@ -825,6 +855,10 @@ details > summary {
     font-weight: lighter;
     color: grey;
     display: none;
+}
+
+summary .wikilink-marker {
+    display: inline;
 }
 
 ul .wikilink-marker {

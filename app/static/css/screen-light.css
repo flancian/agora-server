@@ -38,6 +38,14 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
     color: #000;
 }
 
+.help, .intro {
+    /*background: #e6ffff; */
+    background: #f2f2ff;
+    color: #000;
+}
+
+
+
 .pulled-subnode, .pushed-subnode, .stoa-public, .annotations, .delta, .delta-nodes, .delta-annotations, .microblog_timeline { 
     background: #f8f8f8; 
     color: #000; 

@@ -19,14 +19,16 @@
 
         {% if subnode %}
             <summary class="node-header main-header">
-                <span style="flex: auto; flex-grow: 1;"><strong>📕 Node</strong> <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span> <br /> 
+                <span style="flex: auto; flex-grow: 1;">
+                    <strong>📕 Node</strong> <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span> <br /> 
                     ↳ 📓 Resource <a href="/{{node.qstr}}">{{node.qstr}}</a></span>
                 
            </summary>
         {% else %}
             <summary class="node-header main-header">
                 <!-- <div class="inline-flex"> -->
-                    <span style="flex: auto; flex-grow: 1;" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in."><strong>📕 Node</strong> <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
+                    <span style="flex: auto; flex-grow: 1;" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">
+                        <strong>📕 Node</strong> <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
                     <span class="node-actions">
                        <button id="pull-all" value="pull-all" title="Tries to pull (transclude) all links below that are thought to be embeddable, i.e. press any pull buttons that the Agora makes available.">pull all</button>
                        <!--					   <button id="fold-all" value="fold-all" title="Folds (collapses) embeds below">fold</button> -->
@@ -41,9 +43,19 @@
             </span> 
             -->
         {% endif %} 
+    
+        <!-- yolo -- dedup with stoa.html when time is available :) -->
+        <div class="help">
+
+            <em>An Agora node is made up of individual contributions whose title or topic matches the current location.</em>
+    
+        </div>
+
 
         {% for subnode in node.subnodes %}
+
             <details class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}" open>
+
                 <summary class="subnode-header" title="A subnode is a resource contributed by a user of this Agora that is believed to be relevant here.">
                     <span class="subnode-id">
                         <span class="subnode-links">
@@ -101,7 +113,8 @@
 
 <details class="node" id="{{node.uri}}" open>
 
-    <summary class="node-header main-header"><span style="flex: auto; flex-grow: 1;" title="A Node is an Agora location. It contains resources contributed by users having to do with a location according to the Agora you're using."><strong>📕 Node</strong> <span class="wikilink-marker">[[</span><a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span></span></summary>
+    <summary class="node-header main-header"><span style="flex: auto; flex-grow: 1;" title="A Node is an Agora location. It contains resources contributed by users having to do with a location according to the Agora you're using.">
+        <strong>📕 Node</strong> <span class="wikilink-marker">[[</span><a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span></span></summary>
 
 {% include "empty.html" %}
 
