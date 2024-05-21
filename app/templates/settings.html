@@ -60,6 +60,7 @@ const form = `
 		Do you want to use recursive pulls within the Agora (advanced)? <input id="pull-recursive" type="checkbox" checked />
 	</div>
 	<button onClick=saveSettings()>Save</button>
+	<button onClick=clearSettings()>Clear local storage</button>
 </div>
 
 	<div>
@@ -107,6 +108,12 @@ function saveSettings(){
 		localStorage["render-wikilinks"] = document.getElementById("render-wikilinks").checked
 		localStorage["pull-recursive"] = document.getElementById("pull-recursive").checked
 }
+
+function clearSettings(){
+        console.log("trying to clear site settings...")
+		localStorage.clear();
+}
+
 </script>
 
 
