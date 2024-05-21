@@ -355,7 +355,6 @@ summary {
 }
 
 
-
 .navigation::-webkit-scrollbar {
     display: none;
 }
@@ -611,12 +610,22 @@ summary {
     background: #00112b;
     color: #cfcfcf;
     padding: 7px;
+    position: relative;
+}
+
+.dismiss-button {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: blue;
 }
 
 
 
 .help::before {
-  content: '︎❓';
+  /* content: '︎❓'; */
+  content: '︎ℹ️';
   width: 1em;
   flex-shrink: 0;
   transition: 0.3s;

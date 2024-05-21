@@ -290,6 +290,7 @@ document.addEventListener("DOMContentLoaded", function () {
         response = await fetch(AGORAURL + '/node/' + node);
         content.innerHTML = await response.text();
     }
+
     setTimeout(bindEvents, 10)
 
   }
