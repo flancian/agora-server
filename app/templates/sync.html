@@ -12,7 +12,9 @@
 
 <!-- yolo :) -->
 <div class="intro">
-    <em>You search for '{{node.qstr}}' in the <strong>{{config['AGORA_NAME']}}</strong>.</em>
+    <em>You search for '{{node.qstr}}' in the <strong>{{config['AGORA_NAME']}}</strong>. You find this...</em>
+    <!-- <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." id="dismiss-intro" info-box-id="intro" class="dismiss-button">x</span>
+    -->
 </div>
 
 
@@ -44,9 +46,9 @@
     <br />
 </div>
 
-{% include "genai.html" %}
-
 {% include "stoa.html" %}
+
+{% include "genai.html" %}
 
 {% include "search.html" %}
 

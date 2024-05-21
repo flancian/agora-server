@@ -64,7 +64,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-
   // clear mini cli on clicking clear button
   $("#mini-cli-clear").click(() => {
     console.log("clearing mini-cli")
@@ -242,6 +241,7 @@ document.addEventListener("DOMContentLoaded", function () {
     self.innerText = 'pulled';
   }
 
+  
   // start async content code.
   setTimeout(loadAsyncContent, 10)
 
@@ -307,6 +307,34 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function bindEvents() {
+
+  // Check local storage to see if the info boxes should be hidden
+    const dismissButtons = document.querySelectorAll(".dismiss-button");
+    dismissButtons.forEach(button => {
+        const infoBoxId = button.getAttribute("info-box-id");
+        const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
+        // Add click event to the dismiss button
+
+        if (localStorage.getItem(`dismissed-${infoBoxId}`) === "true") {
+            infoBox.classList.add("hidden");
+            infoBox.style.display = "none";
+        }
+
+        button.addEventListener("click", function() {
+            const parentDiv = button.parentElement;
+            parentDiv.classList.add("hidden");
+            localStorage.setItem(`dismissed-${infoBoxId}`, "true");
+
+            // Optionally, you can completely remove the element from the DOM after the transition
+            parentDiv.addEventListener("transitionend", function() {
+              parentDiv.style.display = "none";
+            }, { once: true });
+
+        });
+    });
+    // end infobox dismiss code.
+
+
     // this works and has already replaced most pull buttons for Agora sections.
     // this is for 'zippies' that require pulling (e.g. pulled nodes).
     var details = document.querySelectorAll("details.node");

@@ -603,7 +603,7 @@ summary {
     /*border-radius: 20px;*/
 }
 
-.help, .intro {
+.info-box, .intro {
     line-height: var(--line-height);
     margin-top: 10px;
     text-align: left;
@@ -611,6 +611,9 @@ summary {
     color: #cfcfcf;
     padding: 7px;
     position: relative;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    opacity: 1;
+    visibility: visible;
 }
 
 .dismiss-button {
@@ -621,14 +624,17 @@ summary {
     color: blue;
 }
 
-
-
-.help::before {
+.info-box::before {
   /* content: '︎❓'; */
   content: '︎ℹ️';
   width: 1em;
   flex-shrink: 0;
   transition: 0.3s;
+}
+
+.info-box.hidden {
+    opacity: 0;
+    visibility: hidden;
 }
 
 .intro {
