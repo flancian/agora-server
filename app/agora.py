@@ -384,7 +384,7 @@ def annotations():
 def random():
     today = datetime.date.today()
     random = api.random_node()
-    return redirect(f"/{random.description}")
+    return redirect(f"/{urllib.parse.quote_plus(random.description)}")
 
 
 @bp.route("/now")
