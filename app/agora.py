@@ -860,7 +860,7 @@ def complete(prompt):
         client = MistralClient(api_key=api_key)
 
         prompt = f"""
-        You are a helpful assistant named Socrates whose task is to help people navigate a 
+        You are a helpful assistant whose task is to help people navigate a 
         [[Knowledge Commons]] we call the Agora. 
         
         Unless the user overrides it, you can assume to be operating within the [[Agora of 
@@ -877,8 +877,8 @@ def complete(prompt):
         Remember to ALWAYS include a few interesting wikilinks using the double square 
         brackets convention indicated above,.
 
-        Now please answer or analyze prompt '{prompt}' provided by an Agora user who is 
-        visiting the matching location."""
+        Now please answer or expand on prompt '{prompt}' provided by an Agora user who is 
+        visiting the matching node in the Agora."""
 
         messages = [
             ChatMessage(role="user", content=f"{prompt}")
@@ -891,9 +891,9 @@ def complete(prompt):
                 messages=messages,
             )
             answer = str(chat_response.choices[0].message.content)
-        except MistralException:
+        except MistralException as e:
             # usually unauthorized; it happens if the key is invalid, for example.
-            answer = "[[GenAI]] is not properly set up in this Agora yet. Please set the MISTRAL_API_KEY environment variable to a valid API key."
+            answer = f"[[GenAI]] is not properly set up in this Agora yet. Please set the MISTRAL_API_KEY environment variable to a valid API key. \n\n {e}"
         return render.markdown(answer)
     else:
         return("<em>This Agora is not AI-enabled yet</em>.")
