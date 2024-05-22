@@ -291,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-    // bind stoas early.
+    // bind stoas, search and genai early.
     var details = document.querySelectorAll("details.url");
     details.forEach((item) => {
         item.addEventListener("toggle", async (event) => {
@@ -308,80 +308,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (embed) {
                     console.log("Embed found, here we would fold.");
                     embed.innerHTML = '';
-                }
-            }
-        });
-    });
-
-    if (content != null) {
-        // block on node loading (expensive if the task is freshly up)
-        response = await fetch(AGORAURL + '/node/' + node);
-        content.innerHTML = await response.text();
-    }
-
-    setTimeout(bindEvents, 10)
-
-  }
-
-  async function autoPullAsync() {
-    // autopull if the local node is empty.
-    // if ($(".not-found").length > 0) {
-    console.log('auto pulling resources');
-    var details = document.querySelectorAll(".autopull");
-    details.forEach((item) => {
-        item.click();
-    });
-    // }
-  }
-
-  async function bindEvents() {
-
-  // Check local storage to see if the info boxes should be hidden
-  const dismissButtons = document.querySelectorAll(".dismiss-button");
-  dismissButtons.forEach(button => {
-      const infoBoxId = button.getAttribute("info-box-id");
-      const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
-      // Add click event to the dismiss button
-
-      if (localStorage.getItem(`dismissed-${infoBoxId}`) === "true") {
-          infoBox.classList.add("hidden");
-          infoBox.style.display = "none";
-      }
-
-      button.addEventListener("click", function() {
-          const parentDiv = button.parentElement;
-          parentDiv.classList.add("hidden");
-          localStorage.setItem(`dismissed-${infoBoxId}`, "true");
-
-          // Optionally, you can completely remove the element from the DOM after the transition
-          parentDiv.addEventListener("transitionend", function() {
-            parentDiv.style.display = "none";
-          }, { once: true });
-
-      });
-  });
-  // end infobox dismiss code.
-
-
-    // this works and has already replaced most pull buttons for Agora sections.
-    // this is for 'zippies' that require pulling (e.g. pulled nodes).
-    var details = document.querySelectorAll("details.node");
-    details.forEach((item) => {
-        item.addEventListener("toggle", (event) => {
-            if (item.open) {
-                console.log("Details have been shown");
-                nodeEmbed = item.querySelector(".node-embed");
-                if (nodeEmbed) {
-                    let node = nodeEmbed.id;
-                    console.log("Node embed found, here we would pull.");
-                    nodeEmbed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>';
-                }
-            } else {
-                console.log("Details have been hidden");
-                nodeEmbed = item.querySelector(".node-embed");
-                if (nodeEmbed) {
-                    console.log("Node embed found, here we would fold.");
-                    nodeEmbed.innerHTML = '';
                 }
             }
         });
@@ -440,6 +366,81 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 
+
+
+
+    if (content != null) {
+        // block on node loading (expensive if the task is freshly up)
+        response = await fetch(AGORAURL + '/node/' + node);
+        content.innerHTML = await response.text();
+    }
+
+    setTimeout(bindEvents, 10)
+
+  }
+
+  async function autoPullAsync() {
+    // autopull if the local node is empty.
+    // if ($(".not-found").length > 0) {
+    console.log('auto pulling resources');
+    var details = document.querySelectorAll(".autopull");
+    details.forEach((item) => {
+        item.click();
+    });
+    // }
+  }
+
+  async function bindEvents() {
+
+  // Check local storage to see if the info boxes should be hidden
+  const dismissButtons = document.querySelectorAll(".dismiss-button");
+  dismissButtons.forEach(button => {
+      const infoBoxId = button.getAttribute("info-box-id");
+      const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
+      // Add click event to the dismiss button
+
+      if (localStorage.getItem(`dismissed-${infoBoxId}`) === "true") {
+          infoBox.classList.add("hidden");
+          infoBox.style.display = "none";
+      }
+
+      button.addEventListener("click", function() {
+          const parentDiv = button.parentElement;
+          parentDiv.classList.add("hidden");
+          localStorage.setItem(`dismissed-${infoBoxId}`, "true");
+
+          // Optionally, you can completely remove the element from the DOM after the transition
+          parentDiv.addEventListener("transitionend", function() {
+            parentDiv.style.display = "none";
+          }, { once: true });
+
+      });
+    });
+    // end infobox dismiss code.
+
+    // this works and has already replaced most pull buttons for Agora sections.
+    // this is for 'zippies' that require pulling (e.g. pulled nodes).
+    var details = document.querySelectorAll("details.node");
+    details.forEach((item) => {
+        item.addEventListener("toggle", (event) => {
+            if (item.open) {
+                console.log("Details have been shown");
+                nodeEmbed = item.querySelector(".node-embed");
+                if (nodeEmbed) {
+                    let node = nodeEmbed.id;
+                    console.log("Node embed found, here we would pull.");
+                    nodeEmbed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>';
+                }
+            } else {
+                console.log("Details have been hidden");
+                nodeEmbed = item.querySelector(".node-embed");
+                if (nodeEmbed) {
+                    console.log("Node embed found, here we would fold.");
+                    nodeEmbed.innerHTML = '';
+                }
+            }
+        });
+    });
 
 
     // end zippies.
