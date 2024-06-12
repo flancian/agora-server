@@ -40,10 +40,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // If the user's preference in localStorage is dark...
   if (currentTheme == "dark") {
     theme.href = "/static/css/screen-dark.css";
-    toggle.innerHTML = '🌞 Theme';
+    toggle.innerHTML = '🌞';
   } else if (currentTheme == "light") {
     theme.href = "/static/css/screen-light.css";
-    theme.innerHTML = '🌙 Theme';
+    theme.innerHTML = '🌙';
   }
 
   // Listen for a click on the button
@@ -56,11 +56,11 @@ document.addEventListener("DOMContentLoaded", function () {
       theme.href = "/static/css/screen-dark.css";
       // this doesn't work and I don't know why, but it also doesn't seem like a priority :)
       localStorage.setItem("theme", "dark");
-      toggle.innerHTML = '🌞 Theme';
+      toggle.innerHTML = '🌞';
     } else {
       theme.href = "/static/css/screen-light.css";
       localStorage.setItem("theme", "light");
-      toggle.innerHTML = '🌙 Theme';
+      toggle.innerHTML = '🌙';
     }
   });
 
