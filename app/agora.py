@@ -188,7 +188,7 @@ def journals_feed():
 
 @bp.route("/feed/latest")
 def latest_feed():
-    subnodes = api.latest()[:100]
+    subnodes = api.latest(1000)
     subnodes.reverse()
     return Response(feed.latest_rss(subnodes), mimetype="application/rss+xml")
 
@@ -364,7 +364,7 @@ def index():
 def latest():
     n = api.build_node("latest")
     return render_template(
-        "delta.html", header="Recent deltas", subnodes=api.latest(max=200), node=n
+        "recent.html", header="Recent deltas", subnodes=api.latest(max=1000), node=n
     )
 
 

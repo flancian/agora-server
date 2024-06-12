@@ -27,7 +27,7 @@
         <tbody>
             {% for subnode in subnodes %}
             <tr>
-            <td><a href="/{{subnode.wikilink}}">{{subnode.wikilink}}</a></td>
+            <td><a href="/{{subnode.canonical_wikilink}}">{{subnode.canonical_wikilink}}</a></td>
             <td><a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.uri}}</a></td> 
             <td><a href="/@{{subnode.user}}">{{subnode.user}}</a></td>
             </tr>
