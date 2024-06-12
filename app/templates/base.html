@@ -37,7 +37,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached209" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached210" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -83,14 +83,14 @@
             <a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px" title="An Agora is a Free Knowledge Commons."></a>
             <a href="/" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a> <strong>⟶</strong>
             <!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
-            <span>📚</span><span><a href="/nodes" style="text-decoration: none;">All Nodes</a></span>
-          | <span>🎲️</span><span><a href="/random" style="text-decoration: none;">Random</a></span>
-          | <span>🌀</span><span><a href="/latest" style="text-decoration: none;">Latest</a></span>
-          | <span>📅</span><span><a href="/journals" style="text-decoration: none;">Journals</a></span>
-          | <span>🫂</span><span><a title="Commoners" href="/users" style="text-decoration: none;">Users</a></span>
-          | <span>✍</span><span><a href="/annotations" style="text-decoration: none;">Comments</a></span>
-          | <span>🙏</span><span><a href="/agora-help" style="text-decoration: none;" class="help-button">Help</a></span>
-          | <span><strong>⚙</strong></span><span><a href="/settings" style="text-decoration: none;">Settings</a></span>
+            <a href="/nodes" class="navlink" style="text-decoration: none;"><span>📚</span><span>All Nodes</span></a>
+          | <a href="/random" style="text-decoration: none;"><span>🎲️</span><span>Random</span></a>
+          | <a href="/latest" style="text-decoration: none;"><span>🌀</span><span>Latest</span></a>
+          | <a href="/journals" style="text-decoration: none;"><span>📅</span><span>Journals</span></a>
+          | <a title="Commoners" href="/users" style="text-decoration: none;"><span>🫂</span><span>Users</span></a>
+          | <a href="/annotations" style="text-decoration: none;"><span>✍</span><span>Comments</span></a>
+          | <a href="/agora-help" style="text-decoration: none;" class="help-button"><span>🙏</span><span>Help</span></a>
+          | <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
           | <a href="#" style="text-decoration: none;"><span id='theme-toggle'>🌙</span><span></span></a>
         </div>
 

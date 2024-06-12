@@ -53,6 +53,19 @@ a {
     color: #9fc6e0;
 }
 
+/* The following two are for making two-spans-in-an-anchor work in the navbar */
+
+.navigation > a {
+  display: flex;
+  justify-content: space-between;
+}
+
+.navigation > a > span {
+    flex-grow: 1;
+    flex-shrink: 0;
+    padding: 5px; /* to give some space inside the span */
+}
+
 nav {
     font-family: sans-serif;
     max-width: 100%;
