@@ -24,7 +24,7 @@
     {% for subnode in readmes %}
         <details class="subnode" data-author={{user}} open>
             <summary>
-                🏡 <strong>README</strong> by <a href="/@{{user}}">@{{user}}</a>
+                🏡 <strong>README</strong> by <a class="user" href="/@{{user}}">@{{user}}</a>
             </summary>
             {{ subnode.render()|linkify|safe }}
         </details>
@@ -60,7 +60,7 @@
     </div>
 
     <div class="subnodes">
-        <h1>All nodes by @{{user}}</h1>
+        <h1>All nodes by <span class="user">@{{user}}</span></h1>
         {% if not subnodes %}
         No subnodes found for the given term or path.
         <br /><br />

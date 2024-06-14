@@ -552,7 +552,8 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
         this.innerText = 'pulling';
         let tweet = this.value;
-        $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
+        // $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
+        $(e.currentTarget).after('<blockquote class="twitter-tweet" data-theme="dark"><a href="' + tweet + '"> </blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
         this.classList.add('pulled');
         this.innerText = 'fold';
     }

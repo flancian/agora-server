@@ -526,6 +526,10 @@ summary {
 }
 */
 
+.user {
+    font-weight: bold;
+}
+
 .node, .web, .stoa, .search, .genai {
     /*border-color: #7f5af0;*/
     border-color: gray;

@@ -61,7 +61,7 @@
                     <span class="subnode-id">
                         <span class="subnode-links">
                             <a href="@{{subnode.user}}/{{node.uri}}"" title="subnode {{subnode.basename}}"><!--📓-->📄</a>
-                            <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a>
+                            <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> by <a class="user" href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a>
                         </span>
                     </span>
 
@@ -94,7 +94,7 @@
                     <span class="footer-id">
                         <!--
                         <span class="footer-links">
-                            <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> by <a href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a>
+                            <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> by <a class="user" href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a>
                         </span>
                         -->
                         ⸎  ({{subnode.type}}) last updated <strong>{{subnode.datetime.astimezone()}}</strong>
@@ -151,6 +151,7 @@
     </center>
 
 </details>
+
 
 </details> <!-- closes node div-->
 
