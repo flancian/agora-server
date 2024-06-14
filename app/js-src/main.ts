@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     req = domain + '/api/v1/statuses/' + post
-    console.log('req: ' + req)
+    console.log('req for statusContent: ' + req)
     $.get(req, function (data) {
       console.log('status: ' + data['url'])
       let actual_url = data['url']
@@ -755,13 +755,18 @@ document.addEventListener("DOMContentLoaded", function () {
       // end auto pull pushed subnodes.
     });
 
-    console.log('executing node: ' + NODENAME)
-    req = AGORAURL + '/exec/wp/' + encodeURI(NODENAME)
-    console.log('req: ' + req)
-    $.get(req, function (data) {
-      // console.log('html: ' + data)
-      embed = $(".wiki-search").html(data);
+    console.log('dynamic execution for node begins: ' + NODENAME)
 
+    // Begin Wikipedia code -- this is hacky/could be refactored (but then again, that applies to most of the Agora! :)
+    req_wikipedia = AGORAURL + '/exec/wp/' + encodeURI(NODENAME)
+    console.log('req for Wikipedia: ' + req_wikipedia)
+
+    // Maybe ditch jquery and consolidate on the new way of doing requests?
+    $.get(req_wikipedia, function (data) {
+      // console.log('html: ' + data)
+      embed_wikipedia = $(".wiki-search").html(data);
+
+      /*
       // figure out how to do this without code repetition -- ask [[vera]]?
       // also, could we scope this search to stuff inside embed? unsure if that points to the DOM, it didn't seem to work.
       $(".pull-exec").click(function (e) {
@@ -777,7 +782,7 @@ document.addEventListener("DOMContentLoaded", function () {
           // pull.
           this.innerText = 'pulling';
           let url = this.value;
-          console.log('pull exec: ' + url)
+          console.log('pull exec for wikipedia: ' + url)
           $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>')
           this.innerText = 'fold';
           this.classList.add('pulled');
@@ -785,13 +790,49 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
+
       $(".go-exec").click(function (e) {
         // this doesn't work because of same-origin restrictions I think -- contentWindow/contentDocument are always undefined.
         console.log("in go-exec!")
         window.location.href = $('#exec-wp').contentWindow.location.href
       });
+      */
 
     });
+
+    // Once more for Wiktionary, yolo :)
+    req_wiktionary = AGORAURL + '/exec/wt/' + encodeURI(NODENAME)
+    console.log('req for Wiktionary: ' + req_wiktionary)
+
+    $.get(req_wiktionary, function (data) {
+      // console.log('html: ' + data)
+      embed_wiktionary = $(".wiktionary-search").html(data);
+
+      /*
+      $(".pull-exec").click(function (e) {
+        console.log("in pull-exec for wiktionary!")
+        if (this.classList.contains('pulled')) {
+          // already pulled.
+          this.innerText = 'pull';
+          $(e.currentTarget).nextAll('iframe').remove()
+          this.classList.remove('pulled');
+          $(".node-hint").show();
+        }
+        else {
+          // pull.
+          this.innerText = 'pulling';
+          let url = this.value;
+          console.log('pull exec for wiktionary: ' + url)
+          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>')
+          this.innerText = 'fold';
+          this.classList.add('pulled');
+          $(".node-hint").hide();
+        }
+      });
+      */
+
+    });
+
 
   }
  
