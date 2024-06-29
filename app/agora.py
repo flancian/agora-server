@@ -20,7 +20,6 @@ import re
 import time
 import urllib.parse
 from copy import copy
-from distutils.command.config import config
 from urllib.parse import parse_qs
 
 import jsons

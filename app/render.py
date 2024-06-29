@@ -23,9 +23,9 @@ import shutil
 import smartypants
 import subprocess
 from . import config, regexes, util
+from flask import current_app
 from marko import Markdown, inline
 from marko.helpers import MarkoExtension
-from orgorapython import parse_string
 
 # we add and then remove this from detected Tiddlylinks to opt out from default Marko rendering.
 # pretty dirty but it works (tm) and prevents an excursion deeper into Marko.
@@ -112,8 +112,11 @@ Wikilinks = MarkoExtension(
 markdown = Markdown(extensions=["footnote", "gfm"])
 markdown.use(Wikilinks)
 
-# Org-mode, now much improved through orgora.
-orgmode = parse_string
+# This doesn't work here as we're out of app context -- I should probably move render to be a class? Hmm.
+# if current_app.config["ENABLE_ORGORA"]:
+#     # Org-mode, now much improved through orgora.
+#     from orgorapython import parse_string
+#     orgmode = parse_string
 
 
 # Mycomarkup

@@ -834,8 +834,11 @@ class Subnode:
                         f"Subnode {self.uri} could not be rendered even after retrying read (Heisenbug)."
                     )
         if self.uri.endswith("org") or self.uri.endswith("ORG"):
-            content = render.preprocess(self.content, subnode=self)
-            content = render.orgmode(content)
+            if current_app.config["ENABLE_ORGORA"]:
+                # YOLO :)
+                from orgorapython import parse_string as orgmode
+                content = render.preprocess(self.content, subnode=self)
+                content = orgmode(content)
         # note we might parse [[mycorrhiza]] as Markdown if the [[mycomarkup]] binary is not found.
         if self.uri.endswith("myco") or self.uri.endswith("MYCO"):
             content = render.preprocess(self.content, subnode=self)
