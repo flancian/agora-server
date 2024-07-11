@@ -15,11 +15,11 @@ class DefaultConfig(object):
     # I wonder how much of this should be in [[agora.yaml]] instead :)
 
     # This configures the main search/exec/go/visit/find button :)
-    AGORA_VERB = 'search'
+    AGORA_VERB = "search"
 
-    AGORA_NAME_SHORT = 'Agora'
+    AGORA_NAME_SHORT = "Agora"
 
-    AGORA_FLAIR = '🏛️'
+    AGORA_FLAIR = "🏛️"
 
     AGORA_PATH = os.getenv(
         "AGORA_PATH", os.path.join("/home", getpass.getuser(), "agora")
@@ -37,7 +37,7 @@ class DefaultConfig(object):
     # note: I didn't like being first among the humans, I still did it because my subnodes were often of the summary/tldr kind whenever they overlapped with others.
     # ideally I'd like to relinquish control of all ranking functions to [[flancia collective]] and [[agora discuss]].
     # update (2024): back to having an actual notion of ranking; PRs more than accepted, welcomed :D
-    RANK = ['agora', 'flancian', 'vera', 'neil', 'maya', 'j0lms', 'bouncepaw']
+    RANK = ["agora", "flancian", "vera", "neil", "maya", "j0lms", "bouncepaw"]
 
     # Uprank the system user only (again).
     # I think this is simpler and makes more sense as a default for arbitrary agoras, so let's try it again.
@@ -82,13 +82,12 @@ class DefaultConfig(object):
     try:
         SOURCE = AGORA_CONFIG["server"]
     except (KeyError, TypeError):
-        SOURCE = 'https://github.com/flancian/agora-server'
+        SOURCE = "https://github.com/flancian/agora-server"
 
     try:
         ROOT = AGORA_CONFIG["root"]
     except (KeyError, TypeError):
-        ROOT = 'https://github.com/flancian/agora'
-
+        ROOT = "https://github.com/flancian/agora"
 
     # change this to whatever your domain is going to be -- without protocol.
     # this is what gets rendered in the header.
@@ -119,7 +118,6 @@ class DefaultConfig(object):
 
 
 class ProductionConfig(DefaultConfig):
-
     # EXPERIMENTS
     ENABLE_CTZN = False
     ENABLE_STATS = True
@@ -134,7 +132,7 @@ class ProductionConfig(DefaultConfig):
     # EXPERIMENTS WHICH REQUIRE FURTHER SETUP / MAY BE EXPENSIVE.
     ENABLE_AI = False
 
-    # EXPERIMENTS 
+    # EXPERIMENTS
     # we need to remove as CTZN is no longer a thing? or use to implement something similar in-place?
     ENABLE_CTZN = False
     ENABLE_STATS = True
@@ -150,8 +148,7 @@ class ProductionConfig(DefaultConfig):
 
 
 class AlphaConfig(DefaultConfig):
-
-    # EXPERIMENTS 
+    # EXPERIMENTS
     # we need to remove as CTZN is no longer a thing? or use to implement something similar in-place?
     ENABLE_CTZN = False
     ENABLE_STATS = True
@@ -190,7 +187,7 @@ class DevelopmentConfig(DefaultConfig):
 
 class LocalDevelopmentConfig(DefaultConfig):
     # Empty is better if you e.g. want to access this on localhost:5017 but also on the IP that the dev machine has in the LAN.
-    URL_BASE = ""
+    URL_BASE = "http://localhost:5017"
     URI_BASE = "localhost:5017"
     API_BASE = "http://localhost:3000"
 
@@ -208,5 +205,3 @@ class LocalDevelopmentConfig(DefaultConfig):
 
     # Set MISTRAL_API_KEY env variable when enabling :)
     ENABLE_AI = True
-
-

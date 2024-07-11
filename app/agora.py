@@ -25,8 +25,19 @@ from urllib.parse import parse_qs
 import jsons
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
-from flask import (Blueprint, Response, current_app, g, jsonify, make_response,
-                   redirect, render_template, request, send_file, url_for)
+from flask import (
+    Blueprint,
+    Response,
+    current_app,
+    g,
+    jsonify,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    url_for,
+)
 from flask_cors import CORS
 from markupsafe import escape
 from mistralai.client import MistralClient, MistralException
@@ -40,6 +51,7 @@ CORS(bp)
 
 # Global graph. We want this here as we have what amounts to a per-process cache.
 G = api.Graph()
+
 
 # For footer / timing information.
 # Adapted from https://stackoverflow.com/questions/12273889/calculate-execution-time-for-every-page-in-pythons-flask
@@ -55,7 +67,7 @@ def before_request():
         # Try to keep using the same protocol we're using.
         # Update: disabled as this doesn't really work / it seems to breaks agoras over https?
         # prefix = 'https://' if 'https' in request.base_url else 'http://'
-        prefix = 'https://' # if 'https' in request.base_url else 'http://'
+        prefix = "https://"  # if 'https' in request.base_url else 'http://'
         current_app.config["URL_BASE"] = prefix + current_app.config["URI_BASE"]
 
 
@@ -85,12 +97,12 @@ def after_request(response):
 
 # In the [[agora]] there are no 404s. Everything that can be described with words has a node in the [[agora]].
 
+
 # The [[agora]] is in some ways thus a [[search engine]]: anagora.org/agora-search
 #
 # Flask routes work so that the one closest to the function is the canonical one.
 @bp.route("/<node>")
 def root(node, user_list=""):
-
     # Builds a node with the bare minimum/stub metadata, should be quick.
     current_app.logger.debug(f"[[{node}]]: Assembling light node.")
 
@@ -126,6 +138,7 @@ def root(node, user_list=""):
         # annotations_enabled=True,
     )
 
+
 # Flask routes work so that the one closest to the function is the canonical one.
 @bp.route("/wikilink/<node>")
 @bp.route("/node/<node>/uprank/<user_list>")
@@ -145,6 +158,7 @@ def node(node, user_list=""):
         # annotations_enabled=True,
     )
 
+
 @bp.route("/node/<node0>/<node1>")
 @bp.route("/<node0>/<node1>")
 def node2(node0, node1):
@@ -157,6 +171,7 @@ def node2(node0, node1):
         config=current_app.config,
         # annotations_enabled=True,
     )
+
 
 @bp.route("/feed/<node>")
 def node_feed(node):
@@ -313,12 +328,12 @@ def subnode_export(node, user):
 def index():
     qstr = request.args.get("q")
     if qstr:
-        # This is a search. 
+        # This is a search.
         # We need to serve the node inline, without redirecting.
         # Unfortunately this is needed to make Chrome trigger opensearch and let users
         # add the Agora as a search engine.
         # No, this doesn't make sense.
-        if re.match('^[a-z]+/', qstr):
+        if re.match("^[a-z]+/", qstr):
             # special case go links for now -- this is terrible, yes :)
             return redirect(url_for(".root", node=qstr))
 
@@ -341,7 +356,7 @@ def index():
         )
 
     # GET / without query string -> serve the index.
-    user = 'agora'
+    user = "agora"
     n = api.build_node(user)
     n.qstr = ""
     return render_template(
@@ -352,7 +367,6 @@ def index():
         latest=api.subnodes_by_user(user, sort_by="mtime", reverse=True)[:100],
         node=n,
     )
-
 
     # return redirect(url_for(".root", node="index"))
 
@@ -503,7 +517,6 @@ def go(node0, node1=""):
 
 @bp.route("/push/<node>/<other>")
 def push2(node, other):
-
     current_app.logger.info(f">>> push2 arg: {other}.")
     # returns by default an html view for the 'pushing here' section / what is being received in associated feeds
     n = api.build_node(node)
@@ -515,6 +528,7 @@ def push2(node, other):
         embed=True,
         node=n,
     )
+
 
 @bp.route("/push/<node>")
 def push(node):
@@ -544,7 +558,7 @@ def context(node):
 @bp.route("/context/all")
 def context_all():
     # Returns by default a full Agora graph, by default embedded in /nodes.
-    n = api.build_node('context/all')
+    n = api.build_node("context/all")
     n.qstr = "context/all"
     return render_template(
         "agoragraph.html",
@@ -605,7 +619,7 @@ def search():
     qstr = request.args.get("q")
     tokens = qstr.split(" ")
 
-    if '/' in qstr:
+    if "/" in qstr:
         # subnodes (of the form @user/node) currently (as of 2023-12-10) break if they are quote_plussed.
         # By break, I mean: URLs get their @ and / encoded, and that breaks pushes and other things.
         # also e.g. go/x breaks when / is encoded as %252.
@@ -709,7 +723,9 @@ def similar_json(term):
 @bp.route("/users")
 def users():
     n = api.build_node("users")
-    return render_template("users.html", users=api.all_users(), node=n, stats=api.stats())
+    return render_template(
+        "users.html", users=api.all_users(), node=n, stats=api.stats()
+    )
 
 
 @bp.route("/users.json")
@@ -818,6 +834,7 @@ def count_votes(subnode):
 # Here we go wild ;)
 # (Here or wherever an Agora announces using .well-known or WebFinger some such...)
 
+
 @bp.route("/api/proposal/<user>/<node>")
 def proposal(user, node):
     n = G.node(node)
@@ -853,7 +870,7 @@ def complete(prompt):
     if current_app.config["ENABLE_AI"]:
         api_key = current_app.config["MISTRAL_API_KEY"]
 
-         # anything above small is too slow in practice IMHO, as of 2024-03-16.
+        # anything above small is too slow in practice IMHO, as of 2024-03-16.
         model = "mistral-small"
 
         client = MistralClient(api_key=api_key)
@@ -879,9 +896,7 @@ def complete(prompt):
         Now please answer or expand on prompt '{prompt}' provided by an Agora user who is 
         visiting the matching node in the Agora."""
 
-        messages = [
-            ChatMessage(role="user", content=f"{prompt}")
-        ]
+        messages = [ChatMessage(role="user", content=f"{prompt}")]
 
         # No streaming
         try:
@@ -895,99 +910,116 @@ def complete(prompt):
             answer = f"[[GenAI]] is not properly set up in this Agora yet. Please set the MISTRAL_API_KEY environment variable to a valid API key. \n\n {e}"
         return render.markdown(answer)
     else:
-        return("<em>This Agora is not AI-enabled yet</em>.")
+        return "<em>This Agora is not AI-enabled yet</em>."
+
 
 # Fediverse space is: /inbox, /outbox, /users/<username>, .well-known/webfinger, .well-known/nodeinfo?
 
-def ap_key_setup():
-	if hasattr(g, 'private_key') and hasattr(g, 'public_key'):
-		return
-	if not os.path.isfile('public.pem') or not os.path.isfile('private.pem'):
-		g.private_key = RSA.generate(2048)
-		g.public_key = g.private_key.public_key()
-		with open('private.pem', 'wb') as fp:
-			fp.write(g.private_key.export_key('PEM'))
-		with open('public.pem', 'wb') as fp:
-			fp.write(g.public_key.export_key('PEM'))
-	else:
-		with open('private.pem', 'rb') as fp:
-			g.private_key = RSA.import_key(fp.read())
-		with open('public.pem', 'rb') as fp:
-			g.public_key = RSA.import_key(fp.read())
 
-@bp.route("/inbox", methods=['POST'])
+def ap_key_setup():
+    if hasattr(g, "private_key") and hasattr(g, "public_key"):
+        return
+    if not os.path.isfile("public.pem") or not os.path.isfile("private.pem"):
+        g.private_key = RSA.generate(2048)
+        g.public_key = g.private_key.public_key()
+        with open("private.pem", "wb") as fp:
+            fp.write(g.private_key.export_key("PEM"))
+        with open("public.pem", "wb") as fp:
+            fp.write(g.public_key.export_key("PEM"))
+    else:
+        with open("private.pem", "rb") as fp:
+            g.private_key = RSA.import_key(fp.read())
+        with open("public.pem", "rb") as fp:
+            g.public_key = RSA.import_key(fp.read())
+
+
+@bp.route("/inbox", methods=["POST"])
 def inbox():
     """Reserved."""
     pass
+
 
 @bp.route("/outbox")
 def outbox():
     """Reserved."""
     pass
 
+
 @bp.route("/users/<username>")
 def ap_user(username):
     """TODO: implement."""
 
     ap_key_setup()
-    URI_BASE = current_app.config['URI_BASE']
+    URI_BASE = current_app.config["URI_BASE"]
 
-    r = make_response({
-        '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            'https://w3id.org/security/v1',
-        ],
-        'id': 'https://' + URI_BASE + f'/users/@{username}',
-        'inbox': 'https://' + URI_BASE + '/inbox',
-        'outbox': 'https://' + URI_BASE + '/outbox',
-        'name': f'@{username}@{URI_BASE}',
-        'preferredUsername': '{username}',
-        'url': 'https://' + URI_BASE + f'/@{username}',
-        'discoverable': True,
-        'type': 'Person',
-        'summary': 'A user in the Agora of Flancia.',
-        'publicKey': {
-            'id': 'https://' + URI_BASE + f'/users/{username}' + '#main-key',
-            'owner': 'https://' + URI_BASE + f'/users/{username}',
-			'publicKeyPem': g.public_key.exportKey(format='PEM').decode('ascii'),
+    r = make_response(
+        {
+            "@context": [
+                "https://www.w3.org/ns/activitystreams",
+                "https://w3id.org/security/v1",
+            ],
+            "id": "https://" + URI_BASE + f"/users/@{username}",
+            "inbox": "https://" + URI_BASE + "/inbox",
+            "outbox": "https://" + URI_BASE + "/outbox",
+            "name": f"@{username}@{URI_BASE}",
+            "preferredUsername": "{username}",
+            "url": "https://" + URI_BASE + f"/@{username}",
+            "discoverable": True,
+            "type": "Person",
+            "summary": "A user in the Agora of Flancia.",
+            "publicKey": {
+                "id": "https://" + URI_BASE + f"/users/{username}" + "#main-key",
+                "owner": "https://" + URI_BASE + f"/users/{username}",
+                "publicKeyPem": g.public_key.exportKey(format="PEM").decode("ascii"),
+            },
         }
-    })
+    )
 
-    r.headers['Content-Type'] = 'application/activity+json'
+    r.headers["Content-Type"] = "application/activity+json"
     return r
+
 
 @bp.route("/.well-known/webfinger")
 def webfinger():
-    resource = request.args.get('resource')
+    resource = request.args.get("resource")
 
     users = api.all_users()
 
     links = []
 
-    URI_BASE = current_app.config['URI_BASE']
+    URI_BASE = current_app.config["URI_BASE"]
 
     for user in users:
-            links.append({'rel': 'self',
-             'href': 'https://' + URI_BASE + '/users/' + f'{user}',
-             'type': 'application/activity+json',
-             'titles': {'und': f'@{user}@{URI_BASE}'},
-             })
-            links.append({'rel': 'http://webfinger.net/rel/profile-page',
-             'href': 'https://' + URI_BASE + '/@' + f'{user}',
-             'type': 'application/activity+json',
-             'titles': {'und': f'@{user}@{URI_BASE}'},
-             })
+        links.append(
+            {
+                "rel": "self",
+                "href": "https://" + URI_BASE + "/users/" + f"{user}",
+                "type": "application/activity+json",
+                "titles": {"und": f"@{user}@{URI_BASE}"},
+            }
+        )
+        links.append(
+            {
+                "rel": "http://webfinger.net/rel/profile-page",
+                "href": "https://" + URI_BASE + "/@" + f"{user}",
+                "type": "application/activity+json",
+                "titles": {"und": f"@{user}@{URI_BASE}"},
+            }
+        )
 
     # filter down to the actual user requested if any
     if resource:
-        links = [link for link in links if resource in link['titles']['und']]
+        links = [link for link in links if resource in link["titles"]["und"]]
 
-    r = make_response({
-        'subject': resource,
-        'links': links,
-    })
-    r.headers['Content-Type'] = 'application/jrd+json'
+    r = make_response(
+        {
+            "subject": resource,
+            "links": links,
+        }
+    )
+    r.headers["Content-Type"] = "application/jrd+json"
     return r
+
 
 @bp.route("/.well-known/nodeinfo")
 def nodeinfo():
@@ -995,9 +1027,6 @@ def nodeinfo():
     pass
 
 
-
-
-
-
-
-
+@bp.route("/static/ts/<filename>")
+def typescript(filename):
+    return send_file("static/ts/" + filename, mimetype="application/javascript")
