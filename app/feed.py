@@ -21,6 +21,10 @@ import feedparser
 import pprint
 import urllib.parse
 
+# Maybe this is not the file you're looking for.
+# If in doubt try storage/file/feed.py :) 
+# TODO: check if this is actually used anywhere.
+
 HYPOTHESIS_USERS = {
     "flancian": "flancian",
     "diegodlh": "diegodlh",
@@ -54,6 +58,7 @@ def get_tag_feeds():
 
 def get_by_uri(uri):
     feed = False
+    uri = urllib.parse.quote_plus(uri)
     url = f"https://hypothes.is/stream.atom?uri={uri}"
     try:
         feed = feedparser.parse(url)

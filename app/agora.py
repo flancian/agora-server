@@ -538,6 +538,9 @@ def context(node):
         "context.html",
         embed=True,
         node=n,
+        # Last tested on 2024-07-17, sort of works but requires "normalizing" dev instance to prod Agora URLs? Maybe.
+        # annotations=n.annotations(),
+        # annotations_enabled=True,
     )
 
 

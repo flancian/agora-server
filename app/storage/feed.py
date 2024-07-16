@@ -54,6 +54,7 @@ def get_tag_feeds():
 
 def get_by_uri(uri):
     feed = False
+    uri = urllib.parse.quote_plus(uri)
     url = f"https://hypothes.is/stream.atom?uri={uri}"
     try:
         feed = feedparser.parse(url)
