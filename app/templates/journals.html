@@ -21,8 +21,6 @@
 <div class="listing node">
 
 {% if header %}
-<h1> {{header}} </h1>
-<p>
 <a href="/journals/7">last week</a> | <a href="/journals/30">last month</a> | <a href="/journals/365">last year</a> | <a href="/journals/all">all entries</a>
 </p>
 {% else %}
@@ -32,7 +30,7 @@
 {% for node in nodes %}
 <div class="node">
      <div class="node-header main-header">
-        <span>📅 day <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
+        <span>📅 <strong>Date</strong> <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
      </div>
      
          {% for subnode in node.subnodes %}
