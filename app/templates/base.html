@@ -25,7 +25,7 @@
 	{% if node is defined and node.qstr %}
 	<title>[[{{node.qstr}}]] at {{config['URI_BASE']}}</title>
 	{% else %}
-    <title>{{config['AGORA_NAME']}} at {{config['URI_BASE']}}</title>
+	<title>{{config['AGORA_NAME']}} at {{config['URI_BASE']}}</title>
 	{% endif %}
 	<!-- This Agora is: {{config['URI_BASE']}} -->
 	{% if 'dev.' in config['URI_BASE'] %}
@@ -35,14 +35,15 @@
 	<meta name="description" content="The Agora is a free knowledge commons: {{config['URI_BASE']}}." />
 	<meta name="HandheldFriendly" content="True" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
+	<link rel="search" type="application/opensearchdescription+xml" title="Agora"
+		href="{{config['URL_BASE']}}{{url_for('agora.search_xml')}}" />
 	<link rel="stylesheet" media="screen" type="text/css"
 		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached211" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
 		const AGORANAME = "{{config['AGORA_NAME']}}";
-		const AGORAURI= "{{config['URI_BASE']}}";
+		const AGORAURI = "{{config['URI_BASE']}}";
 		const AGORAURL = "{{config['URL_BASE']}}";
 	</script>
 
@@ -56,7 +57,7 @@
 	{% endif %}
 
 	{% if not embed %}
-    <!-- we used to not load some of these JS modules in embeds, but that breaks graphs -->
+	<!-- we used to not load some of these JS modules in embeds, but that breaks graphs -->
 	{% endif %}
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script src="//unpkg.com/force-graph"></script>
@@ -77,45 +78,52 @@
 <body>
 
 	<nav>
-        {% if not embed %}
-        <!-- navigation chrome is simplified if embed=True -->
-        <div class="navigation">
-            <a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px" title="An Agora is a Free Knowledge Commons."></a>
-            <a href="/" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a> <strong>⟶</strong>
-            <!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
-            <a href="/nodes" class="navlink" style="text-decoration: none;"><span>📚</span><span>All Nodes</span></a>
-          | <a href="/random" style="text-decoration: none;"><span>🎲️</span><span>Random</span></a>
-          | <a href="/latest" style="text-decoration: none;"><span>🌀</span><span>Latest</span></a>
-          | <a href="/journals" style="text-decoration: none;"><span>📅</span><span>Journals</span></a>
-          | <a title="Commoners" href="/users" style="text-decoration: none;"><span>🫂</span><span>Users</span></a>
-          | <a href="/annotations" style="text-decoration: none;"><span>✍</span><span>Comments</span></a>
-          | <a href="/agora-help" style="text-decoration: none;" class="help-button"><span>🙏</span><span>Help</span></a>
-          | <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
-          | <a href="#" style="text-decoration: none;"><span id='theme-toggle'>🌙</span><span></span></a>
-        </div>
+		{% if not embed %}
+		<!-- navigation chrome is simplified if embed=True -->
+		<div class="navigation">
+			<a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px"
+					title="An Agora is a Free Knowledge Commons."></a>
+			<a href="/" style="text-decoration: none;"
+				title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a>
+			<strong>⟶</strong>
+			<!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
+			<a href="/nodes" class="navlink" style="text-decoration: none;"><span>📚</span><span>All Nodes</span></a>
+			| <a href="/random" style="text-decoration: none;"><span>🎲️</span><span>Random</span></a>
+			| <a href="/latest" style="text-decoration: none;"><span>🌀</span><span>Latest</span></a>
+			| <a href="/journals" style="text-decoration: none;"><span>📅</span><span>Journals</span></a>
+			| <a title="Commoners" href="/users" style="text-decoration: none;"><span>🫂</span><span>Users</span></a>
+			| <a href="/annotations" style="text-decoration: none;"><span>✍</span><span>Comments</span></a>
+			| <a href="/agora-help" style="text-decoration: none;"
+				class="help-button"><span>🙏</span><span>Help</span></a>
+			| <a href="/settings"
+				style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
+			| <a href="#" style="text-decoration: none;"><span id='theme-toggle'>🌙</span><span></span></a>
+		</div>
 
-        <div class="separator"></div>
+		<div class="separator"></div>
 
-        {% endif %}
+		{% endif %}
 
-			<div class="topline-node">
-				<div class="topline-node-wrapper">
-					<div class="topline-query">
-                        <button id="mini-cli-exec" value="exec" title="Visits a node or Agora location. This searches the Agora and other sites for interesting resources and links to show to the user. If you double click, it might send you off-Agora.">{{config['AGORA_VERB']}}</button>
-					</div>
-					<div class="topline-cli">
-						<form action="/" method="get">
-							<input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
-						</form>
-					</div>
-					<button id="mini-cli-go" value="go" title="Redirects outside of this Agora if we have a good idea where the user might want to go :)">go</button>
-                    <!--<button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>-->
-                    <!-- <button id="pull-top" value="pull-all" title="Pulls everything that can be pulled below">pull</button>
+		<div class="topline-node">
+			<div class="topline-node-wrapper">
+				<div class="topline-query">
+					<button id="mini-cli-exec" value="exec"
+						title="Visits a node or Agora location. This searches the Agora and other sites for interesting resources and links to show to the user. If you double click, it might send you off-Agora.">{{config['AGORA_VERB']}}</button>
+				</div>
+				<div class="topline-cli">
+					<form action="/" method="get">
+						<input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
+					</form>
+				</div>
+				<button id="mini-cli-go" value="go"
+					title="Redirects outside of this Agora if we have a good idea where the user might want to go :)">go</button>
+				<!--<button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>-->
+				<!-- <button id="pull-top" value="pull-all" title="Pulls everything that can be pulled below">pull</button>
                     <button id="fold-top" value="fold-all" title="Folds everything that can be folded below">fold</button>
                     -->
-				</div>
-
 			</div>
+
+		</div>
 	</nav>
 
 	<!-- hypothesis -->
@@ -125,9 +133,10 @@
 	{% endblock %}
 
 	<!-- Thank you [[vera]] for this contribution! -->
-	<div id='popup'>{{popup|default("What could we show here?")}}</div>
+	<div id='popup'>{{popup|default(" What could we show here?")}}</div>
 
-	<script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
+		<!-- <script type=text/javascript src=" {{url_for('static', filename='js/index.js')}}">
+		</script> -->
 
 
 </body>
