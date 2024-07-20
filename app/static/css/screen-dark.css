@@ -703,7 +703,6 @@ details > summary {
 
 .subnode-header, .links-header, .search-header, .subnode-id {
     width: 100%;
-    display: flex;
     padding-bottom: 2px;
 }
 

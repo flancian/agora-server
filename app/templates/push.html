@@ -1,9 +1,15 @@
 {% if pushed_subnodes %}
     {% for subnode in pushed_subnodes %}
     <details class="pushed-subnode" open>
-        <summary class="subnode-header">
-            <span class="subnode-id"><span class="subnode-links"><a href="/@{{subnode.user}}/{{subnode.wikilink}}">➔</a> pushed from <a href="/raw/{{subnode.uri}}">{{subnode.basename}}</a> by <a
-                        href="/@{{subnode.user}}">@{{subnode.user}}</a></span></span>
+        <summary class="subnode-header main-header">
+            <span class="subnode-id" style="flex: auto; flex-grow: 1;">
+                <a class="user" href="/@{{subnode.user}}">👤 {{subnode.user}}</a>
+            <span title="This was written elsewhere but is believed to be relevant in the current context."> pushed from </span>
+            <span class="subnode-links">
+                <a href="/raw/{{subnode.uri}}">📄</a> 
+                <a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.uri}}</a>
+            </span>
+            </span>
         </summary>
         <ul>
         {% if argument %}

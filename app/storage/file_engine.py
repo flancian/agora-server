@@ -984,7 +984,8 @@ class VirtualSubnode(Subnode):
         target_node: where this virtual subnode will attach (go to).
         block: the actual payload, as pre rendered html."""
         self.uri = source_subnode.uri
-        self.basename: str = path_to_basename(self.uri)
+        self.basename: str = path_to_basename(source_subnode.uri)
+        self.garden_relative: str = path_to_garden_relative(source_subnode.uri)
         self.url = "/subnode/virtual"
         # Virtual subnodes are attached to their target
         self.wikilink = target_node.wikilink
