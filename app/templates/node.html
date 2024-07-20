@@ -20,8 +20,9 @@
         {% if subnode %}
             <summary class="node-header main-header">
                 <span style="flex: auto; flex-grow: 1;">
-                    <strong>📕 Node</strong> <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span> <br /> 
-                    ↳ 📓 Resource <a href="/{{node.qstr}}">{{node.qstr}}</a></span>
+                    <strong>📕 Node</strong> <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>  
+                    ⟶
+                    subnode <a href="/{{node.qstr}}">{{node.qstr}}</a></span>
                 
            </summary>
         {% else %}
@@ -60,8 +61,10 @@
                 <summary class="subnode-header" title="A subnode is a resource contributed by a user of this Agora that is believed to be relevant here.">
                     <span class="subnode-id">
                         <span class="subnode-links">
-                            <a href="@{{subnode.user}}/{{node.uri}}"" title="subnode {{subnode.basename}}"><!--📓-->📄</a>
-                            <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> by <a class="user" href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a>
+                            <a class="user" href="/@{{subnode.user}}">👤 <span class="subnode-user">{{subnode.user}}</span></a>
+                            contributed 
+                            <a href="/raw/{{subnode.uri}}" title="subnode {{subnode.basename}}"><!--📓-->📄</a> 
+                            <a href="@{{subnode.user}}/{{node.uri}}"><tt title="{{subnode.uri}}">{{subnode.garden_relative}}</tt></a> 
                         </span>
                     </span>
 

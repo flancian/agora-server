@@ -684,6 +684,7 @@ class Subnode:
         self.path = path
         # Use a subnode's URI as its identifier.
         self.uri: str = path_to_uri(path)
+        self.garden_relative: str = path_to_garden_relative(path)
         self.url = "/subnode/" + self.uri
         self.basename: str = path_to_basename(path)
 
@@ -1171,6 +1172,8 @@ class User:
 def path_to_uri(path):
     return path.replace(current_app.config["AGORA_PATH"] + "/", "")
 
+def path_to_garden_relative(path):
+    return re.sub(current_app.config["AGORA_PATH"] + r"/(garden|stream)/.*?/", "", path)
 
 def path_to_user(path):
     m = re.search("garden/(.+?)/", path)
