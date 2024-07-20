@@ -984,8 +984,10 @@ class VirtualSubnode(Subnode):
         target_node: where this virtual subnode will attach (go to).
         block: the actual payload, as pre rendered html."""
         self.uri = source_subnode.uri
-        self.basename: str = path_to_basename(source_subnode.uri)
-        self.garden_relative: str = path_to_garden_relative(source_subnode.uri)
+        self.basename: str = path_to_basename(self.uri)
+        self.garden_relative: str = path_to_garden_relative(current_app.config["AGORA_PATH"] + '/' + self.uri)
+        # This is needed in Virtual subnodes as wikilink needs to be the node this is being pushed *to* due to a limitation of how we build nodes.
+        self.virtual_wikilink : str = path_to_wikilink(current_app.config["AGORA_PATH"] + '/' + self.uri)
         self.url = "/subnode/virtual"
         # Virtual subnodes are attached to their target
         self.wikilink = target_node.wikilink
