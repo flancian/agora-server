@@ -894,7 +894,7 @@ class Subnode:
                 sanitized_golinks.append(golink)
             # looks like a transitive go link (case two in the docstring)
             elif "[[" in golink:
-                match = re.search("\[\[(.+?)\]\]", golink)
+                match = re.search(r"\[\[(.+?)\]\]", golink)
                 if match:
                     action = match.group(1)
                     # hack hack
@@ -1091,9 +1091,9 @@ def subnode_to_actions(subnode, action, blocks_only=False):
     if subnode.mediatype != "text/plain":
         return []
     if blocks_only:
-        wikilink_regex = "- \[\[" + action + "\]\] (.*?)$"
+        wikilink_regex = r"- \[\[" + action + "\]\] (.*?)$"
     else:
-        wikilink_regex = "\[\[" + action + "\]\] (.*?)$"
+        wikilink_regex = r"\[\[" + action + "\]\] (.*?)$"
     content = subnode.content
     actions = []
     for line in content.splitlines():
@@ -1124,7 +1124,7 @@ def subnode_to_pushes(subnode):
     # For #push or [[push]] prefixes, see above.
     if subnode.mediatype != "text/plain":
         return []
-    push_regex = f"(\[\[.*?\]\])[!:]"
+    push_regex = r"(\[\[.*?\]\])[!:]"
     content = subnode.content
     pushes = []
     for line in content.splitlines():
