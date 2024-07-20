@@ -58,13 +58,13 @@
 
             <details class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}" open>
 
-                <summary class="subnode-header" title="A subnode is a resource contributed by a user of this Agora that is believed to be relevant here.">
+                <summary class="subnode-header">
                     <span class="subnode-id">
                         <span class="subnode-links">
-                            <a class="user" href="/@{{subnode.user}}">👤 <span class="subnode-user">{{subnode.user}}</span></a>
-                            contributed 
-                            <a href="/raw/{{subnode.uri}}" title="subnode {{subnode.basename}}"><!--📓-->📄</a> 
-                            <a href="@{{subnode.user}}/{{node.uri}}"><tt title="{{subnode.uri}}">{{subnode.garden_relative}}</tt></a> 
+                            <a class="user" href="/@{{subnode.user}}"" title="User @{{subnode.user}} contributed this.">👤 <span class="subnode-user">{{subnode.user}}</span></a>
+                            <span title="This resource was contributed to this Agora and seems relevant to the current topic.">contributed </span>
+                            <a href="/raw/{{subnode.uri}}" title="Click to see raw."><!--📓-->📄</a> 
+                            <a href="@{{subnode.user}}/{{node.uri}}"><tt title="Click to see only this subnode.">{{subnode.garden_relative}}</tt></a> 
                         </span>
                     </span>
 
