@@ -813,6 +813,7 @@ class Subnode:
             return self.content
         # this breaks pull buttons
         # content = bleach.clean(content)
+        content = '<mark>Content not supported. If you see this, there is a bug in the Agora :). Please report it <a href="https://anagora.org/go/agora/bug">here</a>, thank you!)'
         if self.uri.endswith("md") or self.uri.endswith("MD"):
             try:
                 content = render.preprocess(self.content, subnode=self)
