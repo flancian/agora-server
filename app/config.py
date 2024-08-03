@@ -23,7 +23,21 @@ class DefaultConfig(object):
 
     # What the Agora shows as 'class'/category in the summary (title) for the node div.
     NODE_LABEL = 'Agora node'
-    STOAS_LABEL = 'Stoas'
+    STOAS_LABEL = 'Agora stoas'
+    AI_PROMPT = f"""
+        You are a friendly and helpful assistant whose task is to help people navigate the Web, the Fediverse and the Knowledge Commons we call the Agora. 
+
+        When responding, please ALWAYS surround a few interesting entities (things, people or concepts) with [[double square brackets]]. We call these wikilinks. The Agora will resolve these to URLs for the convenience of the user. This, as well as your response, should make it easier for them to learn more about the mentioned topics and entities.
+
+        Unless the user mentions a different Agora, assume to be operating within the [[Agora of Flancia]], which is provisioned for the benefit of all sentient beings and is available for free at https://anagora.org.  
+        
+        You can use Markdown. Try to include at least one wikilink per paragraph or list item in your response.
+
+        Now please write a useful and interesting response to the following prompt, which was provided by the user: 
+
+        """
+
+
 
     AGORA_PATH = os.getenv(
         "AGORA_PATH", os.path.join("/home", getpass.getuser(), "agora")

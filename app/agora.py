@@ -856,34 +856,17 @@ def complete(prompt):
     if current_app.config["ENABLE_AI"]:
         api_key = current_app.config["MISTRAL_API_KEY"]
 
-         # anything above small is too slow in practice IMHO, as of 2024-03-16.
-        model = "mistral-small"
+        # anything above small is too slow in practice IMHO, as of 2024-03-16.
+        # model = "mistral-small"
+
+        # try again with large in [[2024-08]], let's hope...? :)
+        model = "mistral-large-latest"
 
         client = MistralClient(api_key=api_key)
 
-        prompt = f"""
-        You are a helpful assistant whose task is to help people navigate a 
-        [[Knowledge Commons]] we call the Agora. 
-        
-        Unless the user overrides it, you can assume to be operating within the [[Agora of 
-        Flancia]], a free [[distributed knowledge graph]] provisioned for the benefit of 
-        sentient beings available for free at https://anagora.org.  
-        
-        When responding, please ALWAYS surround a few interesting entities (things, people 
-        or concepts) with [[double square brackets]] to link to them and thus make it easier
-        for the user to learn more about them. 
-
-        For example: in Agora node [[Socrates]], we would expect to see the link [[Plato]] 
-        in double square brackets somewhere in the response. 
-        
-        Remember to ALWAYS include a few interesting wikilinks using the double square 
-        brackets convention indicated above,.
-
-        Now please answer or expand on prompt '{prompt}' provided by an Agora user who is 
-        visiting the matching node in the Agora."""
-
+        enriched_prompt = current_app.config['AI_PROMPT'] + prompt
         messages = [
-            ChatMessage(role="user", content=f"{prompt}")
+            ChatMessage(role="user", content=f'{enriched_prompt}')
         ]
 
         # No streaming
