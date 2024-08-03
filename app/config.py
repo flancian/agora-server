@@ -21,6 +21,10 @@ class DefaultConfig(object):
 
     AGORA_FLAIR = '🏛️'
 
+    # What the Agora shows as 'class'/category in the summary (title) for the node div.
+    NODE_LABEL = 'Agora node'
+    STOAS_LABEL = 'Stoas'
+
     AGORA_PATH = os.getenv(
         "AGORA_PATH", os.path.join("/home", getpass.getuser(), "agora")
     )
