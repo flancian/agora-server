@@ -37,7 +37,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached212" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached213" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -76,6 +76,8 @@
 
 <body>
 
+    <div class="content">
+
 	<nav>
         {% if not embed %}
         <!-- navigation chrome is simplified if embed=True -->
@@ -97,7 +99,7 @@
           | <a href="#" style="text-decoration: none;"><span id='theme-toggle'>🌙</span><span></span></a>
         </div>
 
-        <div class="separator"></div>
+        <hr />
 
         {% endif %}
 
@@ -121,6 +123,8 @@
 			</div>
 	</nav>
 
+    <hr />
+
 	<!-- hypothesis -->
 	<div id='hypothesis-frame' style="display: none;""></div>
 
@@ -130,8 +134,11 @@
 	<!-- Thank you [[vera]] for this contribution! -->
 	<div id='popup'>{{popup|default("What could we show here?")}}</div>
 
-	<script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
 
+    </div>
+    <!-- class="content" -->
+
+	<script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
 
 </body>
 

@@ -8,6 +8,11 @@
 <div class="separator"><span>This you find on the 🌐 <strong>Internet</strong>
 
 </span></div>
+
+<div class="container">
+    <div class="column">column 1</div>
+    <div class="column">column 2</div>
+</div>
 -->
 
 <!-- yolo :) -->
@@ -23,12 +28,6 @@
     {% include "wt.html" %}
 
     {% include "stoa.html" %}
-
-<!--
-<div class="separator"><span>This you find in the {{config['AGORA_FLAIR']}} <strong>{{config['AGORA_NAME']}}</strong>
-
-</span></div>
--->
 
 {% if subnode %}
 <div id="async-content" src="{{subnode}}">
@@ -47,9 +46,9 @@
     <br />
 </div>
 
-{% include "genai.html" %}
-
 {% include "search.html" %}
+
+{% include "genai.html" %}
 
 {% include "edit.html" %}
 

@@ -41,8 +41,13 @@ body {
     color: #bfbfbf;
     overflow-x: hidden;
     width: 100%;
-    max-width: 77em;
     font-size: var(--base-fontsize);
+}
+
+.content {
+    max-width: 77em;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 pre {
@@ -178,6 +183,29 @@ details[open] > summary::before {
 @media screen and (max-width: 900px) {
     iframe {
         max-height: 35em;
+    }
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 10px;
+}
+
+.column {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border: 1px solid #ccc;
+}
+
+@media (min-width: 48em) {
+    .container {
+        flex-direction: row;
+    }
+
+    .column {
+        flex: 1;
     }
 }
 
