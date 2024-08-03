@@ -23,7 +23,7 @@ class DefaultConfig(object):
 
     # What the Agora shows as 'class'/category in the summary (title) for the node div.
     NODE_LABEL = 'Agora node'
-    STOAS_LABEL = 'Agora stoas'
+    STOAS_LABEL = 'Stoas'
     AI_PROMPT = f"""
         You are a friendly and helpful assistant whose task is to help people navigate the Web, the Fediverse and the Knowledge Commons we call the Agora. 
 
