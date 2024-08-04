@@ -44,10 +44,14 @@ body {
     font-size: var(--base-fontsize);
 }
 
-.content {
-    max-width: 77em;
+.content, .async-content {
+    max-width: 80em;
     margin-left: auto;
     margin-right: auto;
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
 pre {
@@ -140,7 +144,7 @@ iframe {
 }
 
 .mastodon-embed {
-    height: 25em;
+    height: 30em;
     width: 500px;
 }
 
@@ -564,8 +568,10 @@ summary {
     /* border-style: dashed;*/
     border-width: 1px;
     border-style: dotted;
+    /*
     margin-top: 10px;
     margin-bottom: 10px;
+    */
     /*border-radius: 5px;*/
     padding: 10px;
 }
@@ -650,7 +656,6 @@ summary {
 
 .info-box, .intro {
     line-height: var(--line-height);
-    margin-top: 10px;
     text-align: left;
     background: #00112b;
     color: #cfcfcf;
@@ -684,7 +689,6 @@ summary {
 
 .intro {
     line-height: var(--line-height);
-    margin-top: 10px;
 }
 
 .intro::before {

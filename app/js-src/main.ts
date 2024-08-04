@@ -372,7 +372,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (content != null) {
         // block on node loading (expensive if the task is freshly up)
         response = await fetch(AGORAURL + '/node/' + node);
-        content.innerHTML = await response.text();
+        content.outerHTML = await response.text();
     }
 
     setTimeout(bindEvents, 10)
@@ -763,41 +763,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Maybe ditch jquery and consolidate on the new way of doing requests?
     $.get(req_wikipedia, function (data) {
-      // console.log('html: ' + data)
-      embed_wikipedia = $(".wiki-search").html(data);
-
-      /*
-      // figure out how to do this without code repetition -- ask [[vera]]?
-      // also, could we scope this search to stuff inside embed? unsure if that points to the DOM, it didn't seem to work.
-      $(".pull-exec").click(function (e) {
-        console.log("in pull-exec!")
-        if (this.classList.contains('pulled')) {
-          // already pulled.
-          this.innerText = 'pull';
-          $(e.currentTarget).nextAll('iframe').remove()
-          this.classList.remove('pulled');
-          $(".node-hint").show();
-        }
-        else {
-          // pull.
-          this.innerText = 'pulling';
-          let url = this.value;
-          console.log('pull exec for wikipedia: ' + url)
-          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>')
-          this.innerText = 'fold';
-          this.classList.add('pulled');
-          $(".node-hint").hide();
-        }
-      });
-
-
-      $(".go-exec").click(function (e) {
-        // this doesn't work because of same-origin restrictions I think -- contentWindow/contentDocument are always undefined.
-        console.log("in go-exec!")
-        window.location.href = $('#exec-wp').contentWindow.location.href
-      });
-      */
-
+      if (data) {
+        // console.log('got data from Wikipedia: ', data);
+        embed_wikipedia = $(".wiki-search").html(data);
+      }
+      else {
+        console.log('got empty data from Wikipedia, hiding div');
+        $(".wiki-search").css('display', 'none');
+      }
     });
 
     // Once more for Wiktionary, yolo :)
@@ -805,32 +778,14 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log('req for Wiktionary: ' + req_wiktionary)
 
     $.get(req_wiktionary, function (data) {
-      // console.log('html: ' + data)
-      embed_wiktionary = $(".wiktionary-search").html(data);
-
-      /*
-      $(".pull-exec").click(function (e) {
-        console.log("in pull-exec for wiktionary!")
-        if (this.classList.contains('pulled')) {
-          // already pulled.
-          this.innerText = 'pull';
-          $(e.currentTarget).nextAll('iframe').remove()
-          this.classList.remove('pulled');
-          $(".node-hint").show();
-        }
-        else {
-          // pull.
-          this.innerText = 'pulling';
-          let url = this.value;
-          console.log('pull exec for wiktionary: ' + url)
-          $(e.currentTarget).after('<iframe id="exec-wp" src="' + url + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>')
-          this.innerText = 'fold';
-          this.classList.add('pulled');
-          $(".node-hint").hide();
-        }
-      });
-      */
-
+      if (data) {
+        // console.log('got data from Wiktionary: ', data);
+        embed_wiktionary = $(".wiktionary-search").html(data);
+      }
+      else {
+        console.log('got empty data from Wiktionary, hiding div');
+        $(".wiktionary-search").css('display', 'none');
+      }
     });
 
 
