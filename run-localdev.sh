@@ -14,5 +14,7 @@
 # limitations under the License.
 
 export MISTRAL_API_KEY=$(cat ~/flancia/secret/api/mistral.txt)
-./run-dev.sh Local
-
+while true; do
+    timeout 3600 ./run-dev.sh Local
+    sleep 2
+done
