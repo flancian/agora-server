@@ -17,7 +17,9 @@
 
 {% if not subnode and config['ENABLE_AI'] %}
 
-<details class="genai" open>
+<details class="genai"> 
+
+    <!-- experimented with defaulting open in 2024-09 in dev but I felt it too intrusive as it took too long to generate and the resulting additional spinner felt needlessly anxiety-producing :) -->
 
     <summary> <span class="genai-header" title="AI generation for the node as prompt."><strong>🤖 Agora AI</strong> for <span class="node-name"><span class="wikilink-marker">[[</span><a href="/{{node}}">{{node.qstr}}</a><span class="wikilink-marker">]]</span></span></span>
     </summary>
