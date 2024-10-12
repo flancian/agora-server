@@ -106,14 +106,14 @@
 			<div class="topline-node">
 				<div class="topline-node-wrapper">
 					<div class="topline-query">
-                        <button id="mini-cli-exec" value="exec" title="Visits a node or Agora location. This searches the Agora and other sites for interesting resources and links to show to the user. If you double click, it might send you off-Agora.">{{config['AGORA_VERB']}}</button>
+                        <button id="mini-cli-exec" value="exec" title="Visits an Agora location or 'node'. This searches the Agora and other sites in the Commons and in the wider Internet for interesting resources to present to you.">visit</button>
 					</div>
 					<div class="topline-cli">
 						<form action="/" method="get">
 							<input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
 						</form>
 					</div>
-					<button id="mini-cli-go" value="go" title="Redirects outside of this Agora if we have a good idea where the user might want to go :)">go</button>
+					<button id="mini-cli-go" value="go" title="Tries to go elsewhere, either outside of this Agora (following a Go link if one exists) or to a presumably related node in some Agora.">go</button>
                     <!--<button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>-->
                     <!-- <button id="pull-top" value="pull-all" title="Pulls everything that can be pulled below">pull</button>
                     <button id="fold-top" value="fold-all" title="Folds everything that can be folded below">fold</button>

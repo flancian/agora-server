@@ -15,7 +15,7 @@ class DefaultConfig(object):
     # I wonder how much of this should be in [[agora.yaml]] instead :)
 
     # This configures the main search/exec/go/visit/find button :)
-    AGORA_VERB = 'search'
+    AGORA_VERB = 'go'
 
     AGORA_NAME_SHORT = 'Agora'
 
