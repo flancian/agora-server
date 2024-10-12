@@ -1276,6 +1276,16 @@ files = [
 ]
 
 [[package]]
+name = "org-python"
+version = "0.3.2"
+description = "convert orgmode to html based on python."
+optional = false
+python-versions = "*"
+files = [
+    {file = "org-python-0.3.2.tar.gz", hash = "sha256:e4dd6c93ecad2e8b27480c0c6abe441d4c414520c903f9110e0eb7e23449e885"},
+]
+
+[[package]]
 name = "orjson"
 version = "3.10.5"
 description = "Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy"
@@ -2234,4 +2244,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "c85f7628a151398beeb010f1000026f3ebb02e76ab03070a9380b0b2c6721bd2"
+content-hash = "15d563aefb2d5b5f0ef13c14ae2c1e3b12e6e23b5760c0073232befe4b2df691"

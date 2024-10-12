@@ -841,6 +841,13 @@ class Subnode:
                 from orgorapython import parse_string as orgmode
                 content = render.preprocess(self.content, subnode=self)
                 content = orgmode(content)
+            else:
+                try:
+                    import orgpython
+                    content = render.preprocess(self.content, subnode=self)
+                    content = orgpython.to_html(content)
+                except:
+                    pass
         # note we might parse [[mycorrhiza]] as Markdown if the [[mycomarkup]] binary is not found.
         if self.uri.endswith("myco") or self.uri.endswith("MYCO"):
             content = render.preprocess(self.content, subnode=self)

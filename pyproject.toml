@@ -73,6 +73,7 @@ thefuzz = "^0.20.0"
 smartypants = "^2.0.1"
 mistralai = "^0.0.8"
 pycryptodome = "^3.19.0"
+org-python = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
 
