@@ -53,6 +53,8 @@ urllib3 = "^2.0.3"
 webencodings = "^0.5.1"
 zipp = "^3.15.0"
 # Disabled while fixing an issue with non-existing wheels and source distribution.
+# After talking to V, they tell me going forward we should import extism and then load a wasm module as per https://github.com/codegod100/orgora/releases/download/try3/orgora.wasm
+# .org mode is not supported until I try this.
 # orgora = "^0.1.1"
 cachetools-ext = "^0.0.8"
 flask = "^2.3.2"
