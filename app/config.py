@@ -14,16 +14,18 @@ def getcfg(path):
 class DefaultConfig(object):
     # I wonder how much of this should be in [[agora.yaml]] instead :)
 
-    # This configures the main search/exec/go/visit/find button :)
-    AGORA_VERB = 'go'
+    # This configures the main search/exec/go/visit/find button and the piece of flair :)
+    AGORA_ACTION_0 = 'search'
+    AGORA_ACTION_1= 'go'
+    AGORA_ACTION_2= 'pull'
 
     AGORA_NAME_SHORT = 'Agora'
 
     AGORA_FLAIR = '🏛️'
 
     # What the Agora shows as 'class'/category in the summary (title) for the node div.
-    NODE_LABEL = 'Agora node'
-    STOAS_LABEL = 'Stoas'
+    NODE_LABEL = 'Node'
+    STOAS_LABEL = 'Common spaces'
     AI_PROMPT = f"""
         You are a friendly and helpful assistant whose task is to help people navigate the Web, the Fediverse and the Knowledge Commons we call the Agora.
 
