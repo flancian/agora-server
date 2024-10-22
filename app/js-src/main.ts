@@ -73,9 +73,11 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("exec mini-cli")
     let val = $("#mini-cli").val()
     // "Easter egg": "double" click == go.
+    /* cute but nah, it's too confusing in particular given the dedicated go button we have as of 2024.
     if (val == NODENAME) {
         $("#mini-cli").val('go/' + val)
     }
+    */
     $("#mini-cli").parent().submit()
   })
   $("#mini-cli-go").click(() => {
