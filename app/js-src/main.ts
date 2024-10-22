@@ -46,6 +46,12 @@ document.addEventListener("DOMContentLoaded", function () {
     theme.innerHTML = '🌙';
   }
 
+  var burger = document.querySelector("#burger");
+  burger.addEventListener("click", function() {
+    const overlay = document.getElementById('overlay');
+    overlay.classList.toggle('active');
+  });
+
   // Listen for a click on the button
   toggle.addEventListener("click", function () {
     // Select the stylesheet <link>

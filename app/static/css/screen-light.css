@@ -51,7 +51,7 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 
 li {
     /* background-color: #030707; */
-    background-color: #f7f3f7;
+    /* background-color: #f7f3f7; */
 }
 
 .separator::before,
