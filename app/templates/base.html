@@ -79,15 +79,48 @@
 	<span class="burger" id="burger">☰</span>
 	
 	<div class="overlay" id="overlay">
-	Thank you for visiting this Agora!
 
-	<ul>
-		<li>See <a href="/nodes">nodes</a> for a representation of the whole Agora.</li>
-		<li>See <a href="/settings">settings</a> for available configuration.</li>
-		<li>Refer to <a href="/help">help</a> as needed.</li>
-	</ul>
-	
-	Have a great day!
+		<h1>Thank you for visiting this Agora!</h1>
+
+		<h2>Settings</h2>
+
+		<div>
+			<div>
+				Uprank users (comma separated):
+				<input id="ranking" type="text" placeholder="e.g. flancian, vera" value="${ranking}" />
+			</div>
+			<div>
+				Automatically pull (embed) resources? <input id="auto-pull" type="checkbox" checked />
+			</div>
+			<div>
+				Automatically pull more resources (optimistic)? <input id="auto-pull-extra"  type="checkbox"  />
+			</div>
+			<div>
+				Automatically pull stoas (can steal focus)? <input id="auto-pull-stoa"  type="checkbox" />
+			</div>
+			<div>
+				Do you want to auto pull full text search? <input id="auto-pull-search"  type="checkbox" checked />
+			</div>
+			<div>
+				Do you want to render wikilinks with brackets? <input id="render-wikilinks"  type="checkbox"  />
+			</div>
+			<div>
+				Do you want to use recursive pulls within the Agora (advanced)? <input id="pull-recursive" type="checkbox" checked />
+			</div>
+			<button onClick=saveSettings()>Save</button>
+			<button onClick=clearSettings()>Clear local storage</button>
+		</div>
+
+		<div>
+			<h2>Adding your digital garden or wiki</h2>
+			Please review <a href="CONTRACT">this instance's contract</a> to verify you are in agreement and then send your repository information and desired username via email to signup@anagora.org. 
+			We are working on making this process less manual :)
+			Thank you!
+		</div>
+
+		<div>
+			Have a great day!
+		</div>
 	</div>
 
     <div class="content">
