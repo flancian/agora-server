@@ -37,7 +37,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached215" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached217" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -76,13 +76,26 @@
 
 <body>
 
+	<span class="burger" id="burger">☰</span>
+	
+	<div class="overlay" id="overlay">
+	Thank you for visiting this Agora!
+
+	<ul>
+		<li>See <a href="/nodes">nodes</a> for a representation of the whole Agora.</li>
+		<li>See <a href="/settings">settings</a> for available configuration.</li>
+		<li>Refer to <a href="/help">help</a> as needed.</li>
+	</ul>
+	
+	Have a great day!
+	</div>
+
     <div class="content">
 
 	<nav>
         {% if not embed %}
         <!-- navigation chrome is simplified if embed=True -->
         <div class="navigation">
-			<span class="burger" id="burger">☰</span>
             <a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px" title="An Agora is a Free Knowledge Commons."></a>
             <a href="/" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a> <strong>⟶</strong>
             <!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
@@ -101,18 +114,6 @@
         </div>
 
         <hr />
-
-		<div class="overlay" id="overlay">
-			Thank you for visiting this Agora!
-
-			<ul>
-				<li>See <a href="/nodes">nodes</a> for a representation of the whole Agora.</li>
-				<li>See <a href="/settings">settings</a> for available configuration.</li>
-				<li>Refer to <a href="/help">help</a> as needed.</li>
-			</ul>
-			
-			Have a great day!
-		</div>
 
         {% endif %}
 
