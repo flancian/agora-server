@@ -54,6 +54,19 @@ li {
     /* background-color: #f7f3f7; */
 }
 
+.burger {
+    background-color: rgba(238, 238, 238, 1);
+}
+
+.overlay {
+    background-color: rgba(238, 238, 238, 0);
+}
+
+/* Overlay active state */
+.overlay.active {
+    background-color: rgba(238, 238, 238, 0.9);
+}
+
 .separator::before,
 .separator::after {
   content: '';

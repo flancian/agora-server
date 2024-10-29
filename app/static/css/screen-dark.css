@@ -80,6 +80,12 @@ nav {
     max-width: 100%;
 }
 
+.navbar-item {
+    display: flex;
+    gap: 10px;
+    vertical-align: center;
+}
+
 /* this prevents too large images from breaking layouts */
 img {
     max-width: 100%;
@@ -255,11 +261,16 @@ details[open] > summary::before {
     padding: 0.5em;
 }
 
+.navigation .logo {
+    vertical-align: middle;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    max-width: 26px;
+    max-height: 26px;
+}
+
 .logo {
     filter: invert(1);
-    vertical-align: middle;
-    width: "20";
-    height: "20";
 }
 
 .spinner {
@@ -1041,33 +1052,50 @@ table caption {
 
 .burger {
     position: fixed;
+    margin-top: -1px;
     font-size: 26px;
     cursor: pointer;
     position: absolute;
-    padding: 5px;
     z-index: 1000;
+    background-color: rgba(20, 20, 20, 1);
+}
+
+.darkmode {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 14px;
+    font-size: 18px;
+}
+
+.overlay-wrapper {
+    position: relative;
+}
+
+.overlay-content {
+    padding: 50px;
 }
 
 .overlay {
     height: 100%;
-    width: 30%;
+    min-width: 30%;
+    max-width: 80%;
     top: 0;
-    left: -50%;
+    left: -100%;
     position: fixed;
     /*top: 30;
     left: 30;
     */
-    background-color: rgba(220, 220, 220, 0);
+    background-color: rgba(20, 20, 20, 0);
     overflow-x: hidden;
     transition: 0.4s ease-in-out;
     z-index: 3;
     justify-content: center;
     align-items: center;
-    padding: 50px;
 }
 
 /* Overlay active state */
 .overlay.active {
     left: 0;
-    background-color: rgba(220, 220, 220, 0.9);
+    background-color: rgba(20, 20, 20, 0.95);
 }

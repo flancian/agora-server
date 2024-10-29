@@ -37,7 +37,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached217" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached218" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -79,48 +79,66 @@
 	<span class="burger" id="burger">☰</span>
 	
 	<div class="overlay" id="overlay">
+        <div class="overlay-wrapper">
 
-		<h1>Thank you for visiting this Agora!</h1>
+        <div class="darkmode">
+            <a href="#" style="text-decoration: none;"><span id='theme-toggle'>🌙</span></a>
+        </div>
+
+        <div class="overlay-content">
+        <div>
+        <p>
+        <strong>Thank you for visiting the {{config['AGORA_NAME']}}</strong>.
+        <p>
+        This Agora is in active development. Please check back later!
+        <p> 
+        </div>
 
 		<h2>Settings</h2>
-
 		<div>
-			<div>
-				Uprank users (comma separated):
-				<input id="ranking" type="text" placeholder="e.g. flancian, vera" value="${ranking}" />
+            <div>
+				<input id="auto-pull" type="checkbox" checked /> Autopull (embed) resources
 			</div>
 			<div>
-				Automatically pull (embed) resources? <input id="auto-pull" type="checkbox" checked />
+				<input id="auto-pull-stoa"  type="checkbox" /> Autopull stoas (may steal focus)
 			</div>
 			<div>
-				Automatically pull more resources (optimistic)? <input id="auto-pull-extra"  type="checkbox"  />
+				<input id="auto-pull-search"  type="checkbox" checked /> Autopull full text search
 			</div>
 			<div>
-				Automatically pull stoas (can steal focus)? <input id="auto-pull-stoa"  type="checkbox" />
+				<input id="render-wikilinks"  type="checkbox"  /> Render brackets in wikilinks
 			</div>
+
 			<div>
-				Do you want to auto pull full text search? <input id="auto-pull-search"  type="checkbox" checked />
+				Uprank users (csv):
+                <input id="ranking" type="text" placeholder="e.g. flancian, vera" value="${ranking}" /> 
 			</div>
-			<div>
-				Do you want to render wikilinks with brackets? <input id="render-wikilinks"  type="checkbox"  />
-			</div>
-			<div>
-				Do you want to use recursive pulls within the Agora (advanced)? <input id="pull-recursive" type="checkbox" checked />
-			</div>
+
+
 			<button onClick=saveSettings()>Save</button>
 			<button onClick=clearSettings()>Clear local storage</button>
 		</div>
 
 		<div>
-			<h2>Adding your digital garden or wiki</h2>
-			Please review <a href="CONTRACT">this instance's contract</a> to verify you are in agreement and then send your repository information and desired username via email to signup@anagora.org. 
-			We are working on making this process less manual :)
-			Thank you!
+			<h2>Joining this Agora</h2>
+            Please review <a href="CONTRACT">this instance's contract</a> to verify you are in agreement, then send email to <strong>signup@anagora.org</strong> with the following information:
+
+            <ul>
+                <li>Your desired username.</li>
+                <li>The URL of a git repository containing your digital garden, wiki or blog.</li>
+            </ul>
+
+			Please also reach out if you are interested in joining but need assistance. We are working on making this process less manual and more user friendly and inclusive :) Thank you for your patience!
 		</div>
 
-		<div>
-			Have a great day!
-		</div>
+        <div>
+            <h2>Contributing from social media</h2>
+
+            Alternatively, you can contribute in a limited way from the Fediverse by following and interacting with <strong>@agora@botsin.space</strong>; or from Bluesky by following and interacting with <strong>anagora.bsky.social</strong>.
+        </div>
+
+        </div> <!-- overlay-content -->
+        </div> <!-- overlay-wrapper -->
 	</div>
 
     <div class="content">
@@ -129,21 +147,26 @@
         {% if not embed %}
         <!-- navigation chrome is simplified if embed=True -->
         <div class="navigation">
+            <span>
             <a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px" title="An Agora is a Free Knowledge Commons."></a>
-            <a href="/" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a> <strong>⟶</strong>
+            <a href="/" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a>             </span>
+            {{config['MENU_SEPARATOR']}} 
             <!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
-            <a href="/nodes" class="navlink" style="text-decoration: none;"><span>📚</span><span>All Nodes</span></a>
-          | <a href="/random" style="text-decoration: none;"><span>🎲️</span><span>Random</span></a>
-          | <a href="/latest" style="text-decoration: none;"><span>🌀</span><span>Latest</span></a>
-          | <a href="/today" style="text-decoration: none;"><span>📆</span><span>Today</span></a>
-          <!-- | <a href="/today" style="text-decoration: none;"><span>📅</span><span>Today</span></a> -->
-          <!-- | <a href="/journals" style="text-decoration: none;"><span>📆</span><span>Journals</span></a> -->
-          | <a href="/journals" style="text-decoration: none;"><span>📒</span><span>Journals</span></a>
-          | <a href="/annotations" style="text-decoration: none;"><span>✍</span><span>Annotations</span></a>
-          | <a title="Commoners" href="/users" style="text-decoration: none;"><span>🫂</span><span>Users</span></a>
-          | <a href="/agora-help" style="text-decoration: none;" class="help-button"><span>🙏</span><span>Help</span></a>
-          | <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
-          | <a href="#" style="text-decoration: none;"><span id='theme-toggle'>🌙</span><span></span></a>
+            <a href="/nodes" class="navlink" style="text-decoration: none;"><span class="navbar-item"><span>📚</span><span>All nodes</span></span></a>
+            {{config['MENU_SEPARATOR']}} <a href="/random" style="text-decoration: none;"><span class="navbar-item"><span>🎲️</span> Random</span></a>
+            {{config['MENU_SEPARATOR']}} <a title="Commoners" href="/users" style="text-decoration: none;"><span class="navbar-item"><span>🫂</span> Users</span></a>
+          <!-- simplifying: journals is more complete/interesting maybe?
+              {{config['MENU_SEPARATOR']}} <a href="/today" style="text-decoration: none;"><span>📆 Today</span></a>
+          -->
+          {{config['MENU_SEPARATOR']}} <a href="/journals" style="text-decoration: none;"><span class="navbar-item"><span>📆</span> Journals</span></a>
+          {{config['MENU_SEPARATOR']}} <a href="/latest" style="text-decoration: none;"><span class="navbar-item"><span>🌀</span> Recently modified</span></a>
+          <!-- {{config['MENU_SEPARATOR']}} <a href="/today" style="text-decoration: none;"><span>📅</span><span>Today</span></a> -->
+          <!-- {{config['MENU_SEPARATOR']}} <a href="/journals" style="text-decoration: none;"><span>📆</span><span>Journals</span></a> -->
+          {{config['MENU_SEPARATOR']}} <a href="/annotations" style="text-decoration: none;"><span class="navbar-item"><span>💬</span> Annotations</span></a>
+          {{config['MENU_SEPARATOR']}} <a href="/agora-join" style="text-decoration: none;" class="help-button"><span class="navbar-item"><span>🚀</span> Join</span></a>
+          <!-- trying moving these to the burger menu
+          {{config['MENU_SEPARATOR']}} <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
+          -->
         </div>
 
         <hr />
