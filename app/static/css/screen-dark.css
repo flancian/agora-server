@@ -190,7 +190,7 @@ details[open] > summary::before {
 
 /* this is meant to target mobile */
 /* but actually using ems seems to be better? */
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 48em) {
     iframe {
         max-height: 35em;
     }
@@ -1092,6 +1092,12 @@ table caption {
     z-index: 3;
     justify-content: center;
     align-items: center;
+}
+
+@media (min-width: 48em) {
+    .overlay {
+    max-width: 40%;
+    }
 }
 
 /* Overlay active state */
