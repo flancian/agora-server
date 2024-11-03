@@ -19,7 +19,7 @@
 :root {
     --accent-bg: #F5F7FF;
     --border: #D8DAE1;
-    --main-bg: #eeeeee;
+    --main-bg: #e9e9e9;
 }
 
 body            { color: #000000; overflow-x: hidden;}
@@ -28,24 +28,33 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 .wikilink:link { color: #1e53a6; }
 .logo           { filter: none; }
 
-.node, .search, .search-internet { 
-    background: #f0f0f0; 
+.node, .web, .search, .stoa, .genai, .search-internet { 
+    background: #f3f3f3;
 }
 
 .subnode, .not-found {
     /*background: #e6ffff; */
-    background: #ffffff;
+    color: #000;
+    background: #ffffff; 
+}
+
+.info-box {
+    background: #ffffe8;
     color: #000;
 }
 
-.info-box, .intro {
-    /*background: #e6ffff; */
-    background: #f2f2ff;
+.intro {
+    background: #e8e8ff;
     color: #000;
+    /* border: 1px dashed var(--border); */
+}
+
+.dismiss-button {
+    color: black;
 }
 
 .pulled-subnode, .pushed-subnode, .stoa-public, .annotations, .delta, .delta-nodes, .delta-annotations, .microblog_timeline { 
-    background: #f8f8f8; 
+    background: #f9f9f9; 
     color: #000; 
 }
 

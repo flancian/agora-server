@@ -20,7 +20,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
 :root {
-    --base-fontsize: 0.89rem;
+    --base-fontsize: 1.1rem;
     --header-scale: 1.125;
     --line-height: 1.618;
 
@@ -94,7 +94,6 @@ img {
 
 button {
     border: 1px #999 solid;
-    font-size: 12px;
     border-radius: 4px;
     background: #ddd;
     text-transform: capitalize;
@@ -573,8 +572,9 @@ summary {
 .node, .web, .stoa, .search, .genai {
     /*border-color: #7f5af0;*/
     border-color: gray;
+    background: #191919;
     /* border-style: dashed;*/
-    border-width: 1px;
+    border-width: 0px;
     border-style: dotted;
     /*
     margin-top: 10px;
@@ -588,7 +588,7 @@ summary {
     /*border-color: #7f5af0;*/
     border-color: gray;
     border-style: dotted;
-    border-width: 1px;
+    border-width: 0px;
     /*border-style: dotted;*/
     margin-top: 10px;
     margin-bottom: 10px;
@@ -605,14 +605,6 @@ summary {
     border-width: 1px;
     margin-top: 10px;
     margin-bottom: 10px;
-}
-
-.left {
-    border-color: red;
-}
-
-.right {
-    border-color: blue;
 }
 
 .pulled-node {
@@ -646,13 +638,8 @@ summary {
     max-height: 600px;
 }
 
-.obsidian-embed {
-    text-align: center;
-    font-style: italic;
-}
-
 .subnode, .not-found {
-    background: #1f232b;
+    background: #303030;
     /* background: #12091a; */
     /* background: #150d38; */
     color: #cfcfcf;
@@ -662,10 +649,19 @@ summary {
     /*border-radius: 20px;*/
 }
 
+.info-box {
+    margin-top: 10px;
+    border: 1px dashed var(--border);
+    background: #202000;
+}
+
+.intro {
+    background: #00112b;
+}
+
 .info-box, .intro {
     line-height: var(--line-height);
     text-align: left;
-    background: #00112b;
     color: #cfcfcf;
     padding: 7px;
     position: relative;
@@ -679,7 +675,7 @@ summary {
     right: 10px;
     cursor: pointer;
     font-weight: bold;
-    color: blue;
+    color: white;
 }
 
 .info-box::before {
@@ -704,6 +700,11 @@ summary {
   width: 1em;
   flex-shrink: 0;
   transition: 0.3s;
+}
+
+.obsidian-embed {
+    text-align: center;
+    font-style: italic;
 }
 
 .pulled-subnode, .pushed-subnode, .stoa-public {
@@ -1052,8 +1053,7 @@ table caption {
 
 .burger {
     position: fixed;
-    margin-top: -1px;
-    font-size: 26px;
+    font-size: 2em;
     cursor: pointer;
     z-index: 1000;
     background-color: rgba(20, 20, 20, 1);
