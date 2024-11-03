@@ -29,7 +29,7 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 .logo           { filter: none; }
 
 .node, .web, .search, .stoa, .genai, .search-internet { 
-    background: #f3f3f3;
+    background: #f6f6f6;
 }
 
 .subnode, .not-found {
@@ -44,7 +44,8 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 }
 
 .intro {
-    background: #e8e8ff;
+    /*background: #e8e8ff;*/
+    background: #efefff;
     color: #000;
     /* border: 1px dashed var(--border); */
 }

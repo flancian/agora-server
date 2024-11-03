@@ -474,6 +474,10 @@ input[type="text"] {
     /* Opera/IE 8+ */
 }
 
+button, input {
+    font-size: 0.9em;
+}
+
 .topline-agora {
     display: flex;
     justify-content: space-between;
