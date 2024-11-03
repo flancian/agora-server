@@ -659,8 +659,10 @@ summary {
     background: #202000;
 }
 
-.intro {
+.intro, #footer {
     background: #00112b;
+    padding: 7px;
+    font-style: italic;
 }
 
 .info-box, .intro {
@@ -1099,7 +1101,7 @@ table caption {
 
 @media (min-width: 48em) {
     .overlay {
-    max-width: 40%;
+    max-width: 35%;
     }
 }
 

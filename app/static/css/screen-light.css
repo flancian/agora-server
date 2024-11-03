@@ -43,9 +43,9 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
     color: #000;
 }
 
-.intro {
+.intro, #footer {
     /*background: #e8e8ff;*/
-    background: #efefff;
+    background: #e0e0ef;
     color: #000;
     /* border: 1px dashed var(--border); */
 }

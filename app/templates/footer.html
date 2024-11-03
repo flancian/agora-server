@@ -3,18 +3,15 @@
 
 <div id='footer'>
 
-    <hr />
-
-    <center>
     <!-- Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong> in <strong><a style="all: unset;"href="http://localhost:5017/{{node.qstr}}">__EXECTIME__s</a></strong>.
     -->
-    ⸎ Served by the 
-    <a style="all: unset;"href="https://panda.anagora.org/{{node.qstr}}"> {% if 'Flan' in config['AGORA_NAME'] %} 🍮 {% else %} 🏛️ {% endif %}
+    <strong>⚡</strong> Served by the 
+    <a style="all: unset;" href="https://panda.anagora.org/{{node.qstr}}"> {% if 'Flan' in config['AGORA_NAME'] %} 🍮 {% else %} 🏛️ {% endif %}
     <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a>
-    at <strong>__NOW__</strong></a>
+    at __NOW__</a>
     | <a href="{{config['ROOT']}}">Agora Root</a> 
-    | <a href="{{config['SOURCE']}}">Source</a> 
-   </center>
+    | <a href="{{config['SOURCE']}}">Agora Source</a> 
+    | <a style="all: unset;" href="https://anagora.org/{{node.qstr}}">⸎</a>
 
     <!--
     <center>
