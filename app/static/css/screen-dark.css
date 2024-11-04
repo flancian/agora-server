@@ -1069,10 +1069,9 @@ table caption {
 
 .darkmode {
     position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 14px;
-    font-size: 18px;
+    right: 10px;
+    top: 0.3em;
+    font-size: 1.5em;
 }
 
 .overlay-wrapper {
