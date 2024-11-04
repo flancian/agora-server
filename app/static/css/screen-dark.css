@@ -1059,10 +1059,12 @@ table caption {
 
 .burger {
     position: fixed;
+    top: 2px;
+    left: 5px;
     font-size: 2em;
     cursor: pointer;
     z-index: 1000;
-    background-color: rgba(20, 20, 20, 1);
+    background-color: var(--main-bg);
 }
 
 .darkmode {
