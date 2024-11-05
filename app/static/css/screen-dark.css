@@ -29,6 +29,13 @@
     --main-bg: #000;
 }
 
+/* overrides for mobile look like this */
+@media (max-width: 48em) {
+    :root {
+    --base-fontsize: 0.9rem;
+    }
+}
+
 html {
     font-family: 'Noto Sans', sans-serif;
     display: flex;
@@ -1059,7 +1066,7 @@ table caption {
 
 .burger {
     position: fixed;
-    top: 2px;
+    top: 5px;
     left: 5px;
     font-size: 2em;
     cursor: pointer;
