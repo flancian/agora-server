@@ -663,7 +663,7 @@ summary {
 .info-box {
     margin-top: 10px;
     border: 1px dashed var(--border);
-    background: #303000;
+    background: #3f3f00;
 }
 
 .intro, #footer {
@@ -673,7 +673,7 @@ summary {
 }
 
 #footer {
-    background: #2b001a;
+    background: #2d0039;
 }
 
 .info-box, .intro {

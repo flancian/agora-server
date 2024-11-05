@@ -51,7 +51,8 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 }
 
 #footer {
-    background: #efe0e0;
+    /* background: #efe0e0; */
+    background: #f4d7ff;
 }
 
 .dismiss-button {
