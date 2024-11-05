@@ -25,7 +25,7 @@ class DefaultConfig(object):
 
     # What the Agora shows as 'class'/category in the summary (title) for the node div.
     NODE_LABEL = 'Node'
-    STOAS_LABEL = 'Common spaces'
+    STOAS_LABEL = 'Shared spaces'
     # MENU_SEPARATOR = '⸖'
     # Keep it simple?
     MENU_SEPARATOR = '|'
