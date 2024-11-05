@@ -26,7 +26,9 @@ class DefaultConfig(object):
     # What the Agora shows as 'class'/category in the summary (title) for the node div.
     NODE_LABEL = 'Node'
     STOAS_LABEL = 'Common spaces'
-    MENU_SEPARATOR = '⸖'
+    # MENU_SEPARATOR = '⸖'
+    # Keep it simple?
+    MENU_SEPARATOR = '|'
     AI_PROMPT = f"""
         You are a friendly and helpful assistant whose task is to help people navigate the Web, the Fediverse and the Knowledge Commons we call the Agora.
 
