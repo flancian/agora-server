@@ -663,13 +663,17 @@ summary {
 .info-box {
     margin-top: 10px;
     border: 1px dashed var(--border);
-    background: #202000;
+    background: #303000;
 }
 
 .intro, #footer {
-    background: #00112b;
+    background: #001a2b;
     padding: 7px;
     font-style: italic;
+}
+
+#footer {
+    background: #2b001a;
 }
 
 .info-box, .intro {
