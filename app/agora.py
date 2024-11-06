@@ -311,6 +311,7 @@ def subnode_export(node, user):
 
 @bp.route("/")
 def index():
+
     qstr = request.args.get("q")
     if qstr:
         # This is a search. 
@@ -340,6 +341,8 @@ def index():
             # annotations_enabled=True,
         )
 
+    # return redirect(url_for(".root", node="index"))
+
     # GET / without query string -> serve the index.
     user = 'agora'
     n = api.build_node(user)
@@ -352,10 +355,6 @@ def index():
         latest=api.subnodes_by_user(user, sort_by="mtime", reverse=True)[:100],
         node=n,
     )
-
-
-    # return redirect(url_for(".root", node="index"))
-
 
 @bp.route("/Δ")
 @bp.route("/delta")
