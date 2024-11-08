@@ -105,6 +105,7 @@ button {
     background: #ddd;
     text-transform: capitalize;
     padding: 3px 6px 3px 6px;
+    filter: invert(1);
 }
 
 ul {
@@ -795,7 +796,7 @@ details > summary {
     font-weight: normal;
 }
 
-.agora-actions {
+.agora-actions, .internet-actions {
     text-decoration: none;
     margin-left: auto;
     display: block;
