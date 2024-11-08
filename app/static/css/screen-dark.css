@@ -671,7 +671,7 @@ summary {
     max-width: fit-content;*/
 }
 
-.intro, #footer {
+.intro {
     background: #001a2b;
     padding: 7px;
     font-style: italic;
@@ -680,6 +680,8 @@ summary {
 
 #footer {
     background: #572400;
+    padding: 7px;
+    font-style: italic;
 }
 
 .info-box, .intro {
