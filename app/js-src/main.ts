@@ -681,7 +681,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log('auto pulling url');
         this.click();
       });
-      this.innerText = 'fold all';
+      this.innerText = 'fold';
       this.title = 'Folds (hides) pulls below.';
       this.classList.add('pulled');
 
@@ -727,7 +727,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      this.innerText = 'pull all';
+      this.innerText = 'pull';
       this.title = 'Pulls (embeds, transcludes) some links below.';
       this.classList.remove('pulled');
  
