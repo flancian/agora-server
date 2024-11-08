@@ -664,13 +664,18 @@ summary {
 .info-box {
     margin-top: 10px;
     border: 1px dashed var(--border);
-    background: #3f3f00;
+    background: #565000;
+    padding: 7px;
+    padding-right: 30px;
+    /* margin-left: auto;
+    max-width: fit-content;*/
 }
 
 .intro, #footer {
     background: #001a2b;
     padding: 7px;
     font-style: italic;
+    display: flex;
 }
 
 #footer {
@@ -752,11 +757,6 @@ details > summary {
     text-transform: capitalize;
 }
 
-.not-found {
-    /*background: #476349;*/
-    background: #476353;
-}
-
 /*.subnode li     { margin: 0.8em 1.2em; }*/
 /*.subnode li h2  { margin-left: -1em; }*/
 
@@ -793,11 +793,10 @@ details > summary {
     font-weight: normal;
 }
 
-.node-actions {
-    text-align: right;
+.agora-actions {
     text-decoration: none;
-    max-width: 19%;
     margin-left: auto;
+    display: block;
 }
 
 .subnode-id {

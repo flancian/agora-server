@@ -64,11 +64,6 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
     color: #000; 
 }
 
-li {
-    /* background-color: #030707; */
-    /* background-color: #f7f3f7; */
-}
-
 .overlay {
     background-color: rgba(238, 238, 238, 0);
 }

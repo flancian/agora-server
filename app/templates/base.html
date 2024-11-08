@@ -37,7 +37,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached225" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached227" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -183,10 +183,7 @@
 							<input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
 						</form>
 					</div>
-					<button id="mini-cli-go" value="go" title="May redirect outside this Agora or to a different node within this Agora.">
-						{{config['AGORA_ACTION_1']}}
-					</button>
-					<!--
+				<!--
 					<button id="mini-cli-pull" value="pull" title="Transcludes whenever possible :)">
 						{{config['AGORA_ACTION_2']}}
 					</button>
