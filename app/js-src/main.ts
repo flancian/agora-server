@@ -133,14 +133,10 @@ document.addEventListener("DOMContentLoaded", function () {
     $("#mini-cli").parent().submit()
   })
   $("#mini-cli-go").click(() => {
-    console.log("go mini-cli")
+    console.log("go mini-cli executes")
     let val = $("#mini-cli").val()
     $("#mini-cli").val('go/' + val)
     $("#mini-cli").parent().submit()
-  })
-  $("#mini-cli-pull").click(() => {
-    console.log("pull mini-cli")
-    /* some logic to add a new pulled node div and embed the target node would go here */
   })
 
   // focus mini-cli on key combo
@@ -545,6 +541,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       var details = document.querySelectorAll(".autopull");
       details.forEach((item) => {
+        console.log('auto pulling details, trying to expand' + this)
           item.click();
       });
     }
@@ -686,6 +683,15 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log('auto pulling url');
         this.click();
       });
+      
+      // experiment: make pull button expand all details.
+      // Some of these selectors were suggested by Claude, enjoying working with them.
+      var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary");
+      details.forEach((item) => {
+        console.log('trying to click details');
+        item.click();
+      });
+ 
       this.innerText = 'fold';
       this.title = 'Folds (hides) pulls below.';
       this.classList.add('pulled');
@@ -731,6 +737,14 @@ document.addEventListener("DOMContentLoaded", function () {
             this.click();
         }
       });
+
+      // experiment: make fold button fold all details which are open.
+      var details = document.querySelectorAll("details[open] summary");
+      details.forEach((item) => {
+        console.log('trying to click details');
+        item.click();
+      });
+ 
 
       this.innerText = 'pull';
       this.title = 'Pulls (embeds, transcludes) some links below.';
