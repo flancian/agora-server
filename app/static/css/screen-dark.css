@@ -1116,7 +1116,7 @@ table caption {
 
 @media (min-width: 48em) {
     .overlay {
-    max-width: 35%;
+    max-width: 50%;
     }
 }
 

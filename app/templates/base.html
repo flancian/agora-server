@@ -37,7 +37,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached229" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-light.css')}}?uncached231" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -60,6 +60,8 @@
 	{% endif %}
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script src="//unpkg.com/force-graph"></script>
+	
+	<script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
 
 	<!--
 			{
@@ -81,17 +83,19 @@
 	<div class="overlay" id="overlay">
         <div class="overlay-wrapper">
 
-        <div class="darkmode">
-            <a href="#" style="text-decoration: none;"><span id='theme-toggle'>🌙</span></a>
-        </div>
-
-        <div class="overlay-content">
+                <div class="overlay-content">
         <div>
         <p>
         <strong>Thank you for visiting the {{config['AGORA_NAME']}}</strong>.
         <p>
         This Agora is in active development. Please check back later!
         <p> 
+        </div>
+
+		<h2>Theme</h2>
+
+		<div class="darkmode">
+            <a href="#" style="text-decoration: none;"><span id='theme-toggle'>🌙</span></a>
         </div>
 
 		<h2>Settings</h2>
@@ -115,8 +119,8 @@
 			</div>
 
 
-			<button onClick=saveSettings()>Save</button>
-			<button onClick=clearSettings()>Clear local storage</button>
+			<button id="save-settings">Save settings</button>
+			<button id="clear-settings">Clear local storage</button>
 		</div>
 
 		<div>
@@ -211,9 +215,6 @@
     </div>
 	
     <!-- class="content" -->
-
-	<script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
-
 </body>
 
 </html>
