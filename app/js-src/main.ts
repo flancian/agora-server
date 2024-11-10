@@ -138,6 +138,10 @@ document.addEventListener("DOMContentLoaded", function () {
     $("#mini-cli").val('go/' + val)
     $("#mini-cli").parent().submit()
   })
+  $("#internet-go").click(() => {
+    console.log("go internet")
+    window.location.href = 'https://google.com/search?q=' + NODEQ;
+  })
 
   // focus mini-cli on key combo
   $(window).keydown(function (e) {
