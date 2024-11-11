@@ -80,69 +80,8 @@
 <body>
 
 	<div class="burger" id="burger">☰</div>
-	
-	<div class="overlay" id="overlay">
-        <div class="overlay-wrapper">
 
-                <div class="overlay-content">
-        <div>
-        <p>
-        <strong>Thank you for visiting the {{config['AGORA_NAME']}}</strong>.
-        <p>
-        This Agora is in active development. Please check back later!
-        <p> 
-        </div>
-
-		<div class="darkmode">
-            <a href="#" style="text-decoration: none;"><span id='theme-toggle'>🌙</span></a>
-        </div>
-
-		<h2>Settings</h2>
-		<div>
-            <div>
-				<input id="auto-pull" type="checkbox" checked /> Autopull (embed) resources
-			</div>
-			<div>
-				<input id="auto-pull-stoa"  type="checkbox" /> Autopull stoas (may steal focus)
-			</div>
-			<div>
-				<input id="auto-pull-search"  type="checkbox" checked /> Autopull full text search
-			</div>
-			<div>
-				<input id="render-wikilinks"  type="checkbox"  /> Render brackets in wikilinks
-			</div>
-
-			<div>
-				Uprank users (csv):
-                <input id="ranking" type="text" placeholder="e.g. flancian, vera" value="${ranking}" /> 
-			</div>
-
-
-			<button id="save-settings">Save settings</button>
-			<button id="clear-settings">Clear local storage</button>
-		</div>
-
-		<div>
-			<h2>Joining this Agora</h2>
-            Please review <a href="CONTRACT">this instance's contract</a> to verify you are in agreement, then send email to <strong>signup@anagora.org</strong> with the following information:
-
-            <ul>
-                <li>Your desired username.</li>
-                <li>The URL of a git repository containing your digital garden, wiki or blog.</li>
-            </ul>
-
-			Please also reach out if you are interested in joining but need assistance. We are working on making this process less manual and more user friendly and inclusive :) Thank you for your patience!
-		</div>
-
-        <div>
-            <h2>Contributing from social media</h2>
-
-            Alternatively, you can contribute in a limited way from the Fediverse by following and interacting with <strong>@agora@botsin.space</strong>; or from Bluesky by following and interacting with <strong>anagora.bsky.social</strong>.
-        </div>
-
-        </div> <!-- overlay-content -->
-        </div> <!-- overlay-wrapper -->
-	</div>
+	{% include "overlay.html" %}
 
     <div class="content">
 

@@ -790,12 +790,6 @@ def backlinks(node):
     return render_template("nodes.html", nodes=api.nodes_by_outlink(node))
 
 
-@bp.route("/settings")
-def settings():
-    n = api.build_node("settings")
-    return render_template("settings.html", header="Settings", node=n)
-
-
 @bp.route("/opensearch.xml")
 def search_xml():
     return (
