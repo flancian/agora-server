@@ -55,7 +55,7 @@ def wp(node):
     return Response(
         f"""
         <!-- adding stoa gets this the right css for the 'done' state as of the time of writing -->
-        <details class='exec wiki-search stoa'>
+        <details class='exec wiki-search web'>
         <summary class="{summary_class}"><span>
         <strong title="We love Wikipedia! Here is the top known article for this location.">
         📖 Wikipedia article</strong> <em><a href='{url}'>{title}</em></a></span>
