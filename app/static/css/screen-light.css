@@ -64,7 +64,7 @@ button {
 }
 
 .pulled-subnode, .pushed-subnode, .stoa-public, .annotations, .delta, .delta-nodes, .delta-annotations, .microblog_timeline { 
-    background: #f9f9f9; 
+    background: #fdfdfd; 
     color: #000; 
 }
 

@@ -853,7 +853,7 @@ class Subnode:
             content = render.preprocess(self.content, subnode=self)
             content = render.mycomarkup(content)
         if self.uri.endswith("py") or self.uri.endswith("PY"):
-            content = '<br /><em>(Python source, might be executed below.)</em><br /><br />'
+            content = '<br /><em>(Python code, executed below if this Agora supports it.)</em><br /><br />'
         ret = render.postprocess(content)
         return ret
 
@@ -1059,6 +1059,8 @@ class ExecutableSubnode(Subnode):
         self.wikilink = path_to_wikilink(path)
         # essentially a slug.
         self.canonical_wikilink = util.canonical_wikilink(self.wikilink)
+        # this is used by the Agora as a label for the source of this content.
+        self.garden_relative = self.basename
         self.user = path_to_user(path)
         self.user_config = User(self.user).config
         self.node = self.canonical_wikilink
@@ -1184,7 +1186,8 @@ def path_to_uri(path):
     return path.replace(current_app.config["AGORA_PATH"] + "/", "")
 
 def path_to_garden_relative(path):
-    return re.sub(current_app.config["AGORA_PATH"] + r"/(garden|stream)/.*?/", "", path)
+    relative = re.sub(current_app.config["AGORA_PATH"] + r"/(garden|stream)/.*?/", "", path)
+    return relative
 
 def path_to_user(path):
     m = re.search("garden/(.+?)/", path)
