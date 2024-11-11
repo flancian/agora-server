@@ -2,13 +2,14 @@
     {% for subnode in pushed_subnodes %}
     <details class="pushed-subnode" open>
         <summary class="subnode-header main-header">
-            <span class="subnode-id" style="flex: auto; flex-grow: 1;">
-                <a class="user" href="/@{{subnode.user}}">👤 {{subnode.user}}</a>
-            <span title="This was written elsewhere but is believed to be relevant in the current context."> pushed from </span>
+            <span title="This was written elsewhere but is believed to be relevant in the current context."> 🫸 pushed from </span>
             <span class="subnode-links">
                 <a href="/raw/{{subnode.uri}}">📄</a> 
                 <a href="/@{{subnode.user}}/{{subnode.virtual_wikilink}}">{{subnode.garden_relative}}</a>
             </span>
+            by
+            <span class="subnode-id" style="flex: auto; flex-grow: 1;">
+                <a class="user" href="/@{{subnode.user}}">👤 {{subnode.user}}</a>
             </span>
         </summary>
         <ul>

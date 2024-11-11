@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,6 @@ html {
 body {
     background: var(--main-bg);
     color: #bfbfbf;
-    overflow-x: hidden;
     width: 100%;
     font-size: var(--base-fontsize);
 }
@@ -60,6 +59,14 @@ body {
     justify-content: center;
     gap: 10px;
 }
+
+/*
+@media screen and (max-width: 96em) {
+    .content, .async-content {
+        margin-right: 2em;
+    }
+}
+*/
 
 pre {
     white-space: pre-line;
@@ -412,11 +419,12 @@ li > p {
     font-style: italic;
 }
 
+
 summary::-webkit-scrollbar {
     display: none;
 }
 
-summary {
+summary, #footer {
     gap: 5px; /* but will grow to fit, aren't we living in the future? :)
     vertical-align: middle;
     align-items: center;
@@ -424,7 +432,6 @@ summary {
     overflow-x: scroll;
     white-space: nowrap;
     align-items: center;
-    width: 100%;
     justify-content: space-between;
 
     /* hide scrollbar if one is needed, but allow scrolling */
@@ -448,7 +455,7 @@ summary {
     justify-content: space-between;
 }
 
-@media screen and (max-width: 48em) {
+@media screen and (max-width: 72em) {
     /* in mobile and in narrow browsers, face out the navigation bar to relax conflict with the burger? */
     .navigation {
         -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
@@ -1099,7 +1106,7 @@ table caption {
 .burger {
     position: fixed;
     top: 0.25em;
-    right: 5px;
+    right: 0.25em;
     font-size: 2em;
     cursor: pointer;
     z-index: 1000;
@@ -1108,7 +1115,7 @@ table caption {
 .darkmode {
     position: absolute;
     left: 10px;
-    top: 0.4em;
+    top: 0.6em;
     font-size: 1.5em;
 }
 
