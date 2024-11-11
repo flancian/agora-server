@@ -29,7 +29,9 @@
             <summary class="node-header main-header">
                 <!-- <div class="inline-flex"> -->
                     <span style="flex: auto; flex-grow: 1;" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">
-                        <strong>📕 {{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
+                        <strong>📕 {{config['NODE_LABEL']}}</strong> 
+                        <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
+                        exact match
                    <!-- <div style="flex: auto; margin-left: auto; text-align: right;"> <button id="pull-all" value="pull-all" title='Tries to retrieve most resources that can be pulled below'>pull all</button> -->
                     <!-- </div> -->
             </summary>
@@ -44,11 +46,10 @@
         <!-- yolo -- dedup with stoa.html when time is available :) -->
         <div info-box-id="node" class="info-box">
 
-            <em>An Agora node contains individual contributions whose title or topic matches the current location.</em>
+            <em>A node contains individual contributions with filenames matching the topic of the current Agora location.</em>
             <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="node" id="dismissbutton" class="dismiss-button">x</span>
     
         </div>
-
 
         {% for subnode in node.subnodes %}
 
@@ -114,7 +115,7 @@
 <details class="node" id="{{node.uri}}" open>
 
     <summary class="node-header main-header"><span style="flex: auto; flex-grow: 1;" title="A Node is an Agora location. It contains resources contributed by users having to do with a location according to the Agora you're using.">
-        <strong>📕 {{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span></span></summary>
+        <strong>📕 {{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span> empty</span></summary>
 
 {% include "empty.html" %}
 
