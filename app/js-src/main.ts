@@ -687,7 +687,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // experiment: make pull button expand all details.
     // Some of these selectors were suggested by Claude, enjoying working with them.
-    var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary");
+    var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary, details.stoa > summary, details.search > summary");
     details.forEach((item) => {
       console.log('trying to click details');
       item.click();
@@ -739,7 +739,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       // experiment: make fold button fold all details which are open.
-      var details = document.querySelectorAll("details[open] summary");
+      var details = document.querySelectorAll("details[open] > summary");
       details.forEach((item) => {
         console.log('trying to click details');
         item.click();
