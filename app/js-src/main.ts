@@ -98,8 +98,9 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('Mutation detected:', mutation.type);
       
       mutation.addedNodes.forEach(node => {
-        console.log('Added node type:', node.nodeName);
+        // console.log('Added node type: ', node.nodeName);
         if (node.nodeName === 'IFRAME') {
+          console.log('Added iframe: ', node.nodeName);
           addIframeListener(node);
         }
       });
@@ -113,7 +114,6 @@ document.addEventListener("DOMContentLoaded", function () {
     subtree: true
   });
   console.log('Observer started');
-
   // end code from Claude Sonnet 3.5.
 
   // clear mini cli on clicking clear button
