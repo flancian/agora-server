@@ -288,8 +288,8 @@ details[open] > :not(summary) {
     vertical-align: middle;
     padding-top: 4px;
     padding-bottom: 4px;
-    max-width: 26px;
-    max-height: 26px;
+    max-width: 32px;
+    max-height: 32px;
 }
 
 .logo {
@@ -438,20 +438,30 @@ summary {
 }
 
 .navigation {
-    display: flex;
     gap: 5px; /* but will grow to fit, aren't we living in the future? :)
     vertical-align: middle;
     align-items: center;
     /* why doesn't this work? */
-    overflow-x: scroll;
     white-space: nowrap;
     align-items: center;
     width: 100%;
     justify-content: space-between;
+}
 
+@media screen and (max-width: 48em) {
+    /* in mobile and in narrow browsers, face out the navigation bar to relax conflict with the burger? */
+    .navigation {
+        -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
+        mask-image: linear-gradient(to right, black 80%, transparent 100%); 
+    }
+}
+
+.navigation, .intro {
+    overflow-x: scroll;
     /* hide scrollbar if one is needed, but allow scrolling */
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
     scrollbar-width: none;  /* Firefox */
+    display: flex;
 }
 
 .webnav::-webkit-scrollbar {
@@ -692,13 +702,6 @@ summary {
     background: #001a2b;
     padding: 7px;
     font-style: italic;
-    display: flex;
-}
-
-#footer {
-    background: #572400;
-    padding: 7px;
-    font-style: italic;
 }
 
 .info-box, .intro {
@@ -710,6 +713,12 @@ summary {
     transition: opacity 0.5s ease, visibility 0.5s ease;
     opacity: 1;
     visibility: visible;
+}
+
+#footer {
+    background: #572400;
+    padding: 7px;
+    font-style: italic;
 }
 
 .dismiss-button {
@@ -1089,17 +1098,16 @@ table caption {
 
 .burger {
     position: fixed;
-    top: 5px;
-    left: 5px;
+    top: 0.25em;
+    right: 5px;
     font-size: 2em;
     cursor: pointer;
     z-index: 1000;
-    background-color: var(--main-bg);
 }
 
 .darkmode {
     position: absolute;
-    right: 10px;
+    left: 10px;
     top: 0.4em;
     font-size: 1.5em;
 }
@@ -1117,7 +1125,7 @@ table caption {
     min-width: 30%;
     max-width: 80%;
     top: 0;
-    left: -100%;
+    right: -100%;
     position: fixed;
     /*top: 30;
     left: 30;
@@ -1138,6 +1146,6 @@ table caption {
 
 /* Overlay active state */
 .overlay.active {
-    left: 0;
+    right: 0;
     background-color: rgba(20, 20, 20, 0.95);
 }
