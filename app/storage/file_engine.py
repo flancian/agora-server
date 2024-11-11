@@ -1186,7 +1186,8 @@ def path_to_uri(path):
     return path.replace(current_app.config["AGORA_PATH"] + "/", "")
 
 def path_to_garden_relative(path):
-    relative = re.sub(current_app.config["AGORA_PATH"] + r"/(garden|stream)/.*?/", "", path)
+    relative = re.sub(current_app.config["AGORA_PATH"] + '/', "", path)
+    relative = re.sub(r"(garden|stream|stoa)/.*?/", "", relative)
     return relative
 
 def path_to_user(path):

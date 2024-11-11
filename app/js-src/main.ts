@@ -646,63 +646,59 @@ document.addEventListener("DOMContentLoaded", function () {
   // pull all/fold all button in main node
   $("#pull-all").click(function (e) {
     
-    if (!this.classList.contains('pulled')) {
-      // this hasn't been pulled yet, so go ahead and pull
-      
-      // this.innerText = 'pulling all';
-      console.log('auto pulling all!');
-      $(".pull-node").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling nodes');
-          this.click();
-        }
-      });
-      $(".pull-mastodon-status").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling activity');
-          this.click();
-        }
-      });
-      $(".pull-tweet").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling tweet');
-          this.click();
-        }
-      });
-      /*
-      $(".pull-stoa").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling stoa');
-          this.click();
-        }
-      });
-      */
-      $(".pull-search").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling search');
-          this.click();
-        }
-      });
-      $(".pull-url").each(function(e) {
-        console.log('auto pulling url');
+    // this.innerText = 'pulling all';
+    console.log('auto pulling all!');
+    $(".pull-node").each(function (e) {
+      if (!this.classList.contains('pulled')) {
+        console.log('auto pulling nodes');
         this.click();
-      });
-      
-      // experiment: make pull button expand all details.
-      // Some of these selectors were suggested by Claude, enjoying working with them.
-      var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary");
-      details.forEach((item) => {
-        console.log('trying to click details');
-        item.click();
-      });
- 
-      this.innerText = 'fold';
-      this.title = 'Folds (hides) pulls below.';
-      this.classList.add('pulled');
+      }
+    });
+    $(".pull-mastodon-status").each(function (e) {
+      if (!this.classList.contains('pulled')) {
+        console.log('auto pulling activity');
+        this.click();
+      }
+    });
+    $(".pull-tweet").each(function (e) {
+      if (!this.classList.contains('pulled')) {
+        console.log('auto pulling tweet');
+        this.click();
+      }
+    });
+    /*
+    $(".pull-stoa").each(function (e) {
+      if (!this.classList.contains('pulled')) {
+        console.log('auto pulling stoa');
+        this.click();
+      }
+    });
+    */
+    $(".pull-search").each(function (e) {
+      if (!this.classList.contains('pulled')) {
+        console.log('auto pulling search');
+        this.click();
+      }
+    });
+    $(".pull-url").each(function(e) {
+      console.log('auto pulling url');
+      this.click();
+    });
+    
+    // experiment: make pull button expand all details.
+    // Some of these selectors were suggested by Claude, enjoying working with them.
+    var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary");
+    details.forEach((item) => {
+      console.log('trying to click details');
+      item.click();
+    });
 
-    }
-    else {
-      // Already pulled -> fold and flip back button.
+  });
+
+  // fold all button in intro banner.
+  $("#fold-all").click(function (e) {
+    
+     // Already pulled -> fold.
       $(".pull-node").each(function (e) {
         if (this.classList.contains('pulled')) {
           console.log('auto folding nodes');
@@ -748,16 +744,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log('trying to click details');
         item.click();
       });
- 
-
-      this.innerText = 'pull';
-      this.title = 'Pulls (embeds, transcludes) some links below.';
-      this.classList.remove('pulled');
- 
-    }
-
     });
-
   }
   // end bindEvents();
   

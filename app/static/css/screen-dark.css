@@ -558,10 +558,6 @@ button, input {
     margin-right: 10px;
 }
 
-#mini-cli-clear, #mini-cli-go {
-    margin-left: 4px;
-}
-
 #mini-cli-exec {
     min-width: 3em;
 }
