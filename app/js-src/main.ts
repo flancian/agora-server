@@ -285,12 +285,13 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log('status: ' + data['url'])
       let actual_url = data['url']
 
+      console.log('actual url for mastodon status: ' + actual_url)
       let oembed_req = domain + '/api/oembed?url=' + actual_url
       $.get(oembed_req, function (data) {
         console.log('oembed: ' + data['html'])
-        let html = '<br /> ' + data['html']
-        $(self).after(html);
+        $(self).after(data['html']);
       });
+
     });
     self.innerText = 'pulled';
   }

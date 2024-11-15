@@ -455,7 +455,7 @@ summary, #footer {
     justify-content: space-between;
 }
 
-@media screen and (max-width: 72em) {
+@media screen and (max-width: 90em) {
     /* in mobile and in narrow browsers, face out the navigation bar to relax conflict with the burger? */
     .navigation {
         -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
