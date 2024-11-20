@@ -692,7 +692,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // Some of these selectors were suggested by Claude, enjoying working with them.
     var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary, details.stoa > summary, details.search > summary");
     details.forEach((item) => {
-      if (!this.classList.contains('pulled')) {
         console.log('trying to click details');
         item.click();
     });
