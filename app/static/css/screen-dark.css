@@ -694,7 +694,7 @@ summary {
 .info-box {
     margin-top: 10px;
     border: 1px dashed var(--border);
-    background: #565000;
+    background: #3a3a84;
     padding: 7px;
     padding-right: 30px;
     /* margin-left: auto;
@@ -719,7 +719,7 @@ summary {
 }
 
 #footer {
-    background: #572400;
+    background: #390057;
     padding: 7px;
     font-style: italic;
 }

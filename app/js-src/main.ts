@@ -682,16 +682,19 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
     $(".pull-url").each(function(e) {
-      console.log('auto pulling url');
-      this.click();
+      if (!this.classList.contains('pulled')) {
+        console.log('auto pulling url');
+        this.click();
+      }
     });
     
     // experiment: make pull button expand all details.
     // Some of these selectors were suggested by Claude, enjoying working with them.
     var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary, details.stoa > summary, details.search > summary");
     details.forEach((item) => {
-      console.log('trying to click details');
-      item.click();
+      if (!this.classList.contains('pulled')) {
+        console.log('trying to click details');
+        item.click();
     });
 
   });
