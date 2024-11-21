@@ -694,7 +694,7 @@ summary {
 .info-box {
     margin-top: 10px;
     border: 1px dashed var(--border);
-    background: #3a3a84;
+    background: rgb(0, 55, 92);
     padding: 7px;
     padding-right: 30px;
     /* margin-left: auto;
