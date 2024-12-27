@@ -163,9 +163,9 @@ iframe {
     width: 99.5%;
 }
 
-.mastodon-embed {
-    height: 30em;
-    width: 500px;
+.mastodon-embed > iframe {
+    height: auto;
+    width: auto;
 }
 
 details .mastodon, .twitter {
