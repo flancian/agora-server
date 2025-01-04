@@ -20,14 +20,37 @@
                 <div class="overlay-content">
         <div>
         <p>
-        <strong>Thank you for visiting the {{config['AGORA_NAME']}}</strong>.
+        <strong>Thank you for visiting the {{config['AGORA_NAME']}}</strong>!
         <p>
-        This Agora is in active development. Please check back later!
+        This Agora is in active development. Please feel free to <a href="/go/agora server/bugs">report bugs</a> and send feedback!
         <p> 
         </div>
 
-		<h2>Settings</h2>
 		<div>
+			<h2>Joining the Agora</h2>
+            Please <strong>review <a href="CONTRACT">this Agora's base contract</a></strong> to verify you are in agreement, then <strong>send email to signup@anagora.org</strong> with the following information:
+
+            <ul>
+                <li>The URL of a <strong>git repository</strong> containing your digital garden, wiki or blog; or a link to the content you would like to contribute in any format.</li>
+                <li>Your desired <strong>username</strong> (you can check for existing users <a href="/users">here</a>).</li>
+            </ul>
+
+			Please also reach out if you are interested in joining but do not have a git repository currently or otherwise need assistance for importing your contributions into the Agora. 
+			
+			<p>
+			We are working on making this process less manual and more user friendly and inclusive :) 
+			
+			Thank you for your patience!
+		</div>
+
+        <div>
+            <h2>Contributing from social media</h2>
+
+            Alternatively, you can contribute in a limited way from the Fediverse by following and interacting with <strong>@agora@botsin.space</strong>; or from Bluesky by following and interacting with <strong>anagora.bsky.social</strong>.
+        </div>
+
+		<div>
+			<h2>Settings</h2>
             <div>
 				<input id="auto-pull" type="checkbox" checked /> Autopull (embed) resources
 			</div>
@@ -50,24 +73,6 @@
 			<button id="save-settings">Save settings</button>
 			<button id="clear-settings">Clear local storage</button>
 		</div>
-
-		<div>
-			<h2>Joining this Agora</h2>
-            Please review <a href="CONTRACT">this instance's contract</a> to verify you are in agreement, then send email to <strong>signup@anagora.org</strong> with the following information:
-
-            <ul>
-                <li>Your desired username.</li>
-                <li>The URL of a git repository containing your digital garden, wiki or blog.</li>
-            </ul>
-
-			Please also reach out if you are interested in joining but need assistance. We are working on making this process less manual and more user friendly and inclusive :) Thank you for your patience!
-		</div>
-
-        <div>
-            <h2>Contributing from social media</h2>
-
-            Alternatively, you can contribute in a limited way from the Fediverse by following and interacting with <strong>@agora@botsin.space</strong>; or from Bluesky by following and interacting with <strong>anagora.bsky.social</strong>.
-        </div>
 
         </div> <!-- overlay-content -->
         </div> <!-- overlay-wrapper -->

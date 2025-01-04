@@ -70,10 +70,11 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Burger menu, where we keep settings presumably :)
-  var burger = document.querySelector("#burger");
-  burger.addEventListener("click", function() {
-    const overlay = document.getElementById('overlay');
-    overlay.classList.toggle('active');
+  document.querySelectorAll(['#burger', '#join']).forEach(element => {
+      element.addEventListener("click", function() {
+        const overlay = document.getElementById('overlay');
+        overlay.classList.toggle('active');
+    });
   });
  
   // Stuff to try to react to changes in iframes.

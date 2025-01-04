@@ -23,7 +23,7 @@
 {% if header %}
 <span class="node-header main-header">📚 {{header}}</span>
 {% else %}
-<span class="node-header main-header">📚 <strong>All nodes</strong> in the <strong>{{config['AGORA_NAME']}}</strong></span>
+<span class="node-header main-header">📚 <strong>Nodes</strong> found in the <strong>{{config['AGORA_NAME']}}</strong></span>
 {% endif %}
 </summary>
 
@@ -36,21 +36,25 @@ This Agora contains <strong>{{stats['subnodes']}} resources</strong> contributed
 There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']}} links</strong>.
 </p>
 
-<details class="url node" style="border-style: none;">
-    <summary><span class="agoragraph"><strong>☡ See full Agora graph </strong> (slow, might crash your tab, good luck! :)</summary></span>
-        <div class="stoa-iframe" src="{{config['AGORA_URL']}}/context/all"></div>
-</details>
-
 {% endif %}
 
-<strong>Top 1000 nodes:</strong>
+<strong>Top 10k:</strong>
 <br />
-{% for node in nodes[:1000] %}
+{% for node in nodes[:10000] %}
 
 <a href="{{node.uri}}">{{node.wikilink}}</a> <span style="font-weight: lighter">({{node.size()}})</span>
 
 {% endfor %}
 
+<hr />
+
+For more, please see graph endpoints.
+
+</details>
+
+<details class="url node" style="border-style: none;">
+    <summary><span class="agoragraph"><strong>⚠️ Danger</strong>: full graph of the <strong>{{config['AGORA_NAME']}}</strong> (slow, might crash your tab, good luck! :)</summary></span>
+        <div class="stoa-iframe" src="{{config['AGORA_URL']}}/context/all"></div>
 </details>
 
 {% endblock %}

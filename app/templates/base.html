@@ -37,7 +37,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached241" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached242" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -94,8 +94,8 @@
             <a href="/" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a>             </span>
             <!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
 			⮕
-            <a href="/nodes" class="navlink" style="text-decoration: none;"><span class="navbar-item"><span>📚</span><span>All nodes</span></span></a>
-            {{config['MENU_SEPARATOR']}} <a href="/random" style="text-decoration: none;"><span class="navbar-item"><span>🎲️</span> Random</span></a>
+            <a href="/nodes" class="navlink" style="text-decoration: none;"><span class="navbar-item"><span>📚</span><span>Nodes</span></span></a>
+            {{config['MENU_SEPARATOR']}} <a href="/random" style="text-decoration: none;"><span class="navbar-item"><span>🎲️</span>Random</span></a>
           {{config['MENU_SEPARATOR']}} <a href="/latest" style="text-decoration: none;"><span class="navbar-item"><span>🌀</span>Latest</span></a>
           {{config['MENU_SEPARATOR']}} <a href="/today" style="text-decoration: none;"><span class="navbar-item"><span>🕐</span> Today</a>
           {{config['MENU_SEPARATOR']}} <a href="/journals" style="text-decoration: none;"><span class="navbar-item"><span>📆</span> Journals</span></a>
@@ -103,7 +103,7 @@
           <!-- {{config['MENU_SEPARATOR']}} <a href="/journals" style="text-decoration: none;"><span>📆</span><span>Journals</span></a> -->
           {{config['MENU_SEPARATOR']}} <a title="Commoners" href="/users" style="text-decoration: none;"><span class="navbar-item"><span>🫂</span> Users</span></a>
           {{config['MENU_SEPARATOR']}} <a href="/annotations" style="text-decoration: none;"><span class="navbar-item"><span>💬</span> Annotations</span></a>
-          {{config['MENU_SEPARATOR']}} <a href="/agora-join" style="text-decoration: none;" class="help-button"><span class="navbar-item"><span>🙏</span> Join</span></a>
+          {{config['MENU_SEPARATOR']}} <a href="#" style="text-decoration: none;" id="join"><span class="navbar-item"><span>🙏</span> Join</span></a>
 		  <!-- Now moved to burger: overlay.html 
           {{config['MENU_SEPARATOR']}} <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
 			-->

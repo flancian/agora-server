@@ -68,6 +68,11 @@ button {
     color: #000; 
 }
 
+.burger {
+    background-color: rgba(230, 230, 230, 150);
+}
+
+
 .overlay {
     background-color: rgba(238, 238, 238, 0);
 }

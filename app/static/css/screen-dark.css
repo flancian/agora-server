@@ -455,13 +455,14 @@ summary, #footer {
     justify-content: space-between;
 }
 
+/* in mobile and in narrow browsers, face out the navigation bar to relax conflict with the burger? 
 @media screen and (max-width: 90em) {
-    /* in mobile and in narrow browsers, face out the navigation bar to relax conflict with the burger? */
     .navigation {
-        -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
-        mask-image: linear-gradient(to right, black 80%, transparent 100%); 
+        -webkit-mask-image: linear-gradient(to right, black 95%, transparent 100%);
+        mask-image: linear-gradient(to right, black 95%, transparent 100%); 
     }
 }
+not for now */
 
 .navigation, .intro {
     overflow-x: scroll;
@@ -1101,19 +1102,12 @@ table caption {
 
 .burger {
     position: fixed;
-    top: 0.25em;
-    right: 0.25em;
+    bottom: 0.25em;
+    left: 0.5em;
     font-size: 2em;
     cursor: pointer;
     z-index: 1000;
-}
-
-.darkmode {
-    /* position: absolute;
-     left: 10px;
-     top: 0.6em;
-    */
-    font-size: 1.5em;
+    background-color: rgba(20, 20, 20, 150);
 }
 
 .overlay-wrapper {
@@ -1129,7 +1123,7 @@ table caption {
     min-width: 30%;
     max-width: 80%;
     top: 0;
-    right: -100%;
+    left : -100%;
     position: fixed;
     /*top: 30;
     left: 30;
@@ -1150,6 +1144,6 @@ table caption {
 
 /* Overlay active state */
 .overlay.active {
-    right: 0;
+    left: 0;
     background-color: rgba(20, 20, 20, 0.95);
 }
