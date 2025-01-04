@@ -56,7 +56,7 @@ def wt(node):
         <details class='exec wiktionary-search stoa'>
         <summary class="{summary_class}"><span>
         <strong title="We love Wiktionary! Here is an entry hopefully relevant for this location.">
-        📖 Wiktionary entry </strong> <em><a href='{url}'>{title}</em></a></span>
+        📖 Dictionary entry </strong> <em><a href='{url}'>{title}</em></a></span>
         {leading} </summary> 
 
         <!-- find a better way to present this data which is only useful for some users. -->

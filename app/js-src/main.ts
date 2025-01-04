@@ -70,7 +70,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Burger menu, where we keep settings presumably :)
-  document.querySelectorAll(['#burger', '#join']).forEach(element => {
+  document.querySelectorAll(['#burger', '#join', '#join2']).forEach(element => {
+      console.log(`Clicked ${element.id}`);
       element.addEventListener("click", function() {
         const overlay = document.getElementById('overlay');
         overlay.classList.toggle('active');
@@ -754,6 +755,16 @@ document.addEventListener("DOMContentLoaded", function () {
         item.click();
       });
     });
+
+    // For late rendered 'join' actions... YOLO :)
+    document.querySelectorAll(['#join2']).forEach(element => {
+        console.log(`Clicked ${element.id}`);
+        element.addEventListener("click", function() {
+          const overlay = document.getElementById('overlay');
+          overlay.classList.toggle('active');
+      });
+    });
+    
   }
   // end bindEvents();
   
