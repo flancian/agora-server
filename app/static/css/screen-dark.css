@@ -1109,9 +1109,10 @@ table caption {
 }
 
 .darkmode {
-    position: absolute;
-    left: 10px;
-    top: 0.6em;
+    /* position: absolute;
+     left: 10px;
+     top: 0.6em;
+    */
     font-size: 1.5em;
 }
 
