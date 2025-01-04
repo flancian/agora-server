@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("DomContentLoaded");
   console.log("Autopull settings are: " + autoPull + ", " + autoPullExtra);
 
-  // Theme toggle stuff
+  // Theme toggle stuff for initial load
   var theme = document.querySelector("#theme-link");
   var toggle = document.querySelector("#theme-toggle");
   // YOLO :)
@@ -49,43 +49,26 @@ document.addEventListener("DOMContentLoaded", function () {
     theme.innerHTML = '🌙';
   }
   
-  // Listen for a click on the theme toggle button
-  toggle.addEventListener("click", function () {
-    // Select the stylesheet <link>
-    console.log("click!");
-    var theme = document.querySelector("#theme-link");
-    var toggle = document.querySelector("#theme-toggle");
-    if (theme.getAttribute("href") == "/static/css/screen-light.css") {
-      theme.href = "/static/css/screen-dark.css";
-      // this doesn't work and I don't know why, but it also doesn't seem like a priority :)
-      localStorage.setItem("theme", "dark");
-      toggle.innerHTML = '🌞';
-    } else {
-      theme.href = "/static/css/screen-light.css";
-      localStorage.setItem("theme", "light");
-      toggle.innerHTML = '🌙';
-    }
+  // Then listen for clicks on the theme toggle button or the link text
+  const ids = ['#theme-toggle', '#theme-toggle-text'];
+  document.querySelectorAll(ids).forEach(element => {
+    element.addEventListener('click', function() {
+      console.log(`Clicked ${element.id}`);
+      var theme = document.querySelector("#theme-link");
+      var toggle = document.querySelector("#theme-toggle");
+      if (theme.getAttribute("href") == "/static/css/screen-light.css") {
+        theme.href = "/static/css/screen-dark.css";
+        // this doesn't work and I don't know why, but it also doesn't seem like a priority :)
+        localStorage.setItem("theme", "dark");
+        toggle.innerHTML = '🌞';
+      } else {
+        theme.href = "/static/css/screen-light.css";
+        localStorage.setItem("theme", "light");
+        toggle.innerHTML = '🌙';
+      }
+    });
   });
 
-  // Listen for a click on the theme toggle2 link
-  // Don't ask / don't look too close into this ;)
-  toggle2.addEventListener("click", function () {
-    // Select the stylesheet <link>
-    console.log("click2!");
-    var theme = document.querySelector("#theme-link");
-    var toggle = document.querySelector("#theme-toggle");
-    if (theme.getAttribute("href") == "/static/css/screen-light.css") {
-      theme.href = "/static/css/screen-dark.css";
-      // this doesn't work and I don't know why, but it also doesn't seem like a priority :)
-      localStorage.setItem("theme", "dark");
-      toggle.innerHTML = '🌞';
-    } else {
-      theme.href = "/static/css/screen-light.css";
-      localStorage.setItem("theme", "light");
-      toggle.innerHTML = '🌙';
-    }
-  });
- 
   // Burger menu, where we keep settings presumably :)
   var burger = document.querySelector("#burger");
   burger.addEventListener("click", function() {
