@@ -1005,7 +1005,7 @@ ul .wikilink-marker {
     display: inline;
 }
 
-.wiki-search .wikilink-marker {
+.wiki-search .wiktionary-search .wikilink-marker {
     display: inline;
 }
 
@@ -1103,7 +1103,7 @@ table caption {
 .burger {
     position: fixed;
     bottom: 0.25em;
-    left: 0.5em;
+    right: 0.5em;
     font-size: 2em;
     cursor: pointer;
     z-index: 1000;
@@ -1123,7 +1123,7 @@ table caption {
     min-width: 30%;
     max-width: 80%;
     top: 0;
-    left : -100%;
+    right: -100%;
     position: fixed;
     /*top: 30;
     left: 30;
@@ -1144,6 +1144,6 @@ table caption {
 
 /* Overlay active state */
 .overlay.active {
-    left: 0;
+    right: 0;
     background-color: rgba(20, 20, 20, 0.95);
 }

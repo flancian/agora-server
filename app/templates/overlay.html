@@ -27,48 +27,19 @@
         </div>
 
 		<div>
-			<h2>Joining the Agora</h2>
-
-            We're working on making the process of contributing more straightforward! For now, some assembly is required 😇
-
-			<p>
-
-            Please <strong>review <a href="CONTRACT">this Agora's base contract</a></strong> to verify you are in agreement, then <strong>send an email to signup@anagora.org</strong> with the following information:
-
-            <ul>
-                <li>The URL of a <strong>Git repository</strong> containing your digital garden, wiki or blog; or of the content you would like to contribute.</li>
-                <li>Your desired <strong>username</strong> (you can check for existing users <a href="/users">here</a>).</li>
-            </ul>
-
-			Please also reach out if you are interested in joining but need clarification or assistance. 
-
-			<p>
-			
-			We are working on making this process less manual and more user friendly and inclusive :) 
-
-			Thank you for your patience!
-		</div>
-
-        <div>
-            <h2>Contributing from social media and chat</h2>
-
-            You can contribute:
-			
-		<ul>
-			<li>
-				From the <a href="/fediverse">Fediverse</a> by following and interacting with <strong>@agora@botsin.space</strong>.
-			</li>
-			<li>
-				From <a href="/bluesky">Bluesky</a> by following and interacting with <strong>anagora.bsky.social</strong>.
-			</li>
-			<li>
-                From <a href="/matrix">Matrix</a> by adding <strong>@anagora:matrix.org</strong> to a room.
-			</li>
-        </div>
-
-		<div>
 			<h2>Settings</h2>
-			These are even more experimental than the Agora proper :) If you see strangeness, try clearing your local storage.
+			<p>
+
+			<div>
+				User (browse Agora as):
+                <input id="user" type="text" placeholder="flancian" /> 
+			</div>
+
+			<div>
+				Uprank (comma separated):
+                <input id="ranking" type="text" placeholder="e.g. flancian, neil, vera" value="${ranking}" /> 
+			</div>
+
 			<p>
             <div>
 				<input id="auto-pull" type="checkbox" checked /> Autopull (embed) resources
@@ -83,10 +54,10 @@
 				<input id="render-wikilinks"  type="checkbox"  /> Render brackets in wikilinks
 			</div>
 
-			<div>
-				Uprank users (csv):
-                <input id="ranking" type="text" placeholder="e.g. flancian, vera" value="${ranking}" /> 
-			</div>
+			<p>
+			<p>
+
+            The Agora is experimental :) If you notice strangeness, try clearing your local storage or reach out for support at <em>agora@flancia.org</em>.
 
 			<p>
 
@@ -94,6 +65,47 @@
 			<button id="clear-settings">Clear local storage</button>
 		</div>
 
+
+
+		<div>
+			<h2>Joining this Agora</h2>
+
+            We're working on making the process of contributing more straightforward! For now, some assembly is required 😇
+
+
+            <h3>Joining with your digital garden</h3>
+			<p>
+
+            Please <strong>review <a href="CONTRACT">this Agora's base contract</a></strong> to verify you are in agreement, then <strong>send email</strong> to <em>signup@anagora.org</em> with the following information:
+
+            <ul>
+                <li>The URL of a <strong>Git repository</strong> containing your digital garden, wiki or blog; or of the content you would like to contribute.</li>
+                <li>Your desired <strong>username</strong> (you can check for existing users <a href="/users">here</a>).</li>
+            </ul>
+
+			Please also reach out if you are interested in joining but need clarification or assistance. 
+
+			<p>
+			
+			We are working on making this process less manual and more user friendly and inclusive :) 
+
+			Thank you for your patience!
+
+            <h3>Contributing from social media and chat</h3>
+
+            You can contribute:
+			
+		<ul>
+			<li>
+				From the <a href="/fediverse">Fediverse</a> by following and interacting with <strong>@agora@botsin.space</strong>.
+			</li>
+			<li>
+				From <a href="/bluesky">Bluesky</a> by following and interacting with <strong>anagora.bsky.social</strong>.
+			</li>
+			<li>
+                From <a href="/matrix">Matrix</a> by adding <strong>@anagora:matrix.org</strong> to a room.
+			</li>
+        </div>
         </div> <!-- overlay-content -->
         </div> <!-- overlay-wrapper -->
 	</div>

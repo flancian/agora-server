@@ -53,10 +53,10 @@ def wt(node):
     return Response(
         f"""
         <!-- adding stoa gets this the right css for the 'done' state as of the time of writing -->
-        <details class='exec wiktionary-search stoa'>
+        <details class='exec wiktionary-search web'>
         <summary class="{summary_class}"><span>
         <strong title="We love Wiktionary! Here is an entry hopefully relevant for this location.">
-        📖 Dictionary entry </strong> <em><a href='{url}'>{title}</em></a></span>
+        📖 Wiktionary entry </strong> <em><a href='{url}'>{title}</em></a></span>
         {leading} </summary> 
 
         <!-- find a better way to present this data which is only useful for some users. -->
