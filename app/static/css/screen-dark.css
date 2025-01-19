@@ -163,6 +163,13 @@ iframe {
     width: 99.5%;
 }
 
+/* this is needed to work around a possible bug in bull, maybe remove if no longer needed :)
+ * it happens because bull is not setting background in their css I think
+ */
+.stoa-iframe > iframe {
+    background-color: #ffffff;
+}
+
 .mastodon-embed > iframe {
     height: auto;
     width: auto;
