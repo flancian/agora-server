@@ -703,7 +703,7 @@ summary {
 }
 
 .intro {
-    background: #001a2b;
+    background: #001a3b;
     padding: 7px;
     font-style: italic;
 }
@@ -720,7 +720,7 @@ summary {
 }
 
 #footer {
-    background: #390057;
+    background: #390087;
     padding: 7px;
     font-style: italic;
 }
@@ -736,7 +736,7 @@ summary {
 .info-box::before {
   /* content: '︎❓'; */
   content: '︎ℹ️';
-  width: 1em;
+  width: 2em;
   flex-shrink: 0;
   transition: 0.3s;
 }
@@ -753,6 +753,7 @@ summary {
 .intro::before {
   content: '➼';
   width: 1em;
+  margin-right: 0.3em;
   flex-shrink: 0;
   transition: 0.3s;
 }
