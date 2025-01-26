@@ -465,23 +465,99 @@ document.addEventListener("DOMContentLoaded", async function () {
       const response = await fetch(AGORAURL + '/context/' + node);
       const data = await response.text();
       document.querySelector(id).innerHTML = data;
-      // end auto pull pushed subnodes.
+      console.log('auto pulled context');
+      
+      // Finally!
+
+      console.log("loading graph...")
+      fetch("/graph/json/" + node).then(res => res.json()).then(data => {
+      const container = document.getElementById('graph');
+      const currentTheme = localStorage.getItem("theme") || 'light';
+      // const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
+      const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
+      const edgeColor = (currentTheme == 'light' ? 'rgba(100, 100, 100, 1)' : 'rgba(150, 150, 150, 1)')
+
+      console.log('graph center:' + node)
+      const Graph = ForceGraph()(container);
+
+      if (data.nodes.length > 100) {
+          // for "large" graphs, render nodes as circles.
+          Graph.height(container.clientHeight)
+              .width(container.clientWidth)
+              .onNodeClick(node => {
+                  let url = "{{config['URL_BASE']}}/" + node.id;
+                  location.assign(url)
+              })
+              .graphData(data)
+              .nodeId('id')
+              .nodeVal('val')
+              .nodeAutoColorBy('group')
+          }
+          else {
+          // for "small" graphs, render nodes as labels.
+              Graph.height(container.clientHeight)
+              .width(container.clientWidth)
+              .onNodeClick(node => {
+                  let url = "{{config['URL_BASE']}}/" + node.id;
+                  location.assign(url)
+              })
+              .graphData(data)
+              .nodeId('id')
+              .nodeVal('val')
+              .nodeAutoColorBy('group')
+              .nodeCanvasObject((node, ctx, globalScale) => {
+              const label = node.name;
+              var fontSize = 12/globalScale;
+              if (node.id == node) {
+                  fontSize = 24/globalScale;
+                  }
+              ctx.font = `${fontSize}px Sans-Serif`;
+              const textWidth = ctx.measureText(label).width;
+              const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+
+              ctx.fillStyle = backgroundColor;
+              ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillStyle = node.color;
+              ctx.fillText(label, node.x, node.y);
+
+              node.__bckgDimensions = bckgDimensions; // to re-use in nodePointerAreaPaint
+              })
+              .linkDirectionalArrowLength(3)
+              .linkColor(() => edgeColor)
+              //.d3Force('collision', d3.forceCollide(node => Math.sqrt(100 / (node.level + 1)) * NODE_REL_SIZE))
+              .nodePointerAreaPaint((node, color, ctx) => {
+              ctx.fillStyle = color;
+              const bckgDimensions = node.__bckgDimensions;
+              bckgDimensions && ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+              });
+          }
+          Graph.zoom(3);
+          Graph.cooldownTime(5000); // default is 15000ms
+          Graph.onEngineStop(() => Graph.zoomToFit(400));
+      });
+
+      // fit to canvas when engine stops
+
+      console.log("graph loaded.")
     });
 
-        if (autoPull) {
-        console.log('auto pulling recommended (local, friendly-looking domains) resources!');
-        // auto pull everything with class auto-pull by default.
-        // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
-        document.querySelectorAll(".auto-pull-button").forEach(function (element) {
-          console.log('auto pulling URLs, trying to press button', element);
-          element.click();
-        });
-        var details = document.querySelectorAll(".autopull");
-        details.forEach((item) => {
-          console.log('auto pulling details, trying to expand' + this)
-          item.click();
-        });
-      }
+    if (autoPull) {
+      console.log('auto pulling recommended (local, friendly-looking domains) resources!');
+      // auto pull everything with class auto-pull by default.
+      // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
+      document.querySelectorAll(".auto-pull-button").forEach(function (element) {
+        console.log('auto pulling URLs, trying to press button', element);
+        element.click();
+      });
+      var details = document.querySelectorAll(".autopull");
+      details.forEach((item) => {
+        console.log('auto pulling details, trying to expand' + this)
+        item.click();
+      });
+    }
     // end async content code.
 
     // pull nodes from the [[agora]]
@@ -762,6 +838,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       .then(data => {
         document.querySelector(id).innerHTML = data;
       });
+      console.log('auto pulled context');
     });
 
     document.querySelectorAll(".context-all").forEach(function (element) {
