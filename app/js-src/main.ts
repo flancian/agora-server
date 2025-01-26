@@ -34,6 +34,31 @@ function safeJsonParse(value: string, defaultValue: any) {
 
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
+
+  // set values from storage
+  (document.getElementById("ranking") as HTMLInputElement).value = localStorage["ranking"] || '';
+  (document.getElementById("auto-pull") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull"], true);
+  (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], true);
+  (document.getElementById("auto-pull-stoa") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-stoa"], false);
+  (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
+
+  // bind clear button (why is this here? good question!)
+  var clear = document.getElementById("clear-settings");
+  clear.addEventListener("click", function () {
+    console.log("clearing settings");
+    localStorage.clear();
+  });
+
+  var save = document.getElementById("save-settings");
+  save.addEventListener("click", function () {
+    console.log("trying to save settings...")
+    localStorage["ranking"] = document.getElementById("ranking").value
+    localStorage["auto-pull"] = document.getElementById("auto-pull").checked
+    localStorage["auto-pull-stoa"] = document.getElementById("auto-pull-stoa").checked
+    localStorage["auto-pull-search"] = document.getElementById("auto-pull-search").checked
+    localStorage["render-wikilinks"] = document.getElementById("render-wikilinks").checked
+  });
+
   console.log("Autopull settings are: " + autoPull + ", " + autoPullExtra);
 
   // Theme toggle stuff for initial load
@@ -544,6 +569,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.log("graph loaded.")
     });
 
+  // This autoPull runs just after load of the node.
     if (autoPull) {
       console.log('auto pulling recommended (local, friendly-looking domains) resources!');
       // auto pull everything with class auto-pull by default.
@@ -803,44 +829,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       element.click();
     });
 
-    document.querySelectorAll(".pushed-subnodes-embed").forEach(function (element) {
-      // auto pull pushed subnodes by default.
-      // it would be better to infer this from node div id?
-      let node = NODENAME;
-      let arg = ARG;
-      let id = "#" + node + " .pushed-subnodes-embed";
-      console.log('auto pulling pushed subnodes, will write to id: ' + id);
-      if (arg != '') {
-      fetch(AGORAURL + '/push/' + node + '/' + arg)
-        .then(response => response.text())
-        .then(data => {
-        document.querySelector(id).innerHTML = data;
-        });
-      }
-      else {
-      fetch(AGORAURL + '/push/' + node)
-        .then(response => response.text())
-        .then(data => {
-        document.querySelector(id).innerHTML = data;
-        });
-      }
-      // end auto pull pushed subnodes.
-    });
-
-    document.querySelectorAll(".context").forEach(function (element) {
-      // auto pull context by default.
-      // it would be better to infer this from node div id?
-      let node = NODENAME;
-      let id = '.context';
-      console.log('auto pulling context, will write to id: ' + id);
-      fetch(AGORAURL + '/context/' + node)
-      .then(response => response.text())
-      .then(data => {
-        document.querySelector(id).innerHTML = data;
-      });
-      console.log('auto pulled context');
-    });
-
     document.querySelectorAll(".context-all").forEach(function (element) {
       // auto pull whole Agora graph in /nodes.
       let id = '.context-all';
@@ -895,20 +883,18 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   }
 
+  // This autoPull runs after load of the top level chrome, before the node is loaded.
   if (autoPull) {
     console.log('auto pulling recommended (local, friendly-looking domains) resources!');
     // auto pull everything with class auto-pull by default.
     // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
-    document.querySelectorAll(".auto-pull-button").forEach(function (element) {
-      console.log('auto pulling node, trying to press button', element);
-      element.click();
-    });
     document.querySelectorAll(".node-header").forEach(function (element) {
       console.log('*** auto pulling node, trying to activate', element);
       element.click();
     });
     }
-    if (autoPullExtra) {
+
+  if (autoPullExtra) {
     console.log('auto pulling external resources!');
     document.querySelectorAll(".pull-mastodon-status").forEach(function (element) {
       console.log('auto pulling activity');
@@ -931,52 +917,5 @@ document.addEventListener("DOMContentLoaded", async function () {
       element.click();
     });
     }
-
-    function autoPullWp() {
-    document.querySelectorAll(".pull-exec.wp").forEach(function (element) {
-      if (!element.classList.contains('pulled')) {
-      element.click();
-      }
-      console.log('auto pulled wp');
-    });
-    }
-
-  function autoPullStoa2() {
-    // terrible name because autoPullStoa is a setting -- yolo.
-    document.querySelectorAll("#pull-stoa").forEach(function (element) {
-      if (!element.classList.contains('pulled')) {
-        element.click();
-      }
-      console.log('auto pulled stoa');
-    });
-  }
-
-  function sleep(ms) {
-    // https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  // set values from storage
-  (document.getElementById("ranking") as HTMLInputElement).value = localStorage["ranking"] || '';
-  (document.getElementById("auto-pull") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull"], true);
-  (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], true);
-  (document.getElementById("auto-pull-stoa") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-stoa"], false);
-  (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
-
-  var clear = document.getElementById("clear-settings");
-  clear.addEventListener("click", function () {
-    console.log("clearing settings");
-    localStorage.clear();
-  });
-
-  var save = document.getElementById("save-settings");
-  save.addEventListener("click", function () {
-    console.log("trying to save settings...")
-    localStorage["ranking"] = document.getElementById("ranking").value
-    localStorage["auto-pull"] = document.getElementById("auto-pull").checked
-    localStorage["auto-pull-stoa"] = document.getElementById("auto-pull-stoa").checked
-    localStorage["auto-pull-search"] = document.getElementById("auto-pull-search").checked
-    localStorage["render-wikilinks"] = document.getElementById("render-wikilinks").checked
-  });
 
 });
