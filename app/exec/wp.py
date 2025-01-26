@@ -58,7 +58,7 @@ def wp(node):
         <details class='exec wiki-search web'>
         <summary class="{summary_class}"><span>
         <strong title="We love Wikipedia! Here is the top known article for this location.">
-        📖 Wikipedia article</strong> <em><a href='{url}'>{title}</em></a></span>
+        📖 Wikipedia article</strong> <em><a href='{url}' target="_blank">{title}</em></a></span>
         {leading} </summary> 
 
         <!-- find a better way to present this data which is only useful for some users. -->
