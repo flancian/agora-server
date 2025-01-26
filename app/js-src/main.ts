@@ -13,11 +13,6 @@
 // limitations under the License.
 //
 
-// Adapted from https://css-tricks.com/a-complete-guide-to-dark-mode-on-the-web/#toggling-themes
-
-import jquery from "jquery";
-(<any>window).$ = (<any>window).jQuery = jquery;
-
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
 const autoPull = JSON.parse(localStorage["auto-pull"] || 'true')
@@ -28,6 +23,14 @@ const autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || 'true')
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 const showBrackets = JSON.parse(localStorage["showBrackets"] || 'false')
+
+function safeJsonParse(value: string, defaultValue: any) {
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return defaultValue;
+  }
+}
 
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
@@ -121,149 +124,86 @@ document.addEventListener("DOMContentLoaded", async function () {
   // end code from Claude Sonnet 3.5.
 
   // clear mini cli on clicking clear button
-  $("#mini-cli-clear").click(() => {
-    console.log("clearing mini-cli")
-    $("#mini-cli").val("")
-  })
-  $("#mini-cli-exec").click(() => {
-    console.log("exec mini-cli")
-    let val = $("#mini-cli").val()
-    // "Easter egg": "double" click == go.
-    /* cute but nah, it's too confusing in particular given the dedicated go button we have as of 2024.
-    if (val == NODENAME) {
-        $("#mini-cli").val('go/' + val)
-    }
-    */
-    $("#mini-cli").parent().submit()
-  })
-  $("#mini-cli-go").click(() => {
-    console.log("go mini-cli executes")
-    let val = $("#mini-cli").val()
-    $("#mini-cli").val('go/' + val)
-    $("#mini-cli").parent().submit()
-  })
-  $("#internet-go").click(() => {
-    console.log("go internet")
-    window.location.href = 'https://google.com/search?q=' + NODEQ;
-  })
-
-  // focus mini-cli on key combo
-  $(window).keydown(function (e) {
-    if (e.ctrlKey && e.altKey && e.keyCode == 83) {
-      $("#mini-cli").focus().val("")
-    }
-  })
-
-  // pull arbitrary URL
-  $(".pull-url").click(function (e) {
-    console.log("in pull-url!")
-    if (this.classList.contains('pulled')) {
-      // already pulled.
-      this.innerText = 'pull';
-      $(e.currentTarget).nextAll('iframe').remove()
-      this.classList.remove('pulled');
-    }
-    else {
-      // pull.
-      this.innerText = 'pulling';
-      let url = this.value;
-      console.log('pull url : ' + url)
-      $(e.currentTarget).after('<iframe class="stoa2-iframe" allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '></iframe>')
-      this.innerText = 'fold';
-      this.classList.add('pulled');
-    }
-  });
-
-  // jitsi specific code using their api.
-  // unused / disabled right now as there was no evident advantage in using this as opposed to just using generic pull-url code for embedding the iframe.
   /*
-  $(".pull-jitsi").click(function (e) {
-    console.log("in pull-url!")
-    if (this.classList.contains('pulled')) {
-      // already pulled.
-      this.innerText = 'pull';
-      $('#meet-iframe').html('');
-      this.classList.remove('pulled');
-    }
-    else {
-      // pull.
-      this.innerText = 'pulling';
-      let url = this.value;
-      const domain = 'meet.jit.si';
-      const options = {
-        roomName: NODENAME,
-        width: 800,
-        height: 600,
-        parentNode: document.querySelector('#meet-iframe')
-      };
-      const api = new JitsiMeetExternalAPI(domain, options);
-      //$(e.currentTarget).nextAll('iframe').attr('allow', 'camera; microphone; fullscreen; display-capture; autoplay')
-      //$(e.currentTarget).nextAll('iframe').attr('src', url)
-      //$(e.currentTarget).nextAll('iframe').show()
-      this.innerText = 'fold';
-      this.classList.add('pulled');
-    }
+  document.querySelector("#mini-cli-clear").addEventListener("click", () => {
+    console.log("clearing mini-cli");
+    document.querySelector("#mini-cli").value = "";
   });
   */
 
+  document.querySelector("#mini-cli-exec").addEventListener("click", () => {
+    console.log("exec mini-cli");
+    let val = document.querySelector("#mini-cli").value;
+    document.querySelector("#mini-cli").parentElement.submit();
+  });
+
+  document.querySelector("#mini-cli-go").addEventListener("click", () => {
+    console.log("go mini-cli executes");
+    let val = document.querySelector("#mini-cli").value;
+    document.querySelector("#mini-cli").value = 'go/' + val;
+    document.querySelector("#mini-cli").parentElement.submit();
+  });
+
+  /*
+  document.querySelector("#internet-go").addEventListener("click", () => {
+    console.log("go internet");
+    window.location.href = 'https://google.com/search?q=' + NODEQ;
+  });
+  */
+
+  // focus mini-cli on key combo
+  window.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.altKey && e.keyCode == 83) {
+      const miniCli = document.querySelector("#mini-cli");
+      miniCli.focus();
+      miniCli.value = "";
+    }
+  });
+
+  // pull arbitrary URL
+  document.querySelectorAll(".pull-url").forEach(element => {
+    element.addEventListener('click', function (e) {
+      console.log("in pull-url!");
+      if (this.classList.contains('pulled')) {
+        // already pulled.
+        this.innerText = 'pull';
+        this.nextElementSibling.remove();
+        this.classList.remove('pulled');
+      } else {
+        // pull.
+        this.innerText = 'pulling';
+        let url = this.value;
+        console.log('pull url : ' + url);
+        const iframe = document.createElement('iframe');
+        iframe.className = 'stoa2-iframe';
+        iframe.setAttribute('allow', 'camera; microphone; fullscreen; display-capture; autoplay');
+        iframe.src = url;
+        this.after(iframe);
+        this.innerText = 'fold';
+        this.classList.add('pulled');
+      }
+    });
+  });
+
   // pull a node from the default [[stoa]]
-  $("#pull-stoa").click(function (e) {
-    console.log('clicked stoa button')
+  document.querySelector("#pull-stoa")?.addEventListener("click", function (e) {
+    console.log('clicked stoa button');
     if (this.classList.contains('pulled')) {
       // already pulled.
       this.innerText = 'pull';
-      $(e.currentTarget).nextAll('iframe').remove()
-      $("#stoa-iframe").html('');
+      this.nextElementSibling.remove();
+      document.querySelector("#stoa-iframe").innerHTML = '';
       this.classList.remove('pulled');
-    }
-    else {
+    } else {
       this.innerText = 'pulling';
       let node = this.value;
-      $("#stoa-iframe").html('<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit"></iframe>');
+      document.querySelector("#stoa-iframe").innerHTML = '<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit"></iframe>';
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
   });
 
-  // pull a node from the second [[stoa]] (ha!)
-  $("#pull-stoa2").click(function (e) {
-    console.log('clicked stoa2 button')
-    if (this.classList.contains('pulled')) {
-      // already pulled.
-      this.innerText = 'pull';
-      $(e.currentTarget).nextAll('iframe').remove()
-      $("#stoa2-iframe").html('');
-      this.classList.remove('pulled');
-    }
-    else {
-      this.innerText = 'pulling';
-      let node = this.value;
-      $("#stoa2-iframe").html('<iframe id="stoa2-iframe" name="embed_readwrite" src="https://stoa.anagora.org/p/' + node + '?edit"></iframe>');
-      this.innerText = 'fold';
-      this.classList.add('pulled');
-    }
-  });
-
-  // pull jitsi [[stoa]] (ha!)
-  $("#pull-jitsi").click(function (e) {
-    console.log('clicked jitsi button')
-    if (this.classList.contains('pulled')) {
-      // already pulled.
-      this.innerText = 'pull';
-      $(e.currentTarget).nextAll('iframe').remove()
-      $("#meet-iframe").html('');
-      this.classList.remove('pulled');
-    }
-    else {
-      this.innerText = 'pulling';
-      let value = this.value;
-      $("#meet-iframe").html('<iframe id="meet-iframe" allow="camera; microphone; fullscreen; display-capture; autoplay" name="embed_readwrite" src="' + value + '"></iframe>');
-      this.innerText = 'fold';
-      this.classList.add('pulled');
-    }
-  });
-
-  function statusContent(self) {
+  async function statusContent(self) {
     let toot = self.value;
     let domain, post;
     // extract instance and :id, then use https://docs.joinmastodon.org/methods/statuses/ and get an oembed
@@ -285,18 +225,21 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     req = domain + '/api/v1/statuses/' + post
     console.log('req for statusContent: ' + req)
-    $.get(req, function (data) {
-      console.log('status: ' + data['url'])
-      let actual_url = data['url']
+    try {
+      const response = await fetch(req);
+      const data = await response.json();
+      console.log('status: ' + data['url']);
+      let actual_url = data['url'];
 
-      console.log('actual url for mastodon status: ' + actual_url)
-      let oembed_req = domain + '/api/oembed?url=' + actual_url
-      $.get(oembed_req, function (data) {
-        console.log('oembed: ' + data['html'])
-        $(self).after(data['html']);
-      });
-
-    });
+      console.log('actual url for mastodon status: ' + actual_url);
+      let oembed_req = domain + '/api/oembed?url=' + actual_url;
+      const oembedResponse = await fetch(oembed_req);
+      const oembedData = await oembedResponse.json();
+      console.log('oembed: ' + oembedData['html']);
+      self.insertAdjacentHTML('afterend', oembedData['html']);
+    } catch (error) {
+      console.error('Error fetching Mastodon status:', error);
+    }
     self.innerText = 'pulled';
   }
 
@@ -381,11 +324,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (searchEmbed) {
             let qstr = searchEmbed.id;
             console.log("Search embed found, here we would pull.");
-            /*
-            $.get(AGORAURL + '/fullsearch/' + qstr, function (data) {
-                $("#pulled-search.pulled-search-embed").html(data);
-            });
-            */
             response = await fetch(AGORAURL + '/fullsearch/' + qstr);
             searchEmbed.innerHTML = await response.text();
           }
@@ -425,9 +363,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     });
 
-
-
-
     if (content != null) {
       // block on node loading (expensive if the task is freshly up)
       response = await fetch(AGORAURL + '/node/' + node);
@@ -440,7 +375,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function autoPullAsync() {
     // autopull if the local node is empty.
-    // if ($(".not-found").length > 0) {
     console.log('auto pulling resources');
     var details = document.querySelectorAll(".autopull");
     details.forEach((item) => {
@@ -504,49 +438,43 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // end zippies.
 
-    $(".pushed-subnodes-embed").each(function (e) {
+    document.querySelectorAll(".pushed-subnodes-embed").forEach(async function (element) {
       // auto pull pushed subnodes by default.
       // it would be better to infer this from node div id?
       let node = NODENAME;
       let arg = ARG;
       let id = ".pushed-subnodes-embed";
       console.log('auto pulling pushed subnodes, will write to id: ' + id);
+      let response;
       if (arg != '') {
-        $.get(AGORAURL + '/push/' + node + '/' + arg, function (data) {
-          $(id).html(data);
-        });
+      response = await fetch(AGORAURL + '/push/' + node + '/' + arg);
+      } else {
+      response = await fetch(AGORAURL + '/push/' + node);
       }
-      else {
-        $.get(AGORAURL + '/push/' + node, function (data) {
-          $(id).html(data);
-        });
-      }
+      const data = await response.text();
+      document.querySelector(id).innerHTML = data;
       // end auto pull pushed subnodes.
     });
 
-    $(".context").each(function (e) {
+    document.querySelectorAll(".context").forEach(async function (element) {
       // auto pull context by default.
       // it would be better to infer this from node div id?
-      let node = NODENAME
-      let id = '.context'
+      let node = NODENAME;
+      let id = '.context';
       console.log('auto pulling context, will write to id: ' + id);
-      $.get(AGORAURL + '/context/' + node, function (data) {
-        $(id).html(data);
-      });
+      const response = await fetch(AGORAURL + '/context/' + node);
+      const data = await response.text();
+      document.querySelector(id).innerHTML = data;
       // end auto pull pushed subnodes.
+    });
 
-      // $(".autopull").each(function (e) {
-      //   console.log('*** auto pulling item, trying to activate' + this)
-      //   this.click()
-      // });
-
-      if (autoPull) {
+        if (autoPull) {
         console.log('auto pulling recommended (local, friendly-looking domains) resources!');
         // auto pull everything with class auto-pull by default.
         // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
-        $(".auto-pull-button").each(function (e) {
-          console.log('auto pulling URLs, trying to press button' + this)
-          this.click()
+        document.querySelectorAll(".auto-pull-button").forEach(function (element) {
+          console.log('auto pulling URLs, trying to press button', element);
+          element.click();
         });
         var details = document.querySelectorAll(".autopull");
         details.forEach((item) => {
@@ -554,202 +482,207 @@ document.addEventListener("DOMContentLoaded", async function () {
           item.click();
         });
       }
-    });
     // end async content code.
 
     // pull nodes from the [[agora]]
     // pull-node are high-ranking (above the 'fold' of context), .pull-related-node are looser links below.
-    $(".pull-node").click(function (e) {
+    document.querySelectorAll(".pull-node").forEach(element => {
+      element.addEventListener("click", function (e) {
       let node = this.value;
 
       if (this.classList.contains('pulled')) {
         // already pulled.
-        // $(e.currentTarget).nextAll('div').remove()
-        $("#" + node + ".pulled-node-embed").html('');
+        document.querySelector(`#${node}.pulled-node-embed`).innerHTML = '';
         this.innerText = 'pull';
         this.classList.remove('pulled');
-      }
-      else {
+      } else {
         this.innerText = 'pulling';
         console.log('pulling node');
         // now with two methods! you can choose the simpler/faster one (just pulls static content) or the nerdy one (recursive) in settings.
         if (pullRecursive) {
-          $("#" + node + ".pulled-node-embed").html('<iframe src="' + AGORAURL + '/embed/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>');
-        }
-        else {
-          $.get(AGORAURL + '/pull/' + node, function (data) {
-            $("#" + node + ".pulled-node-embed").html(data);
+        document.querySelector(`#${node}.pulled-node-embed`).innerHTML = `<iframe src="${AGORAURL}/embed/${node}" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>`;
+        } else {
+        fetch(`${AGORAURL}/pull/${node}`)
+          .then(response => response.text())
+          .then(data => {
+          document.querySelector(`#${node}.pulled-node-embed`).innerHTML = data;
           });
         }
         this.innerText = 'fold';
         this.classList.add('pulled');
       }
+      });
     });
 
     // pull arbitrary URL
-    $(".pull-url").click(function (e) {
-      console.log("in pull-url!")
+    document.querySelectorAll(".pull-url").forEach(element => {
+      element.addEventListener("click", function (e) {
+      console.log("in pull-url!");
       if (this.classList.contains('pulled')) {
         // already pulled.
         this.innerText = 'pull';
-        $(e.currentTarget).nextAll('iframe').remove()
+        this.nextElementSibling.remove();
         this.classList.remove('pulled');
-      }
-      else {
+      } else {
         // pull.
         this.innerText = 'pulling';
         let url = this.value;
-        console.log('pull url : ' + url)
-        $(e.currentTarget).after('<iframe class="stoa2-iframe" allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '"></iframe>')
+        console.log('pull url : ' + url);
+        const iframe = document.createElement('iframe');
+        iframe.className = 'stoa2-iframe';
+        iframe.setAttribute('allow', 'camera; microphone; fullscreen; display-capture; autoplay');
+        iframe.src = url;
+        this.after(iframe);
         this.innerText = 'fold';
         this.classList.add('pulled');
       }
+      });
     });
 
-    $(".pull-tweet").click(function (e) {
+    document.querySelectorAll(".pull-tweet").forEach(element => {
+      element.addEventListener("click", function (e) {
       if (this.classList.contains('pulled')) {
-        div = $(e.currentTarget).nextAll('.twitter-tweet')
-        div.remove()
+        const div = this.nextElementSibling;
+        div.remove();
         this.innerText = 'pull';
         this.classList.remove('pulled');
-      }
-      else {
+      } else {
         this.innerText = 'pulling';
         let tweet = this.value;
-        // $(e.currentTarget).after('<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="' + tweet + '"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
-        $(e.currentTarget).after('<blockquote class="twitter-tweet" data-theme="dark"><a href="' + tweet + '"> </blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')
+        const blockquote = document.createElement('blockquote');
+        blockquote.className = 'twitter-tweet';
+        blockquote.setAttribute('data-theme', 'dark');
+        blockquote.innerHTML = `<a href="${tweet}"></a>`;
+        this.after(blockquote);
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = "https://platform.twitter.com/widgets.js";
+        script.charset = "utf-8";
+        this.after(script);
         this.classList.add('pulled');
         this.innerText = 'fold';
       }
+      });
     });
 
     // pull a mastodon status (toot) using the roughly correct way IIUC.
-    $(".pull-mastodon-status").click(function (e) {
+    document.querySelectorAll(".pull-mastodon-status").forEach(element => {
+      element.addEventListener("click", function (e) {
       if (this.classList.contains('pulled')) {
-        div = $(e.currentTarget).nextAll('.mastodon-embed')
-        div.remove()
-        br = $(e.currentTarget).nextAll('')
-        br.remove()
+        const div = this.nextElementSibling;
+        div.remove();
         this.innerText = 'pull';
         this.classList.remove('pulled');
-      }
-      else {
+      } else {
         this.innerText = 'pulling';
-        statusContent(this)
+        statusContent(this);
         this.classList.add('pulled');
         this.innerText = 'fold';
       }
+      });
     });
 
     // pull a pleroma status (toot) using the laziest way I found, might be a better one
-    $(".pull-pleroma-status").click(function (e) {
+    document.querySelectorAll(".pull-pleroma-status").forEach(element => {
+      element.addEventListener("click", function (e) {
       let toot = this.value;
-      $(e.currentTarget).after('<br /><iframe src="' + toot + '" class="mastodon-embed" style="max-width: 100%;" width="400" allowfullscreen="allowfullscreen"></iframe><script src="https://freethinkers.lgbt/embed.js" async="async"></script>')
+      const iframe = document.createElement('iframe');
+      iframe.src = toot;
+      iframe.className = 'mastodon-embed';
+      iframe.style.maxWidth = '100%';
+      iframe.width = '400';
+      iframe.setAttribute('allowfullscreen', 'allowfullscreen');
+      this.after(document.createElement('br'));
+      this.after(iframe);
+      const script = document.createElement('script');
+      script.src = "https://freethinkers.lgbt/embed.js";
+      script.async = true;
+      this.after(script);
       this.innerText = 'pulled';
+      });
     });
 
     // pull all/fold all button in main node
-    $("#pull-all").click(function (e) {
-
-      // this.innerText = 'pulling all';
+    document.querySelector("#pull-all")?.addEventListener("click", function (e) {
       console.log('auto pulling all!');
-      $(".pull-node").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling nodes');
-          this.click();
-        }
+      document.querySelectorAll(".pull-node").forEach(element => {
+      if (!element.classList.contains('pulled')) {
+        console.log('auto pulling nodes');
+        element.click();
+      }
       });
-      $(".pull-mastodon-status").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling activity');
-          this.click();
-        }
+      document.querySelectorAll(".pull-mastodon-status").forEach(element => {
+      if (!element.classList.contains('pulled')) {
+        console.log('auto pulling activity');
+        element.click();
+      }
       });
-      $(".pull-tweet").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling tweet');
-          this.click();
-        }
+      document.querySelectorAll(".pull-tweet").forEach(element => {
+      if (!element.classList.contains('pulled')) {
+        console.log('auto pulling tweet');
+        element.click();
+      }
       });
-      /*
-      $(".pull-stoa").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling stoa');
-          this.click();
-        }
+      document.querySelectorAll(".pull-search").forEach(element => {
+      if (!element.classList.contains('pulled')) {
+        console.log('auto pulling search');
+        element.click();
+      }
       });
-      */
-      $(".pull-search").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling search');
-          this.click();
-        }
-      });
-      $(".pull-url").each(function (e) {
-        if (!this.classList.contains('pulled')) {
-          console.log('auto pulling url');
-          this.click();
-        }
+      document.querySelectorAll(".pull-url").forEach(element => {
+      if (!element.classList.contains('pulled')) {
+        console.log('auto pulling url');
+        element.click();
+      }
       });
 
       // experiment: make pull button expand all details.
-      // Some of these selectors were suggested by Claude, enjoying working with them.
       var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary, details.stoa > summary, details.search > summary");
-      details.forEach((item) => {
-        console.log('trying to click details');
-        item.click();
+      details.forEach(item => {
+      console.log('trying to click details');
+      item.click();
       });
-
     });
 
     // fold all button in intro banner.
-    $("#fold-all").click(function (e) {
-
+    document.querySelector("#fold-all")?.addEventListener("click", function (e) {
       // Already pulled -> fold.
-      $(".pull-node").each(function (e) {
-        if (this.classList.contains('pulled')) {
-          console.log('auto folding nodes');
-          this.click();
-        }
+      document.querySelectorAll(".pull-node").forEach(element => {
+      if (element.classList.contains('pulled')) {
+        console.log('auto folding nodes');
+        element.click();
+      }
       });
-      $(".pull-mastodon-status").each(function (e) {
-        if (this.classList.contains('pulled')) {
-          console.log('auto folding activity');
-          this.click();
-        }
+      document.querySelectorAll(".pull-mastodon-status").forEach(element => {
+      if (element.classList.contains('pulled')) {
+        console.log('auto folding activity');
+        element.click();
+      }
       });
-      $(".pull-tweet").each(function (e) {
-        if (this.classList.contains('pulled')) {
-          console.log('auto folding tweet');
-          this.click();
-        }
+      document.querySelectorAll(".pull-tweet").forEach(element => {
+      if (element.classList.contains('pulled')) {
+        console.log('auto folding tweet');
+        element.click();
+      }
       });
-      /*
-      $(".pull-stoa").each(function (e) {
-        if (this.classList.contains('pulled')) {
-          console.log('auto folding stoa');
-          this.click();
-        }
+      document.querySelectorAll(".pull-search").forEach(element => {
+      if (element.classList.contains('pulled')) {
+        console.log('auto folding search');
+        element.click();
+      }
       });
-      */
-      $(".pull-search").each(function (e) {
-        if (this.classList.contains('pulled')) {
-          console.log('auto folding search');
-          this.click();
-        }
-      });
-      $(".pull-url").each(function (e) {
-        if (this.classList.contains('pulled')) {
-          console.log('auto pulling url');
-          this.click();
-        }
+      document.querySelectorAll(".pull-url").forEach(element => {
+      if (element.classList.contains('pulled')) {
+        console.log('auto pulling url');
+        element.click();
+      }
       });
 
       // experiment: make fold button fold all details which are open.
       var details = document.querySelectorAll("details[open] > summary");
-      details.forEach((item) => {
-        console.log('trying to click details');
-        item.click();
+      details.forEach(item => {
+      console.log('trying to click details');
+      item.click();
       });
     });
 
@@ -774,12 +707,13 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // go to the specified URL
-  $(".go-url").click(function (e) {
-    let url = this.value;
-    this.innerText = 'going';
-    window.location.replace(url);
+  document.querySelectorAll(".go-url").forEach(element => {
+    element.addEventListener("click", function () {
+      let url = this.value;
+      this.innerText = 'going';
+      window.location.replace(url);
+    });
   });
-
 
   if (autoExec) {
     console.log('autoexec is enabled')
@@ -788,12 +722,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     // setTimeout(autoPullStoaOnEmpty, 5000)
 
     // auto pull search by default.
-    $(".pull-search").each(function (e) {
+    document.querySelectorAll(".pull-search").forEach(function (element) {
       console.log('auto pulling search');
-      this.click();
+      element.click();
     });
 
-    $(".pushed-subnodes-embed").each(function (e) {
+    document.querySelectorAll(".pushed-subnodes-embed").forEach(function (element) {
       // auto pull pushed subnodes by default.
       // it would be better to infer this from node div id?
       let node = NODENAME;
@@ -801,73 +735,86 @@ document.addEventListener("DOMContentLoaded", async function () {
       let id = "#" + node + " .pushed-subnodes-embed";
       console.log('auto pulling pushed subnodes, will write to id: ' + id);
       if (arg != '') {
-        $.get(AGORAURL + '/push/' + node + '/' + arg, function (data) {
-          $(id).html(data);
+      fetch(AGORAURL + '/push/' + node + '/' + arg)
+        .then(response => response.text())
+        .then(data => {
+        document.querySelector(id).innerHTML = data;
         });
       }
       else {
-        $.get(AGORAURL + '/push/' + node, function (data) {
-          $(id).html(data);
+      fetch(AGORAURL + '/push/' + node)
+        .then(response => response.text())
+        .then(data => {
+        document.querySelector(id).innerHTML = data;
         });
       }
       // end auto pull pushed subnodes.
     });
 
-    $(".context").each(function (e) {
+    document.querySelectorAll(".context").forEach(function (element) {
       // auto pull context by default.
       // it would be better to infer this from node div id?
-      let node = NODENAME
-      let id = '.context'
+      let node = NODENAME;
+      let id = '.context';
       console.log('auto pulling context, will write to id: ' + id);
-      $.get(AGORAURL + '/context/' + node, function (data) {
-        $(id).html(data);
+      fetch(AGORAURL + '/context/' + node)
+      .then(response => response.text())
+      .then(data => {
+        document.querySelector(id).innerHTML = data;
       });
-      // end auto pull pushed subnodes.
     });
 
-    $(".context-all").each(function (e) {
+    document.querySelectorAll(".context-all").forEach(function (element) {
       // auto pull whole Agora graph in /nodes.
-      let id = '.context-all'
+      let id = '.context-all';
       console.log('auto pulling whole Agora graph, will write to id: ' + id);
-      $.get(AGORAURL + '/context/all', function (data) {
-        $(id).html(data);
+      fetch(AGORAURL + '/context/all')
+      .then(response => response.text())
+      .then(data => {
+        document.querySelector(id).innerHTML = data;
       });
-      // end auto pull pushed subnodes.
     });
 
     console.log('dynamic execution for node begins: ' + NODENAME)
 
     // Begin Wikipedia code -- this is hacky/could be refactored (but then again, that applies to most of the Agora! :)
-    req_wikipedia = AGORAURL + '/exec/wp/' + encodeURI(NODENAME)
-    console.log('req for Wikipedia: ' + req_wikipedia)
-
-    // Maybe ditch jquery and consolidate on the new way of doing requests?
-    $.get(req_wikipedia, function (data) {
-      if (data) {
-        // console.log('got data from Wikipedia: ', data);
-        embed_wikipedia = $(".wiki-search").html(data);
-      }
-      else {
+    const req_wikipedia = AGORAURL + '/exec/wp/' + encodeURI(NODENAME);
+    console.log('req for Wikipedia: ' + req_wikipedia);
+    try {
+      const response = await fetch(req_wikipedia);
+      const data = await response.text();
+      const wikiSearchElement = document.querySelector(".wiki-search");
+      if (data && wikiSearchElement) {
+        wikiSearchElement.innerHTML = data;
+      } else {
         console.log('got empty data from Wikipedia, hiding div');
-        $(".wiki-search").css('display', 'none');
+        if (wikiSearchElement) {
+          (wikiSearchElement as HTMLElement).style.display = 'none';
+        }
       }
-    });
+    } catch (error) {
+      console.error('Error fetching Wikipedia data:', error);
+    }
 
     // Once more for Wiktionary, yolo :)
     req_wiktionary = AGORAURL + '/exec/wt/' + encodeURI(NODENAME)
     console.log('req for Wiktionary: ' + req_wiktionary)
 
-    $.get(req_wiktionary, function (data) {
-      if (data) {
-        // console.log('got data from Wiktionary: ', data);
-        embed_wiktionary = $(".wiktionary-search").html(data);
+    try {
+      const response = await fetch(req_wiktionary);
+      const data = await response.text();
+      const wiktionaryElement = document.querySelector(".wiktionary-search");
+      if (data && wiktionaryElement) {
+      wiktionaryElement.innerHTML = data;
+      } else {
+      console.log('got empty data from Wiktionary, hiding div');
+      if (wiktionaryElement) {
+        wiktionaryElement.style.display = 'none';
       }
-      else {
-        console.log('got empty data from Wiktionary, hiding div');
-        $(".wiktionary-search").css('display', 'none');
       }
-    });
-
+    } catch (error) {
+      console.error('Error fetching Wiktionary data:', error);
+    }
 
   }
 
@@ -875,56 +822,56 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.log('auto pulling recommended (local, friendly-looking domains) resources!');
     // auto pull everything with class auto-pull by default.
     // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
-    $(".auto-pull-button").each(function (e) {
-      console.log('auto pulling node, trying to press button' + this)
-      this.click()
+    document.querySelectorAll(".auto-pull-button").forEach(function (element) {
+      console.log('auto pulling node, trying to press button', element);
+      element.click();
     });
-    $(".node-header").each(function (e) {
-      console.log('*** auto pulling node, trying to activate' + this)
-      this.click()
+    document.querySelectorAll(".node-header").forEach(function (element) {
+      console.log('*** auto pulling node, trying to activate', element);
+      element.click();
     });
-  }
-  if (autoPullExtra) {
+    }
+    if (autoPullExtra) {
     console.log('auto pulling external resources!');
-    $(".pull-mastodon-status").each(function (e) {
+    document.querySelectorAll(".pull-mastodon-status").forEach(function (element) {
       console.log('auto pulling activity');
-      this.click();
+      element.click();
     });
-    $(".pull-tweet").each(function (e) {
+    document.querySelectorAll(".pull-tweet").forEach(function (element) {
       console.log('auto pulling tweet');
-      this.click();
+      element.click();
     });
-    $(".pull-related-node").each(function (e) {
+    document.querySelectorAll(".pull-related-node").forEach(function (element) {
       console.log('auto pulling related node');
-      this.click();
+      element.click();
     });
-    $(".pull-url").each(function (e) {
+    document.querySelectorAll(".pull-url").forEach(function (element) {
       console.log('auto pulling url');
-      this.click();
+      element.click();
     });
-    $(".pull-node").each(function (e) {
+    document.querySelectorAll(".pull-node").forEach(function (element) {
       console.log('auto pulling node');
-      this.click();
+      element.click();
     });
-  }
+    }
 
-  function autoPullWp() {
-    $(".pull-exec.wp").each(function (e) {
-      if (!this.classList.contains('pulled')) {
-        this.click();
+    function autoPullWp() {
+    document.querySelectorAll(".pull-exec.wp").forEach(function (element) {
+      if (!element.classList.contains('pulled')) {
+      element.click();
       }
       console.log('auto pulled wp');
-    })
-  }
+    });
+    }
 
   function autoPullStoa2() {
     // terrible name because autoPullStoa is a setting -- yolo.
-    $("#pull-stoa").each(function (e) {
-      if (!this.classList.contains('pulled')) {
-        this.click();
+    document.querySelectorAll("#pull-stoa").forEach(function (element) {
+      if (!element.classList.contains('pulled')) {
+        element.click();
       }
       console.log('auto pulled stoa');
-    })
+    });
   }
 
   function sleep(ms) {
@@ -932,104 +879,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  /* this should be autoPullStoas?
-  or maybe just let this go and embrace pull all / fold all?
-  if (autoPullStoa) {
-    console.log('queueing auto pull');
-    setTimeout(pullStoa, ms);
-    console.log('auto pulled');
-  }
-
-  if (autoPullSearch) {
-    console.log('queueing auto pull');
-    setTimeout(pullSearch, ms);
-    console.log('auto pulled');
-  }
-
-  function pullStoa() {
-    console.log('auto pulling stoa');
-    $("#pull-stoa").each(function (e) {
-      this.click();
-    });
-  }
-
-  */
-
-  if (localStorage["ranking"]) {
-    let subnodes = $(".subnode")
-    let sortList = Array.prototype.sort.bind(subnodes);
-    sortList(function (a, b) {
-      if (rawRanking.indexOf(a.dataset.author) === -1) return 1
-      if (rawRanking.indexOf(b.dataset.author) === -1) return -1
-      if (rawRanking.indexOf(a.dataset.author) < rawRanking.indexOf(b.dataset.author)) return -1
-      if (rawRanking.indexOf(a.dataset.author) > rawRanking.indexOf(b.dataset.author)) return 1
-      return 0
-    })
-    subnodes.remove()
-    subnodes.insertAfter($(".main-header"))
-  }
-
-
-  function getRandomColor() {
-    var letters = '0123456789ABCDEF'.split('');
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
-
-  function getRandom(items) {
-    return items[Math.floor(Math.random() * items.length)];
-  }
-
-  function sortObjectEntries(obj) {
-    return Object.entries(obj).sort((a, b) => b[1] - a[1]).map(el => el[0])
-  }
-
-  function loadGraph() {
-    const colorNames = ["#1B9E77", "#D95F02", "#7570B3", "#E7298A"]
-    const ctx = document.getElementById('myChart');
-    const json = $('#proposal-data').text()
-    const data = JSON.parse(json)
-    // const fillPattern = ctx.createPattern(img, 'repeat');
-    const colors = Object.values(data).map(() => colorNames.shift())
-    new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: sortObjectEntries(data),
-        datasets: [{
-          label: '# of Votes',
-          data: Object.values(data).sort(function (a, b) { return b - a }),
-          borderWidth: 1,
-          backgroundColor: colors
-        }]
-      },
-
-    });
-  }
-
-  function saveGitea() {
-    localStorage["gitea-token"] = document.getElementById("gitea-token").value
-    localStorage["gitea-repo"] = document.getElementById("gitea-repo").value
-  }
-
-  // Use a fallback value if parsing fails
-  const safeJsonParse = (str, fallback = {}) => {
-    try {
-      return JSON.parse(str);
-    } catch (e) {
-      return fallback;
-    }
-  };
-
-  function setValues() {
-    $("#ranking").val(localStorage["ranking"] || '');
-    $("#auto-pull").prop("checked", safeJsonParse(localStorage["auto-pull"], true));
-    $("#auto-pull-search").prop("checked", safeJsonParse(localStorage["auto-pull-search"], true));
-    $("#auto-pull-stoa").prop("checked", safeJsonParse(localStorage["auto-pull-stoa"], false));
-    $("#render-wikilinks").prop("checked", safeJsonParse(localStorage["render-wikilinks"], true));
-  }
+  // set values from storage
+  (document.getElementById("ranking") as HTMLInputElement).value = localStorage["ranking"] || '';
+  (document.getElementById("auto-pull") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull"], true);
+  (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], true);
+  (document.getElementById("auto-pull-stoa") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-stoa"], false);
+  (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
 
   var clear = document.getElementById("clear-settings");
   clear.addEventListener("click", function () {
@@ -1046,9 +901,5 @@ document.addEventListener("DOMContentLoaded", async function () {
     localStorage["auto-pull-search"] = document.getElementById("auto-pull-search").checked
     localStorage["render-wikilinks"] = document.getElementById("render-wikilinks").checked
   });
-
-
-  // these define default dynamic behaviour client-side, based on local storage preferences.
-  setValues();
 
 });
