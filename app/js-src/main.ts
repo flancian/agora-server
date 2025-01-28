@@ -15,11 +15,11 @@
 
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
-const autoPull = JSON.parse(localStorage["auto-pull"] || 'true')
+const autoPull = JSON.parse(localStorage["auto-pull"] || 'false')
 const autoPullExtra = JSON.parse(localStorage["auto-pull-extra"] || 'false')
 // This would make sense but Hedgedoc currently steals focus on embed and I've been unable to fix it so far :).
 const autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || 'false')
-const autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || 'true')
+const autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || 'false')
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 const showBrackets = JSON.parse(localStorage["showBrackets"] || 'false')
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // set values from storage
   (document.getElementById("ranking") as HTMLInputElement).value = localStorage["ranking"] || '';
   (document.getElementById("auto-pull") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull"], false);
-  (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], true);
+  (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], false);
   (document.getElementById("auto-pull-stoa") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-stoa"], false);
   (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
 
