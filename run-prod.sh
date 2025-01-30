@@ -24,4 +24,4 @@ export PATH=$HOME/.local/bin:${PATH}
 npm run build
 export FLASK_ENV="production"
 export AGORA_CONFIG="ProductionConfig"
-poetry run uwsgi prod.ini
+uv run uwsgi prod.ini
