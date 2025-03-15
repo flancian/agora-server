@@ -5,9 +5,9 @@
 <div class="context-flex">
 {% if node.back_nodes() or node.push_nodes() or node.pull_nodes() or node.forward_nodes() %}
 
-{% include "graph.html" %}
-
 {% include "links.html" %}
+
+{% include "graph.html" %}
 
 {% else %}
 
