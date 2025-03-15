@@ -57,7 +57,9 @@
     <!-- we used to not load some of these JS modules in embeds, but that breaks graphs -->
 	{% endif %}
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="//unpkg.com/force-graph"></script>
+
+	<!-- commented out on 2025-03-15 due to unpkg.com outage -->
+	<!-- <script src="//unpkg.com/force-graph"></script> -->
 	
 	<script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
 
