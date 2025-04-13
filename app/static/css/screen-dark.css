@@ -20,7 +20,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
 :root {
-    --base-fontsize: 1.1rem;
+    --base-fontsize: 1.0rem;
     --header-scale: 1.125;
     --line-height: 1.618;
 
