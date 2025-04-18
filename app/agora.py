@@ -800,7 +800,7 @@ def search_xml():
 
 
 def count_votes(subnode):
-    match = re.search("\#(\w+)", subnode.content)
+    match = re.search(r"#(\w+)", subnode.content)
     if not match:
         return None
     tag = match.group(1)

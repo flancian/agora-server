@@ -16,3 +16,4 @@ app/static/js/index.js
 garden.db*
 *.pem
 agora-server.log
+.aider*
