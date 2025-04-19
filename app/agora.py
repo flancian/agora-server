@@ -364,7 +364,11 @@ def index():
 def latest():
     n = api.build_node("latest")
     return render_template(
-        "recent.html", header="Recent deltas", subnodes=api.latest(max=1000), node=n
+        "recent.html", 
+        header="Recent deltas", 
+        subnodes=api.latest(max=1000), 
+        node=n,
+        annotations=feed.get_latest(),
     )
 
 

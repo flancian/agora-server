@@ -888,13 +888,13 @@ details > summary {
 
 .delta-nodes {
     float: left;
-    width: 100%;
+    width: 50%;
 }
 
 .delta-annotations {
     background: #080808;
     float: left;
-    width: 100%;
+    width: 50%;
 }
 
 .backlinks {
