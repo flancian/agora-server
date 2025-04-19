@@ -850,6 +850,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       const data = await response.text();
       const wikiSearchElement = document.querySelector(".wiki-search");
       if (data && wikiSearchElement) {
+        console.log('Got some data from Wikipedia, showing data');
+        (wikiSearchElement as HTMLElement).style.display = '';
         wikiSearchElement.innerHTML = data;
       } else {
         console.log('got empty data from Wikipedia, hiding div');

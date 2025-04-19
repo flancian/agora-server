@@ -44,18 +44,18 @@
     <span><em>This you find in the <strong>{{config['AGORA_NAME']}}</strong>…</em></span>
       <div class="agora-actions">
            <button id="mini-cli-go" value="go" title="Follow a go link if there is one in this node; may redirect outside the Agora or to a different node.">
-               go beyond
+               go 
            </button>
-           <!--
-           <button id="pull-all" value="pull-all" title="Tries to expand drawers and embed links below that we think we can embed, i.e. it will click many buttons for you :)">pull</button>
-           <button id="fold-all" value="fold-all" title="Tries to collapse everything that is collapsable.">fold</button>
-           -->
+          <!--
+           <button id="pull-all" value="pull-all" title="Tries to expand drawers and embed links below that we think we can embed, i.e. it will click many buttons for you :)">expand</button>
+           <button id="fold-all" value="fold-all" title="Tries to collapse everything that is collapsable.">collapse</button>
+        -->
       </div>
                        
     <!-- <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." id="dismiss-intro" info-box-id="intro" class="dismiss-button">x</span>-->
 </div>
 
-
+{% include "stoa.html" %}
 
 {% if subnode %}
 <div id="async-content" src="{{subnode}}">
@@ -73,8 +73,6 @@
     </center>
     <br />
 </div>
-
-{% include "stoa.html" %}
 
 {% include "search.html" %}
 
