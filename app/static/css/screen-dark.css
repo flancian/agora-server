@@ -110,7 +110,8 @@ button {
     border: 1px #999 solid;
     border-radius: 4px;
     background: #ddd;
-    text-transform: capitalize;
+    /* too posh? :) */
+    /* text-transform: capitalize; */
     padding: 3px 6px 3px 6px;
     filter: invert(1);
 }
@@ -549,7 +550,7 @@ button, input {
 
 #mini-cli {
     width: 100%;
-    padding: 2px;
+    padding: 4px;
 }
 
 .topline-container {
@@ -561,8 +562,7 @@ button, input {
 }
 
 #mini-cli-exec {
-    min-width: 3em;
-    /* margin-right: 4px; */
+    margin-right: 4px;
 }
 
 .web, .stoa {

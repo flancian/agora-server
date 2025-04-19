@@ -34,7 +34,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached247" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached248" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -134,6 +134,11 @@
               <button id="mini-cli-exec" value="exec" title="Searches the Agora Commons and the wider internet for resources relevant to the current location.">
                 {{config['AGORA_ACTION_0']}}
               </button>
+
+           <button id="mini-cli-go" value="go" title="Follow a go link if there is one in this node; may redirect outside the Agora or to a different node.">
+               go 
+           </button>
+ 
  
             <!--
               <button id="mini-cli-pull" value="pull" title="Transcludes whenever possible :)">
