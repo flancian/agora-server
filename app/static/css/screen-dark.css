@@ -544,6 +544,7 @@ button, input {
     flex: auto;
     vertical-align: middle;
     width: 100%;
+    margin-right: 4px;
 }
 
 #mini-cli {
@@ -561,6 +562,7 @@ button, input {
 
 #mini-cli-exec {
     min-width: 3em;
+    /* margin-right: 4px; */
 }
 
 .web, .stoa {

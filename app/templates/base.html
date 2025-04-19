@@ -34,7 +34,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached245" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached246" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -121,35 +121,37 @@
 
         {% endif %}
 
-			<div class="topline-node">
-				<div class="topline-node-wrapper">
-					<div class="topline-query">
-                        <button id="mini-cli-exec" value="exec" title="Searches the Agora Commons and the wider internet for resources relevant to the current location.">
-							{{config['AGORA_ACTION_0']}}
-						</button>
-					</div>
-					<div class="topline-cli">
-						<form action="/" method="get">
-							<input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
-						</form>
-					</div>
-				<!--
-					<button id="mini-cli-pull" value="pull" title="Transcludes whenever possible :)">
-						{{config['AGORA_ACTION_2']}}
-					</button>
-					-->
-     
-                    <!--<button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>-->
-                    <!-- <button id="pull-top" value="pull-all" title="Pulls everything that can be pulled below">pull</button>
-                    <button id="fold-top" value="fold-all" title="Folds everything that can be folded below">fold</button>
-                    -->
-				</div>
+        <div class="topline-node">
+          <div class="topline-node-wrapper">
+            <div class="topline-query">
+           </div>
+            <div class="topline-cli">
+              <form action="/" method="get">
+                <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
+              </form>
 
-			</div>
-	</nav>
+            </div>
+              <button id="mini-cli-exec" value="exec" title="Searches the Agora Commons and the wider internet for resources relevant to the current location.">
+                {{config['AGORA_ACTION_0']}}
+              </button>
+ 
+            <!--
+              <button id="mini-cli-pull" value="pull" title="Transcludes whenever possible :)">
+              {{config['AGORA_ACTION_2']}}
+              </button>
+            -->
 
-	<!-- hypothesis -->
-	<div id='hypothesis-frame' style="display: none;""></div>
+            <!--<button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>-->
+            <!-- <button id="pull-top" value="pull-all" title="Pulls everything that can be pulled below">pull</button>
+              <button id="fold-top" value="fold-all" title="Folds everything that can be folded below">fold</button>
+            -->
+          </div>
+
+        </div>
+  </nav>
+
+  <!-- hypothesis -->
+  <div id='hypothesis-frame' style="display: none;""></div>
 
 	{% block content %}
 	{% endblock %}
