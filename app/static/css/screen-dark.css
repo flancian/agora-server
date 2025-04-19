@@ -650,29 +650,6 @@ summary {
     margin-bottom: 10px;
 }
 
-.pulled-node {
-    /*border-color: #7f5af0;*/
-    border-color: gray;
-    border-width: 1px;
-    border-style: solid;
-    /*border-style: dotted;*/
-    margin-top: 10px;
-    margin-bottom: 10px;
-    /*border-radius: 20px;*/
-    padding: 10px;
-}
-
-.related-node {
-    /*border-color: #7f5af0;*/
-    border-color: gray;
-    border-width: 1px;
-    border-style: solid;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    /*border-radius: 20px;*/
-    padding: 10px;
-}
-
 .image-embed {
     display: block;
     margin-left: auto;
