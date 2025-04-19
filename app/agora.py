@@ -118,6 +118,8 @@ def root(node, user_list=""):
         "sync.html",
         node=n,
         config=current_app.config,
+        # To disable graphs because of e.g. a CDN outage again, flip this to False here and in /context.
+        graph=True,
         # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
         # sorry for the fuzzy thinking but I'm short on time and want to get things done.
         # (...famous last words).
@@ -537,6 +539,7 @@ def context(node):
         "context.html",
         embed=True,
         node=n,
+        graph=True,
         # Last tested on 2024-07-17, sort of works but requires "normalizing" dev instance to prod Agora URLs? Maybe.
         # annotations=n.annotations(),
         # annotations_enabled=True,

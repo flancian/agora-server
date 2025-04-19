@@ -59,7 +59,9 @@
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 	<!-- commented out on 2025-03-15 due to unpkg.com outage -->
-	<!-- <script src="//unpkg.com/force-graph"></script> -->
+	{% if graph %}
+	<script src="//unpkg.com/force-graph"></script>
+	{% endif %}
 	
 	<script type=text/javascript src="{{url_for('static', filename='js/index.js')}}"></script>
 
