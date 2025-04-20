@@ -63,7 +63,7 @@ def wp(node):
         {leading} </summary> 
 
         <div class="info-box with-spacing" style="margin-bottom: 10px;" info-box-id="wp">
-            <span class="genai-header"><em>This is the top ranked article for your search in English-language <strong>Wikipedia</strong>.</em></span>
+            <span class="genai-header"><em>This is the top ranked article in English-language <strong>Wikipedia</strong> for your search.</em></span>
             <span id="dismiss-wp" info-box-id="wp" class="dismiss-button">x</span>
         </div>
 
