@@ -27,4 +27,4 @@ export FLASK_ENV="production"
 echo "This enables maybe dangerous flags like executable subnodes.\nUse at your own risk.\nUse ./run-prod.sh for safer defaults."
 
 export AGORA_CONFIG="AlphaConfig"
-poetry run uwsgi prod.ini
+uv run uwsgi prod.ini
