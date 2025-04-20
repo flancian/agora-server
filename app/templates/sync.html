@@ -23,13 +23,13 @@
 
     {% include "web.html" %}
 
+    {% include "genai.html" %}
+
     {% include "wp.html" %}
 
     <!-- trying without for now, for most Agora users wiktionary probably just mostly adds visual complexity about the fold.
      would like to re-add once I figure some alternative to top level billing; maybe a tab of sorts in the wikipedia section? -->
     {# include "wt.html" #} 
-
-    {% include "genai.html" %}
 
     <div info-box-id="agora-intro" class="info-box">
     <span><em>This you find in the <strong>{{config['AGORA_NAME']}}</strong>…</em></span>
