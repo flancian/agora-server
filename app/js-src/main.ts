@@ -919,4 +919,34 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
     }
 
+        // Get the elements
+    const featureLinkDialog = document.getElementById('feature-link-dialog');
+    // Check if the link exists on this page before adding listener
+    if (featureLinkDialog) {
+        const dialog = document.getElementById('not-implemented-dialog');
+        const closeButton = document.getElementById('close-dialog-btn');
+
+        // Check if dialog and button exist
+        if (dialog && closeButton) {
+            // Add click listener to the link
+            featureLinkDialog.addEventListener('click', function(ev) {
+                ev.preventDefault();
+                dialog.showModal();
+            });
+
+            // Add click listener to the close button
+            closeButton.addEventListener('click', function() {
+                dialog.close();
+            });
+
+            // Optional: Close on backdrop click
+            dialog.addEventListener('click', function(e) {
+              if (e.target === dialog) {
+                 dialog.close();
+              }
+            });
+        }
+    }
+
+
 });

@@ -17,6 +17,15 @@
 
 {% if not subnode and config['ENABLE_AI'] %}
 
+<dialog id="not-implemented-dialog">
+  <center>
+  <p>Gemini not implemented yet!</p>
+  <p>🚧</p>
+  <p>Check back soon :)</p>
+  <button id="close-dialog-btn">OK</button>
+  </center>
+</dialog>
+
 <details class="genai"> 
 
     <!-- experimented with defaulting open in 2024-09 in dev but I felt it too intrusive as it took too long to generate and the resulting additional spinner felt needlessly anxiety-producing :) -->
@@ -26,11 +35,12 @@
         <a style="cursor: pointer; text-decoration: underline"><strong>Agora Assistant</strong></a>
             • <span><a href="https://chatgpt.com/?q={{node.q}}" target="_blank">ChatGPT</a></span>
             • <span><a href="https://claude.ai/new?q={{node.q}}" target="_blank">Claude</a></span>
+            • <span><a href="#" id="feature-link-dialog">Gemini</a></span>
     </span>
     </summary>
 
-    <div class="info-box" info-box-id="ai">
-        <span class="genai-header"><em>An assistant who will try to help you navigate this Agora (based on <a href="https://mistral.ai">Mistral AI</a>).</em></span>
+    <div class="info-box with-spacing" info-box-id="ai">
+      <span class="genai-header"><em>This is an <strong>Agora Assistant</strong> based on <a href="https://mistral.ai">Mistral AI</a>. Click on a link above to forward your prompt to the chosen service.</em></span>
         <span id="dismiss-ai" info-box-id="ai" class="dismiss-button">x</span>
     </div>
 

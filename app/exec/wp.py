@@ -57,9 +57,15 @@ def wp(node):
         <!-- adding stoa gets this the right css for the 'done' state as of the time of writing -->
         <details class='exec wiki-search web'>
         <summary class="{summary_class}"><span>
+
         <strong title="We love Wikipedia! Here is the top known article for this location.">
         📖 Wikipedia </strong> <em><a href='{url}' target="_blank">{title}</em></a></span>
         {leading} </summary> 
+
+        <div class="info-box with-spacing" style="margin-bottom: 10px;" info-box-id="wp">
+            <span class="genai-header"><em>This is the top ranked article for your search in English-language <strong>Wikipedia</strong>.</em></span>
+            <span id="dismiss-wp" info-box-id="wp" class="dismiss-button">x</span>
+        </div>
 
         <!-- find a better way to present this data which is only useful for some users. -->
         <!-- 

@@ -1065,7 +1065,7 @@ table {
     border-collapse: collapse;
     table-layout: fixed;
     width: 100%;
-    margin: 1.5rem 0;
+    margin: 10px 0;
 }
 
 td,
@@ -1138,4 +1138,23 @@ table caption {
 .overlay.active {
     right: 0;
     background-color: rgba(20, 20, 20, 0.95);
+}
+
+/* Add these rules to your existing CSS file */
+
+#not-implemented-dialog {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    /* Add positioning rules here if needed (see below) */
+}
+
+#not-implemented-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#not-implemented-dialog button {
+    margin-top: 15px;
+    padding: 5px 15px;
 }
