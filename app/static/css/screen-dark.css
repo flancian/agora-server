@@ -111,7 +111,7 @@ button {
     border-radius: 4px;
     background: #ddd;
     /* too posh? :) */
-    /* text-transform: capitalize; */
+    text-transform: capitalize;
     padding: 3px 6px 3px 6px;
     filter: invert(1);
 }
@@ -672,13 +672,16 @@ summary {
 }
 
 .info-box {
-    margin-top: 10px;
+  /*
     border: 1px dashed var(--border);
     background: rgb(0, 55, 92);
     padding: 7px;
     padding-right: 30px;
-    /* margin-left: auto;
-    max-width: fit-content;*/
+    */
+    background: #001a3b;
+    padding: 7px;
+    font-style: italic;
+}
 }
 
 .intro {
@@ -713,14 +716,20 @@ summary {
 }
 
 .info-box::before {
-  /* content: '︎❓'; */
+  /* content: '︎❓'; 
   content: '︎ℹ️';
   width: 2em;
   flex-shrink: 0;
   transition: 0.3s;
+  */
+  content: '➼';
+  width: 1em;
+  margin-right: 0.3em;
+  flex-shrink: 0;
+  transition: 0.3s;
 }
 
-.info-box.hidden {
+.hidden {
     opacity: 0;
     visibility: hidden;
 }
@@ -763,6 +772,10 @@ summary {
 
 details > summary {
     cursor: pointer;
+}
+
+.with-spacing {
+    margin-top: 10px;
 }
 
 .node-name {

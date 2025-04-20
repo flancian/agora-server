@@ -304,6 +304,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       button.addEventListener("click", function () {
         const parentDiv = button.parentElement;
+        console.log("Dismissing info box");
         parentDiv.classList.add("hidden");
         localStorage.setItem(`dismissed-${infoBoxId}`, "true");
 
@@ -315,8 +316,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     });
     // end infobox dismiss code.
-
-
 
     // bind stoas, search and genai early.
     var details = document.querySelectorAll("details.url");

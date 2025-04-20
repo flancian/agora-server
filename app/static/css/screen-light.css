@@ -39,8 +39,9 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 }
 
 .info-box {
-    background: #ffffe8;
+    background: #e0e0ef;
     color: #000;
+    border: 1px dashed var(--border); 
 }
 
 .intro, #footer {
@@ -52,7 +53,7 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 
 #footer {
     /* background: #efe0e0; */
-    background: #ffefcf;
+    background: #aaeecf;
 }
 
 button {
