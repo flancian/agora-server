@@ -20,7 +20,7 @@
         {% if subnode %}
             <summary class="node-header main-header">
                 <span style="flex: auto; flex-grow: 1;">
-                    <strong>📕 {{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>  
+                  <strong><!--📕-->{{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>  
                     ⟶
                     subnode <a href="/{{node.qstr}}">{{node.qstr}}</a></span>
                 
@@ -29,7 +29,7 @@
             <summary class="node-header main-header">
                 <!-- <div class="inline-flex"> -->
                     <span style="flex: auto; flex-grow: 1;" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">
-                        <strong>📕 {{config['NODE_LABEL']}}</strong> 
+                        <strong>{{config['NODE_LABEL']}}</strong> 
                         <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
                         exact match
                    <!-- <div style="flex: auto; margin-left: auto; text-align: right;"> <button id="pull-all" value="pull-all" title='Tries to retrieve most resources that can be pulled below'>pull all</button> -->
@@ -58,10 +58,10 @@
                 <summary class="subnode-header">
                     <span class="subnode-id">
                         <span class="subnode-links">
-                            <a href="/raw/{{subnode.uri}}" title="Click to see raw."><!--📓-->📄</a> 
+                            <a href="/raw/{{subnode.uri}}" title="Click to see raw.">📓</a> 
                             <a href="@{{subnode.user}}/{{node.uri}}"><span title="Click to see only this subnode.">{{subnode.garden_relative}}</span></a> 
-                            <span title="This resource was contributed to this Agora and seems relevant to the current topic."> contributed by </span>
-                            <a class="user" href="/@{{subnode.user}}"" title="User @{{subnode.user}} contributed this.">👤 @<span class="subnode-user">{{subnode.user}}</span></a>
+                            <span title="This resource was contributed to this Agora and seems relevant to the current topic."> by </span>
+                            <a class="user" href="/@{{subnode.user}}"" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>
                         </span>
                     </span>
 
@@ -115,7 +115,7 @@
 <details class="node" id="{{node.uri}}" open>
 
     <summary class="node-header main-header"><span style="flex: auto; flex-grow: 1;" title="A Node is an Agora location. It contains resources contributed by users having to do with a location according to the Agora you're using.">
-        <strong>📕 {{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span> empty</span></summary>
+        <strong>📚 {{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span> empty</span></summary>
 
 {% include "empty.html" %}
 
