@@ -17,7 +17,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<details class="listing node">
+<details class="listing node" open>
     
 <summary>
 {% if header %}
@@ -38,9 +38,9 @@ There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']
 
 {% endif %}
 
-<strong>Top 10k:</strong>
+<strong>Top 1000 nodes:</strong>
 <br />
-{% for node in nodes[:10000] %}
+{% for node in nodes[:1000] %}
 
 <a href="{{node.uri}}">{{node.wikilink}}</a> <span style="font-weight: lighter">({{node.size()}})</span>
 
