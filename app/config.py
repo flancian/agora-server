@@ -31,6 +31,8 @@ class DefaultConfig(object):
     MENU_SEPARATOR = '❦'
     MENU_SEPARATOR = '𑗄'
     MENU_SEPARATOR = '⸱'
+    MENU_SEPARATOR = '፨'
+    MENU_SEPARATOR = '჻'
     AI_PROMPT = f"""
         You are a friendly and helpful assistant whose task is to help people navigate the Web, the Fediverse and the Knowledge Commons we call the Agora.
 
