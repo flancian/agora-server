@@ -133,8 +133,23 @@ li {
     padding: 0.17em;
 }
 
-.subnode-content > ul::after{
-    content: 'Agora Protocol v0.9'; /* Custom bullet point */
+.subnode-content > ul {
+    filter: brightness(80%);
+}
+
+.subnode-content > ul::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 255, 0.05); /* Adjust the last value for darkness */
+    z-index: 0; /* Places the overlay behind the content */
+}
+
+.subnode-content > ul::after {
+    content: 'Agora Protocol (inferred)'; /* Custom bullet point styl :) */
     font-size: smaller;
     font-style: italic;
     color: grey; /* Bullet point color */
