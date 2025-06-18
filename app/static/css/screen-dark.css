@@ -80,13 +80,12 @@ a {
 
 .navigation > a {
   display: flex;
-  justify-content: space-between;
 }
 
 .navigation > a > span {
     flex-grow: 1;
     flex-shrink: 0;
-    padding: 5px; /* to give some space inside the span */
+    padding: 2px; /* to give some space inside the span */
 }
 
 nav {
@@ -96,7 +95,7 @@ nav {
 
 .navbar-item {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     vertical-align: center;
     /*text-transform: capitalize;*/
 }
