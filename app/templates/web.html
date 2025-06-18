@@ -16,12 +16,12 @@
 
     <details class='web url'>
         <summary> 🔍 <strong>Web results</strong> from 
-            <span><a href="https://www.google.com/search?q={{node.q}}" target="_blank">Google</a></span>
+          <span><a href="https://www.google/.com/search?q={{node.q}}" target="_blank" title="The default search engine (which is embedded when you expand this zippy) will be customizable soon."><strong>Google</strong></a></span>
             <!-- • <a href="https://music.apple.com/search/?term={{node.q}}">Apple Music</a> -->
             • <span><a href="https://www.bing.com/search?q={{node.q}}" target="_blank">Bing</a></span>
             • <span><a href="https://www.duckduckgo.com/{{node.q}}" target="_blank">DDG</a></span>
             <!-- Marginalia gets bolded because it's the only general purpose engine that allows iframes as of the time of writing / last I've checked :( -->
-            • <span><a href="https://marginalia-search.com/search?query={{node.q}}" target="_blank"><strong>Marginalia</strong></a></span>
+            • <span><a href="https://marginalia-search.com/search?query={{node.q}}" target="_blank" title="Marginalia used to be the default (what is embedded if you expand this zippy) but there was a bug so it was changed to Google on 2025-06-19.">Marginalia</a></span>
             <!--
             • <span><a href="https://www.reddit.com/search/?q={{node.q}}">Reddit</a></span>
             • <span><a href="https://www.tiktok.com/search?q={{node.q}}">TikTok</a></span>
@@ -37,11 +37,11 @@
         </summary>
 
       <div class="info-box with-spacing" style="margin-bottom: 10px;" info-box-id="web">
-        <span class="genai-header"><em>This is your search on <strong>Marginalia</strong>. Click on a link above to forward your search to the chosen service.</em></span>
+        <span class="genai-header"><em>This is your search on <strong>Google</strong>. Click on a link above to forward your search to the chosen service.</em></span>
           <span id="dismiss-web" info-box-id="web" class="dismiss-button">x</span>
       </div>
 
-        <div class="stoa-iframe" src="https://marginalia-search.com/search?query={{node.q}}">
+        <div class="stoa-iframe" src="https://google.com/search?igu=1&q={{node.q}}">
     </details>
  
         <!--
