@@ -149,7 +149,7 @@ li {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 255, 0.05); /* Adjust the last value for darkness */
-    z-index: 0; /* Places the overlay behind the content */
+    z-index: -1; /* Places the overlay behind the content */
 }
 
 .subnode-content > ul::after {
