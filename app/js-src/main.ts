@@ -169,6 +169,43 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.querySelector("#mini-cli").parentElement.submit();
   });
 
+  const toastMessageElement = document.getElementById('toast-message');
+  let toastTimeout; // Variable to hold our timeout
+
+  function showToast(message, duration = 3000) {
+      console.log(`Showing toast: "${message}"`);
+
+      // Set the message text inside the toast element
+      toastMessageElement.textContent = message;
+
+      // Clear any existing timer to prevent premature hiding if called again quickly
+      if (toastTimeout) {
+          clearTimeout(toastTimeout);
+      }
+
+      // Show the toast by removing the 'toast-hidden' class
+      toastMessageElement.classList.remove('toast-hidden');
+      
+      // Set a timer to hide the toast after the specified duration
+      toastTimeout = setTimeout(() => {
+          console.log('Hiding toast message...');
+          // Hide the toast by adding the 'toast-hidden' class back
+          toastMessageElement.classList.add('toast-hidden');
+      }, duration);
+  }
+
+  document.querySelector("#mini-cli-retry").addEventListener("click", () => {
+    console.log("retry mini-cli executes");
+    const url = new URL(window.location.href);
+    url.searchParams.set('t', new Date().getTime());
+    window.location.href = url.href;
+  });
+
+  document.querySelector("#mini-cli-pull").addEventListener("click", () => {
+    console.log("pull mini-cli executes");
+    showToast("Not implemented yet! 😉");
+  });
+
   /*
   document.querySelector("#internet-go").addEventListener("click", () => {
     console.log("go internet");

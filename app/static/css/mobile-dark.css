@@ -254,4 +254,21 @@ nav             { font-family: sans-serif; }
     color: #cfcfcf; 
 }
 
+.toast {
+		position: fixed;
+		bottom: 20px; /* 5 in tailwind's 4px scale */
+		right: 20px; /* 5 in tailwind's 4px scale */
+		background-color: #1f2937; /* Equivalent to bg-gray-800 */
+		color: white;
+		padding: 1rem 1.5rem; /* Equivalent to py-4 px-6 */
+		border-radius: 0.5rem; /* Equivalent to rounded-lg */
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+		/* Animation transition */
+		transition: opacity 0.5s, transform 0.5s ease-in-out;
+}
 
+/* Class to hide the toast */
+.toast-hidden {
+		opacity: 0;
+		transform: translateY(120%); /* Move it down out of view */
+}
