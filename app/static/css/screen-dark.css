@@ -1178,8 +1178,8 @@ table caption {
 /* The container for all toast notifications */
 #toast-container {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 10px;
+    right: 50px;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -1197,7 +1197,7 @@ table caption {
     
     /* Start hidden and off-screen to the right */
     opacity: 0;
-    transform: translateX(100%);
+    transform: translateY(100%);
     
     /* Animation for appearing and disappearing */
     transition: opacity 0.4s, transform 0.4s ease-in-out;
@@ -1206,5 +1206,5 @@ table caption {
 /* Class to make the toast visible and slide it into view */
 .toast-visible {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
 }
