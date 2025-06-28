@@ -112,9 +112,7 @@
 		  <!-- Now moved to burger: overlay.html 
           {{config['MENU_SEPARATOR']}} <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
 			-->
-      <span>&nbsp;</span>
-      <span>&nbsp;</span>
-      <span>&nbsp;</span>
+      {{config['MENU_SEPARATOR']}} 
       <span class="navbar-item">
 			<span id='theme-toggle'>🌙</span>
 			<span id='theme-toggle-text'><a href='#' style='text-decoration: none;'></a></span>
@@ -138,11 +136,18 @@
                 {{config['AGORA_ACTION_0']}}
               </button>
 
-           <button id="mini-cli-go" value="go" title="Follow a go link if there is one in this node; may redirect outside the Agora or to a different node.">
-               go 
+           <button id="mini-cli-pull" value="pull" title="Pull the given node into the current context. If already in this context, it tries to show resources found below inline (i.e. embed, might or might not work).">
+               pull
            </button>
  
- 
+           <button id="mini-cli-retry" value="retry" title="Retries/reloads, might fix transient errors, might show content from a different Agora eventually.">
+              retry 
+           </button>
+
+           <button id="mini-cli-go" value="go" title="Follows a go link if one is found in this node; may redirect outside the Agora or to a different Agora location.">
+               go 
+           </button>
+
             <!--
               <button id="mini-cli-pull" value="pull" title="Transcludes whenever possible :)">
               {{config['AGORA_ACTION_2']}}
