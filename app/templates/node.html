@@ -51,6 +51,24 @@
     
         </div>
 
+        <div class="pushed-subnodes-embed">
+
+            <!-- removed from the sync rendering path as this is expensive (i.e. slow).
+            interested clients can call GET /push/x to get all subnodes being pushed to x.
+
+            some day maybe: POST/PUT to it to push ;)
+            -->
+
+            <center>
+                <p>
+                <div class="spinner">
+                    <img src="/static/img/agora.png" class="logo"></img>
+                </div>
+                </p>
+                <p><em>Loading pushes...</em></p>
+            </center>
+        </div>
+
         {% for subnode in node.subnodes %}
 
             <details class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}" open>
@@ -120,24 +138,6 @@
 {% include "empty.html" %}
 
 {% endif %} <!-- node without subnodes -->
-
-    <div class="pushed-subnodes-embed">
-
-        <!-- removed from the sync rendering path as this is expensive (i.e. slow).
-        interested clients can call GET /push/x to get all subnodes being pushed to x.
-
-        some day maybe: POST/PUT to it to push ;)
-        -->
-
-        <center>
-            <p>
-            <div class="spinner">
-                <img src="/static/img/agora.png" class="logo"></img>
-            </div>
-            </p>
-            <p><em>Loading pushes...</em></p>
-        </center>
-    </div>
 
 <details class="context" open>
 
