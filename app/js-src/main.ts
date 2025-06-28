@@ -169,30 +169,36 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.querySelector("#mini-cli").parentElement.submit();
   });
 
-  const toastMessageElement = document.getElementById('toast-message');
-  let toastTimeout; // Variable to hold our timeout
+  const toastContainer = document.getElementById('toast-container');
+  //
 
-  function showToast(message, duration = 3000) {
-      console.log(`Showing toast: "${message}"`);
+	function showToast(message, duration = 3000) {
+			// 1. Create a new toast element
+			const toastElement = document.createElement('div');
+			toastElement.className = 'toast'; // Start with base styles (hidden)
+			toastElement.textContent = message;
 
-      // Set the message text inside the toast element
-      toastMessageElement.textContent = message;
+			// 2. Add it to the container
+			toastContainer.appendChild(toastElement);
 
-      // Clear any existing timer to prevent premature hiding if called again quickly
-      if (toastTimeout) {
-          clearTimeout(toastTimeout);
-      }
+			// 3. Force a browser repaint, then add the 'visible' class to trigger the transition
+			// A tiny timeout is a reliable way to do this.
+			setTimeout(() => {
+					toastElement.classList.add('toast-visible');
+			}, 10);
 
-      // Show the toast by removing the 'toast-hidden' class
-      toastMessageElement.classList.remove('toast-hidden');
-      
-      // Set a timer to hide the toast after the specified duration
-      toastTimeout = setTimeout(() => {
-          console.log('Hiding toast message...');
-          // Hide the toast by adding the 'toast-hidden' class back
-          toastMessageElement.classList.add('toast-hidden');
-      }, duration);
-  }
+			// 4. Set a timer to remove the toast
+			setTimeout(() => {
+					// First, trigger the exit animation
+					toastElement.classList.remove('toast-visible');
+
+					// 5. Wait for the exit animation to finish before removing the element from the DOM
+					toastElement.addEventListener('transitionend', () => {
+							toastElement.remove();
+					}, { once: true }); // Use 'once' so the listener cleans itself up
+
+			}, duration);
+	}
 
   document.querySelector("#mini-cli-retry").addEventListener("click", () => {
     console.log("retry mini-cli executes");

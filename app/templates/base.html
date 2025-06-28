@@ -34,7 +34,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached0" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached2" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -165,7 +165,7 @@
 	{% block content %}
 	{% endblock %}
 
-  <div id="toast-message" class="toast toast-hidden"></div>
+  <div id="toast-container"></div>
 
 	<!-- Thank you [[vera]] for this contribution! -->
 	<div id='popup'>{{popup|default("What could we show here?")}}</div>
