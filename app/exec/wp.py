@@ -27,9 +27,13 @@ def wp(node):
         pageid = search.json()["query"]["search"][0]["pageid"]
     except IndexError:
         return Response("")
-    result = requests.get(
-        f"https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json"
-    ).json()
+    try:
+        result = requests.get(
+            f"https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json"
+        ).json()
+    except:
+        return f"<div class="subnode">Couldn't parse Wikipedia response for " + f"https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json</div>"
+
     title = result["query"]["pages"][str(pageid)]["title"]
     url = result["query"]["pages"][str(pageid)]["canonicalurl"]
     wikibase_item = result["query"]["pages"][str(pageid)]["pageprops"]["wikibase_item"]
