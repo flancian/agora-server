@@ -32,7 +32,7 @@ def wp(node):
             f"https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json"
         ).json()
     except:
-        return f"<div class="subnode">Couldn't parse Wikipedia response for " + f"https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json</div>"
+        return f"<div class='subnode'>Couldn't parse Wikipedia response.</div>"
 
     title = result["query"]["pages"][str(pageid)]["title"]
     url = result["query"]["pages"][str(pageid)]["canonicalurl"]
