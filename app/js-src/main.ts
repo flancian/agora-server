@@ -33,8 +33,6 @@ function safeJsonParse(value: string, defaultValue: any) {
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
-  console.log("DomContentLoaded");
-
   // set values from storage
   (document.getElementById("ranking") as HTMLInputElement).value = localStorage["ranking"] || '';
   (document.getElementById("auto-pull") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull"], false);
@@ -59,8 +57,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     localStorage["render-wikilinks"] = document.getElementById("render-wikilinks").checked
   });
 
-  console.log("Autopull settings are: " + autoPull + ", " + autoPullExtra);
-
   // Theme toggle stuff for initial load
   const theme = document.querySelector("#theme-link");
   const toggle = document.querySelector("#theme-toggle");
@@ -78,7 +74,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   const ids = ['#theme-toggle', '#theme-toggle-text'];
   document.querySelectorAll(ids).forEach(element => {
     element.addEventListener('click', function () {
-      console.log(`Clicked ${element.id}`);
       var theme = document.querySelector("#theme-link");
       var toggle = document.querySelector("#theme-toggle");
       if (theme.getAttribute("href") == "/static/css/screen-light.css") {
@@ -96,7 +91,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Burger menu, where we keep settings presumably :)
   document.querySelectorAll(['#burger', '#join', '#join2']).forEach(element => {
-    console.log(`Clicked ${element.id}`);
     element.addEventListener("click", function () {
       const overlay = document.getElementById('overlay');
       overlay.classList.toggle('active');
@@ -231,7 +225,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   // pull arbitrary URL
   document.querySelectorAll(".pull-url").forEach(element => {
     element.addEventListener('click', function (e) {
-      console.log("in pull-url!");
       if (this.classList.contains('pulled')) {
         // already pulled.
         this.innerText = 'pull';
@@ -241,7 +234,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         // pull.
         this.innerText = 'pulling';
         let url = this.value;
-        console.log('pull url : ' + url);
         const iframe = document.createElement('iframe');
         iframe.className = 'stoa2-iframe';
         iframe.setAttribute('allow', 'camera; microphone; fullscreen; display-capture; autoplay');
@@ -410,19 +402,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     genai.forEach((item) => {
       item.addEventListener("toggle", async (event) => {
         if (item.open) {
-          console.log("Details for GenAI have been shown");
-          genAIEmbed = item.querySelector(".pulled-genai-embed");
+          var genAIEmbed = item.querySelector(".pulled-genai-embed");
           if (genAIEmbed) {
             let qstr = genAIEmbed.id;
-            console.log("GenAI embed found, here we would pull.");
-            response = await fetch(AGORAURL + '/api/complete/' + qstr);
+            var response = await fetch(AGORAURL + '/api/complete/' + qstr);
             genAIEmbed.innerHTML = await response.text();
           }
         } else {
-          console.log("Details for GenAI have been hidden");
-          genAIEmbed = item.querySelector(".pulled-genai-embed");
+          var genAIEmbed = item.querySelector(".pulled-genai-embed");
           if (genAIEmbed) {
-            console.log("GenAI embed found, here we would fold.");
             genAIEmbed.innerHTML = '';
           }
         }
@@ -613,16 +601,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // This autoPull runs just after load of the node.
     if (autoPull) {
-      console.log('auto pulling recommended (local, friendly-looking domains) resources!');
       // auto pull everything with class auto-pull by default.
       // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
       document.querySelectorAll(".auto-pull-button").forEach(function (element) {
-        console.log('auto pulling URLs, trying to press button', element);
         element.click();
       });
       var details = document.querySelectorAll(".autopull");
       details.forEach((item) => {
-        console.log('auto pulling details, trying to expand' + this)
         item.click();
       });
     }
@@ -641,7 +626,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         this.classList.remove('pulled');
       } else {
         this.innerText = 'pulling';
-        console.log('pulling node');
         // now with two methods! you can choose the simpler/faster one (just pulls static content) or the nerdy one (recursive) in settings.
         if (pullRecursive) {
         document.querySelector(`#${node}.pulled-node-embed`).innerHTML = `<iframe src="${AGORAURL}/embed/${node}" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>`;
@@ -661,7 +645,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     // pull arbitrary URL
     document.querySelectorAll(".pull-url").forEach(element => {
       element.addEventListener("click", function (e) {
-      console.log("in pull-url!");
       if (this.classList.contains('pulled')) {
         // already pulled.
         this.innerText = 'pull';
@@ -671,7 +654,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         // pull.
         this.innerText = 'pulling';
         let url = this.value;
-        console.log('pull url : ' + url);
         const iframe = document.createElement('iframe');
         iframe.className = 'stoa2-iframe';
         iframe.setAttribute('allow', 'camera; microphone; fullscreen; display-capture; autoplay');
@@ -748,84 +730,61 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // pull all/fold all button in main node
     document.querySelector("#pull-all")?.addEventListener("click", function (e) {
-      console.log('auto pulling all!');
       document.querySelectorAll(".pull-node").forEach(element => {
-      if (!element.classList.contains('pulled')) {
-        console.log('auto pulling nodes');
-        element.click();
-      }
+        if (!element.classList.contains('pulled')) {
+          element.click();
+        }
       });
       document.querySelectorAll(".pull-mastodon-status").forEach(element => {
-      if (!element.classList.contains('pulled')) {
-        console.log('auto pulling activity');
-        element.click();
-      }
+        if (!element.classList.contains('pulled')) {
+          element.click();
+        }
       });
       document.querySelectorAll(".pull-tweet").forEach(element => {
-      if (!element.classList.contains('pulled')) {
-        console.log('auto pulling tweet');
-        element.click();
-      }
+        if (!element.classList.contains('pulled')) {
+          element.click();
+        }
       });
       document.querySelectorAll(".pull-search").forEach(element => {
-      if (!element.classList.contains('pulled')) {
-        console.log('auto pulling search');
-        element.click();
-      }
+        if (!element.classList.contains('pulled')) {
+          element.click();
+        }
       });
       document.querySelectorAll(".pull-url").forEach(element => {
-      if (!element.classList.contains('pulled')) {
-        console.log('auto pulling url');
-        element.click();
-      }
-      });
-
-      // experiment: make pull button expand all details.
-      var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary, details.stoa > summary, details.search > summary");
-      details.forEach(item => {
-      console.log('trying to click details');
-      item.click();
+        if (!element.classList.contains('pulled')) {
+          element.click();
+        }
       });
     });
 
-    // fold all button in intro banner.
     document.querySelector("#fold-all")?.addEventListener("click", function (e) {
-      // Already pulled -> fold.
       document.querySelectorAll(".pull-node").forEach(element => {
-      if (element.classList.contains('pulled')) {
-        console.log('auto folding nodes');
-        element.click();
-      }
+        if (element.classList.contains('pulled')) {
+          element.click();
+        }
       });
       document.querySelectorAll(".pull-mastodon-status").forEach(element => {
-      if (element.classList.contains('pulled')) {
-        console.log('auto folding activity');
-        element.click();
-      }
+        if (element.classList.contains('pulled')) {
+          element.click();
+        }
       });
       document.querySelectorAll(".pull-tweet").forEach(element => {
-      if (element.classList.contains('pulled')) {
-        console.log('auto folding tweet');
-        element.click();
-      }
+        if (element.classList.contains('pulled')) {
+          element.click();
+        }
       });
       document.querySelectorAll(".pull-search").forEach(element => {
-      if (element.classList.contains('pulled')) {
-        console.log('auto folding search');
-        element.click();
-      }
+        if (element.classList.contains('pulled')) {
+          element.click();
+        }
       });
       document.querySelectorAll(".pull-url").forEach(element => {
-      if (element.classList.contains('pulled')) {
-        console.log('auto pulling url');
-        element.click();
-      }
+        if (element.classList.contains('pulled')) {
+          element.click();
+        }
       });
-
-      // experiment: make fold button fold all details which are open.
       var details = document.querySelectorAll("details[open] > summary");
       details.forEach(item => {
-      console.log('trying to click details');
       item.click();
       });
     });
@@ -844,7 +803,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   if (showBrackets) {
     elements = document.getElementsByClassName("wikilink-marker");
-    console.log("should show brackets");
     for (var i = 0; i < elements.length; i++) {
       elements[i].style.display = 'inline';
     }
@@ -860,21 +818,17 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   if (autoExec) {
-    console.log('autoexec is enabled')
-
     // commenting out as focus stealing issues are just too disruptive.
     // setTimeout(autoPullStoaOnEmpty, 5000)
 
     // auto pull search by default.
     document.querySelectorAll(".pull-search").forEach(function (element) {
-      console.log('auto pulling search');
       element.click();
     });
 
     document.querySelectorAll(".context-all").forEach(function (element) {
       // auto pull whole Agora graph in /nodes.
       let id = '.context-all';
-      console.log('auto pulling whole Agora graph, will write to id: ' + id);
       fetch(AGORAURL + '/context/all')
       .then(response => response.text())
       .then(data => {
@@ -886,57 +840,47 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Begin Wikipedia code -- this is hacky/could be refactored (but then again, that applies to most of the Agora! :)
     const req_wikipedia = AGORAURL + '/exec/wp/' + encodeURI(NODENAME);
-    console.log('req for Wikipedia: ' + req_wikipedia);
     try {
       const response = await fetch(req_wikipedia);
       const data = await response.text();
-      const wikiSearchElement = document.querySelector(".wiki-search");
+      const wikiSearchElement = document.querySelector('.wiki-search');
       if (data && wikiSearchElement) {
-        console.log('Got some data from Wikipedia, showing data');
-        (wikiSearchElement as HTMLElement).style.display = '';
+        wikiSearchElement.style.display = '';
         wikiSearchElement.innerHTML = data;
       } else {
-        console.log('got empty data from Wikipedia, hiding div');
         if (wikiSearchElement) {
-          (wikiSearchElement as HTMLElement).style.display = 'none';
+          wikiSearchElement.style.display = 'none';
         }
       }
     } catch (error) {
       console.error('Error fetching Wikipedia data:', error);
     }
+    // End Wikipedia code.
 
-    // Once more for Wiktionary, yolo :)
-    req_wiktionary = AGORAURL + '/exec/wt/' + encodeURI(NODENAME)
-    console.log('req for Wiktionary: ' + req_wiktionary)
-
+    // Begin Wiktionary code.
+    var req_wiktionary = AGORAURL + '/exec/wt/' + encodeURI(NODENAME);
     try {
       const response = await fetch(req_wiktionary);
       const data = await response.text();
-      const wiktionaryElement = document.querySelector(".wiktionary-search");
+      const wiktionaryElement = document.querySelector('.wiktionary-search');
       if (data && wiktionaryElement) {
-      wiktionaryElement.innerHTML = data;
+        wiktionaryElement.innerHTML = data;
       } else {
-      console.log('got empty data from Wiktionary, hiding div');
-      if (wiktionaryElement) {
-        wiktionaryElement.style.display = 'none';
-      }
+        if (wiktionaryElement) {
+          wiktionaryElement.style.display = 'none';
+        }
       }
     } catch (error) {
       console.error('Error fetching Wiktionary data:', error);
     }
-
+    // End Wiktionary code.
   }
 
-  // This autoPull runs after load of the top level chrome, before the node is loaded.
   if (autoPull) {
-    console.log('auto pulling recommended (local, friendly-looking domains) resources!');
-    // auto pull everything with class auto-pull by default.
-    // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
     document.querySelectorAll(".node-header").forEach(function (element) {
-      console.log('*** auto pulling node, trying to activate', element);
       element.click();
     });
-    }
+  }
 
   if (autoPullExtra) {
     console.log('auto pulling external resources!');

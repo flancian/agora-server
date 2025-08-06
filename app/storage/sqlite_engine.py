@@ -48,11 +48,6 @@ class Node:
     def related(self):
         return []
 
-    # def subnodes(self):
-    #     cursor = get_cursor()
-    #     subnodes = cursor.execute("select * from subnodes where title=?", [self.title])
-    #     return [subnode_from_row(subnode) for subnode in subnodes]
-
     def __str__(self) -> str:
         return self.title
 
@@ -120,7 +115,6 @@ class User:
 
 
 def build_node(title):
-    print(title)
     node = Node(title)
     return node
 

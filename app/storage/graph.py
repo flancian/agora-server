@@ -16,12 +16,13 @@
 
 import re
 import urllib
-from flask import current_app, redirect, url_for
-from . import file_engine as db
-from .. import util
-
 from json import dumps
-from rdflib import Graph, Namespace, URIRef
+
+from flask import current_app
+from rdflib import Graph, Literal, URIRef
+from rdflib.namespace import FOAF, RDF
+
+from app.storage import db
 
 
 def add_node(node: db.Node, g: Graph, only_forward=False):
@@ -97,9 +98,9 @@ def turtle_nodes(nodes) -> str:
     g = Graph()
     g.bind("a", f"{base}/")  # Binds the 'a' prefix to your namespace URI
 
-    print(f"turtling agora using forward links only")
+    current_app.logger.debug(f"turtling agora using forward links only")
     node_count = len(nodes)
-    print(f"node count: {node_count}")
+    current_app.logger.debug(f"node count: {node_count}")
 
     for node in nodes:
         add_node(node, g, only_forward=True)
@@ -146,7 +147,7 @@ def parse_node(node: db.Node) -> dict:
             if backlinking_node in ["pull", "push"]:
                 continue
             if backlinking_node in pushing_nodes or backlinking_node in pulling_nodes:
-                print(f"discarded {node} because of being in pushed/pull list.")
+                current_app.logger.debug(f"discarded {node} because of being in pushed/pull list.")
                 continue
             n0 = backlinking_node
             n1 = this
@@ -242,9 +243,9 @@ def json_nodes(nodes):
     g = Graph()
     g.namespace_manager.bind("a", agora)
 
-    print(f"jsoing agora using forward links only")
+    current_app.logger.debug(f"jsoing agora using forward links only")
     node_count = len(nodes)
-    print(f"node count: {node_count}")
+    current_app.logger.debug(f"node count: {node_count}")
 
     unique_nodes = set()
     for node in nodes:
@@ -271,7 +272,7 @@ def json_nodes(nodes):
         )
         nodes_to_render.add(urllib.parse.quote_plus(f"{base}/{node.uri}"))
 
-    print(f"Have unique nodes, building triples...")
+    current_app.logger.debug(f"Have unique nodes, building triples...")
 
     for n0, link, n1 in g.triples((None, None, None)):
         # This was slow when we were using a list instead of a set.

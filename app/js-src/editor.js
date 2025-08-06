@@ -115,7 +115,6 @@ async function main() {
 window.main = main
 
 window.toggle = async function toggle(){
-	console.log("toggle")
 	const user = localStorage["gitea-user"] || await getUser()
 	const snelement = "div.subnode[data-author='" + user + "']"
 	const selector = `${snelement} .subnode-content`

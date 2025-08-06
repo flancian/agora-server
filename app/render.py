@@ -22,8 +22,8 @@ import re
 import shutil
 import smartypants
 import subprocess
+from flask import g as G
 from . import config, regexes, util
-from flask import current_app
 from marko import Markdown, inline
 from marko.helpers import MarkoExtension
 
