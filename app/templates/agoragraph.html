@@ -32,6 +32,9 @@
 
 </div>
 
+<!-- Load Force Graph library -->
+<script src="https://unpkg.com/force-graph@1.43.0/dist/force-graph.min.js"></script>
+
 <script>
     console.log("loading graph...")
     fetch("{{config['URL_BASE']}}/graph/json/all").then(res => res.json()).then(data => {
