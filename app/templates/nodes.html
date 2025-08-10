@@ -23,7 +23,7 @@
 {% if header %}
 <span class="node-header main-header">📚 {{header}}</span>
 {% else %}
-<span class="node-header main-header">📚 <strong>Nodes</strong> found in the <strong>{{config['AGORA_NAME']}}</strong></span>
+<span class="node-header main-header">📚 <strong>All nodes and links</strong> found in the <strong>{{config['AGORA_NAME']}}</strong></span>
 {% endif %}
 </summary>
 
@@ -38,23 +38,108 @@ There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']
 
 {% endif %}
 
-<strong>Top 1000 nodes:</strong>
-<br />
-{% for node in nodes[:1000] %}
+<details class="url node" style="border-style: none;">
+    <summary><span class="agoragraph"><strong>🧪 Experimental full graph</strong> of the <strong>{{config['AGORA_NAME']}}</strong> (might crash your tab, good luck! :)</summary></span>
+        <div class="stoa-iframe" src="{{config['URL_BASE']}}/context/all"></div>
+</details>
 
-<a href="{{node.uri}}">{{node.wikilink}}</a> <span style="font-weight: lighter">({{node.size()}})</span>
+<div class="nodes-grid">
+    <h3>📊 Top Nodes by Size</h3>
+    <div class="nodes-list">
+    {% for node in nodes[:100] %}
+        <div class="node-item">
+            <a href="{{node.uri}}" class="node-link">
+                <span class="node-name">{{node.wikilink}}</span>
+                <span class="node-size">({{node.size()}})</span>
+            </a>
+        </div>
+    {% endfor %}
+    </div>
+    
+    <details class="remaining-nodes">
+        <summary>Show more nodes ({{nodes|length - 100}} remaining)</summary>
+        <div class="nodes-list">
+        {% for node in nodes[100:1000] %}
+            <div class="node-item">
+                <a href="{{node.uri}}" class="node-link">
+                    <span class="node-name">{{node.wikilink}}</span>
+                    <span class="node-size">({{node.size()}})</span>
+                </a>
+            </div>
+        {% endfor %}
+        </div>
+    </details>
+</div>
 
-{% endfor %}
+<style>
+.nodes-grid {
+    margin: 1rem 0;
+}
+
+.nodes-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.node-item {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+    transition: background-color 0.2s;
+}
+
+.node-item:hover {
+    background: #f0f0f0;
+}
+
+.node-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.node-name {
+    font-weight: 500;
+    flex-grow: 1;
+    margin-right: 0.5rem;
+}
+
+.node-size {
+    font-weight: lighter;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.remaining-nodes {
+    margin-top: 1rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .node-item {
+        background: #333;
+        border-color: #555;
+    }
+    
+    .node-item:hover {
+        background: #444;
+    }
+    
+    .node-size {
+        color: #aaa;
+    }
+}
+</style>
 
 <hr />
 
 For more, please see graph endpoints.
 
-</details>
-
-<details class="url node" style="border-style: none;">
-    <summary><span class="agoragraph"><strong>⚠️ Danger</strong>: full graph of the <strong>{{config['AGORA_NAME']}}</strong> (slow, might crash your tab, good luck! :)</summary></span>
-        <div class="stoa-iframe" src="{{config['AGORA_URL']}}/context/all"></div>
 </details>
 
 {% endblock %}

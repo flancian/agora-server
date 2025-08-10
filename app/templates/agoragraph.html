@@ -14,23 +14,23 @@
  limitations under the License.
 -->
 
-{% extends "base.html" %}
-
 {% block content %}
 
 <div id="agoragraph">
-
-    <center>
+    <div id="graph-loading" style="text-align: center;">
         <p>
         <div class="spinner">
             <img src="/static/img/agora.png" class="logo"></img>
         </div>
         </p>
         <p><em>Rendering graph, please wait... (slow, may crash your browser tab, good luck :)</em></p>
-    </center>
+    </div>
 </div>
 
 </div>
+
+<!-- Load Force Graph library -->
+<script src="https://unpkg.com/force-graph@1.43.0/dist/force-graph.min.js"></script>
 
 <script>
     console.log("loading graph...")
@@ -41,6 +41,12 @@
     const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
     const edgeColor = (currentTheme == 'light' ? 'rgba(50, 50, 50, 1)' : 'rgba(200, 200, 200, 1)')
 
+    // Hide loading spinner
+    const loadingDiv = document.getElementById('graph-loading');
+    if (loadingDiv) {
+        loadingDiv.style.display = 'none';
+    }
+    
     const AgoraGraph = ForceGraph()(container);
     AgoraGraph.height(container.clientHeight)
         .width(container.clientWidth)

@@ -33,7 +33,8 @@ from mistralai.client import MistralClient, MistralException
 from mistralai.models.chat_completion import ChatMessage
 
 from . import forms, providers, render, util
-from .storage import api, feed, graph
+from .storage import api, feed
+from . import visualization
 
 bp = Blueprint("agora", __name__)
 CORS(bp)
@@ -199,27 +200,47 @@ def latest_feed():
 @bp.route("/graph/turtle/<node>")
 def turtle(node):
     n = G.node(node)
-    return Response(graph.turtle_node(n), mimetype="text/turtle")
+    response = make_response(visualization.turtle_node(n))
+    response.mimetype = "text/turtle"
+    # Cache for 30 minutes - individual node turtle data
+    response.headers['Cache-Control'] = 'public, max-age=1800'
+    response.headers['Vary'] = 'Accept-Encoding'
+    return response
 
 
 @bp.route("/graph/turtle/all")
 @bp.route("/graph/turtle")
 def turtle_all():
     nodes = G.nodes().values()
-    return Response(graph.turtle_nodes(nodes), mimetype="text/turtle")
+    response = make_response(visualization.turtle_nodes(nodes))
+    response.mimetype = "text/turtle"
+    # Cache for 2 hours - expensive full graph turtle data
+    response.headers['Cache-Control'] = 'public, max-age=7200'
+    response.headers['Vary'] = 'Accept-Encoding'
+    return response
 
 
 @bp.route("/graph/json/all")
 @bp.route("/graph/json")
 def graph_js():
     nodes = G.nodes().values()
-    return Response(graph.json_nodes(nodes), mimetype="application/json")
+    response = make_response(visualization.json_nodes(nodes))
+    response.mimetype = "application/json"
+    # Cache for 2 hours - very expensive full graph JSON data  
+    response.headers['Cache-Control'] = 'public, max-age=7200'
+    response.headers['Vary'] = 'Accept-Encoding'
+    return response
 
 
 @bp.route("/graph/json/<node>")
 def graph_js_node(node):
     n = G.node(node)
-    return Response(graph.json_node(n), mimetype="application/json")
+    response = make_response(visualization.json_node(n))
+    response.mimetype = "application/json"
+    # Cache for 1 hour - individual node graph JSON data
+    response.headers['Cache-Control'] = 'public, max-age=3600'
+    response.headers['Vary'] = 'Accept-Encoding'
+    return response
 
 
 @bp.route("/@<user>/<node>")
