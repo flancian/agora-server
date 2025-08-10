@@ -270,7 +270,7 @@ def json_nodes(nodes):
         # if size <= 4:
         #     continue
         d["nodes"].append(
-            {"id": f"{base}/{node.uri}", "name": node.description, "val": size}
+            {"id": f"/{node.uri}", "name": node.description, "val": size}
         )
         nodes_to_render.add(urllib.parse.quote_plus(f"{base}/{node.uri}"))
 

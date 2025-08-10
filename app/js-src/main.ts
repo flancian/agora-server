@@ -552,7 +552,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           Graph.height(container.clientHeight)
               .width(container.clientWidth)
               .onNodeClick(node => {
-                  let url = "{{config['URL_BASE']}}/" + node.id;
+                  let url = node.id;
                   location.assign(url)
               })
               .graphData(data)
@@ -565,7 +565,7 @@ document.addEventListener("DOMContentLoaded", async function () {
               Graph.height(container.clientHeight)
               .width(container.clientWidth)
               .onNodeClick(node => {
-                  let url = "{{config['URL_BASE']}}/" + node.id;
+                  let url = node.id;
                   location.assign(url)
               })
               .graphData(data)
