@@ -18,7 +18,7 @@ import re
 import urllib
 from flask import current_app, redirect, url_for
 from . import graph as db
-from .. import util
+from . import util
 
 from json import dumps
 from rdflib import Graph, Namespace, URIRef
