@@ -264,23 +264,33 @@ def json_nodes(nodes):
     #    unique_nodes.add(n0)
     #    unique_nodes.add(n1)
 
+    # Create a mapping from RDF URIs to node IDs
+    uri_to_node_id = {}
+    
     for node in unique_nodes:
         # hack hack
         size = node.size()
         # if size <= 4:
         #     continue
+        node_id = f"/{node.uri}"
+        # Use quote_plus encoding to match what add_node() uses
+        encoded_wikilink = urllib.parse.quote_plus(node.wikilink)
+        rdf_uri = f"{base}/{encoded_wikilink}"
+        
         d["nodes"].append(
-            {"id": f"/{node.uri}", "name": node.description, "val": size}
+            {"id": node_id, "name": node.description, "val": size}
         )
-        nodes_to_render.add(urllib.parse.quote_plus(f"{base}/{node.uri}"))
+        uri_to_node_id[rdf_uri] = node_id
 
     print(f"Have unique nodes, building triples...")
 
     for n0, link, n1 in g.triples((None, None, None)):
-        # This was slow when we were using a list instead of a set.
-        if str(n0) in nodes_to_render and str(n1) in nodes_to_render:
-            d["links"].append({"source": n0, "target": n1})
-            # print(f".", end="", flush=True)
+        # Convert RDF URIs back to node IDs
+        source_id = uri_to_node_id.get(str(n0))
+        target_id = uri_to_node_id.get(str(n1))
+        
+        if source_id and target_id and source_id != target_id:
+            d["links"].append({"source": source_id, "target": target_id})
             # this takes care of links to non-existent nodes, added with value 1 by default.
             # now commented as we don't graph those by default.
             # d["nodes"].append({'id': n1, 'name': n1, 'val': 1})

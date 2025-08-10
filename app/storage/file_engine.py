@@ -61,20 +61,6 @@ from ..graph import subnode_to_actions, subnode_to_taglink, subnode_to_pushes
 
 # TODO: implement.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def latest(max=False):
     if max:
         return sorted(G.subnodes(), key=lambda x: -x.mtime)[:max]
