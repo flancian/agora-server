@@ -36,6 +36,12 @@ This document outlines the completed refactoring to improve the Agora's architec
   - All constructors and build functions properly typed
 - ✅ **Backwards compatibility:** All existing imports still work through storage layer
 
+**Phase 3: Bug Fixes & Integration**
+- ✅ **Fixed graph visualization navigation:** Corrected TypeScript template strings in `main.ts`
+- ✅ **Compiled TypeScript:** Fixed click handlers with `npm run build`
+- ✅ **Import path corrections:** Fixed relative imports after moving `visualization.py`
+- ✅ **Verified functionality:** Agora loads and graph visualization works correctly
+
 ## Benefits Achieved
 
 1. **Cleaner Architecture**: Graph logic separated from file I/O
@@ -44,9 +50,37 @@ This document outlines the completed refactoring to improve the Agora's architec
 4. **Zero Breaking Changes**: All existing code continues to work
 5. **Future-Ready**: Foundation for GraphQL APIs, better testing, etc.
 
+## 🚀 Performance Optimization Plan
+
+**Phase 1 (Quick Wins - ✅ COMPLETED):**
+- ✅ **Add HTTP caching headers to expensive endpoints** (`/graph/json/*`, `/graph/turtle/*`)
+  - Individual nodes: 30 min - 1 hour cache
+  - Full graph data: 2 hours cache (very expensive)
+  - Added `Vary: Accept-Encoding` for compression compatibility
+- ✅ **Enable gzip compression for large responses**
+  - Added `flask-compress` dependency with uv
+  - Automatic compression for JSON/text responses >500 bytes
+  - Significant bandwidth savings for graph visualization data
+- ✅ **Implement content-based TTL strategy**
+  - `graph_json`: 7200s (2h) - expensive visualization data
+  - `node_data`: 1800s (30m) - moderate node operations  
+  - `subnodes`: 900s (15m) - file content changes
+  - `search`: 300s (5m) - frequently changing results
+  - Backwards compatible with existing random TTL
+
+**Phase 2 (Medium-term):**
+- [ ] Set up Redis cache layer for shared caching across instances
+- [ ] Pre-compute and cache expensive graph operations
+- [ ] Add ETag support for conditional requests
+
+**Phase 3 (Long-term):**
+- [ ] Background task processing for heavy operations
+- [ ] Database query optimizations
+- [ ] CDN integration for static graph data
+
 ## Next Steps (Future Work)
 
-The core refactoring is complete! Future improvements could include:
+Additional improvements beyond performance:
 
 - [ ] **Create comprehensive test suite** for `app/graph.py` classes
 - [ ] **Template optimization**: Update Jinja2 templates to use Node objects vs strings where beneficial  

@@ -51,6 +51,7 @@ dependencies = [
     "zipp>=3.15.0",
     "cachetools-ext>=0.0.8",
     "flask>=2.3.2",
+    "flask-compress>=1.13",
     "flask-cors>=4.0.0",
     "flask-markdown>=0.3",
     "flask-wtf>=1.1.1",

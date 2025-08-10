@@ -41,8 +41,21 @@ from .storage import feed
 FUZZ_FACTOR_EQUIVALENT = 95
 FUZZ_FACTOR_RELATED = 75
 
-# Spreading over a range prevents thundering herd affected by I/O throughput.
-CACHE_TTL = random.randint(120, 240)
+# Content-based TTL strategy for better performance
+def get_cache_ttl(content_type: str = "default") -> int:
+    """Get appropriate cache TTL based on content type and cost."""
+    ttls = {
+        "graph_json": 7200,      # 2 hours - very expensive graph visualization data
+        "graph_rdf": 7200,       # 2 hours - expensive RDF turtle data
+        "node_data": 1800,       # 30 min - moderately expensive node data
+        "search": 300,           # 5 min - changes frequently
+        "subnodes": 900,         # 15 min - file content changes occasionally
+        "default": random.randint(120, 240)  # Keep existing for compatibility
+    }
+    return ttls.get(content_type, ttls["default"])
+
+# Legacy constant for backwards compatibility  
+CACHE_TTL = get_cache_ttl("default")
 
 # URIs are ids.
 # - In the case of nodes, their [[wikilink]].
@@ -132,7 +145,7 @@ class Graph:
         return nodes
 
     # @cache.memoize(timeout=30)
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
+    @cachetools.func.ttl_cache(ttl=get_cache_ttl("node_data"))
     def nodes(self, include_journals: bool = True, only_canonical: bool = True) -> Dict[str, 'Node']:
         # this is where a lot of the 'magic' happens.
         # this:
@@ -200,7 +213,7 @@ class Graph:
 
     # does this belong here?
     # @cache.memoize(timeout=30)
-    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
+    @cachetools.func.ttl_cache(ttl=get_cache_ttl("subnodes"))
     def subnodes(self, sort=lambda x: x.uri.lower()) -> List['Subnode']:
         # this is where the magic happens (?)
         # as in -- this is where the rubber meets the road, meaning where we actually find all subnodes we can serve. This is called by G.nodes() which actually builds the Agora graph.

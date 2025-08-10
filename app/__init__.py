@@ -16,6 +16,7 @@ import bleach
 import logging
 import os
 from flask import Flask
+from flask_compress import Compress
 from . import agora
 from . import util
 from app.exec import *
@@ -29,6 +30,9 @@ def create_app():
     config = os.environ.get("AGORA_CONFIG", "DevelopmentConfig")
     app.config.from_object("app.config." + config)
     CORS(app)
+    
+    # Enable gzip compression for large responses
+    Compress(app)
 
     # there's probably a better way to make this distinction, but this works.
     if config == "ProductionConfig":
