@@ -1,6 +1,7 @@
 import os
 import app.storage.file_engine as file_engine
 import app.storage.sqlite_engine as sqlite_engine
+from app.graph import Graph as GraphClass, Node as NodeClass, User as UserClass
 
 STORAGE_ENGINE = os.environ.get("STORAGE_ENGINE", "file")
 
@@ -24,20 +25,20 @@ def build_multinode(node0, node1):
 def Graph():
     match STORAGE_ENGINE:
         case "file":
-            return file_engine.Graph()
+            return GraphClass()
         case "sqlite":
             return sqlite_engine.Graph()
         case _:
-            return
+            return GraphClass()
 
 def Node(node):
     match STORAGE_ENGINE:
         case "file":
-            return file_engine.Node(node)
+            return NodeClass(node)
         case "sqlite":
             return sqlite_engine.Node(node)
         case _:
-            return
+            return NodeClass(node)
 
 def subnode_by_uri(uri):
     match STORAGE_ENGINE:
@@ -82,11 +83,11 @@ def all_users():
 def User(username):
     match STORAGE_ENGINE:
         case "file":
-            return file_engine.User(username)
+            return UserClass(username)
         case "sqlite":
             return sqlite_engine.User(username)
         case _:
-            return
+            return UserClass(username)
 
 
 def user_readmes(username):

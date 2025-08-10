@@ -17,11 +17,14 @@
 import re
 import urllib
 from flask import current_app, redirect, url_for
-from . import file_engine as db
+from . import graph as db
 from .. import util
 
 from json import dumps
 from rdflib import Graph, Namespace, URIRef
+
+# Define the agora namespace for RDF operations
+agora = Namespace("https://anagora.org/")
 
 
 def add_node(node: db.Node, g: Graph, only_forward=False):

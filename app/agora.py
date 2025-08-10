@@ -33,7 +33,8 @@ from mistralai.client import MistralClient, MistralException
 from mistralai.models.chat_completion import ChatMessage
 
 from . import forms, providers, render, util
-from .storage import api, feed, graph
+from .storage import api, feed
+from . import visualization
 
 bp = Blueprint("agora", __name__)
 CORS(bp)
@@ -199,27 +200,27 @@ def latest_feed():
 @bp.route("/graph/turtle/<node>")
 def turtle(node):
     n = G.node(node)
-    return Response(graph.turtle_node(n), mimetype="text/turtle")
+    return Response(visualization.turtle_node(n), mimetype="text/turtle")
 
 
 @bp.route("/graph/turtle/all")
 @bp.route("/graph/turtle")
 def turtle_all():
     nodes = G.nodes().values()
-    return Response(graph.turtle_nodes(nodes), mimetype="text/turtle")
+    return Response(visualization.turtle_nodes(nodes), mimetype="text/turtle")
 
 
 @bp.route("/graph/json/all")
 @bp.route("/graph/json")
 def graph_js():
     nodes = G.nodes().values()
-    return Response(graph.json_nodes(nodes), mimetype="application/json")
+    return Response(visualization.json_nodes(nodes), mimetype="application/json")
 
 
 @bp.route("/graph/json/<node>")
 def graph_js_node(node):
     n = G.node(node)
-    return Response(graph.json_node(n), mimetype="application/json")
+    return Response(visualization.json_node(n), mimetype="application/json")
 
 
 @bp.route("/@<user>/<node>")
