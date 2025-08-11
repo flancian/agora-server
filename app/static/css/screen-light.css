@@ -40,13 +40,14 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 
 .info-box {
     background: #ffd4ae;
+    background: #ffba73;
     color: #000;
     border: 1px dashed var(--border); 
 }
 
 #footer {
     /* background: #efe0e0; */
-    background: #ff983d;
+    background: #ffba73;
 
 }
 
