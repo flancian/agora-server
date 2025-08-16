@@ -147,6 +147,11 @@ class DefaultConfig(object):
     except:
         MISTRAL_API_KEY = False
 
+    try:
+        GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
+    except:
+        GEMINI_API_KEY = False
+
 
 class ProductionConfig(DefaultConfig):
 

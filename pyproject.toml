@@ -70,6 +70,7 @@ dependencies = [
     "org-python>=0.3.2",
     "gunicorn>=23.0.0",
     "uwsgi>=2.0.29",
+    "google-generativeai>=0.7.2",
 ]
 
 [project.optional-dependencies]

@@ -33,6 +33,7 @@ from mistralai.client import MistralClient, MistralException
 from mistralai.models.chat_completion import ChatMessage
 
 from . import forms, providers, render, util
+from .providers import gemini_complete
 from .storage import api, feed
 from . import visualization
 
@@ -899,10 +900,16 @@ def complete(prompt):
             answer = str(chat_response.choices[0].message.content)
         except MistralException as e:
             # usually unauthorized; it happens if the key is invalid, for example.
-            answer = f"[[GenAI]] is not properly set up in this Agora yet. Please set the MISTRAL_API_KEY environment variable to a valid API key. \n\n {e}"
+            answer = f"[[GenAI]] is not properly set up in this Agora yet. Please set the MISTRAL_API_KEY environment variable to a valid API key. {e}"
         return render.markdown(answer)
     else:
         return("<em>This Agora is not AI-enabled yet</em>.")
+
+
+@bp.route("/api/gemini_complete/<prompt>")
+def gemini_complete_route(prompt):
+    answer = gemini_complete(prompt)
+    return render.markdown(answer)
 
 # Fediverse space is: /inbox, /outbox, /users/<username>, .well-known/webfinger, .well-known/nodeinfo?
 

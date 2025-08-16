@@ -16,52 +16,41 @@
 -->
 
 {% if not subnode and config['ENABLE_AI'] %}
-
-<dialog id="not-implemented-dialog">
-  <center>
-  <p>Gemini not implemented yet!</p>
-  <p>🚧</p>
-  <p>Check back soon :)</p>
-  <button id="close-dialog-btn">OK</button>
-  </center>
-</dialog>
+<style>
+    .ai-provider-tab {
+        cursor: pointer;
+        text-decoration: underline;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    .ai-provider-tab.active {
+        font-weight: bold;
+        background-color: #ffffff20;
+        text-decoration: none;
+    }
+</style>
 
 <details class="genai"> 
-
-    <!-- experimented with defaulting open in 2024-09 in dev but I felt it too intrusive as it took too long to generate and the resulting additional spinner felt needlessly anxiety-producing :) -->
-
-    <summary> <span class="genai-header" title="AI generation for the node as prompt.">
-        <strong>🤖 AI generations</strong> by  
-        <a style="cursor: pointer; text-decoration: underline"><strong>Agora Assistant</strong></a>
-            • <span><a href="https://chatgpt.com/?q={{node.q}}" target="_blank">ChatGPT</a></span>
-            • <span><a href="https://claude.ai/new?q={{node.q}}" target="_blank">Claude</a></span>
-            • <span><a href="#" id="feature-link-dialog">Gemini</a></span>
-    </span>
+    <summary> 
+        <span class="genai-header" title="AI generation for the node as prompt.">
+            <strong>🤖 AI generations</strong> by 
+            <a class="ai-provider-tab active" data-provider="mistral">Mistral</a> • 
+            <a class="ai-provider-tab" data-provider="gemini">Gemini</a>
+        </span>
     </summary>
 
     <div class="info-box with-spacing" info-box-id="ai">
-      <span class="genai-header"><em>This is an <strong>Agora Assistant</strong> based on <a href="https://mistral.ai">Mistral AI</a>. Click on a link above to forward your prompt to the chosen service.</em></span>
+      <span class="genai-header"><em>This is an <strong>Agora Assistant</strong> that will try to help you navigate the vicinity. Click on a provider above to see its output!</em></span>
         <span id="dismiss-ai" info-box-id="ai" class="dismiss-button">x</span>
     </div>
 
     <div class="subnode">
-    <div class="pulled-genai-embed" id="{{node.qstr}}">
-
-    <br />
-    <center>
-        <p>
-        <div class="spinner">
-            <img src="/static/img/agora.png" class="logo"></img>
-        </div>
-        </p>
-        <p><em>Generating text...</em></p>
-    </center>
-    <br />
-
-    </div>                           
+        <div class="pulled-genai-embed" id="{{node.qstr}}">
+            <!-- Content will be loaded here by JavaScript -->
+        </div>                           
     </div>
 
 </details>
-
 {% endif %}
+
 

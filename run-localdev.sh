@@ -14,6 +14,7 @@
 # limitations under the License.
 
 export MISTRAL_API_KEY=$(cat ~/flancia/secret/api/mistral.txt)
+export GEMINI_API_KEY=$(cat ~/flancia/secret/api/gemini.txt)
 while true; do
     timeout 3600 ./run-dev.sh Local
     sleep 2

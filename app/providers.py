@@ -23,6 +23,28 @@ from uuid import uuid4
 import urllib.parse
 
 from . import util
+import google.generativeai as genai
+
+
+def gemini_complete(prompt):
+    if current_app.config["ENABLE_AI"]:
+        api_key = current_app.config["GEMINI_API_KEY"]
+        if not api_key:
+            return "[[GenAI]] is not properly set up for Gemini in this Agora yet. Please set the GEMINI_API_KEY environment variable to a valid API key."
+
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.5-flash')
+
+        enriched_prompt = current_app.config['AI_PROMPT'] + prompt
+        
+        try:
+            response = model.generate_content(enriched_prompt)
+            return response.text
+        except Exception as e:
+            return f"An error occurred with the Gemini API: {e}"
+    else:
+        return "<em>This Agora is not AI-enabled yet</em>."
+
 
 
 class FloatEnum(float, Enum):

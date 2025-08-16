@@ -406,29 +406,55 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 
     // same for GenAI if we have it enabled.
-    var genai = document.querySelectorAll("details.genai");
-    genai.forEach((item) => {
-      item.addEventListener("toggle", async (event) => {
-        if (item.open) {
-          console.log("Details for GenAI have been shown");
-          genAIEmbed = item.querySelector(".pulled-genai-embed");
-          if (genAIEmbed) {
-            let qstr = genAIEmbed.id;
-            console.log("GenAI embed found, here we would pull.");
-            response = await fetch(AGORAURL + '/api/complete/' + qstr);
-            genAIEmbed.innerHTML = await response.text();
-          }
-        } else {
-          console.log("Details for GenAI have been hidden");
-          genAIEmbed = item.querySelector(".pulled-genai-embed");
-          if (genAIEmbed) {
-            console.log("GenAI embed found, here we would fold.");
-            genAIEmbed.innerHTML = '';
-          }
-        }
-      });
+    const genaiContainer = document.querySelector("details.genai");
+    if (genaiContainer) {
+        const tabs = genaiContainer.querySelectorAll(".ai-provider-tab");
+        const contentDiv = genaiContainer.querySelector(".pulled-genai-embed");
+        const spinner = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Generating text...</em></p></center><br />`;
 
-    });
+        const loadContent = async (provider) => {
+            if (!contentDiv) return;
+            
+            contentDiv.innerHTML = spinner;
+            const qstr = contentDiv.id;
+            let endpoint = '';
+            if (provider === 'mistral') {
+                endpoint = '/api/complete/';
+            } else if (provider === 'gemini') {
+                endpoint = '/api/gemini_complete/';
+            }
+
+            if (endpoint) {
+                try {
+                    const response = await fetch(AGORAURL + endpoint + qstr);
+                    contentDiv.innerHTML = await response.text();
+                } catch (error) {
+                    contentDiv.innerHTML = `<p>Error loading content: ${error}</p>`;
+                }
+            }
+        };
+
+        // Load Mistral by default when the details are first opened
+        genaiContainer.addEventListener("toggle", (event) => {
+            if (genaiContainer.open && contentDiv.children.length === 0) {
+                loadContent('mistral');
+            }
+        });
+
+        tabs.forEach(tab => {
+            tab.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation(); // Prevents the summary from closing when a tab is clicked
+
+                // Update active tab style
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const provider = tab.getAttribute('data-provider');
+                loadContent(provider);
+            });
+        });
+    }
 
     if (content != null) {
       // block on node loading (expensive if the task is freshly up)
