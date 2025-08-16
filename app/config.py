@@ -76,6 +76,8 @@ class DefaultConfig(object):
     AGORA_VERSION = "0.999"
 
     # This is a lot of boilerplate, could be refactored? :)
+    PROD_URL_BASE = "https://anagora.org"
+    DEV_URL_BASE = "https://tar.agor.ai"
     try:
         AGORA_NAME = AGORA_CONFIG["agora_name"]
     except (KeyError, TypeError):
