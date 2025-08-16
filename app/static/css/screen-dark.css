@@ -718,14 +718,14 @@ summary {
     padding: 7px;
     padding-right: 30px;
     */
-    background: #601406;
+    background: #701406;
     padding: 7px;
     font-style: italic;
 }
-}
 
 .intro {
-    background: #001a3b;
+    background: #701406;
+    filter: brightness(120%);
     padding: 7px;
     font-style: italic;
 }
