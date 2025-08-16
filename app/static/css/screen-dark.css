@@ -141,21 +141,46 @@ li {
 }
 
 .subnode-content > ul::before {
+    /* overlay for "Agora protocol" */
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(200, 78, 26, 0.1); /* Adjust the last value for darkness */
+    background-color: #a9420040; 
+    z-index: -1; /* Places the overlay behind the content */
+}
+
+.subnode-content > ul {
+    filter: brightness(100%);
+    display: inline-block;
+    padding-right: 1em;
+    padding-top: 5px;
+    /* for the Agora protocol tagline :) */
+    padding-bottom: 2em;
+    position: relative;
+}
+
+.subnode-content > ul::before {
+    /* overlay for "Agora protocol" */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #a9420040; 
     z-index: -1; /* Places the overlay behind the content */
 }
 
 .subnode-content > ul::after {
-    content: 'Agora Protocol (inferred)'; /* Custom bullet point style :) */
+    content: '(Agora Protocol inferred.)'; /* Custom bullet point style :) */
+    position: absolute;
+    bottom: 5px;
     font-size: smaller;
     font-style: italic;
-    color: grey; /* Bullet point color */
+    color: #ffffff40; /* Bullet point color */
 }
 
 li img {
@@ -693,8 +718,7 @@ summary {
     padding: 7px;
     padding-right: 30px;
     */
-    background: #702b0e;
-    background: #942d00;
+    background: #601406;
     padding: 7px;
     font-style: italic;
 }
@@ -718,7 +742,6 @@ summary {
 }
 
 #footer {
-    background: #390087;
     background: #942d00;
     padding: 7px;
     font-style: italic;

@@ -39,8 +39,8 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 }
 
 .info-box {
-    background: #ffd4ae;
-    background: #ffba73;
+    background: #ebac21;
+    background: #fff0c0;
     color: #000;
     border: 1px dashed var(--border); 
 }
@@ -48,6 +48,7 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 #footer {
     /* background: #efe0e0; */
     background: #ffba73;
+    background: #ebac21;
 
 }
 
@@ -84,3 +85,23 @@ button {
   flex: 1;
   border-bottom: 1px solid #222;
 }
+
+
+.subnode-content > ul {
+    position: relative;
+}
+
+.subnode-content > ul::before {
+    /* overlay for agora protocol */
+    background-color: #ebac2120; 
+}
+
+.subnode-content > ul::after {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: smaller;
+    font-style: italic;
+    color: #00000040; /* Bullet point color */
+}
+
