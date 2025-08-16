@@ -22,14 +22,14 @@ Install npm. Then install JavaScript dependencies:
 npm install
 ```
 
-Install poetry (as per https://python-poetry.org/docs/ and the pip3 repository, this is the recommended way of installing):
+Install uv (as per https://github.com/astral-sh/uv):
 ```
-curl -sSL  https://install.python-poetry.org | python3 -
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 Install Python dependencies:
 ```
-poetry install
+uv sync
 ```
 
 If you get a virtualenv-related error above, try removing virtualenv if you had installed it separately: `pip3 uninstall virtualenv`.

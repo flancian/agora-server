@@ -38,9 +38,14 @@ MAINTAINER Flancian "0@flancia.org"
 USER root
 
 RUN apt-get update
-RUN apt-get install -y git python3 python3-pip python3-poetry npm
+RUN apt-get install -y git python3 python3-pip npm curl
 # We don't need these files in the finished container; this should run after all apt-get invocations.
 RUN rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:$PATH"
+
 # We run as agora user
 RUN groupadd -r agora -g 1000 && useradd -u 1000 -r -g agora -s /bin/bash -c "Agora" agora
 # /home/agora/agora is the agora root; /home/agora/agora-server is where we'll run.
@@ -64,8 +69,7 @@ WORKDIR /home/agora/agora-server
 RUN npm install
 
 # This seems to work around some version issues. Why it's needed I can't currently tell.
-RUN poetry lock
-RUN poetry install
+RUN uv sync
 EXPOSE 5017
 
 CMD ./entrypoint.sh
