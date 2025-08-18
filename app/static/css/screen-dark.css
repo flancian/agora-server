@@ -148,7 +148,6 @@ li {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #a9420040; 
     z-index: -1; /* Places the overlay behind the content */
 }
 
@@ -159,6 +158,7 @@ li {
     padding-top: 5px;
     /* for the Agora protocol tagline :) */
     padding-bottom: 2em;
+    background-color: black;
     position: relative;
 }
 
@@ -170,7 +170,6 @@ li {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #a9420040; 
     z-index: -1; /* Places the overlay behind the content */
 }
 
@@ -180,7 +179,7 @@ li {
     bottom: 5px;
     font-size: smaller;
     font-style: italic;
-    color: #ffffff40; /* Bullet point color */
+    color: #ffffff80; /* Bullet point color */
 }
 
 li img {
@@ -719,6 +718,7 @@ summary {
     padding-right: 30px;
     */
     background: #701406;
+    filter: brightness(100%);
     padding: 7px;
     font-style: italic;
 }

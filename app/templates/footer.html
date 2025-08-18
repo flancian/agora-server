@@ -5,14 +5,14 @@
 
     <!-- Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong> in <strong><a style="all: unset;"href="http://localhost:5017/{{node.qstr}}">__EXECTIME__s</a></strong>.
     -->
-    <strong>⚡</strong> Served by the 
+    {% if 'development' in config.AGORA_NAME.lower() or 'alpha' in config.AGORA_NAME.lower() %}<a style="all: unset;" href="{{config.PROD_URL_BASE}}/{{node.qstr}}">⸎</a>{% else %}<a style="all: unset;" href="{{config.DEV_URL_BASE}}/{{node.qstr}}">⸎</a>{% endif %}
+    Served by the 
     <a style="all: unset;" href="https://flancia.org"> {% if 'Flan' in config['AGORA_NAME'] %} 🍮 {% else %} 🏛️ {% endif %}
     <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a>
     at <strong>__NOW__</strong>
     {% if 'Flan' in config['AGORA_NAME'] %} for the benefit of all beings{% else %} {% endif %}
-    | <a href="{{config['ROOT']}}">Root</a> 
-    | <a href="{{config['SOURCE']}}">Source</a> 
-    | {% if 'development' in config.AGORA_NAME.lower() or 'alpha' in config.AGORA_NAME.lower() %}<a style="all: unset;" href="{{config.PROD_URL_BASE}}/{{node.qstr}}">⸎</a>{% else %}<a style="all: unset;" href="{{config.DEV_URL_BASE}}/{{node.qstr}}">⸎</a>{% endif %}
+    • <a href="{{config['ROOT']}}">Root</a> 
+    • <a href="{{config['SOURCE']}}">Source</a> 
 
     <!--
     <center>
