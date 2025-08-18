@@ -1,6 +1,6 @@
 <!-- <div class="context"> now meant to be loaded async through /context/x -->
 
-<summary><span title="Information about the surroundings and connections between this location and others. May load slowly.">⥱ Agora context for <span class="wikilink-marker">[[</span><a href="/{{node}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span></span></summary>
+<summary><span title="Information about the surroundings and connections between this location and others. May load slowly.">⥱ Context for <span class="wikilink-marker">[[</span><a href="/{{node}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span></span></summary>
 
 <div class="context-flex">
 {% if node.back_nodes() or node.push_nodes() or node.pull_nodes() or node.forward_nodes() %}
@@ -12,7 +12,7 @@
 {% else %}
 
 <p>
-No context found.
+<em>No context found.</em>
 </p>
 
 </div>

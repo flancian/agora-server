@@ -45,14 +45,14 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
     border: 1px dashed var(--border); 
 }
 
-.intro {
+.intro, #footer {
     background: #fff0c0;
     filter: none;
     color: #000;
     border: 1px dashed var(--border); 
 }
 
-#footer {
+#footerold {
     /* background: #efe0e0; */
     background: #ffd271;
 

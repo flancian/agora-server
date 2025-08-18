@@ -481,7 +481,6 @@ summary, #footer {
     scrollbar-width: none;  /* Firefox */
 }
 
-
 .navigation::-webkit-scrollbar {
     display: none;
 }
@@ -723,7 +722,7 @@ summary {
     font-style: italic;
 }
 
-.intro {
+.intro, #footer {
     background: #701406;
     filter: brightness(120%);
     padding: 7px;
@@ -739,12 +738,6 @@ summary {
     transition: opacity 0.5s ease, visibility 0.5s ease;
     opacity: 1;
     visibility: visible;
-}
-
-#footer {
-    background: #942d00;
-    padding: 7px;
-    font-style: italic;
 }
 
 .dismiss-button {
