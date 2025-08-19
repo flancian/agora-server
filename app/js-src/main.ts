@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   // Burger menu, where we keep settings presumably :)
-  document.querySelectorAll(['#burger', '#join', '#join2']).forEach(element => {
+  document.querySelectorAll(['#burger', '#join', '#join2', '#overlay-close']).forEach(element => {
     console.log(`Clicked ${element.id}`);
     element.addEventListener("click", function () {
       const overlay = document.getElementById('overlay');

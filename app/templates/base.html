@@ -34,7 +34,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached6" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached7" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -80,8 +80,6 @@
 
 <body>
 
-	<div class="burger" id="burger">☰</div>
-
 	{% include "overlay.html" %}
 
     <div class="content">
@@ -113,13 +111,8 @@
           {{config['MENU_SEPARATOR']}} <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
 			-->
       {{config['MENU_SEPARATOR']}} 
-      <span class="navbar-item">
-			<span id='theme-toggle'>🌙</span>
-			<span id='theme-toggle-text'><a href='#' style='text-decoration: none;'></a></span>
-        </span>
+      <div class="burger" id="burger">☰</div>
 	</div>
-
-
         {% endif %}
 
         <div class="topline-node">

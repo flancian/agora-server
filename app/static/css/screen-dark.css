@@ -1129,14 +1129,25 @@ table caption {
 }
 
 .burger {
-    position: fixed;
-    bottom: 0.25em;
-    right: 0.5em;
-    font-size: 2em;
+    font-size: 1.2em;
     cursor: pointer;
-    z-index: 1000;
-    background-color: rgba(20, 20, 20, 150);
 }
+
+.overlay-close {
+    font-size: 1.5em;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.overlay-top-right {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
 
 .overlay-wrapper {
     position: relative;
