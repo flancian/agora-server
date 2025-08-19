@@ -510,6 +510,18 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
+    if (autoPullSearch) {
+        // auto pull search by default.
+        document.querySelectorAll("details.search").forEach(function (element) {
+          console.log('auto pulling search');
+          // We click the summary element to trigger the toggle event listener.
+          const summary = element.querySelector('summary');
+          if (summary && !(element as HTMLDetailsElement).open) {
+            summary.click();
+          }
+        });
+    }
+
     if (content != null) {
       // block on node loading (expensive if the task is freshly up)
       response = await fetch(AGORAURL + '/node/' + node);
@@ -928,14 +940,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
   // end bindEvents();
 
-  if (showBrackets) {
-    elements = document.getElementsByClassName("wikilink-marker");
-    console.log("should show brackets");
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].style.display = 'inline';
-    }
-  }
-
   // go to the specified URL
   document.querySelectorAll(".go-url").forEach(element => {
     element.addEventListener("click", function () {
@@ -944,14 +948,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       window.location.replace(url);
     });
   });
-
-  if (autoPullSearch) {
-    // auto pull search by default.
-    document.querySelectorAll(".pull-search").forEach(function (element) {
-      console.log('auto pulling search');
-      element.click();
-    });
-  }
 
   if (autoPullStoa) {
     // auto pull stoa by default.

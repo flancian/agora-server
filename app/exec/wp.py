@@ -25,8 +25,8 @@ def wp(node):
     )
     try:
         pageid = search.json()["query"]["search"][0]["pageid"]
-    except IndexError:
-        return Response("")
+    except (IndexError, requests.exceptions.JSONDecodeError):
+        return f"<div class='subnode'>Couldn't parse Wikipedia response.</div>"
     try:
         result = requests.get(
             f"https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json"
