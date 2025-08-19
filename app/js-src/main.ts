@@ -15,10 +15,8 @@
 
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
-const autoPull = JSON.parse(localStorage["auto-pull"] || 'false')
 const autoPullExtra = JSON.parse(localStorage["auto-pull-extra"] || 'false')
 // This would make sense but Hedgedoc currently steals focus on embed and I've been unable to fix it so far :).
-const autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || 'false')
 const autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || 'false')
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
@@ -36,9 +34,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // set values from storage
   (document.getElementById("ranking") as HTMLInputElement).value = localStorage["ranking"] || '';
-  (document.getElementById("auto-pull") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull"], false);
   (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], false);
-  (document.getElementById("auto-pull-stoa") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-stoa"], false);
   (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
   (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], false);
 
@@ -97,12 +93,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("ranking")?.addEventListener('change', (e) => {
     localStorage["ranking"] = (e.target as HTMLInputElement).value;
   });
-  document.getElementById("auto-pull")?.addEventListener('change', (e) => {
-    localStorage["auto-pull"] = (e.target as HTMLInputElement).checked;
-  });
-  document.getElementById("auto-pull-stoa")?.addEventListener('change', (e) => {
-    localStorage["auto-pull-stoa"] = (e.target as HTMLInputElement).checked;
-  });
   document.getElementById("auto-pull-search")?.addEventListener('change', (e) => {
     localStorage["auto-pull-search"] = (e.target as HTMLInputElement).checked;
   });
@@ -112,8 +102,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("show-brackets")?.addEventListener('change', (e) => {
     localStorage["showBrackets"] = (e.target as HTMLInputElement).checked;
   });
-
-  console.log("Autopull settings are: " + autoPull + ", " + autoPullExtra);
 
   // Theme toggle stuff for initial load
   const theme = document.querySelector("#theme-link");
@@ -535,16 +523,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function autoPullAsync() {
     // autopull if the local node is empty.
     console.log('auto pulling resources');
-    if (autoPull) {
-      document.querySelectorAll(".auto-pull-button").forEach(function (element) {
-        console.log('auto pulling URLs, trying to press button', element);
-        element.click();
-      });
-      var details = document.querySelectorAll(".autopull");
-      details.forEach((item) => {
-        item.click();
-      });
-    }
     // }
   }
 
@@ -709,21 +687,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.log("graph loaded.")
     });
 
-  // This autoPull runs just after load of the node.
-    if (autoPull) {
-      console.log('auto pulling recommended (local, friendly-looking domains) resources!');
-      // auto pull everything with class auto-pull by default.
-      // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
-      document.querySelectorAll(".auto-pull-button").forEach(function (element) {
-        console.log('auto pulling URLs, trying to press button', element);
-        element.click();
-      });
-      var details = document.querySelectorAll(".autopull");
-      details.forEach((item) => {
-        console.log('auto pulling details, trying to expand' + this)
-        item.click();
-      });
-    }
     // end async content code.
 
     // pull nodes from the [[agora]]
@@ -949,14 +912,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   });
 
-  if (autoPullStoa) {
-    // auto pull stoa by default.
-    document.querySelectorAll("#pull-stoa").forEach(function (element) {
-      console.log('auto pulling stoa');
-      element.click();
-    });
-  }
-
   if (autoExec) {
     console.log('autoexec is enabled')
 
@@ -1016,19 +971,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     } catch (error) {
       console.error('Error fetching Wiktionary data:', error);
     }
-
   }
-
-  // This autoPull runs after load of the top level chrome, before the node is loaded.
-  if (autoPull) {
-    console.log('auto pulling recommended (local, friendly-looking domains) resources!');
-    // auto pull everything with class auto-pull by default.
-    // as of 2022-03-24 this is used to automatically include nodes pulled by gardens in the Agora.
-    document.querySelectorAll(".node-header").forEach(function (element) {
-      console.log('*** auto pulling node, trying to activate', element);
-      element.click();
-    });
-    }
 
   if (autoPullExtra) {
     console.log('auto pulling external resources!');
