@@ -95,6 +95,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
   document.getElementById("auto-pull-search")?.addEventListener('change', (e) => {
     localStorage["auto-pull-search"] = (e.target as HTMLInputElement).checked;
+    location.reload();
   });
   document.getElementById("render-wikilinks")?.addEventListener('change', (e) => {
     localStorage["render-wikilinks"] = (e.target as HTMLInputElement).checked;
@@ -251,7 +252,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   document.querySelector("#mini-cli-pull").addEventListener("click", () => {
     console.log("pull mini-cli executes");
-    showToast("Not implemented yet! 😉");
+    document.querySelectorAll("details:not([open]) > summary").forEach(summary => {
+        (summary as HTMLElement).click();
+    });
   });
 
   /*
