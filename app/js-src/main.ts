@@ -22,7 +22,6 @@ const autoPullStoa = JSON.parse(localStorage["auto-pull-stoa"] || 'false')
 const autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || 'false')
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
-const showBrackets = JSON.parse(localStorage["showBrackets"] || 'false')
 
 function safeJsonParse(value: string, defaultValue: any) {
   try {
@@ -41,6 +40,51 @@ document.addEventListener("DOMContentLoaded", async function () {
   (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], false);
   (document.getElementById("auto-pull-stoa") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-stoa"], false);
   (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
+  (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], false);
+
+  // Function to apply the wikilink rendering style
+  const applyWikilinkStyle = () => {
+    const shouldRender = (document.getElementById("render-wikilinks") as HTMLInputElement).checked;
+    if (shouldRender) {
+      document.body.classList.remove('no-wikilinks');
+    } else {
+      document.body.classList.add('no-wikilinks');
+    }
+  };
+
+  // Function to apply the bracket visibility style
+  const applyBracketVisibility = () => {
+    const shouldShow = (document.getElementById("show-brackets") as HTMLInputElement).checked;
+    const markers = document.querySelectorAll(".wikilink-marker");
+    markers.forEach(marker => {
+        (marker as HTMLElement).style.display = shouldShow ? 'inline' : 'none';
+    });
+  };
+
+  // Apply styles on initial load
+  applyWikilinkStyle();
+  applyBracketVisibility();
+
+  // Watch for new nodes being added to the DOM and re-apply the style
+  const bracketObserver = new MutationObserver((mutations) => {
+    mutations.forEach(mutation => {
+      if (mutation.addedNodes.length) {
+        applyBracketVisibility();
+      }
+    });
+  });
+  bracketObserver.observe(document.body, { childList: true, subtree: true });
+
+
+  // Add event listeners to checkboxes to apply style on change
+  const renderWikilinksCheckbox = document.getElementById("render-wikilinks");
+  if (renderWikilinksCheckbox) {
+    renderWikilinksCheckbox.addEventListener('change', applyWikilinkStyle);
+  }
+  const showBracketsCheckbox = document.getElementById("show-brackets");
+  if (showBracketsCheckbox) {
+    showBracketsCheckbox.addEventListener('change', applyBracketVisibility);
+  }
 
   // bind clear button (why is this here? good question!)
   var clear = document.getElementById("clear-settings");
@@ -49,14 +93,24 @@ document.addEventListener("DOMContentLoaded", async function () {
     localStorage.clear();
   });
 
-  var save = document.getElementById("save-settings");
-  save.addEventListener("click", function () {
-    console.log("trying to save settings...")
-    localStorage["ranking"] = document.getElementById("ranking").value
-    localStorage["auto-pull"] = document.getElementById("auto-pull").checked
-    localStorage["auto-pull-stoa"] = document.getElementById("auto-pull-stoa").checked
-    localStorage["auto-pull-search"] = document.getElementById("auto-pull-search").checked
-    localStorage["render-wikilinks"] = document.getElementById("render-wikilinks").checked
+  // Auto-save settings on change
+  document.getElementById("ranking")?.addEventListener('change', (e) => {
+    localStorage["ranking"] = (e.target as HTMLInputElement).value;
+  });
+  document.getElementById("auto-pull")?.addEventListener('change', (e) => {
+    localStorage["auto-pull"] = (e.target as HTMLInputElement).checked;
+  });
+  document.getElementById("auto-pull-stoa")?.addEventListener('change', (e) => {
+    localStorage["auto-pull-stoa"] = (e.target as HTMLInputElement).checked;
+  });
+  document.getElementById("auto-pull-search")?.addEventListener('change', (e) => {
+    localStorage["auto-pull-search"] = (e.target as HTMLInputElement).checked;
+  });
+  document.getElementById("render-wikilinks")?.addEventListener('change', (e) => {
+    localStorage["render-wikilinks"] = (e.target as HTMLInputElement).checked;
+  });
+  document.getElementById("show-brackets")?.addEventListener('change', (e) => {
+    localStorage["showBrackets"] = (e.target as HTMLInputElement).checked;
   });
 
   console.log("Autopull settings are: " + autoPull + ", " + autoPullExtra);
@@ -469,10 +523,16 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function autoPullAsync() {
     // autopull if the local node is empty.
     console.log('auto pulling resources');
-    var details = document.querySelectorAll(".autopull");
-    details.forEach((item) => {
-      item.click();
-    });
+    if (autoPull) {
+      document.querySelectorAll(".auto-pull-button").forEach(function (element) {
+        console.log('auto pulling URLs, trying to press button', element);
+        element.click();
+      });
+      var details = document.querySelectorAll(".autopull");
+      details.forEach((item) => {
+        item.click();
+      });
+    }
     // }
   }
 
@@ -885,17 +945,27 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   });
 
-  if (autoExec) {
-    console.log('autoexec is enabled')
-
-    // commenting out as focus stealing issues are just too disruptive.
-    // setTimeout(autoPullStoaOnEmpty, 5000)
-
+  if (autoPullSearch) {
     // auto pull search by default.
     document.querySelectorAll(".pull-search").forEach(function (element) {
       console.log('auto pulling search');
       element.click();
     });
+  }
+
+  if (autoPullStoa) {
+    // auto pull stoa by default.
+    document.querySelectorAll("#pull-stoa").forEach(function (element) {
+      console.log('auto pulling stoa');
+      element.click();
+    });
+  }
+
+  if (autoExec) {
+    console.log('autoexec is enabled')
+
+    // commenting out as focus stealing issues are just too disruptive.
+    // setTimeout(autoPullStoaOnEmpty, 5000)
 
     document.querySelectorAll(".context-all").forEach(function (element) {
       // auto pull whole Agora graph in /nodes.

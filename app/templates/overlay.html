@@ -22,12 +22,30 @@
         <p>
         <strong>Thank you for visiting the {{config['AGORA_NAME']}}</strong>!
         <p>
-        This Agora is in active development. Please feel free to <a href="/go/agora server/bugs">report bugs</a> and send feedback!
+        This Agora is in active development. Please <a href="/go/agora server/bugs">report bugs</a> and <a href="mailto:0@flancia.org">send feedback</a>!
         <p> 
         </div>
 
 		<div>
 			<h2>Settings</h2>
+			<p>
+			<p>
+            <div>
+				<input id="auto-pull" type="checkbox" /> Auto embed resources
+			</div>
+			<div>
+				<input id="auto-pull-stoa"  type="checkbox" /> Auto embed stoas (experimental, may steal focus)
+			</div>
+			<div>
+				<input id="auto-pull-search"  type="checkbox" /> Auto embed full text search
+			</div>
+			<div>
+				<input id="render-wikilinks"  type="checkbox" checked /> Enable wikilinks
+			</div>
+			<div>
+				<input id="show-brackets"  type="checkbox" /> Show brackets in wikilinks
+			</div>
+
 			<p>
 
 			<div>
@@ -40,28 +58,13 @@
                 <input id="ranking" type="text" placeholder="e.g. flancian, neil, vera" value="${ranking}" /> 
 			</div>
 
-			<p>
-            <div>
-				<input id="auto-pull" type="checkbox" /> Autopull (embed) resources
-			</div>
-			<div>
-				<input id="auto-pull-stoa"  type="checkbox" /> Autopull stoas (may steal focus)
-			</div>
-			<div>
-				<input id="auto-pull-search"  type="checkbox" /> Autopull full text search
-			</div>
-			<div>
-				<input id="render-wikilinks"  type="checkbox" checked /> Render brackets in wikilinks
-			</div>
-
-			<p>
-			<p>
-
-            The Agora is experimental :) If you notice strangeness, try clearing your local storage or reach out for support at <em>agora@flancia.org</em>.
 
 			<p>
 
-			<button id="save-settings">Save settings</button>
+            If you notice any strangeness, try clearing your local storage or reach out for support at <em>agora@flancia.org</em>.
+
+			<p>
+
 			<button id="clear-settings">Clear local storage</button>
 		</div>
 
