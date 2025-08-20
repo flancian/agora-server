@@ -427,22 +427,22 @@ h1 {
 
 h2 {
     font-size: calc(var(--base-fontsize) * var(--header-scale) * var(--header-scale) * var(--header-scale));
-    margin-top: calc(var(--line-height) * 1.4rem);
+    margin-top: calc(var(--line-height) * 0.8rem);
 }
 
 h3 {
     font-size: calc(var(--base-fontsize) * var(--header-scale));
-    margin-top: calc(var(--line-height) * 1.3rem);
+    margin-top: calc(var(--line-height) * 0.8rem);
 }
 
 h4 {
     font-size: calc(var(--base-fontsize));
-    margin-top: calc(var(--line-height) * 1.2rem);
+    margin-top: calc(var(--line-height) * 0.8rem);
 }
 
 h5 {
     font-size: calc(var(--base-fontsize) / var(--header-scale));
-    margin-top: calc(var(--line-height) * 1.1rem);
+    margin-top: calc(var(--line-height) * 0.8rem);
 }
 
 h6 {

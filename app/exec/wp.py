@@ -59,7 +59,7 @@ def wp(node):
     return Response(
         f"""
         <!-- adding stoa gets this the right css for the 'done' state as of the time of writing -->
-        <details class='exec wiki-search web'>
+        <details class='exec wiki-search web wikipedia'>
         <summary class="{summary_class}"><span>
 
         <strong title="We love Wikipedia! Here is the top known article for this location.">

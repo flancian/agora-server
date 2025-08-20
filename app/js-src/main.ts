@@ -18,6 +18,7 @@
 const autoPullExtra = JSON.parse(localStorage["auto-pull-extra"] || 'false')
 // This would make sense but Hedgedoc currently steals focus on embed and I've been unable to fix it so far :).
 const autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || 'false')
+const autoPullWikipedia = JSON.parse(localStorage["auto-pull-wikipedia"] || 'false')
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
@@ -35,6 +36,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // set values from storage
   (document.getElementById("ranking") as HTMLInputElement).value = localStorage["ranking"] || '';
   (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], false);
+  (document.getElementById("auto-pull-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-wikipedia"], false);
   (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
   (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], false);
 
@@ -87,6 +89,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   clear.addEventListener("click", function () {
     console.log("clearing settings");
     localStorage.clear();
+    location.reload();
   });
 
   // Auto-save settings on change
@@ -95,6 +98,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
   document.getElementById("auto-pull-search")?.addEventListener('change', (e) => {
     localStorage["auto-pull-search"] = (e.target as HTMLInputElement).checked;
+    location.reload();
+  });
+  document.getElementById("auto-pull-wikipedia")?.addEventListener('change', (e) => {
+    localStorage["auto-pull-wikipedia"] = (e.target as HTMLInputElement).checked;
     location.reload();
   });
   document.getElementById("render-wikilinks")?.addEventListener('change', (e) => {
@@ -510,6 +517,24 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (summary && !(element as HTMLDetailsElement).open) {
             summary.click();
           }
+        });
+    }
+
+    if (autoPullWikipedia) {
+        const observer = new MutationObserver((mutations, obs) => {
+            const wikipediaDetails = document.querySelector("details.wikipedia");
+            if (wikipediaDetails) {
+                console.log('auto pulling wikipedia');
+                const summary = wikipediaDetails.querySelector('summary');
+                if (summary && !(wikipediaDetails as HTMLDetailsElement).open) {
+                    summary.click();
+                }
+                obs.disconnect(); // Stop observing once we've found and clicked it.
+            }
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
         });
     }
 
