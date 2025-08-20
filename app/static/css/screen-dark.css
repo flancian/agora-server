@@ -100,7 +100,7 @@ nav {
     z-index: 2;
     background-color: var(--main-bg);
     padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-bottom: 0.2em;
 }
 
 .navbar-item {
@@ -1156,7 +1156,7 @@ table caption {
 
 .burger {
     position: fixed;
-    top: 0.7rem;
+    top: 0.65rem;
     right: 1rem;
     font-size: 1.5em;
     cursor: pointer;
