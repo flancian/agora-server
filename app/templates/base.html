@@ -80,6 +80,7 @@
 
 <body>
 
+	<div class="burger" id="burger">☰</div>
 	{% include "overlay.html" %}
 
     <div class="content">
@@ -88,6 +89,7 @@
         {% if not embed %}
         <!-- navigation chrome is simplified if embed=True -->
         <div class="navigation">
+            <div class="navigation-content">
             <span>
             <a href="/"><img src="/static/img/agora.png" class="logo" width="36px" height="36px" title="An Agora is a Free Knowledge Commons."></a>
             <a href="/" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a>
@@ -111,8 +113,12 @@
           {{config['MENU_SEPARATOR']}} <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
 			-->
       {{config['MENU_SEPARATOR']}} 
-      <div class="burger" id="burger">☰</div>
+      <span class="navbar-item">
+			<span id='theme-toggle'>🌙</span>
+			<span id='theme-toggle-text'><a href='#' style='text-decoration: none;'></a></span>
+      </span>
 	</div>
+    </div>
         {% endif %}
 
         <div class="topline-node">

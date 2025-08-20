@@ -34,6 +34,9 @@
     :root {
     --base-fontsize: 0.9rem;
     }
+    .burger {
+        right: 0.5rem;
+    }
 }
 
 html {
@@ -48,6 +51,7 @@ body {
     color: #bfbfbf;
     width: 100%;
     font-size: var(--base-fontsize);
+    margin: 0;
 }
 
 .content, .async-content {
@@ -91,6 +95,12 @@ a {
 nav {
     font-family: sans-serif;
     max-width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: var(--main-bg);
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
 }
 
 .navbar-item {
@@ -486,17 +496,32 @@ summary, #footer {
 }
 
 .navigation {
-    gap: 5px; /* but will grow to fit, aren't we living in the future? :)
-    vertical-align: middle;
-    align-items: center;
-    /* why doesn't this work? */
-    white-space: nowrap;
-    align-items: center;
     width: 100%;
+    box-sizing: border-box;
+    display: flex;
+}
+
+.navigation-content {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    white-space: nowrap;
     justify-content: space-between;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.navigation-content::-webkit-scrollbar {
+    display: none;
 }
 
 @media screen and (max-width: 70em) {
+    .navigation {
+        padding-right: 3.5em;
+    }
     /*
     .navigation {
         -webkit-mask-image: linear-gradient(to right, black 95%, transparent 100%);
@@ -708,6 +733,7 @@ summary {
     padding: 10px;
     margin-top: 10px;
     margin-bottom: 10px;
+    overflow-x: auto;
     /*border-radius: 20px;*/
 }
 
@@ -1129,25 +1155,13 @@ table caption {
 }
 
 .burger {
-    font-size: 1.2em;
-    cursor: pointer;
-}
-
-.overlay-close {
+    position: fixed;
+    top: 0.7rem;
+    right: 1rem;
     font-size: 1.5em;
     cursor: pointer;
-    line-height: 1;
+    z-index: 4;
 }
-
-.overlay-top-right {
-    position: absolute;
-    top: 1em;
-    right: 1em;
-    display: flex;
-    align-items: center;
-    gap: 1em;
-}
-
 
 .overlay-wrapper {
     position: relative;
