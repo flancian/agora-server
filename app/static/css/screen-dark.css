@@ -735,15 +735,14 @@ summary {
     padding: 7px;
     padding-right: 30px;
     */
-    background: #701406;
+    background: #703006;
     filter: brightness(100%);
     padding: 7px;
     font-style: italic;
 }
 
 .intro, #footer {
-    background: #701406;
-    filter: brightness(120%);
+    background: #811707;
     padding: 7px;
     font-style: italic;
 }

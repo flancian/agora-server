@@ -39,7 +39,7 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 }
 
 .info-box {
-    background: #fff0c0;
+    background: #ffedb1;
     filter: brightness(120%);
     color: #000;
     border: 1px dashed var(--border); 
@@ -47,6 +47,8 @@ a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 
 .intro, #footer {
     background: #fff0c0;
+    background: #ffdb64;
+    background: #ffe17e;
     filter: none;
     color: #000;
     border: 1px dashed var(--border); 
