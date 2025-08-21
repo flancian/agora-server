@@ -30,14 +30,7 @@
 }
 
 /* overrides for mobile look like this */
-@media (max-width: 48em) {
-    :root {
-    --base-fontsize: 0.9rem;
-    }
-    .burger {
-        right: 0.5rem;
-    }
-}
+
 
 html {
     font-family: 'Noto Sans', sans-serif;
@@ -97,7 +90,7 @@ nav {
     max-width: 100%;
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 4;
     background-color: var(--main-bg);
     padding-top: 0.5em;
     padding-bottom: 0.2em;
@@ -106,7 +99,8 @@ nav {
 .navbar-item {
     display: flex;
     gap: 8px;
-    vertical-align: center;
+    align-items: center;
+    flex-direction: row;
     /*text-transform: capitalize;*/
 }
 
@@ -519,9 +513,6 @@ summary, #footer {
 }
 
 @media screen and (max-width: 70em) {
-    .navigation {
-        padding-right: 3.5em;
-    }
     /*
     .navigation {
         -webkit-mask-image: linear-gradient(to right, black 95%, transparent 100%);
@@ -1155,12 +1146,8 @@ table caption {
 }
 
 .burger {
-    position: fixed;
-    top: 0.65rem;
-    right: 1rem;
     font-size: 1.5em;
     cursor: pointer;
-    z-index: 4;
 }
 
 .overlay-wrapper {
@@ -1168,7 +1155,7 @@ table caption {
 }
 
 .overlay-content {
-    padding: 50px;
+    padding: 30px;
 }
 
 .overlay {
@@ -1176,7 +1163,7 @@ table caption {
     min-width: 30%;
     max-width: 80%;
     top: 0;
-    right: -100%;
+    left: -100%;
     position: fixed;
     /*top: 30;
     left: 30;
@@ -1191,14 +1178,14 @@ table caption {
 
 @media (min-width: 48em) {
     .overlay {
-    max-width: 50%;
+    max-width: 70%;
     }
 }
 
 /* Overlay active state */
 .overlay.active {
-    right: 0;
-    background-color: rgba(20, 20, 20, 0.95);
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.95);
 }
 
 /* Add these rules to your existing CSS file */

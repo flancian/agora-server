@@ -113,33 +113,41 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Theme toggle stuff for initial load
   const theme = document.querySelector("#theme-link");
-  const toggle = document.querySelector("#theme-toggle");
+  const toggles = document.querySelectorAll(".theme-toggle");
   const currentTheme = localStorage.getItem("theme");
-  // If the user's preference in localStorage is dark...
-  if (currentTheme == "dark") {
-    theme.href = "/static/css/screen-dark.css";
-    toggle.innerHTML = '🌞';
-  } else if (currentTheme == "light") {
-    theme.href = "/static/css/screen-light.css";
-    theme.innerHTML = '🌙';
+
+  if (theme) {
+    if (currentTheme == "dark") {
+      theme.href = "/static/css/screen-dark.css";
+      toggles.forEach(toggle => {
+        if (toggle) toggle.innerHTML = '🌞';
+      });
+    } else if (currentTheme == "light") {
+      theme.href = "/static/css/screen-light.css";
+      toggles.forEach(toggle => {
+        if (toggle) toggle.innerHTML = '🌙';
+      });
+    }
   }
 
   // Then listen for clicks on the theme toggle button or the link text
-  const ids = ['#theme-toggle', '#theme-toggle-text'];
-  document.querySelectorAll(ids).forEach(element => {
+  const clickable = document.querySelectorAll('.theme-toggle, .theme-toggle-text');
+  clickable.forEach(element => {
     element.addEventListener('click', function () {
-      console.log(`Clicked ${element.id}`);
-      var theme = document.querySelector("#theme-link");
-      var toggle = document.querySelector("#theme-toggle");
-      if (theme.getAttribute("href") == "/static/css/screen-light.css") {
+      const theme = document.querySelector("#theme-link");
+      const toggles = document.querySelectorAll(".theme-toggle");
+      if (theme && theme.getAttribute("href") == "/static/css/screen-light.css") {
         theme.href = "/static/css/screen-dark.css";
-        // this doesn't work and I don't know why, but it also doesn't seem like a priority :)
         localStorage.setItem("theme", "dark");
-        toggle.innerHTML = '🌞';
-      } else {
+        toggles.forEach(toggle => {
+          if (toggle) toggle.innerHTML = '🌞';
+        });
+      } else if (theme) {
         theme.href = "/static/css/screen-light.css";
         localStorage.setItem("theme", "light");
-        toggle.innerHTML = '🌙';
+        toggles.forEach(toggle => {
+          if (toggle) toggle.innerHTML = '🌙';
+        });
       }
     });
   });
