@@ -93,6 +93,7 @@ nav {
     z-index: 4;
     background-color: var(--main-bg);
     padding: 0.25em;
+    padding-bottom: 0px;
 }
 
 .navbar-item {
@@ -339,10 +340,9 @@ details[open] > :not(summary) {
 
 .navigation .logo {
     vertical-align: middle;
-    padding-top: 4px;
-    padding-bottom: 4px;
     max-width: 32px;
     max-height: 32px;
+    margin-bottom: 4px;
 }
 
 .logo {
