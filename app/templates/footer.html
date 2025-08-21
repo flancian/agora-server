@@ -13,6 +13,11 @@
     {% if 'Flan' in config['AGORA_NAME'] %} for the benefit of all beings{% else %} {% endif %}
     • <a href="{{config['ROOT']}}">Root</a> 
     • <a href="{{config['SOURCE']}}">Source</a> 
+    • <button id="mini-cli-retry" value="retry" title="Retries/reloads, might fix transient errors, might show content from a different Agora eventually.">
+              🔄 retry
+           </button>
+
+
 
     <!--
     <center>

@@ -92,8 +92,7 @@ nav {
     top: 0;
     z-index: 4;
     background-color: var(--main-bg);
-    padding-top: 0.5em;
-    padding-bottom: 0.2em;
+    padding: 0.25em;
 }
 
 .navbar-item {
@@ -118,6 +117,7 @@ button {
     text-transform: capitalize;
     padding: 3px 6px 3px 6px;
     filter: invert(1);
+    white-space: nowrap;
 }
 
 ul {
