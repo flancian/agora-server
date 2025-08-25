@@ -165,8 +165,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     const dragStart = (e) => {
-      initialX = e.clientX - xOffset;
-      initialY = e.clientY - yOffset;
+      if (e.type === "touchstart") {
+        initialX = e.touches[0].clientX - xOffset;
+        initialY = e.touches[0].clientY - yOffset;
+      } else {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+      }
 
       if (e.target === dragHandle) {
         active = true;
@@ -184,8 +189,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     const drag = (e) => {
       if (active) {
         e.preventDefault();
-        currentX = e.clientX - initialX;
-        currentY = e.clientY - initialY;
+        if (e.type === "touchmove") {
+          currentX = e.touches[0].clientX - initialX;
+          currentY = e.touches[0].clientY - initialY;
+        } else {
+          currentX = e.clientX - initialX;
+          currentY = e.clientY - initialY;
+        }
 
         xOffset = currentX;
         yOffset = currentY;
@@ -195,8 +205,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     dragHandle.addEventListener('mousedown', dragStart, false);
+    dragHandle.addEventListener('touchstart', dragStart, false);
+
     document.addEventListener('mouseup', dragEnd, false);
+    document.addEventListener('touchend', dragEnd, false);
+
     document.addEventListener('mousemove', drag, false);
+    document.addEventListener('touchmove', drag, false);
   }
 
   // Watch for Hypothesis highlights and auto-show the panel
