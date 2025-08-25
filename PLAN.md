@@ -324,6 +324,50 @@ app/
 - **Configuration is the Source of Truth**: When adding features that depend on environment (e.g., dev vs. prod URLs), always add variables to `app/config.py` rather than hardcoding them or relying on the `request` object.
 - **Frontend Build Step is Essential**: Remember to run `npm run build` after any changes to `.ts` files in `app/js-src/`.
 - **Asynchronous Loading**: Much of the page is loaded asynchronously. The core logic for this is in `app/js-src/main.ts`. New interactive elements should be integrated there.
-- **Styling**: The Agora uses a dual-theme system. Changes to CSS should be tested in both light (`screen-light.css`) and dark (`screen-dark.css`) modes. Note that `screen-light.css` imports and overrides the dark theme.
+- **Styling**: The Agora uses a dual-theme system. Changes to CSS should be tested in both light (`screen-light.css`) and dark (`screen-light.css`) modes. Note that `screen-light.css` imports and overrides the dark theme.
 
+---
+# Session Summary (Gemini, 2025-08-26)
 
+*This section documents a collaborative development session focused on bug fixing and significant UI/UX enhancements, particularly for the settings and Hypothesis integration.*
+
+## Key Learnings & Codebase Insights
+
+- **CSS Layout & Positioning**: The session highlighted the complexities of CSS positioning, especially for overlays on a centered, responsive layout.
+    - **Initial Problem**: The settings overlay (`.overlay`) was not aligned with the main content on wide screens and was partially visible when it should have been hidden.
+    - **Evolution of the Solution**:
+        1.  Initial attempts with JavaScript-based positioning caused flickering and were overly complex.
+        2.  Attempts with pure CSS using `calc()` and `vw` units proved brittle and led to minor misalignments.
+        3.  **Final, Robust Solution**: The key was to make the main `.content` div a positioning context (`position: relative`) and also a *clipping context* (`overflow-x: hidden`). The overlay was then placed inside `.content` and animated using the `left` property (`left: -100%` to `left: 0`). This CSS-only approach is efficient, eliminates flickering, and guarantees perfect alignment and hiding.
+- **Hypothesis Integration**:
+    - The integration is controlled by a feature flag (`ENABLE_HYPOTHESIS`) in `app/config.py`.
+    - The Hypothesis client's UI can be injected into a specific container using the `externalContainerSelector` configuration in `app/templates/base.html`. This is essential for custom positioning and styling.
+    - **Draggable UI**: A draggable panel was implemented from scratch for the Hypothesis client. The key components were:
+        - A dedicated drag handle (`#hypothesis-drag-handle`).
+        - TypeScript logic in `main.ts` to track mouse events (`mousedown`, `mousemove`, `mouseup`) and update the container's position using `transform: translate3d()`.
+        - The final panel position is saved to `localStorage` and restored on page load, providing a persistent user experience.
+- **API Interaction (Wikipedia)**:
+    - Debugged and fixed the Wikipedia integration in `app/exec/wp.py`.
+    - **Key Fix**: The Wikipedia API requires a `User-Agent` header for all requests. Failing to provide one results in a `403 Forbidden` error. Adding a proper header resolved the issue.
+    - Error handling was also improved to be more specific, distinguishing between network errors, JSON parsing errors, and cases where no search results were found.
+
+## Summary of Changes Implemented
+
+1.  **Wikipedia Integration (`wp.py`)**:
+    - Added a `User-Agent` header to all `requests.get()` calls to the Wikipedia API to fix `403 Forbidden` errors.
+    - Implemented more specific error handling to provide clearer feedback to the user.
+
+2.  **Hypothesis Annotation Client**:
+    - Re-enabled the client via a new `ENABLE_HYPOTHESIS` feature flag.
+    - Implemented a "Show hypothes.is" checkbox in the settings overlay to toggle its visibility. The state is saved to `localStorage`.
+    - Created a custom, **draggable panel** for the Hypothesis client to live in, complete with a title bar, drag handle, and close button.
+    - The panel's position is now saved to `localStorage` and restored on subsequent page loads.
+
+3.  **Settings Overlay (Burger Menu)**:
+    - Undertook a significant refactoring of the overlay's CSS to fix a persistent alignment and visibility bug.
+    - The final solution places the overlay inside the main `.content` div, which acts as a clipping and positioning context. This ensures the overlay is always perfectly aligned with the main content and is completely hidden off-screen when inactive.
+    - The slide-in and slide-out animations were preserved and made more reliable.
+
+4.  **Minor UI Tweaks**:
+    - Added an icon to the "Source" button in the footer.
+    - Removed separators between footer buttons for a cleaner look.

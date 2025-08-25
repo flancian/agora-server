@@ -1212,33 +1212,65 @@ table caption {
     padding: 30px;
 }
 
-.overlay {
-    height: 100%;
-    min-width: 30%;
-    max-width: 80%;
-    top: 0;
-    left: -100%;
-    position: fixed;
-    /*top: 30;
-    left: 30;
-    */
-    background-color: rgba(20, 20, 20, 0);
-    overflow-x: hidden;
-    transition: 0.4s ease-in-out;
-    z-index: 3;
+html {
+    font-family: 'Noto Sans', sans-serif;
+    display: flex;
+    flex-flow: row nowrap;
     justify-content: center;
-    align-items: center;
 }
 
-@media (min-width: 48em) {
-    .overlay {
-    max-width: 70%;
-    }
+.content, .async-content {
+    max-width: 80em;
+    margin-left: auto;
+    margin-right: auto;
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    position: relative; /* This is the positioning context */
+    overflow-x: hidden; /* This will clip the hidden overlay */
+}
+
+/* ... existing CSS ... */
+
+.overlay {
+    height: 100%;
+    width: 100%; /* 100% of the .content parent */
+    top: 0;
+    position: absolute; /* Positioned relative to .content */
+    background-color: rgba(20, 20, 20, 0);
+    z-index: 3;
+    /* Start fully off-screen to the left */
+    left: -100%; 
+    /* Animate the 'left' property for smooth sliding */
+    transition: left 0.4s ease-in-out, background-color 0.4s ease-in-out;
 }
 
 /* Overlay active state */
 .overlay.active {
-    left: 0;
+    left: 0; /* Slide into view */
+    background-color: rgba(0, 0, 0, 0.95);
+}
+
+/* ... existing CSS ... */
+
+.overlay {
+    height: 100%;
+    width: 100%; /* 100% of the .content parent */
+    top: 0;
+    position: absolute; /* Positioned relative to .content */
+    background-color: rgba(20, 20, 20, 0);
+    overflow-x: hidden;
+    z-index: 3;
+    /* Start with the left edge one full width to the left */
+    left: -100%; 
+    /* Animate the 'left' property */
+    transition: left 0.4s ease-in-out, background-color 0.4s ease-in-out;
+}
+
+/* Overlay active state */
+.overlay.active {
+    left: 0; /* Slide into view */
     background-color: rgba(0, 0, 0, 0.95);
 }
 
