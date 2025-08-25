@@ -199,6 +199,38 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.addEventListener('mousemove', drag, false);
   }
 
+  // Watch for Hypothesis highlights and auto-show the panel
+  const annotationObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.addedNodes.length) {
+        const hasHighlights = Array.from(mutation.addedNodes).some(node => 
+            node.nodeName.toLowerCase() === 'hypothesis-highlight' || (node as HTMLElement).querySelector?.('hypothesis-highlight')
+        );
+
+        if (hasHighlights) {
+          const hypothesisFrame = document.getElementById('hypothesis-frame');
+          const showHypothesisCheckbox = document.getElementById("show-hypothesis") as HTMLInputElement;
+
+          if (hypothesisFrame && !hypothesisFrame.classList.contains('visible')) {
+            console.log('Hypothesis highlight detected, showing panel.');
+            hypothesisFrame.classList.add('visible');
+            if (showHypothesisCheckbox) {
+              showHypothesisCheckbox.checked = true;
+            }
+            localStorage.setItem('show-hypothesis', 'true');
+          }
+          // No need to continue observing if we've found what we're looking for in this batch.
+          break; 
+        }
+      }
+    }
+  });
+
+  annotationObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
   // Theme toggle stuff for initial load
   const theme = document.querySelector("#theme-link");
   const toggles = document.querySelectorAll(".theme-toggle");
