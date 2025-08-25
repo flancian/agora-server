@@ -34,7 +34,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached12" id="theme-link" />
+		href="{{ url_for('static',filename='css/screen-dark.css')}}?uncached13" id="theme-link" />
 
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
@@ -70,11 +70,16 @@
 				"externalContainerSelector": "#hypothesis-frame",
 				"openSidebar": true,
 			}
+	-->
 
 	<script type="application/json" class="js-hypothesis-config">
+    {
+      "externalContainerSelector": "#hypothesis-client-container"
+    }
 	</script>
+    {% if config.ENABLE_HYPOTHESIS %}
 	<script async src="https://hypothes.is/embed.js"></script>
-	-->
+    {% endif %}
 
 </head>
 
@@ -156,7 +161,13 @@
 
 
   <!-- hypothesis -->
-  <div id='hypothesis-frame' style="display: none;""></div>
+  <div id='hypothesis-frame'>
+    <div id="hypothesis-controls">
+        <div id="hypothesis-drag-handle">hypothes.is</div>
+        <span id="hypothesis-close-btn">x</span>
+    </div>
+    <div id="hypothesis-client-container"></div>
+  </div>
 
 	{% block content %}
 	{% endblock %}

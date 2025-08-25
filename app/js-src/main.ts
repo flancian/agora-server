@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   (document.getElementById("auto-pull-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-wikipedia"], false);
   (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
   (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], false);
+  (document.getElementById("show-hypothesis") as HTMLInputElement).checked = safeJsonParse(localStorage["show-hypothesis"], false);
 
   // Function to apply the wikilink rendering style
   const applyWikilinkStyle = () => {
@@ -62,6 +63,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Apply styles on initial load
   applyWikilinkStyle();
   applyBracketVisibility();
+
+  // Toggle Hypothesis visibility on initial load
+  const hypothesisFrame = document.getElementById('hypothesis-frame');
+  if (hypothesisFrame && (document.getElementById("show-hypothesis") as HTMLInputElement).checked) {
+    hypothesisFrame.classList.add('visible');
+  }
 
   // Watch for new nodes being added to the DOM and re-apply the style
   const bracketObserver = new MutationObserver((mutations) => {
@@ -110,6 +117,76 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("show-brackets")?.addEventListener('change', (e) => {
     localStorage["showBrackets"] = (e.target as HTMLInputElement).checked;
   });
+
+  document.getElementById("show-hypothesis")?.addEventListener('change', (e) => {
+    const isChecked = (e.target as HTMLInputElement).checked;
+    localStorage["show-hypothesis"] = isChecked;
+    const hypothesisFrame = document.getElementById('hypothesis-frame');
+    if (hypothesisFrame) {
+      hypothesisFrame.classList.toggle('visible', isChecked);
+    }
+  });
+
+  document.getElementById("hypothesis-close-btn")?.addEventListener('click', () => {
+    const hypothesisFrame = document.getElementById('hypothesis-frame');
+    if (hypothesisFrame) {
+      hypothesisFrame.classList.remove('visible');
+    }
+    const showHypothesisCheckbox = document.getElementById("show-hypothesis") as HTMLInputElement;
+    if (showHypothesisCheckbox) {
+        showHypothesisCheckbox.checked = false;
+    }
+    localStorage["show-hypothesis"] = false;
+  });
+
+  // Make the Hypothesis frame draggable
+  const dragHandle = document.getElementById('hypothesis-drag-handle');
+
+  if (hypothesisFrame && dragHandle) {
+    let active = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    const dragStart = (e) => {
+      initialX = e.clientX - xOffset;
+      initialY = e.clientY - yOffset;
+
+      if (e.target === dragHandle) {
+        active = true;
+      }
+    }
+
+    const dragEnd = (e) => {
+      initialX = currentX;
+      initialY = currentY;
+      active = false;
+    }
+
+    const drag = (e) => {
+      if (active) {
+        e.preventDefault();
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+
+        xOffset = currentX;
+        yOffset = currentY;
+
+        setTranslate(currentX, currentY, hypothesisFrame);
+      }
+    }
+
+    const setTranslate = (xPos, yPos, el) => {
+      el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+    }
+
+    dragHandle.addEventListener('mousedown', dragStart, false);
+    document.addEventListener('mouseup', dragEnd, false);
+    document.addEventListener('mousemove', drag, false);
+  }
 
   // Theme toggle stuff for initial load
   const theme = document.querySelector("#theme-link");
