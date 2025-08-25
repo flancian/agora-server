@@ -26,7 +26,8 @@
 <div class="listing node">
 
 {% if header %}
-Journal entries <a href="/journals/7">last week</a> | <a href="/journals/30">last month</a> | <a href="/journals/365">last year</a> | <a href="/journals/all">all time</a>
+📜 
+<strong>Journal entries</strong> <a href="/journals/7">last week</a> | <a href="/journals/30">last month</a> | <a href="/journals/365">last year</a> | <a href="/journals/all">all time</a>
 </p>
 {% else %}
 <h1> Nodes </h1>
@@ -35,7 +36,7 @@ Journal entries <a href="/journals/7">last week</a> | <a href="/journals/30">las
 {% for node in nodes %}
 <div class="node">
      <div class="node-header main-header">
-        <span>📅 <strong>On</strong> <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
+        <span>📅 <strong>Date</strong> <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
      </div>
      
          {% for subnode in node.subnodes %}
