@@ -20,23 +20,50 @@ from thefuzz import fuzz
 
 @bp.route("/exec/wp/<node>")
 def wp(node):
-    search = requests.get(
-        f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={node}&format=json"
-    )
+    headers = {
+        'User-Agent': 'Agora-Server/1.0 (https://anagora.org/; mailto:0@flancia.org)'
+    }
     try:
-        pageid = search.json()["query"]["search"][0]["pageid"]
-    except (IndexError, requests.exceptions.JSONDecodeError):
-        return f"<div class='subnode'>Couldn't parse Wikipedia response.</div>"
-    try:
-        result = requests.get(
-            f"https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json"
-        ).json()
-    except:
-        return f"<div class='subnode'>Couldn't parse Wikipedia response.</div>"
+        search = requests.get(
+            f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={node}&format=json",
+            headers=headers
+        )
+        search.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
+        search_response = search.json()
+    except requests.exceptions.RequestException as e:
+        return f"<div class='subnode'>Could not connect to Wikipedia: {e}</div>"
+    except requests.exceptions.JSONDecodeError:
+        return f"<div class='subnode'>Wikipedia returned an invalid response.</div>"
 
-    title = result["query"]["pages"][str(pageid)]["title"]
-    url = result["query"]["pages"][str(pageid)]["canonicalurl"]
-    wikibase_item = result["query"]["pages"][str(pageid)]["pageprops"]["wikibase_item"]
+    search_results = search_response.get("query", {}).get("search", [])
+
+    if not search_results:
+        return f"<div class='subnode'>No Wikipedia article found for '{node}'.</div>"
+
+    pageid = search_results[0]["pageid"]
+    
+    try:
+        result_response = requests.get(
+            f"https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json",
+            headers=headers
+        )
+        result_response.raise_for_status()
+        result = result_response.json()
+    except requests.exceptions.RequestException as e:
+        return f"<div class='subnode'>Could not connect to Wikipedia for pageid {pageid}: {e}</div>"
+    except requests.exceptions.JSONDecodeError:
+        return f"<div class='subnode'>Couldn't parse Wikipedia response for pageid {pageid}.</div>"
+
+    pages = result.get("query", {}).get("pages", {})
+    page_data = pages.get(str(pageid))
+
+    if not page_data:
+        return f"<div class='subnode'>Could not retrieve page data for pageid {pageid} from Wikipedia.</div>"
+
+    title = page_data.get("title", "Unknown Title")
+    url = page_data.get("canonicalurl", "")
+    pageprops = page_data.get("pageprops", {})
+    wikibase_item = pageprops.get("wikibase_item")
     wikidata_url = f"https://www.wikidata.org/wiki/{wikibase_item}"
     inferred_node = title.replace("_", "-")
 
