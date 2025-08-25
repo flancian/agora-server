@@ -151,6 +151,19 @@ document.addEventListener("DOMContentLoaded", async function () {
     let xOffset = 0;
     let yOffset = 0;
 
+    const setTranslate = (xPos, yPos, el) => {
+      el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+    }
+
+    // Restore position from local storage
+    const savedPosition = localStorage.getItem('hypothesis-position');
+    if (savedPosition) {
+        const pos = JSON.parse(savedPosition);
+        xOffset = pos.x;
+        yOffset = pos.y;
+        setTranslate(xOffset, yOffset, hypothesisFrame);
+    }
+
     const dragStart = (e) => {
       initialX = e.clientX - xOffset;
       initialY = e.clientY - yOffset;
@@ -164,6 +177,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       initialX = currentX;
       initialY = currentY;
       active = false;
+      // Save position to local storage
+      localStorage.setItem('hypothesis-position', JSON.stringify({ x: xOffset, y: yOffset }));
     }
 
     const drag = (e) => {
@@ -177,10 +192,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         setTranslate(currentX, currentY, hypothesisFrame);
       }
-    }
-
-    const setTranslate = (xPos, yPos, el) => {
-      el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
     }
 
     dragHandle.addEventListener('mousedown', dragStart, false);
