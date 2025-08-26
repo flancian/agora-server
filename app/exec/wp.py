@@ -50,15 +50,34 @@ def wp(node):
         result_response.raise_for_status()
         result = result_response.json()
     except requests.exceptions.RequestException as e:
-        return f"<div class='subnode'>Could not connect to Wikipedia for pageid {pageid}: {e}</div>"
+        return Response(f"<!-- Could not connect to Wikipedia: {e} -->", mimetype="text/html")
     except requests.exceptions.JSONDecodeError:
-        return f"<div class='subnode'>Couldn't parse Wikipedia response for pageid {pageid}.</div>"
+        return Response("<!-- Wikipedia returned an invalid response. -->", mimetype="text/html")
+
+    search_results = search_response.get("query", {}).get("search", [])
+
+    if not search_results:
+        return Response("", mimetype="text/html")
+
+    pageid = search_results[0]["pageid"]
+    
+    try:
+        result_response = requests.get(
+            f"https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json",
+            headers=headers
+        )
+        result_response.raise_for_status()
+        result = result_response.json()
+    except requests.exceptions.RequestException as e:
+        return Response(f"<!-- Could not connect to Wikipedia for pageid {pageid}: {e} -->", mimetype="text/html")
+    except requests.exceptions.JSONDecodeError:
+        return Response(f"<!-- Couldn't parse Wikipedia response for pageid {pageid}. -->", mimetype="text/html")
 
     pages = result.get("query", {}).get("pages", {})
     page_data = pages.get(str(pageid))
 
     if not page_data:
-        return f"<div class='subnode'>Could not retrieve page data for pageid {pageid} from Wikipedia.</div>"
+        return Response(f"<!-- Could not retrieve page data for pageid {pageid} from Wikipedia. -->", mimetype="text/html")
 
     title = page_data.get("title", "Unknown Title")
     url = page_data.get("canonicalurl", "")

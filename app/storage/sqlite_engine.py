@@ -106,6 +106,7 @@ def update_subnode(path, user, node, mtime, links):
     if not db:
         return
 
+    current_app.logger.debug(f"SQLite: Writing data for subnode [[{path}]]")
     try:
         with db:
             db.execute(
@@ -134,6 +135,7 @@ def get_backlinking_nodes(node_uri):
     if not db:
         return []
 
+    current_app.logger.debug(f"SQLite: Reading backlinks for node [[{node_uri}]] from index.")
     cursor = db.cursor()
     # We select the source_node directly and use DISTINCT to avoid duplicates.
     cursor.execute("SELECT DISTINCT source_node FROM links WHERE target_node = ?", (node_uri,))

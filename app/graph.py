@@ -1344,6 +1344,7 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
     # This is the new on-demand indexing logic.
     # It runs only for the subnodes of the currently requested node.
     if _is_sqlite_enabled():
+        current_app.logger.debug(f"SQLite: On-demand indexing triggered for node [[{n.wikilink}]]")
         for subnode in n.subnodes:
             # We check if the subnode needs to be re-indexed.
             last_indexed_mtime = sqlite_engine.get_subnode_mtime(subnode.uri)

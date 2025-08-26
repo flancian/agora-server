@@ -20,18 +20,42 @@ from thefuzz import fuzz
 
 @bp.route("/exec/wt/<node>")
 def wt(node):
-    search = requests.get(
-        f"https://en.wiktionary.org/w/api.php?action=query&list=search&srsearch={node}&format=json"
-    )
     try:
-        pageid = search.json()["query"]["search"][0]["pageid"]
-    except IndexError:
+        search = requests.get(
+            f"https://en.wiktionary.org/w/api.php?action=query&list=search&srsearch={node}&format=json",
+            headers={"User-Agent": "The Agora of Flancia (https://anagora.org/)"}
+        )
+        search.raise_for_status()  # Raise an exception for bad status codes
+        search_data = search.json()
+        
+        if not search_data.get("query", {}).get("search"):
+            return Response("") # No search results found
+
+        pageid = search_data["query"]["search"][0]["pageid"]
+    except (requests.exceptions.RequestException, ValueError, IndexError, KeyError) as e:
+        # This catches network errors, JSON decoding errors, or unexpected structure.
+        current_app.logger.error(f"Wiktionary search failed for '{node}': {e}")
         return Response("")
-    result = requests.get(
-        f"https://en.wiktionary.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&format=json"
-    ).json()
-    title = result["query"]["pages"][str(pageid)]["title"]
-    url = result["query"]["pages"][str(pageid)]["canonicalurl"]
+
+    try:
+        result_response = requests.get(
+            f"https://en.wiktionary.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&format=json",
+            headers={"User-Agent": "The Agora of Flancia (https://anagora.org/)"}
+        )
+        result_response.raise_for_status()
+        result = result_response.json()
+
+        page = result.get("query", {}).get("pages", {}).get(str(pageid), {})
+        if not page:
+            return Response("") # Page data not found
+
+        title = page.get("title", node)
+        url = page.get("canonicalurl", f"https://en.wiktionary.org/wiki/{node}")
+
+    except (requests.exceptions.RequestException, ValueError, KeyError) as e:
+        current_app.logger.error(f"Wiktionary page load failed for pageid '{pageid}': {e}")
+        return Response(f"<!-- Error loading wiktionary page for {node} -->")
+        
     inferred_node = title.replace("_", "-")
 
     # MAGIC :)

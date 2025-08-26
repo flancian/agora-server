@@ -17,3 +17,4 @@ garden.db*
 *.pem
 agora-server.log
 .aider*
+instance/
