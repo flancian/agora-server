@@ -14,49 +14,107 @@
  limitations under the License.
 -->
 
-    <details class='web url'>
-        <summary> 🔍 <strong>Web results</strong> from 
-          <span><a href="https://www.google.com/search?q={{node.q}}" target="_blank" title="The default search engine (which is embedded when you expand this zippy) will be customizable soon."><strong>Google</strong></a></span>
-            <!-- • <a href="https://music.apple.com/search/?term={{node.q}}">Apple Music</a> -->
-            • <span><a href="https://www.bing.com/search?q={{node.q}}" target="_blank">Bing</a></span>
-            • <span><a href="https://www.duckduckgo.com/{{node.q}}" target="_blank">DDG</a></span>
-            <!-- Marginalia gets bolded because it's the only general purpose engine that allows iframes as of the time of writing / last I've checked :( -->
-            • <span><a href="https://marginalia-search.com/search?query={{node.q}}" target="_blank" title="Marginalia used to be the default (what is embedded if you expand this zippy) but there was a bug so it was changed to Google on 2025-06-19.">Marginalia</a></span>
-            <!--
-            • <span><a href="https://www.reddit.com/search/?q={{node.q}}">Reddit</a></span>
-            • <span><a href="https://www.tiktok.com/search?q={{node.q}}">TikTok</a></span>
-            • <span><a href="https://yandex.com/search/?text={{node.q}}">Yandex</a></span>
-            -->
-            • <span><a href="https://www.google.com/maps/search/{{node.q}}" target="_blank">Maps</a></span>
-            • <span><a href="https://youtube.com/search?q={{node.q}}" target="_blank">YouTube</a></span>
-            • <span><a href="https://music.youtube.com/search?q={{node.q}}" target="_blank">YouTube Music</a></span>
-            • <span><a href="https://open.spotify.com/search/{{node.q}}" target="_blank">Spotify</a></span>
-            • <span><a href="https://bsky.app/search?q={{node.q}}" target="_blank">Bluesky</a></span>
-            • <span><a href="https://tootfinder.ch/index.php?query={{node.q}}" target="_blank">Fediverse</a></span>
-            • <span><a href="https://twitter.com/search/?f=live&q={{node.q}}" target="_blank">X</a></span>
-        </summary>
+    <style>
+    .web-provider-tab {
+        cursor: pointer;
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    .web-provider-tab.active {
+        font-weight: bold;
+        background-color: #ffffff20;
+        text-decoration: none;
+    }
+</style>
 
-      <div class="info-box with-spacing" style="margin-bottom: 10px;" info-box-id="web">
-        <span class="genai-header"><em>This is your search on <strong>Google</strong>. Click on a link above to forward your search to the chosen service.</em></span>
-          <span id="dismiss-web" info-box-id="web" class="dismiss-button">x</span>
-      </div>
+<details class="web node">
+    <summary>
+        <span class="web-header" title="Web search results.">
+            <strong>🔍 Web results</strong> by
+            <span class="web-provider-tab active" data-provider="google" data-url="https://www.google.com/search?igu=1&q={{node.q}}">Google</span><a href="https://www.google.com/search?q={{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab" data-provider="bing" data-url="https://www.bing.com/search?q={{node.q}}">Bing</span><a href="https://www.bing.com/search?q={{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab" data-provider="duckduckgo" data-url="https://www.duckduckgo.com/{{node.q}}">DDG</span><a href="https://www.duckduckgo.com/{{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab" data-provider="marginalia" data-url="https://marginalia-search.com/search?query={{node.q}}">Marginalia</span><a href="https://marginalia-search.com/search?query={{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab" data-provider="youtube" data-url="https://youtube.com/search?q={{node.q}}">YouTube</span><a href="https://youtube.com/search?q={{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab" data-provider="youtubemusic" data-url="https://music.youtube.com/search?q={{node.q}}">YouTube Music</span><a href="https://music.youtube.com/search?q={{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab" data-provider="spotify" data-url="https://open.spotify.com/search/{{node.q}}">Spotify</span><a href="https://open.spotify.com/search/{{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab" data-provider="bsky" data-url="https://bsky.app/search?q={{node.q}}">Bluesky</span><a href="https://bsky.app/search?q={{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab" data-provider="tootfinder" data-url="https://tootfinder.ch/index.php?query={{node.q}}">Fediverse</span><a href="https://tootfinder.ch/index.php?query={{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab" data-provider="twitter" data-url="https://twitter.com/search/?f=live&q={{node.q}}">X</span><a href="https://twitter.com/search/?f=live&q={{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab" data-provider="maps" data-url="https://www.google.com/maps?q={{node.q}}&output=embed">Maps</span><a href="https://www.google.com/maps/search/{{node.q}}" target="_blank">⬈</a>
+        </span>
+    </summary>
 
-        <div class="stoa-iframe" src="https://google.com/search?igu=1&q={{node.q}}">
-    </details>
- 
-        <!--
-        <em>Tap on the above ☝ to search the web (or a subset of it) using well-known services.</em> -->
-        <!-- :D -->
-        <!-- 
-        In this <a href="/agora">Agora</a>, as in the wider wonderful <a href=/internet>Internet</a>, please be <strong>kind</strong> to others: 
+    <div class="info-box with-spacing" style="margin-bottom: 10px;" info-box-id="web">
+        <span class="genai-header"><em>Some providers may not allow embedding. If a tab appears empty, you can use the link in the header to open the search in a new tab.</em></span>
+        <span id="dismiss-web" info-box-id="web" class="dismiss-button">x</span>
+    </div>
 
-        <ul>
-            <li>Follow the <a href="principle+of+charity">Principle of Charity</a>.</li>
-            <li>Observe the <a href="/three+gates+of+speech">Three Gates of Speech</a>.</li>
-            <li>If it suits you, be mindful of <a href="/right+speech" title="Avalokiteshvara while practicing deeply in the Agora thought: may you be empty, may you be happy, may you be free from suffering!">Right Speech</a>.</li>
-        </ul>
-        </em>
-        -->
+    <div class="subnode">
+        <div class="web-embed" data-provider="google" style="display: block;"></div>
+        <div class="web-embed" data-provider="bing" style="display: none;"></div>
+        <div class="web-embed" data-provider="duckduckgo" style="display: none;"></div>
+        <div class="web-embed" data-provider="marginalia" style="display: none;"></div>
+        <div class="web-embed" data-provider="youtube" style="display: none;"></div>
+        <div class="web-embed" data-provider="youtubemusic" style="display: none;"></div>
+        <div class="web-embed" data-provider="spotify" style="display: none;"></div>
+        <div class="web-embed" data-provider="bsky" style="display: none;"></div>
+        <div class="web-embed" data-provider="tootfinder" style="display: none;"></div>
+        <div class="web-embed" data-provider="twitter" style="display: none;"></div>
+        <div class="web-embed" data-provider="maps" style="display: none;"></div>
+    </div>
+</details>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const webContainer = document.querySelector('details.web');
+    if (webContainer) {
+        const tabs = webContainer.querySelectorAll('.web-provider-tab');
+
+        const loadContent = (provider, embedDiv) => {
+            if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
+            const url = (webContainer.querySelector(`.web-provider-tab[data-provider="${provider}"]`)).dataset.url;
+            embedDiv.innerHTML = `<iframe src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
+        };
+
+        webContainer.addEventListener("toggle", (event) => {
+            if (webContainer.open) {
+                const activeTab = webContainer.querySelector(".web-provider-tab.active");
+                if (activeTab) {
+                    const provider = activeTab.getAttribute('data-provider');
+                    const embed = webContainer.querySelector(`.web-embed[data-provider="${provider}"]`);
+                    loadContent(provider, embed);
+                }
+            }
+        });
+
+        tabs.forEach(tab => {
+            tab.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!webContainer.open) {
+                    webContainer.open = true;
+                }
+
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const provider = tab.getAttribute('data-provider');
+                const embeds = webContainer.querySelectorAll(".web-embed");
+                embeds.forEach((embed) => {
+                    if (embed.dataset.provider === provider) {
+                        embed.style.display = 'block';
+                        loadContent(provider, embed);
+                    } else {
+                        embed.style.display = 'none';
+                    }
+                });
+            });
+        });
+    }
+});
+</script>
 
 
 
