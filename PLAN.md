@@ -1,83 +1,48 @@
 # 🚀 High Priority: Implement On-Demand Hybrid SQLite Index
 
-**Status: Not Started**
+**Status: In Progress**
 **Priority: High**
 
 This document outlines the plan to implement a hybrid storage system where the filesystem remains the source of truth for content, and an SQLite database is used as a **high-performance, on-demand index** for metadata and computed byproducts. This approach will dramatically improve performance and scalability while preserving the core philosophy of the file-based Agora and eliminating the need for a separate indexing process.
 
 ---
 
-## Core Principles
+## ✅ Completed Steps
 
-1.  **Files are the Source of Truth:** All user-generated content (subnodes) will continue to live as plain text files on disk. They can be edited directly and managed with tools like Git.
-2.  **SQLite is a Just-in-Time Index:** The database acts as a "write-through cache." It is populated on-demand as nodes are requested. It is considered a disposable asset that can be rebuilt organically from the filesystem.
-3.  **The Application is the Indexer:** There will be **no separate indexer script**. The main Flask application will be responsible for checking the index, computing data from files on a cache miss, and writing the results back to the index.
-
----
-
-## On-Demand Indexing Workflow
-
-The core logic will be integrated directly into the data access layer (`app/storage/api.py` and `app/storage/sqlite_engine.py`).
-
-1.  **Request:** A request for a node or a query (e.g., for backlinks) is initiated.
-2.  **Index Query:** The application first queries the SQLite index for the required data.
-3.  **Freshness Check (Cache Hit):** If the data is found in the index, the application performs a cheap `os.path.getmtime()` check on the source file(s) to compare their current modification time with the timestamp stored in the database.
-    -   If the timestamps match, the data is fresh and is returned immediately. **This is the fast path.**
-4.  **Computation (Cache Miss or Stale):** If the data is not in the index or the `mtime` check shows the file is newer, the application falls back to the `file_engine`.
-    -   It reads the file(s) from disk and computes the necessary data (e.g., parsing wikilinks, rendering content). **This is the slow path.**
-5.  **Write-Through:** After computing the data, the application writes the result (and the new `mtime`) to the SQLite index.
-6.  **Return:** The freshly computed data is returned to the user. Subsequent requests for this data will now follow the fast path.
+-   **Feature Flag:** Added an `ENABLE_SQLITE` flag in `app/config.py` to control the entire feature. It is enabled by default in development environments.
+-   **Robust DB Engine:** Re-architected `app/storage/sqlite_engine.py` to be fully thread-safe using Flask's application context (`g`). It now gracefully handles read-only filesystems and manages the database schema, including migrations.
+-   **Optimized Schema:** Implemented a schema for `subnodes` and `links`, including a `source_node` column in the `links` table to allow for highly efficient backlink queries.
+-   **On-Demand Indexing:** Implemented the core "write-through cache" logic in `app/graph.py`. Indexing now happens efficiently on-demand when a node is viewed, not during a slow initial scan.
+-   **Performance Fix:** The `back_nodes` method in `app/graph.py` was refactored to query the SQLite index directly, resolving a major performance bottleneck and application hangs.
+-   **Bug Squashing:** Debugged and fixed a series of follow-up issues, including `IntegrityError` from duplicate links, `ProgrammingError` from incorrect thread handling, and multiple `AttributeError` exceptions from mismatched function names.
 
 ---
 
-## Step-by-Step Implementation Plan
+## Next Steps
 
-### 1. Database Schema Design
+The foundational work is complete, and the system is stable. The following tasks remain to fully realize the benefits of the SQLite index:
 
-The schema remains the same as in the previous plan, designed to support this caching strategy.
+1.  **Implement Full-Text Search (FTS):**
+    *   Create a virtual FTS5 table in the schema.
+    *   Update the on-demand indexing logic to populate this table with subnode content.
+    *   Modify `search_subnodes` in `app/storage/api.py` to query the FTS index instead of the filesystem for a massive search performance boost.
 
--   **`subnodes`**: Stores file metadata.
-    -   `path` (TEXT, PRIMARY KEY)
-    -   `user` (TEXT)
-    -   `node` (TEXT)
-    -   `mtime` (INTEGER): **Crucial for the on-demand freshness check.**
--   **`links`**: Stores the relationship graph.
-    -   `source_path` (TEXT)
-    -   `target_node` (TEXT)
--   **`fts_index`** (Virtual Table): For full-text search.
+2.  **Cache Additional Queries:**
+    *   Extend the on-demand caching to other expensive, file-based queries like `all_users()`, `latest()`, and `top()`.
 
-### 2. Integrate the SQLite Engine (`sqlite_engine.py`)
+3.  **Develop a Test Suite:**
+    *   Create a formal test suite that can run against both the pure file engine and the hybrid SQLite engine to verify that they produce identical results.
 
-Complete the implementation of `app/storage/sqlite_engine.py` with the on-demand logic. It will contain methods to both *get* data from the index and *write* data back to it.
-
-### 3. Refactor the Data Access API (`api.py`)
-
-This file will become the orchestrator of the new on-demand logic.
-
--   **Example: `api.build_node(node_uri)`:**
-    1.  Call `sqlite_engine.get_node_data(node_uri)`.
-    2.  The `sqlite_engine` will perform the freshness check. If the data is fresh, it returns it.
-    3.  If the `sqlite_engine` reports a cache miss or stale data, `api.py` will then call `file_engine.build_node_data(node_uri)`.
-    4.  The result from the `file_engine` is then passed to `sqlite_engine.update_node_data(...)` to populate the cache.
-    5.  The result is returned to the caller.
-
-### 4. Configure for Concurrency
-
--   The SQLite database will be configured to run in **Write-Ahead Logging (WAL) mode**. This is essential to allow multiple `uwsgi` workers to read from the database while others might be performing writes on a cache miss, all without locking conflicts.
-
-### 5. Testing
-
--   A robust test suite will be developed to run against both the pure file engine and the hybrid SQLite engine to ensure they produce identical results.
+4.  **Create a Backfill Script (Optional):**
+    *   Write a simple, one-off command-line script to pre-populate the index for existing production Agoras. While not strictly necessary due to the on-demand nature, this would "warm up" the cache for large sites.
 
 ---
 
-## Benefits of This On-Demand Approach
+## Core Principles (Unchanged)
 
--   **Operational Simplicity:** Eliminates the need to manage a separate process, simplifying deployment and maintenance.
--   **Organic and Efficient:** The index only contains data for content that is actually used, saving resources.
--   **Always Serves Fresh Data:** The `mtime` check guarantees that users never see stale content.
--   **No Cold Start:** The Agora is immediately usable, and performance improves over time as the index warms up naturally.
--   **Philosophical Alignment:** Perfectly balances the need for modern performance with the core values of a simple, hackable, file-based system.
+1.  **Files are the Source of Truth:** All user-generated content (subnodes) will continue to live as plain text files on disk.
+2.  **SQLite is a Just-in-Time Index:** The database acts as a "write-through cache."
+3.  **The Application is the Indexer:** There is no separate indexer script.
 
 ---
 
