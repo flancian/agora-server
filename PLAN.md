@@ -1,3 +1,189 @@
+# 🚀 High Priority: Implement On-Demand Hybrid SQLite Index
+
+**Status: Not Started**
+**Priority: High**
+
+This document outlines the plan to implement a hybrid storage system where the filesystem remains the source of truth for content, and an SQLite database is used as a **high-performance, on-demand index** for metadata and computed byproducts. This approach will dramatically improve performance and scalability while preserving the core philosophy of the file-based Agora and eliminating the need for a separate indexing process.
+
+---
+
+## Core Principles
+
+1.  **Files are the Source of Truth:** All user-generated content (subnodes) will continue to live as plain text files on disk. They can be edited directly and managed with tools like Git.
+2.  **SQLite is a Just-in-Time Index:** The database acts as a "write-through cache." It is populated on-demand as nodes are requested. It is considered a disposable asset that can be rebuilt organically from the filesystem.
+3.  **The Application is the Indexer:** There will be **no separate indexer script**. The main Flask application will be responsible for checking the index, computing data from files on a cache miss, and writing the results back to the index.
+
+---
+
+## On-Demand Indexing Workflow
+
+The core logic will be integrated directly into the data access layer (`app/storage/api.py` and `app/storage/sqlite_engine.py`).
+
+1.  **Request:** A request for a node or a query (e.g., for backlinks) is initiated.
+2.  **Index Query:** The application first queries the SQLite index for the required data.
+3.  **Freshness Check (Cache Hit):** If the data is found in the index, the application performs a cheap `os.path.getmtime()` check on the source file(s) to compare their current modification time with the timestamp stored in the database.
+    -   If the timestamps match, the data is fresh and is returned immediately. **This is the fast path.**
+4.  **Computation (Cache Miss or Stale):** If the data is not in the index or the `mtime` check shows the file is newer, the application falls back to the `file_engine`.
+    -   It reads the file(s) from disk and computes the necessary data (e.g., parsing wikilinks, rendering content). **This is the slow path.**
+5.  **Write-Through:** After computing the data, the application writes the result (and the new `mtime`) to the SQLite index.
+6.  **Return:** The freshly computed data is returned to the user. Subsequent requests for this data will now follow the fast path.
+
+---
+
+## Step-by-Step Implementation Plan
+
+### 1. Database Schema Design
+
+The schema remains the same as in the previous plan, designed to support this caching strategy.
+
+-   **`subnodes`**: Stores file metadata.
+    -   `path` (TEXT, PRIMARY KEY)
+    -   `user` (TEXT)
+    -   `node` (TEXT)
+    -   `mtime` (INTEGER): **Crucial for the on-demand freshness check.**
+-   **`links`**: Stores the relationship graph.
+    -   `source_path` (TEXT)
+    -   `target_node` (TEXT)
+-   **`fts_index`** (Virtual Table): For full-text search.
+
+### 2. Integrate the SQLite Engine (`sqlite_engine.py`)
+
+Complete the implementation of `app/storage/sqlite_engine.py` with the on-demand logic. It will contain methods to both *get* data from the index and *write* data back to it.
+
+### 3. Refactor the Data Access API (`api.py`)
+
+This file will become the orchestrator of the new on-demand logic.
+
+-   **Example: `api.build_node(node_uri)`:**
+    1.  Call `sqlite_engine.get_node_data(node_uri)`.
+    2.  The `sqlite_engine` will perform the freshness check. If the data is fresh, it returns it.
+    3.  If the `sqlite_engine` reports a cache miss or stale data, `api.py` will then call `file_engine.build_node_data(node_uri)`.
+    4.  The result from the `file_engine` is then passed to `sqlite_engine.update_node_data(...)` to populate the cache.
+    5.  The result is returned to the caller.
+
+### 4. Configure for Concurrency
+
+-   The SQLite database will be configured to run in **Write-Ahead Logging (WAL) mode**. This is essential to allow multiple `uwsgi` workers to read from the database while others might be performing writes on a cache miss, all without locking conflicts.
+
+### 5. Testing
+
+-   A robust test suite will be developed to run against both the pure file engine and the hybrid SQLite engine to ensure they produce identical results.
+
+---
+
+## Benefits of This On-Demand Approach
+
+-   **Operational Simplicity:** Eliminates the need to manage a separate process, simplifying deployment and maintenance.
+-   **Organic and Efficient:** The index only contains data for content that is actually used, saving resources.
+-   **Always Serves Fresh Data:** The `mtime` check guarantees that users never see stale content.
+-   **No Cold Start:** The Agora is immediately usable, and performance improves over time as the index warms up naturally.
+-   **Philosophical Alignment:** Perfectly balances the need for modern performance with the core values of a simple, hackable, file-based system.
+
+---
+
+# 🚀 High Priority: Unify CSS Stylesheets and Implement Theming
+
+**Status: Not Started**
+**Priority: High**
+
+This task outlines the plan to refactor the current dual-stylesheet (light/dark) system into a modern, single-stylesheet architecture using CSS Custom Properties (Variables). This will improve performance, simplify maintenance, and provide a better user experience.
+
+---
+
+## Goal
+
+-   Eliminate the practice of swapping entire CSS files to change themes.
+-   Consolidate all styles into a single, manageable stylesheet.
+-   Implement a robust and instant theme-switching mechanism using CSS variables.
+
+---
+
+## Current Implementation (The Problem)
+
+The Agora currently uses two separate stylesheets for theming:
+-   `app/static/css/screen-dark.css` (Default theme)
+-   `app/static/css/screen-light.css` (Overrides for the light theme)
+
+A JavaScript function in `app/js-src/main.ts` dynamically changes the `<link>` tag's `href` attribute to point to the selected stylesheet. This is managed by a theme-switcher UI element.
+
+**Drawbacks:**
+-   **Flash of Unstyled Content (FOUC):** Swapping files can cause a noticeable delay or "flash" as the new stylesheet is loaded.
+-   **Code Duplication:** `screen-light.css` contains many overrides, leading to duplicated selectors and making maintenance difficult. To change a style, a developer might need to edit it in two places.
+-   **Complex Logic:** The JavaScript and Flask backend logic for managing two versioned files is more complex than necessary.
+
+---
+
+## Proposed Solution: CSS Custom Properties
+
+The plan is to refactor the CSS to use a single file where themes are defined as palettes of CSS variables.
+
+### Step-by-Step Plan
+
+1.  **Consolidate Stylesheets:**
+    *   Merge all styles from `screen-light.css` into `screen-dark.css`.
+    *   Rename `screen-dark.css` to a more neutral name like `app/static/css/main.css`.
+
+2.  **Define CSS Color Palettes:**
+    *   In the new `main.css`, define the default (light) theme variables within the `:root` selector.
+    *   Define the dark theme overrides under a `[data-theme="dark"]` attribute selector.
+
+    ```css
+    /* Default (light) theme */
+    :root {
+      --main-bg: #e9e9e9;
+      --text-color: #000000;
+      --link-color: #377ba8;
+      --accent-bg: #F5F7FF;
+      --border: #D8DAE1;
+      /* ... and all other color variables ... */
+    }
+
+    /* Dark theme overrides */
+    [data-theme="dark"] {
+      --main-bg: #000;
+      --text-color: #bfbfbf;
+      --link-color: #9fc6e0;
+      --accent-bg: #2B2B2B;
+      --border: #666;
+      /* ... and all other color variables ... */
+    }
+    ```
+
+3.  **Refactor CSS to Use Variables:**
+    *   Go through the consolidated `main.css` and replace all hardcoded color values with their corresponding `var(--variable-name)`.
+
+    ```css
+    /* Example Usage */
+    body {
+      background-color: var(--main-bg);
+      color: var(--text-color);
+    }
+
+    a {
+      color: var(--link-color);
+    }
+    ```
+
+4.  **Update JavaScript Theme Switcher:**
+    *   Modify the theme-switching logic in `app/js-src/main.ts`.
+    *   Instead of changing the stylesheet `href`, the new code will toggle the `data-theme="dark"` attribute on the `<html>` or `<body>` element.
+    *   The user's preference ('light' or 'dark') will still be saved in `localStorage`.
+
+5.  **Update Backend and Templates:**
+    *   Modify `app/templates/base.html` to link to the single, new stylesheet (`main.css`).
+    *   Update the context processor in `app/__init__.py` to only provide a single CSS version, or simplify it as needed for the single file.
+
+---
+
+## Benefits of This Approach
+
+1.  **Instant Theme Switching:** No network request is needed, so theme changes are immediate and seamless.
+2.  **Simplified Maintenance:** All styles and color palettes are in one file, eliminating duplicated code and making updates much easier.
+3.  **Cleaner Code:** The JavaScript becomes much simpler, and the backend logic for versioning is streamlined.
+4.  **Future-Proof:** This is the modern, standard way to handle theming and opens the door for more complex themes in the future (e.g., high-contrast, different colors).
+
+---
+
 # ✅ Completed: Graph Architecture Refactoring 
 
 **Status: COMPLETED (August 2025)**
