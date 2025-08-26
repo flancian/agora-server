@@ -25,7 +25,38 @@
 
     {% include "genai.html" %}
 
-    {% include "wp.html" %}
+    <div id="wp-wt-container">
+    <script>
+        fetch('/exec/wp/{{ node.uri }}')
+            .then(response => response.text())
+            .then(html => {
+                if (html.trim()) {
+                    const container = document.getElementById('wp-wt-container');
+                    container.innerHTML = html;
+
+                    if (localStorage.getItem('auto-pull-wikipedia') === 'true') {
+                        container.querySelector('.wiki').setAttribute('open', '');
+                    }
+
+                    container.querySelectorAll('.wiki-provider-tab').forEach(tab => {
+                        tab.addEventListener('click', e => {
+                            e.preventDefault();
+                            const provider = e.target.dataset.provider;
+                            container.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
+                            e.target.classList.add('active');
+                            container.querySelectorAll('.wiki-embed').forEach(embed => {
+                                if (embed.dataset.provider === provider) {
+                                    embed.style.display = 'block';
+                                } else {
+                                    embed.style.display = 'none';
+                                }
+                            });
+                        });
+                    });
+                }
+            });
+    </script>
+</div>
 
     <!-- trying without for now, for most Agora users wiktionary probably just mostly adds visual complexity about the fold.
      would like to re-add once I figure some alternative to top level billing; maybe a tab of sorts in the wikipedia section? -->
