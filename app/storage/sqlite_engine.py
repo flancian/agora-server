@@ -25,11 +25,7 @@ def get_db():
     if 'sqlite_db' not in g:
         db_path = os.path.join(current_app.instance_path, 'agora.db')
         try:
-            # Try to connect in read-write mode and create the database if it doesn't exist.
-            # The `uri=True` flag is necessary to use the `mode` parameter.
             conn = sqlite3.connect(f"file:{db_path}?mode=rwc", uri=True)
-            # WAL mode allows multiple readers to coexist with a single writer,
-            # which is perfect for a web app.
             conn.execute("PRAGMA journal_mode=WAL;")
             create_tables(conn)
             g.sqlite_db = conn
@@ -49,7 +45,6 @@ def get_db():
                     current_app.logger.warning("Database file does not exist in read-only location. SQLite engine disabled.")
                     g.sqlite_db = None
             else:
-                # For other operational errors, re-raise them.
                 raise e
     return g.sqlite_db
 
@@ -62,6 +57,7 @@ def close_db(e=None):
 def create_tables(db):
     """
     Creates the necessary tables if they don't already exist.
+    Also handles simple schema migrations like adding a column.
     """
     with db:
         db.execute("""
@@ -80,6 +76,12 @@ def create_tables(db):
                 PRIMARY KEY (source_path, target_node, type)
             );
         """)
+        # Migration: Add the source_node column to the links table if it doesn't exist.
+        try:
+            db.execute("ALTER TABLE links ADD COLUMN source_node TEXT;")
+        except sqlite3.OperationalError:
+            # This will fail if the column already exists, which is fine.
+            pass
 
 def get_subnode_mtime(path):
     """
@@ -98,8 +100,7 @@ def get_subnode_mtime(path):
 def update_subnode(path, user, node, mtime, links):
     """
     Updates or inserts a subnode and its associated links in the index.
-    This is the "write-through" part of the cache.
-    Fails silently if the database is read-only.
+    The 'node' parameter is the source_node for the links.
     """
     db = get_db()
     if not db:
@@ -107,37 +108,33 @@ def update_subnode(path, user, node, mtime, links):
 
     try:
         with db:
-            # Update subnode metadata using REPLACE, which is an INSERT or UPDATE.
             db.execute(
                 "REPLACE INTO subnodes (path, user, node, mtime) VALUES (?, ?, ?, ?)",
                 (path, user, node, mtime)
             )
             
-            # Clear old links for this path and insert the new ones.
             db.execute("DELETE FROM links WHERE source_path = ?", (path,))
             if links:
-                # A subnode can link to the same node multiple times, but we only
-                # need to store the relationship once.
                 unique_links = set(links)
-                link_data = [(path, target, 'wikilink') for target in unique_links]
-                db.executemany("INSERT INTO links (source_path, target_node, type) VALUES (?, ?, ?)", link_data)
+                # Note the new 'node' field being inserted as source_node.
+                link_data = [(path, node, target, 'wikilink') for target in unique_links]
+                db.executemany("INSERT INTO links (source_path, source_node, target_node, type) VALUES (?, ?, ?, ?)", link_data)
     except sqlite3.OperationalError as e:
         if 'read-only database' in str(e):
-            # This is an expected and safe condition if the filesystem is read-only.
             pass
         else:
-            # For other errors, log them as they might indicate a problem.
             current_app.logger.error(f"Database write error: {e}")
 
-def get_backlinks(node_uri):
+def get_backlinking_nodes(node_uri):
     """
-    Retrieves all subnode paths that link to a given node.
-    This is where the performance gain from the index is most significant.
+    Retrieves all unique source_node URIs that link to a given node.
+    This is the optimized query that avoids file I/O.
     """
     db = get_db()
     if not db:
         return []
 
     cursor = db.cursor()
-    cursor.execute("SELECT source_path FROM links WHERE target_node = ?", (node_uri,))
+    # We select the source_node directly and use DISTINCT to avoid duplicates.
+    cursor.execute("SELECT DISTINCT source_node FROM links WHERE target_node = ?", (node_uri,))
     return [row[0] for row in cursor.fetchall()]

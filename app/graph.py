@@ -656,23 +656,11 @@ class Node:
 
     def back_nodes(self) -> List['Node']:
         if _is_sqlite_enabled():
-            # Fast path: get backlinks from the index.
-            # The result is a list of paths, so we need to build subnodes and then get their nodes.
-            # This is still much faster than scanning all files.
-            backlink_paths = sqlite_engine.get_backlinks(self.wikilink)
-            # A set is used to automatically handle deduplication of nodes.
-            nodes = set()
-            for path in backlink_paths:
-                try:
-                    # We create a Subnode object just to find out what node it belongs to.
-                    # This could be optimized further by storing the source node in the links table.
-                    subnode = Subnode(os.path.join(current_app.config["AGORA_PATH"], path))
-                    if subnode.node != self.wikilink:
-                         nodes.add(G.node(subnode.node))
-                except FileNotFoundError:
-                    # The index might be slightly out of sync with the filesystem.
-                    pass
-            return sorted(list(nodes))
+            # Fast path: get backlinking node URIs directly from the index.
+            # This is extremely fast as it requires no file I/O.
+            backlinking_node_uris = sqlite_engine.get_backlinking_nodes(self.wikilink)
+            nodes = [G.node(uri) for uri in backlinking_node_uris if uri != self.wikilink]
+            return sorted(nodes)
 
         # Slow path: fall back to the file-based method if SQLite is disabled.
         return sorted(
@@ -756,18 +744,6 @@ class Subnode:
         )
 
         self.node = self.canonical_wikilink
-
-        if _is_sqlite_enabled():
-            # This is the write-through cache logic.
-            # After a subnode is successfully loaded from disk, we update the index.
-            # This happens only when a Subnode object is created, which is lazy.
-            sqlite_engine.update_subnode(
-                path=self.path,
-                user=self.user,
-                node=self.node,
-                mtime=int(self.mtime),
-                links=self.forward_links
-            )
 
     def load_text_subnode(self):
         try:
@@ -1364,6 +1340,23 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
             n.uri = n.uri + f".{extension}"
             n.wikilink = n.wikilink + f".{extension}"
     # n.subnodes.extend(n.exec())
+
+    # This is the new on-demand indexing logic.
+    # It runs only for the subnodes of the currently requested node.
+    if _is_sqlite_enabled():
+        for subnode in n.subnodes:
+            # We check if the subnode needs to be re-indexed.
+            last_indexed_mtime = sqlite_engine.get_subnode_mtime(subnode.uri)
+            current_mtime = int(subnode.mtime)
+            if last_indexed_mtime is None or current_mtime > last_indexed_mtime:
+                current_app.logger.debug(f"Indexing subnode [[{subnode.uri}]]")
+                sqlite_engine.update_subnode(
+                    path=subnode.uri,
+                    user=subnode.user,
+                    node=subnode.node,
+                    mtime=current_mtime,
+                    links=subnode.forward_links
+                )
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI

@@ -39,7 +39,7 @@ def build_node(title):
     if _is_sqlite_enabled():
         # Let's try to get backlinks from the index.
         # This is a read-only operation, so it's safe.
-        indexed_backlinks = sqlite_engine.get_backlinks(node.uri)
+        indexed_backlinks = sqlite_engine.get_backlinking_nodes(node.uri)
         # Here you could merge or replace the file-based backlinks
         # For now, we'll just log that we have them.
         if indexed_backlinks:
