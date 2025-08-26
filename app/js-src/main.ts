@@ -610,14 +610,21 @@ document.addEventListener("DOMContentLoaded", async function () {
     const genaiContainer = document.querySelector("details.genai");
     if (genaiContainer) {
         const tabs = genaiContainer.querySelectorAll(".ai-provider-tab");
-        const contentDiv = genaiContainer.querySelector(".pulled-genai-embed");
+        const nodeId = NODENAME; // Assuming NODENAME is available globally
         const spinner = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Generating text...</em></p></center><br />`;
 
-        const loadContent = async (provider) => {
-            if (!contentDiv) return;
+        const loadContent = async (provider, embedDiv) => {
+            if (!embedDiv) {
+                console.log(`genai: embedDiv for ${provider} not found.`);
+                return;
+            }
+            if (embedDiv.innerHTML.trim() !== '') {
+                console.log(`genai: Content for ${provider} already present or loading.`);
+                return;
+            }
             
-            contentDiv.innerHTML = spinner;
-            const qstr = contentDiv.id;
+            console.log(`genai: Loading content for ${provider}.`);
+            embedDiv.innerHTML = spinner;
             let endpoint = '';
             if (provider === 'mistral') {
                 endpoint = '/api/complete/';
@@ -627,32 +634,50 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             if (endpoint) {
                 try {
-                    const response = await fetch(AGORAURL + endpoint + qstr);
-                    contentDiv.innerHTML = await response.text();
+                    const response = await fetch(AGORAURL + endpoint + encodeURIComponent(nodeId));
+                    embedDiv.innerHTML = await response.text();
+                    console.log(`genai: Content for ${provider} loaded.`);
                 } catch (error) {
-                    contentDiv.innerHTML = `<p>Error loading content: ${error}</p>`;
+                    embedDiv.innerHTML = `<p>Error loading content: ${error}</p>`;
+                    console.error(`genai: Error loading content for ${provider}:`, error);
                 }
             }
         };
 
-        // Load Mistral by default when the details are first opened
         genaiContainer.addEventListener("toggle", (event) => {
-            if (genaiContainer.open && contentDiv.children.length === 0) {
-                loadContent('mistral');
+            if ((genaiContainer as HTMLDetailsElement).open) {
+                const activeTab = genaiContainer.querySelector(".ai-provider-tab.active");
+                if (activeTab) {
+                    const provider = activeTab.getAttribute('data-provider');
+                    const embed = genaiContainer.querySelector(`.ai-embed[data-provider="${provider}"]`);
+                    loadContent(provider, embed);
+                }
             }
         });
 
         tabs.forEach(tab => {
             tab.addEventListener("click", (event) => {
                 event.preventDefault();
-                event.stopPropagation(); // Prevents the summary from closing when a tab is clicked
+                event.stopPropagation();
 
-                // Update active tab style
+                const details = genaiContainer as HTMLDetailsElement;
+                if (!details.open) {
+                    details.open = true;
+                }
+
                 tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
 
                 const provider = tab.getAttribute('data-provider');
-                loadContent(provider);
+                const embeds = genaiContainer.querySelectorAll(".ai-embed");
+                embeds.forEach((embed: HTMLElement) => {
+                    if (embed.dataset.provider === provider) {
+                        embed.style.display = 'block';
+                        loadContent(provider, embed);
+                    } else {
+                        embed.style.display = 'none';
+                    }
+                });
             });
         });
     }

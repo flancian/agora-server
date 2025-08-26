@@ -41,6 +41,13 @@
                     container.querySelectorAll('.wiki-provider-tab').forEach(tab => {
                         tab.addEventListener('click', e => {
                             e.preventDefault();
+                            
+                            // Open the details section if it's closed
+                            const details = container.querySelector('.wiki');
+                            if (!details.hasAttribute('open')) {
+                                details.setAttribute('open', '');
+                            }
+
                             const provider = e.target.dataset.provider;
                             container.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
                             e.target.classList.add('active');

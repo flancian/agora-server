@@ -19,7 +19,6 @@
 <style>
     .ai-provider-tab {
         cursor: pointer;
-        text-decoration: underline;
         padding: 2px 5px;
         border-radius: 3px;
     }
@@ -34,8 +33,8 @@
     <summary> 
         <span class="genai-header" title="AI generation for the node as prompt.">
             <strong>🤖 AI generations</strong> by 
-            <a class="ai-provider-tab active" data-provider="mistral">Mistral</a> • 
-            <a class="ai-provider-tab" data-provider="gemini">Gemini</a> • 
+            <span class="ai-provider-tab active" data-provider="mistral">Mistral</span> • 
+            <span class="ai-provider-tab" data-provider="gemini">Gemini</span> • 
             <a href="https://chatgpt.com/?q={{node.q}}" target="_blank">ChatGPT ⬈</a> •
             <a href="https://claude.ai/new?q={{node.q}}" target="_blank">Claude ⬈</a>
         </span>
@@ -47,11 +46,9 @@
     </div>
 
     <div class="subnode">
-        <div class="pulled-genai-embed" id="{{node.qstr}}">
-            <!-- Content will be loaded here by JavaScript -->
-        </div>                           
+        <div class="ai-embed" data-provider="mistral" style="display: block; overflow-x: hidden;"></div>
+        <div class="ai-embed" data-provider="gemini" style="display: none; overflow-x: hidden;"></div>
     </div>
-
 </details>
 {% endif %}
 
