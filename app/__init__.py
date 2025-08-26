@@ -59,6 +59,19 @@ def create_app():
     app.register_blueprint(default.bp)
     app.add_url_rule("/", endpoint="index")
 
+    @app.context_processor
+    def css_versions():
+        versions = {}
+        dark_css_path = os.path.join(app.static_folder, 'css/screen-dark.css')
+        if os.path.exists(dark_css_path):
+            versions['dark_css_version'] = int(os.path.getmtime(dark_css_path))
+
+        light_css_path = os.path.join(app.static_folder, 'css/screen-light.css')
+        if os.path.exists(light_css_path):
+            versions['light_css_version'] = int(os.path.getmtime(light_css_path))
+        
+        return {'css_versions': versions}
+
     @app.template_filter("linkify")
     def linkify(s):
         return bleach.linkify(s)

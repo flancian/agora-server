@@ -250,15 +250,16 @@ document.addEventListener("DOMContentLoaded", async function () {
   const theme = document.querySelector("#theme-link");
   const toggles = document.querySelectorAll(".theme-toggle");
   const currentTheme = localStorage.getItem("theme");
+  declare const CSS_VERSIONS: { dark: string, light: string };
 
   if (theme) {
     if (currentTheme == "dark") {
-      theme.href = "/static/css/screen-dark.css";
+      theme.href = `/static/css/screen-dark.css?v=${CSS_VERSIONS.dark}`;
       toggles.forEach(toggle => {
         if (toggle) toggle.innerHTML = '🌞';
       });
     } else if (currentTheme == "light") {
-      theme.href = "/static/css/screen-light.css";
+      theme.href = `/static/css/screen-light.css?v=${CSS_VERSIONS.light}`;
       toggles.forEach(toggle => {
         if (toggle) toggle.innerHTML = '🌙';
       });
@@ -271,14 +272,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     element.addEventListener('click', function () {
       const theme = document.querySelector("#theme-link");
       const toggles = document.querySelectorAll(".theme-toggle");
-      if (theme && theme.getAttribute("href") == "/static/css/screen-light.css") {
-        theme.href = "/static/css/screen-dark.css";
+      if (theme && theme.getAttribute("href").includes("screen-light.css")) {
+        theme.href = `/static/css/screen-dark.css?v=${CSS_VERSIONS.dark}`;
         localStorage.setItem("theme", "dark");
         toggles.forEach(toggle => {
           if (toggle) toggle.innerHTML = '🌞';
         });
       } else if (theme) {
-        theme.href = "/static/css/screen-light.css";
+        theme.href = `/static/css/screen-light.css?v=${CSS_VERSIONS.light}`;
         localStorage.setItem("theme", "light");
         toggles.forEach(toggle => {
           if (toggle) toggle.innerHTML = '🌙';
