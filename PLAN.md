@@ -505,7 +505,7 @@ app/
 ## Summary of Changes Implemented
 
 1.  **Wikipedia Integration (`wp.py`)**:
-    - Added a `User-Agent` header to all `requests.get()` calls to the Wikipedia API to fix `403 Forbidden` errors.
+    - Added a `User-Agent` header to all `requests.get()` calls to the Wikipedia API to fix ``403 Forbidden` errors.
     - Implemented more specific error handling to provide clearer feedback to the user.
 
 2.  **Hypothesis Annotation Client**:

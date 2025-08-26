@@ -92,14 +92,15 @@ def after_request(response):
 # Flask routes work so that the one closest to the function is the canonical one.
 @bp.route("/<node>")
 def root(node, user_list=""):
+    start_time = time.time()
 
     # Builds a node with the bare minimum/stub metadata, should be quick.
+    node = urllib.parse.unquote_plus(node)
     current_app.logger.debug(f"[[{node}]]: Assembling light node.")
 
     # We really need to get rid of this kind of hack :)
     # 2023-12-12: today is the day?
     # node = node.replace(",", "").replace(":", "")
-    node = urllib.parse.unquote_plus(node)
     # As of [[2023-12-12]] I'm trying to do away with slugify again and move to 'canonical nodes' by default, i.e. no information loss if we can help it in node IDs.
     # node = util.slugify(node)
     n = api.Node(node)
@@ -114,7 +115,9 @@ def root(node, user_list=""):
         n.qstr = n.uri
     # search_subnodes = db.search_subnodes(node)
     n.q = n.qstr
-    current_app.logger.debug(f"[[{node}]]: Assembled light node.")
+    duration = time.time() - start_time
+    current_app.logger.debug(f"[[{node}]]: Assembled light node in {duration:.2f}s.")
+    
 
     return render_template(
         "sync.html",

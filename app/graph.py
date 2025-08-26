@@ -824,6 +824,19 @@ class Subnode:
         return 100 - fuzz.ratio(self.wikilink, other.wikilink)
 
     def render(self, argument=''):
+        if _is_sqlite_enabled():
+            last_indexed_mtime = sqlite_engine.get_subnode_mtime(self.uri)
+            current_mtime = int(self.mtime)
+            if last_indexed_mtime is None or current_mtime > last_indexed_mtime:
+                current_app.logger.debug(f"Indexing subnode [[{self.uri}]]")
+                sqlite_engine.update_subnode(
+                    path=self.uri,
+                    user=self.user,
+                    node=self.node,
+                    mtime=current_mtime,
+                    links=self.forward_links
+                )
+
         if self.mediatype not in ["text/plain", "text/html", 'text/x-python']:
             # hack hack
             return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /> <br />'.format(
@@ -1296,21 +1309,8 @@ def subnodes_by_outlink(wikilink: str) -> List['Subnode']:
 
 
 def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = "") -> 'Node':
-    current_app.logger.debug(f"[[{node}]]: Assembling node.")
-    # default uprank: system account and maintainers, see config.py.
-    rank = current_app.config["RANK"] or ["agora"]
-    if user_list:
-        # override rank
-        # this comes e.g. from query strings and composition functions.
-        if "," in user_list:
-            rank = user_list.split(",")
-        else:
-            rank = user_list
-
-    # there are some ill-slugged links to anagora.org out there, special casing here for a while at least.
-    # this should probably be made irrelevant by the Big Refactor that we need to do to make the canonical node identifier non-lossy.
-    # UPDATE(2022-06-05): this could probably be removed, needs testing, but with the move to using [[quote plus]] across the board we should be fine?quote
-    # node = node.replace(",", "").replace(":", "")
+    start_time = time.time()
+    timings = []
 
     # unquote in case the node came in urlencoded, then slugify again to gain the 'dimensionality reduction' effects of
     # slugs -- and also because G.node() expects a slug as of 2022-01.
@@ -1321,16 +1321,32 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
     # TODO(2022-06-05): will try to remove it and see what happens.
     # *but this after fixing go links?*
     node = util.canonical_wikilink(node)
+    current_app.logger.debug(f"[[{node}]]: Assembling node.")
+
+    # default uprank: system account and maintainers, see config.py.
+    rank = current_app.config["RANK"] or ["agora"]
+    if user_list:
+        # override rank
+        # this comes e.g. from query strings and composition functions.
+        if "," in user_list:
+            rank = user_list.split(",")
+        else:
+            rank = user_list
 
     # we copy because we'll potentially modify subnode order, maybe add [[virtual subnodes]].
+    stage_start_time = time.time()
     n = copy(G.node(node))
+    timings.append(f"'G.node' took {time.time() - stage_start_time:.2f}s")
 
     if n.subnodes:
         # earlier in the list means more highly ranked.
+        stage_start_time = time.time()
         n.subnodes = util.uprank(n.subnodes, users=rank)
+        timings.append(f"'uprank' took {time.time() - stage_start_time:.2f}s")
         if extension:
             # this is pretty hacky but it works for now.
             # should probably move to a filter method in the node? and get better template support to make what's happening clearer.
+            stage_start_time = time.time()
             current_app.logger.debug(f"filtering down to extension {extension}")
             n.subnodes = [
                 subnode
@@ -1339,25 +1355,8 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
             ]
             n.uri = n.uri + f".{extension}"
             n.wikilink = n.wikilink + f".{extension}"
+            timings.append(f"'extension filter' took {time.time() - stage_start_time:.2f}s")
     # n.subnodes.extend(n.exec())
-
-    # This is the new on-demand indexing logic.
-    # It runs only for the subnodes of the currently requested node.
-    if _is_sqlite_enabled():
-        current_app.logger.debug(f"SQLite: On-demand indexing triggered for node [[{n.wikilink}]]")
-        for subnode in n.subnodes:
-            # We check if the subnode needs to be re-indexed.
-            last_indexed_mtime = sqlite_engine.get_subnode_mtime(subnode.uri)
-            current_mtime = int(subnode.mtime)
-            if last_indexed_mtime is None or current_mtime > last_indexed_mtime:
-                current_app.logger.debug(f"Indexing subnode [[{subnode.uri}]]")
-                sqlite_engine.update_subnode(
-                    path=subnode.uri,
-                    user=subnode.user,
-                    node=subnode.node,
-                    mtime=current_mtime,
-                    links=subnode.forward_links
-                )
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
@@ -1368,17 +1367,22 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
     # search_subnodes = db.search_subnodes(node)
     n.q = n.qstr
 
-    current_app.logger.debug(f"[[{node}]]: Assembled node.")
+    duration = time.time() - start_time
+    current_app.logger.debug(f"[[{node}]]: Assembled in {duration:.2f}s ({', '.join(timings)}).")
     return n
 
 
 def build_multinode(node0: str, node1: str, extension: str = "", user_list: str = "", qstr: str = "") -> 'Node':
+    start_time = time.time()
+    node0 = urllib.parse.unquote_plus(node0)
+    node1 = urllib.parse.unquote_plus(node1)
     current_app.logger.debug(f"[[{node0}/{node1}]]: Assembling multinode (composition).")
 
     n0 = build_node(node0, extension, user_list, qstr)
     n1 = build_node(node1, extension, user_list, qstr)
 
-    current_app.logger.debug(f"[[{node0}/{node1}]]: Assembled multinode.")
+    duration = time.time() - start_time
+    current_app.logger.debug(f"[[{node0}/{node1}]]: Assembled multinode in {duration:.2f}s.")
     # hack hack
     n0.qstr = node0 + '/' + node1
     n0.q = n0.qstr

@@ -46,6 +46,7 @@ def create_app():
             level=logging.DEBUG,
             format="%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s",
         )
+        logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     # ensure the instance folder exists
     try:
@@ -80,13 +81,6 @@ def create_app():
     def linkify(s):
         return bleach.linkify(s)
 
-    @app.before_request
-    def log_entry():
-        app.logger.debug("Initiating request handling.")
-
-    @app.after_request
-    def log_exit(req):
-        app.logger.debug(f"Finished handling {req}.")
-        return req
+    
 
     return app
