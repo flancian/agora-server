@@ -1228,28 +1228,6 @@ html {
     justify-content: center;
     gap: 10px;
     position: relative; /* This is the positioning context */
-    overflow-x: hidden; /* This will clip the hidden overlay */
-}
-
-/* ... existing CSS ... */
-
-.overlay {
-    height: 100%;
-    width: 100%; /* 100% of the .content parent */
-    top: 0;
-    position: absolute; /* Positioned relative to .content */
-    background-color: rgba(20, 20, 20, 0);
-    z-index: 3;
-    /* Start fully off-screen to the left */
-    left: -100%; 
-    /* Animate the 'left' property for smooth sliding */
-    transition: left 0.4s ease-in-out, background-color 0.4s ease-in-out;
-}
-
-/* Overlay active state */
-.overlay.active {
-    left: 0; /* Slide into view */
-    background-color: rgba(0, 0, 0, 0.95);
 }
 
 /* ... existing CSS ... */
@@ -1263,7 +1241,7 @@ html {
     overflow-x: hidden;
     z-index: 3;
     /* Start with the left edge one full width to the left */
-    left: -100%; 
+    left: -120%; 
     /* Animate the 'left' property */
     transition: left 0.4s ease-in-out, background-color 0.4s ease-in-out;
 }

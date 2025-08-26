@@ -22,7 +22,7 @@
     --main-bg: #e9e9e9;
 }
 
-body            { color: #000000; overflow-x: hidden;}
+body            { color: #000000; }
 a, h1, h2, h3, h4, h5, h6       { color: #377ba8; }
 .wikilink:visited { color: #1e53a6; }
 .wikilink:link { color: #1e53a6; }
