@@ -1210,6 +1210,8 @@ table caption {
 
 .overlay-content {
     padding: 30px;
+    max-width: 80em;
+    margin: 0 auto;
 }
 
 html {
