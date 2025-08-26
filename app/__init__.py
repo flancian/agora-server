@@ -59,6 +59,10 @@ def create_app():
     app.register_blueprint(default.bp)
     app.add_url_rule("/", endpoint="index")
 
+    # Register the teardown function for the database
+    from .storage import sqlite_engine
+    app.teardown_appcontext(sqlite_engine.close_db)
+
     @app.context_processor
     def css_versions():
         versions = {}

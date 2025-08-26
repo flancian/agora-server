@@ -1,151 +1,118 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
+from flask import current_app
 import app.storage.file_engine as file_engine
 import app.storage.sqlite_engine as sqlite_engine
 from app.graph import Graph as GraphClass, Node as NodeClass, User as UserClass
 
-STORAGE_ENGINE = os.environ.get("STORAGE_ENGINE", "file")
+# The file engine is always the source of truth.
+# The sqlite engine is a cache.
 
+def _is_sqlite_enabled():
+    """Checks if the SQLite engine is enabled in the config."""
+    return current_app.config.get('ENABLE_SQLITE', False)
 
 def build_node(title):
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.build_node(title)
-        case "sqlite":
-            return sqlite_engine.build_node(title)
+    """
+    Builds a node.
+    If SQLite is enabled, it will be used as a cache.
+    The file engine is always used as the source of truth.
+    """
+    # For now, we only cache/index backlinks.
+    # Other node properties are still calculated on the fly.
+    # This function is a template for how to cache other properties in the future.
+    node = file_engine.build_node(title)
+
+    if _is_sqlite_enabled():
+        # Let's try to get backlinks from the index.
+        # This is a read-only operation, so it's safe.
+        indexed_backlinks = sqlite_engine.get_backlinks(node.uri)
+        # Here you could merge or replace the file-based backlinks
+        # For now, we'll just log that we have them.
+        if indexed_backlinks:
+            current_app.logger.debug(f"Got {len(indexed_backlinks)} backlinks for [[{title}]] from SQLite index.")
+            # In a full implementation, you would replace node.back_links with these.
+            # For example: node.back_links = indexed_backlinks
+
+    # The write-through caching happens within the Graph object methods,
+    # specifically when subnodes are accessed, to ensure freshness.
+    return node
 
 def build_multinode(node0, node1):
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.build_multinode(node0, node1)
-        case "sqlite":
-            # TODO: implement
-            # return sqlite_engine.build_node(title)
-            return file_engine.build_multinode(node0, node1)
+    # This function is complex and for now will remain file-based.
+    return file_engine.build_multinode(node0, node1)
 
 def Graph():
-    match STORAGE_ENGINE:
-        case "file":
-            return GraphClass()
-        case "sqlite":
-            return sqlite_engine.Graph()
-        case _:
-            return GraphClass()
+    """
+    Returns a Graph object.
+    The Graph object itself will handle the on-demand caching if SQLite is enabled.
+    """
+    return GraphClass()
 
-def Node(node):
-    match STORAGE_ENGINE:
-        case "file":
-            return NodeClass(node)
-        case "sqlite":
-            return sqlite_engine.Node(node)
-        case _:
-            return NodeClass(node)
+def Node(node_uri):
+    """
+    Returns a Node object.
+    The Node object will handle on-demand caching when its properties are accessed.
+    """
+    return NodeClass(node_uri)
 
 def subnode_by_uri(uri):
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.subnode_by_uri(uri)
-        case "sqlite":
-            return sqlite_engine.subnode_by_uri(uri)
-        case _:
-            return
-
+    # This is a direct lookup, no complex caching logic needed here yet.
+    return file_engine.subnode_by_uri(uri)
 
 def random_node():
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.random_node()
-        case "sqlite":
-            return sqlite_engine.random_node()
-        case _:
-            return
-
+    # For now, this remains file-based.
+    # Caching this would require a different strategy.
+    return file_engine.random_node()
 
 def all_journals():
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.all_journals()
-        case "sqlite":
-            return sqlite_engine.all_journals()
-        case _:
-            return
-
+    # This is a complex query, for now remains file-based.
+    return file_engine.all_journals()
 
 def all_users():
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.all_users()
-        case "sqlite":
-            return sqlite_engine.all_users()
-        case _:
-            return
-
+    # This could be cached, but for now remains file-based.
+    return file_engine.all_users()
 
 def User(username):
-    match STORAGE_ENGINE:
-        case "file":
-            return UserClass(username)
-        case "sqlite":
-            return sqlite_engine.User(username)
-        case _:
-            return UserClass(username)
-
+    # User objects are built from subnodes, so the caching will happen there.
+    return UserClass(username)
 
 def user_readmes(username):
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.user_readmes(username)
-        case _:
-            return
-
+    return file_engine.user_readmes(username)
 
 def subnodes_by_user(username, sort_by="mtime", mediatype=None, reverse=True):
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.subnodes_by_user(username, sort_by, mediatype, reverse)
-        case "sqlite":
-            return sqlite_engine.subnodes_by_user(username, sort_by, mediatype, reverse)
-        case _:
-            return
+    # This is a core function that could be cached.
+    # For now, it remains file-based.
+    return file_engine.subnodes_by_user(username, sort_by, mediatype, reverse)
 
 def search_subnodes(query):
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.search_subnodes(query)
-        case _:
-            return
-
+    # This is a perfect candidate for FTS in SQLite.
+    # For now, it remains file-based.
+    return file_engine.search_subnodes(query)
 
 def search_subnodes_by_user(query, username):
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.search_subnodes_by_user(query, username)
-        case _:
-            return
-
+    return file_engine.search_subnodes_by_user(query, username)
 
 def latest(max):
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.latest(max)
-        case "sqlite":
-            return sqlite_engine.latest(max)
-        case _:
-            return
-
+    # This could be cached. For now, file-based.
+    return file_engine.latest(max)
 
 def top():
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.top()
-        case "sqlite":
-            return sqlite_engine.top()
-        case _:
-            return
-
+    # This could be cached. For now, file-based.
+    return file_engine.top()
 
 def stats():
-    match STORAGE_ENGINE:
-        case "file":
-            return file_engine.stats()
-        case _:
-            return
+    return file_engine.stats()

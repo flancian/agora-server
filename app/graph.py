@@ -34,7 +34,15 @@ from flask import current_app, request
 from thefuzz import fuzz
 
 from . import config, regexes, render, util
-from .storage import feed
+from .storage import feed, sqlite_engine
+
+def _is_sqlite_enabled():
+    """Checks if the SQLite engine is enabled in the config."""
+    try:
+        return current_app.config.get('ENABLE_SQLITE', False)
+    except RuntimeError:
+        # This can happen if we're running outside of a Flask app context.
+        return False
 
 # This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
 # https://anagora.org/auto-pull
@@ -647,6 +655,26 @@ class Node:
         return subnodes
 
     def back_nodes(self) -> List['Node']:
+        if _is_sqlite_enabled():
+            # Fast path: get backlinks from the index.
+            # The result is a list of paths, so we need to build subnodes and then get their nodes.
+            # This is still much faster than scanning all files.
+            backlink_paths = sqlite_engine.get_backlinks(self.wikilink)
+            # A set is used to automatically handle deduplication of nodes.
+            nodes = set()
+            for path in backlink_paths:
+                try:
+                    # We create a Subnode object just to find out what node it belongs to.
+                    # This could be optimized further by storing the source node in the links table.
+                    subnode = Subnode(os.path.join(current_app.config["AGORA_PATH"], path))
+                    if subnode.node != self.wikilink:
+                         nodes.add(G.node(subnode.node))
+                except FileNotFoundError:
+                    # The index might be slightly out of sync with the filesystem.
+                    pass
+            return sorted(list(nodes))
+
+        # Slow path: fall back to the file-based method if SQLite is disabled.
         return sorted(
             [x for x in nodes_by_outlink(self.wikilink) if x.wikilink != self.wikilink]
         )
@@ -728,6 +756,18 @@ class Subnode:
         )
 
         self.node = self.canonical_wikilink
+
+        if _is_sqlite_enabled():
+            # This is the write-through cache logic.
+            # After a subnode is successfully loaded from disk, we update the index.
+            # This happens only when a Subnode object is created, which is lazy.
+            sqlite_engine.update_subnode(
+                path=self.path,
+                user=self.user,
+                node=self.node,
+                mtime=int(self.mtime),
+                links=self.forward_links
+            )
 
     def load_text_subnode(self):
         try:
