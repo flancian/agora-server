@@ -293,6 +293,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     element.addEventListener("click", function () {
       const overlay = document.getElementById('overlay');
       overlay.classList.toggle('active');
+      document.body.classList.toggle('overlay-open');
+      const overlayContent = overlay.querySelector('.overlay-content');
+      if (overlayContent) {
+        overlayContent.scrollTop = 0;
+      }
     });
   });
 
