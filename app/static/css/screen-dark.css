@@ -1310,3 +1310,15 @@ body.overlay-open {
     opacity: 1;
     transform: translateY(0);
 }
+
+.ai-provider-tab, .wiki-provider-tab, .web-provider-tab {
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.ai-provider-tab.active, .wiki-provider-tab.active, .web-provider-tab.active {
+    font-weight: bold;
+    background-color: #ffffff20;
+    text-decoration: none;
+}

@@ -16,19 +16,6 @@
 -->
 
 {% if not subnode and config['ENABLE_AI'] %}
-<style>
-    .ai-provider-tab {
-        cursor: pointer;
-        padding: 2px 5px;
-        border-radius: 3px;
-    }
-    .ai-provider-tab.active {
-        font-weight: bold;
-        background-color: #ffffff20;
-        text-decoration: none;
-    }
-</style>
-
 <details class="genai"> 
     <summary> 
         <span class="genai-header" title="AI generation for the node as prompt.">

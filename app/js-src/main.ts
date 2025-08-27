@@ -258,7 +258,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       toggles.forEach(toggle => {
         if (toggle) toggle.innerHTML = '🌞';
       });
-    } else if (currentTheme == "light") {
+    } else {
+      // Default to light theme
       theme.href = `/static/css/screen-light.css?v=${CSS_VERSIONS.light}`;
       toggles.forEach(toggle => {
         if (toggle) toggle.innerHTML = '🌙';
