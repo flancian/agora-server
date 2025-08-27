@@ -885,7 +885,8 @@ def complete(prompt):
         # model = "mistral-small"
 
         # try again with large in [[2024-08]], let's hope...? :)
-        model = "mistral-large-latest"
+        # model = "mistral-small-2506"
+        model = "mistral-small-2506"
 
         client = MistralClient(api_key=api_key)
 

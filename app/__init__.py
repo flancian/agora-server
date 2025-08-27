@@ -22,6 +22,9 @@ from . import util
 from app.exec import *
 from flask_cors import CORS
 
+# Import the new blueprint
+from app.exec import web
+
 
 def create_app():
 
@@ -58,6 +61,7 @@ def create_app():
     app.register_blueprint(agora.bp)
     # Actions (mounted under "exec").
     app.register_blueprint(default.bp)
+    app.register_blueprint(web.bp)
     app.add_url_rule("/", endpoint="index")
 
     # Register the teardown function for the database

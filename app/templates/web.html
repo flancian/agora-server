@@ -41,7 +41,7 @@
             <!-- <span class="web-provider-tab" data-provider="spotify" data-url="https://open.spotify.com/search/{{node.q}}">Spotify</span><a href="https://open.spotify.com/search/{{node.q}}" target="_blank">⬈</a> • -->
             <span class="web-provider-tab" data-provider="bsky" data-url="https://bsky.app/search?q={{node.q}}">Bluesky</span><a href="https://bsky.app/search?q={{node.q}}" target="_blank">⬈</a> •
             <span class="web-provider-tab" data-provider="tootfinder" data-url="https://tootfinder.ch/index.php?query={{node.q}}">Fediverse</span><a href="https://tootfinder.ch/index.php?query={{node.q}}" target="_blank">⬈</a> •
-            <span class="web-provider-tab" data-provider="twitter" data-url="https://twitter.com/search/?f=live&q={{node.q}}">X</span><a href="https://twitter.com/search/?f=live&q={{node.q}}" target="_blank">⬈</a>
+            <a href="https://twitter.com/search/?f=live&q={{node.q}}" target="_blank">X ⬈</a>
         </span>
     </summary>
 
@@ -61,7 +61,6 @@
         <div class="web-embed" data-provider="spotify" style="display: none;"></div>
         <div class="web-embed" data-provider="bsky" style="display: none;"></div>
         <div class="web-embed" data-provider="tootfinder" style="display: none;"></div>
-        <div class="web-embed" data-provider="twitter" style="display: none;"></div>
     </div>
 </details>
 
@@ -73,8 +72,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const loadContent = (provider, embedDiv) => {
             if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
-            const url = (webContainer.querySelector(`.web-provider-tab[data-provider="${provider}"]`)).dataset.url;
-            embedDiv.innerHTML = `<iframe src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
+            
+            const tabElement = webContainer.querySelector(`.web-provider-tab[data-provider="${provider}"]`);
+            const url = tabElement.dataset.url;
+            const externalLink = tabElement.nextElementSibling.href;
+
+            // Show a spinner while we check for embeddability
+            embedDiv.innerHTML = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Checking embeddability...</em></p></center><br />`;
+
+            fetch(`/api/check_embeddable?url=${encodeURIComponent(url)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.embeddable) {
+                        embedDiv.innerHTML = `<iframe src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
+                    } else {
+                        embedDiv.innerHTML = `
+                            <div class="subnode node">
+                                This provider has disabled embedding for security reasons, often to prevent an attack called 'clickjacking' where a malicious site might try to trick you into clicking something on the embedded page.
+                                <br/><br/>
+                                You can <a href="${externalLink}" target="_blank">open the search results in a new tab</a> instead.
+                            </div>
+                        `;
+                    }
+                });
         };
 
         webContainer.addEventListener("toggle", (event) => {

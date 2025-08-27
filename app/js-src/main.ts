@@ -614,16 +614,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         const spinner = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Generating text...</em></p></center><br />`;
 
         const loadContent = async (provider, embedDiv) => {
-            if (!embedDiv) {
-                console.log(`genai: embedDiv for ${provider} not found.`);
-                return;
-            }
-            if (embedDiv.innerHTML.trim() !== '') {
-                console.log(`genai: Content for ${provider} already present or loading.`);
-                return;
-            }
+            if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
             
-            console.log(`genai: Loading content for ${provider}.`);
             embedDiv.innerHTML = spinner;
             let endpoint = '';
             if (provider === 'mistral') {
@@ -636,10 +628,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 try {
                     const response = await fetch(AGORAURL + endpoint + encodeURIComponent(nodeId));
                     embedDiv.innerHTML = await response.text();
-                    console.log(`genai: Content for ${provider} loaded.`);
                 } catch (error) {
                     embedDiv.innerHTML = `<p>Error loading content: ${error}</p>`;
-                    console.error(`genai: Error loading content for ${provider}:`, error);
                 }
             }
         };
