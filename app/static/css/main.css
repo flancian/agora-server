@@ -599,6 +599,11 @@ summary {
     margin-bottom: 10px;
 }
 
+.pulled-search-embed {
+    overflow-x: hidden;
+}
+
+
 .node-header, .context-header, .stoa-header, .ctzn-header {
     justify-content: space-between;
     text-align: left;

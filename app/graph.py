@@ -655,12 +655,15 @@ class Node:
         return subnodes
 
     def back_nodes(self) -> List['Node']:
-        if _is_sqlite_enabled():
-            # Fast path: get backlinking node URIs directly from the index.
-            # This is extremely fast as it requires no file I/O.
-            backlinking_node_uris = sqlite_engine.get_backlinking_nodes(self.wikilink)
-            nodes = [G.node(uri) for uri in backlinking_node_uris if uri != self.wikilink]
-            return sorted(nodes)
+        # The on-demand indexing for SQLite backlinks is flawed and misses links until the source nodes are viewed.
+        # Reverting to the file-based method for now to ensure correctness.
+        # TODO: Implement a full index backfill/update strategy for SQLite backlinks.
+        # if _is_sqlite_enabled():
+        #     # Fast path: get backlinking node URIs directly from the index.
+        #     # This is extremely fast as it requires no file I/O.
+        #     backlinking_node_uris = sqlite_engine.get_backlinking_nodes(self.wikilink)
+        #     nodes = [G.node(uri) for uri in backlinking_node_uris if uri != self.wikilink]
+        #     return sorted(nodes)
 
         # Slow path: fall back to the file-based method if SQLite is disabled.
         return sorted(
