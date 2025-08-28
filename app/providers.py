@@ -21,11 +21,49 @@ from flask import current_app, redirect, url_for
 from typing import Sequence
 from uuid import uuid4
 import urllib.parse
+import time
+import functools
 
 from . import util
+from .storage import sqlite_engine
 import google.generativeai as genai
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
 
 
+def cache_ai_generation(provider_func):
+    """
+    Decorator to cache the results of AI generation functions in SQLite.
+    """
+    @functools.wraps(provider_func)
+    def wrapper(prompt):
+        provider_name = provider_func.__name__.split('_')[0] # e.g., 'gemini' from 'gemini_complete'
+
+        if not current_app.config.get('ENABLE_SQLITE'):
+            return provider_func(prompt)
+
+        ttl = current_app.config.get('SQLITE_CACHE_TTL', {}).get('ai_generation', 0)
+        if ttl <= 0:
+            return provider_func(prompt)
+
+        cached_content, timestamp = sqlite_engine.get_ai_generation(prompt, provider_name)
+
+        if cached_content and (time.time() - timestamp) < ttl:
+            current_app.logger.info(f"AI Cache: HIT for '{prompt[:30]}...' with provider {provider_name}.")
+            return cached_content
+        
+        current_app.logger.info(f"AI Cache: MISS for '{prompt[:30]}...' with provider {provider_name}.")
+        new_content = provider_func(prompt)
+        
+        # Only cache successful responses, not error messages.
+        if "error" not in new_content.lower() and "not properly set up" not in new_content.lower():
+            sqlite_engine.save_ai_generation(prompt, provider_name, new_content, int(time.time()))
+        
+        return new_content
+    return wrapper
+
+
+@cache_ai_generation
 def gemini_complete(prompt):
     if current_app.config["ENABLE_AI"]:
         api_key = current_app.config["GEMINI_API_KEY"]
@@ -33,7 +71,8 @@ def gemini_complete(prompt):
             return "[[GenAI]] is not properly set up for Gemini in this Agora yet. Please set the GEMINI_API_KEY environment variable to a valid API key."
 
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        # Updated to a more recent model, as seen in other parts of the code.
+        model = genai.GenerativeModel('gemini-1.5-flash')
 
         enriched_prompt = current_app.config['AI_PROMPT'] + prompt
         
@@ -42,6 +81,31 @@ def gemini_complete(prompt):
             return response.text
         except Exception as e:
             return f"An error occurred with the Gemini API: {e}"
+    else:
+        return "<em>This Agora is not AI-enabled yet</em>."
+
+@cache_ai_generation
+def mistral_complete(prompt):
+    if current_app.config["ENABLE_AI"]:
+        api_key = current_app.config["MISTRAL_API_KEY"]
+        if not api_key:
+            return "[[GenAI]] is not properly set up for Mistral in this Agora yet. Please set the MISTRAL_API_KEY environment variable to a valid API key."
+
+        client = MistralClient(api_key=api_key)
+        enriched_prompt = current_app.config['AI_PROMPT'] + prompt
+        messages = [
+            ChatMessage(role="user", content=enriched_prompt)
+        ]
+
+        try:
+            # model="mistral-small-latest" was seen in logs.
+            chat_response = client.chat(
+                model="mistral-small-latest",
+                messages=messages,
+            )
+            return chat_response.choices[0].message.content
+        except Exception as e:
+            return f"An error occurred with the Mistral API: {e}"
     else:
         return "<em>This Agora is not AI-enabled yet</em>."
 

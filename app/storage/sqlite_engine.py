@@ -76,6 +76,15 @@ def create_tables(db):
                 PRIMARY KEY (source_path, target_node, type)
             );
         """)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS ai_generations (
+                prompt TEXT NOT NULL,
+                provider TEXT NOT NULL,
+                content TEXT NOT NULL,
+                timestamp INTEGER NOT NULL,
+                PRIMARY KEY (prompt, provider)
+            );
+        """)
         # Migration: Add the source_node column to the links table if it doesn't exist.
         try:
             db.execute("ALTER TABLE links ADD COLUMN source_node TEXT;")
@@ -140,3 +149,40 @@ def get_backlinking_nodes(node_uri):
     # We select the source_node directly and use DISTINCT to avoid duplicates.
     cursor.execute("SELECT DISTINCT source_node FROM links WHERE target_node = ?", (node_uri,))
     return [row[0] for row in cursor.fetchall()]
+
+def get_ai_generation(prompt, provider):
+    """
+    Retrieves a cached AI generation for a given prompt and provider.
+    Returns a tuple of (content, timestamp) or (None, None) if not found.
+    """
+    db = get_db()
+    if not db:
+        return None, None
+    
+    cursor = db.cursor()
+    cursor.execute(
+        "SELECT content, timestamp FROM ai_generations WHERE prompt = ? AND provider = ?",
+        (prompt, provider)
+    )
+    result = cursor.fetchone()
+    return (result[0], result[1]) if result else (None, None)
+
+def save_ai_generation(prompt, provider, content, timestamp):
+    """
+    Saves or updates a cached AI generation.
+    """
+    db = get_db()
+    if not db:
+        return
+
+    try:
+        with db:
+            db.execute(
+                "REPLACE INTO ai_generations (prompt, provider, content, timestamp) VALUES (?, ?, ?, ?)",
+                (prompt, provider, content, timestamp)
+            )
+    except sqlite3.OperationalError as e:
+        if 'read-only database' in str(e):
+            pass
+        else:
+            current_app.logger.error(f"Database write error: {e}")

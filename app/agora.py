@@ -33,7 +33,7 @@ from mistralai.client import MistralClient, MistralException
 from mistralai.models.chat_completion import ChatMessage
 
 from . import forms, providers, render, util
-from .providers import gemini_complete
+from .providers import gemini_complete, mistral_complete
 from .storage import api, feed
 from . import visualization
 
@@ -879,32 +879,7 @@ def callback():
 @bp.route("/api/complete/<prompt>")
 def complete(prompt):
     if current_app.config["ENABLE_AI"]:
-        api_key = current_app.config["MISTRAL_API_KEY"]
-
-        # anything above small is too slow in practice IMHO, as of 2024-03-16.
-        # model = "mistral-small"
-
-        # try again with large in [[2024-08]], let's hope...? :)
-        # model = "mistral-small-2506"
-        model = "mistral-small-2506"
-
-        client = MistralClient(api_key=api_key)
-
-        enriched_prompt = current_app.config['AI_PROMPT'] + prompt
-        messages = [
-            ChatMessage(role="user", content=f'{enriched_prompt}')
-        ]
-
-        # No streaming
-        try:
-            chat_response = client.chat(
-                model=model,
-                messages=messages,
-            )
-            answer = str(chat_response.choices[0].message.content)
-        except MistralException as e:
-            # usually unauthorized; it happens if the key is invalid, for example.
-            answer = f"[[GenAI]] is not properly set up in this Agora yet. Please set the MISTRAL_API_KEY environment variable to a valid API key. {e}"
+        answer = mistral_complete(prompt)
         return render.markdown(answer)
     else:
         return("<em>This Agora is not AI-enabled yet</em>.")
