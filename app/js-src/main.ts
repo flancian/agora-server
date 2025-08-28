@@ -1159,6 +1159,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                 const bckgDimensions = (node as any).__bckgDimensions;
                 bckgDimensions && ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
             });
+        } else {
+            // In no-label mode, make the nodes smaller.
+            Graph.nodeRelSize(2);
         }
 
         Graph.linkDirectionalArrowLength(3)
