@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
   (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], false);
   (document.getElementById("show-hypothesis") as HTMLInputElement).checked = safeJsonParse(localStorage["show-hypothesis"], false);
-  (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], false);
+  (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], true);
 
   // Function to apply the wikilink rendering style
   const applyWikilinkStyle = () => {
@@ -731,7 +731,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    if (safeJsonParse(localStorage["auto-expand-stoas"], false)) {
+    if (safeJsonParse(localStorage["auto-expand-stoas"], true)) {
         document.querySelectorAll("details.stoa").forEach(function (element) {
             console.log('auto expanding stoas');
             if (!(element as HTMLDetailsElement).open) {
