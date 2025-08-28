@@ -13,6 +13,47 @@
 // limitations under the License.
 //
 
+/**
+ * Darkens a hex color by a given percentage.
+ * @param {string} color - The hex color code (e.g., "#RRGGBB").
+ * @param {number} percent - The percentage to darken by (0 to 100).
+ * @returns {string} The new, darkened hex color code.
+ */
+function darkenColor(color, percent) {
+    // If color is invalid, return a default fallback.
+    if (typeof color !== 'string' || !color) {
+        return '#000000';
+    }
+
+    // Ensure the color starts with a hash
+    if (color.startsWith('#')) {
+        color = color.slice(1);
+    }
+
+    // Parse the R, G, B values
+    const num = parseInt(color, 16);
+    let r = (num >> 16);
+    let g = (num >> 8) & 0x00FF;
+    let b = num & 0x0000FF;
+
+    // Apply the darkening percentage
+    const factor = 1 - (percent / 100);
+    r = Math.round(r * factor);
+    g = Math.round(g * factor);
+    b = Math.round(b * factor);
+
+    // Ensure values are within the 0-255 range
+    r = Math.max(0, Math.min(255, r));
+    g = Math.max(0, Math.min(255, g));
+    b = Math.max(0, Math.min(255, b));
+
+    // Convert back to a hex string and pad with zeros if needed
+    const darkened = `#${(g | (b << 8) | (r << 16)).toString(16).padStart(6, '0')}`;
+    
+    return darkened;
+}
+
+
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
 const autoPullExtra = JSON.parse(localStorage["auto-pull-extra"] || 'false')
@@ -267,7 +308,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Then listen for clicks on the theme toggle button or the link text
   const clickable = document.querySelectorAll('.theme-toggle, .theme-toggle-text');
   clickable.forEach(element => {
-    element.addEventListener('click', function () {
+    element.addEventListener('click', function (event) {
+      event.preventDefault(); // Stop the browser from jumping to the top of the page.
       const currentTheme = document.documentElement.getAttribute('data-theme');
       const toggles = document.querySelectorAll(".theme-toggle");
       if (currentTheme === 'light') {
@@ -283,6 +325,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (toggle) toggle.innerHTML = '🌙';
         });
       }
+      renderGraph(); // Re-render the graph with the new theme
     });
   });
 
@@ -751,7 +794,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       item.addEventListener("toggle", (event) => {
         if (item.open) {
           console.log("Details have been shown");
-          nodeEmbed = item.querySelector(".node-embed");
+          let nodeEmbed = item.querySelector(".node-embed");
           if (nodeEmbed) {
             let node = nodeEmbed.id;
             console.log("Node embed found, here we would pull.");
@@ -759,7 +802,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           }
         } else {
           console.log("Details have been hidden");
-          nodeEmbed = item.querySelector(".node-embed");
+          let nodeEmbed = item.querySelector(".node-embed");
           if (nodeEmbed) {
             console.log("Node embed found, here we would fold.");
             nodeEmbed.innerHTML = '';
@@ -801,78 +844,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.log('auto pulled context');
       
       // Finally!
-
-      console.log("loading graph...")
-      fetch("/graph/json/" + node).then(res => res.json()).then(data => {
-      const container = document.getElementById('graph');
-      const currentTheme = localStorage.getItem("theme") || 'light';
-      // const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
-      const backgroundColor = (currentTheme == 'light' ? 'rgba(255, 255, 255, 1)' : 'rgba(50, 50, 50, 1)')
-      const edgeColor = (currentTheme == 'light' ? 'rgba(100, 100, 100, 1)' : 'rgba(150, 150, 150, 1)')
-
-      console.log('graph center:' + node)
-      const Graph = ForceGraph()(container);
-
-      if (data.nodes.length > 100) {
-          // for "large" graphs, render nodes as circles.
-          Graph.height(container.clientHeight)
-              .width(container.clientWidth)
-              .onNodeClick(node => {
-                  let url = node.id;
-                  location.assign(url)
-              })
-              .graphData(data)
-              .nodeId('id')
-              .nodeVal('val')
-              .nodeAutoColorBy('group')
-          }
-          else {
-          // for "small" graphs, render nodes as labels.
-              Graph.height(container.clientHeight)
-              .width(container.clientWidth)
-              .onNodeClick(node => {
-                  let url = node.id;
-                  location.assign(url)
-              })
-              .graphData(data)
-              .nodeId('id')
-              .nodeVal('val')
-              .nodeAutoColorBy('group')
-              .nodeCanvasObject((node, ctx, globalScale) => {
-              const label = node.name;
-              var fontSize = 12/globalScale;
-              if (node.id == node) {
-                  fontSize = 24/globalScale;
-                  }
-              ctx.font = `${fontSize}px Sans-Serif`;
-              const textWidth = ctx.measureText(label).width;
-              const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
-
-              ctx.fillStyle = backgroundColor;
-              ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
-
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'middle';
-              ctx.fillStyle = node.color;
-              ctx.fillText(label, node.x, node.y);
-
-              node.__bckgDimensions = bckgDimensions; // to re-use in nodePointerAreaPaint
-              })
-              .linkDirectionalArrowLength(3)
-              .linkColor(() => edgeColor)
-              //.d3Force('collision', d3.forceCollide(node => Math.sqrt(100 / (node.level + 1)) * NODE_REL_SIZE))
-              .nodePointerAreaPaint((node, color, ctx) => {
-              ctx.fillStyle = color;
-              const bckgDimensions = node.__bckgDimensions;
-              bckgDimensions && ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
-              });
-          }
-          Graph.zoom(3);
-          Graph.cooldownTime(5000); // default is 15000ms
-          Graph.onEngineStop(() => Graph.zoomToFit(400));
-      });
-
-      // fit to canvas when engine stops
+      renderGraph();
 
       console.log("graph loaded.")
     });
@@ -1003,31 +975,31 @@ document.addEventListener("DOMContentLoaded", async function () {
       document.querySelectorAll(".pull-node").forEach(element => {
       if (!element.classList.contains('pulled')) {
         console.log('auto pulling nodes');
-        element.click();
+        (element as HTMLElement).click();
       }
       });
       document.querySelectorAll(".pull-mastodon-status").forEach(element => {
       if (!element.classList.contains('pulled')) {
         console.log('auto pulling activity');
-        element.click();
+        (element as HTMLElement).click();
       }
       });
       document.querySelectorAll(".pull-tweet").forEach(element => {
       if (!element.classList.contains('pulled')) {
         console.log('auto pulling tweet');
-        element.click();
+        (element as HTMLElement).click();
       }
       });
       document.querySelectorAll(".pull-search").forEach(element => {
       if (!element.classList.contains('pulled')) {
         console.log('auto pulling search');
-        element.click();
+        (element as HTMLElement).click();
       }
       });
       document.querySelectorAll(".pull-url").forEach(element => {
       if (!element.classList.contains('pulled')) {
         console.log('auto pulling url');
-        element.click();
+        (element as HTMLElement).click();
       }
       });
 
@@ -1035,7 +1007,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary, details.stoa > summary, details.search > summary");
       details.forEach(item => {
       console.log('trying to click details');
-      item.click();
+      (item as HTMLElement).click();
       });
     });
 
@@ -1045,31 +1017,31 @@ document.addEventListener("DOMContentLoaded", async function () {
       document.querySelectorAll(".pull-node").forEach(element => {
       if (element.classList.contains('pulled')) {
         console.log('auto folding nodes');
-        element.click();
+        (element as HTMLElement).click();
       }
       });
       document.querySelectorAll(".pull-mastodon-status").forEach(element => {
       if (element.classList.contains('pulled')) {
         console.log('auto folding activity');
-        element.click();
+        (element as HTMLElement).click();
       }
       });
       document.querySelectorAll(".pull-tweet").forEach(element => {
       if (element.classList.contains('pulled')) {
         console.log('auto folding tweet');
-        element.click();
+        (element as HTMLElement).click();
       }
       });
       document.querySelectorAll(".pull-search").forEach(element => {
       if (element.classList.contains('pulled')) {
         console.log('auto folding search');
-        element.click();
+        (element as HTMLElement).click();
       }
       });
       document.querySelectorAll(".pull-url").forEach(element => {
       if (element.classList.contains('pulled')) {
         console.log('auto pulling url');
-        element.click();
+        (element as HTMLElement).click();
       }
       });
 
@@ -1077,12 +1049,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       var details = document.querySelectorAll("details[open] > summary");
       details.forEach(item => {
       console.log('trying to click details');
-      item.click();
+      (item as HTMLElement).click();
       });
     });
 
     // For late rendered 'join' actions... YOLO :)
-    document.querySelectorAll(['#join2']).forEach(element => {
+    document.querySelectorAll('#join2').forEach(element => {
       console.log(`Clicked ${element.id}`);
       element.addEventListener("click", function () {
         const overlay = document.getElementById('overlay');
@@ -1093,11 +1065,91 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
   // end bindEvents();
 
+  async function renderGraph() {
+    const container = document.getElementById('graph');
+    if (!container) return;
+
+    // Clear previous graph if any
+    container.innerHTML = '';
+
+    const darkPalette = {
+        bg: 'rgba(0, 0, 0, 0)', // Transparent background
+        edge: 'rgba(150, 150, 150, 1)',
+        text: '#bfbfbf',
+        nodeBg: 'rgba(50, 50, 50, 1)'
+    };
+
+    const lightPalette = {
+        bg: 'rgba(0, 0, 0, 0)', // Transparent background
+        edge: 'rgba(50, 50, 50, 1)',
+        text: '#000000',
+        nodeBg: '#f0f0f0'
+    };
+
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const palette = currentTheme === 'dark' ? darkPalette : lightPalette;
+
+    console.log("loading graph...")
+    fetch("/graph/json/" + NODENAME)
+    .then(res => res.json())
+    .then(data => {
+        const Graph = ForceGraph()(container);
+
+        Graph.height(container.clientHeight)
+            .width(container.clientWidth)
+            .backgroundColor(palette.bg)
+            .onNodeClick(node => {
+                let url = (node as any).id;
+                location.assign(url)
+            })
+            .graphData(data)
+            .nodeId('id')
+            .nodeVal('val')
+            .nodeAutoColorBy('group')
+            .nodeCanvasObject((node, ctx, globalScale) => {
+                const label = (node as any).name;
+                const fontSize = 12 / globalScale;
+                ctx.font = `${fontSize}px Sans-Serif`;
+                const textWidth = ctx.measureText(label).width;
+                const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+
+                ctx.fillStyle = palette.nodeBg;
+                ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
+
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Theme-aware node colors.
+                let color = (node as any).color;
+                if (currentTheme === 'light') {
+                    // simple heuristic to darken colors for light theme.
+                    color = darkenColor(color, 40);
+                }
+                ctx.fillStyle = color;
+                ctx.fillText(label, (node as any).x, (node as any).y);
+
+                (node as any).__bckgDimensions = bckgDimensions;
+            })
+            .linkDirectionalArrowLength(3)
+            .linkColor(() => palette.edge)
+            .nodePointerAreaPaint((node, color, ctx) => {
+                ctx.fillStyle = color;
+                const bckgDimensions = (node as any).__bckgDimensions;
+                bckgDimensions && ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
+            });
+
+        Graph.zoom(3);
+        Graph.cooldownTime(5000);
+        Graph.onEngineStop(() => Graph.zoomToFit(400));
+    })
+    .catch(error => console.error('Error fetching or rendering graph:', error));
+  }
+
   // go to the specified URL
   document.querySelectorAll(".go-url").forEach(element => {
     element.addEventListener("click", function () {
-      let url = this.value;
-      this.innerText = 'going';
+      let url = (this as HTMLInputElement).value;
+      (this as HTMLElement).innerText = 'going';
       window.location.replace(url);
     });
   });
@@ -1143,7 +1195,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     // Once more for Wiktionary, yolo :)
-    req_wiktionary = AGORAURL + '/exec/wt/' + encodeURI(NODENAME)
+    let req_wiktionary = AGORAURL + '/exec/wt/' + encodeURI(NODENAME)
     console.log('req for Wiktionary: ' + req_wiktionary)
 
     try {
@@ -1155,7 +1207,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       } else {
       console.log('got empty data from Wiktionary, hiding div');
       if (wiktionaryElement) {
-        wiktionaryElement.style.display = 'none';
+        (wiktionaryElement as HTMLElement).style.display = 'none';
       }
       }
     } catch (error) {
@@ -1167,23 +1219,23 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.log('auto pulling external resources!');
     document.querySelectorAll(".pull-mastodon-status").forEach(function (element) {
       console.log('auto pulling activity');
-      element.click();
+      (element as HTMLElement).click();
     });
     document.querySelectorAll(".pull-tweet").forEach(function (element) {
       console.log('auto pulling tweet');
-      element.click();
+      (element as HTMLElement).click();
     });
     document.querySelectorAll(".pull-related-node").forEach(function (element) {
       console.log('auto pulling related node');
-      element.click();
+      (element as HTMLElement).click();
     });
     document.querySelectorAll(".pull-url").forEach(function (element) {
       console.log('auto pulling url');
-      element.click();
+      (element as HTMLElement).click();
     });
     document.querySelectorAll(".pull-node").forEach(function (element) {
       console.log('auto pulling node');
-      element.click();
+      (element as HTMLElement).click();
     });
     }
 
@@ -1199,18 +1251,18 @@ document.addEventListener("DOMContentLoaded", async function () {
             // Add click listener to the link
             featureLinkDialog.addEventListener('click', function(ev) {
                 ev.preventDefault();
-                dialog.showModal();
+                (dialog as HTMLDialogElement).showModal();
             });
 
             // Add click listener to the close button
             closeButton.addEventListener('click', function() {
-                dialog.close();
+                (dialog as HTMLDialogElement).close();
             });
 
             // Optional: Close on backdrop click
             dialog.addEventListener('click', function(e) {
               if (e.target === dialog) {
-                 dialog.close();
+                 (dialog as HTMLDialogElement).close();
               }
             });
         }

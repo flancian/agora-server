@@ -35,7 +35,7 @@
     --subnode-bg: #303030;
     --subnode-text-color: #cfcfcf;
     --pulled-pushed-bg: #101010;
-    --info-box-bg: #B5651D; /* A warm, caramel/flan-like color */
+    --info-box-bg: #A5550D; /* A warm, caramel/flan-like color */
     --info-box-text-color: #cfcfcf;
     --intro-footer-bg: #811707;
     --intro-footer-text-color: #cfcfcf;
@@ -931,6 +931,29 @@ body.overlay-open {
     text-decoration: none;
 }
 
+.links-flex {
+    display: flex;
+    flex-direction: row;
+}
+
 .overlay-content {
     padding: 20px;
+}
+
+.theme-toggle-text {
+    cursor: pointer;
+}
+
+.context-flex {
+    display: flex;
+    flex-direction: row;
+}
+
+.links {
+    width: 50%;
+}
+
+#graph {
+    width: 50%;
+    height: 400px; /* Or any desired height */
 }
