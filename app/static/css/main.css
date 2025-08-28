@@ -39,7 +39,9 @@
     --info-box-text-color: #cfcfcf;
     --intro-footer-bg: #811707;
     --intro-footer-text-color: #cfcfcf;
-    --button-filter: invert(1);
+    --button-bg: #2d2d2d;
+    --button-text-color: #ddd;
+    --button-border-color: #999;
     --logo-filter: invert(1);
     --tab-active-bg: #ffffff20;
     --overlay-bg: rgba(0, 0, 0, 0.95);
@@ -68,7 +70,9 @@
     --info-box-text-color: #000;
     --intro-footer-bg: #ffe17e;
     --intro-footer-text-color: #000;
-    --button-filter: none;
+    --button-bg: #ddd;
+    --button-text-color: #000;
+    --button-border-color: #999;
     --logo-filter: none;
     --tab-active-bg: rgba(255, 255, 255, 1);
     --overlay-bg: rgba(238, 238, 238, 0.9);
@@ -136,7 +140,7 @@ nav {
 
 .navbar-item {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
     flex-direction: row;
 }
@@ -147,12 +151,12 @@ img {
 }
 
 button {
-    border: 1px #999 solid;
+    border: 1px solid var(--button-border-color);
     border-radius: 4px;
-    background: #ddd;
+    background: var(--button-bg);
+    color: var(--button-text-color);
     text-transform: capitalize;
     padding: 3px 6px 3px 6px;
-    filter: var(--button-filter);
     white-space: nowrap;
 }
 
@@ -489,6 +493,7 @@ summary {
     border-width: 0px;
     border-style: dotted;
     padding: 10px;
+    overflow-x: hidden;
 }
 
 .context {
@@ -924,4 +929,8 @@ body.overlay-open {
     font-weight: bold;
     background-color: var(--tab-active-bg);
     text-decoration: none;
+}
+
+.overlay-content {
+    padding: 20px;
 }
