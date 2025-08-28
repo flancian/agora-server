@@ -568,3 +568,6 @@ app/
     - Each search provider is now a tab that loads an embedded `iframe` on demand.
     - Each tab is paired with a "⬈" link to allow users to easily open the search results in a new browser tab.
     - All providers, including Google Maps, are now integrated into the tab system for a consistent user experience.
+- **Embeddability Check**:
+    - Created a new API endpoint (`/api/check_embeddable`) that checks if a URL can be embedded in an iframe.
+    - The frontend now calls this endpoint before attempting to embed content, showing a user-friendly message if embedding is blocked.
