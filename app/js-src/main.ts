@@ -247,40 +247,37 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   // Theme toggle stuff for initial load
-  const theme = document.querySelector("#theme-link");
   const toggles = document.querySelectorAll(".theme-toggle");
   const currentTheme = localStorage.getItem("theme");
-  declare const CSS_VERSIONS: { dark: string, light: string };
 
-  if (theme) {
-    if (currentTheme == "dark") {
-      theme.href = `/static/css/screen-dark.css?v=${CSS_VERSIONS.dark}`;
-      toggles.forEach(toggle => {
-        if (toggle) toggle.innerHTML = '🌞';
-      });
-    } else {
-      // Default to light theme
-      theme.href = `/static/css/screen-light.css?v=${CSS_VERSIONS.light}`;
-      toggles.forEach(toggle => {
-        if (toggle) toggle.innerHTML = '🌙';
-      });
-    }
+  // Set the theme on initial load
+  if (currentTheme === "dark") {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    toggles.forEach(toggle => {
+      if (toggle) toggle.innerHTML = '🌞';
+    });
+  } else {
+    // Default to light theme
+    document.documentElement.setAttribute('data-theme', 'light');
+    toggles.forEach(toggle => {
+      if (toggle) toggle.innerHTML = '🌙';
+    });
   }
 
   // Then listen for clicks on the theme toggle button or the link text
   const clickable = document.querySelectorAll('.theme-toggle, .theme-toggle-text');
   clickable.forEach(element => {
     element.addEventListener('click', function () {
-      const theme = document.querySelector("#theme-link");
+      const currentTheme = document.documentElement.getAttribute('data-theme');
       const toggles = document.querySelectorAll(".theme-toggle");
-      if (theme && theme.getAttribute("href").includes("screen-light.css")) {
-        theme.href = `/static/css/screen-dark.css?v=${CSS_VERSIONS.dark}`;
+      if (currentTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'dark');
         localStorage.setItem("theme", "dark");
         toggles.forEach(toggle => {
           if (toggle) toggle.innerHTML = '🌞';
         });
-      } else if (theme) {
-        theme.href = `/static/css/screen-light.css?v=${CSS_VERSIONS.light}`;
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
         localStorage.setItem("theme", "light");
         toggles.forEach(toggle => {
           if (toggle) toggle.innerHTML = '🌙';

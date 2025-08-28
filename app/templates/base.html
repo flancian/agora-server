@@ -34,13 +34,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="search" type="application/opensearchdescription+xml" title="Agora" href={{config['URL_BASE']}}{{url_for('agora.search_xml')}} />
 	<link rel="stylesheet" media="screen" type="text/css"
-		href="{{ url_for('static',filename='css/screen-light.css')}}?v={{css_versions.light_css_version}}" id="theme-link" />
+		href="{{ url_for('static',filename='css/main.css')}}?v={{css_versions.main_css_version}}" />
 
 	<script>
-		const CSS_VERSIONS = {
-			dark: "{{ css_versions.dark_css_version }}",
-			light: "{{ css_versions.light_css_version }}"
-		};
 		const APIBASE = "{{config['API_BASE']}}";
 		const AGORANAME = "{{config['AGORA_NAME']}}";
 		const AGORAURI= "{{config['URI_BASE']}}";
