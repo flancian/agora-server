@@ -15,26 +15,27 @@
 -->
 
 
-<div id="graph">
-
-    {% if graph %}
-    <center>
-        <p>
-        <!--
-        <div class="spinner2">
-            <img src="/static/img/agora.png" class="logo"></img>
-        </div>
-        -->
-        </p>
-        <p><em>Loading graph... (please wait)</em></p>
-    </center>
-    {% else %}
-    <center>
-        <p><em>
-            (Inline graphs disabled, see graphing <a href="https://anagora.org/go/agora-server">endpoints<a>.)
-        </em></p>
-    </center>
- 
-    {% endif %}
-
+<div class="graph-container">
+    <div id="graph">
+        {% if graph %}
+        <center>
+            <p>
+            <!--
+            <div class="spinner2">
+                <img src="/static/img/agora.png" class="logo"></img>
+            </div>
+            -->
+            </p>
+            <p><em>Loading graph... (please wait)</em></p>
+        </center>
+        {% else %}
+        <center>
+            <p><em>
+                (Inline graphs disabled, see graphing <a href="https://anagora.org/go/agora-server">endpoints<a>.)
+            </em></p>
+        </center>
+     
+        {% endif %}
+    </div>
+    <button id="graph-toggle-labels" title="Toggle graph labels">🏷️ Toggle Labels</button>
 </div>

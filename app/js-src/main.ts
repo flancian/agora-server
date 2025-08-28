@@ -81,6 +81,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
   (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], false);
   (document.getElementById("show-hypothesis") as HTMLInputElement).checked = safeJsonParse(localStorage["show-hypothesis"], false);
+  (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], false);
 
   // Function to apply the wikilink rendering style
   const applyWikilinkStyle = () => {
@@ -157,6 +158,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
   document.getElementById("show-brackets")?.addEventListener('change', (e) => {
     localStorage["showBrackets"] = (e.target as HTMLInputElement).checked;
+  });
+
+  document.getElementById("auto-expand-stoas")?.addEventListener('change', (e) => {
+    localStorage["auto-expand-stoas"] = (e.target as HTMLInputElement).checked;
+    location.reload();
   });
 
   document.getElementById("show-hypothesis")?.addEventListener('change', (e) => {
@@ -725,6 +731,15 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
+    if (safeJsonParse(localStorage["auto-expand-stoas"], false)) {
+        document.querySelectorAll("details.stoa").forEach(function (element) {
+            console.log('auto expanding stoas');
+            if (!(element as HTMLDetailsElement).open) {
+                element.open = true;
+            }
+        });
+    }
+
     if (autoPullWikipedia) {
         const observer = new MutationObserver((mutations, obs) => {
             const wikipediaDetails = document.querySelector("details.wikipedia");
@@ -845,6 +860,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       
       // Finally!
       renderGraph();
+
+      document.getElementById('graph-toggle-labels')?.addEventListener('click', () => {
+          const currentSetting = safeJsonParse(localStorage.getItem('graph-show-labels'), true);
+          localStorage.setItem('graph-show-labels', JSON.stringify(!currentSetting));
+          renderGraph();
+      });
 
       console.log("graph loaded.")
     });
@@ -1088,6 +1109,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     const palette = currentTheme === 'dark' ? darkPalette : lightPalette;
+    const showLabels = safeJsonParse(localStorage.getItem('graph-show-labels'), true);
 
     console.log("loading graph...")
     fetch("/graph/json/" + NODENAME)
@@ -1105,8 +1127,10 @@ document.addEventListener("DOMContentLoaded", async function () {
             .graphData(data)
             .nodeId('id')
             .nodeVal('val')
-            .nodeAutoColorBy('group')
-            .nodeCanvasObject((node, ctx, globalScale) => {
+            .nodeAutoColorBy('group');
+
+        if (showLabels) {
+            Graph.nodeCanvasObject((node, ctx, globalScale) => {
                 const label = (node as any).name;
                 const fontSize = 12 / globalScale;
                 ctx.font = `${fontSize}px Sans-Serif`;
@@ -1130,13 +1154,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                 (node as any).__bckgDimensions = bckgDimensions;
             })
-            .linkDirectionalArrowLength(3)
-            .linkColor(() => palette.edge)
             .nodePointerAreaPaint((node, color, ctx) => {
                 ctx.fillStyle = color;
                 const bckgDimensions = (node as any).__bckgDimensions;
                 bckgDimensions && ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
             });
+        }
+
+        Graph.linkDirectionalArrowLength(3)
+            .linkColor(() => palette.edge);
 
         Graph.zoom(3);
         Graph.cooldownTime(5000);

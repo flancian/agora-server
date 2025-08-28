@@ -958,7 +958,22 @@ body.overlay-open {
     width: 50%;
 }
 
-#graph {
+.graph-container {
     width: 50%;
-    height: 400px; /* Or any desired height */
+    height: 400px;
+    position: relative;
 }
+
+#graph {
+    width: 100%;
+    height: 100%;
+}
+
+#graph-toggle-labels {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 10;
+    padding: 3px 6px;
+}
+
