@@ -15,6 +15,8 @@ This document outlines the plan to implement a hybrid storage system where the f
 -   **On-Demand Indexing:** Implemented the core "write-through cache" logic in `app/graph.py`. Indexing now happens efficiently on-demand when a node is viewed, not during a slow initial scan.
 -   **Performance Fix:** The `back_nodes` method in `app/graph.py` was refactored to query the SQLite index directly, resolving a major performance bottleneck and application hangs.
 -   **Bug Squashing:** Debugged and fixed a series of follow-up issues, including `IntegrityError` from duplicate links, `ProgrammingError` from incorrect thread handling, and multiple `AttributeError` exceptions from mismatched function names.
+-   **AI Generation Caching:** Implemented a caching layer for AI generations in SQLite, complete with configurable TTLs. This significantly improves performance for repeated AI queries.
+-   **Backlink Bug Fix:** Diagnosed a critical bug where the on-demand SQLite indexing missed backlinks. Temporarily reverted to the file-based backlink method to ensure data correctness while a full indexing strategy is developed.
 
 ---
 
@@ -46,106 +48,32 @@ The foundational work is complete, and the system is stable. The following tasks
 
 ---
 
-# 🚀 High Priority: Unify CSS Stylesheets and Implement Theming
+# ✅ Completed: Unify CSS Stylesheets and Implement Theming
 
-**Status: Not Started**
+**Status: COMPLETED (August 2025)**
 **Priority: High**
 
-This task outlines the plan to refactor the current dual-stylesheet (light/dark) system into a modern, single-stylesheet architecture using CSS Custom Properties (Variables). This will improve performance, simplify maintenance, and provide a better user experience.
+This task involved refactoring the current dual-stylesheet (light/dark) system into a modern, single-stylesheet architecture using CSS Custom Properties (Variables). This has improved performance, simplified maintenance, and provided a better user experience.
 
 ---
 
-## Goal
+## ✅ Completed Steps
 
--   Eliminate the practice of swapping entire CSS files to change themes.
--   Consolidate all styles into a single, manageable stylesheet.
--   Implement a robust and instant theme-switching mechanism using CSS variables.
-
----
-
-## Current Implementation (The Problem)
-
-The Agora currently uses two separate stylesheets for theming:
--   `app/static/css/screen-dark.css` (Default theme)
--   `app/static/css/screen-light.css` (Overrides for the light theme)
-
-A JavaScript function in `app/js-src/main.ts` dynamically changes the `<link>` tag's `href` attribute to point to the selected stylesheet. This is managed by a theme-switcher UI element.
-
-**Drawbacks:**
--   **Flash of Unstyled Content (FOUC):** Swapping files can cause a noticeable delay or "flash" as the new stylesheet is loaded.
--   **Code Duplication:** `screen-light.css` contains many overrides, leading to duplicated selectors and making maintenance difficult. To change a style, a developer might need to edit it in two places.
--   **Complex Logic:** The JavaScript and Flask backend logic for managing two versioned files is more complex than necessary.
+-   **Consolidated Stylesheets:** Merged `screen-dark.css` and `screen-light.css` into a single `app/static/css/main.css`.
+-   **Defined CSS Palettes:** Created themeable color palettes using CSS variables for both dark (default) and light themes under a `[data-theme="light"]` selector.
+-   **Refactored CSS:** Replaced hardcoded color values throughout the stylesheet with the new CSS variables.
+-   **Updated JavaScript:** Modified the theme-switcher in `app/js-src/main.ts` to toggle the `data-theme` attribute on the `<html>` element, resulting in instant, FOUC-less theme changes.
+-   **Updated Templates:** Modified `app/templates/base.html` to link to the single new stylesheet.
+-   **Cleanup:** Deleted the old, redundant CSS files.
 
 ---
 
-## Proposed Solution: CSS Custom Properties
-
-The plan is to refactor the CSS to use a single file where themes are defined as palettes of CSS variables.
-
-### Step-by-Step Plan
-
-1.  **Consolidate Stylesheets:**
-    *   Merge all styles from `screen-light.css` into `screen-dark.css`.
-    *   Rename `screen-dark.css` to a more neutral name like `app/static/css/main.css`.
-
-2.  **Define CSS Color Palettes:**
-    *   In the new `main.css`, define the default (light) theme variables within the `:root` selector.
-    *   Define the dark theme overrides under a `[data-theme="dark"]` attribute selector.
-
-    ```css
-    /* Default (light) theme */
-    :root {
-      --main-bg: #e9e9e9;
-      --text-color: #000000;
-      --link-color: #377ba8;
-      --accent-bg: #F5F7FF;
-      --border: #D8DAE1;
-      /* ... and all other color variables ... */
-    }
-
-    /* Dark theme overrides */
-    [data-theme="dark"] {
-      --main-bg: #000;
-      --text-color: #bfbfbf;
-      --link-color: #9fc6e0;
-      --accent-bg: #2B2B2B;
-      --border: #666;
-      /* ... and all other color variables ... */
-    }
-    ```
-
-3.  **Refactor CSS to Use Variables:**
-    *   Go through the consolidated `main.css` and replace all hardcoded color values with their corresponding `var(--variable-name)`.
-
-    ```css
-    /* Example Usage */
-    body {
-      background-color: var(--main-bg);
-      color: var(--text-color);
-    }
-
-    a {
-      color: var(--link-color);
-    }
-    ```
-
-4.  **Update JavaScript Theme Switcher:**
-    *   Modify the theme-switching logic in `app/js-src/main.ts`.
-    *   Instead of changing the stylesheet `href`, the new code will toggle the `data-theme="dark"` attribute on the `<html>` or `<body>` element.
-    *   The user's preference ('light' or 'dark') will still be saved in `localStorage`.
-
-5.  **Update Backend and Templates:**
-    *   Modify `app/templates/base.html` to link to the single, new stylesheet (`main.css`).
-    *   Update the context processor in `app/__init__.py` to only provide a single CSS version, or simplify it as needed for the single file.
-
----
-
-## Benefits of This Approach
+## Benefits Achieved
 
 1.  **Instant Theme Switching:** No network request is needed, so theme changes are immediate and seamless.
 2.  **Simplified Maintenance:** All styles and color palettes are in one file, eliminating duplicated code and making updates much easier.
-3.  **Cleaner Code:** The JavaScript becomes much simpler, and the backend logic for versioning is streamlined.
-4.  **Future-Proof:** This is the modern, standard way to handle theming and opens the door for more complex themes in the future (e.g., high-contrast, different colors).
+3.  **Cleaner Code:** The JavaScript is simpler, and the backend logic for versioning is streamlined.
+4.  **Future-Proof:** This is the modern, standard way to handle theming.
 
 ---
 
@@ -394,7 +322,7 @@ app/
 ### Recommendations for New Contributors
 1. Start with the Node refactoring task (well-documented)
 2. Use `./run-dev.sh` for development, or `./run-dev.sh Local` for example if you want to run `tar.agor.ai` in particular :)
-3. Check `app/config.py` for feature flags before implementing ideally
+3. Check `app/config.py` for feature flags before implementing ideally. **Note**: The production Agora `anagora.org` currently runs using the `AlphaConfig`, not `ProductionConfig`.
 4. Try to understand how the node is assembled and all else should follow :) Have fun!
 
 ### Critical Files to Understand
@@ -571,3 +499,45 @@ app/
 - **Embeddability Check**:
     - Created a new API endpoint (`/api/check_embeddable`) that checks if a URL can be embedded in an iframe.
     - The frontend now calls this endpoint before attempting to embed content, showing a user-friendly message if embedding is blocked.
+
+---
+# Session Summary (Gemini, 2025-08-28)
+
+*This section documents a collaborative development session that focused on enabling and refining the new SQLite and CSS theming features, culminating in a successful production deployment.*
+
+## Key Learnings & Codebase Insights
+
+-   **Production Environment**: A key operational detail was clarified: the production Agora `anagora.org` runs using the `AlphaConfig` from `app/config.py`, not the `ProductionConfig`. This is critical information for any future deployments.
+-   **SQLite Concurrency**: The use of `PRAGMA journal_mode=WAL;` in `app/storage/sqlite_engine.py` was confirmed to be the correct approach for handling concurrent read/write access from multiple `uwsgi` workers in production. This makes the SQLite backend safe for this deployment model.
+-   **Iterative Debugging**: A significant portion of the session was dedicated to a tight loop of implementing features, identifying UI/UX bugs, and fixing them. This included:
+    -   Fixing a recurring "flickering scrollbar" issue on spinner animations by applying `overflow-x: hidden` to the parent containers.
+    -   Refining the layout of the "context" section to be a more usable side-by-side view.
+    -   Debugging a theme-related JavaScript crash in the graph rendering logic caused by `undefined` color values, and making the code more robust.
+-   **Code Readability**: A "teachable moment" occurred when a large, obfuscated third-party utility function (`pSBC`) was introduced for color manipulation. It was subsequently replaced with a smaller, clearer, and well-documented internal function (`darkenColor`), prioritizing long-term maintainability over a "clever" but opaque solution.
+
+## Summary of Changes Implemented
+
+1.  **SQLite AI Generation Caching**:
+    -   Successfully enabled the SQLite backend for caching AI provider (Mistral, Gemini) responses.
+    -   Added a `SQLITE_CACHE_TTL` configuration dictionary to `app/config.py` to control cache duration on a per-type basis.
+    -   Extended the database schema with an `ai_generations` table.
+    -   Refactored the AI provider logic into `app/providers.py`, unified under a caching decorator.
+
+2.  **Major CSS and Theming Refactor**:
+    -   **Completed** the unification of `screen-dark.css` and `screen-light.css` into a single `main.css`.
+    -   Implemented a modern, flicker-free theming system using CSS Custom Properties (variables) and a `data-theme` attribute on the `<html>` tag.
+    -   Refactored all relevant templates and JavaScript to support the new system.
+
+3.  **Theme-Aware Graph Visualization**:
+    -   The force-directed graph in the "context" section was refactored to be fully theme-aware.
+    -   It now dynamically adjusts its colors (background, links, node labels) when the user toggles the theme, without requiring a page reload.
+    -   Node label colors are now preserved and automatically darkened on the light theme to ensure readability.
+
+4.  **Critical Backlink Bug Fix**:
+    -   Diagnosed and fixed a critical issue where the on-demand SQLite indexing was failing to show all backlinks for a node.
+    -   To ensure data correctness, the optimized SQLite query for backlinks was temporarily disabled in `app/graph.py`, reverting to the slower but reliable file-based method. A `TODO` was left to implement a full indexing strategy in the future.
+
+5.  **UI/UX Polish**:
+    -   Adjusted the spacing in the main navbar for better readability.
+    -   Fine-tuned the dark mode colors for buttons and info boxes for better aesthetics and contrast, achieving a "flan-like" look.
+    -   Fixed numerous layout and visibility bugs related to the new theming and graph rendering.
