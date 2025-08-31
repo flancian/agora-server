@@ -57,6 +57,23 @@ The foundational work is complete, and the system is stable. The following tasks
 
 ---
 
+# ✅ Completed: Caching and UI Polish (August 2025)
+
+This session focused on implementing a robust caching layer for expensive, high-traffic queries and polishing several key UI/UX elements for better consistency and correctness.
+
+-   **High-Performance Caching Layer:**
+    -   Implemented a new caching layer in `app/storage/api.py` for the `latest()` and `top()` functions, dramatically speeding up the `/latest` and `/nodes` pages.
+    -   Refined the caching strategy to store lightweight object data (dictionaries) instead of just URIs. This fixed a major performance bottleneck where cache hits were still slow due to N+1 file I/O operations during object reconstruction.
+    -   Resolved a `TypeError` from stale cache formats by versioning the cache keys (e.g., `latest_v2`), ensuring a clean and robust transition.
+    -   Fixed an `AttributeError` in the full graph visualization by intelligently bypassing the lightweight cache for that specific endpoint, ensuring the visualization code receives the full `Node` objects it requires while the main `/nodes` page remains fast.
+
+-   **UI/UX Enhancements:**
+    -   **Theme-Aware Graphs:** Fixed a regression where both the per-node graph and the full Agora graph on the `/nodes` page would not update their colors after a theme change. The theme-toggle event listener now correctly re-renders any visible graphs.
+    -   **Consistent Tab Styling:** Unified the CSS for the graph size tabs on the `/nodes` page to match the standard tabbed interface used for Web, AI, and Wikimedia sections, improving UI consistency.
+    -   **Improved `/latest` View:** Added the modification date as a wikilink to each entry on the `/latest` page, making it more informative and better integrated.
+
+---
+
 # ✅ Completed: UI/UX Refinements (August 2025)
 
 -   **"Browse As" Feature**: Completed the "browse as" feature in the settings overlay. The user's preference is saved to `localStorage` and used to dynamically update the `src` of the edit iframe in `edit.html`, pointing it to the correct user's editing environment.

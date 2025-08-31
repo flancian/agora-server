@@ -931,7 +931,7 @@ body.overlay-open {
     border-radius: 3px;
 }
 
-.ai-provider-tab.active, .wiki-provider-tab.active, .web-provider-tab.active {
+.ai-provider-tab.active, .wiki-provider-tab.active, .web-provider-tab.active, .graph-size-tab.active {
     font-weight: bold;
     background-color: var(--tab-active-bg);
     text-decoration: none;
