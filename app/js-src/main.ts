@@ -1087,28 +1087,37 @@ document.addEventListener("DOMContentLoaded", async function () {
     const fullGraphDetails = document.getElementById('full-graph-details');
     if (fullGraphDetails) {
         const tabs = fullGraphDetails.querySelectorAll(".graph-size-tab");
+        let graphInstance;
+        let labelsVisible = true;
+
+        const loadGraph = (size) => {
+            renderGraph('full-graph', `/graph/json/top/${size}`);
+        };
 
         fullGraphDetails.addEventListener('toggle', () => {
             if ((fullGraphDetails as HTMLDetailsElement).open) {
-                // Load the default tab content when first opened
                 const activeTab = fullGraphDetails.querySelector(".graph-size-tab.active");
                 if (activeTab) {
                     const size = activeTab.getAttribute('data-size');
-                    renderGraph('full-graph', `/graph/json/top/${size}`);
+                    loadGraph(size);
                 }
             }
-        }, { once: true });
+        });
 
         tabs.forEach(tab => {
             tab.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
 
+                if (!(fullGraphDetails as HTMLDetailsElement).open) {
+                    (fullGraphDetails as HTMLDetailsElement).open = true;
+                }
+
                 tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 
                 const size = tab.getAttribute('data-size');
-                renderGraph('full-graph', `/graph/json/top/${size}`);
+                loadGraph(size);
             });
         });
 
@@ -1118,13 +1127,132 @@ document.addEventListener("DOMContentLoaded", async function () {
             const activeTab = fullGraphDetails.querySelector(".graph-size-tab.active");
             if (activeTab) {
                 const size = activeTab.getAttribute('data-size');
-                renderGraph('full-graph', `/graph/json/top/${size}`);
+                loadGraph(size);
             }
         });
     }
   }
   // end bindEvents();
 
+  function setOverlayPosition() {
+    const nav = document.querySelector('nav');
+    const overlay = document.querySelector('.overlay');
+    if (nav && overlay) {
+      const navHeight = nav.offsetHeight;
+      (overlay as HTMLElement).style.top = navHeight + 'px';
+      (overlay as HTMLElement).style.height = `calc(100% - ${navHeight}px)`;
+    }
+  }
+
+  window.addEventListener('load', setOverlayPosition);
+  window.addEventListener('resize', setOverlayPosition);
+
+  const webContainer = document.querySelector('details.web');
+  if (webContainer) {
+      const tabs = webContainer.querySelectorAll('.web-provider-tab');
+
+      const loadContent = (provider, embedDiv) => {
+          if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
+          
+          const tabElement = webContainer.querySelector(`.web-provider-tab[data-provider="${provider}"]`);
+          const url = (tabElement as HTMLElement).dataset.url;
+          const externalLink = (tabElement.nextElementSibling as HTMLAnchorElement).href;
+
+          // Show a spinner while we check for embeddability
+          embedDiv.innerHTML = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Checking embeddability...</em></p></center><br />`;
+
+          fetch(`/api/check_embeddable?url=${encodeURIComponent(url)}`)
+              .then(response => response.json())
+              .then(data => {
+                  if (data.embeddable) {
+                      embedDiv.innerHTML = `<iframe src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
+                  } else {
+                      embedDiv.innerHTML = `
+                          <div class="subnode node">
+                              This provider has disabled embedding for security reasons, often to prevent an attack called 'clickjacking' where a malicious site might try to trick you into clicking something on the embedded page.
+                              <br/><br/>
+                              You can <a href="${externalLink}" target="_blank">open the search results in a new tab</a> instead.
+                          </div>
+                      `;
+                  }
+              });
+      };
+
+      webContainer.addEventListener("toggle", (event) => {
+          if ((webContainer as HTMLDetailsElement).open) {
+              const activeTab = webContainer.querySelector(".web-provider-tab.active");
+              if (activeTab) {
+                  const provider = activeTab.getAttribute('data-provider');
+                  const embed = webContainer.querySelector(`.web-embed[data-provider="${provider}"]`);
+                  loadContent(provider, embed);
+              }
+          }
+      });
+
+      tabs.forEach(tab => {
+          tab.addEventListener("click", (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+
+              if (!(webContainer as HTMLDetailsElement).open) {
+                  (webContainer as HTMLDetailsElement).open = true;
+              }
+
+              tabs.forEach(t => t.classList.remove('active'));
+              tab.classList.add('active');
+
+              const provider = tab.getAttribute('data-provider');
+              const embeds = webContainer.querySelectorAll(".web-embed");
+              embeds.forEach((embed) => {
+                  if ((embed as HTMLElement).dataset.provider === provider) {
+                      (embed as HTMLElement).style.display = 'block';
+                      loadContent(provider, embed);
+                  } else {
+                      (embed as HTMLElement).style.display = 'none';
+                  }
+              });
+          });
+      });
+  }
+
+  const wpWtContainer = document.getElementById('wp-wt-container');
+  if (wpWtContainer) {
+    fetch('/exec/wp/' + NODENAME)
+        .then(response => response.text())
+        .then(html => {
+            if (html.trim()) {
+                const container = document.getElementById('wp-wt-container');
+                container.innerHTML = html;
+
+                if (localStorage.getItem('auto-pull-wikipedia') === 'true') {
+                    (container.querySelector('.wiki') as HTMLDetailsElement).setAttribute('open', '');
+                }
+
+                container.querySelectorAll('.wiki-provider-tab').forEach(tab => {
+                    tab.addEventListener('click', e => {
+                        e.preventDefault();
+                        
+                        // Open the details section if it's closed
+                        const details = container.querySelector('.wiki');
+                        if (!details.hasAttribute('open')) {
+                            details.setAttribute('open', '');
+                        }
+
+                        const provider = (e.target as HTMLElement).dataset.provider;
+                        container.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
+                        (e.target as HTMLElement).classList.add('active');
+                        container.querySelectorAll('.wiki-embed').forEach(embed => {
+                            if ((embed as HTMLElement).dataset.provider === provider) {
+                                (embed as HTMLElement).style.display = 'block';
+                            } else {
+                                (embed as HTMLElement).style.display = 'none';
+                            }
+                        });
+                    });
+                });
+            }
+        });
+  }
   
 	async function renderGraph(containerId: string, dataUrl: string) {
       const container = document.getElementById(containerId);

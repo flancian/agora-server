@@ -196,6 +196,8 @@ li {
     padding-bottom: 2em;
     background-color: var(--agora-protocol-bg);
     position: relative;
+    min-height: 2.5em;
+    min-width: 10em;
 }
 
 .subnode-content > ul::after {
@@ -291,6 +293,11 @@ details[open] > :not(summary) {
 
 .logo {
     filter: var(--logo-filter);
+}
+
+.spinner-container {
+    overflow: hidden;
+    text-align: center;
 }
 
 .spinner {
@@ -1053,4 +1060,50 @@ body.overlay-open {
     display: block;
     margin: auto;
     background-color: #f0f0f0;
+}
+
+/* Utility classes for inline styles */
+.display-block {
+    display: block;
+}
+
+.display-none {
+    display: none;
+}
+
+.overflow-x-hidden {
+    overflow-x: hidden;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.w-30 {
+    width: 30%;
+}
+
+.max-w-99 {
+    max-width: 99.5%;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.flex-grow {
+    flex: auto;
+    flex-grow: 1;
+}
+
+.no-border {
+    border-style: none;
+}
+
+.no-text-decoration {
+    text-decoration: none;
+}
+
+.all-unset {
+    all: unset;
 }

@@ -19,7 +19,7 @@
 
         {% if subnode %}
             <summary class="node-header main-header">
-                <span style="flex: auto; flex-grow: 1;">
+                <span class="flex-grow">
                   <strong><!--📕-->{{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>  
                     ⟶
                     subnode <a href="/{{node.qstr}}">{{node.qstr}}</a></span>
@@ -131,8 +131,10 @@
 
             <center>
                 <p>
+                <div class="spinner-container">
                 <div class="spinner">
                     <img src="/static/img/agora.png" class="logo"></img>
+                </div>
                 </div>
                 </p>
                 <p><em>Loading pushes...</em></p>
@@ -145,8 +147,10 @@
 
     <center>
         <p>
+        <div class="spinner-container">
         <div class="spinner2">
             <img src="/static/img/agora.png" class="logo"></img>
+        </div>
         </div>
         </p>
         <p><em>Rendering context...</em></p>
@@ -156,68 +160,3 @@
 
 
 </details> <!-- closes node div-->
-
-<script>
-    // This is not currently used actively and it throws exceptions, so disabling.
-    /*
-	function getAuthors(){
-		const authors = $.map($(".subnode"), function(subnode){
-			console.log(subnode)
-			return $(subnode).data("author")
-		})
-
-		return authors
-	}
-
-	function saveAuthors(){
-		const authors = getAuthors()
-		const stringed = JSON.stringify(authors)
-		localStorage[`authors-${NODENAME}`] = stringed
-	}
-
-	function loadAuthors(){
-		const authors = localStorage[`authors-${NODENAME}`]
-		if (typeof authors == 'undefined'){
-			return
-		}
-		const parsed = JSON.parse(authors)
-		return parsed
-	}
-
-	function sort(){
-		let authors = loadAuthors()
-		let first = authors.shift()
-		const main = element(first)
-		console.log(main)
-		for(const author of authors){
-			const ele = element(author)
-			console.log(ele)
-			ele.insertAfter(main)
-			first = ele;
-		}
-	}
-
-	function element(author){
-		return $(`div[data-author='${author}']`);
-	}
-
-	function downvote(n){
-		const sn = $(`#subnode-${n}`)
-		const next = sn.next()
-		sn.insertAfter(next)
-		saveAuthors()
-	}
-
-	function upvote(n){
-		const sn = $(`#subnode-${n}`)
-		const prev = sn.prev()
-		sn.insertBefore(prev)
-		saveAuthors()
-	}
-
-
-	$(function(){
-		sort();
-	})
-    */
-</script>

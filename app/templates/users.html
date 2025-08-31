@@ -16,8 +16,10 @@
 
 {% extends "base.html" %}
 {% block content %}
-<div class="listing">
-<h1>🧑‍🤝‍🧑 Users </h1>
+<details class="listing node" open>
+<summary>
+<span class="node-header main-header">🧑‍🤝‍🧑 <strong>Users</strong> in the <strong>{{config['AGORA_NAME']}}</strong></span>
+</summary>
 
 {% if stats %}
 <p>
@@ -25,13 +27,17 @@ This Agora is made possible by the following <strong>{{stats['users']}} users</s
 </p>
 {% endif %}
 
+<div class="subnode">
 {% for user in users %}
 <a href="{{user.url}}">{{user.uri}}</a> ({{user.size()}}) <br />
 {% endfor %}
-</div>
 
 <p>
 Users with '@' come from <a href="/agora+bot">social media</a> or known <a href="/stoas">stoas</a>.
 </p>
+</div>
 
+</details>
+
+{% include "footer.html" %}
 {% endblock %}

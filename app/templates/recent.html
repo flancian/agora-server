@@ -17,8 +17,12 @@
 {% extends "base.html" %}
 {% block content %}
 
+<details class="listing node" open>
+<summary>
+<span class="node-header main-header">✨ <strong>Recent changes</strong></span>
+</summary>
 
-<div class="delta node">
+<div class="delta node subnode">
     <div class="delta-nodes">
         <span class="backlinks-header">Recently edited nodes</span><br />
         {% for subnode in subnodes %}
@@ -44,5 +48,7 @@
     </div>
 
 </div>
+</details>
 
+{% include "footer.html" %}
 {% endblock %}

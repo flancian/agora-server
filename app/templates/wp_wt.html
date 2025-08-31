@@ -16,20 +16,20 @@
     <div class="subnode">
         {% if wp_data %}
         <div class="wiki-embed" data-provider="wp" style="display: block;">
-            <div class="info-box with-spacing" style="margin-bottom: 10px;" info-box-id="wp">
+            <div class="info-box with-spacing mb-10" info-box-id="wp">
                 <span class="genai-header"><em>This is the top ranked article in English-language <strong>Wikipedia</strong> for your search. Click above to see other options.</em></span>
                 <span id="dismiss-wp" info-box-id="wp" class="dismiss-button">x</span>
             </div>
-            <iframe id="exec-wp" src="{{ wp_data.canonicalurl }}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>
+            <iframe id="exec-wp" src="{{ wp_data.canonicalurl }}" class="max-w-99" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>
         </div>
         {% endif %}
         {% if wt_data %}
         <div class="wiki-embed" data-provider="wt" style="display: {% if wp_data %}none{% else %}block{% endif %};">
-            <div class="info-box with-spacing" style="margin-bottom: 10px;" info-box-id="wt">
+            <div class="info-box with-spacing mb-10" info-box-id="wt">
                 <span class="genai-header"><em>This is the top ranked entry in English-language <strong>Wiktionary</strong> for your search. Click above to see other options.</em></span>
                 <span id="dismiss-wt" info-box-id="wt" class="dismiss-button">x</span>
             </div>
-            <iframe id="exec-wt" src="{{ wt_data.canonicalurl }}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>
+            <iframe id="exec-wt" src="{{ wt_data.canonicalurl }}" class="max-w-99" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>
         </div>
         {% endif %}
     </div>

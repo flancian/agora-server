@@ -177,20 +177,6 @@
     </div>
 	
     <!-- class="content" -->
-    <script>
-      function setOverlayPosition() {
-        const nav = document.querySelector('nav');
-        const overlay = document.querySelector('.overlay');
-        if (nav && overlay) {
-          const navHeight = nav.offsetHeight;
-          overlay.style.top = navHeight + 'px';
-          overlay.style.height = `calc(100% - ${navHeight}px)`;
-        }
-      }
-
-      window.addEventListener('load', setOverlayPosition);
-      window.addEventListener('resize', setOverlayPosition);
-    </script>
 </body>
 
 </html>
