@@ -807,11 +807,17 @@ def journals(entries):
             # we only support numbers and all (handled above), other suffixes must be a broken link from /all or /30 or such...
             # long story, this is a hack working around a bug for now.
             return redirect(url_for(".root", node=entries))
+
+    journal_nodes = api.all_journals()[0:entries]
+    subnodes_by_date = collections.defaultdict(list)
+    for node in journal_nodes:
+        subnodes_by_date[node.uri].extend(node.subnodes)
+
     return render_template(
         "journals.html",
         node=n,
         header=f"Journal entries in the last {entries} days",
-        nodes=api.all_journals()[0:entries],
+        subnodes_by_date=subnodes_by_date,
     )
 
 

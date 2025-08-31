@@ -17,39 +17,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<details class="listing node" open>
-<summary>
-<span class="node-header main-header">📜 <strong>Journal entries</strong></span>
-</summary>
-
-<div class="subnode">
-<a href="/journals/7">last week</a> | <a href="/journals/30">last month</a> | <a href="/journals/365">last year</a> | <a href="/journals/all">all time</a>
-
-{% for node in nodes %}
 <div class="node">
-     <div class="node-header main-header">
-        <span>📅 <strong>Date</strong> <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
-     </div>
-     
-         {% for subnode in node.subnodes %}
+    <div class="separator">
+        <h1 class="node-header">
+            <span class="wikilink-marker">[[</span><a href="/{{node}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
+        </h1>
+    </div>
 
-         <div class="subnode" data-author="{{subnode.user}}">
-             <div class="subnode-header">
-                 <span class="subnode-id"><a
-                       href="/@{{subnode.user}}/{{node.uri}}">📓</a>
-                     <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                                                    href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></span></a></span>
-             </div>
-             <span class="subnode-content">{{ subnode.render()|safe }}</span>
-         </div>
+    <div class="intro">
+        {{header}}.
+    </div>
 
-         {% endfor %}
+    {% for date, subnodes in subnodes_by_date.items() %}
+        <h2>{{ date }}</h2>
+        {% for subnode in subnodes %}
+            {% include "subnode.html" %}
+        {% endfor %}
+    {% endfor %}
 
-     </div>
-{% endfor %}
 </div>
-</details>
-
-{% include "footer.html" %}
 {% endblock %}
