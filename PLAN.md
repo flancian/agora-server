@@ -48,6 +48,17 @@ The foundational work is complete, and the system is stable. The following tasks
 
 ---
 
+# ✅ Completed: UI/UX Refinements (August 2025)
+
+-   **"Browse As" Feature**: Completed the "browse as" feature in the settings overlay. The user's preference is saved to `localStorage` and used to dynamically update the `src` of the edit iframe in `edit.html`, pointing it to the correct user's editing environment.
+-   **Graph Visualization Z-Index Fix**: Corrected a CSS stacking issue where the "Toggle Labels" button on graphs would render on top of the settings overlay and the main navigation bar. Removed the unnecessary `z-index` from the button's style in `main.css`.
+-   **Journals View Refactoring**: Overhauled the `/journals` page to improve usability and visual consistency.
+    -   **Consistent Rendering**: Modified the `journals.html` template to use the standard `subnode.html` partial, ensuring journal entries look identical to subnodes in the main node view.
+    -   **Grouping by Date**: Updated the `journals` view function in `app/agora.py` to group entries by date, and updated the template to render these groups under clear date headings.
+    -   **Bug Fix**: Resolved an `AttributeError` by correcting the data structure passed from the view to the template.
+
+---
+
 # ✅ Completed: Unify CSS Stylesheets and Implement Theming
 
 **Status: COMPLETED (August 2025)**
