@@ -75,23 +75,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
 
   // set values from storage
-  (document.getElementById("ranking") as HTMLInputElement).value = localStorage["ranking"] || '';
+  (document.getElementById("user") as HTMLInputElement).value = localStorage["user"] || 'flancian';
   (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], false);
   (document.getElementById("auto-pull-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-wikipedia"], false);
-  (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
   (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], false);
   (document.getElementById("show-hypothesis") as HTMLInputElement).checked = safeJsonParse(localStorage["show-hypothesis"], false);
   (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], false);
-
-  // Function to apply the wikilink rendering style
-  const applyWikilinkStyle = () => {
-    const shouldRender = (document.getElementById("render-wikilinks") as HTMLInputElement).checked;
-    if (shouldRender) {
-      document.body.classList.remove('no-wikilinks');
-    } else {
-      document.body.classList.add('no-wikilinks');
-    }
-  };
 
   // Function to apply the bracket visibility style
   const applyBracketVisibility = () => {
@@ -103,7 +92,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   };
 
   // Apply styles on initial load
-  applyWikilinkStyle();
   applyBracketVisibility();
 
   // Toggle Hypothesis visibility on initial load
@@ -124,10 +112,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
   // Add event listeners to checkboxes to apply style on change
-  const renderWikilinksCheckbox = document.getElementById("render-wikilinks");
-  if (renderWikilinksCheckbox) {
-    renderWikilinksCheckbox.addEventListener('change', applyWikilinkStyle);
-  }
   const showBracketsCheckbox = document.getElementById("show-brackets");
   if (showBracketsCheckbox) {
     showBracketsCheckbox.addEventListener('change', applyBracketVisibility);
@@ -142,9 +126,14 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   // Auto-save settings on change
-  document.getElementById("ranking")?.addEventListener('change', (e) => {
-    localStorage["ranking"] = (e.target as HTMLInputElement).value;
+  document.getElementById("user")?.addEventListener('change', (e) => {
+    localStorage["user"] = (e.target as HTMLInputElement).value;
   });
+
+  document.getElementById("apply-user")?.addEventListener('click', () => {
+    location.reload();
+  });
+
   document.getElementById("auto-pull-search")?.addEventListener('change', (e) => {
     localStorage["auto-pull-search"] = (e.target as HTMLInputElement).checked;
     location.reload();
@@ -152,9 +141,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("auto-pull-wikipedia")?.addEventListener('change', (e) => {
     localStorage["auto-pull-wikipedia"] = (e.target as HTMLInputElement).checked;
     location.reload();
-  });
-  document.getElementById("render-wikilinks")?.addEventListener('change', (e) => {
-    localStorage["render-wikilinks"] = (e.target as HTMLInputElement).checked;
   });
   document.getElementById("show-brackets")?.addEventListener('change', (e) => {
     localStorage["showBrackets"] = (e.target as HTMLInputElement).checked;
@@ -614,14 +600,19 @@ document.addEventListener("DOMContentLoaded", async function () {
       item.addEventListener("toggle", async (event) => {
         if (item.open) {
           console.log("Details have been shown");
-          embed = item.querySelector(".stoa-iframe");
+          let embed = item.querySelector(".stoa-iframe");
           if (embed) {
             let url = embed.getAttribute('src');
+            if (embed.id === 'edit-iframe') {
+                const user = localStorage.getItem('user') || 'flancian';
+                const nodeUri = url.split('/').pop();
+                url = `https://edit.anagora.org/@${user}/${nodeUri}`;
+            }
             embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 100%;" height="700px"></iframe>';
           }
         } else {
           console.log("Details have been hidden");
-          embed = item.querySelector(".stoa-iframe");
+          let embed = item.querySelector(".stoa-iframe");
           if (embed) {
             console.log("Embed found, here we would fold.");
             embed.innerHTML = '';
@@ -776,6 +767,82 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function bindEvents() {
 
+    const user = localStorage.getItem('user') || 'flancian';
+
+    // Debounce function to limit how often a function can run.
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Function to sort subnodes, bringing the current user's to the top.
+    const sortSubnodes = () => {
+        const subnodesContainer = document.querySelector('.node[open]');
+        if (!subnodesContainer) return;
+
+        // Select only the direct contribution subnodes, not other elements with the .subnode class.
+        const subnodes = Array.from(subnodesContainer.querySelectorAll('details.subnode[data-author]'));
+        if (subnodes.length < 2) return; // No need to sort if there's 0 or 1 subnode.
+
+        const userSubnodes = subnodes.filter(subnode => (subnode as HTMLElement).dataset.author === user);
+        
+        if (userSubnodes.length === 0) return; // No subnodes for this user.
+
+        // The insertion point is the first subnode in the list.
+        const firstSubnode = subnodes[0];
+
+        // Move the user's subnodes to be before the first subnode.
+        // Iterate in reverse to maintain their original relative order.
+        userSubnodes.reverse().forEach(subnode => {
+            firstSubnode.parentNode.insertBefore(subnode, firstSubnode);
+        });
+    };
+
+    // We create the observer here so we can disconnect/reconnect it inside the debounced function.
+    const observer = new MutationObserver((mutations) => {
+        for (let mutation of mutations) {
+            if (mutation.type === 'childList') {
+                debouncedSort();
+            }
+        }
+    });
+
+    const debouncedSort = debounce(() => {
+        // Disconnect the observer right before we make DOM changes.
+        observer.disconnect();
+        // Run the sorting function.
+        sortSubnodes();
+        // Reconnect the observer after we're done.
+        const subnodesContainer = document.querySelector('.node[open]');
+        if (subnodesContainer) {
+            observer.observe(subnodesContainer, { childList: true, subtree: true });
+        }
+    }, 150); // A slightly longer debounce window might feel smoother.
+
+
+    // Update the edit iframe src
+    const editIframeContainer = document.querySelector('.stoa-iframe');
+    if (editIframeContainer) {
+        const nodeUri = editIframeContainer.getAttribute('src').split('/').pop();
+        editIframeContainer.setAttribute('src', `https://edit.anora.org/@${user}/${nodeUri}`);
+    }
+
+    // Initial sort after async content is loaded
+    sortSubnodes();
+
+    // Start observing after the initial sort.
+    const subnodesContainer = document.querySelector('.node[open]');
+    if (subnodesContainer) {
+        observer.observe(subnodesContainer, { childList: true, subtree: true });
+    }
+
     // Check local storage to see if the info boxes should be hidden
     const dismissButtons = document.querySelectorAll(".dismiss-button");
     dismissButtons.forEach(button => {
@@ -859,12 +926,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.log('auto pulled context');
       
       // Finally!
-      renderGraph();
+      renderGraph('graph', '/graph/json/' + node);
 
       document.getElementById('graph-toggle-labels')?.addEventListener('click', () => {
           const currentSetting = safeJsonParse(localStorage.getItem('graph-show-labels'), true);
           localStorage.setItem('graph-show-labels', JSON.stringify(!currentSetting));
-          renderGraph();
+          renderGraph('graph', '/graph/json/' + node);
       });
 
       console.log("graph loaded.")
@@ -1083,93 +1150,275 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     });
 
+    // For the full graph in /nodes
+    const fullGraphDetails = document.getElementById('full-graph-details');
+    if (fullGraphDetails) {
+        const tabs = fullGraphDetails.querySelectorAll(".graph-size-tab");
+        let graphInstance;
+        let labelsVisible = true;
+
+        const loadGraph = (size) => {
+            renderGraph('full-graph', `/graph/json/top/${size}`);
+        };
+
+        fullGraphDetails.addEventListener('toggle', () => {
+            if ((fullGraphDetails as HTMLDetailsElement).open) {
+                const activeTab = fullGraphDetails.querySelector(".graph-size-tab.active");
+                if (activeTab) {
+                    const size = activeTab.getAttribute('data-size');
+                    loadGraph(size);
+                }
+            }
+        });
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!(fullGraphDetails as HTMLDetailsElement).open) {
+                    (fullGraphDetails as HTMLDetailsElement).open = true;
+                }
+
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const size = tab.getAttribute('data-size');
+                loadGraph(size);
+            });
+        });
+
+        document.getElementById('full-graph-toggle-labels')?.addEventListener('click', () => {
+            const currentSetting = safeJsonParse(localStorage.getItem('graph-show-labels-full'), false);
+            localStorage.setItem('graph-show-labels-full', JSON.stringify(!currentSetting));
+            const activeTab = fullGraphDetails.querySelector(".graph-size-tab.active");
+            if (activeTab) {
+                const size = activeTab.getAttribute('data-size');
+                loadGraph(size);
+            }
+        });
+    }
   }
   // end bindEvents();
 
-  async function renderGraph() {
-    const container = document.getElementById('graph');
-    if (!container) return;
-
-    // Clear previous graph if any
-    container.innerHTML = '';
-
-    const darkPalette = {
-        bg: 'rgba(0, 0, 0, 0)', // Transparent background
-        edge: 'rgba(150, 150, 150, 1)',
-        text: '#bfbfbf',
-        nodeBg: 'rgba(50, 50, 50, 1)'
-    };
-
-    const lightPalette = {
-        bg: 'rgba(0, 0, 0, 0)', // Transparent background
-        edge: 'rgba(50, 50, 50, 1)',
-        text: '#000000',
-        nodeBg: '#f0f0f0'
-    };
-
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    const palette = currentTheme === 'dark' ? darkPalette : lightPalette;
-    const showLabels = safeJsonParse(localStorage.getItem('graph-show-labels'), true);
-
-    console.log("loading graph...")
-    fetch("/graph/json/" + NODENAME)
-    .then(res => res.json())
-    .then(data => {
-        const Graph = ForceGraph()(container);
-
-        Graph.height(container.clientHeight)
-            .width(container.clientWidth)
-            .backgroundColor(palette.bg)
-            .onNodeClick(node => {
-                let url = (node as any).id;
-                location.assign(url)
-            })
-            .graphData(data)
-            .nodeId('id')
-            .nodeVal('val')
-            .nodeAutoColorBy('group');
-
-        if (showLabels) {
-            Graph.nodeCanvasObject((node, ctx, globalScale) => {
-                const label = (node as any).name;
-                const fontSize = 12 / globalScale;
-                ctx.font = `${fontSize}px Sans-Serif`;
-                const textWidth = ctx.measureText(label).width;
-                const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
-
-                ctx.fillStyle = palette.nodeBg;
-                ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
-
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                // Theme-aware node colors.
-                let color = (node as any).color;
-                if (currentTheme === 'light') {
-                    // simple heuristic to darken colors for light theme.
-                    color = darkenColor(color, 40);
-                }
-                ctx.fillStyle = color;
-                ctx.fillText(label, (node as any).x, (node as any).y);
-
-                (node as any).__bckgDimensions = bckgDimensions;
-            })
-            .nodePointerAreaPaint((node, color, ctx) => {
-                ctx.fillStyle = color;
-                const bckgDimensions = (node as any).__bckgDimensions;
-                bckgDimensions && ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
-            });
-        }
-
-        Graph.linkDirectionalArrowLength(3)
-            .linkColor(() => palette.edge);
-
-        Graph.zoom(3);
-        Graph.cooldownTime(5000);
-        Graph.onEngineStop(() => Graph.zoomToFit(400));
-    })
-    .catch(error => console.error('Error fetching or rendering graph:', error));
+  function setOverlayPosition() {
+    const nav = document.querySelector('nav');
+    const overlay = document.querySelector('.overlay');
+    if (nav && overlay) {
+      const navHeight = nav.offsetHeight;
+      (overlay as HTMLElement).style.top = navHeight + 'px';
+      (overlay as HTMLElement).style.height = `calc(100% - ${navHeight}px)`;
+    }
   }
+
+  window.addEventListener('load', setOverlayPosition);
+  window.addEventListener('resize', setOverlayPosition);
+
+  const webContainer = document.querySelector('details.web');
+  if (webContainer) {
+      const tabs = webContainer.querySelectorAll('.web-provider-tab');
+
+      const loadContent = (provider, embedDiv) => {
+          if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
+          
+          const tabElement = webContainer.querySelector(`.web-provider-tab[data-provider="${provider}"]`);
+          const url = (tabElement as HTMLElement).dataset.url;
+          const externalLink = (tabElement.nextElementSibling as HTMLAnchorElement).href;
+
+          // Show a spinner while we check for embeddability
+          embedDiv.innerHTML = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Checking embeddability...</em></p></center><br />`;
+
+          fetch(`/api/check_embeddable?url=${encodeURIComponent(url)}`)
+              .then(response => response.json())
+              .then(data => {
+                  if (data.embeddable) {
+                      embedDiv.innerHTML = `<iframe src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
+                  } else {
+                      embedDiv.innerHTML = `
+                          <div class="subnode node">
+                              This provider has disabled embedding for security reasons, often to prevent an attack called 'clickjacking' where a malicious site might try to trick you into clicking something on the embedded page.
+                              <br/><br/>
+                              You can <a href="${externalLink}" target="_blank">open the search results in a new tab</a> instead.
+                          </div>
+                      `;
+                  }
+              });
+      };
+
+      webContainer.addEventListener("toggle", (event) => {
+          if ((webContainer as HTMLDetailsElement).open) {
+              const activeTab = webContainer.querySelector(".web-provider-tab.active");
+              if (activeTab) {
+                  const provider = activeTab.getAttribute('data-provider');
+                  const embed = webContainer.querySelector(`.web-embed[data-provider="${provider}"]`);
+                  loadContent(provider, embed);
+              }
+          }
+      });
+
+      tabs.forEach(tab => {
+          tab.addEventListener("click", (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+
+              if (!(webContainer as HTMLDetailsElement).open) {
+                  (webContainer as HTMLDetailsElement).open = true;
+              }
+
+              tabs.forEach(t => t.classList.remove('active'));
+              tab.classList.add('active');
+
+              const provider = tab.getAttribute('data-provider');
+              const embeds = webContainer.querySelectorAll(".web-embed");
+              embeds.forEach((embed) => {
+                  if ((embed as HTMLElement).dataset.provider === provider) {
+                      (embed as HTMLElement).style.display = 'block';
+                      loadContent(provider, embed);
+                  } else {
+                      (embed as HTMLElement).style.display = 'none';
+                  }
+              });
+          });
+      });
+  }
+
+  const wpWtContainer = document.getElementById('wp-wt-container');
+  if (wpWtContainer) {
+    fetch('/exec/wp/' + NODENAME)
+        .then(response => response.text())
+        .then(html => {
+            if (html.trim()) {
+                const container = document.getElementById('wp-wt-container');
+                container.innerHTML = html;
+
+                if (localStorage.getItem('auto-pull-wikipedia') === 'true') {
+                    (container.querySelector('.wiki') as HTMLDetailsElement).setAttribute('open', '');
+                }
+
+                container.querySelectorAll('.wiki-provider-tab').forEach(tab => {
+                    tab.addEventListener('click', e => {
+                        e.preventDefault();
+                        
+                        // Open the details section if it's closed
+                        const details = container.querySelector('.wiki');
+                        if (!details.hasAttribute('open')) {
+                            details.setAttribute('open', '');
+                        }
+
+                        const provider = (e.target as HTMLElement).dataset.provider;
+                        container.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
+                        (e.target as HTMLElement).classList.add('active');
+                        container.querySelectorAll('.wiki-embed').forEach(embed => {
+                            if ((embed as HTMLElement).dataset.provider === provider) {
+                                (embed as HTMLElement).style.display = 'block';
+                            } else {
+                                (embed as HTMLElement).style.display = 'none';
+                            }
+                        });
+                    });
+                });
+            }
+        });
+  }
+  
+	async function renderGraph(containerId: string, dataUrl: string) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+  
+      // Clear previous graph if any
+      container.innerHTML = '';
+  
+      const darkPalette = {
+          bg: 'rgba(0, 0, 0, 0)', // Transparent background
+          edge: 'rgba(150, 150, 150, 1)',
+          text: '#bfbfbf',
+          nodeBg: 'rgba(50, 50, 50, 1)'
+      };
+  
+      const lightPalette = {
+          bg: 'rgba(0, 0, 0, 0)', // Transparent background
+          edge: 'rgba(50, 50, 50, 1)',
+          text: '#000000',
+          nodeBg: '#f0f0f0'
+      };
+  
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const palette = currentTheme === 'dark' ? darkPalette : lightPalette;
+  
+      // Default to labels for per-node graph, no labels for full graph.
+      const defaultShowLabels = containerId === 'graph';
+      const storageKey = containerId === 'full-graph' ? 'graph-show-labels-full' : 'graph-show-labels';
+      const showLabels = safeJsonParse(localStorage.getItem(storageKey), defaultShowLabels);
+  
+      console.log("loading graph...")
+      fetch(dataUrl)
+      .then(res => res.json())
+      .then(data => {
+          setTimeout(() => {
+              const Graph = ForceGraph()(container);
+              const graphContainer = container.closest('.graph-container');
+  
+              // Give larger graphs more time to stabilize.
+              const cooldownTime = data.nodes.length > 200 ? 25000 : 5000;
+  
+              Graph.height((graphContainer as HTMLElement).getBoundingClientRect().height)
+                  .width(container.getBoundingClientRect().width)
+                  .backgroundColor(palette.bg)
+                  .onNodeClick(node => {
+                      let url = (node as any).id;
+                      location.assign(url)
+                  })
+                  .graphData(data)
+                  .nodeId('id')
+                  .nodeVal('val')
+                  .nodeAutoColorBy('group');
+  
+              if (showLabels) {
+                  Graph.nodeCanvasObject((node, ctx, globalScale) => {
+                      const label = (node as any).name;
+                      const fontSize = 12 / globalScale;
+                      ctx.font = `${fontSize}px Sans-Serif`;
+                      const textWidth = ctx.measureText(label).width;
+                      const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+  
+                      ctx.fillStyle = palette.nodeBg;
+                      ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
+  
+                      ctx.textAlign = 'center';
+                      ctx.textBaseline = 'middle';
+  
+                      // Theme-aware node colors.
+                      let color = (node as any).color;
+                      if (currentTheme === 'light') {
+                          // simple heuristic to darken colors for light theme.
+                          color = darkenColor(color, 40);
+                      }
+                      ctx.fillStyle = color;
+                      ctx.fillText(label, (node as any).x, (node as any).y);
+  
+                      (node as any).__bckgDimensions = bckgDimensions;
+                  })
+                  .nodePointerAreaPaint((node, color, ctx) => {
+                      ctx.fillStyle = color;
+                      const bckgDimensions = (node as any).__bckgDimensions;
+                      bckgDimensions && ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
+                  });
+              } else {
+                  // In no-label mode, make the nodes smaller.
+                  Graph.nodeRelSize(2);
+              }
+  
+              Graph.linkDirectionalArrowLength(3)
+                  .linkColor(() => palette.edge);
+  
+              Graph.zoom(3);
+              Graph.cooldownTime(cooldownTime);
+              Graph.onEngineStop(() => Graph.zoomToFit(100));
+          }, 0);
+      })
+      .catch(error => console.error('Error fetching or rendering graph:', error));
+    }
+
 
   // go to the specified URL
   document.querySelectorAll(".go-url").forEach(element => {
@@ -1188,13 +1437,28 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     document.querySelectorAll(".context-all").forEach(function (element) {
       // auto pull whole Agora graph in /nodes.
-      let id = '.context-all';
-      console.log('auto pulling whole Agora graph, will write to id: ' + id);
-      fetch(AGORAURL + '/context/all')
-      .then(response => response.text())
-      .then(data => {
-        document.querySelector(id).innerHTML = data;
-      });
+      const detailsElement = element.closest('details');
+      if (detailsElement) {
+          detailsElement.addEventListener('toggle', () => {
+              if (detailsElement.open) {
+                  const placeholder = document.getElementById('full-graph-placeholder');
+                  if (placeholder) {
+                      placeholder.addEventListener('click', async () => {
+                          const container = document.getElementById('full-graph-container');
+                          const spinner = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Loading graph... (please wait)</em></p></center><br />`;
+                          container.innerHTML = spinner;
+
+                          try {
+                              const response = await fetch(AGORAURL + '/context/all');
+                              container.innerHTML = await response.text();
+                          } catch (error) {
+                              container.innerHTML = `<p>Error loading graph: ${error}</p>`;
+                          }
+                      }, { once: true });
+                  }
+              }
+          });
+      }
     });
 
     console.log('dynamic execution for node begins: ' + NODENAME)

@@ -18,20 +18,13 @@
 
 {% block content %}
 
-<div info-box-id="agora-intro" class="intro">
-    <span><em>This you find in the <strong>{{config['AGORA_NAME']}}</strong>…</em></span>
-      <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="agora-intro" id="dismissbutton" class="dismiss-button">x</span>
-</div>
- 
-<div class="listing node">
+<details class="listing node" open>
+<summary>
+<span class="node-header main-header">📜 <strong>Journal entries</strong></span>
+</summary>
 
-{% if header %}
-📜 
-<strong>Journal entries</strong> <a href="/journals/7">last week</a> | <a href="/journals/30">last month</a> | <a href="/journals/365">last year</a> | <a href="/journals/all">all time</a>
-</p>
-{% else %}
-<h1> Nodes </h1>
-{% endif %}
+<div class="subnode">
+<a href="/journals/7">last week</a> | <a href="/journals/30">last month</a> | <a href="/journals/365">last year</a> | <a href="/journals/all">all time</a>
 
 {% for node in nodes %}
 <div class="node">
@@ -56,7 +49,7 @@
      </div>
 {% endfor %}
 </div>
+</details>
 
-</div>
-
+{% include "footer.html" %}
 {% endblock %}

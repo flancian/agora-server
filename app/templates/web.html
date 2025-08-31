@@ -32,96 +32,24 @@
         </span>
     </summary>
 
-    <div class="info-box with-spacing" style="margin-bottom: 10px;" info-box-id="web">
+    <div class="info-box with-spacing mb-10" info-box-id="web">
         <span class="genai-header"><em>Some providers may not allow embedding. If a tab appears empty, you can use the link in the header to open the search in a new tab.</em></span>
         <span id="dismiss-web" info-box-id="web" class="dismiss-button">x</span>
     </div>
 
     <div class="subnode">
-        <div class="web-embed" data-provider="google" style="display: block;"></div>
-        <div class="web-embed" data-provider="bing" style="display: none;"></div>
-        <div class="web-embed" data-provider="duckduckgo" style="display: none;"></div>
-        <div class="web-embed" data-provider="marginalia" style="display: none;"></div>
-        <div class="web-embed" data-provider="youtube" style="display: none;"></div>
-        <div class="web-embed" data-provider="maps" style="display: none;"></div>
-        <div class="web-embed" data-provider="youtubemusic" style="display: none;"></div>
-        <div class="web-embed" data-provider="spotify" style="display: none;"></div>
-        <div class="web-embed" data-provider="bsky" style="display: none;"></div>
-        <div class="web-embed" data-provider="tootfinder" style="display: none;"></div>
+        <div class="web-embed" data-provider="google" class="display-block"></div>
+        <div class="web-embed" data-provider="bing" class="display-none"></div>
+        <div class="web-embed" data-provider="duckduckgo" class="display-none"></div>
+        <div class="web-embed" data-provider="marginalia" class="display-none"></div>
+        <div class="web-embed" data-provider="youtube" class="display-none"></div>
+        <div class="web-embed" data-provider="maps" class="display-none"></div>
+        <div class="web-embed" data-provider="youtubemusic" class="display-none"></div>
+        <div class="web-embed" data-provider="spotify" class="display-none"></div>
+        <div class="web-embed" data-provider="bsky" class="display-none"></div>
+        <div class="web-embed" data-provider="tootfinder" class="display-none"></div>
     </div>
 </details>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const webContainer = document.querySelector('details.web');
-    if (webContainer) {
-        const tabs = webContainer.querySelectorAll('.web-provider-tab');
-
-        const loadContent = (provider, embedDiv) => {
-            if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
-            
-            const tabElement = webContainer.querySelector(`.web-provider-tab[data-provider="${provider}"]`);
-            const url = tabElement.dataset.url;
-            const externalLink = tabElement.nextElementSibling.href;
-
-            // Show a spinner while we check for embeddability
-            embedDiv.innerHTML = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Checking embeddability...</em></p></center><br />`;
-
-            fetch(`/api/check_embeddable?url=${encodeURIComponent(url)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.embeddable) {
-                        embedDiv.innerHTML = `<iframe src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
-                    } else {
-                        embedDiv.innerHTML = `
-                            <div class="subnode node">
-                                This provider has disabled embedding for security reasons, often to prevent an attack called 'clickjacking' where a malicious site might try to trick you into clicking something on the embedded page.
-                                <br/><br/>
-                                You can <a href="${externalLink}" target="_blank">open the search results in a new tab</a> instead.
-                            </div>
-                        `;
-                    }
-                });
-        };
-
-        webContainer.addEventListener("toggle", (event) => {
-            if (webContainer.open) {
-                const activeTab = webContainer.querySelector(".web-provider-tab.active");
-                if (activeTab) {
-                    const provider = activeTab.getAttribute('data-provider');
-                    const embed = webContainer.querySelector(`.web-embed[data-provider="${provider}"]`);
-                    loadContent(provider, embed);
-                }
-            }
-        });
-
-        tabs.forEach(tab => {
-            tab.addEventListener("click", (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                if (!webContainer.open) {
-                    webContainer.open = true;
-                }
-
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-
-                const provider = tab.getAttribute('data-provider');
-                const embeds = webContainer.querySelectorAll(".web-embed");
-                embeds.forEach((embed) => {
-                    if (embed.dataset.provider === provider) {
-                        embed.style.display = 'block';
-                        loadContent(provider, embed);
-                    } else {
-                        embed.style.display = 'none';
-                    }
-                });
-            });
-        });
-    }
-});
-</script>
 
 
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat&display-swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
 :root {
     --base-fontsize: 1.0rem;
@@ -196,6 +196,8 @@ li {
     padding-bottom: 2em;
     background-color: var(--agora-protocol-bg);
     position: relative;
+    min-height: 2.5em;
+    min-width: 10em;
 }
 
 .subnode-content > ul::after {
@@ -291,6 +293,11 @@ details[open] > :not(summary) {
 
 .logo {
     filter: var(--logo-filter);
+}
+
+.spinner-container {
+    overflow: hidden;
+    text-align: center;
 }
 
 .spinner {
@@ -769,12 +776,6 @@ details > summary {
     color: var(--wikilink-hover-color);
 }
 
-.no-wikilinks .wikilink {
-    color: inherit;
-    text-decoration: none;
-    pointer-events: none;
-}
-
 #hypothesis-frame {
     display: none;
     position: fixed;
@@ -949,9 +950,62 @@ body.overlay-open {
     cursor: pointer;
 }
 
+/* Styles for /nodes page grid */
+.nodes-grid {
+    margin: 1rem 0;
+}
+
+.nodes-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.node-item {
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--accent-bg);
+    transition: background-color 0.2s;
+}
+
+.node-item:hover {
+    background: var(--main-bg);
+}
+
+.node-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.node-name {
+    font-weight: 500;
+    flex-grow: 1;
+    margin-right: 0.5rem;
+}
+
+.node-size {
+    font-weight: lighter;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 0.9em;
+}
+
+.remaining-nodes {
+    margin-top: 1rem;
+}
+
 .context-flex {
     display: flex;
     flex-direction: row;
+}
+
+.context-flex .graph-container {
+    width: 50%;
 }
 
 .links {
@@ -959,12 +1013,15 @@ body.overlay-open {
 }
 
 .graph-container {
-    width: 50%;
-    height: 400px;
     position: relative;
 }
 
 #graph {
+    width: 100%;
+    height: 400px;
+}
+
+#full-graph {
     width: 100%;
     height: 100%;
 }
@@ -973,7 +1030,73 @@ body.overlay-open {
     position: absolute;
     bottom: 10px;
     left: 10px;
-    z-index: 10;
     padding: 3px 6px;
 }
 
+.ai-provider-tab, .wiki-provider-tab, .web-provider-tab, .graph-size-tab {
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* Pagination styles from nodes.html */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+}
+.next-link {
+    text-align: right;
+}
+
+/* hexgame.html */
+.hexgame-canvas {
+    display: block;
+    margin: auto;
+    background-color: #f0f0f0;
+}
+
+/* Utility classes for inline styles */
+.display-block {
+    display: block;
+}
+
+.display-none {
+    display: none;
+}
+
+.overflow-x-hidden {
+    overflow-x: hidden;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.w-30 {
+    width: 30%;
+}
+
+.max-w-99 {
+    max-width: 99.5%;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.flex-grow {
+    flex: auto;
+    flex-grow: 1;
+}
+
+.no-border {
+    border-style: none;
+}
+
+.no-text-decoration {
+    text-decoration: none;
+}
+
+.all-unset {
+    all: unset;
+}

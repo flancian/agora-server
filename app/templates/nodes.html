@@ -23,7 +23,7 @@
 {% if header %}
 <span class="node-header main-header">📚 {{header}}</span>
 {% else %}
-<span class="node-header main-header">📚 <strong>All nodes and links</strong> found in the <strong>{{config['AGORA_NAME']}}</strong></span>
+<span class="node-header main-header">📚 <strong>Nodes</strong> in the <strong>{{config['AGORA_NAME']}}</strong></span>
 {% endif %}
 </summary>
 
@@ -38,15 +38,22 @@ There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']
 
 {% endif %}
 
-<details class="url node" style="border-style: none;">
-    <summary><span class="agoragraph"><strong>🧪 Experimental full graph</strong> of the <strong>{{config['AGORA_NAME']}}</strong> (might crash your tab, good luck! :)</summary></span>
-        <div class="stoa-iframe" src="{{config['URL_BASE']}}/context/all"></div>
-</details>
-
-<div class="nodes-grid">
-    <h3>📊 Top Nodes by Size</h3>
+<div class="nodes-grid subnode">
+    <strong>📊 Nodes by cardinality</strong>
+    <div class="pagination">
+        <div class="prev-link">
+            {% if page > 1 %}
+                <a href="{{ url_for('agora.nodes', page=page-1) }}">&laquo; Previous</a>
+            {% endif %}
+        </div>
+        <div class="next-link">
+            {% if nodes|length == per_page and page * per_page < total_nodes %}
+                <a href="{{ url_for('agora.nodes', page=page+1) }}">Next &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
     <div class="nodes-list">
-    {% for node in nodes[:100] %}
+    {% for node in nodes %}
         <div class="node-item">
             <a href="{{node.uri}}" class="node-link">
                 <span class="node-name">{{node.wikilink}}</span>
@@ -55,91 +62,24 @@ There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']
         </div>
     {% endfor %}
     </div>
-    
-    <details class="remaining-nodes">
-        <summary>Show more nodes ({{nodes|length - 100}} remaining)</summary>
-        <div class="nodes-list">
-        {% for node in nodes[100:1000] %}
-            <div class="node-item">
-                <a href="{{node.uri}}" class="node-link">
-                    <span class="node-name">{{node.wikilink}}</span>
-                    <span class="node-size">({{node.size()}})</span>
-                </a>
-            </div>
-        {% endfor %}
-        </div>
-    </details>
 </div>
 
-<style>
-.nodes-grid {
-    margin: 1rem 0;
-}
-
-.nodes-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 0.5rem;
-    margin: 1rem 0;
-}
-
-.node-item {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: #f9f9f9;
-    transition: background-color 0.2s;
-}
-
-.node-item:hover {
-    background: #f0f0f0;
-}
-
-.node-link {
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.node-name {
-    font-weight: 500;
-    flex-grow: 1;
-    margin-right: 0.5rem;
-}
-
-.node-size {
-    font-weight: lighter;
-    color: #666;
-    font-size: 0.9em;
-}
-
-.remaining-nodes {
-    margin-top: 1rem;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .node-item {
-        background: #333;
-        border-color: #555;
-    }
-    
-    .node-item:hover {
-        background: #444;
-    }
-    
-    .node-size {
-        color: #aaa;
-    }
-}
-</style>
-
-<hr />
-
-For more, please see graph endpoints.
-
 </details>
+
+<details id="full-graph-details" class="url node full-graph-details no-border">
+    <summary>
+        <span class="agoragraph"><strong>🕸️ Graph</strong></span>
+        <span class="graph-size-tab active" data-size="100">Top 100</span>
+        <span class="graph-size-tab" data-size="300">Top 300</span>
+        <span class="graph-size-tab" data-size="1000">Top 1000</span>
+    </summary>
+    <div id="full-graph-container" class="graph-container">
+        <div id="full-graph">
+        </div>
+        <button id="full-graph-toggle-labels" title="Toggle graph labels">🏷️ Toggle Labels</button>
+    </div>
+</details>
+
+{% include "footer.html" %}
 
 {% endblock %}
