@@ -187,12 +187,18 @@ class ProductionConfig(DefaultConfig):
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_PUSH = True
     ENABLE_AUTO_STOA = False
+    # I think all of the above can be removed as of [[2025-08-31]].
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
-    ENABLE_EXECUTABLE_NODES = True
+    # I guess because we're "responsible" we don't allow code execution by default in the most prod of all Agora instances? Hmm.
+    ENABLE_EXECUTABLE_NODES = False
 
     # Set MISTRAL_API_KEY env variable when enabling :)
     ENABLE_AI = True
+
+    # This seems to work great but I haven't tested it beyond AlphaConfig (which is what we run in anagora.org as of [[2025]]), so leaving it set to False for now.
+    # This keeps the Agora completely file-based and able to run in a read-only filesystem. Setting it to True if the Agora can't write should still work but default to file-based.
+    ENABLE_SQLITE = False
 
 
 class AlphaConfig(DefaultConfig):
