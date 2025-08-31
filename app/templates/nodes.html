@@ -17,27 +17,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<details id="full-graph-details" class="url node full-graph-details" style="border-style: none;">
-    <summary>
-        <span class="agoragraph"><strong>🕸️ Top nodes graph</strong></span>
-        <span class="graph-size-tab active" data-size="100">Top 100</span>
-        <span class="graph-size-tab" data-size="300">Top 300</span>
-        <span class="graph-size-tab" data-size="1000">Top 1000</span>
-    </summary>
-    <div id="full-graph-container" class="graph-container">
-        <div id="full-graph">
-        </div>
-        <button id="full-graph-toggle-labels" title="Toggle graph labels">🏷️ Toggle Labels</button>
-    </div>
-</details>
-
 <details class="listing node" open>
     
 <summary>
 {% if header %}
 <span class="node-header main-header">📚 {{header}}</span>
 {% else %}
-<span class="node-header main-header">📚 <strong>Top nodes</strong> in the <strong>{{config['AGORA_NAME']}}</strong></span>
+<span class="node-header main-header">📚 <strong>Nodes</strong> in the <strong>{{config['AGORA_NAME']}}</strong></span>
 {% endif %}
 </summary>
 
@@ -52,10 +38,22 @@ There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']
 
 {% endif %}
 
-<div class="nodes-grid">
-    <h3>📊 Top Nodes by Size</h3>
+<div class="nodes-grid subnode">
+    <strong>📊 Nodes by cardinality</strong>
+    <div class="pagination">
+        <div class="prev-link">
+            {% if page > 1 %}
+                <a href="{{ url_for('agora.nodes', page=page-1) }}">&laquo; Previous</a>
+            {% endif %}
+        </div>
+        <div class="next-link">
+            {% if nodes|length == per_page and page * per_page < total_nodes %}
+                <a href="{{ url_for('agora.nodes', page=page+1) }}">Next &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
     <div class="nodes-list">
-    {% for node in nodes[:100] %}
+    {% for node in nodes %}
         <div class="node-item">
             <a href="{{node.uri}}" class="node-link">
                 <span class="node-name">{{node.wikilink}}</span>
@@ -64,27 +62,24 @@ There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']
         </div>
     {% endfor %}
     </div>
-    
-    <details class="remaining-nodes">
-        <summary>Show more nodes ({{nodes|length - 100}} remaining)</summary>
-        <div class="nodes-list">
-        {% for node in nodes[100:1000] %}
-            <div class="node-item">
-                <a href="{{node.uri}}" class="node-link">
-                    <span class="node-name">{{node.wikilink}}</span>
-                    <span class="node-size">({{node.size()}})</span>
-                </a>
-            </div>
-        {% endfor %}
-        </div>
-    </details>
 </div>
-
-<hr />
-
-For more, please see graph endpoints.
 
 </details>
 
+<details id="full-graph-details" class="url node full-graph-details" style="border-style: none;">
+    <summary>
+        <span class="agoragraph"><strong>🕸️ Graph</strong></span>
+        <span class="graph-size-tab active" data-size="100">Top 100</span>
+        <span class="graph-size-tab" data-size="300">Top 300</span>
+        <span class="graph-size-tab" data-size="1000">Top 1000</span>
+    </summary>
+    <div id="full-graph-container" class="graph-container">
+        <div id="full-graph">
+        </div>
+        <button id="full-graph-toggle-labels" title="Toggle graph labels">🏷️ Toggle Labels</button>
+    </div>
+</details>
+
 {% include "footer.html" %}
+
 {% endblock %}

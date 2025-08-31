@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat&display-swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
 :root {
     --base-fontsize: 1.0rem;
@@ -1003,17 +1003,26 @@ body.overlay-open {
     flex-direction: row;
 }
 
+.context-flex .graph-container {
+    width: 50%;
+}
+
 .links {
     width: 50%;
 }
 
 .graph-container {
-    width: 100%;
     position: relative;
 }
 
-#graph, #full-graph {
+#graph {
     width: 100%;
+    height: 400px;
+}
+
+#full-graph {
+    width: 100%;
+    height: 100%;
 }
 
 #graph-toggle-labels {
@@ -1030,3 +1039,18 @@ body.overlay-open {
     border-radius: 3px;
 }
 
+/* Pagination styles from nodes.html */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+}
+.next-link {
+    text-align: right;
+}
+
+/* hexgame.html */
+.hexgame-canvas {
+    display: block;
+    margin: auto;
+    background-color: #f0f0f0;
+}
