@@ -600,14 +600,19 @@ document.addEventListener("DOMContentLoaded", async function () {
       item.addEventListener("toggle", async (event) => {
         if (item.open) {
           console.log("Details have been shown");
-          embed = item.querySelector(".stoa-iframe");
+          let embed = item.querySelector(".stoa-iframe");
           if (embed) {
             let url = embed.getAttribute('src');
+            if (embed.id === 'edit-iframe') {
+                const user = localStorage.getItem('user') || 'flancian';
+                const nodeUri = url.split('/').pop();
+                url = `https://edit.anagora.org/@${user}/${nodeUri}`;
+            }
             embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 100%;" height="700px"></iframe>';
           }
         } else {
           console.log("Details have been hidden");
-          embed = item.querySelector(".stoa-iframe");
+          let embed = item.querySelector(".stoa-iframe");
           if (embed) {
             console.log("Embed found, here we would fold.");
             embed.innerHTML = '';

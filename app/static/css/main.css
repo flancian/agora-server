@@ -1030,7 +1030,6 @@ body.overlay-open {
     position: absolute;
     bottom: 10px;
     left: 10px;
-    z-index: 10;
     padding: 3px 6px;
 }
 
