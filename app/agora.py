@@ -236,6 +236,17 @@ def graph_js():
     return response
 
 
+@bp.route("/graph/json/top/<int:count>")
+def graph_js_top(count):
+    nodes = api.top()[:count]
+    response = make_response(visualization.json_nodes(nodes))
+    response.mimetype = "application/json"
+    # Cache for 2 hours - expensive full graph JSON data
+    response.headers['Cache-Control'] = 'public, max-age=7200'
+    response.headers['Vary'] = 'Accept-Encoding'
+    return response
+
+
 @bp.route("/graph/json/<node>")
 def graph_js_node(node):
     n = G.node(node)
@@ -721,9 +732,9 @@ def garden(garden):
 def nodes():
     n = api.build_node("nodes")
     if current_app.config["ENABLE_STATS"]:
-        return render_template("nodes.html", nodes=api.top(), node=n, stats=api.stats())
+        return render_template("nodes.html", nodes=api.top(), node=n, stats=api.stats(), graph=True)
     else:
-        return render_template("nodes.html", nodes=api.top(), node=n, stats=None)
+        return render_template("nodes.html", nodes=api.top(), node=n, stats=None, graph=True)
 
 
 @bp.route("/nodes.json")

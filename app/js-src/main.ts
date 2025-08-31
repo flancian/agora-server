@@ -859,12 +859,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.log('auto pulled context');
       
       // Finally!
-      renderGraph();
+      renderGraph('graph', '/graph/json/' + node);
 
       document.getElementById('graph-toggle-labels')?.addEventListener('click', () => {
           const currentSetting = safeJsonParse(localStorage.getItem('graph-show-labels'), true);
           localStorage.setItem('graph-show-labels', JSON.stringify(!currentSetting));
-          renderGraph();
+          renderGraph('graph', '/graph/json/' + node);
       });
 
       console.log("graph loaded.")
@@ -1083,96 +1083,147 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     });
 
+    // For the full graph in /nodes
+    const fullGraphDetails = document.getElementById('full-graph-details');
+    if (fullGraphDetails) {
+        const tabs = fullGraphDetails.querySelectorAll(".graph-size-tab");
+
+        fullGraphDetails.addEventListener('toggle', () => {
+            if ((fullGraphDetails as HTMLDetailsElement).open) {
+                // Load the default tab content when first opened
+                const activeTab = fullGraphDetails.querySelector(".graph-size-tab.active");
+                if (activeTab) {
+                    const size = activeTab.getAttribute('data-size');
+                    renderGraph('full-graph', `/graph/json/top/${size}`);
+                }
+            }
+        }, { once: true });
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const size = tab.getAttribute('data-size');
+                renderGraph('full-graph', `/graph/json/top/${size}`);
+            });
+        });
+
+        document.getElementById('full-graph-toggle-labels')?.addEventListener('click', () => {
+            const currentSetting = safeJsonParse(localStorage.getItem('graph-show-labels-full'), false);
+            localStorage.setItem('graph-show-labels-full', JSON.stringify(!currentSetting));
+            const activeTab = fullGraphDetails.querySelector(".graph-size-tab.active");
+            if (activeTab) {
+                const size = activeTab.getAttribute('data-size');
+                renderGraph('full-graph', `/graph/json/top/${size}`);
+            }
+        });
+    }
   }
   // end bindEvents();
 
-  async function renderGraph() {
-    const container = document.getElementById('graph');
-    if (!container) return;
+  
+	async function renderGraph(containerId: string, dataUrl: string) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+  
+      // Clear previous graph if any
+      container.innerHTML = '';
+  
+      const darkPalette = {
+          bg: 'rgba(0, 0, 0, 0)', // Transparent background
+          edge: 'rgba(150, 150, 150, 1)',
+          text: '#bfbfbf',
+          nodeBg: 'rgba(50, 50, 50, 1)'
+      };
+  
+      const lightPalette = {
+          bg: 'rgba(0, 0, 0, 0)', // Transparent background
+          edge: 'rgba(50, 50, 50, 1)',
+          text: '#000000',
+          nodeBg: '#f0f0f0'
+      };
+  
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const palette = currentTheme === 'dark' ? darkPalette : lightPalette;
+  
+      // Default to labels for per-node graph, no labels for full graph.
+      const defaultShowLabels = containerId === 'graph';
+      const storageKey = containerId === 'full-graph' ? 'graph-show-labels-full' : 'graph-show-labels';
+      const showLabels = safeJsonParse(localStorage.getItem(storageKey), defaultShowLabels);
+  
+      console.log("loading graph...")
+      fetch(dataUrl)
+      .then(res => res.json())
+      .then(data => {
+          setTimeout(() => {
+              const Graph = ForceGraph()(container);
+              const graphContainer = container.closest('.graph-container');
+  
+              // Give larger graphs more time to stabilize.
+              const cooldownTime = data.nodes.length > 200 ? 25000 : 5000;
+  
+              Graph.height((graphContainer as HTMLElement).getBoundingClientRect().height)
+                  .width(container.getBoundingClientRect().width)
+                  .backgroundColor(palette.bg)
+                  .onNodeClick(node => {
+                      let url = (node as any).id;
+                      location.assign(url)
+                  })
+                  .graphData(data)
+                  .nodeId('id')
+                  .nodeVal('val')
+                  .nodeAutoColorBy('group');
+  
+              if (showLabels) {
+                  Graph.nodeCanvasObject((node, ctx, globalScale) => {
+                      const label = (node as any).name;
+                      const fontSize = 12 / globalScale;
+                      ctx.font = `${fontSize}px Sans-Serif`;
+                      const textWidth = ctx.measureText(label).width;
+                      const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+  
+                      ctx.fillStyle = palette.nodeBg;
+                      ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
+  
+                      ctx.textAlign = 'center';
+                      ctx.textBaseline = 'middle';
+  
+                      // Theme-aware node colors.
+                      let color = (node as any).color;
+                      if (currentTheme === 'light') {
+                          // simple heuristic to darken colors for light theme.
+                          color = darkenColor(color, 40);
+                      }
+                      ctx.fillStyle = color;
+                      ctx.fillText(label, (node as any).x, (node as any).y);
+  
+                      (node as any).__bckgDimensions = bckgDimensions;
+                  })
+                  .nodePointerAreaPaint((node, color, ctx) => {
+                      ctx.fillStyle = color;
+                      const bckgDimensions = (node as any).__bckgDimensions;
+                      bckgDimensions && ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
+                  });
+              } else {
+                  // In no-label mode, make the nodes smaller.
+                  Graph.nodeRelSize(2);
+              }
+  
+              Graph.linkDirectionalArrowLength(3)
+                  .linkColor(() => palette.edge);
+  
+              Graph.zoom(3);
+              Graph.cooldownTime(cooldownTime);
+              Graph.onEngineStop(() => Graph.zoomToFit(100));
+          }, 0);
+      })
+      .catch(error => console.error('Error fetching or rendering graph:', error));
+    }
 
-    // Clear previous graph if any
-    container.innerHTML = '';
-
-    const darkPalette = {
-        bg: 'rgba(0, 0, 0, 0)', // Transparent background
-        edge: 'rgba(150, 150, 150, 1)',
-        text: '#bfbfbf',
-        nodeBg: 'rgba(50, 50, 50, 1)'
-    };
-
-    const lightPalette = {
-        bg: 'rgba(0, 0, 0, 0)', // Transparent background
-        edge: 'rgba(50, 50, 50, 1)',
-        text: '#000000',
-        nodeBg: '#f0f0f0'
-    };
-
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    const palette = currentTheme === 'dark' ? darkPalette : lightPalette;
-    const showLabels = safeJsonParse(localStorage.getItem('graph-show-labels'), true);
-
-    console.log("loading graph...")
-    fetch("/graph/json/" + NODENAME)
-    .then(res => res.json())
-    .then(data => {
-        const Graph = ForceGraph()(container);
-
-        Graph.height(container.clientHeight)
-            .width(container.clientWidth)
-            .backgroundColor(palette.bg)
-            .onNodeClick(node => {
-                let url = (node as any).id;
-                location.assign(url)
-            })
-            .graphData(data)
-            .nodeId('id')
-            .nodeVal('val')
-            .nodeAutoColorBy('group');
-
-        if (showLabels) {
-            Graph.nodeCanvasObject((node, ctx, globalScale) => {
-                const label = (node as any).name;
-                const fontSize = 12 / globalScale;
-                ctx.font = `${fontSize}px Sans-Serif`;
-                const textWidth = ctx.measureText(label).width;
-                const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
-
-                ctx.fillStyle = palette.nodeBg;
-                ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
-
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                
-                // Theme-aware node colors.
-                let color = (node as any).color;
-                if (currentTheme === 'light') {
-                    // simple heuristic to darken colors for light theme.
-                    color = darkenColor(color, 40);
-                }
-                ctx.fillStyle = color;
-                ctx.fillText(label, (node as any).x, (node as any).y);
-
-                (node as any).__bckgDimensions = bckgDimensions;
-            })
-            .nodePointerAreaPaint((node, color, ctx) => {
-                ctx.fillStyle = color;
-                const bckgDimensions = (node as any).__bckgDimensions;
-                bckgDimensions && ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
-            });
-        } else {
-            // In no-label mode, make the nodes smaller.
-            Graph.nodeRelSize(2);
-        }
-
-        Graph.linkDirectionalArrowLength(3)
-            .linkColor(() => palette.edge);
-
-        Graph.zoom(3);
-        Graph.cooldownTime(5000);
-        Graph.onEngineStop(() => Graph.zoomToFit(400));
-    })
-    .catch(error => console.error('Error fetching or rendering graph:', error));
-  }
 
   // go to the specified URL
   document.querySelectorAll(".go-url").forEach(element => {
@@ -1191,13 +1242,28 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     document.querySelectorAll(".context-all").forEach(function (element) {
       // auto pull whole Agora graph in /nodes.
-      let id = '.context-all';
-      console.log('auto pulling whole Agora graph, will write to id: ' + id);
-      fetch(AGORAURL + '/context/all')
-      .then(response => response.text())
-      .then(data => {
-        document.querySelector(id).innerHTML = data;
-      });
+      const detailsElement = element.closest('details');
+      if (detailsElement) {
+          detailsElement.addEventListener('toggle', () => {
+              if (detailsElement.open) {
+                  const placeholder = document.getElementById('full-graph-placeholder');
+                  if (placeholder) {
+                      placeholder.addEventListener('click', async () => {
+                          const container = document.getElementById('full-graph-container');
+                          const spinner = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Loading graph... (please wait)</em></p></center><br />`;
+                          container.innerHTML = spinner;
+
+                          try {
+                              const response = await fetch(AGORAURL + '/context/all');
+                              container.innerHTML = await response.text();
+                          } catch (error) {
+                              container.innerHTML = `<p>Error loading graph: ${error}</p>`;
+                          }
+                      }, { once: true });
+                  }
+              }
+          });
+      }
     });
 
     console.log('dynamic execution for node begins: ' + NODENAME)
