@@ -213,6 +213,27 @@ li img {
     vertical-align: top;
 }
 
+.iframe-container {
+    position: relative;
+}
+
+.iframe-url-overlay {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: smaller;
+    font-style: italic;
+    color: var(--agora-protocol-text);
+    background-color: var(--agora-protocol-bg);
+    padding: 2px 5px;
+    border-radius: 3px;
+    z-index: 1;
+    max-width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 hr {
     border: 0;
     height: 1px;

@@ -650,7 +650,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                 const nodeUri = url.split('/').pop();
                 url = `https://edit.anagora.org/@${user}/${nodeUri}`;
             }
-            embed.innerHTML = '<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="' + url + '" style="width: 100%;" height="700px"></iframe>';
+            const iframeHTML = `<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="${url}" style="width: 100%;" height="700px"></iframe>`;
+            const overlayHTML = `<a href="${url}" target="_blank" class="iframe-url-overlay" title="Open in new tab">${url}</a>`;
+            embed.innerHTML = `<div class="iframe-container">${iframeHTML}${overlayHTML}</div>`;
           }
         } else {
           console.log("Details have been hidden");
@@ -1267,7 +1269,9 @@ document.addEventListener("DOMContentLoaded", async function () {
               .then(response => response.json())
               .then(data => {
                   if (data.embeddable) {
-                      embedDiv.innerHTML = `<iframe src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
+                      const iframeHTML = `<iframe src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
+                      const overlayHTML = `<a href="${url}" target="_blank" class="iframe-url-overlay" title="Open in new tab">${url}</a>`;
+                      embedDiv.innerHTML = `<div class="iframe-container">${iframeHTML}${overlayHTML}</div>`;
                   } else {
                       embedDiv.innerHTML = `
                           <div class="subnode node">
