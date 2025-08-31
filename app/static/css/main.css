@@ -776,12 +776,6 @@ details > summary {
     color: var(--wikilink-hover-color);
 }
 
-.no-wikilinks .wikilink {
-    color: inherit;
-    text-decoration: none;
-    pointer-events: none;
-}
-
 #hypothesis-frame {
     display: none;
     position: fixed;

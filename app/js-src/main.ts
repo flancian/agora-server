@@ -78,20 +78,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   (document.getElementById("ranking") as HTMLInputElement).value = localStorage["ranking"] || '';
   (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], false);
   (document.getElementById("auto-pull-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-wikipedia"], false);
-  (document.getElementById("render-wikilinks") as HTMLInputElement).checked = safeJsonParse(localStorage["render-wikilinks"], true);
   (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], false);
   (document.getElementById("show-hypothesis") as HTMLInputElement).checked = safeJsonParse(localStorage["show-hypothesis"], false);
-  (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], true);
-
-  // Function to apply the wikilink rendering style
-  const applyWikilinkStyle = () => {
-    const shouldRender = (document.getElementById("render-wikilinks") as HTMLInputElement).checked;
-    if (shouldRender) {
-      document.body.classList.remove('no-wikilinks');
-    } else {
-      document.body.classList.add('no-wikilinks');
-    }
-  };
+  (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], false);
 
   // Function to apply the bracket visibility style
   const applyBracketVisibility = () => {
@@ -103,7 +92,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   };
 
   // Apply styles on initial load
-  applyWikilinkStyle();
   applyBracketVisibility();
 
   // Toggle Hypothesis visibility on initial load
@@ -124,10 +112,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
   // Add event listeners to checkboxes to apply style on change
-  const renderWikilinksCheckbox = document.getElementById("render-wikilinks");
-  if (renderWikilinksCheckbox) {
-    renderWikilinksCheckbox.addEventListener('change', applyWikilinkStyle);
-  }
   const showBracketsCheckbox = document.getElementById("show-brackets");
   if (showBracketsCheckbox) {
     showBracketsCheckbox.addEventListener('change', applyBracketVisibility);
@@ -152,9 +136,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("auto-pull-wikipedia")?.addEventListener('change', (e) => {
     localStorage["auto-pull-wikipedia"] = (e.target as HTMLInputElement).checked;
     location.reload();
-  });
-  document.getElementById("render-wikilinks")?.addEventListener('change', (e) => {
-    localStorage["render-wikilinks"] = (e.target as HTMLInputElement).checked;
   });
   document.getElementById("show-brackets")?.addEventListener('change', (e) => {
     localStorage["showBrackets"] = (e.target as HTMLInputElement).checked;
@@ -731,7 +712,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    if (safeJsonParse(localStorage["auto-expand-stoas"], true)) {
+    if (safeJsonParse(localStorage["auto-expand-stoas"], false)) {
         document.querySelectorAll("details.stoa").forEach(function (element) {
             console.log('auto expanding stoas');
             if (!(element as HTMLDetailsElement).open) {
