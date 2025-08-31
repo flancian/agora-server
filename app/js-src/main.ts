@@ -642,10 +642,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       item.addEventListener("toggle", async (event) => {
         if (item.open) {
           console.log("Details have been shown");
-          let embed = item.querySelector(".stoa-iframe");
+          let embed = item.querySelector(".stoa-iframe, .edit-iframe");
           if (embed) {
             let url = embed.getAttribute('src');
-            if (embed.id === 'edit-iframe') {
+            if (embed.classList.contains('edit-iframe')) {
                 const user = localStorage.getItem('user') || 'flancian';
                 const nodeUri = url.split('/').pop();
                 url = `https://edit.anagora.org/@${user}/${nodeUri}`;
@@ -654,7 +654,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           }
         } else {
           console.log("Details have been hidden");
-          let embed = item.querySelector(".stoa-iframe");
+          let embed = item.querySelector(".stoa-iframe, .edit-iframe");
           if (embed) {
             console.log("Embed found, here we would fold.");
             embed.innerHTML = '';
@@ -868,13 +868,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }, 150); // A slightly longer debounce window might feel smoother.
 
-
-    // Update the edit iframe src
-    const editIframeContainer = document.querySelector('.stoa-iframe');
-    if (editIframeContainer) {
-        const nodeUri = editIframeContainer.getAttribute('src').split('/').pop();
-        editIframeContainer.setAttribute('src', `https://edit.anora.org/@${user}/${nodeUri}`);
-    }
 
     // Initial sort after async content is loaded
     sortSubnodes();
