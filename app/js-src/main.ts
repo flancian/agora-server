@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
 
   // set values from storage
-  (document.getElementById("ranking") as HTMLInputElement).value = localStorage["ranking"] || '';
+  (document.getElementById("user") as HTMLInputElement).value = localStorage["user"] || 'flancian';
   (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], false);
   (document.getElementById("auto-pull-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-wikipedia"], false);
   (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], false);
@@ -126,9 +126,14 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   // Auto-save settings on change
-  document.getElementById("ranking")?.addEventListener('change', (e) => {
-    localStorage["ranking"] = (e.target as HTMLInputElement).value;
+  document.getElementById("user")?.addEventListener('change', (e) => {
+    localStorage["user"] = (e.target as HTMLInputElement).value;
   });
+
+  document.getElementById("apply-user")?.addEventListener('click', () => {
+    location.reload();
+  });
+
   document.getElementById("auto-pull-search")?.addEventListener('change', (e) => {
     localStorage["auto-pull-search"] = (e.target as HTMLInputElement).checked;
     location.reload();
@@ -756,6 +761,82 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   async function bindEvents() {
+
+    const user = localStorage.getItem('user') || 'flancian';
+
+    // Debounce function to limit how often a function can run.
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Function to sort subnodes, bringing the current user's to the top.
+    const sortSubnodes = () => {
+        const subnodesContainer = document.querySelector('.node[open]');
+        if (!subnodesContainer) return;
+
+        // Select only the direct contribution subnodes, not other elements with the .subnode class.
+        const subnodes = Array.from(subnodesContainer.querySelectorAll('details.subnode[data-author]'));
+        if (subnodes.length < 2) return; // No need to sort if there's 0 or 1 subnode.
+
+        const userSubnodes = subnodes.filter(subnode => (subnode as HTMLElement).dataset.author === user);
+        
+        if (userSubnodes.length === 0) return; // No subnodes for this user.
+
+        // The insertion point is the first subnode in the list.
+        const firstSubnode = subnodes[0];
+
+        // Move the user's subnodes to be before the first subnode.
+        // Iterate in reverse to maintain their original relative order.
+        userSubnodes.reverse().forEach(subnode => {
+            firstSubnode.parentNode.insertBefore(subnode, firstSubnode);
+        });
+    };
+
+    // We create the observer here so we can disconnect/reconnect it inside the debounced function.
+    const observer = new MutationObserver((mutations) => {
+        for (let mutation of mutations) {
+            if (mutation.type === 'childList') {
+                debouncedSort();
+            }
+        }
+    });
+
+    const debouncedSort = debounce(() => {
+        // Disconnect the observer right before we make DOM changes.
+        observer.disconnect();
+        // Run the sorting function.
+        sortSubnodes();
+        // Reconnect the observer after we're done.
+        const subnodesContainer = document.querySelector('.node[open]');
+        if (subnodesContainer) {
+            observer.observe(subnodesContainer, { childList: true, subtree: true });
+        }
+    }, 150); // A slightly longer debounce window might feel smoother.
+
+
+    // Update the edit iframe src
+    const editIframeContainer = document.querySelector('.stoa-iframe');
+    if (editIframeContainer) {
+        const nodeUri = editIframeContainer.getAttribute('src').split('/').pop();
+        editIframeContainer.setAttribute('src', `https://edit.anora.org/@${user}/${nodeUri}`);
+    }
+
+    // Initial sort after async content is loaded
+    sortSubnodes();
+
+    // Start observing after the initial sort.
+    const subnodesContainer = document.querySelector('.node[open]');
+    if (subnodesContainer) {
+        observer.observe(subnodesContainer, { childList: true, subtree: true });
+    }
 
     // Check local storage to see if the info boxes should be hidden
     const dismissButtons = document.querySelectorAll(".dismiss-button");

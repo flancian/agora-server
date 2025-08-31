@@ -47,7 +47,7 @@ def _is_sqlite_enabled():
 # This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
 # https://anagora.org/auto-pull
 FUZZ_FACTOR_EQUIVALENT = 95
-FUZZ_FACTOR_RELATED = 75
+FUZZ_FACTOR_RELATED = 85
 
 # Content-based TTL strategy for better performance
 def get_cache_ttl(content_type: str = "default") -> int:
