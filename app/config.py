@@ -212,6 +212,9 @@ class AlphaConfig(DefaultConfig):
     # Set API key env variables as needed :)
     ENABLE_AI = True
 
+    # Finally took place early on 2025-08-29. Requires a writeable filesystem.
+    ENABLE_SQLITE = True
+
 
 class DevelopmentConfig(DefaultConfig):
     URL_BASE = "http://dev.anagora.org"
