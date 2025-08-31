@@ -317,7 +317,10 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (toggle) toggle.innerHTML = '🌙';
         });
       }
-      renderGraph(); // Re-render the graph with the new theme
+      // Re-render the graph if it exists on the page.
+      if (document.getElementById('graph')) {
+        renderGraph('graph', '/graph/json/' + NODENAME);
+      }
     });
   });
 

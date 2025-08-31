@@ -68,6 +68,14 @@ For beings seeking truth's own fruit.
 
 *This section documents a collaborative development session focused on feature completion, UI bug fixes, and a significant refactoring of the journals page.*
 
+## Key Development Workflow Note
+
+**Crucial:** After making any changes to TypeScript files in `app/js-src/` (such as `main.ts`), you **must** recompile them to JavaScript by running the following command. Forgetting this step is a common source of bugs where front-end changes do not appear to take effect.
+
+```bash
+npm run build
+```
+
 ## Key Learnings & Codebase Insights
 
 -   **Client-Side State**: The "Browse As" feature completion highlighted the effectiveness of using `localStorage` to maintain user-specific settings across sessions. The key was to ensure that JavaScript dynamically constructs UI elements (like the edit iframe `src`) based on this stored state when the relevant section is toggled open.
