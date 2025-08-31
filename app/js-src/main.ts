@@ -79,6 +79,15 @@ document.addEventListener("DOMContentLoaded", async function () {
   (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], false);
   (document.getElementById("auto-pull-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-wikipedia"], false);
   (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], false);
+  
+  // Set graph label visibility from storage, defaulting to true.
+  // This also writes the canonical value back to both storage keys to ensure consistency on first load.
+  const showLabelsCheckbox = document.getElementById("show-graph-labels") as HTMLInputElement;
+  const initialShowLabels = safeJsonParse(localStorage["graph-show-labels"], true);
+  showLabelsCheckbox.checked = initialShowLabels;
+  localStorage["graph-show-labels"] = initialShowLabels;
+  localStorage["graph-show-labels-full"] = initialShowLabels;
+
   (document.getElementById("show-hypothesis") as HTMLInputElement).checked = safeJsonParse(localStorage["show-hypothesis"], false);
   (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], false);
 
@@ -144,6 +153,27 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
   document.getElementById("show-brackets")?.addEventListener('change', (e) => {
     localStorage["showBrackets"] = (e.target as HTMLInputElement).checked;
+  });
+
+  document.getElementById("show-graph-labels")?.addEventListener('change', (e) => {
+    const isChecked = (e.target as HTMLInputElement).checked;
+    // Save setting for both per-node and full-agora graphs.
+    localStorage["graph-show-labels"] = isChecked;
+    localStorage["graph-show-labels-full"] = isChecked;
+
+    // Re-render the per-node graph if it exists.
+    if (document.getElementById('graph')) {
+        renderGraph('graph', '/graph/json/' + NODENAME);
+    }
+    // Re-render the full-agora graph if it exists.
+    const fullGraphContainer = document.getElementById('full-graph');
+    if (fullGraphContainer) {
+        const activeTab = document.querySelector(".graph-size-tab.active");
+        if (activeTab) {
+            const size = activeTab.getAttribute('data-size');
+            renderGraph('full-graph', `/graph/json/top/${size}`);
+        }
+    }
   });
 
   document.getElementById("auto-expand-stoas")?.addEventListener('change', (e) => {
