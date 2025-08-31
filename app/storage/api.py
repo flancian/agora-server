@@ -160,20 +160,33 @@ def latest(max):
 
 def top():
     if _is_sqlite_enabled():
-        cache_key = 'top'
+        cache_key = 'top_v2' # Changed key to v2 to invalidate old cache.
         ttl = current_app.config['QUERY_CACHE_TTL'].get(cache_key, 3600)
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
         if cached_value and (time.time() - timestamp < ttl):
             current_app.logger.debug(f"Cache hit for '{cache_key}'.")
-            # Nodes are complex; we cache their URIs and rebuild them. The Node constructor is cheap.
-            node_uris = json.loads(cached_value)
-            return [NodeClass(uri) for uri in node_uris]
+            cached_data = json.loads(cached_value)
+            nodes = []
+            for item in cached_data:
+                # Reconstruct a lightweight node object from the cached data
+                n = NodeClass.__new__(NodeClass)
+                n.uri = item['uri']
+                n.wikilink = item['wikilink']
+                n.url = f"/node/{item['uri']}"
+                # Attach a function that returns the cached size
+                n.size = lambda s=item['size']: s
+                nodes.append(n)
+            return nodes
 
         current_app.logger.debug(f"Cache miss for '{cache_key}'.")
         nodes = file_engine.top()
-        node_uris = [n.uri for n in nodes]
-        sqlite_engine.save_cached_query(cache_key, json.dumps(node_uris), time.time())
+        # Cache all the data needed to reconstruct the object without file I/O
+        data_to_cache = [
+            {'uri': n.uri, 'wikilink': n.wikilink, 'size': n.size()}
+            for n in nodes
+        ]
+        sqlite_engine.save_cached_query(cache_key, json.dumps(data_to_cache), time.time())
         return nodes
     else:
         return file_engine.top()

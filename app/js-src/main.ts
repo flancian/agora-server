@@ -317,9 +317,18 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (toggle) toggle.innerHTML = '🌙';
         });
       }
-      // Re-render the graph if it exists on the page.
+      // Re-render the per-node graph if it exists on the page.
       if (document.getElementById('graph')) {
         renderGraph('graph', '/graph/json/' + NODENAME);
+      }
+      // Re-render the full agora graph if it exists on the page.
+      const fullGraphContainer = document.getElementById('full-graph');
+      if (fullGraphContainer) {
+          const activeTab = document.querySelector(".graph-size-tab.active");
+          if (activeTab) {
+              const size = activeTab.getAttribute('data-size');
+              renderGraph('full-graph', `/graph/json/top/${size}`);
+          }
       }
     });
   });

@@ -238,7 +238,9 @@ def graph_js():
 
 @bp.route("/graph/json/top/<int:count>")
 def graph_js_top(count):
-    nodes = api.top()[:count]
+    # This endpoint needs full node objects to trace links, so we bypass the api.top() cache
+    # and go directly to the file_engine.
+    nodes = api.file_engine.top()[:count]
     response = make_response(visualization.json_nodes(nodes))
     response.mimetype = "application/json"
     # Cache for 2 hours - expensive full graph JSON data
