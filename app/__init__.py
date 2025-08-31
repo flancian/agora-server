@@ -85,6 +85,10 @@ def create_app():
     def linkify(s):
         return bleach.linkify(s)
 
+    @app.template_filter("datetimeformat")
+    def datetimeformat(s, format="%Y-%m-%d %H:%M"):
+        return util.format_datetime(s, format)
+
     
 
     return app

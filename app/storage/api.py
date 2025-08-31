@@ -13,10 +13,12 @@
 # limitations under the License.
 
 import os
+import time
+import json
 from flask import current_app
 import app.storage.file_engine as file_engine
 import app.storage.sqlite_engine as sqlite_engine
-from app.graph import Graph as GraphClass, Node as NodeClass, User as UserClass
+from app.graph import Graph as GraphClass, Node as NodeClass, User as UserClass, Subnode as SubnodeClass
 
 # The file engine is always the source of truth.
 # The sqlite engine is a cache.
@@ -83,8 +85,26 @@ def all_journals():
     return file_engine.all_journals()
 
 def all_users():
-    # This could be cached, but for now remains file-based.
-    return file_engine.all_users()
+    if _is_sqlite_enabled():
+        cache_key = 'all_users'
+        ttl = current_app.config['QUERY_CACHE_TTL'].get(cache_key, 3600)
+        cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
+        
+        if cached_value and (time.time() - timestamp < ttl):
+            current_app.logger.debug(f"Cache hit for '{cache_key}'.")
+            # The result is a list of User objects, which can't be directly JSON serialized.
+            # We cache the usernames and reconstruct the objects. The User constructor is cheap.
+            usernames = json.loads(cached_value)
+            return [UserClass(u) for u in usernames]
+
+        current_app.logger.debug(f"Cache miss for '{cache_key}'.")
+        users = file_engine.all_users()
+        # Extract usernames for serialization.
+        usernames = [u.uri for u in users]
+        sqlite_engine.save_cached_query(cache_key, json.dumps(usernames), time.time())
+        return users
+    else:
+        return file_engine.all_users()
 
 def User(username):
     # User objects are built from subnodes, so the caching will happen there.
@@ -107,12 +127,62 @@ def search_subnodes_by_user(query, username):
     return file_engine.search_subnodes_by_user(query, username)
 
 def latest(max):
-    # This could be cached. For now, file-based.
-    return file_engine.latest(max)
+    if _is_sqlite_enabled():
+        cache_key = f'latest_v2_{max}' # Changed key to v2 to invalidate old cache.
+        ttl = current_app.config['QUERY_CACHE_TTL'].get('latest', 3600)
+        cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
+
+        if cached_value and (time.time() - timestamp < ttl):
+            current_app.logger.debug(f"Cache hit for '{cache_key}'.")
+            cached_data = json.loads(cached_value)
+            subnodes = []
+            for item in cached_data:
+                # Reconstruct a lightweight subnode object from the cached data
+                s = SubnodeClass.__new__(SubnodeClass)
+                s.uri = item['uri']
+                s.user = item['user']
+                s.wikilink = item['wikilink']
+                s.mtime = item['mtime']
+                subnodes.append(s)
+            return subnodes
+
+        current_app.logger.debug(f"Cache miss for '{cache_key}'.")
+        subnodes = file_engine.latest(max)
+        # Cache all the data needed to reconstruct the object without file I/O
+        data_to_cache = [
+            {'uri': s.uri, 'user': s.user, 'wikilink': s.wikilink, 'mtime': s.mtime}
+            for s in subnodes
+        ]
+        sqlite_engine.save_cached_query(cache_key, json.dumps(data_to_cache), time.time())
+        return subnodes
+    else:
+        return file_engine.latest(max)
 
 def top():
-    # This could be cached. For now, file-based.
-    return file_engine.top()
+    if _is_sqlite_enabled():
+        cache_key = 'top'
+        ttl = current_app.config['QUERY_CACHE_TTL'].get(cache_key, 3600)
+        cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
+
+        if cached_value and (time.time() - timestamp < ttl):
+            current_app.logger.debug(f"Cache hit for '{cache_key}'.")
+            # Nodes are complex; we cache their URIs and rebuild them. The Node constructor is cheap.
+            node_uris = json.loads(cached_value)
+            return [NodeClass(uri) for uri in node_uris]
+
+        current_app.logger.debug(f"Cache miss for '{cache_key}'.")
+        nodes = file_engine.top()
+        node_uris = [n.uri for n in nodes]
+        sqlite_engine.save_cached_query(cache_key, json.dumps(node_uris), time.time())
+        return nodes
+    else:
+        return file_engine.top()
 
 def stats():
     return file_engine.stats()
+
+def subnodes_by_outlink(node):
+    return file_engine.subnodes_by_outlink(node)
+
+def user_journals(username):
+    return file_engine.user_journals(username)

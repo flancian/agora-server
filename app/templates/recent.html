@@ -26,7 +26,7 @@
     <div class="delta-nodes">
         <span class="backlinks-header">Recently edited nodes</span><br />
         {% for subnode in subnodes %}
-        <a href="/@{{subnode.user}}/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a><br />
+        <a href="/@{{subnode.user}}/{{subnode.wikilink}}">[[{{subnode.wikilink}}]]</a> by <a href="/@{{subnode.user}}">@{{subnode.user}}</a> on <span class="wikilink-marker">[[</span><a href="/{{ subnode.mtime|datetimeformat('%Y-%m-%d') }}"><span class="node-name">{{ subnode.mtime|datetimeformat('%Y-%m-%d') }}</span></a><span class="wikilink-marker">]]</span><br />
         {% endfor %}
     </div>
 

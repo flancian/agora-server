@@ -147,8 +147,12 @@ class DefaultConfig(object):
     # TTLs for various caches in seconds. Set to 0 to disable caching for a given type.
     SQLITE_CACHE_TTL = {
         'ai_generation': 3600 * 24 * 7,  # 1 week
-        'fts_index': 3600 * 24,          # 1 day
-        'push_result': 300,              # 5 minutes
+    }
+
+    QUERY_CACHE_TTL = {
+        'all_users': 3600, # 1 hour
+        'latest': 3600,    # 1 hour
+        'top': 3600,       # 1 hour
     }
 
     # Set os env variable MISTRAL_API_KEY when enabled.

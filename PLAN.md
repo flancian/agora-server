@@ -20,22 +20,31 @@ This document outlines the plan to implement a hybrid storage system where the f
 
 ---
 
-## Next Steps
+## Future Work & Priorities
 
-The foundational work is complete, and the system is stable. The following tasks remain to fully realize the benefits of the SQLite index:
+The foundational work is complete, and the system is stable. The following tasks remain to fully realize the benefits of the SQLite index, prioritized as follows:
 
-1.  **Implement Full-Text Search (FTS):**
+### 1. Immediate Priority: Cache High-Level Queries
+**Goal:** Significantly improve performance for high-traffic list pages (`/users`, `/latest`, `/nodes`) with minimal impact on database size.
+
+*   **Tasks:**
+    *   Extend the SQLite schema with a simple key-value table for caching query results.
+    *   Modify expensive, file-based queries like `all_users()`, `latest()`, and `top()` to use this cache with a reasonable TTL.
+
+### 2. Next Up: Implement Full-Text Search (FTS)
+**Goal:** Provide near-instantaneous full-text search results.
+**Status:** On hold pending evaluation of database growth.
+
+*   **Tasks:**
     *   Create a virtual FTS5 table in the schema.
     *   Update the on-demand indexing logic to populate this table with subnode content.
-    *   Modify `search_subnodes` in `app/storage/api.py` to query the FTS index instead of the filesystem for a massive search performance boost.
+    *   Modify `search_subnodes` in `app/storage/api.py` to query the FTS index.
 
-2.  **Cache Additional Queries:**
-    *   Extend the on-demand caching to other expensive, file-based queries like `all_users()`, `latest()`, and `top()`.
+### 3. Longer-Term Goals
 
-3.  **Develop a Test Suite:**
+*   **Develop a Test Suite:**
     *   Create a formal test suite that can run against both the pure file engine and the hybrid SQLite engine to verify that they produce identical results.
-
-4.  **Create a Backfill Script (Optional):**
+*   **Create a Backfill Script (Optional):**
     *   Write a simple, one-off command-line script to pre-populate the index for existing production Agoras. While not strictly necessary due to the on-demand nature, this would "warm up" the cache for large sites.
 
 ---

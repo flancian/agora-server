@@ -85,6 +85,13 @@ def create_tables(db):
                 PRIMARY KEY (prompt, provider)
             );
         """)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS query_cache (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL,
+                timestamp INTEGER NOT NULL
+            );
+        """)
         # Migration: Add the source_node column to the links table if it doesn't exist.
         try:
             db.execute("ALTER TABLE links ADD COLUMN source_node TEXT;")
@@ -180,6 +187,42 @@ def save_ai_generation(prompt, provider, content, timestamp):
             db.execute(
                 "REPLACE INTO ai_generations (prompt, provider, content, timestamp) VALUES (?, ?, ?, ?)",
                 (prompt, provider, content, timestamp)
+            )
+    except sqlite3.OperationalError as e:
+        if 'read-only database' in str(e):
+            pass
+        else:
+            current_app.logger.error(f"Database write error: {e}")
+
+def get_cached_query(key):
+    """
+    Retrieves a cached query result.
+    Returns a tuple of (value, timestamp) or (None, None) if not found.
+    """
+    db = get_db()
+    if not db:
+        return None, None
+    
+    cursor = db.cursor()
+    cursor.execute(
+        "SELECT value, timestamp FROM query_cache WHERE key = ?", (key,)
+    )
+    result = cursor.fetchone()
+    return (result[0], result[1]) if result else (None, None)
+
+def save_cached_query(key, value, timestamp):
+    """
+    Saves or updates a cached query result.
+    """
+    db = get_db()
+    if not db:
+        return
+
+    try:
+        with db:
+            db.execute(
+                "REPLACE INTO query_cache (key, value, timestamp) VALUES (?, ?, ?)",
+                (key, value, timestamp)
             )
     except sqlite3.OperationalError as e:
         if 'read-only database' in str(e):

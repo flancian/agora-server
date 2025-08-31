@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
+import datetime
 from dateparser import DateDataParser
 from functools import lru_cache
 from urllib.parse import urlparse
@@ -138,3 +139,9 @@ def get_combined_date_regex():
 @lru_cache(maxsize=None)
 def is_journal(wikilink):
     return get_combined_date_regex().match(wikilink)
+
+def format_datetime(value, format='%Y-%m-%d %H:%M'):
+    """Converts a Unix timestamp to a formatted string."""
+    if value is None:
+        return ""
+    return datetime.datetime.fromtimestamp(value).strftime(format)
