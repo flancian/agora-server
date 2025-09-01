@@ -1,3 +1,37 @@
+# 🚀 Next Up: Implement Background Cache Worker
+
+**Status: In Progress**
+**Priority: High**
+
+This task outlines the plan to create a separate, background worker process responsible for populating the SQLite graph cache. This will decouple the expensive filesystem scan from the user-facing web application, eliminating "cold start" delays and ensuring a consistently fast user experience.
+
+---
+
+## Architectural Plan
+
+1.  **Self-Contained Worker (`worker.py`):**
+    *   Create a new `worker.py` script in the root of the repository.
+    *   This script will be entirely self-contained and will not require any changes to the existing Flask application logic in the `app/` directory.
+    *   It will import necessary functions directly from `app.graph` and `app.storage.sqlite_engine`.
+
+2.  **Robust Caching Strategy (Blue-Green Table Swap):**
+    *   The worker will connect to the `agora.db` SQLite database.
+    *   It will perform the full filesystem scan to build the graph data in memory.
+    *   Inside a single database transaction, it will:
+        1.  Create new, temporary tables (`subnodes_new`, `links_new`).
+        2.  Populate these new tables with the fresh graph data.
+        3.  Atomically `DROP` the old tables and `RENAME` the new tables into place.
+    *   This "table swap" method ensures that the live web application experiences zero downtime and can continue reading from the old, consistent cache data while the new data is being prepared.
+
+3.  **Scheduling:**
+    *   The `worker.py` script is intended to be run by an external scheduler like a `cron` job or a `systemd` timer (e.g., every 5-10 minutes). The setup of the scheduler is outside the scope of the application code itself.
+
+4.  **No Disruption Guarantee:**
+    *   This approach requires **no modifications** to the existing web application code. The Flask server will remain completely unaware of the background worker and will simply benefit from a perpetually warm cache.
+    *   The use of SQLite's WAL (Write-Ahead Logging) mode, which is already enabled, will prevent read/write conflicts between the worker and the web server.
+
+---
+
 # 🚀 High Priority: Implement On-Demand Hybrid SQLite Index
 
 **Status: In Progress**

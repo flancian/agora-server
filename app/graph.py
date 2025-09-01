@@ -161,6 +161,7 @@ class Graph:
         #   - ocassionally provides some code-generated utility by virtue of provisioning [[virtual subnodes]]
         # most node lookups in the Agora just look up a node in this list.
         # this is expensive but less so than subnodes().
+        current_app.logger.info("CACHE MISS: Recomputing all nodes.")
         begin = datetime.datetime.now()
         current_app.logger.debug(f"*** CACHE_TTL is {CACHE_TTL}.")
         current_app.logger.debug("*** Loading nodes at {begin}.")
@@ -227,6 +228,7 @@ class Graph:
         # as in -- this is where the rubber meets the road, meaning where we actually find all subnodes we can serve. This is called by G.nodes() which actually builds the Agora graph.
         # as of [[2022-01-28]] this takes about 20s to run with an Agora of about 17k subnodes.
         # which makes caching important :)
+        current_app.logger.info("CACHE MISS: Scanning filesystem for all subnodes.")
         begin = datetime.datetime.now()
         current_app.logger.debug(f"*** Loading subnodes at {begin}.")
         base = current_app.config["AGORA_PATH"]
