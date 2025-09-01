@@ -202,6 +202,25 @@ document.addEventListener("DOMContentLoaded", async function () {
     localStorage["show-hypothesis"] = false;
   });
 
+  document.getElementById("toggle-hypothesis")?.addEventListener('click', () => {
+    const hypothesisFrame = document.getElementById('hypothesis-frame');
+    const showHypothesisCheckbox = document.getElementById("show-hypothesis") as HTMLInputElement;
+    
+    if (hypothesisFrame && showHypothesisCheckbox) {
+      const isVisible = hypothesisFrame.classList.toggle('visible');
+      showHypothesisCheckbox.checked = isVisible;
+      localStorage["show-hypothesis"] = isVisible;
+    }
+  });
+
+  document.getElementById("scroll-to-bottom")?.addEventListener('click', () => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  });
+
+  document.getElementById("scroll-to-top")?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
   // Make the Hypothesis frame draggable
   const dragHandle = document.getElementById('hypothesis-drag-handle');
 
@@ -670,11 +689,25 @@ document.addEventListener("DOMContentLoaded", async function () {
     window.location.href = url.href;
   });
 
-  document.querySelector("#mini-cli-pull").addEventListener("click", () => {
-    console.log("pull mini-cli executes");
-    document.querySelectorAll("details:not([open]) > summary").forEach(summary => {
-        (summary as HTMLElement).click();
-    });
+  document.querySelector("#mini-cli-pull")?.addEventListener("click", (e) => {
+    const button = e.currentTarget as HTMLElement;
+    const isExpanded = button.dataset.state === 'expanded';
+
+    if (isExpanded) {
+      console.log("pull mini-cli executes: collapsing all");
+      document.querySelectorAll("details[open] > summary").forEach(summary => {
+          (summary as HTMLElement).click();
+      });
+      button.innerHTML = '🧲 pull';
+      button.dataset.state = 'collapsed';
+    } else {
+      console.log("pull mini-cli executes: expanding all");
+      document.querySelectorAll("details:not([open]) > summary").forEach(summary => {
+          (summary as HTMLElement).click();
+      });
+      button.innerHTML = '🤏 fold';
+      button.dataset.state = 'expanded';
+    }
   });
 
   /*

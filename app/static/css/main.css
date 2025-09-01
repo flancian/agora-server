@@ -1159,7 +1159,6 @@ body.overlay-open {
 
 #demo-popup {
     background-color: var(--node-bg);
-    border: 1px solid var(--border);
     border-radius: 8px;
     width: 50%;
     max-width: 600px;
@@ -1171,20 +1170,37 @@ body.overlay-open {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--border);
-    background-color: var(--accent-bg);
+    background-color: #333;
+    color: #ccc;
+    padding: 2px 8px;
+    border: 1px solid #444;
+    border-radius: 5px 5px 0 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     cursor: move; /* Draggable cue */
 }
 
 #demo-popup-title {
     font-weight: bold;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    color: #ccc;
+    flex-grow: 1;
+    text-align: center;
 }
 
 #demo-popup-close-btn {
     cursor: pointer;
-    font-size: 1.5rem;
+    color: #fff;
+    background-color: #555;
+    border: 1px solid #777;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 18px;
+    font-family: sans-serif;
     font-weight: bold;
+    font-size: 16px; /* To make the 'x' look right */
 }
 
 #demo-popup-content {
