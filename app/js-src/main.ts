@@ -213,6 +213,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     let initialY;
     let xOffset = 0;
     let yOffset = 0;
+    let hasBeenPositionedByJs = false;
 
     const setTranslate = (xPos, yPos, el) => {
       el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
@@ -225,9 +226,22 @@ document.addEventListener("DOMContentLoaded", async function () {
         xOffset = pos.x;
         yOffset = pos.y;
         setTranslate(xOffset, yOffset, hypothesisFrame);
+        hasBeenPositionedByJs = true;
     }
 
     const dragStart = (e) => {
+      if (!hasBeenPositionedByJs) {
+          const rect = hypothesisFrame.getBoundingClientRect();
+          // Switch to transform-based positioning.
+          hypothesisFrame.style.top = '0px';
+          hypothesisFrame.style.right = 'auto';
+          hypothesisFrame.style.left = '0px';
+          xOffset = rect.left;
+          yOffset = rect.top;
+          setTranslate(xOffset, yOffset, hypothesisFrame);
+          hasBeenPositionedByJs = true;
+      }
+
       if (e.type === "touchstart") {
         initialX = e.touches[0].clientX - xOffset;
         initialY = e.touches[0].clientY - yOffset;

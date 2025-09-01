@@ -1164,8 +1164,7 @@ body.overlay-open {
     width: 50%;
     max-width: 600px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    position: absolute; /* Needed for dragging */
-    top: 20%; /* Initial position */
+    /* position: absolute; was needed for dragging, but transform is better. */
 }
 
 #demo-popup-header {
