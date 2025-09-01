@@ -1212,3 +1212,16 @@ body.overlay-open {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+@media screen and (max-width: 48em) {
+    #demo-popup {
+        width: 95%;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #demo-popup-content {
+        overflow-y: auto;
+    }
+}

@@ -699,13 +699,15 @@ document.addEventListener("DOMContentLoaded", async function () {
           (summary as HTMLElement).click();
       });
       button.innerHTML = '🧲 pull';
+      button.title = 'Tries to pull (embed) more into this context';
       button.dataset.state = 'collapsed';
     } else {
       console.log("pull mini-cli executes: expanding all");
       document.querySelectorAll("details:not([open]) > summary").forEach(summary => {
           (summary as HTMLElement).click();
       });
-      button.innerHTML = '🤏 fold';
+      button.innerHTML = '✕ fold';
+      button.title = 'Collapses all expanded sections';
       button.dataset.state = 'expanded';
     }
   });
