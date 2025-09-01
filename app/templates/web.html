@@ -18,10 +18,10 @@
     <summary>
         <span class="web-header" title="Web search results.">
             <strong>🔍 Web results</strong> by
-            <span class="web-provider-tab active" data-provider="google" data-url="https://www.google.com/search?igu=1&q={{node.q}}">Google</span><a href="https://www.google.com/search?q={{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab" data-provider="google" data-url="https://www.google.com/search?igu=1&q={{node.q}}">Google</span><a href="https://www.google.com/search?q={{node.q}}" target="_blank">⬈</a> •
             <span class="web-provider-tab" data-provider="bing" data-url="https://www.bing.com/search?q={{node.q}}">Bing</span><a href="https://www.bing.com/search?q={{node.q}}" target="_blank">⬈</a> •
             <span class="web-provider-tab" data-provider="duckduckgo" data-url="https://www.duckduckgo.com/{{node.q}}">DDG</span><a href="https://www.duckduckgo.com/{{node.q}}" target="_blank">⬈</a> •
-            <span class="web-provider-tab" data-provider="marginalia" data-url="https://marginalia-search.com/search?query={{node.q}}">Marginalia</span><a href="https://marginalia-search.com/search?query={{node.q}}" target="_blank">⬈</a> •
+            <span class="web-provider-tab active" data-provider="marginalia" data-url="https://marginalia-search.com/search?query={{node.q}}">Marginalia</span><a href="https://marginalia-search.com/search?query={{node.q}}" target="_blank">⬈</a> •
             <span class="web-provider-tab" data-provider="youtube" data-url="https://youtube.com/search?q={{node.q}}">YouTube</span><a href="https://youtube.com/search?q={{node.q}}" target="_blank">⬈</a> •
             <span class="web-provider-tab" data-provider="maps" data-url="https://www.google.com/maps?q={{node.q}}&output=embed">Maps</span><a href="https://www.google.com/maps/search/{{node.q}}" target="_blank">⬈</a> •
             <span class="web-provider-tab" data-provider="youtubemusic" data-url="https://music.youtube.com/search?q={{node.q}}">YouTube Music</span><a href="https://music.youtube.com/search?q={{node.q}}" target="_blank">⬈</a> •
@@ -38,18 +38,15 @@
     </div>
 
     <div class="subnode">
-        <div class="web-embed" data-provider="google" class="display-block"></div>
-        <div class="web-embed" data-provider="bing" class="display-none"></div>
-        <div class="web-embed" data-provider="duckduckgo" class="display-none"></div>
-        <div class="web-embed" data-provider="marginalia" class="display-none"></div>
-        <div class="web-embed" data-provider="youtube" class="display-none"></div>
-        <div class="web-embed" data-provider="maps" class="display-none"></div>
-        <div class="web-embed" data-provider="youtubemusic" class="display-none"></div>
-        <div class="web-embed" data-provider="spotify" class="display-none"></div>
-        <div class="web-embed" data-provider="bsky" class="display-none"></div>
-        <div class="web-embed" data-provider="tootfinder" class="display-none"></div>
+        <div class="web-embed" data-provider="google" style="display: none;"></div>
+        <div class="web-embed" data-provider="bing" style="display: none;"></div>
+        <div class="web-embed" data-provider="duckduckgo" style="display: none;"></div>
+        <div class="web-embed" data-provider="marginalia" style="display: block;"></div>
+        <div class="web-embed" data-provider="youtube" style="display: none;"></div>
+        <div class="web-embed" data-provider="maps" style="display: none;"></div>
+        <div class="web-embed" data-provider="youtubemusic" style="display: none;"></div>
+        <div class="web-embed" data-provider="spotify" style="display: none;"></div>
+        <div class="web-embed" data-provider="bsky" style="display: none;"></div>
+        <div class="web-embed" data-provider="tootfinder" style="display: none;"></div>
     </div>
 </details>
-
-
-

@@ -694,17 +694,29 @@ document.addEventListener("DOMContentLoaded", async function () {
     const isExpanded = button.dataset.state === 'expanded';
 
     if (isExpanded) {
-      console.log("pull mini-cli executes: collapsing all");
-      document.querySelectorAll("details[open] > summary").forEach(summary => {
-          (summary as HTMLElement).click();
+      console.log("pull mini-cli executes: collapsing top-level details");
+      document.querySelectorAll("details[open]").forEach(detail => {
+        // Only click the summary if this <details> element is not nested within another <details> element.
+        if (!detail.parentElement.closest('details')) {
+            const summary = detail.querySelector(':scope > summary');
+            if (summary) {
+                (summary as HTMLElement).click();
+            }
+        }
       });
       button.innerHTML = '🧲 pull';
       button.title = 'Tries to pull (embed) more into this context';
       button.dataset.state = 'collapsed';
     } else {
-      console.log("pull mini-cli executes: expanding all");
-      document.querySelectorAll("details:not([open]) > summary").forEach(summary => {
-          (summary as HTMLElement).click();
+      console.log("pull mini-cli executes: expanding top-level details");
+      document.querySelectorAll("details:not([open])").forEach(detail => {
+        // Only click the summary if this <details> element is not nested within another <details> element.
+        if (!detail.parentElement.closest('details')) {
+            const summary = detail.querySelector(':scope > summary');
+            if (summary) {
+                (summary as HTMLElement).click();
+            }
+        }
       });
       button.innerHTML = '✕ fold';
       button.title = 'Collapses all expanded sections';
