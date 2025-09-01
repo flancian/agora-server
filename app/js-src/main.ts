@@ -486,10 +486,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Demo mode button and popup logic.
   const demoButton = document.getElementById("mini-cli-demo");
   const demoPopupContainer = document.getElementById("demo-popup-container");
+  const demoPopup = document.getElementById("demo-popup");
   const demoPopupContent = document.getElementById("demo-popup-content");
   const demoCloseButton = document.getElementById("demo-popup-close-btn");
+  const demoDragHandle = document.getElementById("demo-popup-header");
 
-  if (demoPopupContainer && demoPopupContent && demoCloseButton) {
+  if (demoPopupContainer && demoPopup && demoPopupContent && demoCloseButton && demoDragHandle) {
     const messages = [
         "The [[Agora]] is a [[Free Knowledge Commons]]. What will you contribute?",
         "Every [[wikilink]] is a potential connection. Where will you explore next?",
@@ -499,9 +501,31 @@ document.addEventListener("DOMContentLoaded", async function () {
         "The code for this Agora is open source. You can find it on [[GitHub]]."
     ];
 
+    const renderClientSideWikilinks = (text) => {
+        return text.replace(/\[\[(.*?)\]\]/g, (match, target) => {
+            // Do not slugify; simply URL-encode the target for the href.
+            const link = encodeURIComponent(target);
+            return `<span class="wikilink-marker">[[</span><a href="/${link}" title="[[${target}]]" class="wikilink">${target}</a><span class="wikilink-marker">]]</span>`;
+        });
+    };
+
     const showPopup = () => {
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-        demoPopupContent.innerHTML = randomMessage;
+        demoPopupContent.innerHTML = renderClientSideWikilinks(randomMessage);
+
+        // Fetch and append a random artifact.
+        fetch('/api/random_artifact')
+            .then(response => response.json())
+            .then(data => {
+                if (data.content) {
+                    const separator = '<hr style="margin: 1rem 0;">';
+                    const promptHTML = `<strong>An artifact from node ${renderClientSideWikilinks(`[[${data.prompt}]]`)}:</strong><br>`;
+                    const artifactHTML = data.content; // This is already rendered HTML from the server.
+                    demoPopupContent.innerHTML += separator + promptHTML + artifactHTML;
+                }
+            })
+            .catch(error => console.error('Error fetching random artifact:', error));
+
         demoPopupContainer.classList.add('active');
     };
 
@@ -518,12 +542,80 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     demoCloseButton.addEventListener("click", hidePopup);
 
-    // Also close if the user clicks on the backdrop.
     demoPopupContainer.addEventListener("click", (e) => {
         if (e.target === demoPopupContainer) {
             hidePopup();
         }
     });
+
+    // Draggable logic adapted from Hypothesis panel.
+    let active = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    const setTranslate = (xPos, yPos, el) => {
+      el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+    }
+
+    const savedPosition = localStorage.getItem('demo-popup-position');
+    if (savedPosition) {
+        const pos = JSON.parse(savedPosition);
+        xOffset = pos.x;
+        yOffset = pos.y;
+        setTranslate(xOffset, yOffset, demoPopup);
+    }
+
+    const dragStart = (e) => {
+      if (e.type === "touchstart") {
+        initialX = e.touches[0].clientX - xOffset;
+        initialY = e.touches[0].clientY - yOffset;
+      } else {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+      }
+
+      if (e.target === demoDragHandle || (e.target as HTMLElement).parentElement === demoDragHandle) {
+        active = true;
+      }
+    }
+
+    const dragEnd = (e) => {
+      initialX = currentX;
+      initialY = currentY;
+      active = false;
+      localStorage.setItem('demo-popup-position', JSON.stringify({ x: xOffset, y: yOffset }));
+    }
+
+    const drag = (e) => {
+      if (active) {
+        e.preventDefault();
+        if (e.type === "touchmove") {
+          currentX = e.touches[0].clientX - initialX;
+          currentY = e.touches[0].clientY - initialY;
+        } else {
+          currentX = e.clientX - initialX;
+          currentY = e.clientY - initialY;
+        }
+
+        xOffset = currentX;
+        yOffset = currentY;
+
+        setTranslate(currentX, currentY, demoPopup);
+      }
+    }
+
+    demoDragHandle.addEventListener('mousedown', dragStart, false);
+    demoDragHandle.addEventListener('touchstart', dragStart, false);
+
+    document.addEventListener('mouseup', dragEnd, false);
+    document.addEventListener('touchend', dragEnd, false);
+
+    document.addEventListener('mousemove', drag, false);
+    document.addEventListener('touchmove', drag, false);
   }
 
   const toastContainer = document.getElementById('toast-container');

@@ -917,6 +917,17 @@ def gemini_complete_route(prompt):
     answer = gemini_complete(prompt)
     return render.markdown(answer)
 
+@bp.route("/api/random_artifact")
+def random_artifact():
+    if current_app.config.get('ENABLE_SQLITE', False):
+        prompt, content = api.sqlite_engine.get_random_ai_generation()
+        if content:
+            return jsonify({
+                'prompt': prompt,
+                'content': render.markdown(content)
+            })
+    return jsonify({'content': '<em>No artifacts found in the database cache.</em>'})
+
 # Fediverse space is: /inbox, /outbox, /users/<username>, .well-known/webfinger, .well-known/nodeinfo?
 
 def ap_key_setup():

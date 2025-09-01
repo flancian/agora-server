@@ -229,3 +229,19 @@ def save_cached_query(key, value, timestamp):
             pass
         else:
             current_app.logger.error(f"Database write error: {e}")
+
+def get_random_ai_generation():
+    """
+    Retrieves a single random AI generation from the cache.
+    Returns a tuple of (prompt, content) or (None, None) if the table is empty.
+    """
+    db = get_db()
+    if not db:
+        return None, None
+    
+    cursor = db.cursor()
+    cursor.execute(
+        "SELECT prompt, content FROM ai_generations ORDER BY RANDOM() LIMIT 1"
+    )
+    result = cursor.fetchone()
+    return (result[0], result[1]) if result else (None, None)
