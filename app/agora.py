@@ -649,7 +649,7 @@ def search():
     """Redirects to an appropriate context.
     Originally called "jump" because in the [[agora]] nodes *always* exist, as they map 1:1 to all possible queries. Thus [[agora search]].
     """
-    qstr = request.args.get("q")
+    qstr = request.args.get("q") or ""
     tokens = qstr.split(" ")
 
     if '/' in qstr:

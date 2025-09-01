@@ -148,6 +148,11 @@
            <button id="mini-cli-go" value="go" title="Follows a go link if one is found in this node; may redirect outside the Agora or to a different Agora location.">
                🏃 go
            </button>
+            {% if config.AGORA_DEMO_MODE %}
+           <button id="mini-cli-demo" value="demo" title="Toggle Agora Demo Mode">
+               🎭 demo
+           </button>
+            {% endif %}
 
             <!--<button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>-->
             <!-- <button id="pull-top" value="pull-all" title="Pulls everything that can be pulled below">pull</button>
@@ -158,6 +163,18 @@
         </div>
   </nav>
 
+  <!-- Demo Mode Popup -->
+  <div id="demo-popup-container" class="display-none">
+    <div id="demo-popup">
+        <div id="demo-popup-header">
+            <span id="demo-popup-title">A Message from the Agora</span>
+            <span id="demo-popup-close-btn">x</span>
+        </div>
+        <div id="demo-popup-content">
+            <!-- Content will be injected by JavaScript -->
+        </div>
+    </div>
+  </div>
 
   <!-- hypothesis -->
   <div id='hypothesis-frame'>

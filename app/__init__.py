@@ -89,6 +89,10 @@ def create_app():
     def datetimeformat(s, format="%Y-%m-%d %H:%M"):
         return util.format_datetime(s, format)
 
+    @app.template_filter("node_url")
+    def node_url(node_uri):
+        return f"/{node_uri}"
+
     
 
     return app

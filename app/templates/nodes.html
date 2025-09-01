@@ -55,7 +55,7 @@ There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']
     <div class="nodes-list">
     {% for node in nodes %}
         <div class="node-item">
-            <a href="{{node.uri}}" class="node-link">
+            <a href="{{node.uri|node_url}}" class="node-link">
                 <span class="node-name">{{node.wikilink}}</span>
                 <span class="node-size">({{node.size()}})</span>
             </a>

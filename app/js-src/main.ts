@@ -483,6 +483,49 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.querySelector("#mini-cli").parentElement.submit();
   });
 
+  // Demo mode button and popup logic.
+  const demoButton = document.getElementById("mini-cli-demo");
+  const demoPopupContainer = document.getElementById("demo-popup-container");
+  const demoPopupContent = document.getElementById("demo-popup-content");
+  const demoCloseButton = document.getElementById("demo-popup-close-btn");
+
+  if (demoPopupContainer && demoPopupContent && demoCloseButton) {
+    const messages = [
+        "The [[Agora]] is a [[Free Knowledge Commons]]. What will you contribute?",
+        "Every [[wikilink]] is a potential connection. Where will you explore next?",
+        "This Agora is running on a server somewhere, but the content comes from people like you. It is a [[distributed]] system.",
+        "Fun fact: The name 'Agora' comes from the ancient Greek word for a public open space used for assemblies and markets.",
+        "Have you tried visiting a [[date]]? What about [[today]]?",
+        "The code for this Agora is open source. You can find it on [[GitHub]]."
+    ];
+
+    const showPopup = () => {
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+        demoPopupContent.innerHTML = randomMessage;
+        demoPopupContainer.classList.add('active');
+    };
+
+    const hidePopup = () => {
+        demoPopupContainer.classList.remove('active');
+    };
+
+    if (demoButton) {
+        demoButton.addEventListener("click", () => {
+            demoButton.classList.toggle('active');
+            showPopup();
+        });
+    }
+
+    demoCloseButton.addEventListener("click", hidePopup);
+
+    // Also close if the user clicks on the backdrop.
+    demoPopupContainer.addEventListener("click", (e) => {
+        if (e.target === demoPopupContainer) {
+            hidePopup();
+        }
+    });
+  }
+
   const toastContainer = document.getElementById('toast-container');
   //
 

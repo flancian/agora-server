@@ -273,4 +273,8 @@ class LocalDevelopmentConfig(DefaultConfig):
     # Set MISTRAL_API_KEY and GEMINI_API_KEY env variables when enabling :)
     ENABLE_AI = True
 
+    # Demo mode settings
+    AGORA_DEMO_MODE = True
+    AGORA_DEMO_TARGET = "https://anagora.org"
+
 
