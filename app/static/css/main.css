@@ -321,6 +321,7 @@ details[open] > :not(summary) {
 .spinner-container {
     overflow: hidden;
     text-align: center;
+    overflow-x: hidden;
 }
 
 .spinner {
@@ -984,6 +985,26 @@ body.overlay-open {
     font-weight: bold;
     background-color: var(--tab-active-bg);
     text-decoration: none;
+}
+
+.ai-generations-container {
+    position: relative;
+    overflow-x: hidden;
+}
+
+@keyframes slide-in-from-bottom {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.ai-embed.visible {
+    animation: slide-in-from-bottom 0.5s ease-out forwards;
 }
 
 .links-flex {

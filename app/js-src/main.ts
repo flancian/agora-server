@@ -951,6 +951,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 try {
                     const response = await fetch(AGORAURL + endpoint + encodeURIComponent(nodeId));
                     embedDiv.innerHTML = await response.text();
+                    embedDiv.classList.add('visible');
                 } catch (error) {
                     embedDiv.innerHTML = `<p>Error loading content: ${error}</p>`;
                 }
