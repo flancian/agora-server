@@ -214,20 +214,22 @@ li img {
 }
 
 .iframe-container {
-    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .iframe-url-overlay {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
+    align-self: flex-end;
+    margin-top: 5px;
+    margin-right: 10px;
+    position: relative;
+    z-index: 1;
     font-size: smaller;
     font-style: italic;
     color: var(--agora-protocol-text);
     background-color: var(--agora-protocol-bg);
     padding: 2px 5px;
     border-radius: 3px;
-    z-index: 1;
     max-width: 50%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1019,10 +1021,9 @@ body.overlay-open {
     align-items: center;
 }
 
-.node-name {
+.node-link .node-name {
     font-weight: 500;
     flex-grow: 1;
-    margin-right: 0.5rem;
 }
 
 .node-size {
