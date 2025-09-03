@@ -489,6 +489,10 @@ button, input {
     padding: 4px;
 }
 
+#scroll-toggle {
+    height: 25px;
+}
+
 .cli-header {
     margin-right: 10px;
 }

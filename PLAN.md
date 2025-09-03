@@ -256,6 +256,58 @@ Additional improvements beyond performance:
 
 ---
 
+# 💡 Future Feature Idea: Agora Notes / Seedlings
+
+**(Proposed by Gemini)**
+
+**Status: Idea / To Be Prioritized**
+**Priority: Low**
+
+This document outlines a proposal for a new feature that would add a native, low-friction way for users to leave short, informal notes on any node in the Agora. This would bridge the gap between passive consumption and the higher-commitment act of creating a full subnode in a personal digital garden.
+
+---
+
+## Concept: "Seedlings"
+
+The core idea is to add a "scratchpad" or "notes" section to every node page. This would allow any user (identified by their "Browse As" name) to contribute fleeting thoughts, questions, or links directly to the node, fostering a more dynamic and conversational layer on top of the curated knowledge base.
+
+These contributions are called "Seedlings" because they represent nascent ideas that could, with time and cultivation, grow into more complete thoughts or even full subnodes.
+
+## User Experience
+
+-   **Display**: A new section, perhaps titled "🌱 Seedlings," would appear on each node page, listing all notes for that node. Each note would show its content, the author, and a timestamp.
+-   **Contribution**: A simple `<textarea>` and a "Leave a Note" button would allow for quick, asynchronous submission of new notes without a page reload.
+-   **Integration**: Notes would be rendered using the Agora's standard processor, meaning any `[[wikilinks]]` within them would be fully functional and integrated into the graph.
+
+## Proposed Technical Implementation
+
+This feature is designed to integrate cleanly with the existing architecture.
+
+1.  **Database (SQLite):**
+    *   A new table, `agora_notes`, would be added to `agora.db`.
+    *   **Schema**: `id`, `node_uri`, `author`, `content`, `timestamp`.
+
+2.  **Backend API (`app/agora.py`):**
+    *   `GET /api/notes/<path:node_uri>`: Fetches all notes for a given node as JSON.
+    *   `POST /api/notes/add`: Accepts a JSON payload (`node_uri`, `author`, `content`) and creates a new note in the database.
+
+3.  **Frontend Logic (`app/js-src/main.ts`):**
+    *   On node page load, a new function would call the `GET` endpoint to fetch and render existing notes.
+    *   An event listener on the "Leave a Note" button would handle the `POST` request and dynamically add the new note to the page on success.
+
+## Benefits
+
+-   **Universality**: Every node would have a space for spontaneous collaboration.
+-   **Lower Barrier to Entry**: Encourages participation from users who may not maintain a full digital garden.
+-   **Searchability**: As a native feature, these notes could be integrated into the Agora's search index.
+-   **Performance**: A lightweight API is more efficient than loading a full external application in an iframe for this purpose.
+
+---
+
+*This analysis was conducted in August 2025. The codebase shows signs of mature, thoughtful development with room for systematic improvement.*
+
+---
+
 # Codebase Analysis & Observations
 
 *Added by Claude - comprehensive analysis for future developers*

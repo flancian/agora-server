@@ -213,13 +213,33 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
-  document.getElementById("scroll-to-bottom")?.addEventListener('click', () => {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-  });
+  // Unified scroll button logic
+  const scrollToggle = document.getElementById("scroll-toggle") as HTMLElement;
 
-  document.getElementById("scroll-to-top")?.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
+  if (scrollToggle) {
+    const updateScrollButton = () => {
+        // Check if we are at the bottom of the page (with a small tolerance)
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
+            scrollToggle.innerHTML = '▲';
+            scrollToggle.title = 'Scroll to top';
+        } else {
+            scrollToggle.innerHTML = '▼';
+            scrollToggle.title = 'Scroll to bottom';
+        }
+    };
+
+    // Update button on scroll
+    window.addEventListener('scroll', updateScrollButton);
+
+    // Handle button click
+    scrollToggle.addEventListener('click', () => {
+        if (scrollToggle.innerHTML === '▲') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    });
+  }
 
   // Make the Hypothesis frame draggable
   const dragHandle = document.getElementById('hypothesis-drag-handle');
