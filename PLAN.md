@@ -1,3 +1,20 @@
+# ✅ Completed: UI Polish and Bug Fixes (September 2025)
+
+This session focused on a series of rapid UI/UX refinements and bug fixes to improve the overall user experience.
+
+-   **Theme Toggle**: Replaced the text-based theme toggle with a modern, animated switch in the main navbar for a more intuitive feel.
+-   **Button Relocations**:
+    -   Moved the "Demo" and "Annotate" buttons from the navbar and overlay to the main footer for better contextual grouping of actions.
+    -   Moved the "Scroll to Top" and "Scroll to Bottom" buttons to the main navbar for easy access.
+-   **"Pull/Fold" Button**: Enhanced the "Pull" button to act as a toggle. It now changes its icon and tooltip to "Fold" after expanding all sections, allowing users to collapse all sections with a second click.
+-   **Wikilink Spacing Bug**: Diagnosed and fixed a CSS bug that was causing extra whitespace to appear next to wikilinks in node headers. The fix involved making a CSS rule more specific so it only applied on the `/nodes` page as originally intended.
+-   **Search Provider Default**: Changed the default web search provider to Marginalia to provide a better user experience by avoiding cookie banners.
+-   **Iframe URL Overlay**: Improved the positioning of the URL overlay on iframes to sit cleanly below the frame instead of overlapping it.
+-   **Mobile Demo Popup**: Made the "Demo" popup responsive, ensuring it uses more screen width and does not exceed the screen height on mobile devices.
+-   **"Browse As" Animation**: Addressed a visual bug where the "Browse As" subnode sorting would cause a distracting flicker. Replaced it with a subtle but clear "pulse" animation that highlights the subnode after it has been moved to the top.
+
+---
+
 # 🚀 Next Up: Implement Background Cache Worker
 
 **Status: In Progress**
