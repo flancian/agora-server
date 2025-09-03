@@ -343,44 +343,43 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   // Theme toggle stuff for initial load
-  const themeCheckbox = document.getElementById("theme-checkbox") as HTMLInputElement;
+  const themeCheckboxes = document.querySelectorAll(".theme-checkbox-input") as NodeListOf<HTMLInputElement>;
   const currentTheme = localStorage.getItem("theme");
+
+  const setTheme = (theme: 'dark' | 'light') => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem("theme", theme);
+    themeCheckboxes.forEach(checkbox => {
+        checkbox.checked = theme === 'dark';
+    });
+
+    // Re-render graphs if they exist.
+    if (document.getElementById('graph')) {
+        renderGraph('graph', '/graph/json/' + NODENAME);
+    }
+    const fullGraphContainer = document.getElementById('full-graph');
+    if (fullGraphContainer) {
+        const activeTab = document.querySelector(".graph-size-tab.active");
+        if (activeTab) {
+            const size = activeTab.getAttribute('data-size');
+            renderGraph('full-graph', `/graph/json/top/${size}`);
+        }
+    }
+  };
 
   // Set the theme on initial load
   if (currentTheme === "dark") {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    if (themeCheckbox) themeCheckbox.checked = true;
+    setTheme('dark');
   } else {
-    // Default to light theme
-    document.documentElement.setAttribute('data-theme', 'light');
-    if (themeCheckbox) themeCheckbox.checked = false;
+    setTheme('light');
   }
 
-  // Then listen for clicks on the theme toggle button or the link text
-  if (themeCheckbox) {
-    themeCheckbox.addEventListener('change', function (event) {
-      if (themeCheckbox.checked) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem("theme", "dark");
-      } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.setItem("theme", "light");
-      }
-      // Re-render the per-node graph if it exists on the page.
-      if (document.getElementById('graph')) {
-        renderGraph('graph', '/graph/json/' + NODENAME);
-      }
-      // Re-render the full agora graph if it exists on the page.
-      const fullGraphContainer = document.getElementById('full-graph');
-      if (fullGraphContainer) {
-          const activeTab = document.querySelector(".graph-size-tab.active");
-          if (activeTab) {
-              const size = activeTab.getAttribute('data-size');
-              renderGraph('full-graph', `/graph/json/top/${size}`);
-          }
-      }
+  // Add event listeners to both checkboxes
+  themeCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+        setTheme(checkbox.checked ? 'dark' : 'light');
     });
-  }
+  });
 
   // Burger menu, where we keep settings presumably :)
   document.querySelectorAll(['#burger', '#join', '#join2']).forEach(element => {
@@ -1053,54 +1052,34 @@ document.addEventListener("DOMContentLoaded", async function () {
         const subnodesContainer = document.querySelector('.node[open]');
         if (!subnodesContainer) return;
 
-        // Select only the direct contribution subnodes, not other elements with the .subnode class.
-        const subnodes = Array.from(subnodesContainer.querySelectorAll('details.subnode[data-author]'));
-        if (subnodes.length < 2) return; // No need to sort if there's 0 or 1 subnode.
+        const allSubnodes = Array.from(subnodesContainer.querySelectorAll('details.subnode[data-author]'));
+        if (allSubnodes.length < 2) return;
 
-        const userSubnodes = subnodes.filter(subnode => (subnode as HTMLElement).dataset.author === user);
-        
-        if (userSubnodes.length === 0) return; // No subnodes for this user.
+        const userSubnodes = allSubnodes.filter(subnode => (subnode as HTMLElement).dataset.author === user);
+        if (userSubnodes.length === 0) return;
 
-        // The insertion point is the first subnode in the list.
-        const firstSubnode = subnodes[0];
+        // Move the elements to their new position.
+        const firstSubnode = subnodesContainer.querySelector('details.subnode[data-author]');
+        if (firstSubnode) {
+            userSubnodes.reverse().forEach(subnode => {
+                firstSubnode.parentNode.insertBefore(subnode, firstSubnode);
+            });
+        }
 
-        // Move the user's subnodes to be before the first subnode.
-        // Iterate in reverse to maintain their original relative order.
-        userSubnodes.reverse().forEach(subnode => {
-            firstSubnode.parentNode.insertBefore(subnode, firstSubnode);
+        // Add the highlight class, then remove it to fade back to normal.
+        console.log(`Animating ${userSubnodes.length} subnodes for user ${user}.`);
+        userSubnodes.forEach(subnode => {
+            // Start the highlight.
+            subnode.classList.add('subnode-arrived');
+            // Set a timer to remove the highlight, which triggers the fade-out transition.
+            setTimeout(() => {
+                subnode.classList.remove('subnode-arrived');
+            }, 100); // A short delay before fading back.
         });
     };
 
-    // We create the observer here so we can disconnect/reconnect it inside the debounced function.
-    const observer = new MutationObserver((mutations) => {
-        for (let mutation of mutations) {
-            if (mutation.type === 'childList') {
-                debouncedSort();
-            }
-        }
-    });
-
-    const debouncedSort = debounce(() => {
-        // Disconnect the observer right before we make DOM changes.
-        observer.disconnect();
-        // Run the sorting function.
-        sortSubnodes();
-        // Reconnect the observer after we're done.
-        const subnodesContainer = document.querySelector('.node[open]');
-        if (subnodesContainer) {
-            observer.observe(subnodesContainer, { childList: true, subtree: true });
-        }
-    }, 150); // A slightly longer debounce window might feel smoother.
-
-
     // Initial sort after async content is loaded
     sortSubnodes();
-
-    // Start observing after the initial sort.
-    const subnodesContainer = document.querySelector('.node[open]');
-    if (subnodesContainer) {
-        observer.observe(subnodesContainer, { childList: true, subtree: true });
-    }
 
     // Check local storage to see if the info boxes should be hidden
     const dismissButtons = document.querySelectorAll(".dismiss-button");

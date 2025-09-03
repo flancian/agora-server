@@ -576,6 +576,12 @@ summary {
     margin-top: 10px;
     margin-bottom: 10px;
     overflow-x: auto;
+    position: relative;
+    transition: background-color 0.8s ease-out;
+}
+
+.subnode-arrived {
+    background-color: var(--intro-footer-bg);
 }
 
 .info-box {
