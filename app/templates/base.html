@@ -118,11 +118,11 @@
 		  <!-- Now moved to burger: overlay.html 
           {{config['MENU_SEPARATOR']}} <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
 			-->
-      {{config['MENU_SEPARATOR']}} 
-      <span class="navbar-item">
-			<span class='theme-toggle'>🌙</span>
-			<span class='theme-toggle-text'>theme</span>
-      </span>
+      {{config['MENU_SEPARATOR']}}
+      <label class="theme-switch" for="theme-checkbox">
+        <input type="checkbox" id="theme-checkbox" />
+        <div class="slider round"></div>
+      </label>
 	</div>
     </div>
         {% endif %}
@@ -149,6 +149,7 @@
                🏃 go
            </button>
            <button id="scroll-to-bottom" title="Scroll to bottom">▼</button>
+           <button id="scroll-to-top" title="Scroll to top">▲</button>
             {% if config.AGORA_DEMO_MODE %}
             {% endif %}
 

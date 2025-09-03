@@ -343,42 +343,28 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   // Theme toggle stuff for initial load
-  const toggles = document.querySelectorAll(".theme-toggle");
+  const themeCheckbox = document.getElementById("theme-checkbox") as HTMLInputElement;
   const currentTheme = localStorage.getItem("theme");
 
   // Set the theme on initial load
   if (currentTheme === "dark") {
     document.documentElement.setAttribute('data-theme', 'dark');
-    toggles.forEach(toggle => {
-      if (toggle) toggle.innerHTML = '🌞';
-    });
+    if (themeCheckbox) themeCheckbox.checked = true;
   } else {
     // Default to light theme
     document.documentElement.setAttribute('data-theme', 'light');
-    toggles.forEach(toggle => {
-      if (toggle) toggle.innerHTML = '🌙';
-    });
+    if (themeCheckbox) themeCheckbox.checked = false;
   }
 
   // Then listen for clicks on the theme toggle button or the link text
-  const clickable = document.querySelectorAll('.theme-toggle, .theme-toggle-text');
-  clickable.forEach(element => {
-    element.addEventListener('click', function (event) {
-      event.preventDefault(); // Stop the browser from jumping to the top of the page.
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const toggles = document.querySelectorAll(".theme-toggle");
-      if (currentTheme === 'light') {
+  if (themeCheckbox) {
+    themeCheckbox.addEventListener('change', function (event) {
+      if (themeCheckbox.checked) {
         document.documentElement.setAttribute('data-theme', 'dark');
         localStorage.setItem("theme", "dark");
-        toggles.forEach(toggle => {
-          if (toggle) toggle.innerHTML = '🌞';
-        });
       } else {
         document.documentElement.setAttribute('data-theme', 'light');
         localStorage.setItem("theme", "light");
-        toggles.forEach(toggle => {
-          if (toggle) toggle.innerHTML = '🌙';
-        });
       }
       // Re-render the per-node graph if it exists on the page.
       if (document.getElementById('graph')) {
@@ -394,7 +380,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           }
       }
     });
-  });
+  }
 
   // Burger menu, where we keep settings presumably :)
   document.querySelectorAll(['#burger', '#join', '#join2']).forEach(element => {
