@@ -54,6 +54,9 @@ function darkenColor(color, percent) {
 }
 
 
+import MidiPlayer from 'midi-player-js';
+import Soundfont from 'soundfont-player';
+
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
 const autoPullExtra = JSON.parse(localStorage["auto-pull-extra"] || 'false')
@@ -572,8 +575,44 @@ document.addEventListener("DOMContentLoaded", async function () {
     };
 
     if (demoButton) {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        let instrument;
+        Soundfont.instrument(audioContext, 'acoustic_grand_piano').then(function (piano) {
+            instrument = piano;
+        });
+
+        const Player = new MidiPlayer.Player(function(event) {
+            if (instrument) {
+                if (event.name === 'Note on' && event.velocity > 0) {
+                    instrument.play(event.noteName, audioContext.currentTime, { duration: 0.5 });
+                }
+            }
+        });
+
+        console.log('Setting up MIDI player...');
+        fetch('/static/mid/burup.mid')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                console.log('MIDI file fetched successfully.');
+                return response.arrayBuffer();
+            })
+            .then(arrayBuffer => {
+                console.log('Loading MIDI data into player...');
+                Player.loadArrayBuffer(arrayBuffer);
+                console.log('MIDI data loaded.');
+            })
+            .catch(e => console.error('Error loading MIDI file:', e));
+
         demoButton.addEventListener("click", () => {
             demoButton.classList.toggle('active');
+            if (Player.isPlaying()) {
+                console.log('Stopping MIDI playback.');
+                Player.stop();
+            }
+            console.log('Playing MIDI file.');
+            Player.play();
             showPopup();
         });
     }

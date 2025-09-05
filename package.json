@@ -6,7 +6,8 @@
   "dependencies": {
     "esbuild": "^0.14.37",
     "fs": "^0.0.1-security",
-    "jquery": "^3.6.0",
-    "regenerator": "^0.14.7"
+    "midi-player-js": "^2.0.5",
+    "regenerator": "^0.14.7",
+    "soundfont-player": "^0.12.0"
   }
 }
