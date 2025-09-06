@@ -955,13 +955,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     var details = document.querySelectorAll("details.search");
     details.forEach((item) => {
       item.addEventListener("toggle", async (event) => {
+        let searchEmbed;
         if (item.open) {
           console.log("Details have been shown");
           searchEmbed = item.querySelector(".pulled-search-embed");
           if (searchEmbed) {
             let qstr = searchEmbed.id;
             console.log("Search embed found, here we would pull.");
-            response = await fetch(AGORAURL + '/fullsearch/' + qstr);
+            const response = await fetch(AGORAURL + '/fullsearch/' + qstr);
             searchEmbed.innerHTML = await response.text();
           }
         } else {
