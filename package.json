@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "build": "npx --yes esbuild app/js-src/index.ts --bundle --outfile=app/static/js/index.js",
-    "watch": "npx --yes esbuild app/js-src/index.ts --bundle --outfile=app/static/js/index.js --watch"
+    "build": "npx --yes esbuild app/js-src/index.ts --bundle --splitting --format=esm --outdir=app/static/js",
+    "watch": "npx --yes esbuild app/js-src/index.ts --bundle --splitting --format=esm --outdir=app/static/js --watch"
   },
   "dependencies": {
     "esbuild": "^0.14.37",

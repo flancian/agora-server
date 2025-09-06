@@ -54,9 +54,6 @@ function darkenColor(color, percent) {
 }
 
 
-import MidiPlayer from 'midi-player-js';
-import Soundfont from 'soundfont-player';
-
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
 const autoPullExtra = JSON.parse(localStorage["auto-pull-extra"] || 'false')
@@ -533,6 +530,35 @@ document.addEventListener("DOMContentLoaded", async function () {
   const demoDragHandle = document.getElementById("demo-popup-header");
 
   if (demoPopupContainer && demoPopup && demoPopupContent && demoCloseButton && demoDragHandle) {
+    let audioPlayer = null;
+    let audioContext = null;
+
+    const initializeAudio = async () => {
+        console.log('Initializing audio for the first time...');
+        const [MidiPlayer, Soundfont] = await Promise.all([
+            import('midi-player-js'),
+            import('soundfont-player')
+        ]);
+
+        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const instrument = await Soundfont.default.instrument(audioContext, 'acoustic_grand_piano');
+
+        const Player = new MidiPlayer.default.Player(function(event) {
+            if (instrument && event.name === 'Note on' && event.velocity > 0) {
+                instrument.play(event.noteName, audioContext.currentTime, { duration: 0.5 });
+            }
+        });
+
+        const response = await fetch('/static/mid/burup.mid');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        Player.loadArrayBuffer(arrayBuffer);
+        console.log('Audio initialized successfully.');
+        return Player;
+    };
+    
     const messages = [
         "The [[Agora]] is a [[Free Knowledge Commons]]. What will you contribute?",
         "Every [[wikilink]] is a potential connection. Where will you explore next?",
@@ -571,49 +597,29 @@ document.addEventListener("DOMContentLoaded", async function () {
     };
 
     const hidePopup = () => {
+        if (audioPlayer && audioPlayer.isPlaying()) {
+            audioPlayer.stop();
+        }
         demoPopupContainer.classList.remove('active');
     };
 
     if (demoButton) {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        let instrument;
-        Soundfont.instrument(audioContext, 'acoustic_grand_piano').then(function (piano) {
-            instrument = piano;
-        });
-
-        const Player = new MidiPlayer.Player(function(event) {
-            if (instrument) {
-                if (event.name === 'Note on' && event.velocity > 0) {
-                    instrument.play(event.noteName, audioContext.currentTime, { duration: 0.5 });
-                }
-            }
-        });
-
-        console.log('Setting up MIDI player...');
-        fetch('/static/mid/burup.mid')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                console.log('MIDI file fetched successfully.');
-                return response.arrayBuffer();
-            })
-            .then(arrayBuffer => {
-                console.log('Loading MIDI data into player...');
-                Player.loadArrayBuffer(arrayBuffer);
-                console.log('MIDI data loaded.');
-            })
-            .catch(e => console.error('Error loading MIDI file:', e));
-
-        demoButton.addEventListener("click", () => {
+        demoButton.addEventListener("click", async () => {
             demoButton.classList.toggle('active');
-            if (Player.isPlaying()) {
-                console.log('Stopping MIDI playback.');
-                Player.stop();
-            }
-            console.log('Playing MIDI file.');
-            Player.play();
             showPopup();
+
+            try {
+                if (!audioPlayer) {
+                    audioPlayer = await initializeAudio();
+                }
+
+                if (audioPlayer.isPlaying()) {
+                    audioPlayer.stop();
+                }
+                audioPlayer.play();
+            } catch (e) {
+                console.error('Error setting up or playing audio:', e);
+            }
         });
     }
 
@@ -877,6 +883,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // prior to this as of 2023-12-06 we render the navbar, including search box, web search and stoas.
     var content = document.querySelector("#async-content");
     var node;
+    let response; // Declare response here
     if (content != null) {
       node = content.getAttribute('src');
       console.log("loading " + node + " async");
