@@ -528,7 +528,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   // Demo mode toggle logic.
-  const demoCheckbox = document.getElementById("demo-checkbox") as HTMLInputElement;
+  const demoCheckboxes = document.querySelectorAll(".demo-checkbox-input") as NodeListOf<HTMLInputElement>;
   const meditationPopupContainer = document.getElementById("meditation-popup-container");
   const meditationPopupContent = document.getElementById("meditation-popup-content");
   const meditationCloseButton = document.getElementById("meditation-popup-close-btn");
@@ -537,20 +537,25 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // This function is ONLY for implicit cancellation via user interaction.
   const cancelOnInteraction = (event: Event) => {
-      const demoSwitch = (event.target as HTMLElement).closest('.demo-switch');
-      // If the interaction was a click on the toggle itself, do nothing.
-      // The 'change' event handler is the source of truth for that action.
-      if (event.type === 'click' && demoSwitch) {
+      const target = event.target as HTMLElement;
+      const demoSwitch = target.closest('.demo-switch');
+      const burgerMenu = target.closest('#burger');
+
+      // If the interaction was a click on the toggle itself or the burger menu, do nothing.
+      if (event.type === 'click' && (demoSwitch || burgerMenu)) {
           return;
       }
       
       // For any other interaction, programmatically uncheck the box.
-      if (demoCheckbox && demoCheckbox.checked) {
+      const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
+      if (anyCheckedDemoBox) {
           console.log('Deep demo mode cancelled by user interaction.');
-          demoCheckbox.checked = false;
-          // Manually trigger the change event to run the cancellation logic,
-          // as programmatic changes do not fire it automatically.
-          demoCheckbox.dispatchEvent(new Event('change'));
+          // Programmatically uncheck the box and trigger the change event.
+          const mainCheckbox = document.getElementById('demo-checkbox') as HTMLInputElement;
+          if (mainCheckbox) {
+              mainCheckbox.checked = false;
+              mainCheckbox.dispatchEvent(new Event('change'));
+          }
       }
   };
 
@@ -640,9 +645,13 @@ document.addEventListener("DOMContentLoaded", async function () {
                   hidePopup();
                   // Programmatically check the toggle and dispatch an event
                   // to make it the single source of truth for starting the demo.
-                  if (demoCheckbox && !demoCheckbox.checked) {
-                      demoCheckbox.checked = true;
-                      demoCheckbox.dispatchEvent(new Event('change'));
+                  const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
+                  if (!anyCheckedDemoBox) {
+                      const mainCheckbox = document.getElementById('demo-checkbox') as HTMLInputElement;
+                      if (mainCheckbox) {
+                          mainCheckbox.checked = true;
+                          mainCheckbox.dispatchEvent(new Event('change'));
+                      }
                   }
               });
           });
@@ -654,39 +663,45 @@ document.addEventListener("DOMContentLoaded", async function () {
       meditationPopupContainer.classList.remove('active');
   };
 
-  if (demoCheckbox) {
+  const setDemoMode = (isChecked: boolean) => {
+      localStorage.setItem("deep-demo-active", JSON.stringify(isChecked));
+      demoCheckboxes.forEach(checkbox => {
+          checkbox.checked = isChecked;
+      });
+      if (isChecked) {
+          startDeepDemo();
+      } else {
+          cancelDeepDemo();
+          hidePopup();
+      }
+  };
+
+  if (demoCheckboxes.length > 0) {
       // Set initial state from localStorage
       const isDemoActive = JSON.parse(localStorage.getItem("deep-demo-active") || 'false');
-      demoCheckbox.checked = isDemoActive;
-      if (isDemoActive) {
-          startDeepDemo();
-      }
+      setDemoMode(isDemoActive);
 
-      // This listener handles the logic AFTER the state has changed.
-      demoCheckbox.addEventListener('change', () => {
-          const isChecked = demoCheckbox.checked;
-          localStorage.setItem("deep-demo-active", JSON.stringify(isChecked));
-          if (isChecked) {
-              startDeepDemo();
-          } else {
-              // This is the canonical way to stop the demo.
-              cancelDeepDemo();
-              hidePopup();
-          }
+      // Add event listeners to all demo checkboxes
+      demoCheckboxes.forEach(checkbox => {
+          checkbox.addEventListener('change', () => {
+              setDemoMode(checkbox.checked);
+          });
       });
 
       meditationCloseButton?.addEventListener("click", () => {
         hidePopup();
-        // Don't change the checkbox state here, as the user might just want to dismiss the popup
-        // without cancelling the initial intent to enable the demo.
       });
   }
 
   document.getElementById('show-meditation-popup')?.addEventListener('click', () => {
       // If the demo is running, cancel it before showing the popup.
-      if (demoCheckbox && demoCheckbox.checked) {
-          demoCheckbox.checked = false;
-          demoCheckbox.dispatchEvent(new Event('change'));
+      const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
+      if (anyCheckedDemoBox) {
+          const mainCheckbox = document.getElementById('demo-checkbox') as HTMLInputElement;
+          if (mainCheckbox) {
+              mainCheckbox.checked = false;
+              mainCheckbox.dispatchEvent(new Event('change'));
+          }
       }
       showPopup();
   });

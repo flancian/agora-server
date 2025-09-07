@@ -601,8 +601,8 @@ summary {
 .intro, #footer {
     background: var(--intro-footer-bg);
     padding: 7px;
-    font-style: italic;
     color: var(--intro-footer-text-color);
+    margin-bottom: 10px;
 }
 
 .info-box, .intro {
