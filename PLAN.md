@@ -36,37 +36,64 @@ This session focused on a series of rapid UI/UX refinements and bug fixes to imp
 
 ---
 
-# 🚀 Next Up: Implement Background Cache Worker
+# ✅ Completed: Background Cache Worker
 
-**Status: In Progress**
+**Status: Completed (September 2025)**
 **Priority: High**
 
-This task outlines the plan to create a separate, background worker process responsible for populating the SQLite graph cache. This will decouple the expensive filesystem scan from the user-facing web application, eliminating "cold start" delays and ensuring a consistently fast user experience.
+This task involved creating a separate, background worker process responsible for populating the SQLite graph cache. This decouples the expensive filesystem scan from the user-facing web application, eliminating "cold start" delays and ensuring a consistently fast user experience.
 
 ---
 
-## Architectural Plan
+## ✅ Completed Architectural Plan
 
 1.  **Self-Contained Worker (`worker.py`):**
-    *   Create a new `worker.py` script in the root of the repository.
-    *   This script will be entirely self-contained and will not require any changes to the existing Flask application logic in the `app/` directory.
-    *   It will import necessary functions directly from `app.graph` and `app.storage.sqlite_engine`.
+    *   A new `worker.py` script was created in the root of the repository.
+    *   The script is self-contained and can be run with `uv run python3 worker.py`.
+    *   It correctly initializes a Flask app context to safely access the necessary Agora modules like `app.graph`.
 
 2.  **Robust Caching Strategy (Blue-Green Table Swap):**
-    *   The worker will connect to the `agora.db` SQLite database.
-    *   It will perform the full filesystem scan to build the graph data in memory.
-    *   Inside a single database transaction, it will:
-        1.  Create new, temporary tables (`subnodes_new`, `links_new`).
-        2.  Populate these new tables with the fresh graph data.
-        3.  Atomically `DROP` the old tables and `RENAME` the new tables into place.
-    *   This "table swap" method ensures that the live web application experiences zero downtime and can continue reading from the old, consistent cache data while the new data is being prepared.
+    *   The worker connects to the `agora.db` SQLite database.
+    *   It performs the full filesystem scan to build the graph data in memory.
+    *   Inside a single database transaction, it creates and populates temporary tables (`subnodes_new`, `links_new`).
+    *   It then atomically swaps the new tables into place by dropping the old ones and renaming the new ones.
+    *   This "table swap" method ensures the live web application experiences zero downtime.
 
-3.  **Scheduling:**
-    *   The `worker.py` script is intended to be run by an external scheduler like a `cron` job or a `systemd` timer (e.g., every 5-10 minutes). The setup of the scheduler is outside the scope of the application code itself.
+3.  **No Disruption Guarantee:**
+    *   This approach requires **no modifications** to the existing web application code. The Flask server remains completely unaware of the background worker.
+    *   SQLite's WAL (Write-Ahead Logging) mode prevents read/write conflicts between the worker and the web server.
 
-4.  **No Disruption Guarantee:**
-    *   This approach requires **no modifications** to the existing web application code. The Flask server will remain completely unaware of the background worker and will simply benefit from a perpetually warm cache.
-    *   The use of SQLite's WAL (Write-Ahead Logging) mode, which is already enabled, will prevent read/write conflicts between the worker and the web server.
+---
+
+## Next Step: Scheduling the Worker
+
+The `worker.py` script is now complete and can be run manually. The final step is to decide how to run it automatically. There are two viable options:
+
+### Option A: External Scheduler (Cron/Systemd) - Recommended
+This is the simplest and most robust approach.
+
+*   **How it works:** A system utility like `cron` is configured to run the worker script on a regular schedule (e.g., every 5-10 minutes).
+*   **Example Cron Job:**
+    ```bash
+    */5 * * * * cd /path/to/agora-server && /path/to/agora-server/.venv/bin/python3 worker.py >> /var/log/agora-worker.log 2>&1
+    ```
+*   **Pros:**
+    *   **Decoupled:** The caching process is entirely separate from the web application's process.
+    *   **Reliable:** `cron` is a time-tested, standard Unix utility.
+    *   **No Code Changes:** Requires no further changes to the Python application.
+*   **Cons:**
+    *   Requires configuration on the server itself, outside of the application's repository.
+
+### Option B: In-App Trigger (Flask Endpoint)
+This approach allows triggering the worker via a web request.
+
+*   **How it works:** Create a secure API endpoint (e.g., `/api/refresh-cache?secret=...`). When called, the Flask app would use Python's `multiprocessing` module to start the worker script in a non-blocking background process.
+*   **Pros:**
+    *   **On-Demand:** Allows for manually triggering a cache refresh without server access.
+    *   **Self-Contained:** The trigger mechanism is managed within the application code.
+*   **Cons:**
+    *   **More Complex:** Requires adding a new endpoint and background process management logic to the Flask app.
+    *   **Less Decoupled:** The lifecycle of the worker process is tied to the application process. If the app is restarted, the background worker might be orphaned.
 
 ---
 
@@ -126,6 +153,35 @@ The foundational work is complete, and the system is stable. The following tasks
 1.  **Files are the Source of Truth:** All user-generated content (subnodes) will continue to live as plain text files on disk.
 2.  **SQLite is a Just-in-Time Index:** The database acts as a "write-through cache."
 3.  **The Application is the Indexer:** There is no separate indexer script.
+
+---
+
+## Database Schema
+
+The Agora uses a single SQLite database (`instance/agora.db`) as a performance cache and for features that don't fit the file-based model. The schema is as follows:
+
+-   **`subnodes`**: Caches metadata about individual subnodes (files).
+    -   `path` (TEXT, PK): The unique identifier for the subnode, like `garden/user/entry.md`.
+    -   `user` (TEXT): The user who owns the subnode.
+    -   `node` (TEXT): The node URI this subnode contributes to, like `my_entry`.
+    -   `mtime` (INTEGER): The last modification time of the file, used for cache invalidation.
+
+-   **`links`**: An index of all `[[wikilinks]]` for fast backlink queries.
+    -   `source_path` (TEXT): The subnode file where the link originates.
+    -   `target_node` (TEXT): The node URI the link points to.
+    -   `type` (TEXT): The type of link (e.g., 'wikilink').
+    -   `source_node` (TEXT): The node URI that contains the source subnode.
+
+-   **`ai_generations`**: Caches responses from AI providers.
+    -   `prompt` (TEXT, PK): The full prompt sent to the AI.
+    -   `provider` (TEXT, PK): The AI provider (e.g., 'gemini', 'mistral').
+    -   `content` (TEXT): The generated content.
+    -   `timestamp` (INTEGER): When the content was generated.
+
+-   **`query_cache`**: A generic key-value cache for expensive, high-traffic queries (e.g., `/latest`, `/nodes`).
+    -   `key` (TEXT, PK): The unique cache key (e.g., `latest_v2`).
+    -   `value` (TEXT): The cached result (often as JSON).
+    -   `timestamp` (INTEGER): When the result was cached.
 
 ---
 
