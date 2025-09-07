@@ -90,6 +90,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   (document.getElementById("show-hypothesis") as HTMLInputElement).checked = safeJsonParse(localStorage["show-hypothesis"], false);
   (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], false);
+  (document.getElementById("demo-timeout-seconds") as HTMLInputElement).value = localStorage.getItem("demo-timeout-seconds") || '15';
 
   // Function to apply the bracket visibility style
   const applyBracketVisibility = () => {
@@ -179,6 +180,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("auto-expand-stoas")?.addEventListener('change', (e) => {
     localStorage["auto-expand-stoas"] = (e.target as HTMLInputElement).checked;
     location.reload();
+  });
+
+  document.getElementById("demo-timeout-seconds")?.addEventListener('change', (e) => {
+    const value = (e.target as HTMLInputElement).value;
+    localStorage.setItem("demo-timeout-seconds", value);
   });
 
   document.getElementById("show-hypothesis")?.addEventListener('change', (e) => {
@@ -528,7 +534,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   const demoCloseButton = document.getElementById("demo-popup-close-btn");
 
   let demoIntervalId = null;
-  const DEMO_TIMEOUT_SECONDS = 15;
 
   // This function is ONLY for implicit cancellation via user interaction.
   const cancelOnInteraction = (event: Event) => {
@@ -571,7 +576,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       cancelDeepDemo(); // Ensure no multiple timers are running
       console.log('Starting deep demo mode.');
 
-      let countdown = DEMO_TIMEOUT_SECONDS;
+      const timeoutSeconds = parseInt(localStorage.getItem("demo-timeout-seconds") || '15', 10);
+      let countdown = timeoutSeconds;
       const timerElement = document.getElementById('demo-timer');
       if (timerElement) {
           timerElement.style.display = 'inline-block';
@@ -613,16 +619,16 @@ document.addEventListener("DOMContentLoaded", async function () {
           "Every [[wikilink]] is a potential connection. Where will you explore next?",
           "This Agora is running on a server somewhere, but the content comes from people like you. It is a [[distributed]] system.",
       ];
+      const separator = '<hr style="margin: 1rem 0;">';
       const randomMessage = messages[Math.floor(Math.random() * messages.length)];
       const beyondButton = `<button id="demo-beyond-button" class="button">Go beyond</button>`;
-      demoPopupContent.innerHTML = renderClientSideWikilinks(randomMessage) + `<div style="margin-top: 1em;">${beyondButton}</div>`;
+      demoPopupContent.innerHTML = renderClientSideWikilinks(randomMessage) + separator + `<div style="margin-top: 1em;">To enable demo mode, please press: ${beyondButton}</div>`;
 
       // Fetch and append a random artifact, THEN attach the listener.
       fetch('/api/random_artifact')
           .then(response => response.json())
           .then(data => {
               if (data.content) {
-                  const separator = '<hr style="margin: 1rem 0;">';
                   const promptHTML = `<strong>An artifact from node ${renderClientSideWikilinks(`[[${data.prompt}]]`)}:</strong><br>`;
                   const artifactHTML = data.content; // This is already rendered HTML from the server.
                   demoPopupContent.innerHTML += separator + promptHTML + artifactHTML;
@@ -632,8 +638,13 @@ document.addEventListener("DOMContentLoaded", async function () {
           .finally(() => {
               // Attach the listener here, after all innerHTML changes are complete.
               document.getElementById('demo-beyond-button')?.addEventListener('click', () => {
-                  localStorage.setItem("demo-popup-seen", "true");
-                  startDeepDemo();
+                  hidePopup();
+                  // Programmatically check the toggle and dispatch an event
+                  // to make it the single source of truth for starting the demo.
+                  if (demoCheckbox && !demoCheckbox.checked) {
+                      demoCheckbox.checked = true;
+                      demoCheckbox.dispatchEvent(new Event('change'));
+                  }
               });
           });
 
@@ -652,17 +663,12 @@ document.addEventListener("DOMContentLoaded", async function () {
           startDeepDemo();
       }
 
-      // Add listener for changes
+      // This listener handles the logic AFTER the state has changed.
       demoCheckbox.addEventListener('change', () => {
           const isChecked = demoCheckbox.checked;
           localStorage.setItem("deep-demo-active", JSON.stringify(isChecked));
           if (isChecked) {
-              const popupSeen = localStorage.getItem("demo-popup-seen");
-              if (!popupSeen) {
-                  showPopup();
-              } else {
-                  startDeepDemo();
-              }
+              startDeepDemo();
           } else {
               // This is the canonical way to stop the demo.
               cancelDeepDemo();
@@ -672,13 +678,19 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       demoCloseButton?.addEventListener("click", () => {
         hidePopup();
-        demoCheckbox.checked = false;
-        localStorage.setItem("deep-demo-active", "false");
-        cancelDeepDemo();
+        // Don't change the checkbox state here, as the user might just want to dismiss the popup
+        // without cancelling the initial intent to enable the demo.
       });
   }
 
-  document.getElementById('show-demo-popup')?.addEventListener('click', showPopup);
+  document.getElementById('show-demo-popup')?.addEventListener('click', () => {
+      // If the demo is running, cancel it before showing the popup.
+      if (demoCheckbox && demoCheckbox.checked) {
+          demoCheckbox.checked = false;
+          demoCheckbox.dispatchEvent(new Event('change'));
+      }
+      showPopup();
+  });
 
   const toastContainer = document.getElementById('toast-container');
   //
