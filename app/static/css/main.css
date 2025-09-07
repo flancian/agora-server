@@ -602,6 +602,9 @@ summary {
     background: var(--intro-footer-bg);
     padding: 7px;
     color: var(--intro-footer-text-color);
+}
+
+#footer {
     margin-bottom: 10px;
 }
 
