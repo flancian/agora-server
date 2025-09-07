@@ -1258,35 +1258,31 @@ input:checked + .slider:before {
     all: unset;
 }
 
-/* Demo Popup Styles */
-#demo-popup-container {
+/* Meditation Popup Styles */
+#meditation-popup-container {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1001;
+    top: 10%;
+    left: 10%;
+    z-index: 1001; /* one above hypothesis */
     display: none; /* Hidden by default */
-    justify-content: center;
-    align-items: center;
     animation: fadeIn 0.3s ease-in-out;
 }
 
-#demo-popup-container.active {
-    display: flex; /* Shown when active */
+#meditation-popup-container.active {
+    display: block; /* Shown when active */
 }
 
-#demo-popup {
+#meditation-popup {
     background-color: var(--node-bg);
     border-radius: 8px;
     width: 50%;
+    min-width: 400px;
     max-width: 600px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    /* position: absolute; was needed for dragging, but transform is better. */
+    border: 1px solid var(--link-color);
 }
 
-#demo-popup-header {
+#meditation-popup-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1299,7 +1295,7 @@ input:checked + .slider:before {
     cursor: move; /* Draggable cue */
 }
 
-#demo-popup-title {
+#meditation-popup-title {
     font-weight: bold;
     font-size: 0.9em;
     font-family: sans-serif;
@@ -1308,7 +1304,7 @@ input:checked + .slider:before {
     text-align: center;
 }
 
-#demo-popup-close-btn {
+#meditation-popup-close-btn {
     cursor: pointer;
     color: #fff;
     background-color: #555;
@@ -1323,9 +1319,11 @@ input:checked + .slider:before {
     font-size: 16px; /* To make the 'x' look right */
 }
 
-#demo-popup-content {
+#meditation-popup-content {
     padding: 1rem;
     line-height: 1.6;
+    max-height: 70vh;
+    overflow-y: auto;
 }
 
 @keyframes fadeIn {
@@ -1334,14 +1332,14 @@ input:checked + .slider:before {
 }
 
 @media screen and (max-width: 48em) {
-    #demo-popup {
+    #meditation-popup {
         width: 95%;
         max-height: 85vh;
         display: flex;
         flex-direction: column;
     }
 
-    #demo-popup-content {
+    #meditation-popup-content {
         overflow-y: auto;
     }
 }

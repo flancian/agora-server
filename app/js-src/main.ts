@@ -529,9 +529,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Demo mode toggle logic.
   const demoCheckbox = document.getElementById("demo-checkbox") as HTMLInputElement;
-  const demoPopupContainer = document.getElementById("demo-popup-container");
-  const demoPopupContent = document.getElementById("demo-popup-content");
-  const demoCloseButton = document.getElementById("demo-popup-close-btn");
+  const meditationPopupContainer = document.getElementById("meditation-popup-container");
+  const meditationPopupContent = document.getElementById("meditation-popup-content");
+  const meditationCloseButton = document.getElementById("meditation-popup-close-btn");
 
   let demoIntervalId = null;
 
@@ -621,8 +621,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       ];
       const separator = '<hr style="margin: 1rem 0;">';
       const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-      const beyondButton = `<button id="demo-beyond-button" class="button">Go beyond</button>`;
-      demoPopupContent.innerHTML = renderClientSideWikilinks(randomMessage) + separator + `<div style="margin-top: 1em;">To enable demo mode, please press: ${beyondButton}</div>`;
+      meditationPopupContent.innerHTML = renderClientSideWikilinks(randomMessage);
 
       // Fetch and append a random artifact, THEN attach the listener.
       fetch('/api/random_artifact')
@@ -631,7 +630,7 @@ document.addEventListener("DOMContentLoaded", async function () {
               if (data.content) {
                   const promptHTML = `<strong>An artifact from node ${renderClientSideWikilinks(`[[${data.prompt}]]`)}:</strong><br>`;
                   const artifactHTML = data.content; // This is already rendered HTML from the server.
-                  demoPopupContent.innerHTML += separator + promptHTML + artifactHTML;
+                  meditationPopupContent.innerHTML += separator + promptHTML + artifactHTML;
               }
           })
           .catch(error => console.error('Error fetching random artifact:', error))
@@ -648,11 +647,11 @@ document.addEventListener("DOMContentLoaded", async function () {
               });
           });
 
-      demoPopupContainer.classList.add('active');
+      meditationPopupContainer.classList.add('active');
   };
 
   const hidePopup = () => {
-      demoPopupContainer.classList.remove('active');
+      meditationPopupContainer.classList.remove('active');
   };
 
   if (demoCheckbox) {
@@ -676,14 +675,14 @@ document.addEventListener("DOMContentLoaded", async function () {
           }
       });
 
-      demoCloseButton?.addEventListener("click", () => {
+      meditationCloseButton?.addEventListener("click", () => {
         hidePopup();
         // Don't change the checkbox state here, as the user might just want to dismiss the popup
         // without cancelling the initial intent to enable the demo.
       });
   }
 
-  document.getElementById('show-demo-popup')?.addEventListener('click', () => {
+  document.getElementById('show-meditation-popup')?.addEventListener('click', () => {
       // If the demo is running, cancel it before showing the popup.
       if (demoCheckbox && demoCheckbox.checked) {
           demoCheckbox.checked = false;
@@ -691,6 +690,96 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
       showPopup();
   });
+
+  // Make the Meditation popup draggable
+  const meditationDragHandle = document.getElementById('meditation-popup-header');
+
+  if (meditationPopupContainer && meditationDragHandle) {
+    let active = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+    let hasBeenPositionedByJs = false;
+
+    const setTranslate = (xPos, yPos, el) => {
+      el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+    }
+
+    // Restore position from local storage
+    const savedPosition = localStorage.getItem('meditation-position');
+    if (savedPosition) {
+        const pos = JSON.parse(savedPosition);
+        xOffset = pos.x;
+        yOffset = pos.y;
+        // If we have a saved position, we must switch to transform-based positioning immediately.
+        meditationPopupContainer.style.top = '0px';
+        meditationPopupContainer.style.left = '0px';
+        setTranslate(xOffset, yOffset, meditationPopupContainer);
+        hasBeenPositionedByJs = true;
+    }
+
+    const dragStart = (e) => {
+      if (!hasBeenPositionedByJs) {
+          const rect = meditationPopupContainer.getBoundingClientRect();
+          // Switch from CSS-based positioning (e.g., top: 10%) to transform-based positioning.
+          meditationPopupContainer.style.top = '0px';
+          meditationPopupContainer.style.left = '0px';
+          xOffset = rect.left;
+          yOffset = rect.top;
+          setTranslate(xOffset, yOffset, meditationPopupContainer);
+          hasBeenPositionedByJs = true;
+      }
+
+      if (e.type === "touchstart") {
+        initialX = e.touches[0].clientX - xOffset;
+        initialY = e.touches[0].clientY - yOffset;
+      } else {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+      }
+
+      // The listener is on the header, so any mousedown should activate dragging.
+      active = true;
+    }
+
+    const dragEnd = (e) => {
+      initialX = currentX;
+      initialY = currentY;
+      active = false;
+      // Save position to local storage
+      localStorage.setItem('meditation-position', JSON.stringify({ x: xOffset, y: yOffset }));
+    }
+
+    const drag = (e) => {
+      if (active) {
+        e.preventDefault();
+        if (e.type === "touchmove") {
+          currentX = e.touches[0].clientX - initialX;
+          currentY = e.touches[0].clientY - initialY;
+        } else {
+          currentX = e.clientX - initialX;
+          currentY = e.clientY - initialY;
+        }
+
+        xOffset = currentX;
+        yOffset = currentY;
+
+        setTranslate(currentX, currentY, meditationPopupContainer);
+      }
+    }
+
+    meditationDragHandle.addEventListener('mousedown', dragStart, false);
+    meditationDragHandle.addEventListener('touchstart', dragStart, false);
+
+    document.addEventListener('mouseup', dragEnd, false);
+    document.addEventListener('touchend', dragEnd, false);
+
+    document.addEventListener('mousemove', drag, false);
+    document.addEventListener('touchmove', drag, false);
+  }
 
   const toastContainer = document.getElementById('toast-container');
   //
