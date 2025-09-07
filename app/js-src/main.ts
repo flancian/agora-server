@@ -521,185 +521,164 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.querySelector("#mini-cli").parentElement.submit();
   });
 
-  // Demo mode button and popup logic.
-  const demoButton = document.getElementById("mini-cli-demo");
+  // Demo mode toggle logic.
+  const demoCheckbox = document.getElementById("demo-checkbox") as HTMLInputElement;
   const demoPopupContainer = document.getElementById("demo-popup-container");
-  const demoPopup = document.getElementById("demo-popup");
   const demoPopupContent = document.getElementById("demo-popup-content");
   const demoCloseButton = document.getElementById("demo-popup-close-btn");
-  const demoDragHandle = document.getElementById("demo-popup-header");
 
-  if (demoPopupContainer && demoPopup && demoPopupContent && demoCloseButton && demoDragHandle) {
-    let audioPlayer = null;
-    let audioContext = null;
+  let demoIntervalId = null;
+  const DEMO_TIMEOUT_SECONDS = 15;
 
-    const initializeAudio = async () => {
-        console.log('Initializing audio for the first time...');
-        const [MidiPlayer, Soundfont] = await Promise.all([
-            import('midi-player-js'),
-            import('soundfont-player')
-        ]);
+  // This function is ONLY for implicit cancellation via user interaction.
+  const cancelOnInteraction = (event: Event) => {
+      const demoSwitch = (event.target as HTMLElement).closest('.demo-switch');
+      // If the interaction was a click on the toggle itself, do nothing.
+      // The 'change' event handler is the source of truth for that action.
+      if (event.type === 'click' && demoSwitch) {
+          return;
+      }
+      
+      // For any other interaction, programmatically uncheck the box.
+      if (demoCheckbox && demoCheckbox.checked) {
+          console.log('Deep demo mode cancelled by user interaction.');
+          demoCheckbox.checked = false;
+          // Manually trigger the change event to run the cancellation logic,
+          // as programmatic changes do not fire it automatically.
+          demoCheckbox.dispatchEvent(new Event('change'));
+      }
+  };
 
-        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const instrument = await Soundfont.default.instrument(audioContext, 'acoustic_grand_piano');
+  const cancelDeepDemo = () => {
+      if (demoIntervalId) {
+          clearInterval(demoIntervalId);
+          demoIntervalId = null;
+          const timerElement = document.getElementById('demo-timer');
+          if (timerElement) {
+              timerElement.innerHTML = '';
+              timerElement.style.display = 'none';
+          }
+          // Remove interaction listeners since the demo is now off.
+          window.removeEventListener('scroll', cancelOnInteraction);
+          window.removeEventListener('click', cancelOnInteraction);
+          window.removeEventListener('keypress', cancelOnInteraction);
+          console.log('Deep demo mode cancelled.');
+      }
+  };
 
-        const Player = new MidiPlayer.default.Player(function(event) {
-            if (instrument && event.name === 'Note on' && event.velocity > 0) {
-                instrument.play(event.noteName, audioContext.currentTime, { duration: 0.5 });
-            }
-        });
+  const startDeepDemo = () => {
+      hidePopup();
+      cancelDeepDemo(); // Ensure no multiple timers are running
+      console.log('Starting deep demo mode.');
 
-        const response = await fetch('/static/mid/burup.mid');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const arrayBuffer = await response.arrayBuffer();
-        Player.loadArrayBuffer(arrayBuffer);
-        console.log('Audio initialized successfully.');
-        return Player;
-    };
-    
-    const messages = [
-        "The [[Agora]] is a [[Free Knowledge Commons]]. What will you contribute?",
-        "Every [[wikilink]] is a potential connection. Where will you explore next?",
-        "This Agora is running on a server somewhere, but the content comes from people like you. It is a [[distributed]] system.",
-        "Fun fact: The name 'Agora' comes from the ancient Greek word for a public open space used for assemblies and markets.",
-        "Have you tried visiting a [[date]]? What about [[today]]?",
-        "The code for this Agora is open source. You can find it on [[GitHub]]."
-    ];
-
-    const renderClientSideWikilinks = (text) => {
-        return text.replace(/\[\[(.*?)\]\]/g, (match, target) => {
-            // Do not slugify; simply URL-encode the target for the href.
-            const link = encodeURIComponent(target);
-            return `<span class="wikilink-marker">[[</span><a href="/${link}" title="[[${target}]]" class="wikilink">${target}</a><span class="wikilink-marker">]]</span>`;
-        });
-    };
-
-    const showPopup = () => {
-        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-        demoPopupContent.innerHTML = renderClientSideWikilinks(randomMessage);
-
-        // Fetch and append a random artifact.
-        fetch('/api/random_artifact')
-            .then(response => response.json())
-            .then(data => {
-                if (data.content) {
-                    const separator = '<hr style="margin: 1rem 0;">';
-                    const promptHTML = `<strong>An artifact from node ${renderClientSideWikilinks(`[[${data.prompt}]]`)}:</strong><br>`;
-                    const artifactHTML = data.content; // This is already rendered HTML from the server.
-                    demoPopupContent.innerHTML += separator + promptHTML + artifactHTML;
-                }
-            })
-            .catch(error => console.error('Error fetching random artifact:', error));
-
-        demoPopupContainer.classList.add('active');
-    };
-
-    const hidePopup = () => {
-        if (audioPlayer && audioPlayer.isPlaying()) {
-            audioPlayer.stop();
-        }
-        demoPopupContainer.classList.remove('active');
-    };
-
-    if (demoButton) {
-        demoButton.addEventListener("click", async () => {
-            demoButton.classList.toggle('active');
-            showPopup();
-
-            try {
-                if (!audioPlayer) {
-                    audioPlayer = await initializeAudio();
-                }
-
-                if (audioPlayer.isPlaying()) {
-                    audioPlayer.stop();
-                }
-                audioPlayer.play();
-            } catch (e) {
-                console.error('Error setting up or playing audio:', e);
-            }
-        });
-    }
-
-    demoCloseButton.addEventListener("click", hidePopup);
-
-    demoPopupContainer.addEventListener("click", (e) => {
-        if (e.target === demoPopupContainer) {
-            hidePopup();
-        }
-    });
-
-    // Draggable logic adapted from Hypothesis panel.
-    let active = false;
-    let currentX;
-    let currentY;
-    let initialX;
-    let initialY;
-    let xOffset = 0;
-    let yOffset = 0;
-
-    const setTranslate = (xPos, yPos, el) => {
-      el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-    }
-
-    const savedPosition = localStorage.getItem('demo-popup-position');
-    if (savedPosition) {
-        const pos = JSON.parse(savedPosition);
-        xOffset = pos.x;
-        yOffset = pos.y;
-        setTranslate(xOffset, yOffset, demoPopup);
-    }
-
-    const dragStart = (e) => {
-      if (e.type === "touchstart") {
-        initialX = e.touches[0].clientX - xOffset;
-        initialY = e.touches[0].clientY - yOffset;
-      } else {
-        initialX = e.clientX - xOffset;
-        initialY = e.clientY - yOffset;
+      let countdown = DEMO_TIMEOUT_SECONDS;
+      const timerElement = document.getElementById('demo-timer');
+      if (timerElement) {
+          timerElement.style.display = 'inline-block';
       }
 
-      if (e.target === demoDragHandle || (e.target as HTMLElement).parentElement === demoDragHandle) {
-        active = true;
+      const updateTimer = () => {
+          if (timerElement) {
+              timerElement.innerHTML = `<span>${countdown}s</span>`;
+          }
+      };
+
+      updateTimer();
+
+      demoIntervalId = setInterval(() => {
+          countdown--;
+          updateTimer();
+          if (countdown <= 0) {
+              clearInterval(demoIntervalId);
+              window.location.href = '/random';
+          }
+      }, 1000);
+
+      // Add interaction listeners that will trigger the cancellation.
+      window.addEventListener('scroll', cancelOnInteraction, { once: true });
+      window.addEventListener('click', cancelOnInteraction, { once: true });
+      window.addEventListener('keypress', cancelOnInteraction, { once: true });
+  };
+
+  const renderClientSideWikilinks = (text) => {
+      return text.replace(/\[\[(.*?)\]\]/g, (match, target) => {
+          const link = encodeURIComponent(target);
+          return `<span class="wikilink-marker">[[</span><a href="/${link}" title="[[${target}]]" class="wikilink">${target}</a><span class="wikilink-marker">]]</span>`;
+      });
+  };
+
+  const showPopup = () => {
+      const messages = [
+          "The [[Agora]] is a [[Free Knowledge Commons]]. What will you contribute?",
+          "Every [[wikilink]] is a potential connection. Where will you explore next?",
+          "This Agora is running on a server somewhere, but the content comes from people like you. It is a [[distributed]] system.",
+      ];
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+      const beyondButton = `<button id="demo-beyond-button" class="button">Go beyond</button>`;
+      demoPopupContent.innerHTML = renderClientSideWikilinks(randomMessage) + `<div style="margin-top: 1em;">${beyondButton}</div>`;
+
+      // Fetch and append a random artifact, THEN attach the listener.
+      fetch('/api/random_artifact')
+          .then(response => response.json())
+          .then(data => {
+              if (data.content) {
+                  const separator = '<hr style="margin: 1rem 0;">';
+                  const promptHTML = `<strong>An artifact from node ${renderClientSideWikilinks(`[[${data.prompt}]]`)}:</strong><br>`;
+                  const artifactHTML = data.content; // This is already rendered HTML from the server.
+                  demoPopupContent.innerHTML += separator + promptHTML + artifactHTML;
+              }
+          })
+          .catch(error => console.error('Error fetching random artifact:', error))
+          .finally(() => {
+              // Attach the listener here, after all innerHTML changes are complete.
+              document.getElementById('demo-beyond-button')?.addEventListener('click', () => {
+                  localStorage.setItem("demo-popup-seen", "true");
+                  startDeepDemo();
+              });
+          });
+
+      demoPopupContainer.classList.add('active');
+  };
+
+  const hidePopup = () => {
+      demoPopupContainer.classList.remove('active');
+  };
+
+  if (demoCheckbox) {
+      // Set initial state from localStorage
+      const isDemoActive = JSON.parse(localStorage.getItem("deep-demo-active") || 'false');
+      demoCheckbox.checked = isDemoActive;
+      if (isDemoActive) {
+          startDeepDemo();
       }
-    }
 
-    const dragEnd = (e) => {
-      initialX = currentX;
-      initialY = currentY;
-      active = false;
-      localStorage.setItem('demo-popup-position', JSON.stringify({ x: xOffset, y: yOffset }));
-    }
+      // Add listener for changes
+      demoCheckbox.addEventListener('change', () => {
+          const isChecked = demoCheckbox.checked;
+          localStorage.setItem("deep-demo-active", JSON.stringify(isChecked));
+          if (isChecked) {
+              const popupSeen = localStorage.getItem("demo-popup-seen");
+              if (!popupSeen) {
+                  showPopup();
+              } else {
+                  startDeepDemo();
+              }
+          } else {
+              // This is the canonical way to stop the demo.
+              cancelDeepDemo();
+              hidePopup();
+          }
+      });
 
-    const drag = (e) => {
-      if (active) {
-        e.preventDefault();
-        if (e.type === "touchmove") {
-          currentX = e.touches[0].clientX - initialX;
-          currentY = e.touches[0].clientY - initialY;
-        } else {
-          currentX = e.clientX - initialX;
-          currentY = e.clientY - initialY;
-        }
-
-        xOffset = currentX;
-        yOffset = currentY;
-
-        setTranslate(currentX, currentY, demoPopup);
-      }
-    }
-
-    demoDragHandle.addEventListener('mousedown', dragStart, false);
-    demoDragHandle.addEventListener('touchstart', dragStart, false);
-
-    document.addEventListener('mouseup', dragEnd, false);
-    document.addEventListener('touchend', dragEnd, false);
-
-    document.addEventListener('mousemove', drag, false);
-    document.addEventListener('touchmove', drag, false);
+      demoCloseButton?.addEventListener("click", () => {
+        hidePopup();
+        demoCheckbox.checked = false;
+        localStorage.setItem("deep-demo-active", "false");
+        cancelDeepDemo();
+      });
   }
+
+  document.getElementById('show-demo-popup')?.addEventListener('click', showPopup);
 
   const toastContainer = document.getElementById('toast-container');
   //

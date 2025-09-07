@@ -123,6 +123,15 @@
         <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
         <div class="slider round"></div>
       </label>
+      {% if config.ENABLE_DEMO %}
+      {{config['MENU_SEPARATOR']}}
+      <label class="demo-switch" for="demo-checkbox" title="Toggle Demo Mode">
+        <input type="checkbox" id="demo-checkbox" class="demo-checkbox-input" />
+        <div class="slider round">
+            <span id="demo-timer"></span>
+        </div>
+      </label>
+      {% endif %}
 	</div>
     </div>
         {% endif %}
@@ -146,11 +155,9 @@
  
 
            <button id="mini-cli-go" value="go" title="Follows a go link if one is found in this node; may redirect outside the Agora or to a different Agora location.">
-               🏃 go
+            ➡️ go
            </button>
            <button id="scroll-toggle" title="Scroll to bottom">▼</button>
-            {% if config.AGORA_DEMO_MODE %}
-            {% endif %}
 
             <!--<button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>-->
             <!-- <button id="pull-top" value="pull-all" title="Pulls everything that can be pulled below">pull</button>

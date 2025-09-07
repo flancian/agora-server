@@ -224,6 +224,7 @@ class AlphaConfig(DefaultConfig):
 
     # Finally took place early on 2025-08-29. Requires a writeable filesystem.
     ENABLE_SQLITE = True
+    ENABLE_DEMO = True
 
 
 class DevelopmentConfig(DefaultConfig):
@@ -274,7 +275,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_AI = True
 
     # Demo mode settings
-    AGORA_DEMO_MODE = True
+    ENABLE_DEMO = True
     AGORA_DEMO_TARGET = "https://anagora.org"
 
 

@@ -1023,7 +1023,14 @@ body.overlay-open {
     width: 50px;
 }
 
-.theme-switch input {
+.demo-switch {
+    display: inline-block;
+    height: 24px;
+    position: relative;
+    width: 50px;
+}
+
+.theme-switch input, .demo-switch input {
     display:none;
 }
 
@@ -1053,6 +1060,11 @@ body.overlay-open {
     font-size: 12px;
 }
 
+.demo-switch .slider:before {
+    content: "🧘"; /* Person in Lotus Position */
+}
+
+
 input:checked + .slider {
     background-color: #377ba8;
 }
@@ -1061,6 +1073,28 @@ input:checked + .slider:before {
     transform: translateX(26px);
     content: "🌙";
 }
+
+.demo-switch input:checked + .slider:before {
+    content: "🏃‍♀️"; /* Woman Running */
+}
+
+#demo-timer {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    font-weight: bold;
+    color: #fff; /* Bright white for contrast */
+    display: none; /* Hidden by default */
+}
+
+.demo-switch input:checked + .slider #demo-timer {
+    display: inline; /* Show timer when active */
+}
+
+
+
 
 .slider.round {
     border-radius: 34px;
