@@ -905,6 +905,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       button.innerHTML = '✕ fold';
       button.title = 'Collapses all expanded sections';
       button.dataset.state = 'expanded';
+
+      document.querySelectorAll(".pull-mastodon-status").forEach(element => {
+        if (!element.classList.contains('pulled')) {
+            console.log('auto pulling mastodon status from navbar');
+            (element as HTMLElement).click();
+        }
+      });
     }
   });
 
