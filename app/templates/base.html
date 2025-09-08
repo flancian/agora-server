@@ -119,19 +119,20 @@
           {{config['MENU_SEPARATOR']}} <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
 			-->
       {{config['MENU_SEPARATOR']}}
-      <label class="theme-switch" for="theme-checkbox">
-        <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
-        <div class="slider round"></div>
-      </label>
-      {% if config.ENABLE_DEMO %}
-      {{config['MENU_SEPARATOR']}}
-      <label class="demo-switch" for="demo-checkbox" title="Toggle Demo Mode">
-        <input type="checkbox" id="demo-checkbox" class="demo-checkbox-input" />
-        <div class="slider round">
-            <span id="demo-timer"></span>
-        </div>
-      </label>
-      {% endif %}
+      <div class="toggle-container">
+        <label class="theme-switch" for="theme-checkbox">
+          <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
+          <div class="slider round"></div>
+        </label>
+        {% if config.ENABLE_DEMO %}
+        <label class="demo-switch" for="demo-checkbox" title="Toggle Demo Mode">
+          <input type="checkbox" id="demo-checkbox" class="demo-checkbox-input" />
+          <div class="slider round">
+              <span id="demo-timer"></span>
+          </div>
+        </label>
+        {% endif %}
+      </div>
 	</div>
     </div>
         {% endif %}
