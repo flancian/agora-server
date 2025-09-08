@@ -608,14 +608,17 @@ summary {
     margin-bottom: 10px;
 }
 
-.info-box, .intro {
-    line-height: var(--line-height);
-    text-align: left;
+.subnode-arrived {
+    background-color: var(--intro-footer-bg);
+}
+
+.info-box {
+    background: var(--info-box-bg);
+    filter: brightness(100%);
     padding: 7px;
-    position: relative;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
-    opacity: 1;
-    visibility: visible;
+    font-style: italic;
+    color: var(--info-box-text-color);
+    border: 1px dashed var(--border);
 }
 
 .dismiss-button {
@@ -627,11 +630,12 @@ summary {
 }
 
 .info-box::before {
-  content: '➼';
+  content: '🛈';
   width: 1em;
   margin-right: 0.3em;
   flex-shrink: 0;
   transition: 0.3s;
+  font-style: normal;
 }
 
 .hidden {
@@ -641,9 +645,10 @@ summary {
 
 .intro {
     line-height: var(--line-height);
+    font-style: normal;
 }
 
-.intro::before {
+.intro::before, #footer::before {
   content: '➼';
   width: 1em;
   margin-right: 0.3em;
