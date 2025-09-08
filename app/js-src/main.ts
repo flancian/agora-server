@@ -63,6 +63,17 @@ const autoPullWikipedia = JSON.parse(localStorage["auto-pull-wikipedia"] || 'fal
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
+const CLIENT_DEFAULTS = {
+  user: 'flancian',
+  autoPullSearch: false,
+  autoPullWikipedia: false,
+  showBrackets: false,
+  showGraphLabels: true,
+  showHypothesis: false,
+  autoExpandStoas: false,
+  demoTimeoutSeconds: '10',
+};
+
 function safeJsonParse(value: string, defaultValue: any) {
   try {
     return JSON.parse(value);
@@ -75,22 +86,22 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
 
   // set values from storage
-  (document.getElementById("user") as HTMLInputElement).value = localStorage["user"] || 'flancian';
-  (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], false);
-  (document.getElementById("auto-pull-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-wikipedia"], false);
-  (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], false);
+  (document.getElementById("user") as HTMLInputElement).value = localStorage["user"] || CLIENT_DEFAULTS.user;
+  (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], CLIENT_DEFAULTS.autoPullSearch);
+  (document.getElementById("auto-pull-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-wikipedia"], CLIENT_DEFAULTS.autoPullWikipedia);
+  (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], CLIENT_DEFAULTS.showBrackets);
   
   // Set graph label visibility from storage, defaulting to true.
   // This also writes the canonical value back to both storage keys to ensure consistency on first load.
   const showLabelsCheckbox = document.getElementById("show-graph-labels") as HTMLInputElement;
-  const initialShowLabels = safeJsonParse(localStorage["graph-show-labels"], true);
+  const initialShowLabels = safeJsonParse(localStorage["graph-show-labels"], CLIENT_DEFAULTS.showGraphLabels);
   showLabelsCheckbox.checked = initialShowLabels;
   localStorage["graph-show-labels"] = initialShowLabels;
   localStorage["graph-show-labels-full"] = initialShowLabels;
 
-  (document.getElementById("show-hypothesis") as HTMLInputElement).checked = safeJsonParse(localStorage["show-hypothesis"], false);
-  (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], false);
-  (document.getElementById("demo-timeout-seconds") as HTMLInputElement).value = localStorage.getItem("demo-timeout-seconds") || '15';
+  (document.getElementById("show-hypothesis") as HTMLInputElement).checked = safeJsonParse(localStorage["show-hypothesis"], CLIENT_DEFAULTS.showHypothesis);
+  (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], CLIENT_DEFAULTS.autoExpandStoas);
+  (document.getElementById("demo-timeout-seconds") as HTMLInputElement).value = localStorage.getItem("demo-timeout-seconds") || CLIENT_DEFAULTS.demoTimeoutSeconds;
 
   // Function to apply the bracket visibility style
   const applyBracketVisibility = () => {
@@ -581,7 +592,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       cancelDeepDemo(); // Ensure no multiple timers are running
       console.log('Starting deep demo mode.');
 
-      const timeoutSeconds = parseInt(localStorage.getItem("demo-timeout-seconds") || '15', 10);
+      const timeoutSeconds = parseInt(localStorage.getItem("demo-timeout-seconds") || CLIENT_DEFAULTS.demoTimeoutSeconds, 10);
       let countdown = timeoutSeconds;
       const timerElement = document.getElementById('demo-timer');
       if (timerElement) {
@@ -1828,7 +1839,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     element.addEventListener("click", function () {
       let url = (this as HTMLInputElement).value;
       (this as HTMLElement).innerText = 'going';
-      window.location.replace(url);
+      window.location.href = url;
     });
   });
 
