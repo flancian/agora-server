@@ -1,3 +1,25 @@
+# ✅ Completed: Demo Mode and UI Polish (September 2025)
+
+This session focused on refining the "Demo Mode" and "Agora Meditation" features, improving their usability and configurability. It also included several targeted UI and UX fixes for mobile and desktop.
+
+-   **Demo Mode Refinements**:
+    -   Removed the experimental popup that appeared before activating demo mode, making the toggle's behavior direct and predictable.
+    -   Added a "Demo timeout" setting to the settings overlay, allowing users to configure the duration before a random redirect. The value is saved to `localStorage`.
+    -   Added a second, synchronized "Demo Mode" toggle to the settings overlay for easier access, ensuring both toggles always reflect the current state.
+    -   Fixed a bug where closing the settings overlay would unintentionally cancel demo mode.
+
+-   **"Agora Meditation" Popup**:
+    -   Renamed the feature from "Demo Popup" to "Agora Meditation" to better reflect its purpose.
+    -   Re-implemented draggable functionality for the popup, allowing it to be repositioned freely. Its position is now saved to `localStorage`.
+    -   Removed the semi-transparent background overlay, allowing interaction with the main page while the popup is open.
+
+-   **Responsive UI and Layout Fixes**:
+    -   Fixed a CSS bug on mobile where the theme and demo toggles in the main navbar would overlap in narrow viewports by preventing them from shrinking.
+    -   Reordered the toggles in the settings overlay to appear before their labels for better consistency with other form elements.
+    -   Removed italic styling from the footer text for a cleaner look.
+    -   Added a small margin to the bottom of the footer to create more visual space at the end of the page.
+
+---
 # ✅ Completed: Advanced UI/UX and Performance Tuning (September 2025)
 
 This session focused on refining the user interface with more dynamic and intuitive controls, while also undertaking a significant performance optimization to reduce the application's initial load size.
@@ -566,9 +588,7 @@ app/
 ---
 
 *This analysis was conducted in August 2025. The codebase shows signs of mature, thoughtful development with room for systematic improvement.*
-
 ---
-
 # Session Summary (Gemini, 2025-08-16)
 
 *This section documents a collaborative development session focused on dependency modernization, new feature integration, and UI/UX refinements.*
@@ -621,7 +641,6 @@ app/
 - **Frontend Build Step is Essential**: Remember to run `npm run build` after any changes to `.ts` files in `app/js-src/`.
 - **Asynchronous Loading**: Much of the page is loaded asynchronously. The core logic for this is in `app/js-src/main.ts`. New interactive elements should be integrated there.
 - **Styling**: The Agora uses a dual-theme system. Changes to CSS should be tested in both light (`screen-light.css`) and dark (`screen-light.css`) modes. Note that `screen-light.css` imports and overrides the dark theme.
-
 ---
 # Session Summary (Gemini, 2025-08-26)
 
@@ -716,7 +735,6 @@ app/
 - **Embeddability Check**:
     - Created a new API endpoint (`/api/check_embeddable`) that checks if a URL can be embedded in an iframe.
     - The frontend now calls this endpoint before attempting to embed content, showing a user-friendly message if embedding is blocked.
-
 ---
 # Session Summary (Gemini, 2025-08-28)
 
