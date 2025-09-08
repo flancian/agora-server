@@ -1031,15 +1031,15 @@ table caption {
     border-radius: 8px;
     max-width: 600px;
     width: 90%;
-    overflow-y: auto;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    min-height: 100vh;
     box-sizing: border-box;
+    min-height: 100vh;
+    padding-bottom: 80px; /* Extra space at the bottom */
 }
 
 @media (min-width: 48em) {
     .overlay-content {
-        max-width: 900px;
+        max-width: 70rem;
     }
 }
 
