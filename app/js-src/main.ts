@@ -72,6 +72,7 @@ const CLIENT_DEFAULTS = {
   showHypothesis: false,
   autoExpandStoas: false,
   demoTimeoutSeconds: '10',
+  showEditSection: false,
 };
 
 function safeJsonParse(value: string, defaultValue: any) {
@@ -102,6 +103,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   (document.getElementById("show-hypothesis") as HTMLInputElement).checked = safeJsonParse(localStorage["show-hypothesis"], CLIENT_DEFAULTS.showHypothesis);
   (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], CLIENT_DEFAULTS.autoExpandStoas);
   (document.getElementById("demo-timeout-seconds") as HTMLInputElement).value = localStorage.getItem("demo-timeout-seconds") || CLIENT_DEFAULTS.demoTimeoutSeconds;
+  (document.getElementById("show-edit-section") as HTMLInputElement).checked = safeJsonParse(localStorage["show-edit-section"], CLIENT_DEFAULTS.showEditSection);
 
   // Function to apply the bracket visibility style
   const applyBracketVisibility = () => {
@@ -119,6 +121,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   const hypothesisFrame = document.getElementById('hypothesis-frame');
   if (hypothesisFrame && (document.getElementById("show-hypothesis") as HTMLInputElement).checked) {
     hypothesisFrame.classList.add('visible');
+  }
+
+  // Toggle Edit Section visibility on initial load
+  const editSection = document.querySelector('.edit-section-container');
+  if (editSection && !(document.getElementById("show-edit-section") as HTMLInputElement).checked) {
+    (editSection as HTMLElement).style.display = 'none';
   }
 
   // Watch for new nodes being added to the DOM and re-apply the style
@@ -204,6 +212,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     const hypothesisFrame = document.getElementById('hypothesis-frame');
     if (hypothesisFrame) {
       hypothesisFrame.classList.toggle('visible', isChecked);
+    }
+  });
+
+  document.getElementById("show-edit-section")?.addEventListener('change', (e) => {
+    const isChecked = (e.target as HTMLInputElement).checked;
+    localStorage["show-edit-section"] = isChecked;
+    const editSection = document.querySelector('.edit-section-container');
+    if (editSection) {
+      (editSection as HTMLElement).style.display = isChecked ? 'block' : 'none';
     }
   });
 
@@ -431,6 +448,17 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
   });
+
+  // Add click listener to the overlay to close it when clicking on the background
+  const overlay = document.getElementById('overlay');
+  if (overlay) {
+    overlay.addEventListener('click', function(event) {
+      if (event.target === overlay) {
+        this.classList.remove('active');
+        document.body.classList.remove('overlay-open');
+      }
+    });
+  }
 
   // Iframe navigation watcher.
   // We can't see *where* an iframe navigates due to Same-Origin Policy,

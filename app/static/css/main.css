@@ -44,7 +44,7 @@
     --button-border-color: #999;
     --logo-filter: invert(1);
     --tab-active-bg: #ffffff20;
-    --overlay-bg: rgba(0, 0, 0, 0.95);
+    --overlay-bg: rgba(0, 0, 0, 0.8);
     --separator-border: #ddd;
     --blockquote-border: #bfbfbf;
     --agora-protocol-text: #ffffff80;
@@ -75,7 +75,7 @@
     --button-border-color: #999;
     --logo-filter: none;
     --tab-active-bg: rgba(255, 255, 255, 1);
-    --overlay-bg: rgba(238, 238, 238, 0.9);
+    --overlay-bg: rgba(238, 238, 238, 0.7);
     --separator-border: #222;
     --blockquote-border: #000; /* Or a shade of grey */
     --agora-protocol-text: #00000080;
@@ -943,17 +943,23 @@ body.overlay-open {
     height: 100%;
     width: 100%;
     top: 0;
+    left: 0; /* Start from the edge */
     position: fixed;
     background-color: rgba(20, 20, 20, 0);
-    overflow-x: hidden;
     z-index: 3;
-    left: -120%; 
-    transition: left 0.4s ease-in-out, background-color 0.4s ease-in-out;
+    display: flex; /* Use flexbox for centering */
+    justify-content: center; /* Center horizontally */
+    align-items: flex-start; /* Align to the top */
+    visibility: hidden; /* Start hidden */
+    opacity: 0; /* Start transparent */
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    overflow-y: auto; /* Allow the container to scroll */
 }
 
 .overlay.active {
-    left: 0;
     background-color: var(--overlay-bg);
+    visibility: visible;
+    opacity: 1;
 }
 
 #toast-container {
@@ -1022,6 +1028,18 @@ body.overlay-open {
 
 .overlay-content {
     padding: 20px;
+    background-color: var(--node-bg);
+    border-radius: 8px;
+    max-width: 600px;
+    width: 90%;
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+@media (min-width: 48em) {
+    .overlay-content {
+        max-width: 900px;
+    }
 }
 
 .theme-switch {
