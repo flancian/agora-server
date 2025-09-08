@@ -975,6 +975,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const web_regex = /(https:\/\/[a-zA-Z-.]+)\/web\/statuses\/([0-9]+)/ig
     const user_regex = /(https:\/\/[a-zA-Z-.]+)\/@\w+\/([0-9]+)/ig
 
+    let m;
     console.log("testing type of presumed mastodon embed: " + toot);
     if (m = web_regex.exec(toot)) {
       console.log("found status of type /web/");
@@ -987,7 +988,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       post = m[2];
     }
 
-    req = domain + '/api/v1/statuses/' + post
+    let req = domain + '/api/v1/statuses/' + post
     console.log('req for statusContent: ' + req)
     try {
       const response = await fetch(req);
