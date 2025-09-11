@@ -732,7 +732,75 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
   }
 
+  /**
+   * A robust, high-level function to play a MIDI file using a soundfont.
+   * It handles fetching the MIDI, loading the instrument, and scheduling all notes
+   * with their correct durations.
+   * @param {string} url - The URL of the MIDI file to play.
+   */
+  async function playMidi(url: string) {
+      try {
+          // Dynamically import the necessary libraries.
+          const { default: Soundfont } = await import('soundfont-player');
+          const { default: MidiPlayer } = await import('midi-player-js');
+
+          // Set up the audio context and load the piano instrument.
+          const ac = new AudioContext();
+          const instrument = await Soundfont.instrument(ac, 'acoustic_grand_piano');
+
+          // Fetch the MIDI file from the server.
+          const response = await fetch(url);
+          const arrayBuffer = await response.arrayBuffer();
+
+          // Initialize the MIDI player.
+          const player = new MidiPlayer.Player();
+
+          // Log all MIDI events for debugging.
+          player.on('midiEvent', (event) => {
+              if (event.name === 'Note on') {
+                  console.log(`Note: ${event.noteName}, Velocity: ${event.velocity}, Channel: ${event.channel}`);
+              }
+          });
+
+          // Load the MIDI data.
+          const base64 = btoa(new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+          const dataUri = `data:audio/midi;base64,${base64}`;
+          player.loadDataUri(dataUri);
+
+          // Get tempo and time division from the MIDI file.
+          const tempo = player.tempo;
+          const division = player.division;
+          // Calculate the duration of a single MIDI tick in seconds.
+          const tickDuration = (60 / tempo) / division;
+
+          // Get all note events from the first track.
+          const events = player.getEvents()[0];
+          let currentTimeInSeconds = 0;
+
+          // Schedule each note to be played at the correct time with the correct duration.
+          for (const event of events) {
+              // Add the time delta of the current event to our ongoing timeline.
+              currentTimeInSeconds += event.tick * tickDuration;
+
+              if (event.name === 'Note on' && event.velocity > 0) {
+                  // Schedule the note to play at the calculated time for its specific duration.
+                  // The event.duration is typically in milliseconds, so we convert to seconds.
+                  instrument.schedule(ac.currentTime + currentTimeInSeconds, [
+                      { time: 0, note: event.noteName, duration: event.duration / 1000, gain: event.velocity / 100 }
+                  ]);
+              }
+          }
+
+          console.log("MIDI playback scheduled.");
+
+      } catch (error) {
+          console.error('Error playing MIDI file:', error);
+      }
+  }
+
   document.getElementById('show-meditation-popup')?.addEventListener('click', () => {
+      playMidi('/static/mid/burup.mid');
+
       // If the demo is running, cancel it before showing the popup.
       const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
       if (anyCheckedDemoBox) {
