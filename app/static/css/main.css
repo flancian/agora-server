@@ -1433,4 +1433,8 @@ input:checked + .slider:before {
     #scroll-toggle {
         margin-left: 0; /* Reset the margin for mobile */
     }
+
+    .hide-on-mobile {
+        display: none;
+    }
 }

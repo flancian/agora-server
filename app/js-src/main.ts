@@ -545,30 +545,42 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log('Observer started');
   // end code from Claude Sonnet 3.5.
 
-  // Responsive toggle placement
-  const moveToggles = () => {
+  // Responsive navbar rearrangement
+  const rearrangeNavbar = () => {
     const toggleContainer = document.querySelector('.toggle-container');
-    const wideContainer = document.querySelector('.navigation-content');
-    const narrowContainer = document.querySelector('.search-container');
+    const searchButton = document.getElementById('mini-cli-exec');
+    const scrollToggle = document.getElementById('scroll-toggle');
+    
+    const wideToggleContainer = document.querySelector('.navigation-content');
+    const searchContainer = document.querySelector('.search-container');
+    const actionBar = document.querySelector('.action-bar');
 
-    if (!toggleContainer || !wideContainer || !narrowContainer) {
+    if (!toggleContainer || !searchButton || !scrollToggle || !wideToggleContainer || !searchContainer || !actionBar) {
       return;
     }
 
     if (window.innerWidth <= 768) {
-      // Move to search bar on narrow screens
-      narrowContainer.insertBefore(toggleContainer, document.getElementById('scroll-toggle'));
+      // Mobile layout: [Search Input] [Toggles] [Scroll]
+      searchContainer.appendChild(toggleContainer);
+      searchContainer.appendChild(scrollToggle);
+      // Move search button to the beginning of the action bar
+      actionBar.insertBefore(searchButton, actionBar.firstChild);
     } else {
-      // Move back to top nav on wide screens
-      wideContainer.appendChild(toggleContainer);
+      // Desktop layout
+      // Move toggles back to the top nav
+      wideToggleContainer.appendChild(toggleContainer);
+      // Move search button back to the search container
+      searchContainer.insertBefore(searchButton, searchContainer.firstChild);
+      // Move scroll toggle back to the action bar
+      actionBar.appendChild(scrollToggle);
     }
   };
 
   // Initial placement
-  moveToggles();
+  rearrangeNavbar();
 
   // Re-evaluate on resize
-  window.addEventListener('resize', moveToggles);
+  window.addEventListener('resize', rearrangeNavbar);
 
 
   // clear mini cli on clicking clear button

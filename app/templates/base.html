@@ -118,7 +118,7 @@
 		  <!-- Now moved to burger: overlay.html 
           {{config['MENU_SEPARATOR']}} <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
 			-->
-      {{config['MENU_SEPARATOR']}}
+      <span class="hide-on-mobile">{{config['MENU_SEPARATOR']}}</span>
       <div class="toggle-container">
         <label class="theme-switch" for="theme-checkbox">
           <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
@@ -149,7 +149,6 @@
                   </form>
                 </div>
                 <!-- Toggles will be moved here by JS on mobile -->
-                <button id="scroll-toggle" title="Scroll to bottom">▼</button>
             </div>
             <div class="action-bar">
                <button id="mini-cli-pull" value="pull" title="Tries to pull (embed) more into this context">
@@ -158,14 +157,15 @@
                <button id="mini-cli-go" value="go" title="Follows a go link if one is found in this node; may redirect outside the Agora or to a different Agora location.">
                 ➡️ go
                </button>
-               <button id="show-meditation-popup" title="Show the Agora Meditation popup.">
-                 🧘 Meditate
-               </button>
                {% if config.ENABLE_HYPOTHESIS %}
                <button id="toggle-hypothesis" title="Toggle annotations sidebar">
                     🖋️ Annotate
                </button>
                {% endif %}
+               <button id="show-meditation-popup" title="Show the Agora Meditation popup.">
+                 🧘 Meditate
+               </button>
+               <button id="scroll-toggle" title="Scroll to bottom">▼</button>
             </div>
           </div>
         </div>
