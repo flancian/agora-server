@@ -81,6 +81,15 @@ headers. This should be of essentially no effect to you or its users (beyond the
 required signing of the CLA if you contribute), as it is released under an open
 license; please reach out to flancian@ or some other maintainer if this concerns you.  
 
+## If you have missing icons
+
+The Agora Server makes ample use of unicode emojis for illustrating concepts and aiding navigation. If you are on GNU/Linux and see partial rendering (i.e. empty squares instead of icons), you probably need to install additional font packages. On Debian/Ubuntu:
+
+```
+sudo apt install fonts-noto-color-emoji fonts-symbola
+```
+
+
 ## About the project
 As you might have inferred from the above, this project is based on [Flask](https://flask.palletsprojects.com). ```/app``` hosts the Flask app. In it:
 
