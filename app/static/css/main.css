@@ -1317,9 +1317,9 @@ input:checked + .slider:before {
 #meditation-popup {
     background-color: var(--node-bg);
     border-radius: 8px;
-    width: 50%;
+    width: 72%;
     min-width: 400px;
-    max-width: 600px;
+    max-width: 864px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     border: 1px solid var(--link-color);
 }

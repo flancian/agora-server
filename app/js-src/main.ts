@@ -657,6 +657,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
   };
 
+  let activeMidiPlayer = null;
+
   const showPopup = () => {
       const messages = [
           "The [[Agora]] is a [[Free Knowledge Commons]]. What will you contribute?",
@@ -699,6 +701,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   };
 
   const hidePopup = () => {
+      if (activeMidiPlayer) {
+          activeMidiPlayer.stop();
+          activeMidiPlayer = null;
+          console.log("MIDI playback stopped.");
+      }
       meditationPopupContainer.classList.remove('active');
   };
 
@@ -733,6 +740,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   document.getElementById('show-meditation-popup')?.addEventListener('click', () => {
+      const meditationPopupContainer = document.getElementById("meditation-popup-container");
+      if (meditationPopupContainer.classList.contains('active')) {
+          hidePopup();
+          return;
+      }
+
       // Dynamically import the audio libraries only when the button is clicked.
       import('soundfont-player').then(({ default: Soundfont }) => {
           import('midi-player-js').then(({ default: MidiPlayer }) => {
@@ -751,6 +764,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                           }
                       }
                   });
+                  activeMidiPlayer = player; // Store the player instance
 
                   fetch('/static/mid/burup.mid')
                     .then(response => response.arrayBuffer())

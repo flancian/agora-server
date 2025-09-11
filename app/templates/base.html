@@ -161,6 +161,11 @@
            <button id="show-meditation-popup" title="Show the Agora Meditation popup.">
              🧘 Meditate
            </button>
+           {% if config.ENABLE_HYPOTHESIS %}
+           <button id="toggle-hypothesis" title="Toggle annotations sidebar">
+                🖋️ Annotate
+           </button>
+           {% endif %}
            <button id="scroll-toggle" title="Scroll to bottom">▼</button>
 
             <!--<button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>-->

@@ -13,11 +13,6 @@
     &nbsp;
     <button id="mini-cli-root" onclick="location.href='{{config['ROOT']}}'" title="Go to the root of the Agora.">🌱 See root</button>
     <!-- <button id="mini-cli-source" onclick="location.href='{{config['SOURCE']}}'" title="Go to the source code of this Agora.">👨‍💻 Get Source</button> -->
-    {% if config.ENABLE_HYPOTHESIS %}
-    <button id="toggle-hypothesis" title="Toggle annotations sidebar">
-        🖋️ Annotate
-    </button>
-    {% endif %}
     <button id="mini-cli-retry" value="retry" title="Retries/reloads, might fix transient errors, might show content from a different Agora eventually.">
               🔄 retry
            </button>
