@@ -139,41 +139,35 @@
 
         <div class="topline-node">
           <div class="topline-node-wrapper">
-            <div class="topline-query">
-           </div>
-              <button id="mini-cli-exec" value="exec" title="Searches the Agora Commons and the wider internet for resources relevant to the current location.">
-                🔎 search
-              </button>
-            <div class="topline-cli">
-              <form action="/" method="get">
-                <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
-              </form>
-
+            <div class="search-container">
+                <button id="mini-cli-exec" value="exec" title="Searches the Agora Commons and the wider internet for resources relevant to the current location.">
+                  🔎 search
+                </button>
+                <div class="topline-cli">
+                  <form action="/" method="get">
+                    <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
+                  </form>
+                </div>
+                <!-- Toggles will be moved here by JS on mobile -->
+                <button id="scroll-toggle" title="Scroll to bottom">▼</button>
             </div>
-           <button id="mini-cli-pull" value="pull" title="Tries to pull (embed) more into this context">
-						🧲 pull 
-           </button>
- 
-
-           <button id="mini-cli-go" value="go" title="Follows a go link if one is found in this node; may redirect outside the Agora or to a different Agora location.">
-            ➡️ go
-           </button>
-           <button id="show-meditation-popup" title="Show the Agora Meditation popup.">
-             🧘 Meditate
-           </button>
-           {% if config.ENABLE_HYPOTHESIS %}
-           <button id="toggle-hypothesis" title="Toggle annotations sidebar">
-                🖋️ Annotate
-           </button>
-           {% endif %}
-           <button id="scroll-toggle" title="Scroll to bottom">▼</button>
-
-            <!--<button id="mini-cli-clear" value="clear" title="Clears the query box">clear</button>-->
-            <!-- <button id="pull-top" value="pull-all" title="Pulls everything that can be pulled below">pull</button>
-              <button id="fold-top" value="fold-all" title="Folds everything that can be folded below">fold</button>
-            -->
+            <div class="action-bar">
+               <button id="mini-cli-pull" value="pull" title="Tries to pull (embed) more into this context">
+    						🧲 pull 
+               </button>
+               <button id="mini-cli-go" value="go" title="Follows a go link if one is found in this node; may redirect outside the Agora or to a different Agora location.">
+                ➡️ go
+               </button>
+               <button id="show-meditation-popup" title="Show the Agora Meditation popup.">
+                 🧘 Meditate
+               </button>
+               {% if config.ENABLE_HYPOTHESIS %}
+               <button id="toggle-hypothesis" title="Toggle annotations sidebar">
+                    🖋️ Annotate
+               </button>
+               {% endif %}
+            </div>
           </div>
-
         </div>
   </nav>
 

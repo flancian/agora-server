@@ -545,6 +545,32 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log('Observer started');
   // end code from Claude Sonnet 3.5.
 
+  // Responsive toggle placement
+  const moveToggles = () => {
+    const toggleContainer = document.querySelector('.toggle-container');
+    const wideContainer = document.querySelector('.navigation-content');
+    const narrowContainer = document.querySelector('.search-container');
+
+    if (!toggleContainer || !wideContainer || !narrowContainer) {
+      return;
+    }
+
+    if (window.innerWidth <= 768) {
+      // Move to search bar on narrow screens
+      narrowContainer.insertBefore(toggleContainer, document.getElementById('scroll-toggle'));
+    } else {
+      // Move back to top nav on wide screens
+      wideContainer.appendChild(toggleContainer);
+    }
+  };
+
+  // Initial placement
+  moveToggles();
+
+  // Re-evaluate on resize
+  window.addEventListener('resize', moveToggles);
+
+
   // clear mini cli on clicking clear button
   /*
   document.querySelector("#mini-cli-clear").addEventListener("click", () => {

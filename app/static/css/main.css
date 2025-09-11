@@ -449,6 +449,27 @@ summary, #footer {
 .topline-node-wrapper {
     display: flex;
     align-items: center;
+    gap: 4px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    gap: 4px;
+}
+
+.topline-cli {
+    flex-grow: 1;
+}
+
+.action-bar {
+    display: flex;
+    align-items: center;
+}
+
+#scroll-toggle {
+    margin-left: auto;
 }
 
 input[type="text"] {
@@ -1392,13 +1413,24 @@ input:checked + .slider:before {
         flex-wrap: wrap;
     }
 
-    .topline-cli {
-        order: -1; /* Move search bar to the top */
+    .search-container {
         width: 100%;
+        order: -1; /* Move search bar to the top */
         margin-bottom: 5px;
     }
 
-    .topline-query {
-        flex: none; /* Stop this from growing and pushing the buttons */
+    .action-bar {
+        width: 100%;
+        overflow-x: auto;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+
+    .action-bar::-webkit-scrollbar {
+        display: none;
+    }
+
+    #scroll-toggle {
+        margin-left: 0; /* Reset the margin for mobile */
     }
 }
