@@ -1385,3 +1385,20 @@ input:checked + .slider:before {
         overflow-y: auto;
     }
 }
+
+/* Responsive action bar */
+@media screen and (max-width: 48em) {
+    .topline-node-wrapper {
+        flex-wrap: wrap;
+    }
+
+    .topline-cli {
+        order: -1; /* Move search bar to the top */
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .topline-query {
+        flex: none; /* Stop this from growing and pushing the buttons */
+    }
+}

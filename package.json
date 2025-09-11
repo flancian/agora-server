@@ -3,7 +3,7 @@
     "build": "npx --yes esbuild app/js-src/index.ts --bundle --splitting --format=esm --outdir=app/static/js",
     "watch": "npx --yes esbuild app/js-src/index.ts --bundle --splitting --format=esm --outdir=app/static/js --watch"
   },
-  "dependencies": {
+    "dependencies": {
     "esbuild": "^0.14.37",
     "fs": "^0.0.1-security",
     "midi-player-js": "^2.0.5",
