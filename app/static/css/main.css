@@ -1232,6 +1232,25 @@ input:checked + .slider:before {
     width: 50%;
 }
 
+@media screen and (max-width: 48em) {
+    .context-flex {
+        flex-direction: column;
+    }
+
+    .context-flex .graph-container,
+    .context-flex .links {
+        width: 100%;
+    }
+
+    .context-flex .links {
+        order: 1;
+    }
+
+    .context-flex .graph-container {
+        order: 2;
+    }
+}
+
 .graph-container {
     position: relative;
 }
