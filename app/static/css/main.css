@@ -1430,6 +1430,27 @@ input:checked + .slider:before {
         display: none;
     }
 
+    .navigation-content, .action-bar, #footer {
+        position: relative;
+    }
+
+    .navigation-content::after, .action-bar::after, #footer::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 20px;
+        pointer-events: none;
+        background: linear-gradient(to right, transparent, var(--main-bg));
+        opacity: 1;
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    .navigation-content.scrolled-to-end::after, .action-bar.scrolled-to-end::after, #footer.scrolled-to-end::after {
+        opacity: 0;
+    }
+
     #scroll-toggle {
         margin-left: 0; /* Reset the margin for mobile */
     }

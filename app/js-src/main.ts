@@ -582,6 +582,32 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Re-evaluate on resize
   window.addEventListener('resize', rearrangeNavbar);
 
+  // Scroll hints for horizontally scrollable elements
+  const handleScrollHints = () => {
+    document.querySelectorAll('.navigation-content, .action-bar, #footer').forEach(element => {
+      const el = element as HTMLElement;
+      // Check if the element is actually scrollable
+      const isScrollable = el.scrollWidth > el.clientWidth;
+      if (isScrollable) {
+        // A tolerance of 1px is added to account for subpixel rendering issues.
+        const isAtEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
+        el.classList.toggle('scrolled-to-end', isAtEnd);
+      } else {
+        // If not scrollable, always treat it as being at the end.
+        el.classList.add('scrolled-to-end');
+      }
+    });
+  };
+
+  // Add scroll event listeners
+  document.querySelectorAll('.navigation-content, .action-bar, #footer').forEach(element => {
+    element.addEventListener('scroll', handleScrollHints);
+  });
+
+  // Initial check on load and resize
+  window.addEventListener('resize', handleScrollHints);
+  handleScrollHints(); // Initial check
+
 
   // clear mini cli on clicking clear button
   /*
