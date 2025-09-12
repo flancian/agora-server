@@ -1449,11 +1449,12 @@ input:checked + .slider:before {
         display: none;
     }
 
-    .navigation-content, .action-bar, #footer {
+    /* Wrapper elements get the relative positioning and the pseudo-element for the shadow. */
+    .navigation, .topline-node-wrapper, .footer-wrapper {
         position: relative;
     }
 
-    .navigation-content::after, .action-bar::after, #footer::after {
+    .navigation::after, .topline-node-wrapper::after, .footer-wrapper::after {
         content: '';
         position: absolute;
         right: 0;
@@ -1466,7 +1467,10 @@ input:checked + .slider:before {
         transition: opacity 0.2s ease-in-out;
     }
 
-    .navigation-content.scrolled-to-end::after, .action-bar.scrolled-to-end::after, #footer.scrolled-to-end::after {
+    /* When the wrapper has this class, the shadow fades out. */
+    .navigation.scrolled-to-end::after, 
+    .topline-node-wrapper.scrolled-to-end::after, 
+    .footer-wrapper.scrolled-to-end::after {
         opacity: 0;
     }
 

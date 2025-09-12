@@ -586,15 +586,15 @@ document.addEventListener("DOMContentLoaded", async function () {
   const handleScrollHints = () => {
     document.querySelectorAll('.navigation-content, .action-bar, #footer').forEach(element => {
       const el = element as HTMLElement;
-      // Check if the element is actually scrollable
+      const parent = el.parentElement;
+      if (!parent) return;
+
       const isScrollable = el.scrollWidth > el.clientWidth;
       if (isScrollable) {
-        // A tolerance of 1px is added to account for subpixel rendering issues.
         const isAtEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
-        el.classList.toggle('scrolled-to-end', isAtEnd);
+        parent.classList.toggle('scrolled-to-end', isAtEnd);
       } else {
-        // If not scrollable, always treat it as being at the end.
-        el.classList.add('scrolled-to-end');
+        parent.classList.add('scrolled-to-end');
       }
     });
   };
