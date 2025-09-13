@@ -14,8 +14,6 @@
  limitations under the License.
 -->
 
-{% extends "base.html" %}
-{% block content %}
 {% if node %}
 {% if not subnode and not node.subnodes %}
 <div class="not-found">
@@ -70,5 +68,3 @@
 
 {% endif %}
 <!-- end: old_subnode uses this -->
-
-{% endblock %}

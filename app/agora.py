@@ -810,10 +810,11 @@ def journals(entries):
             # long story, this is a hack working around a bug for now.
             return redirect(url_for(".root", node=entries))
 
-    journal_nodes = api.all_journals()[0:entries]
+    journal_subnodes = api.all_journals()[0:entries]
     subnodes_by_date = collections.defaultdict(list)
-    for node in journal_nodes:
-        subnodes_by_date[node.uri].extend(node.subnodes)
+    for subnode in journal_subnodes:
+        # The URI of a journal subnode is its date, e.g., "2025-09-12".
+        subnodes_by_date[subnode.uri].append(subnode)
 
     return render_template(
         "journals.html",

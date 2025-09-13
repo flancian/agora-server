@@ -152,6 +152,7 @@ class DefaultConfig(object):
 
     QUERY_CACHE_TTL = {
         'all_users': 3600, # 1 hour
+        'all_journals': 3600, # 1 hour
         'latest': 3600,    # 1 hour
         'top': 3600,       # 1 hour
     }

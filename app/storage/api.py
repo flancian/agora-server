@@ -81,12 +81,30 @@ def random_node():
     return file_engine.random_node()
 
 def all_journals():
-    # This is a complex query, for now remains file-based.
-    return file_engine.all_journals()
+    if _is_sqlite_enabled():
+        cache_key = 'all_journals_v1'
+        ttl = current_app.config['QUERY_CACHE_TTL'].get('all_journals', 3600)
+        cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
+
+        if cached_value and (time.time() - timestamp < ttl):
+            current_app.logger.debug(f"Cache hit for '{cache_key}'.")
+            # The result is a list of Subnode objects. We cache the URIs and reconstruct.
+            # The Subnode constructor is cheap enough for this purpose.
+            subnode_uris = json.loads(cached_value)
+            return [SubnodeClass(uri) for uri in subnode_uris]
+
+        current_app.logger.debug(f"Cache miss for '{cache_key}'.")
+        journals = file_engine.all_journals()
+        # Extract URIs for serialization.
+        subnode_uris = [j.uri for j in journals]
+        sqlite_engine.save_cached_query(cache_key, json.dumps(subnode_uris), time.time())
+        return journals
+    else:
+        return file_engine.all_journals()
 
 def all_users():
     if _is_sqlite_enabled():
-        cache_key = 'all_users'
+        cache_key = 'all_users_v1'
         ttl = current_app.config['QUERY_CACHE_TTL'].get(cache_key, 3600)
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
         

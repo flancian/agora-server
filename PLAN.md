@@ -1,3 +1,13 @@
+# ✅ Completed: High-Performance Query Caching (September 2025)
+
+This session focused on executing a high-priority performance optimization by implementing a caching layer for expensive, high-traffic queries. This provides a significant speed boost for key pages across the Agora.
+
+-   **New Caching Layer**: Implemented a caching mechanism for functions that perform expensive filesystem scans, using the `query_cache` table in the SQLite database.
+-   **Cached Functions**:
+    -   Applied the caching pattern to `all_users()`, `latest()`, and `top()`, which were already partially implemented.
+    -   Extended the pattern to `all_journals()`, speeding up the `/journals` page.
+-   **Robustness**: Added versioning to the cache key for `all_users()` (e.g., `all_users_v1`) to prevent stale cache formats from causing errors in the future, aligning it with the best practice used by other cached functions.
+
 # ✅ Completed: Bug Fixes and Responsive UI Refinements (September 2025)
 
 This session focused on fixing several client-side bugs and undertaking a significant refactoring of the main navbar to improve its usability and layout on mobile devices.
