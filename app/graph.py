@@ -22,6 +22,7 @@ import re
 import subprocess
 import time
 import urllib
+import json
 from collections import defaultdict
 from copy import copy
 from operator import attrgetter
@@ -175,59 +176,97 @@ class Graph:
     @log_cache_hits
     @cachetools.func.ttl_cache(ttl=get_cache_ttl("node_data"))
     def nodes(self, include_journals: bool = True, only_canonical: bool = True) -> Dict[str, 'Node']:
-        # this is where a lot of the 'magic' happens.
-        # this:
-        #   - reads and coalesces (integrates) [[subnodes]] into [[nodes]]
-        #   - ocassionally provides some code-generated utility by virtue of provisioning [[virtual subnodes]]
-        # most node lookups in the Agora just look up a node in this list.
-        # this is expensive but less so than subnodes().
-        current_app.logger.info("CACHE MISS (in-memory): Recomputing all nodes.")
+        if _is_sqlite_enabled():
+            cache_key = 'all_nodes_v1'
+            ttl = get_cache_ttl('node_data')
+            cached_value, timestamp = sqlite_engine.get_cached_graph(cache_key)
+
+            if cached_value and (time.time() - timestamp < ttl):
+                current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for nodes.")
+                start_time = time.time()
+                current_app.logger.info("CACHE WARMING (in-memory): Deserializing nodes from SQLite.")
+
+                cached_data = json.loads(cached_value)
+                
+                # This is the full map, equivalent to only_canonical=False
+                full_nodes = {}
+                node_to_subnodes = cached_data['node_to_subnodes']
+                node_to_executable_subnodes = cached_data['node_to_executable_subnodes']
+
+                for node_wikilink in node_to_subnodes:
+                    n = Node(node_wikilink)
+                    n.subnodes = [Subnode(s['path'], s['mediatype']) for s in node_to_subnodes[node_wikilink]]
+                    n.executable_subnodes = [ExecutableSubnode(s['path']) for s in node_to_executable_subnodes.get(node_wikilink, [])]
+                    full_nodes[node_wikilink] = n
+                
+                # Create the filtered, canonical-only version
+                canonical_nodes = {
+                    k: v for k, v in full_nodes.items()
+                    if not util.is_journal(k) and k == util.canonical_wikilink(k)
+                }
+
+                duration = time.time() - start_time
+                current_app.logger.info(f"CACHE WARMING (in-memory): Deserialized {len(full_nodes)} nodes in {duration:.2f}s.")
+                
+                # Manually populate the in-memory cache for both variations.
+                # Key for only_canonical=False
+                key_false = cachetools.keys.hashkey(self, include_journals=True, only_canonical=False)
+                self.nodes.cache[key_false] = full_nodes
+                # Key for only_canonical=True
+                key_true = cachetools.keys.hashkey(self, include_journals=True, only_canonical=True)
+                self.nodes.cache[key_true] = canonical_nodes
+
+                # Return the version that was originally requested.
+                if only_canonical:
+                    return canonical_nodes
+                else:
+                    return full_nodes
+
+        current_app.logger.info("CACHE MISS (sqlite): Recomputing all nodes.")
         begin = datetime.datetime.now()
-        current_app.logger.debug(f"*** CACHE_TTL is {CACHE_TTL}.")
         current_app.logger.debug("*** Loading nodes at {begin}.")
-        # returns a list of all nodes
 
-        # first we fetch all subnodes, put them in a dict {wikilink -> [subnode]}.
-        # hack hack -- there's probably something in itertools better than this?
         node_to_subnodes = defaultdict(list)
-
-        # these are code from the gardeners.
         node_to_executable_subnodes = defaultdict(list)
 
         for subnode in self.subnodes():
             node_to_subnodes[subnode.node].append(subnode)
-            # Hmm, this is where the [[equivalence class]] is actually defined nowadays?
-            # TODO(2022-11-26): review if this is the only mechanism.
-            # - 2023-09-24: we also have auto pulls by the Agora, and pulls from users.
             if subnode.canonical_wikilink != subnode.wikilink and not only_canonical:
                 node_to_subnodes[subnode.wikilink].append(subnode)
 
         for executable_subnode in self.executable_subnodes():
             node_to_executable_subnodes[executable_subnode.node].append(executable_subnode)
-            # This is a smell but I'm hacking here :)
             if executable_subnode.canonical_wikilink != executable_subnode.wikilink and not only_canonical:
-                node_to_subnodes[executable_subnode.wikilink].append(executable_subnode)
+                node_to_executable_subnodes[executable_subnode.wikilink].append(executable_subnode)
 
-         # then we iterate over its values and construct nodes for each list of subnodes.
+        if _is_sqlite_enabled():
+            serializable_node_map = {
+                key: [{'path': s.path, 'mediatype': s.mediatype} for s in value]
+                for key, value in node_to_subnodes.items()
+            }
+            serializable_exec_map = {
+                key: [{'path': s.path, 'mediatype': s.mediatype} for s in value]
+                for key, value in node_to_executable_subnodes.items()
+            }
+            data_to_cache = {
+                'node_to_subnodes': serializable_node_map,
+                'node_to_executable_subnodes': serializable_exec_map
+            }
+            sqlite_engine.save_cached_graph(cache_key, json.dumps(data_to_cache), time.time())
+            current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_nodes to persistent cache.")
+
         nodes = {}
-        for node in node_to_subnodes:
-            if not include_journals and util.is_journal(node):
-                pass
-            n = Node(node)
-            n.subnodes = node_to_subnodes[node]
-            nodes[node] = n
-
-            # New as per 2023-09 :)
-            # These need to execute before producing something usable (run exec() on them, usually 
-            # in an "async" path (as pushes).
-            n.executable_subnodes = node_to_executable_subnodes[node]
+        for node_wikilink in node_to_subnodes:
+            if not include_journals and util.is_journal(node_wikilink):
+                continue
+            n = Node(node_wikilink)
+            n.subnodes = node_to_subnodes[node_wikilink]
+            n.executable_subnodes = node_to_executable_subnodes.get(node_wikilink, [])
+            nodes[node_wikilink] = n
 
         end = datetime.datetime.now()
         current_app.logger.debug(f"*** Nodes loaded from {begin} to {end}.")
         return nodes
-        # TODO: experiment with other ranking.
-        # return sorted(nodes, key=lambda x: -x.size())
-        # return sorted(nodes, key=lambda x: x.wikilink.lower())
 
     # The following method is unused; it is far too slow given the current control flow.
     # Running something like this would be ideal eventually though.
@@ -245,27 +284,45 @@ class Graph:
     @log_cache_hits
     @cachetools.func.ttl_cache(ttl=get_cache_ttl("subnodes"))
     def subnodes(self, sort=_default_subnode_sort) -> List['Subnode']:
-        # this is where the magic happens (?)
-        # as in -- this is where the rubber meets the road, meaning where we actually find all subnodes we can serve. This is called by G.nodes() which actually builds the Agora graph.
-        # as of [[2022-01-28]] this takes about 20s to run with an Agora of about 17k subnodes.
-        # which makes caching important :)
-        current_app.logger.info("CACHE MISS (in-memory): Scanning filesystem for all subnodes.")
+        if _is_sqlite_enabled():
+            cache_key = 'all_subnodes_v1'
+            ttl = get_cache_ttl('subnodes')
+            cached_value, timestamp = sqlite_engine.get_cached_graph(cache_key)
+
+            if cached_value and (time.time() - timestamp < ttl):
+                current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for subnodes.")
+                start_time = time.time()
+                current_app.logger.info("CACHE WARMING (in-memory): Deserializing subnodes from SQLite.")
+
+                subnode_data = json.loads(cached_value)
+                # Subnode objects are reconstructed from cached metadata.
+                # The Subnode constructor is relatively cheap as it doesn't do file I/O
+                # when content is not accessed. We defer content loading.
+                subnodes = [Subnode(s['path'], s['mediatype']) for s in subnode_data]
+                
+                duration = time.time() - start_time
+                current_app.logger.info(f"CACHE WARMING (in-memory): Deserialized {len(subnodes)} subnodes in {duration:.2f}s.")
+
+                # Manually populate the in-memory cache for this request.
+                key = cachetools.keys.hashkey(self, sort=sort)
+                self.subnodes.cache[key] = subnodes
+
+                if sort:
+                    return sorted(subnodes, key=sort)
+                return subnodes
+
+        # The following block is executed on a cache miss (in-memory or sqlite).
+        current_app.logger.info("CACHE MISS (sqlite): Scanning filesystem for all subnodes.")
         begin = datetime.datetime.now()
         current_app.logger.debug(f"*** Loading subnodes at {begin}.")
         base = current_app.config["AGORA_PATH"]
+        
+        # The logic to find all files remains the same.
         current_app.logger.debug(f"*** Loading subnodes: markdown.")
-        # As of 2022-09-13 I've tried:
-        # - pathlib and rglob
-        # - os.walk
-        # ...and neither made any positive difference speed wise. If anything good old glob.glob is speedier.
-        # Most of the time (>60%?) seems to go into building the actual Subnodes and not to file system traversal.
-        # Markdown.
         subnodes = [
             Subnode(f) for f in glob.glob(os.path.join(base, "**/*.md"), recursive=True)
         ]
-        # Org mode.
         current_app.logger.debug(f"*** Loading subnodes: org mode and mycomarkup.")
-        # This should check for files, this blows up for directories like doc.anagora.org, so only globbing for garden for now.
         subnodes.extend(
             [
                 Subnode(f)
@@ -274,7 +331,6 @@ class Graph:
                 )
             ]
         )
-        # [[mycorrhiza]]
         subnodes.extend(
             [
                 Subnode(f)
@@ -283,7 +339,6 @@ class Graph:
                 )
             ]
         )
-        # Image formats.
         current_app.logger.debug(f"*** Loading subnodes: images.")
         subnodes.extend(
             [
@@ -315,8 +370,6 @@ class Graph:
                 for f in glob.glob(os.path.join(base, "**/*.webp"), recursive=True)
             ]
         )
-
-        # Executable subnodes.
         current_app.logger.debug(f"*** Loading subnodes: executable.")
         subnodes.extend(
             [
@@ -325,6 +378,13 @@ class Graph:
             ]
         )
 
+        if _is_sqlite_enabled():
+            # After scanning, save the result to the SQLite cache.
+            # We only need to store the path and mediatype to reconstruct the object.
+            subnode_data = [{'path': s.path, 'mediatype': s.mediatype} for s in subnodes]
+            sqlite_engine.save_cached_graph(cache_key, json.dumps(subnode_data), time.time())
+            current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_subnodes to persistent cache.")
+
         end = datetime.datetime.now()
         current_app.logger.debug(f"*** Loaded subnodes from {begin} to {end}.")
         if sort:
@@ -332,6 +392,8 @@ class Graph:
         else:
             return subnodes
 
+    @log_cache_hits
+    @cachetools.func.ttl_cache(ttl=get_cache_ttl("subnodes"))
     def executable_subnodes(self):
         """Executable subnodes: subnodes that require execution to produce a resource.
 

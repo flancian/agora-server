@@ -1,3 +1,33 @@
+# Top Priority: Implement a Two-Tier Caching System
+
+The current caching is causing performance bottlenecks and confusion in the logs. The new strategy will improve performance for large Agoras while keeping the files-only mode viable.
+
+## Strategy: Stale-While-Revalidate
+
+The goal is to serve a known-fast version of the graph first, then trigger a background update of the cache.
+
+1.  **Files-Only Mode (SQLite Disabled):**
+    -   The Agora will continue to use the `cachetools` in-memory cache.
+    -   This maintains simplicity and portability for small-to-medium Agoras.
+    -   No changes required for this path.
+
+2.  **Performance-Enhanced Mode (SQLite Enabled):**
+    -   On a request, the Agora will immediately load the graph (`nodes`, `subnodes`) from a persistent SQLite cache. This should be nearly instant.
+    -   After serving the cached data, it will check the cache's age.
+    -   If the cache is older than a configured TTL, a **background process** will be triggered to regenerate the graph from the filesystem and update the SQLite cache.
+    -   This ensures the current user gets a fast response, and subsequent users get fresh data.
+
+## Functions to be Updated
+
+The following core, expensive functions will be refactored to use this new caching model:
+
+1.  `G.subnodes()`: The most expensive function. Its output (a list of all subnode metadata) will be cached in a dedicated SQLite table.
+2.  `G.nodes()`: This function's output will also be cached in a separate table.
+3.  Backlinks (`node.back_nodes()`): The backlink mapping will be pre-calculated and stored in the SQLite index to avoid slow graph walks.
+
+This approach provides the best of both worlds: speed for large Agoras and simplicity for smaller ones, with the filesystem always remaining the source of truth.
+
+---
 # ✅ Completed: High-Performance Query Caching (September 2025)
 
 This session focused on executing a high-priority performance optimization by implementing a caching layer for expensive, high-traffic queries. This provides a significant speed boost for key pages across the Agora.
@@ -148,7 +178,7 @@ This approach allows triggering the worker via a web request.
     *   **Self-Contained:** The trigger mechanism is managed within the application code.
 *   **Cons:**
     *   **More Complex:** Requires adding a new endpoint and background process management logic to the Flask app.
-    *   **Less Decoupled:** The lifecycle of the worker process is tied to the application process. If the app is restarted, the background worker might be orphaned.
+    -   **Less Decoupled:** The lifecycle of the worker process is tied to the application process. If the app is restarted, the background worker might be orphaned.
 
 ---
 

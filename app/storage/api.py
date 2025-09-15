@@ -183,7 +183,7 @@ def top():
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
         if cached_value and (time.time() - timestamp < ttl):
-            currentapp.logger.info(f"CACHE HIT (sqlite): Using cached data for top.")
+            current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for top.")
             cached_data = json.loads(cached_value)
             nodes = []
             for item in cached_data:
