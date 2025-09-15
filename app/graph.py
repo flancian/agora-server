@@ -32,6 +32,7 @@ import lxml.etree
 import lxml.html
 from flask import current_app, request
 from thefuzz import fuzz
+from functools import wraps
 
 from . import config, regexes, render, util
 from .storage import feed, sqlite_engine
@@ -73,6 +74,19 @@ CACHE_TTL = get_cache_ttl("default")
 #   - Note the example subnode above gets rendered in node [[README]], so fetching node with uri README would yield it (and others).
 
 # TODO: implement.
+
+
+def log_cache_hits(func):
+    """A decorator to log cache hits for a cachetools-cached function."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # cachetools.keys.hashkey is the default key function used by cachetools.
+        key = cachetools.keys.hashkey(*args, **kwargs)
+        # The 'cache' attribute is added by the cachetools decorator.
+        if hasattr(func, 'cache') and key in func.cache:
+            current_app.logger.info(f"CACHE HIT: Using cached data for {func.__name__}.")
+        return func(*args, **kwargs)
+    return wrapper
 
 
 class Graph:
@@ -153,6 +167,7 @@ class Graph:
         return nodes
 
     # @cache.memoize(timeout=30)
+    @log_cache_hits
     @cachetools.func.ttl_cache(ttl=get_cache_ttl("node_data"))
     def nodes(self, include_journals: bool = True, only_canonical: bool = True) -> Dict[str, 'Node']:
         # this is where a lot of the 'magic' happens.
@@ -222,6 +237,7 @@ class Graph:
 
     # does this belong here?
     # @cache.memoize(timeout=30)
+    @log_cache_hits
     @cachetools.func.ttl_cache(ttl=get_cache_ttl("subnodes"))
     def subnodes(self, sort=lambda x: x.uri.lower()) -> List['Subnode']:
         # this is where the magic happens (?)

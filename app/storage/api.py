@@ -87,7 +87,7 @@ def all_journals():
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
         if cached_value and (time.time() - timestamp < ttl):
-            current_app.logger.debug(f"Cache hit for '{cache_key}'.")
+            current_app.logger.info(f"CACHE HIT: Using cached data for all_journals.")
             # The result is a list of Subnode objects. We cache the URIs and reconstruct.
             # The Subnode constructor is cheap enough for this purpose.
             subnode_uris = json.loads(cached_value)
@@ -109,7 +109,7 @@ def all_users():
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
         
         if cached_value and (time.time() - timestamp < ttl):
-            current_app.logger.debug(f"Cache hit for '{cache_key}'.")
+            current_app.logger.info(f"CACHE HIT: Using cached data for all_users.")
             # The result is a list of User objects, which can't be directly JSON serialized.
             # We cache the usernames and reconstruct the objects. The User constructor is cheap.
             usernames = json.loads(cached_value)
@@ -151,7 +151,7 @@ def latest(max):
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
         if cached_value and (time.time() - timestamp < ttl):
-            current_app.logger.debug(f"Cache hit for '{cache_key}'.")
+            current_app.logger.info(f"CACHE HIT: Using cached data for latest.")
             cached_data = json.loads(cached_value)
             subnodes = []
             for item in cached_data:
@@ -183,7 +183,7 @@ def top():
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
         if cached_value and (time.time() - timestamp < ttl):
-            current_app.logger.debug(f"Cache hit for '{cache_key}'.")
+            current_app.logger.info(f"CACHE HIT: Using cached data for top.")
             cached_data = json.loads(cached_value)
             nodes = []
             for item in cached_data:
