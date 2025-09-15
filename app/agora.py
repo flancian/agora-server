@@ -37,12 +37,10 @@ from . import forms, providers, render, util
 from .providers import gemini_complete, mistral_complete
 from .storage import api, feed
 from . import visualization
+from .graph import G
 
 bp = Blueprint("agora", __name__)
 CORS(bp)
-
-# Global graph. We want this here as we have what amounts to a per-process cache.
-G = api.Graph()
 
 # For footer / timing information.
 # Adapted from https://stackoverflow.com/questions/12273889/calculate-execution-time-for-every-page-in-pythons-flask

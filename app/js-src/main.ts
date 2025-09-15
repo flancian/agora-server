@@ -1717,7 +1717,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         let labelsVisible = true;
 
         const loadGraph = (size) => {
-            renderGraph('full-graph', `/graph/json/top/${size}`);
+            const url = size === 'all' ? '/graph/json/all' : `/graph/json/top/${size}`;
+            renderGraph('full-graph', url);
         };
 
         fullGraphDetails.addEventListener('toggle', () => {
