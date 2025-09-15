@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="node">
+    <div class="subnode">
+        <h1>In-Memory Cache Control</h1>
+        <p>This page provides a control interface for the in-process (cachetools) memory caches.</p>
+        <p>Flushing the cache will force the next request to re-load from the persistent SQLite cache, which is useful for debugging performance or forcing a refresh of the in-memory objects.</p>
+
+        <h2>Actions</h2>
+        <form method="post" action="{{ url_for('agora.cachez') }}">
+            <button type="submit" class="btn btn-primary">Flush All In-Memory Caches</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
