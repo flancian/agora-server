@@ -838,4 +838,36 @@ app/
 5.  **UI/UX Polish**:
     -   Adjusted the spacing in the main navbar for better readability.
     -   Fine-tuned the dark mode colors for buttons and info boxes for better aesthetics and contrast, achieving a "flan-like" look.
-    -   Fixed numerous layout and visibility bugs related to the new theming and graph rendering.
+    -   Fixed numerous layout and visibility bugs related to the new theming and graph rendering.# Session Summary (2025-09-15)
+
+*This was a deep-dive session focused on improving the Agora's performance and robustness by implementing and debugging a multi-layered caching system. The work surfaced and resolved several subtle architectural issues and bugs.*
+
+## Key Learnings & Architectural Insights
+
+-   **Two-Tier Caching Model**: The session solidified a two-tier caching model for the core graph objects (`nodes` and `subnodes`):
+    1.  **Persistent Cache (SQLite)**: Stores the serialized output of expensive filesystem scans, surviving server restarts.
+    2.  **In-Memory Cache (`cachetools`)**: Stores the fully deserialized Python objects for near-instant access within a single server process.
+
+-   **Cache Warming Performance**: We identified that the "cache warming" step—deserializing data from SQLite into the in-memory cache—was a primary performance bottleneck on the first load after a restart, taking ~6 seconds. While an optimization attempt using `orjson` did not yield significant gains, the bottleneck is now clearly understood and logged.
+
+-   **Singleton Architecture**: A critical architectural flaw was discovered and fixed: the application was instantiating **two separate global `Graph` objects**, leading to redundant caches and double the cache-warming time. The code was refactored to use a single, canonical `G` instance imported from `app.graph`, ensuring cache coherency and efficiency.
+
+-   **Robust Error Handling**: Several bugs were fixed by improving how the application handles non-existent or unexpected data, such as making the `/raw` endpoint return a proper `404` error for missing files.
+
+## Summary of Changes Implemented
+
+### 1. Caching and Performance Enhancements
+-   **Implemented Persistent Caching**: The `G.nodes()` and `G.subnodes()` functions were refactored to use a persistent SQLite cache, dramatically speeding up subsequent server restarts.
+-   **Improved Cache Logging**: Added detailed logging to distinguish between the `(in-memory)` and `(sqlite)` caches and to explicitly log the "cache warming" time, providing clear insight into performance.
+-   **Architectural Refactor**: Unified the application to use a single global `G` object, eliminating a major source of inefficiency and redundant cache processing.
+-   **Optimized Journal Loading**: Removed expensive on-demand indexing from the `Subnode.render()` path, which was causing significant slowdowns and log spam on the `/journals` page.
+
+### 2. Bug Fixes
+-   **Fixed `/journals` Page**: Resolved a bug that caused the `/journals` page to be empty by correcting the `all_journals()` function to return `Subnode` objects instead of `Node` objects.
+-   **Cleaned Up Log Spam**: Fixed an issue where the raw binary content of PNG images was being dumped to the logs by implementing a proper `__repr__` method on the `Subnode` class.
+-   **Fixed `FileNotFoundError`**: Made the `/raw` endpoint more robust by handling requests for non-existent files gracefully, returning a `404` instead of throwing an exception.
+-   **Fixed `NameError` and `TypeError`**: Corrected several typos and bugs introduced during the development of the caching system.
+
+### 3. New Features & UI Tweaks
+-   **Cache Diagnostics Page**: Created a new `/cachez` endpoint to provide a simple interface for flushing the in-memory caches, aiding in performance debugging.
+-   **Graph Tab Updates**: Modified the graph visualization tabs on the `/nodes` page to offer different size options (Top 100, 500, 2500, and All).
