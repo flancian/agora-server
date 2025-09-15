@@ -87,13 +87,13 @@ def all_journals():
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
         if cached_value and (time.time() - timestamp < ttl):
-            current_app.logger.info(f"CACHE HIT: Using cached data for all_journals.")
+            current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for all_journals.")
             # The result is a list of Subnode objects. We cache the URIs and reconstruct.
             # The Subnode constructor is cheap enough for this purpose.
             subnode_uris = json.loads(cached_value)
             return [SubnodeClass(uri) for uri in subnode_uris]
 
-        current_app.logger.debug(f"Cache miss for '{cache_key}'.")
+        current_app.logger.info(f"CACHE MISS (sqlite): Recomputing all_journals.")
         journals = file_engine.all_journals()
         # Extract URIs for serialization.
         subnode_uris = [j.uri for j in journals]
@@ -109,13 +109,13 @@ def all_users():
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
         
         if cached_value and (time.time() - timestamp < ttl):
-            current_app.logger.info(f"CACHE HIT: Using cached data for all_users.")
+            current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for all_users.")
             # The result is a list of User objects, which can't be directly JSON serialized.
             # We cache the usernames and reconstruct the objects. The User constructor is cheap.
             usernames = json.loads(cached_value)
             return [UserClass(u) for u in usernames]
 
-        current_app.logger.debug(f"Cache miss for '{cache_key}'.")
+        current_app.logger.info(f"CACHE MISS (sqlite): Recomputing all_users.")
         users = file_engine.all_users()
         # Extract usernames for serialization.
         usernames = [u.uri for u in users]
@@ -151,7 +151,7 @@ def latest(max):
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
         if cached_value and (time.time() - timestamp < ttl):
-            current_app.logger.info(f"CACHE HIT: Using cached data for latest.")
+            current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for latest.")
             cached_data = json.loads(cached_value)
             subnodes = []
             for item in cached_data:
@@ -164,7 +164,7 @@ def latest(max):
                 subnodes.append(s)
             return subnodes
 
-        current_app.logger.debug(f"Cache miss for '{cache_key}'.")
+        current_app.logger.info(f"CACHE MISS (sqlite): Recomputing latest.")
         subnodes = file_engine.latest(max)
         # Cache all the data needed to reconstruct the object without file I/O
         data_to_cache = [
@@ -183,7 +183,7 @@ def top():
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
         if cached_value and (time.time() - timestamp < ttl):
-            current_app.logger.info(f"CACHE HIT: Using cached data for top.")
+            currentapp.logger.info(f"CACHE HIT (sqlite): Using cached data for top.")
             cached_data = json.loads(cached_value)
             nodes = []
             for item in cached_data:
@@ -197,7 +197,7 @@ def top():
                 nodes.append(n)
             return nodes
 
-        current_app.logger.debug(f"Cache miss for '{cache_key}'.")
+        current_app.logger.info(f"CACHE MISS (sqlite): Recomputing top.")
         nodes = file_engine.top()
         # Cache all the data needed to reconstruct the object without file I/O
         data_to_cache = [
