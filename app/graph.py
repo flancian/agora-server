@@ -47,6 +47,18 @@ def _is_sqlite_enabled():
         # This can happen if we're running outside of a Flask app context.
         return False
 
+def log_cache_hits(func):
+    """A decorator to log cache hits for a cachetools-cached function."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # cachetools.keys.hashkey is the default key function used by cachetools.
+        key = cachetools.keys.hashkey(*args, **kwargs)
+        # The 'cache' attribute is added by the cachetools decorator.
+        if hasattr(func, 'cache') and key in func.cache:
+            current_app.logger.info(f"CACHE HIT (in-memory): Using cached data for {func.__name__}.")
+        return func(*args, **kwargs)
+    return wrapper
+
 # This is, like, unmaintained :) I should reconsider; [[auto pull]] sounds like a better approach?
 # https://anagora.org/auto-pull
 FUZZ_FACTOR_EQUIVALENT = 95
@@ -76,19 +88,6 @@ CACHE_TTL = get_cache_ttl("default")
 #   - Note the example subnode above gets rendered in node [[README]], so fetching node with uri README would yield it (and others).
 
 # TODO: implement.
-
-
-def log_cache_hits(func):
-    """A decorator to log cache hits for a cachetools-cached function."""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        # cachetools.keys.hashkey is the default key function used by cachetools.
-        key = cachetools.keys.hashkey(*args, **kwargs)
-        # The 'cache' attribute is added by the cachetools decorator.
-        if hasattr(func, 'cache') and key in func.cache:
-            current_app.logger.info(f"CACHE HIT (in-memory): Using cached data for {func.__name__}.")
-        return func(*args, **kwargs)
-    return wrapper
 
 
 def _default_subnode_sort(subnode):

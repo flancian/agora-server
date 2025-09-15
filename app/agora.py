@@ -825,6 +825,7 @@ def journals(entries):
     )
 
 
+# Route for cache management and diagnostics.
 @bp.route("/cachez", methods=["GET", "POST"])
 def cachez():
     if request.method == "POST":
@@ -835,39 +836,12 @@ def cachez():
         G.edges.cache_clear()
         G.n_edges.cache_clear()
         
-        # Also clear caches on the Subnode class methods if they exist.
-        # This requires finding an instance or accessing the class directly if decorated.
-        # For now, we assume they are on instances, which is less common.
-        # A more robust solution might involve a central cache registry.
-        
         flash("In-memory caches have been cleared for this process.", "info")
         return redirect(url_for("agora.cachez"))
 
-    # For GET request, gather stats
-    caches = {
-        "G.nodes": {
-            "size": G.nodes.cache.currsize,
-            "maxsize": G.nodes.cache.maxsize,
-        },
-        "G.subnodes": {
-            "size": G.subnodes.cache.currsize,
-            "maxsize": G.subnodes.cache.maxsize,
-        },
-        "G.executable_subnodes": {
-            "size": G.executable_subnodes.cache.currsize,
-            "maxsize": G.executable_subnodes.cache.maxsize,
-        },
-        "G.edges": {
-            "size": G.edges.cache.currsize,
-            "maxsize": G.edges.cache.maxsize,
-        },
-        "G.n_edges": {
-            "size": G.n_edges.cache.currsize,
-            "maxsize": G.n_edges.cache.maxsize,
-        },
-    }
+    # For GET request, just render the simple page.
     n = api.build_node("cachez")
-    return render_template("cachez.html", caches=caches, node=n)
+    return render_template("cachez.html", node=n)
 
 
 @bp.route("/journals.json")
