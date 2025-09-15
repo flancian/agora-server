@@ -81,26 +81,31 @@ def random_node():
     return file_engine.random_node()
 
 def all_journals():
-    if _is_sqlite_enabled():
-        cache_key = 'all_journals_v1'
-        ttl = current_app.config['QUERY_CACHE_TTL'].get('all_journals', 3600)
-        cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
+    # The caching logic below was found to be faulty, causing FileNotFoundErrors.
+    # It assumes that the journals are Nodes and tries to reconstruct Subnodes from Node URIs.
+    # Disabling for now to restore functionality.
+    # TODO: Implement a correct caching strategy for all_journals, likely by caching
+    # a list of dictionaries with full subnode paths and mediatypes.
+    # if _is_sqlite_enabled():
+    #     cache_key = 'all_journals_v1'
+    #     ttl = current_app.config['QUERY_CACHE_TTL'].get('all_journals', 3600)
+    #     cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
-        if cached_value and (time.time() - timestamp < ttl):
-            current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for all_journals.")
-            # The result is a list of Subnode objects. We cache the URIs and reconstruct.
-            # The Subnode constructor is cheap enough for this purpose.
-            subnode_uris = json.loads(cached_value)
-            return [SubnodeClass(uri) for uri in subnode_uris]
+    #     if cached_value and (time.time() - timestamp < ttl):
+    #         current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for all_journals.")
+    #         # The result is a list of Subnode objects. We cache the URIs and reconstruct.
+    #         # The Subnode constructor is cheap enough for this purpose.
+    #         subnode_uris = json.loads(cached_value)
+    #         return [SubnodeClass(uri) for uri in subnode_uris]
 
-        current_app.logger.info(f"CACHE MISS (sqlite): Recomputing all_journals.")
-        journals = file_engine.all_journals()
-        # Extract URIs for serialization.
-        subnode_uris = [j.uri for j in journals]
-        sqlite_engine.save_cached_query(cache_key, json.dumps(subnode_uris), time.time())
-        return journals
-    else:
-        return file_engine.all_journals()
+    #     current_app.logger.info(f"CACHE MISS (sqlite): Recomputing all_journals.")
+    #     journals = file_engine.all_journals()
+    #     # Extract URIs for serialization.
+    #     subnode_uris = [j.uri for j in journals]
+    #     sqlite_engine.save_cached_query(cache_key, json.dumps(subnode_uris), time.time())
+    #     return journals
+    # else:
+    return file_engine.all_journals()
 
 def all_users():
     if _is_sqlite_enabled():

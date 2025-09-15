@@ -106,35 +106,35 @@ def user_journals(user):
 
 
 def all_journals(skip_future=True):
-    # hack hack.
-    # we could presumably have a more efficient nodes_by_regex? but it might be benchmark-level.
-    nodes = G.nodes()
-    nodes = [
-        node
-        for node in nodes.values()
-        if util.is_journal(node.wikilink) and node.wikilink
+    """
+    Returns a list of all journal Subnode objects, sorted by date descending.
+    This is the correct implementation that returns Subnodes, not Nodes.
+    """
+    subnodes = [
+        subnode
+        for subnode in G.subnodes()
+        if util.is_journal(subnode.wikilink) and subnode.mediatype == "text/plain"
     ]
 
     def datekey(x):
+        # Extracts a sortable date string from the wikilink.
         return re.sub(r"[-_ ]", "", x.wikilink)
 
-    ret = sorted(nodes, key=datekey, reverse=True)
-    if skip_future:
+    ret = sorted(subnodes, key=datekey, reverse=True)
 
+    if skip_future:
         def quiet_strptime(s, format):
             try:
                 return datetime.datetime.strptime(s, format)
             except ValueError:
-                return False
-
-        import datetime
+                return None
 
         now = datetime.datetime.now() + datetime.timedelta(days=1)
         ret = [
-            node
-            for node in ret
-            if quiet_strptime(node.wikilink, "%Y-%m-%d")
-            and quiet_strptime(node.wikilink, "%Y-%m-%d") < now
+            subnode
+            for subnode in ret
+            if quiet_strptime(subnode.wikilink, "%Y-%m-%d")
+            and quiet_strptime(subnode.wikilink, "%Y-%m-%d") < now
         ]
     return ret
 
@@ -216,8 +216,8 @@ def subnode_by_uri(uri):
     if subnode:
         return subnode[0]
     else:
-        # TODO: handle.
-        return Subnode(uri)
+        # Return None if no subnode is found.
+        return None
 
 
 def nodes_by_outlink(wikilink):

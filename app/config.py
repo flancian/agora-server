@@ -12,6 +12,7 @@ def getcfg(path):
 
 
 class DefaultConfig(object):
+    SECRET_KEY = os.environ.get("SECRET_KEY", "a-default-secret-key-for-development")
     # I wonder how much of this should be in [[agora.yaml]] instead :)
 
     # This configures the main search/exec/go/visit/find button and the piece of flair :)

@@ -25,8 +25,9 @@ from urllib.parse import parse_qs
 import jsons
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
-from flask import (Blueprint, Response, current_app, g, jsonify, make_response,
-                   redirect, render_template, request, send_file, url_for)
+from flask import (Blueprint, Response, abort, current_app, g, jsonify,
+                   make_response, redirect, render_template, request,
+                   send_file, url_for, flash)
 from flask_cors import CORS
 from markupsafe import escape
 from mistralai.client import MistralClient, MistralException
@@ -824,6 +825,51 @@ def journals(entries):
     )
 
 
+@bp.route("/cachez", methods=["GET", "POST"])
+def cachez():
+    if request.method == "POST":
+        # Clear all known cachetools caches on the global Graph object.
+        G.nodes.cache_clear()
+        G.subnodes.cache_clear()
+        G.executable_subnodes.cache_clear()
+        G.edges.cache_clear()
+        G.n_edges.cache_clear()
+        
+        # Also clear caches on the Subnode class methods if they exist.
+        # This requires finding an instance or accessing the class directly if decorated.
+        # For now, we assume they are on instances, which is less common.
+        # A more robust solution might involve a central cache registry.
+        
+        flash("In-memory caches have been cleared for this process.", "info")
+        return redirect(url_for("agora.cachez"))
+
+    # For GET request, gather stats
+    caches = {
+        "G.nodes": {
+            "size": G.nodes.cache.currsize,
+            "maxsize": G.nodes.cache.maxsize,
+        },
+        "G.subnodes": {
+            "size": G.subnodes.cache.currsize,
+            "maxsize": G.subnodes.cache.maxsize,
+        },
+        "G.executable_subnodes": {
+            "size": G.executable_subnodes.cache.currsize,
+            "maxsize": G.executable_subnodes.cache.maxsize,
+        },
+        "G.edges": {
+            "size": G.edges.cache.currsize,
+            "maxsize": G.edges.cache.maxsize,
+        },
+        "G.n_edges": {
+            "size": G.n_edges.cache.currsize,
+            "maxsize": G.n_edges.cache.maxsize,
+        },
+    }
+    n = api.build_node("cachez")
+    return render_template("cachez.html", caches=caches, node=n)
+
+
 @bp.route("/journals.json")
 def journals_json():
     return jsonify(jsons.dump(api.all_journals()))
@@ -840,7 +886,8 @@ def asset(user, asset):
 @bp.route("/raw/<path:subnode>")
 def raw(subnode):
     s = api.subnode_by_uri(subnode)
-    print(s.content)
+    if not s:
+        abort(404)
     return Response(s.content, mimetype=s.mediatype)
 
 

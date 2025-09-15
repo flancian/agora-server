@@ -23,6 +23,7 @@ import subprocess
 import time
 import urllib
 import json
+import orjson
 from collections import defaultdict
 from copy import copy
 from operator import attrgetter
@@ -183,10 +184,10 @@ class Graph:
 
             if cached_value and (time.time() - timestamp < ttl):
                 current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for nodes.")
+                current_app.logger.info("CACHE WARMING (in-memory): Starting deserialization of nodes from SQLite.")
                 start_time = time.time()
-                current_app.logger.info("CACHE WARMING (in-memory): Deserializing nodes from SQLite.")
 
-                cached_data = json.loads(cached_value)
+                cached_data = orjson.loads(cached_value)
                 
                 # This is the full map, equivalent to only_canonical=False
                 full_nodes = {}
@@ -206,7 +207,7 @@ class Graph:
                 }
 
                 duration = time.time() - start_time
-                current_app.logger.info(f"CACHE WARMING (in-memory): Deserialized {len(full_nodes)} nodes in {duration:.2f}s.")
+                current_app.logger.info(f"CACHE WARMING (in-memory): Finished deserialization of {len(full_nodes)} nodes in {duration:.2f}s.")
                 
                 # Manually populate the in-memory cache for both variations.
                 # Key for only_canonical=False
@@ -252,7 +253,7 @@ class Graph:
                 'node_to_subnodes': serializable_node_map,
                 'node_to_executable_subnodes': serializable_exec_map
             }
-            sqlite_engine.save_cached_graph(cache_key, json.dumps(data_to_cache), time.time())
+            sqlite_engine.save_cached_graph(cache_key, orjson.dumps(data_to_cache), time.time())
             current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_nodes to persistent cache.")
 
         nodes = {}
@@ -291,17 +292,17 @@ class Graph:
 
             if cached_value and (time.time() - timestamp < ttl):
                 current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for subnodes.")
+                current_app.logger.info("CACHE WARMING (in-memory): Starting deserialization of subnodes from SQLite.")
                 start_time = time.time()
-                current_app.logger.info("CACHE WARMING (in-memory): Deserializing subnodes from SQLite.")
 
-                subnode_data = json.loads(cached_value)
+                subnode_data = orjson.loads(cached_value)
                 # Subnode objects are reconstructed from cached metadata.
                 # The Subnode constructor is relatively cheap as it doesn't do file I/O
                 # when content is not accessed. We defer content loading.
                 subnodes = [Subnode(s['path'], s['mediatype']) for s in subnode_data]
                 
                 duration = time.time() - start_time
-                current_app.logger.info(f"CACHE WARMING (in-memory): Deserialized {len(subnodes)} subnodes in {duration:.2f}s.")
+                current_app.logger.info(f"CACHE WARMING (in-memory): Finished deserialization of {len(subnodes)} subnodes in {duration:.2f}s.")
 
                 # Manually populate the in-memory cache for this request.
                 key = cachetools.keys.hashkey(self, sort=sort)
@@ -382,7 +383,7 @@ class Graph:
             # After scanning, save the result to the SQLite cache.
             # We only need to store the path and mediatype to reconstruct the object.
             subnode_data = [{'path': s.path, 'mediatype': s.mediatype} for s in subnodes]
-            sqlite_engine.save_cached_graph(cache_key, json.dumps(subnode_data), time.time())
+            sqlite_engine.save_cached_graph(cache_key, orjson.dumps(subnode_data), time.time())
             current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_subnodes to persistent cache.")
 
         end = datetime.datetime.now()
@@ -833,6 +834,9 @@ class Subnode:
 
         self.node = self.canonical_wikilink
 
+    def __repr__(self):
+        return f"<Subnode: {self.uri} ({self.mediatype})>"
+
     def load_text_subnode(self):
         try:
             with open(self.path) as f:
@@ -912,19 +916,6 @@ class Subnode:
         return 100 - fuzz.ratio(self.wikilink, other.wikilink)
 
     def render(self, argument=''):
-        if _is_sqlite_enabled():
-            last_indexed_mtime = sqlite_engine.get_subnode_mtime(self.uri)
-            current_mtime = int(self.mtime)
-            if last_indexed_mtime is None or current_mtime > last_indexed_mtime:
-                current_app.logger.debug(f"Indexing subnode [[{self.uri}]]")
-                sqlite_engine.update_subnode(
-                    path=self.uri,
-                    user=self.user,
-                    node=self.node,
-                    mtime=current_mtime,
-                    links=self.forward_links
-                )
-
         if self.mediatype not in ["text/plain", "text/html", 'text/x-python']:
             # hack hack
             return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /> <br />'.format(
@@ -980,7 +971,7 @@ class Subnode:
         return ret
 
     def raw(self):
-        return content
+        return self.content
 
     def parse(self):
         """Try to extract structured information from the subnode in question,
