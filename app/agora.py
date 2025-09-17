@@ -45,13 +45,14 @@ from .graph import G
 # `lazy-apps = true` setting in prod.ini.
 try:
     from uwsgidecorators import postfork
-    import requests
+    import uwsgi
 
     @postfork
     def warm_cache():
         """
         Warms up the application cache in each worker process after it's forked.
-        This runs in each worker process after it's created.
+        This is the correct, documented way to ensure a worker is fully initialized
+        before the master process considers it "ready" during a chain reload.
         """
         # We need an app context to access the graph and config
         from . import create_app
@@ -60,8 +61,7 @@ try:
             current_app.logger.info("Worker forked, warming up cache directly...")
             start_time = time.time()
             try:
-                # Calling these functions will populate the in-memory caches
-                # as they are decorated with @ttl_cache.
+                # By calling the functions directly, we populate the in-memory caches.
                 G.nodes()
                 G.subnodes()
                 duration = time.time() - start_time
