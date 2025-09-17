@@ -17,6 +17,13 @@
     <button id="mini-cli-retry" value="retry" title="Retries/reloads, might fix transient errors, might show content from a different Agora eventually.">
               🔄 retry
            </button>
+    {% if config.ENABLE_FLUSH_CACHE_BUTTON %}
+    <form action="/cachez" method="post" style="display: inline;">
+        <button id="mini-cli-flush-cache" type="submit" title="Flushes the in-memory caches for this Agora process. Useful for development.">
+            🚽 Flush Cache
+        </button>
+    </form>
+    {% endif %}
 </div>
 </div>
 

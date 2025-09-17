@@ -138,6 +138,7 @@ class DefaultConfig(object):
     ENABLE_HYPOTHESIS = False
     ENABLE_SQLITE = False
     ENABLE_AGORA_PROTOCOL = False
+    ENABLE_FLUSH_CACHE_BUTTON = False
 
     # EXPERIMENTS WHICH ARE SECURITY SENSITIVE.
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
@@ -283,5 +284,6 @@ class LocalDevelopmentConfig(DefaultConfig):
     # Demo mode settings
     ENABLE_DEMO = True
     AGORA_DEMO_TARGET = "https://anagora.org"
+    ENABLE_FLUSH_CACHE_BUTTON = True
 
 
