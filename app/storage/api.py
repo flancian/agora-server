@@ -18,7 +18,8 @@ import json
 from flask import current_app
 import app.storage.file_engine as file_engine
 import app.storage.sqlite_engine as sqlite_engine
-from app.graph import Graph as GraphClass, Node as NodeClass, User as UserClass, Subnode as SubnodeClass
+# Import the canonical Graph object 'G' directly.
+from app.graph import G, Node as NodeClass, User as UserClass, Subnode as SubnodeClass
 
 # The file engine is always the source of truth.
 # The sqlite engine is a cache.
@@ -59,10 +60,9 @@ def build_multinode(node0, node1):
 
 def Graph():
     """
-    Returns a Graph object.
-    The Graph object itself will handle the on-demand caching if SQLite is enabled.
+    Returns the canonical Graph object for the application.
     """
-    return GraphClass()
+    return G
 
 def Node(node_uri):
     """

@@ -32,7 +32,7 @@ from typing import Union, List, Dict, Optional, Any
 
 import lxml.etree
 import lxml.html
-from flask import current_app, request
+from flask import current_app, request, g
 from thefuzz import fuzz
 from functools import wraps
 
@@ -48,14 +48,31 @@ def _is_sqlite_enabled():
         return False
 
 def log_cache_hits(func):
-    """A decorator to log cache hits for a cachetools-cached function."""
+    """
+    A decorator to log cache hits for a cachetools-cached function.
+    It deduplicates logs on a per-request basis to avoid spam.
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        # cachetools.keys.hashkey is the default key function used by cachetools.
         key = cachetools.keys.hashkey(*args, **kwargs)
-        # The 'cache' attribute is added by the cachetools decorator.
         if hasattr(func, 'cache') and key in func.cache:
-            current_app.logger.info(f"CACHE HIT (in-memory): Using cached data for {func.__name__}.")
+            try:
+                # Use Flask's request-local 'g' object to store a set of functions
+                # for which we've already logged a cache hit during this request.
+                if 'logged_cache_hits' not in g:
+                    g.logged_cache_hits = set()
+
+                if func.__name__ not in g.logged_cache_hits:
+                    path = request.path
+                    current_app.logger.info(f"CACHE HIT (in-memory) for request '{path}': Using cached data for {func.__name__}.")
+                    # Add the function name to the set to suppress future logs in this request.
+                    g.logged_cache_hits.add(func.__name__)
+
+            except RuntimeError:
+                # This will happen if we're not in a request context (e.g. startup).
+                # In this case, we log without deduplication.
+                current_app.logger.info(f"CACHE HIT (in-memory): Using cached data for {func.__name__}.")
+        
         return func(*args, **kwargs)
     return wrapper
 
@@ -1347,7 +1364,8 @@ def subnode_to_pushes(subnode):
         m = re.search(push_regex, line)
         if m:
             pushes.append(m.group(1))
-    current_app.logger.debug(f"*** Pushes from {subnode.uri}: {pushes}***")
+    if pushes:
+        current_app.logger.debug(f"*** Pushes from {subnode.uri}: {pushes}***")
     return pushes
 
 
@@ -1446,7 +1464,7 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
     n.q = n.qstr
 
     duration = time.time() - start_time
-    current_app.logger.debug(f"[[{node}]]: Assembled in {duration:.2f}s ({', '.join(timings)}).")
+    current_app.logger.info(f"[[{node}]]: Assembled in {duration:.2f}s ({', '.join(timings)}).")
     return n
 
 
