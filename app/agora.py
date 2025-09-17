@@ -39,8 +39,44 @@ from .storage import api, feed
 from . import visualization
 from .graph import G
 
+# uWSGI Cache Warming
+# This section is for warming up the application cache in each worker process
+# after it has been forked from the master. This is controlled by the
+# `lazy-apps = true` setting in prod.ini.
+try:
+    from uwsgidecorators import postfork
+    import requests
+
+    @postfork
+    def warm_cache():
+        """
+        Sends a local request to a dedicated endpoint to warm up the cache.
+        This runs in each worker process after it's created.
+        """
+        print("Worker forked, warming up cache...")
+        try:
+            # The request is made to the uWSGI socket directly, assuming it's running.
+            # This avoids any issues with nginx or external networking.
+            # We add a timeout to prevent workers from getting stuck.
+            # In a standard setup, uWSGI might not be serving HTTP directly,
+            # so we hit the main Flask app URL. This needs to be accessible from the container/host.
+            # Using localhost should be safe.
+            requests.get('http://127.0.0.1:5000/warm-cache', timeout=30)
+            print("Cache warming request sent.")
+        except requests.exceptions.RequestException as e:
+            # Log an error if the warming request fails. The app will still start,
+            # but the first real request to this worker will be slow.
+            print(f"Cache warming failed: {e}")
+
+except ImportError:
+    # This will fail if not running under uWSGI, which is fine for dev.
+    print("Not running under uWSGI, skipping cache warming setup.")
+    pass
+# End uWSGI Cache Warming
+
 bp = Blueprint("agora", __name__)
 CORS(bp)
+
 
 # For footer / timing information.
 # Adapted from https://stackoverflow.com/questions/12273889/calculate-execution-time-for-every-page-in-pythons-flask
@@ -1044,6 +1080,30 @@ def webfinger():
 def nodeinfo():
     """Reserved."""
     pass
+
+
+@bp.route("/warm-cache")
+def warm_cache_endpoint():
+    """
+    This endpoint is hit by the postfork hook to warm up the application caches.
+    It's protected to only be accessible from localhost.
+    """
+    if request.remote_addr != '127.0.0.1':
+        abort(403)  # Forbidden
+
+    current_app.logger.info("Cache warming endpoint hit, populating caches...")
+    start_time = time.time()
+    
+    # Calling these functions will populate the in-memory caches
+    # as they are decorated with @ttl_cache.
+    G.nodes()
+    G.subnodes()
+    
+    duration = time.time() - start_time
+    message = f"Caches warmed up in {duration:.2f} seconds."
+    current_app.logger.info(message)
+    
+    return jsonify({"status": "success", "message": message})
 
 
 

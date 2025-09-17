@@ -98,3 +98,24 @@ As you might have inferred from the above, this project is based on [Flask](http
 - ```app/db.py``` has logic to read/process notes. The db is actually the filesystem :)
 - ```app/js-src``` has Javascript and Typescript sources.
 - ```app/templates``` are Jinja2 templates.
+
+# Production Deployment
+
+## Zero-Downtime Deploys and Cache Warming
+
+The Agora is configured to support zero-downtime deployments in production when run as a `systemd` service. This is achieved using uWSGI's graceful reload mechanism combined with a cache warming strategy to prevent slow responses after a restart.
+
+### How it Works
+
+1.  The `agora-server.service` unit is configured with an `ExecReload` command that touches a file (`/tmp/agora-restart`).
+2.  Running `systemctl --user reload agora-server` triggers uWSGI to perform a "rolling restart": it starts new worker processes while the old ones continue to serve traffic.
+3.  The `prod.ini` configuration uses `lazy-apps = true`, which loads the Flask application independently in each new worker process.
+4.  A `@postfork` hook in `app/agora.py` is triggered in each new worker. This hook sends a request to a special `/warm-cache` endpoint to populate the in-memory caches *before* the worker is added to the pool to serve live traffic.
+5.  Once the new workers are ready, the old ones are gracefully shut down.
+
+### Risks and Considerations
+
+-   **Memory Usage**: `lazy-apps = true` can lead to slightly higher memory consumption. Normally, workers can share memory pages from the master process (Copy-on-Write). With lazy loading, each worker loads the application's code into memory independently, reducing this sharing.
+-   **No Functional Changes Expected**: This change should not alter the application's logic. However, it changes *when* the application is initialized. Any code at the module level is now executed once per worker, rather than once in the master process.
+-   **Cache Warming Failures**: If the `/warm-cache` endpoint fails for any reason, the new worker will still start, but its cache will be "cold." The first user request served by that specific worker will be slower as it will have to populate the cache on-demand. The failure is logged to the uWSGI log file.
+-   **Server Compatibility**: The cache warming logic is specific to uWSGI and will be safely skipped if the application is run under a different server (e.g., the Flask development server), as it is wrapped in a `try...except ImportError`.
