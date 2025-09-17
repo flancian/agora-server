@@ -200,7 +200,23 @@ This document outlines the plan to implement a hybrid storage system where the f
 -   **Performance Fix:** The `back_nodes` method in `app/graph.py` was refactored to query the SQLite index directly, resolving a major performance bottleneck and application hangs.
 -   **Bug Squashing:** Debugged and fixed a series of follow-up issues, including `IntegrityError` from duplicate links, `ProgrammingError` from incorrect thread handling, and multiple `AttributeError` exceptions from mismatched function names.
 -   **AI Generation Caching:** Implemented a caching layer for AI generations in SQLite, complete with configurable TTLs. This significantly improves performance for repeated AI queries.
--   **Backlink Bug Fix:** Diagnosed a critical bug where the on-demand SQLite indexing missed backlinks. Temporarily reverted to the file-based backlink method to ensure data correctness while a full indexing strategy is developed.
+-   **Critical Backlink Bug Fix:** Diagnosed a critical bug where the on-demand SQLite indexing missed backlinks. Temporarily reverted to the file-based backlink method to ensure data correctness while a full indexing strategy is developed.
+
+# ✅ Completed: Caching Performance Overhaul (September 2025)
+
+This session focused on diagnosing and fixing a significant performance bottleneck related to the application's caching strategy, resulting in a much faster experience after the initial "cold start."
+
+-   **Diagnosed Double Caching Bug**: Through detailed logging, we identified that after flushing the cache, the first page load was triggering a full, expensive deserialization of the entire node graph *twice*. The first took ~6.5 seconds, and a second, redundant load took an additional ~3 seconds.
+
+-   **Refactored Caching Logic**: The root cause was a subtle interaction between the caching decorator (`@cachetools.func.ttl_cache`) and the way different parts of the application requested node data (sometimes asking for only "canonical" nodes, sometimes for all nodes).
+    -   The fix involved a major refactoring in `app/graph.py`. We created a single, private, cached function (`_get_all_nodes_cached`) responsible for the expensive data loading.
+    -   The public `G.nodes()` function was simplified to be a non-cached dispatcher that calls the private function and returns the appropriate slice of data.
+    -   This ensures the expensive deserialization from the SQLite cache into memory happens **only once** per server process.
+
+-   **Fixed "Flush Cache" Button**: The caching refactor inadvertently broke the "Flush Cache" button. This was fixed by updating the `/cachez` endpoint to clear the cache on the new, correct internal function (`G._get_all_nodes_cached.cache_clear()`).
+
+-   **Improved User Experience**:
+    -   The "Flush Cache" button in the footer was enhanced to work asynchronously. It now provides feedback ("Flushing...", "Flushed!") without requiring a page reload.
 
 ---
 

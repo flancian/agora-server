@@ -18,11 +18,39 @@
               🔄 retry
            </button>
     {% if config.ENABLE_FLUSH_CACHE_BUTTON %}
-    <form action="/cachez" method="post" style="display: inline;">
-        <button id="mini-cli-flush-cache" type="submit" title="Flushes the in-memory caches for this Agora process. Useful for development.">
-            🚽 Flush Cache
-        </button>
-    </form>
+    <button id="mini-cli-flush-cache" onclick="flushCache(this)" title="Flushes the in-memory caches for this Agora process. Useful for development.">
+        🚽 Flush Cache
+    </button>
+    <script>
+        function flushCache(button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '🚽 Flushing...';
+            button.disabled = true;
+
+            fetch('/cachez', {
+                method: 'POST',
+            })
+            .then(response => {
+                if (response.ok) {
+                    button.innerHTML = '🚽 Flushed!';
+                } else {
+                    button.innerHTML = '🚽 Error!';
+                }
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 2000); // Reset after 2 seconds
+            })
+            .catch(error => {
+                console.error('Error flushing cache:', error);
+                button.innerHTML = '🚽 Error!';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 2000);
+            });
+        }
+    </script>
     {% endif %}
 </div>
 </div>

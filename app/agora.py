@@ -864,7 +864,7 @@ def journals(entries):
 def cachez():
     if request.method == "POST":
         # Clear all known cachetools caches on the global Graph object.
-        G.nodes.cache_clear()
+        G._get_all_nodes_cached.cache_clear()
         G.subnodes.cache_clear()
         G.executable_subnodes.cache_clear()
         G.edges.cache_clear()

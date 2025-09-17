@@ -29,6 +29,7 @@ from copy import copy
 from operator import attrgetter
 from pathlib import Path
 from typing import Union, List, Dict, Optional, Any
+import sys
 
 import lxml.etree
 import lxml.html
@@ -38,6 +39,8 @@ from functools import wraps
 
 from . import config, regexes, render, util
 from .storage import feed, sqlite_engine
+
+GRAPH_INSTANCE_COUNTER = 0
 
 def _is_sqlite_enabled():
     """Checks if the SQLite engine is enabled in the config."""
@@ -117,9 +120,6 @@ class Graph:
         # Revisit.
         pass
 
-    def edge(self, n0, n1):
-        pass
-
     @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def edges(self):
         pass
@@ -190,9 +190,16 @@ class Graph:
         return nodes
 
     # @cache.memoize(timeout=30)
-    @log_cache_hits
-    @cachetools.func.ttl_cache(ttl=get_cache_ttl("node_data"))
     def nodes(self, include_journals: bool = True, only_canonical: bool = True) -> Dict[str, 'Node']:
+        full_nodes, canonical_nodes = self._get_all_nodes_cached()
+        if only_canonical:
+            return canonical_nodes
+        else:
+            return full_nodes
+
+    @log_cache_hits
+    @cachetools.func.ttl_cache(maxsize=1, ttl=get_cache_ttl("node_data"))
+    def _get_all_nodes_cached(self):
         if _is_sqlite_enabled():
             cache_key = 'all_nodes_v1'
             ttl = get_cache_ttl('node_data')
@@ -225,19 +232,7 @@ class Graph:
                 duration = time.time() - start_time
                 current_app.logger.info(f"CACHE WARMING (in-memory): Finished deserialization of {len(full_nodes)} nodes in {duration:.2f}s.")
                 
-                # Manually populate the in-memory cache for both variations.
-                # Key for only_canonical=False
-                key_false = cachetools.keys.hashkey(self, include_journals=True, only_canonical=False)
-                self.nodes.cache[key_false] = full_nodes
-                # Key for only_canonical=True
-                key_true = cachetools.keys.hashkey(self, include_journals=True, only_canonical=True)
-                self.nodes.cache[key_true] = canonical_nodes
-
-                # Return the version that was originally requested.
-                if only_canonical:
-                    return canonical_nodes
-                else:
-                    return full_nodes
+                return full_nodes, canonical_nodes
 
         current_app.logger.info("CACHE MISS (sqlite): Recomputing all nodes.")
         begin = datetime.datetime.now()
@@ -246,14 +241,16 @@ class Graph:
         node_to_subnodes = defaultdict(list)
         node_to_executable_subnodes = defaultdict(list)
 
+        # Note: the 'not only_canonical' logic is tricky here.
+        # We build the *full* map first, then filter.
         for subnode in self.subnodes():
             node_to_subnodes[subnode.node].append(subnode)
-            if subnode.canonical_wikilink != subnode.wikilink and not only_canonical:
+            if subnode.canonical_wikilink != subnode.wikilink:
                 node_to_subnodes[subnode.wikilink].append(subnode)
 
         for executable_subnode in self.executable_subnodes():
             node_to_executable_subnodes[executable_subnode.node].append(executable_subnode)
-            if executable_subnode.canonical_wikilink != executable_subnode.wikilink and not only_canonical:
+            if executable_subnode.canonical_wikilink != executable_subnode.wikilink:
                 node_to_executable_subnodes[executable_subnode.wikilink].append(executable_subnode)
 
         if _is_sqlite_enabled():
@@ -272,18 +269,21 @@ class Graph:
             sqlite_engine.save_cached_graph(cache_key, orjson.dumps(data_to_cache), time.time())
             current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_nodes to persistent cache.")
 
-        nodes = {}
+        full_nodes = {}
         for node_wikilink in node_to_subnodes:
-            if not include_journals and util.is_journal(node_wikilink):
-                continue
             n = Node(node_wikilink)
             n.subnodes = node_to_subnodes[node_wikilink]
             n.executable_subnodes = node_to_executable_subnodes.get(node_wikilink, [])
-            nodes[node_wikilink] = n
+            full_nodes[node_wikilink] = n
+        
+        canonical_nodes = {
+            k: v for k, v in full_nodes.items()
+            if not util.is_journal(k) and k == util.canonical_wikilink(k)
+        }
 
         end = datetime.datetime.now()
         current_app.logger.debug(f"*** Nodes loaded from {begin} to {end}.")
-        return nodes
+        return full_nodes, canonical_nodes
 
     # The following method is unused; it is far too slow given the current control flow.
     # Running something like this would be ideal eventually though.
