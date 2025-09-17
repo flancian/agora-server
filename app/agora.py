@@ -134,7 +134,6 @@ def root(node, user_list=""):
 
     # Builds a node with the bare minimum/stub metadata, should be quick.
     node = urllib.parse.unquote_plus(node)
-    current_app.logger.debug(f"[[{node}]]: Assembling light node.")
 
     # We really need to get rid of this kind of hack :)
     # 2023-12-12: today is the day?
