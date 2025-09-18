@@ -521,11 +521,15 @@ def go(node0, node1=""):
         # Note that this actually is needed for 'simple go' as well, points again in the direction of refactoring/joining?
 
         for subnode in n0.pushed_subnodes():
-            links.extend(subnode.go())
+            go_links = subnode.go()
+            if go_links:
+                links.extend(go_links)
         current_app.logger.debug(f"n0 [[{n0}]]: filtered to {node1} yields {links}.")
 
         for subnode in n1.pushed_subnodes():
-            links.extend(subnode.go())
+            go_links = subnode.go()
+            if go_links:
+                links.extend(go_links)
         current_app.logger.debug(
             f"n1 [[{n1}]]: filtered to {node0} finalizes to {links}."
         )

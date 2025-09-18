@@ -1168,6 +1168,7 @@ class VirtualSubnode(Subnode):
                 except AttributeError:
                     # Better luck next time -- or when I fix this code :)
                     return []
+        return []
 
 
 class ExecutableSubnode(Subnode):
