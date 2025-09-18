@@ -780,13 +780,19 @@ def users_json():
 
 @bp.route("/journal/<user>")
 def user_journal(user):
-    # doesn't really work currently.
     n = api.build_node(user)
-    subs = api.user_journals(user)
-    nodes = [G.node(subnode.node) for subnode in subs]
-    nodes.reverse()
+    journal_subnodes = api.user_journals(user)
+    
+    subnodes_by_date = collections.defaultdict(list)
+    for subnode in journal_subnodes:
+        # The URI of a journal subnode is its date, e.g., "2025-09-12".
+        subnodes_by_date[subnode.uri].append(subnode)
+
     return render_template(
-        "journals.html", header="Journals for user", node=n, nodes=nodes
+        "journals.html",
+        header=f"Journals for user @{user}",
+        node=n,
+        subnodes_by_date=subnodes_by_date,
     )
 
 

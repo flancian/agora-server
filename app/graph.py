@@ -1038,8 +1038,9 @@ class Subnode:
                 if match:
                     action = match.group(1)
                     # hack hack
-                    transitive = subnode_to_actions(self, action)[0]
-                    sanitized_golinks.append(transitive)
+                    transitive_links = subnode_to_actions(self, action)
+                    if transitive_links:
+                        sanitized_golinks.append(transitive_links[0])
             else:
                 # hack hack.
                 sanitized_golinks.append("https://" + golink)
