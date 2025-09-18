@@ -179,7 +179,7 @@ def search_subnodes(query):
         subnode
         for subnode in G.subnodes()
         if subnode.mediatype == "text/plain"
-        and re.search(query, subnode.content, re.IGNORECASE)
+        and re.search(re.escape(query), subnode.content, re.IGNORECASE)
     ]
     current_app.logger.debug(f"query: {query}, searched subnodes.")
     return subnodes
@@ -189,9 +189,8 @@ def search_subnodes_by_user(query, user):
     subnodes = [
         subnode
         for subnode in G.subnodes()
-        if subnode.mediatype == "text/plain"
-        and subnode.user == user
-        and re.search(query, subnode.content, re.IGNORECASE)
+        if subnode.user == username
+        and re.search(re.escape(query), subnode.content, re.IGNORECASE)
     ]
     return subnodes
 
