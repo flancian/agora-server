@@ -78,12 +78,14 @@ def create_app():
         # This check ensures this code only runs in the worker processes, not the master.
         # uwsgi.worker_id() will raise an exception if not running under a uWSGI worker.
         if uwsgi.worker_id() > 0:
-            app.logger.info(f"Worker {uwsgi.worker_id()} starting cache warmup...")
-            start_time = time.time()
-            G.nodes()
-            G.subnodes()
-            duration = time.time() - start_time
-            app.logger.info(f"Worker {uwsgi.worker_id()} cache warmup complete in {duration:.2f}s.")
+            # We must create an application context to use current_app and other globals.
+            with app.app_context():
+                app.logger.info(f"Worker {uwsgi.worker_id()} starting cache warmup...")
+                start_time = time.time()
+                G.nodes()
+                G.subnodes()
+                duration = time.time() - start_time
+                app.logger.info(f"Worker {uwsgi.worker_id()} cache warmup complete in {duration:.2f}s.")
 
     except (ImportError, AttributeError):
         # This will fail if not running under uWSGI, which is fine for dev.
