@@ -866,7 +866,7 @@ def invalidate_sqlite():
         db = sqlite_engine.get_db()
         
         # Define the tables that are safe to clear.
-        cache_tables = ['query_cache', 'subnodes', 'links']
+        cache_tables = ['query_cache', 'subnodes', 'links', 'graph_cache']
         
         for table in cache_tables:
             # Using plain SQL for simplicity.
@@ -874,8 +874,15 @@ def invalidate_sqlite():
         
         db.commit()
         
+        # Also clear the in-memory caches to force a full reload from the filesystem.
+        G._get_all_nodes_cached.cache_clear()
+        G.subnodes.cache_clear()
+        G.executable_subnodes.cache_clear()
+        G.edges.cache_clear()
+        G.n_edges.cache_clear()
+
         flash("SQLite caches have been invalidated.", "info")
-        current_app.logger.info(f"Invalidated SQLite cache tables: {cache_tables}")
+        current_app.logger.info(f"Invalidated SQLite cache tables: {cache_tables} and cleared in-memory caches.")
         return jsonify({"status": "success"})
 
     except Exception as e:
