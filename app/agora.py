@@ -39,42 +39,6 @@ from .storage import api, feed
 from . import visualization
 from .graph import G
 
-# uWSGI Cache Warming
-# This section is for warming up the application cache in each worker process
-# after it has been forked from the master. This is controlled by the
-# `lazy-apps = true` setting in prod.ini.
-try:
-    from uwsgidecorators import postfork
-    import uwsgi
-
-    @postfork
-    def warm_cache():
-        """
-        Warms up the application cache in each worker process after it's forked.
-        This is the correct, documented way to ensure a worker is fully initialized
-        before the master process considers it "ready" during a chain reload.
-        """
-        # We need an app context to access the graph and config
-        from . import create_app
-        app = create_app()
-        with app.app_context():
-            current_app.logger.info("Worker forked, warming up cache directly...")
-            start_time = time.time()
-            try:
-                # By calling the functions directly, we populate the in-memory caches.
-                G.nodes()
-                G.subnodes()
-                duration = time.time() - start_time
-                message = f"Caches warmed up directly in {duration:.2f} seconds."
-                current_app.logger.info(message)
-                current_app.logger.info("Worker is now ready to serve requests.")
-            except Exception as e:
-                current_app.logger.error(f"Cache warming failed: {e}")
-
-except ImportError:
-    # This will fail if not running under uWSGI, which is fine for dev.
-    print("Not running under uWSGI, skipping cache warming setup.")
-    pass
 # End uWSGI Cache Warming
 
 bp = Blueprint("agora", __name__)

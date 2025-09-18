@@ -101,21 +101,37 @@ As you might have inferred from the above, this project is based on [Flask](http
 
 # Production Deployment
 
-## Zero-Downtime Deploys and Cache Warming
+The Agora is designed to be run as a `systemd` service using `uWSGI` for performance and reliability. The provided `agora-server.service` and `prod.ini` files are configured to support true zero-downtime deployments with a robust cache warming strategy.
 
-The Agora is configured to support zero-downtime deployments in production when run as a `systemd` service. This is achieved using uWSGI's graceful reload mechanism combined with a cache warming strategy to prevent slow responses after a restart.
+## Zero-Downtime Deploys with Graceful Rolling Restarts
+
+To update a running Agora without interrupting user traffic, you should use the `reload` command, not `restart`.
+
+**Correct Workflow for Production Updates:**
+```bash
+# 1. Fetch the latest code
+git pull
+
+# 2. Update dependencies if needed
+uv sync
+
+# 3. Rebuild frontend assets if needed
+npm run build
+
+# 4. Trigger a zero-downtime reload
+systemctl --user reload agora-server
+```
 
 ### How it Works
 
-1.  The `agora-server.service` unit is configured with an `ExecReload` command that touches a file (`/tmp/agora-restart`).
-2.  Running `systemctl --user reload agora-server` triggers uWSGI to perform a "rolling restart": it starts new worker processes while the old ones continue to serve traffic.
-3.  The `prod.ini` configuration uses `lazy-apps = true`, which loads the Flask application independently in each new worker process.
-4.  A `@postfork` hook in `app/agora.py` is triggered in each new worker. This hook sends a request to a special `/warm-cache` endpoint to populate the in-memory caches *before* the worker is added to the pool to serve live traffic.
-5.  Once the new workers are ready, the old ones are gracefully shut down.
+This process is designed to be robust and prevent performance degradation during a deploy.
 
-### Risks and Considerations
+1.  **`systemctl reload`**: This command runs the `ExecReload` directive from the `.service` file, which simply `touch`es the file specified in `touch-chain-reload` in `prod.ini`.
 
--   **Memory Usage**: `lazy-apps = true` can lead to slightly higher memory consumption. Normally, workers can share memory pages from the master process (Copy-on-Write). With lazy loading, each worker loads the application's code into memory independently, reducing this sharing.
--   **No Functional Changes Expected**: This change should not alter the application's logic. However, it changes *when* the application is initialized. Any code at the module level is now executed once per worker, rather than once in the master process.
--   **Cache Warming Failures**: If the `/warm-cache` endpoint fails for any reason, the new worker will still start, but its cache will be "cold." The first user request served by that specific worker will be slower as it will have to populate the cache on-demand. The failure is logged to the uWSGI log file.
--   **Server Compatibility**: The cache warming logic is specific to uWSGI and will be safely skipped if the application is run under a different server (e.g., the Flask development server), as it is wrapped in a `try...except ImportError`.
+2.  **`chain-reload = true`**: This uWSGI directive tells the master process not to restart all workers at once. Instead, it will reload them **one by one**.
+
+3.  **`lazy-apps = true`**: This directive is critical. It tells each new worker to load the application code from scratch. This ensures the new worker picks up the updated code from the `git pull`.
+
+4.  **Blocking Cache Warming**: The application's `create_app()` function contains logic that runs only within a uWSGI worker (`if uwsgi.worker_id() > 0:`). This logic performs the expensive cache warming (loading the entire graph into memory), which can take several seconds. Because this is a blocking part of the application's startup, uWSGI's master process **will wait** for the warmup to complete before it considers the new worker "ready".
+
+5.  **The Rolling Restart**: The master process kills an old worker, spawns a new one, waits for it to finish its multi-second cache warmup, and only *then* does it proceed to kill the next old worker. This ensures that the Agora's full serving capacity is maintained throughout the reload process and that no user is ever served a slow response from a "cold" worker.

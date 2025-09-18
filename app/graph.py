@@ -330,6 +330,7 @@ class Graph:
 
         # The following block is executed on a cache miss (in-memory or sqlite).
         current_app.logger.info("CACHE MISS (sqlite): Scanning filesystem for all subnodes.")
+        start_time = time.time()
         begin = datetime.datetime.now()
         current_app.logger.debug(f"*** Loading subnodes at {begin}.")
         base = current_app.config["AGORA_PATH"]
@@ -402,6 +403,8 @@ class Graph:
             sqlite_engine.save_cached_graph(cache_key, orjson.dumps(subnode_data), time.time())
             current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_subnodes to persistent cache.")
 
+        duration = time.time() - start_time
+        current_app.logger.info(f"CACHE MISS (filesystem): Scanned and loaded {len(subnodes)} subnodes in {duration:.2f}s.")
         end = datetime.datetime.now()
         current_app.logger.debug(f"*** Loaded subnodes from {begin} to {end}.")
         if sort:

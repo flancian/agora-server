@@ -1,3 +1,40 @@
+# 🚀 High Priority: Implement a Comprehensive Test Suite
+
+**Goal:** Build a safety net to catch regressions and enable confident refactoring.
+**Priority: High**
+
+-   **Tasks:**
+    -   Set up `pytest` as the testing framework.
+    -   Create a testing fixture that builds a small, temporary Agora from a dedicated set of test files.
+    -   Write unit tests for core data model logic in `app/graph.py`.
+    -   Write integration tests for key endpoints in `app/agora.py`, verifying both successful responses and correct caching behavior.
+
+# ⭐ Next Up: Star Nodes (User-Specific Bookmarks)
+
+**Goal:** Allow users to "star" or "bookmark" any subnode in the Agora for easy retrieval.
+**Priority: Medium**
+
+-   **Tasks:**
+    -   **UI:** Add a "star" icon (e.g., ☆/★) to each subnode header.
+    -   **Frontend:** Make the star a toggle button that sends an API request.
+    -   **Backend API:** Create two new endpoints:
+        -   `POST /api/star/<path:subnode_uri>`: Adds a star for the current user.
+        -   `POST /api/unstar/<path:subnode_uri>`: Removes a star.
+    -   **Database:** Add a new `starred_subnodes` table to the SQLite database with `user` and `subnode_uri` columns.
+    -   **Persistence (Optional):** Investigate a simple, append-only file format (e.g., `[[user]].stars.md`) to write stars back to the user's garden as a durable, portable record.
+    -   **View:** Create a new `/starred` page that displays all subnodes starred by the current user.
+
+# ⏱️ Future Work: Add Performance Logging for Filesystem Operations
+
+**Goal:** Gain clear, quantitative insight into the performance difference between filesystem, SQLite, and in-memory operations.
+**Priority: Low**
+
+-   **Tasks:**
+    -   Identify all key functions in `app/storage/file_engine.py` that perform file I/O (e.g., reading subnode content, scanning directories).
+    -   Add `time.time()` based timing logic to these functions.
+    -   Log the duration of these operations using `current_app.logger.info()` with a consistent format (e.g., `CACHE MISS (filesystem): Operation 'X' took Y seconds.`). This will allow for direct comparison with the existing `CACHE HIT (sqlite)` and `CACHE HIT (in-memory)` logs.
+
+---
 # Top Priority: Implement a Two-Tier Caching System
 
 The current caching is causing performance bottlenecks and confusion in the logs. The new strategy will improve performance for large Agoras while keeping the files-only mode viable.

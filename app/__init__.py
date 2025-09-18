@@ -68,6 +68,27 @@ def create_app():
     from .storage import sqlite_engine
     app.teardown_appcontext(sqlite_engine.close_db)
 
+    # uWSGI-specific blocking cache warming.
+    # This runs in each worker after it has been forked, but before it can accept requests.
+    try:
+        import uwsgi
+        from .graph import G
+        import time
+
+        # This check ensures this code only runs in the worker processes, not the master.
+        # uwsgi.worker_id() will raise an exception if not running under a uWSGI worker.
+        if uwsgi.worker_id() > 0:
+            app.logger.info(f"Worker {uwsgi.worker_id()} starting cache warmup...")
+            start_time = time.time()
+            G.nodes()
+            G.subnodes()
+            duration = time.time() - start_time
+            app.logger.info(f"Worker {uwsgi.worker_id()} cache warmup complete in {duration:.2f}s.")
+
+    except (ImportError, AttributeError):
+        # This will fail if not running under uWSGI, which is fine for dev.
+        pass
+
     @app.context_processor
     def css_versions():
         versions = {}
