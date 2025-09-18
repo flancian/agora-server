@@ -18,3 +18,4 @@ garden.db*
 agora-server.log
 .aider*
 instance/
+app/static/js
