@@ -21,6 +21,9 @@
     <button id="mini-cli-flush-cache" onclick="flushCache(this)" title="Flushes the in-memory caches for this Agora process. Useful for development.">
         🚽 Flush Cache
     </button>
+    <button id="mini-cli-invalidate-sqlite" onclick="invalidateSqlite(this)" title="Deletes the SQLite database file, forcing a full re-index from the filesystem on next load.">
+        🗑️ Invalidate SQLite
+    </button>
     <script>
         function flushCache(button) {
             const originalText = button.innerHTML;
@@ -44,6 +47,35 @@
             .catch(error => {
                 console.error('Error flushing cache:', error);
                 button.innerHTML = '🚽 Error!';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 2000);
+            });
+        }
+
+        function invalidateSqlite(button) {
+            const originalText = button.innerHTML;
+            button.innerHTML = '🗑️ Invalidating...';
+            button.disabled = true;
+
+            fetch('/invalidate-sqlite', {
+                method: 'POST',
+            })
+            .then(response => {
+                if (response.ok) {
+                    button.innerHTML = '🗑️ Invalidated!';
+                } else {
+                    button.innerHTML = '🗑️ Error!';
+                }
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 2000); // Reset after 2 seconds
+            })
+            .catch(error => {
+                console.error('Error invalidating SQLite:', error);
+                button.innerHTML = '🗑️ Error!';
                 setTimeout(() => {
                     button.innerHTML = originalText;
                     button.disabled = false;

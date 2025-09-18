@@ -854,6 +854,37 @@ def cachez():
     return render_template("cachez.html", node=n)
 
 
+@bp.route("/invalidate-sqlite", methods=["POST"])
+def invalidate_sqlite():
+    # For safety, this is only enabled in local development.
+    if not current_app.config.get("ENABLE_FLUSH_CACHE_BUTTON", False):
+        abort(403)
+
+    try:
+        # This gives us a database connection within the application context.
+        from .storage import sqlite_engine
+        db = sqlite_engine.get_db()
+        
+        # Define the tables that are safe to clear.
+        cache_tables = ['query_cache', 'subnodes', 'links']
+        
+        for table in cache_tables:
+            # Using plain SQL for simplicity.
+            db.execute(f"DELETE FROM {table};")
+        
+        db.commit()
+        
+        flash("SQLite caches have been invalidated.", "info")
+        current_app.logger.info(f"Invalidated SQLite cache tables: {cache_tables}")
+        return jsonify({"status": "success"})
+
+    except Exception as e:
+        current_app.logger.error(f"Error invalidating SQLite caches: {e}")
+        # Rollback in case of error
+        db.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 @bp.route("/journals.json")
 def journals_json():
     return jsonify(jsons.dump(api.all_journals()))

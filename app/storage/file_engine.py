@@ -189,7 +189,8 @@ def search_subnodes_by_user(query, user):
     subnodes = [
         subnode
         for subnode in G.subnodes()
-        if subnode.user == username
+        if subnode.user == user
+        and subnode.mediatype == "text/plain"
         and re.search(re.escape(query), subnode.content, re.IGNORECASE)
     ]
     return subnodes
