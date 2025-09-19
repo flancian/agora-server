@@ -51,9 +51,9 @@
 
        {% for subnode in node.subnodes %}
 
-            <details class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}" open>
+            <div class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}">
 
-                <summary class="subnode-header">
+                <div class="subnode-header">
                     <span class="subnode-id">
                         <span class="subnode-links">
                           <a href="/@{{subnode.user}}/{{node.uri}}" title="Click to see only this subnode.">📓</a> 
@@ -64,6 +64,9 @@
                     </span>
 
                     <span class="subnode-contrib">
+                        <span class="star-toggle {% if subnode.uri in starred_subnodes %}starred{% endif %}" data-subnode-uri="{{ subnode.uri }}" title="Star this subnode">
+    {% if subnode.uri in starred_subnodes %}★{% else %}☆{% endif %}
+</span>
                         <!-- 
                         <a href="/raw/{{subnode.uri}}" style="text-decoration: none;" title="view original (source)"></a>
                         <a href="/export/@{{subnode.user}}/{{node.uri}}" style="text-decoration: none;" title="export (html)">⤓</a>
@@ -84,7 +87,7 @@
                         </span>
 
                             </span>
-                    </summary>
+                    </div>
 
             <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
 
@@ -99,7 +102,7 @@
                     </span>
                 </div>
 
-            </details>
+            </div>
         {% endfor %}
 
     <!-- details left open -->

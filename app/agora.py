@@ -35,7 +35,7 @@ from mistralai.models.chat_completion import ChatMessage
 
 from . import forms, providers, render, util
 from .providers import gemini_complete, mistral_complete
-from .storage import api, feed
+from .storage import api, feed, sqlite_engine
 from . import visualization
 from .graph import G
 
@@ -140,11 +140,13 @@ def root(node, user_list=""):
 @bp.route("/node/<node>")
 def node(node, user_list=""):
     n = api.build_node(node)
+    starred_subnodes = sqlite_engine.get_all_starred_subnodes()
 
     return render_template(
         "async.html",
         node=n,
         config=current_app.config,
+        starred_subnodes=starred_subnodes,
         # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
         # sorry for the fuzzy thinking but I'm short on time and want to get things done.
         # (...famous last words).
@@ -340,10 +342,13 @@ def subnode_export(node, user):
     n.qstr = f"@{user}/" + n.wikilink.replace("-", " ")
     n.q = n.qstr
 
+    starred_subnodes = sqlite_engine.get_all_starred_subnodes()
+
     return render_template(
         "node.html",
         node=n,
         subnode=f"@{user}/" + n.wikilink,
+        starred_subnodes=starred_subnodes,
     )
 
 
@@ -408,6 +413,19 @@ def latest():
         subnodes=api.latest(max=1000), 
         node=n,
         annotations=feed.get_latest(),
+    )
+
+
+@bp.route("/starred")
+def starred():
+    n = api.build_node("starred")
+    starred_uris = sqlite_engine.get_all_starred_subnodes()
+    subnodes = [api.subnode_by_uri(uri) for uri in starred_uris if api.subnode_by_uri(uri) is not None]
+    return render_template(
+        "starred.html",
+        header="Starred subnodes",
+        subnodes=subnodes,
+        node=n,
     )
 
 
@@ -997,6 +1015,60 @@ def random_artifact():
                 'content': render.markdown(content)
             })
     return jsonify({'content': '<em>No artifacts found in the database cache.</em>'})
+
+@bp.route("/api/star/<path:subnode_uri>", methods=["POST"])
+def star_subnode(subnode_uri):
+    try:
+        db = sqlite_engine.get_db()
+        if db is None:
+            current_app.logger.error("API: Database connection is not available for starring.")
+            return jsonify({"status": "error", "message": "Database connection failed"}), 500
+        
+        db.execute(
+            "INSERT INTO starred_subnodes (subnode_uri) VALUES (?)",
+            (subnode_uri,)
+        )
+        db.commit()
+        return jsonify({"status": "success", "action": "starred", "uri": subnode_uri})
+    except Exception as e:
+        current_app.logger.error(f"API: Error starring subnode {subnode_uri}: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@bp.route("/api/unstar/<path:subnode_uri>", methods=["POST"])
+def unstar_subnode(subnode_uri):
+    try:
+        db = sqlite_engine.get_db()
+        if db is None:
+            current_app.logger.error("API: Database connection is not available for unstarring.")
+            return jsonify({"status": "error", "message": "Database connection failed"}), 500
+
+        db.execute(
+            "DELETE FROM starred_subnodes WHERE subnode_uri = ?",
+            (subnode_uri,)
+        )
+        db.commit()
+        return jsonify({"status": "success", "action": "unstarred", "uri": subnode_uri})
+    except Exception as e:
+        current_app.logger.error(f"API: Error unstarring subnode {subnode_uri}: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@bp.route("/api/starred")
+def get_starred_subnodes():
+    try:
+        db = sqlite_engine.get_db()
+        if db is None:
+            current_app.logger.error("API: Database connection is not available for fetching stars.")
+            return jsonify({"status": "error", "message": "Database connection failed"}), 500
+
+        cursor = db.execute(
+            "SELECT subnode_uri FROM starred_subnodes"
+        )
+        starred_uris = [row[0] for row in cursor.fetchall()]
+        return jsonify(starred_uris)
+    except Exception as e:
+        current_app.logger.error(f"API: Error fetching starred subnodes: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 
 # Fediverse space is: /inbox, /outbox, /users/<username>, .well-known/webfinger, .well-known/nodeinfo?
 

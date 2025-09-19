@@ -720,6 +720,13 @@ details > summary {
 
 .subnode-header {
     border-bottom: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.subnode-id {
+    flex-grow: 1;
 }
 
 .subnode-footer, .node-footer {
@@ -737,6 +744,10 @@ details > summary {
     text-decoration: none;
     max-width: 19%;
     margin-left: auto;
+}
+
+.star-toggle {
+    cursor: pointer;
 }
 
 .footer-links, .footer-id {

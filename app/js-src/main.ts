@@ -13,6 +13,94 @@
 // limitations under the License.
 //
 
+// Star feature logic
+async function starSubnode(uri: string) {
+    const response = await fetch(`/api/star/${uri}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}) // No user needed
+    });
+    return response.json();
+}
+
+async function unstarSubnode(uri: string) {
+    const response = await fetch(`/api/unstar/${uri}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}) // No user needed
+    });
+    return response.json();
+}
+
+async function getStarredUris(): Promise<string[]> {
+    const response = await fetch(`/api/starred`);
+    if (!response.ok) {
+        return [];
+    }
+    return response.json();
+}
+
+function attachStarClickListeners() {
+    document.querySelectorAll('.star-toggle').forEach((star: HTMLElement) => {
+        // If the listener is already attached, don't add it again.
+        if (star.dataset.listenerAttached) return;
+
+        star.addEventListener('click', async (event) => {
+            // This is no longer needed as we are not inside a <summary>
+            // event.stopPropagation(); 
+            
+            const uri = star.dataset.subnodeUri;
+            if (!uri) return;
+
+            const isStarred = star.classList.contains('starred');
+            const action = isStarred ? unstarSubnode : starSubnode;
+
+            try {
+                const result = await action(uri);
+                if (result.status === 'success') {
+                    // Optimistically update the UI
+                    if (isStarred) {
+                        star.textContent = '☆';
+                        star.classList.remove('starred');
+                        star.title = "Star this subnode";
+                    } else {
+                        star.textContent = '★';
+                        star.classList.add('starred');
+                        star.title = "Unstar this subnode";
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to update star:", error);
+            }
+        });
+        star.dataset.listenerAttached = 'true';
+    });
+}
+
+function updateStarUI(starredUris: string[]) {
+    document.querySelectorAll('.star-toggle').forEach((star: HTMLElement) => {
+        const uri = star.dataset.subnodeUri;
+        if (uri && starredUris.includes(uri)) {
+            star.textContent = '★';
+            star.classList.add('starred');
+            star.title = "Unstar this subnode";
+        } else {
+            star.textContent = '☆';
+            star.classList.remove('starred');
+            star.title = "Star this subnode";
+        }
+    });
+    // After updating the UI, make sure the listeners are attached.
+    attachStarClickListeners();
+}
+
+// We need to run this on initial load, but also whenever new subnodes are added to the DOM.
+const initializeStars = async () => {
+    const starredUris = await getStarredUris();
+    updateStarUI(starredUris);
+};
+
+
 /**
  * Darkens a hex color by a given percentage.
  * @param {string} color - The hex color code (e.g., "#RRGGBB").
@@ -85,6 +173,32 @@ function safeJsonParse(value: string, defaultValue: any) {
 
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
+
+  // Observer to initialize stars on dynamically added subnodes.
+  const starObserver = new MutationObserver((mutations) => {
+      let needsUpdate = false;
+      for (const mutation of mutations) {
+          if (mutation.addedNodes.length) {
+              for (const node of mutation.addedNodes) {
+                  if (node.nodeType === 1 && (node as HTMLElement).querySelector('.star-toggle')) {
+                      needsUpdate = true;
+                      break;
+                  }
+              }
+          }
+          if (needsUpdate) break;
+      }
+      if (needsUpdate) {
+          console.log("New subnodes detected, re-initializing stars.");
+          initializeStars();
+      }
+  });
+
+  // Start observing the document body for child list changes.
+  starObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+  });
 
   // set values from storage
   (document.getElementById("user") as HTMLInputElement).value = localStorage["user"] || CLIENT_DEFAULTS.user;
@@ -1338,7 +1452,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (content != null) {
       // block on node loading (expensive if the task is freshly up)
       response = await fetch(AGORAURL + '/node/' + node);
-      content.outerHTML = await response.text();
+      content.innerHTML = await response.text();
     }
 
     setTimeout(bindEvents, 10)
@@ -1352,6 +1466,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   async function bindEvents() {
+    initializeStars();
 
     const user = localStorage.getItem('user') || 'flancian';
 
@@ -1998,6 +2113,92 @@ document.addEventListener("DOMContentLoaded", async function () {
     // setTimeout(autoPullStoaOnEmpty, 5000)
 
     document.querySelectorAll(".context-all").forEach(function (element) {
+// Star feature logic
+async function starSubnode(uri: string) {
+    const response = await fetch(`/api/star/${uri}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}) // No user needed
+    });
+    return response.json();
+}
+
+async function unstarSubnode(uri: string) {
+    const response = await fetch(`/api/unstar/${uri}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}) // No user needed
+    });
+    return response.json();
+}
+
+async function getStarredUris(): Promise<string[]> {
+    const response = await fetch(`/api/starred`);
+    if (!response.ok) {
+        return [];
+    }
+    return response.json();
+}
+
+function attachStarClickListeners() {
+    document.querySelectorAll('.star-toggle').forEach((star: HTMLElement) => {
+        // If the listener is already attached, don't add it again.
+        if (star.dataset.listenerAttached) return;
+
+        star.addEventListener('click', async (event) => {
+            // This is no longer needed as we are not inside a <summary>
+            // event.stopPropagation(); 
+            
+            const uri = star.dataset.subnodeUri;
+            if (!uri) return;
+
+            const isStarred = star.classList.contains('starred');
+            const action = isStarred ? unstarSubnode : starSubnode;
+
+            try {
+                const result = await action(uri);
+                if (result.status === 'success') {
+                    // Optimistically update the UI
+                    if (isStarred) {
+                        star.textContent = '☆';
+                        star.classList.remove('starred');
+                        star.title = "Star this subnode";
+                    } else {
+                        star.textContent = '★';
+                        star.classList.add('starred');
+                        star.title = "Unstar this subnode";
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to update star:", error);
+            }
+        });
+        star.dataset.listenerAttached = 'true';
+    });
+}
+
+function updateStarUI(starredUris: string[]) {
+    document.querySelectorAll('.star-toggle').forEach((star: HTMLElement) => {
+        const uri = star.dataset.subnodeUri;
+        if (uri && starredUris.includes(uri)) {
+            star.textContent = '★';
+            star.classList.add('starred');
+            star.title = "Unstar this subnode";
+        } else {
+            star.textContent = '☆';
+            star.classList.remove('starred');
+            star.title = "Star this subnode";
+        }
+    });
+    // After updating the UI, make sure the listeners are attached.
+    attachStarClickListeners();
+}
+
+// We need to run this on initial load, but also whenever new subnodes are added to the DOM.
+const initializeStars = async () => {
+    const starredUris = await getStarredUris();
+    updateStarUI(starredUris);
+};
       // auto pull whole Agora graph in /nodes.
       const detailsElement = element.closest('details');
       if (detailsElement) {

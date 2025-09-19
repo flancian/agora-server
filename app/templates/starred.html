@@ -1,0 +1,39 @@
+<!--
+ Copyright 2021 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+{% extends "base.html" %}
+{% block content %}
+
+<details class="listing node" open>
+<summary>
+<span class="node-header main-header">★ <strong>Starred subnodes</strong></span>
+</summary>
+
+<div class="delta node subnode">
+    <div class="delta-nodes">
+        {% if subnodes %}
+            {% for subnode in subnodes %}
+            <a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a> by <a href="{{ ('@' + subnode.user)|node_url }}">@{{subnode.user}}</a> on <span class="wikilink-marker">[[</span><a href="{{ (subnode.mtime|datetimeformat('%Y-%m-%d'))|node_url }}"><span class="node-name">{{ subnode.mtime|datetimeformat('%Y-%m-%d') }}</span></a><span class="wikilink-marker">]]</span><br />
+            {% endfor %}
+        {% else %}
+            You haven't starred any subnodes yet. Click the ☆ icon next to a subnode to star it.
+        {% endif %}
+    </div>
+</div>
+</details>
+
+{% include "footer.html" %}
+{% endblock %}

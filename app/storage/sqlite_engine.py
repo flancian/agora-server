@@ -60,45 +60,56 @@ def create_tables(db):
     Also handles simple schema migrations like adding a column.
     """
     with db:
-        db.execute("""
-            CREATE TABLE IF NOT EXISTS subnodes (
-                path TEXT PRIMARY KEY,
-                user TEXT NOT NULL,
-                node TEXT NOT NULL,
-                mtime INTEGER NOT NULL
-            );
-        """)
-        db.execute("""
-            CREATE TABLE IF NOT EXISTS links (
-                source_path TEXT NOT NULL,
-                target_node TEXT NOT NULL,
-                type TEXT NOT NULL,
-                PRIMARY KEY (source_path, target_node, type)
-            );
-        """)
-        db.execute("""
-            CREATE TABLE IF NOT EXISTS ai_generations (
-                prompt TEXT NOT NULL,
-                provider TEXT NOT NULL,
-                content TEXT NOT NULL,
-                timestamp INTEGER NOT NULL,
-                PRIMARY KEY (prompt, provider)
-            );
-        """)
-        db.execute("""
-            CREATE TABLE IF NOT EXISTS query_cache (
-                key TEXT PRIMARY KEY,
-                value TEXT NOT NULL,
-                timestamp INTEGER NOT NULL
-            );
-        """)
-        db.execute("""
-            CREATE TABLE IF NOT EXISTS graph_cache (
-                key TEXT PRIMARY KEY,
-                value TEXT NOT NULL,
-                timestamp INTEGER NOT NULL
-            );
-        """)
+        SCHEMA = {
+            'subnodes': """
+                CREATE TABLE IF NOT EXISTS subnodes (
+                    path TEXT PRIMARY KEY,
+                    user TEXT NOT NULL,
+                    node TEXT NOT NULL,
+                    mtime INTEGER NOT NULL
+                );
+            """,
+            'links': """
+                CREATE TABLE IF NOT EXISTS links (
+                    source_path TEXT NOT NULL,
+                    target_node TEXT NOT NULL,
+                    type TEXT NOT NULL,
+                    PRIMARY KEY (source_path, target_node, type)
+                );
+            """,
+            'ai_generations': """
+                CREATE TABLE IF NOT EXISTS ai_generations (
+                    prompt TEXT NOT NULL,
+                    provider TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    timestamp INTEGER NOT NULL,
+                    PRIMARY KEY (prompt, provider)
+                );
+            """,
+            'query_cache': """
+                CREATE TABLE IF NOT EXISTS query_cache (
+                    key TEXT PRIMARY KEY,
+                    value TEXT,
+                    timestamp INTEGER
+                );
+            """,
+            'starred_subnodes': """
+                CREATE TABLE IF NOT EXISTS starred_subnodes (
+                    subnode_uri TEXT PRIMARY KEY
+                );
+            """,
+            'graph_cache': """
+                CREATE TABLE IF NOT EXISTS graph_cache (
+                    key TEXT PRIMARY KEY,
+                    value TEXT NOT NULL,
+                    timestamp INTEGER NOT NULL
+                );
+            """
+        }
+        # Check all tables in the schema.
+        for table, query in SCHEMA.items():
+            db.execute(query)
+
         # Migration: Add the source_node column to the links table if it doesn't exist.
         try:
             db.execute("ALTER TABLE links ADD COLUMN source_node TEXT;")
@@ -252,6 +263,18 @@ def get_random_ai_generation():
     )
     result = cursor.fetchone()
     return (result[0], result[1]) if result else (None, None)
+
+def get_all_starred_subnodes():
+    """
+    Retrieves all starred subnode URIs.
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT subnode_uri FROM starred_subnodes")
+    return [row[0] for row in cursor.fetchall()]
 
 def get_cached_graph(key):
     """
