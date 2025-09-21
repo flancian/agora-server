@@ -1,61 +1,37 @@
-# Agora Caching Architecture
+# Agora Server Cache
 
-This document outlines the multi-layered caching strategy used by the Agora server to ensure high performance and responsiveness, particularly for large, distributed knowledge graphs.
+This document outlines the caching mechanisms used in the Agora Server, primarily focusing on the SQLite database.
 
-## Two-Tier Caching Model
+## SQLite Database Schema & Review (as of 2025-09-19)
 
-The Agora employs a two-tier caching model to balance speed, persistence, and data consistency. The filesystem is always the ultimate source of truth, but live user requests are served from caches whenever possible.
+The database acts as a **cache and index** to speed up operations that would otherwise require expensive filesystem reads across many small files. This is a very effective and appropriate use of SQLite in this context. The schema is generally simple, clear, and fit for this purpose.
 
-### L1: In-Memory Cache (`cachetools`)
+### Table-by-Table Breakdown
 
-*   **What it is**: A fast, in-process cache that stores fully deserialized Python objects (`Node`, `Subnode`, etc.).
-*   **Purpose**: To provide near-instantaneous data access for requests handled by a worker process that has already loaded the graph. This is the fastest possible path.
-*   **Lifecycle**: The cache is populated on the first request a worker serves (the "cache warming" process). It is completely cleared whenever the application is restarted or reloaded.
-*   **Log Signature**: `CACHE HIT (in-memory)`
+-   **`subnodes`**: The core index. It maps a subnode's file `path` to its key metadata (`user`, parent `node`, `mtime`), allowing the application to quickly find subnodes without scanning the filesystem.
 
-### L2: Persistent Cache (SQLite)
+-   **`links`**: Stores the graph's edges. It maps which subnode (`source_path`) links to which node (`target_node`). This is critical for performance, as it makes calculating backlinks an efficient database query instead of a slow file-parsing operation. The `source_node` column is used to speed up queries that need the source node's name without parsing it from the path.
 
-*   **What it is**: A SQLite database (`instance/agora.db`) that stores the *serialized results* of expensive filesystem scans. The main table used for this is `graph_cache`.
-*   **Purpose**: To prevent the slow, multi-second filesystem scan on every single server restart. When a new worker starts, instead of walking the entire filesystem, it can read a pre-processed JSON blob from this database and deserialize it.
-*   **Lifecycle**: This cache is persistent. It is only invalidated when a developer manually clicks the "Invalidate SQLite" button in the development environment.
-*   **Log Signature**: `CACHE HIT (sqlite)`
+-   **`starred_subnodes`**: A simple list of subnode URIs that have been starred. As of this writing, this is a global list.
 
-## Performance Analysis (as of 2025-09-19)
+-   **`ai_generations`**, **`query_cache`**, **`graph_cache`**: These are general-purpose key-value cache tables with timestamps, used to store the results of expensive operations like AI provider calls (`ai_generations`) or repeated queries (`query_cache`, `graph_cache`).
 
-Based on recent profiling, we have established the following performance benchmarks for the initial "cache warming" process in a worker:
+-   **`cache_events`**: A logging table to track cache performance (hits, misses, errors, timings), which is excellent for diagnostics.
 
-| Stage                               | Time Taken | Source          | Description                                                              |
-| ----------------------------------- | ---------- | --------------- | ------------------------------------------------------------------------ |
-| **Cold Start (Filesystem Scan)**    | **~5.0s**  | `glob` on disk  | A complete cache miss. The worker must scan ~43,000 files on disk.       |
-| **Warm Start (SQLite Deserialization)** | **~3.9s**  | `agora.db` file | The in-memory cache is empty, but the SQLite cache is populated.         |
-| **Hot Read (In-Memory Hit)**        | **<10ms**  | RAM             | The in-memory cache is populated. This is the path for most user requests. |
+### Recommendations
 
-### Key Findings
+1.  **Add Indexes for Faster Lookups**: Queries on non-primary-key columns can be slow. Adding indexes to the following columns would significantly improve performance, especially for nodes with many backlinks and for user pages.
+    ```sql
+    CREATE INDEX IF NOT EXISTS idx_links_target_node ON links(target_node);
+    CREATE INDEX IF NOT EXISTS idx_subnodes_user ON subnodes(user);
+    CREATE INDEX IF NOT EXISTS idx_subnodes_node ON subnodes(node);
+    ```
 
-1.  **The Bottleneck is I/O**: The majority of the "cold start" time (~80%) is spent just walking the filesystem to find all the subnode files.
-2.  **SQLite is a Measurable Improvement**: The L2 SQLite cache provides a consistent **~22% speedup** for the worker startup process compared to a cold start.
-3.  **The Primary Benefit is Consistency**: Beyond the raw speedup, the SQLite cache guarantees that every worker in a multi-process environment is working with the exact same version of the graph data, which is critical for preventing bugs. It also provides the foundation for future optimizations like full-text search.
-
-## Development Tools
-
-For testing and debugging the caching layers, the local development environment provides two buttons in the footer:
-
-*   **Flush Cache**: Clears the **L1 In-Memory Cache** for the current worker process.
-*   **Invalidate SQLite**: Clears the **L2 Persistent Cache** tables (`graph_cache`, `query_cache`, etc.) *and* flushes the L1 cache. This forces a full "cold start" on the next page load.
-
-## Path Forward: Potential Optimizations
-
-While the current SQLite-based warming process is a significant improvement over a cold filesystem scan, the ~3.9 second deserialization time can be further optimized.
-
-The recommended path forward is to implement a more granular caching schema.
-
-### Granular Caching Strategy
-
-*   **Current State**: The entire node graph is stored as a single, large JSON blob in the `graph_cache` table. Deserialization is a single-threaded, monolithic task.
-*   **Proposed State**: Redesign the `graph_cache` table to store each `Node` object individually, keyed by its wikilink.
-    *   `key` (TEXT, PK): The node's wikilink (e.g., "my_node").
-    *   `value` (TEXT/JSON): The serialized `Node` object, including its list of subnode paths.
-*   **Benefits**:
-    1.  **Faster Individual Page Loads**: When rendering a single node, we could fetch and deserialize *only that node*, which would be nearly instantaneous, instead of loading the entire graph.
-    2.  **Parallel Deserialization**: For the full cache warming process, we could fetch all rows and use Python's `multiprocessing` module to deserialize the nodes in parallel across multiple CPU cores, which could dramatically reduce the total warmup time.
-*   **Next Steps**: This would require a significant refactoring of the `_get_all_nodes_cached` function and the database interaction logic, but it represents the most promising path to the next level of performance.
+2.  **(Future) Per-User Starring**: The current `starred_subnodes` table is global. To support per-user starring in the future, the schema could be altered to include a `user` column and a composite primary key.
+    ```sql
+    CREATE TABLE starred_subnodes (
+        subnode_uri TEXT NOT NULL,
+        user TEXT NOT NULL,
+        PRIMARY KEY (subnode_uri, user)
+    );
+    ```

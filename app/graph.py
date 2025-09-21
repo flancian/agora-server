@@ -1130,12 +1130,14 @@ class VirtualSubnode(Subnode):
         # This is needed in Virtual subnodes as wikilink needs to be the node this is being pushed *to* due to a limitation of how we build nodes.
         self.virtual_wikilink : str = path_to_wikilink(current_app.config["AGORA_PATH"] + '/' + self.uri)
         self.url = "/subnode/virtual"
+        self.virtual = True
         # Virtual subnodes are attached to their target
         self.wikilink = target_node.wikilink
         self.canonical_wikilink = self.wikilink
         self.user = source_subnode.user
         # LOG(2022-06-05): As of the time of writing we treat VirtualSubnodes as prerendered.
         self.mediatype = "text/html"
+        self.type = "executable"
 
         try:
             self.content = block.decode("UTF-8")
@@ -1145,6 +1147,9 @@ class VirtualSubnode(Subnode):
         self.forward_links = content_to_forward_links(self.content)
 
         self.mtime = source_subnode.mtime
+        self.datetime = datetime.datetime.fromtimestamp(self.mtime).replace(
+            microsecond=0
+        )
         self.node = self.canonical_wikilink
 
     # We special case go for Virtual Subnodes as they're 'precooked', that is, content is html.
@@ -1202,6 +1207,7 @@ class ExecutableSubnode(Subnode):
         # LOG(2022-06-05): As of the time of writing we treat VirtualSubnodes as prerendered.
         self.mediatype = 'text/html'
         self.content = f'This should be the output of script {self.uri}.'
+        self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
 
     def render(self, argument=''):
         """
@@ -1438,6 +1444,56 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
     stage_start_time = time.time()
     n = copy(G.node(node))
     timings.append(f"'G.node' took {time.time() - stage_start_time:.2f}s")
+
+    # Auto pulls based on regex matching.
+    virtual_subnodes = []
+    for rule in current_app.config.get('AUTO_PULLS', []):
+        if re.match(rule['pattern'], node):
+            current_app.logger.info(f"Node [[{node}]] matched auto-pull pattern '{rule['pattern']}'.")
+            for template in rule['templates']:
+                target_string = template.format(node=node)
+                parts = target_string.split('/')
+                
+                if len(parts) >= 2:
+                    script_node_name = parts[0]
+                    argument = parts[1]
+                    
+                    script_node = G.node(script_node_name)
+                    if script_node and script_node.executable_subnodes:
+                        current_app.logger.info(f"Found executable subnode for [[{script_node_name}]], executing with argument '{argument}'.")
+                        # Assuming the first executable subnode is the one we want.
+                        script_subnode = script_node.executable_subnodes[0]
+                        output = script_subnode.render(argument=argument)
+                        
+                        # Create a virtual subnode to hold the output.
+                        # The target_node is the node we are currently building (e.g., '840').
+                        # The source_subnode is the script we just ran.
+                        vs = VirtualSubnode(source_subnode=script_subnode, target_node=n, block=output)
+                        virtual_subnodes.append(vs)
+                    else:
+                        current_app.logger.warning(f"Auto-pull for [[{node}]] failed: Could not find executable subnode on node [[{script_node_name}]].")
+                else:
+                    current_app.logger.warning(f"Auto-pull for [[{node}]] failed: Template '{template}' is not in the expected 'node/argument' format.")
+
+    # Prepend virtual subnodes to the main list so they appear at the top.
+    n.subnodes = virtual_subnodes + n.subnodes
+
+    # Auto pulls based on regex matching.
+    virtual_subnodes = []
+    for rule in current_app.config.get('AUTO_PULLS', []):
+        if re.match(rule['pattern'], node):
+            for template in rule['templates']:
+                target_node_name = template.format(node=node)
+                target_node = G.node(target_node_name)
+                if target_node and target_node.executable_subnodes:
+                    # Again, assuming the first executable subnode is the one we want.
+                    script_subnode = target_node.executable_subnodes[0]
+                    output = script_subnode.render(argument=node)
+                    vs = VirtualSubnode(source_subnode=script_subnode, target_node=n, block=output)
+                    virtual_subnodes.append(vs)
+    
+    # Prepend virtual subnodes to the main list so they appear at the top.
+    n.subnodes = virtual_subnodes + n.subnodes
 
     if n.subnodes:
         # earlier in the list means more highly ranked.

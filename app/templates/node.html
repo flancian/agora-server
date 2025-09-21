@@ -51,6 +51,27 @@
 
        {% for subnode in node.subnodes %}
 
+            {% if subnode.virtual %}
+            <details class="pushed-subnode" open>
+                <summary class="subnode-header main-header">
+                    <span title="This was written elsewhere but is believed to be relevant in the current context."> 🫸 pushed from </span>
+                    <span class="subnode-links">
+                        <a href="/raw/{{subnode.uri}}">📄</a> 
+                        <a href="/@{{subnode.user}}/{{subnode.virtual_wikilink}}">{{subnode.garden_relative}}</a>
+                    </span>
+                    by
+                    <span class="subnode-id flex-grow">
+                        <a class="user" href="/@{{subnode.user}}">👤 @{{subnode.user}}</a>
+                    </span>
+                </summary>
+                <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+                <div class="subnode-footer">
+                    <span class="footer-id">
+                        ⸎  ({{subnode.type}}) last updated <strong>{{subnode.datetime.astimezone()}}</strong>
+                    </span>
+                </div>
+            </details>
+            {% else %}
             <div class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}">
 
                 <div class="subnode-header">
@@ -103,6 +124,7 @@
                 </div>
 
             </div>
+            {% endif %}
         {% endfor %}
 
     <!-- details left open -->

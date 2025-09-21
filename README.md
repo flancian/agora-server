@@ -135,3 +135,16 @@ This process is designed to be robust and prevent performance degradation during
 4.  **Blocking Cache Warming**: The application's `create_app()` function contains logic that runs only within a uWSGI worker (`if uwsgi.worker_id() > 0:`). This logic performs the expensive cache warming (loading the entire graph into memory), which can take several seconds. Because this is a blocking part of the application's startup, uWSGI's master process **will wait** for the warmup to complete before it considers the new worker "ready".
 
 5.  **The Rolling Restart**: The master process kills an old worker, spawns a new one, waits for it to finish its multi-second cache warmup, and only *then* does it proceed to kill the next old worker. This ensures that the Agora's full serving capacity is maintained throughout the reload process and that no user is ever served a slow response from a "cold" worker.
+
+# API
+
+The Agora Server provides a simple JSON API for accessing graph data.
+
+## Getting the Full Graph
+
+The canonical way to get a full definition of the knowledge graph is through the `/graph/json/all` endpoint. This endpoint returns a single JSON object containing two keys:
+
+-   `"nodes"`: A list of all nodes in the Agora.
+-   `"links"`: A list of all edges, defining the connections between those nodes.
+
+While the filesystem is the ultimate source of truth (the graph is built by parsing all subnode files in the `garden/` directory), this API endpoint is the recommended method for retrieving that truth in a clean, usable format.

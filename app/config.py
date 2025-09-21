@@ -170,6 +170,22 @@ class DefaultConfig(object):
     except:
         GEMINI_API_KEY = False
 
+    # Auto pull rules.
+    # A list of dictionaries, each with a 'pattern' (regex) and a list of 'templates'.
+    # If a node's name matches the pattern, the templates will be rendered as virtual subnodes.
+    # The '{node}' placeholder in the template will be replaced with the matched node name.
+    AUTO_PULLS = [
+        {
+            'pattern': r'^\d+$',  # Matches any node that is a number.
+            'templates': [
+                'prime/{node}',
+                'hex/{node}',
+                'factor/{node}',
+                'square/{node}',
+            ]
+        }
+    ]
+
 
 class ProductionConfig(DefaultConfig):
 
@@ -285,5 +301,3 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_DEMO = True
     AGORA_DEMO_TARGET = "https://anagora.org"
     ENABLE_FLUSH_CACHE_BUTTON = True
-
-
