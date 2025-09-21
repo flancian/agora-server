@@ -16,4 +16,4 @@ from flask import Blueprint, Response
 
 bp = Blueprint("exec", __name__)
 
-__all__ = ["default", "dice", "wp", "wt"]
+__all__ = ["default", "wp", "wt"]

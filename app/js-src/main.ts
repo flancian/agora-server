@@ -1832,7 +1832,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         let labelsVisible = true;
 
         const loadGraph = (size) => {
-            const url = size === 'all' ? '/graph/json/all' : `/graph/json/top/${size}`;
+            const url = size === 'all' ? '/graph./json/all' : `/graph/json/top/${size}`;
             renderGraph('full-graph', url);
         };
 
@@ -1873,6 +1873,51 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
         });
     }
+
+    // Collapsible content handler
+    const initializeCollapsibleContent = () => {
+        document.querySelectorAll('.collapsible-content').forEach(content => {
+            if ((content as HTMLElement).dataset.processed) return;
+
+            const button = document.querySelector(`.show-more-button[data-target="${content.id}"]`) as HTMLElement;
+            if (button) {
+                // Check if the content is overflowing
+                if (content.scrollHeight > content.clientHeight) {
+                    button.style.display = 'block';
+                } else {
+                    // If not overflowing, remove the gradient effect and ensure it's fully visible
+                    content.classList.add('expanded');
+                }
+            }
+            (content as HTMLElement).dataset.processed = 'true';
+        });
+    };
+
+    // Initial check
+    initializeCollapsibleContent();
+
+    // Observer for dynamically added content
+    const collapsibleObserver = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            if (mutation.addedNodes.length) {
+                initializeCollapsibleContent();
+                break; 
+            }
+        }
+    });
+    collapsibleObserver.observe(document.body, { childList: true, subtree: true });
+
+
+    document.querySelectorAll('.show-more-button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const targetId = (event.target as HTMLElement).dataset.target;
+            const content = document.getElementById(targetId);
+            if (content) {
+                content.classList.add('expanded');
+                (event.target as HTMLElement).style.display = 'none';
+            }
+        });
+    });
   }
   // end bindEvents();
 

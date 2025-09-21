@@ -64,7 +64,10 @@
                         <a class="user" href="/@{{subnode.user}}">👤 @{{subnode.user}}</a>
                     </span>
                 </summary>
-                <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+                <div id="virtual-subnode-content-{{ loop.index }}" class="collapsible-content">
+                    <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+                </div>
+                <div class="show-more-button" data-target="virtual-subnode-content-{{ loop.index }}" style="display: none;">Show more...</div>
                 <div class="subnode-footer">
                     <span class="footer-id">
                         ⸎  ({{subnode.type}}) last updated <strong>{{subnode.datetime.astimezone()}}</strong>

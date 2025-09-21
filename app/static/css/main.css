@@ -1493,3 +1493,37 @@ input:checked + .slider:before {
         display: none;
     }
 }
+
+.collapsible-content {
+    max-height: 300px; /* Adjust as needed for ~10-15 lines */
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.5s ease-in-out;
+}
+
+.collapsible-content.expanded {
+    max-height: none;
+}
+
+.collapsible-content::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(to bottom, transparent, var(--subnode-bg));
+    pointer-events: none; /* Allows clicking through the gradient */
+}
+
+.collapsible-content.expanded::after {
+    display: none; /* Hide the gradient when expanded */
+}
+
+.show-more-button {
+    cursor: pointer;
+    text-align: center;
+    padding: 5px;
+    font-weight: bold;
+    color: var(--link-color);
+}
