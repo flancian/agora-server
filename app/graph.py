@@ -201,7 +201,7 @@ class Graph:
     @cachetools.func.ttl_cache(maxsize=1, ttl=get_cache_ttl("node_data"))
     def _get_all_nodes_cached(self):
         if _is_sqlite_enabled():
-            cache_key = 'all_nodes_v1'
+            cache_key = 'all_nodes_v2'
             ttl = get_cache_ttl('node_data')
             cached_value, timestamp = sqlite_engine.get_cached_graph(cache_key)
 
@@ -270,9 +270,10 @@ class Graph:
             current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_nodes to persistent cache.")
 
         full_nodes = {}
-        for node_wikilink in node_to_subnodes:
+        all_node_wikilinks = set(node_to_subnodes.keys()) | set(node_to_executable_subnodes.keys())
+        for node_wikilink in all_node_wikilinks:
             n = Node(node_wikilink)
-            n.subnodes = node_to_subnodes[node_wikilink]
+            n.subnodes = node_to_subnodes.get(node_wikilink, [])
             n.executable_subnodes = node_to_executable_subnodes.get(node_wikilink, [])
             full_nodes[node_wikilink] = n
         
@@ -428,7 +429,11 @@ class Graph:
         current_app.logger.debug(f'*** Looking for executable subnodes at {begin}.')
         base = current_app.config['AGORA_PATH']
         current_app.logger.debug(f'*** Looking for executable subnodes: Python.')
+        # Scan user gardens
         subnodes = [ExecutableSubnode(f) for f in glob.glob(os.path.join(base, '**/*.py'), recursive=True)]
+        # Scan built-in executables
+        builtin_path = os.path.join(current_app.root_path, 'exec')
+        subnodes.extend([ExecutableSubnode(f) for f in glob.glob(os.path.join(builtin_path, '*.py'))])
         return subnodes
 
 

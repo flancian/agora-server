@@ -141,12 +141,14 @@ def root(node, user_list=""):
 def node(node, user_list=""):
     n = api.build_node(node)
     starred_subnodes = sqlite_engine.get_all_starred_subnodes()
+    project_root = os.path.abspath('.')
 
     return render_template(
         "async.html",
         node=n,
         config=current_app.config,
         starred_subnodes=starred_subnodes,
+        project_root=project_root,
         # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
         # sorry for the fuzzy thinking but I'm short on time and want to get things done.
         # (...famous last words).
@@ -737,6 +739,7 @@ def user(user):
     )
 
 
+
 @bp.route("/user/<user>.json")
 def user_json(user):
     subnodes = list(map(lambda x: x.wikilink, api.subnodes_by_user(user)))
@@ -872,6 +875,14 @@ def cachez():
     return render_template("cachez.html", node=n)
 
 
+@bp.route("/debug/exec")
+def debug_exec():
+    n = api.build_node("debug-exec")
+    executables = G.executable_subnodes()
+    project_root = os.path.abspath('.')
+    return render_template("debug_exec.html", node=n, executables=executables, project_root=project_root)
+
+
 @bp.route("/invalidate-sqlite", methods=["POST"])
 def invalidate_sqlite():
     # For safety, this is only enabled in local development.
@@ -886,11 +897,11 @@ def invalidate_sqlite():
         # Define the tables that are safe to clear.
         cache_tables = ['query_cache', 'subnodes', 'links', 'graph_cache']
         
-        for table in cache_tables:
-            # Using plain SQL for simplicity.
-            db.execute(f"DELETE FROM {table};")
-        
-        db.commit()
+        if db:
+            for table in cache_tables:
+                # Using plain SQL for simplicity.
+                db.execute(f"DELETE FROM {table};")
+            db.commit()
         
         # Also clear the in-memory caches to force a full reload from the filesystem.
         G._get_all_nodes_cached.cache_clear()
@@ -899,14 +910,15 @@ def invalidate_sqlite():
         G.edges.cache_clear()
         G.n_edges.cache_clear()
 
-        flash("SQLite caches have been invalidated.", "info")
+        flash("SQLite and in-memory caches have been invalidated.", "info")
         current_app.logger.info(f"Invalidated SQLite cache tables: {cache_tables} and cleared in-memory caches.")
         return jsonify({"status": "success"})
 
     except Exception as e:
         current_app.logger.error(f"Error invalidating SQLite caches: {e}")
         # Rollback in case of error
-        db.rollback()
+        if db:
+            db.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
 
 

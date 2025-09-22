@@ -57,11 +57,19 @@
                     <span title="This was written elsewhere but is believed to be relevant in the current context."> 🫸 pushed from </span>
                     <span class="subnode-links">
                         <a href="/raw/{{subnode.uri}}">📄</a> 
-                        <a href="/@{{subnode.user}}/{{subnode.virtual_wikilink}}">{{subnode.garden_relative}}</a>
+                        {% if subnode.user == 'agora' %}
+                            <a href="/@agora-server/{{subnode.virtual_wikilink}}">{{ subnode.path | replace(project_root + '/', '') }}</a>
+                        {% else %}
+                            <a href="/@{{subnode.user}}/{{subnode.virtual_wikilink}}">{{subnode.garden_relative}}</a>
+                        {% endif %}
                     </span>
                     by
                     <span class="subnode-id flex-grow">
-                        <a class="user" href="/@{{subnode.user}}">👤 @{{subnode.user}}</a>
+                        {% if subnode.user == 'agora' %}
+                            <a class="user" href="/@agora-server">👤 @agora-server</a>
+                        {% else %}
+                            <a class="user" href="/@{{subnode.user}}">👤 @{{subnode.user}}</a>
+                        {% endif %}
                     </span>
                 </summary>
                 <div id="virtual-subnode-content-{{ loop.index }}" class="collapsible-content">

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+<details class="listing node" open>
+<summary>
+<span class="node-header main-header">🔧 <strong>Discovered Executable Subnodes</strong></span>
+</summary>
+
+<div class="subnode">
+    <p>This page lists all the executable (.py) files that the Agora has discovered. If a script is not listed here, the Agora does not know about it and cannot run it.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Path</th>
+                <th>Attached to Node (Wikilink)</th>
+                <th>Attributed to User</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ex in executables %}
+            <tr>
+                {% if ex.user == 'agora' %}
+                    <td>{{ ex.path | replace(project_root + '/', '') }}</td>
+                    <td>[[{{ ex.wikilink }}]]</td>
+                    <td>@agora-server</td>
+                {% else %}
+                    <td>{{ ex.path }}</td>
+                    <td>[[{{ ex.wikilink }}]]</td>
+                    <td>@{{ ex.user }}</td>
+                {% endif %}
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3"><em>No executable subnodes found.</em></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</details>
+
+{% include "footer.html" %}
+{% endblock %}

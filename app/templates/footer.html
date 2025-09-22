@@ -18,12 +18,12 @@
               🔄 retry
            </button>
     {% if config.ENABLE_FLUSH_CACHE_BUTTON %}
-    <button id="mini-cli-flush-cache" onclick="flushCache(this)" title="Flushes the in-memory caches for this Agora process. Useful for development.">
-        🚽 Flush Cache
-    </button>
-    <button id="mini-cli-invalidate-sqlite" onclick="invalidateSqlite(this)" title="Deletes the SQLite database file, forcing a full re-index from the filesystem on next load.">
-        🗑️ Invalidate SQLite
-    </button>
+    <button id="mini-cli-cachez" onclick="location.href='/cachez'" title="Clears the in-memory caches for the current server process.">
+    🧠 Flush In-Memory
+</button>
+<button id="mini-cli-invalidate-sqlite" onclick="invalidateSqlite(this)" title="Deletes cached data from the SQLite database file, forcing a full re-index from the filesystem on next load.">
+    💾 Flush SQLite
+</button>
     <script>
         function flushCache(button) {
             const originalText = button.innerHTML;

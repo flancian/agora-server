@@ -181,7 +181,7 @@ class DefaultConfig(object):
                 'prime/{node}',
                 'hex/{node}',
                 'factor/{node}',
-                'square/{node}',
+                'calc/{node}',
             ]
         }
     ]
