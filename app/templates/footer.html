@@ -18,71 +18,12 @@
               🔄 retry
            </button>
     {% if config.ENABLE_FLUSH_CACHE_BUTTON %}
-    <button id="mini-cli-cachez" onclick="location.href='/cachez'" title="Clears the in-memory caches for the current server process.">
-    🧠 Flush In-Memory
-</button>
-<button id="mini-cli-invalidate-sqlite" onclick="invalidateSqlite(this)" title="Deletes cached data from the SQLite database file, forcing a full re-index from the filesystem on next load.">
-    💾 Flush SQLite
-</button>
-    <script>
-        function flushCache(button) {
-            const originalText = button.innerHTML;
-            button.innerHTML = '🚽 Flushing...';
-            button.disabled = true;
-
-            fetch('/cachez', {
-                method: 'POST',
-            })
-            .then(response => {
-                if (response.ok) {
-                    button.innerHTML = '🚽 Flushed!';
-                } else {
-                    button.innerHTML = '🚽 Error!';
-                }
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 2000); // Reset after 2 seconds
-            })
-            .catch(error => {
-                console.error('Error flushing cache:', error);
-                button.innerHTML = '🚽 Error!';
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 2000);
-            });
-        }
-
-        function invalidateSqlite(button) {
-            const originalText = button.innerHTML;
-            button.innerHTML = '🗑️ Invalidating...';
-            button.disabled = true;
-
-            fetch('/invalidate-sqlite', {
-                method: 'POST',
-            })
-            .then(response => {
-                if (response.ok) {
-                    button.innerHTML = '🗑️ Invalidated!';
-                } else {
-                    button.innerHTML = '🗑️ Error!';
-                }
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 2000); // Reset after 2 seconds
-            })
-            .catch(error => {
-                console.error('Error invalidating SQLite:', error);
-                button.innerHTML = '🗑️ Error!';
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 2000);
-            });
-        }
-    </script>
+    <button id="mini-cli-cachez" title="Clears the in-memory caches for the current server process.">
+        🧠 Flush In-Memory
+    </button>
+    <button id="mini-cli-invalidate-sqlite" title="Deletes cached data from the SQLite database file, forcing a full re-index from the filesystem on next load.">
+        💾 Flush SQLite
+    </button>
     {% endif %}
 </div>
 </div>

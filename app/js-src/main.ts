@@ -1874,6 +1874,67 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
+    // Cache clearing buttons in footer.
+    document.getElementById('mini-cli-cachez')?.addEventListener('click', (e) => {
+        const button = e.currentTarget as HTMLButtonElement;
+        const originalText = button.innerHTML;
+        button.innerHTML = '🧠 Flushing...';
+        button.disabled = true;
+
+        fetch('/api/clear-in-memory-cache', {
+            method: 'POST',
+        })
+        .then(response => {
+            if (response.ok) {
+                button.innerHTML = '🧠 Flushed!';
+            } else {
+                button.innerHTML = '🧠 Error!';
+            }
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error flushing in-memory cache:', error);
+            button.innerHTML = '🧠 Error!';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
+        });
+    });
+
+    document.getElementById('mini-cli-invalidate-sqlite')?.addEventListener('click', (e) => {
+        const button = e.currentTarget as HTMLButtonElement;
+        const originalText = button.innerHTML;
+        button.innerHTML = '💾 Flushing...';
+        button.disabled = true;
+
+        fetch('/invalidate-sqlite', {
+            method: 'POST',
+        })
+        .then(response => {
+            if (response.ok) {
+                button.innerHTML = '💾 Flushed!';
+            } else {
+                button.innerHTML = '💾 Error!';
+            }
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error invalidating SQLite:', error);
+            button.innerHTML = '💾 Error!';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
+        });
+    });
+
     // Collapsible content handler
     const initializeCollapsibleContent = () => {
         document.querySelectorAll('.collapsible-content').forEach(content => {

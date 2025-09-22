@@ -141,14 +141,12 @@ def root(node, user_list=""):
 def node(node, user_list=""):
     n = api.build_node(node)
     starred_subnodes = sqlite_engine.get_all_starred_subnodes()
-    project_root = os.path.abspath('.')
 
     return render_template(
         "async.html",
         node=n,
         config=current_app.config,
         starred_subnodes=starred_subnodes,
-        project_root=project_root,
         # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
         # sorry for the fuzzy thinking but I'm short on time and want to get things done.
         # (...famous last words).
@@ -856,31 +854,26 @@ def journals(entries):
     )
 
 
-# Route for cache management and diagnostics.
-@bp.route("/cachez", methods=["GET", "POST"])
-def cachez():
-    if request.method == "POST":
-        # Clear all known cachetools caches on the global Graph object.
+@bp.route("/api/clear-in-memory-cache", methods=["POST"])
+def clear_in_memory_cache():
+    try:
         G._get_all_nodes_cached.cache_clear()
         G.subnodes.cache_clear()
         G.executable_subnodes.cache_clear()
         G.edges.cache_clear()
         G.n_edges.cache_clear()
-        
-        flash("In-memory caches have been cleared for this process.", "info")
-        return redirect(url_for("agora.cachez"))
-
-    # For GET request, just render the simple page.
-    n = api.build_node("cachez")
-    return render_template("cachez.html", node=n)
+        current_app.logger.info("Cleared in-memory caches via API.")
+        return jsonify({"status": "success"})
+    except Exception as e:
+        current_app.logger.error(f"Error clearing in-memory caches: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @bp.route("/debug/exec")
 def debug_exec():
     n = api.build_node("debug-exec")
     executables = G.executable_subnodes()
-    project_root = os.path.abspath('.')
-    return render_template("debug_exec.html", node=n, executables=executables, project_root=project_root)
+    return render_template("debug_exec.html", node=n, executables=executables)
 
 
 @bp.route("/invalidate-sqlite", methods=["POST"])

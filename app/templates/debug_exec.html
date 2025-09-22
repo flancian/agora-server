@@ -19,15 +19,9 @@
         <tbody>
             {% for ex in executables %}
             <tr>
-                {% if ex.user == 'agora' %}
-                    <td>{{ ex.path | replace(project_root + '/', '') }}</td>
-                    <td>[[{{ ex.wikilink }}]]</td>
-                    <td>@agora-server</td>
-                {% else %}
-                    <td>{{ ex.path }}</td>
-                    <td>[[{{ ex.wikilink }}]]</td>
-                    <td>@{{ ex.user }}</td>
-                {% endif %}
+                <td>{{ ex.path }}</td>
+                <td>[[{{ ex.wikilink }}]]</td>
+                <td>@{{ ex.user }}</td>
             </tr>
             {% else %}
             <tr>
