@@ -4,6 +4,17 @@
 - The user runs the dev server themselves. I should only make code changes and recompile when necessary (e.g. `npm run build`), but not run the application with `./run-dev.sh`.
 - The user prefers direct, technical explanations without metaphors or allegories.
 - The user appreciates creative language like metaphors and poetry, but prefers technical explanations to be direct. I should use metaphors judiciously and avoid over-explaining simple concepts.
+- The user prefers JavaScript logic to be in `main.ts` rather than in inline `<script>` tags. I should follow this convention.
+- Always run `npm run build` after modifying any `.ts` files in `app/js-src/` to compile the changes.
+--- End of Context from: ../.gemini/GEMINI.md ---
+
+--- Context from: GEMINI.md ---
+--- Context from: ../.gemini/GEMINI.md ---
+## Gemini Added Memories
+- The user prefers to handle git operations like committing themselves. I should not commit changes unless explicitly asked.
+- The user runs the dev server themselves. I should only make code changes and recompile when necessary (e.g. `npm run build`), but not run the application with `./run-dev.sh`.
+- The user prefers direct, technical explanations without metaphors or allegories.
+- The user appreciates creative language like metaphors and poetry, but prefers technical explanations to be direct. I should use metaphors judiciously and avoid over-explaining simple concepts.
 --- End of Context from: ../.gemini/GEMINI.md ---
 
 --- Context from: GEMINI.md ---
@@ -401,3 +412,25 @@ But honor's found in knowing why
 The boldest efforts went awry.
 We fall back now, but wiser stand,
 To map the code of this strange land.
+
+---
+
+## Understanding the Agora (as of 2025-09-21)
+
+*This is a summary of my understanding of the project's philosophy and technical principles based on our collaboration.*
+
+### The Agora of Flancia's Intents (The "Why")
+
+The project's goal is to create a **Free Knowledge Commons** with a focus on:
+-   **Connecting Digital Gardens**: Weaving together individual, user-owned collections of notes into a larger whole.
+-   **Collaborative Problem-Solving**: Building a space where knowledge is not just stored but actively used and composed into tools.
+-   **Low Barrier to Contribution**: Prioritizing simple, durable formats (like plain text files) to make it easy for anyone to participate.
+-   **Playful Experimentation**: Fostering a delightful and evolving user experience.
+
+### The Agora Protocol (The "How")
+
+The protocol is a set of architectural patterns that enable the Agora's vision:
+-   **Decentralization**: The filesystem is the ultimate source of truth. The server is a lens, not a silo.
+-   **Nodes are Concepts, Subnodes are Utterances**: A key distinction where abstract topics (`[[Calculus]]`) are composed of concrete contributions (`@user/calculus-notes.md`).
+-   **Composition over Centralization**: Nodes are built by pulling and combining content from other, more specialized nodes (e.g., `[[170]]` pulling from `[[calc/170]]`).
+-   **Everything Has a Place (No 404s)**: Every possible query resolves to a node, turning dead ends into invitations to contribute.

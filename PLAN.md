@@ -843,14 +843,14 @@ app/
 
 ### 4. Web Results UI Refactoring
 - **Goal**: To apply the same consistent tabbed interface to the "Web Results" section.
-- **Actions**:
-    - Overhauled `app/templates/web.html` to transform the list of links into a fully functional tabbed interface.
-    - Each search provider is now a tab that loads an embedded `iframe` on demand.
-    - Each tab is paired with a "⬈" link to allow users to easily open the search results in a new browser tab.
-    - All providers, including Google Maps, are now integrated into the tab system for a consistent user experience.
-- **Embeddability Check**:
-    - Created a new API endpoint (`/api/check_embeddable`) that checks if a URL can be embedded in an iframe.
-    - The frontend now calls this endpoint before attempting to embed content, showing a user-friendly message if embedding is blocked.
+-   **Actions**:
+    -   Overhauled `app/templates/web.html` to transform the list of links into a fully functional tabbed interface.
+    -   Each search provider is now a tab that loads an embedded `iframe` on demand.
+    -   Each tab is paired with a "⬈" link to allow users to easily open the search results in a new browser tab.
+    -   All providers, including Google Maps, are now integrated into the tab system for a consistent user experience.
+-   **Embeddability Check**:
+    -   Created a new API endpoint (`/api/check_embeddable`) that checks if a URL can be embedded in an iframe.
+    -   The frontend now calls this endpoint before attempting to embed content, showing a user-friendly message if embedding is blocked.
 ---
 # Session Summary (Gemini, 2025-08-28)
 
@@ -924,3 +924,23 @@ app/
 ### 3. New Features & UI Tweaks
 -   **Cache Diagnostics Page**: Created a new `/cachez` endpoint to provide a simple interface for flushing the in-memory caches, aiding in performance debugging.
 -   **Graph Tab Updates**: Modified the graph visualization tabs on the `/nodes` page to offer different size options (Top 100, 500, 2500, and All).
+
+# ✅ Completed: Star Subnodes and Executable Subnode Auto-Pulls (2025-09-21)
+
+This session focused on implementing a full-featured **"Star Subnode"** system and a powerful, configuration-driven system for **Executable Subnodes**.
+
+-   **Feature: Star Subnodes**:
+    -   Implemented a full "Star Subnode" feature, allowing users to bookmark subnodes.
+    -   Added a new `/starred` page and a "✨ starred" link to the navbar to display all starred items.
+    -   Fixed numerous client-side and server-side bugs to ensure the starred status persists correctly across page loads.
+
+-   **Feature: Executable Subnode Auto-Pulls**:
+    -   Created a new `AUTO_PULLS` configuration in `app/config.py` to allow for the automatic execution of scripts based on node name patterns.
+    -   Implemented the logic in `app/graph.py` to dynamically "pull" content from executable subnodes (e.g., running `calc.py` for number nodes).
+    -   Added a new built-in `calc.py` executable to the server to provide calculations for number nodes.
+
+-   **UI/UX and Technical Improvements**:
+    -   The output of long executable subnodes is now automatically collapsed with a "Show more..." button.
+    -   Refactored the cache-flushing buttons in the footer to use direct API calls and moved their logic to the main TypeScript module.
+    -   Created a new `/debug/exec` page to help diagnose issues with executable subnode discovery.
+    -   Added documentation for the database schema and the graph API to `CACHE.md` and `README.md`.
