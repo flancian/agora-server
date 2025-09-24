@@ -3,7 +3,6 @@
 
 <div class="footer-wrapper">
 <div id='footer'>
-
     <!-- Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong> in <strong><a style="all: unset;"href="http://localhost:5017/{{node.qstr}}">__EXECTIME__s</a></strong>.
     -->
     {% if 'development' in config.AGORA_NAME.lower() or 'alpha' in config.AGORA_NAME.lower() %}<a class="all-unset" href="{{config.PROD_URL_BASE}}/{{node.qstr}}">🍮</a>{% else %}<a class="all-unset" href="{{config.DEV_URL_BASE}}/{{node.qstr}}">🍮</a>{% endif %}
@@ -12,6 +11,10 @@
     at <strong>__NOW__</strong>
     {% if 'Flan' in config['AGORA_NAME'] %} for the benefit of all beings{% else %} {% endif %}
     &nbsp;
+    <label class="music-switch" for="music-checkbox" title="Toggle Ambient Music">
+        <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
+        <div class="slider round"></div>
+    </label>
     <button id="mini-cli-root" onclick="location.href='{{config['ROOT']}}'" title="Go to the root of the Agora.">🌱 See root</button>
     <!-- <button id="mini-cli-source" onclick="location.href='{{config['SOURCE']}}'" title="Go to the source code of this Agora.">👨‍💻 Get Source</button> -->
     <button id="mini-cli-retry" value="retry" title="Retries/reloads, might fix transient errors, might show content from a different Agora eventually.">
@@ -27,7 +30,3 @@
     {% endif %}
 </div>
 </div>
-
-
-
-

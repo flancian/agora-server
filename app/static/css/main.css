@@ -86,10 +86,6 @@
 
 html {
     font-family: 'Noto Sans', sans-serif;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: center;
-    overflow-y: scroll;
 }
 
 body {
@@ -391,6 +387,10 @@ summary, #footer {
     justify-content: space-between;
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+
+#footer {
+    display: flex;
 }
 
 .navigation::-webkit-scrollbar {
@@ -1098,6 +1098,14 @@ table caption {
     flex-shrink: 0;
 }
 
+.music-switch {
+    display: inline-block;
+    height: 24px;
+    position: relative;
+    width: 50px;
+    flex-shrink: 0;
+}
+
 .toggle-container {
     display: flex;
     align-items: center;
@@ -1138,6 +1146,9 @@ table caption {
     content: "🧍"; /* Person Standing */
 }
 
+.music-switch .slider:before {
+    content: "🔇"; /* Muted Speaker */
+}
 
 input:checked + .slider {
     background-color: #377ba8;
@@ -1150,6 +1161,10 @@ input:checked + .slider:before {
 
 .demo-switch input:checked + .slider:before {
     content: "🏃‍♀️"; /* Woman Running */
+}
+
+.music-switch input:checked + .slider:before {
+    content: "🎵"; /* Musical Note */
 }
 
 #demo-timer {
@@ -1232,33 +1247,30 @@ input:checked + .slider:before {
 
 .context-flex {
     display: flex;
-    flex-direction: row;
+    flex-direction: column; /* Mobile-first: stack them by default */
 }
 
 .context-flex .graph-container {
-    width: 50%;
+    width: 100%;
+    order: 1; /* Graph comes first */
 }
 
 .links {
-    width: 50%;
+    width: 100%;
+    order: 2; /* Links come second */
 }
 
-@media screen and (max-width: 48em) {
+@media screen and (min-width: 48em) {
     .context-flex {
-        flex-direction: column;
-    }
-
-    .context-flex .graph-container,
-    .context-flex .links {
-        width: 100%;
-    }
-
-    .context-flex .links {
-        order: 1;
+        flex-direction: row; /* Side-by-side on desktop */
     }
 
     .context-flex .graph-container {
-        order: 2;
+        width: 50%;
+    }
+
+    .links {
+        width: 50%;
     }
 }
 
@@ -1422,6 +1434,69 @@ input:checked + .slider:before {
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+/* Music Player Styles */
+#music-player-container {
+    position: fixed;
+    top: 10%;
+    left: 10%;
+    z-index: 1001;
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+#music-player-container.active {
+    display: block;
+}
+
+#music-player {
+    background-color: var(--node-bg);
+    border-radius: 8px;
+    width: 250px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 1px solid var(--link-color);
+}
+
+#music-player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: #ccc;
+    padding: 2px 8px;
+    border-radius: 5px 5px 0 0;
+    cursor: move;
+}
+
+#music-player-title {
+    font-weight: bold;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    color: #ccc;
+    flex-grow: 1;
+    text-align: center;
+}
+
+#music-player-close-btn {
+    cursor: pointer;
+    color: #fff;
+    background-color: #555;
+    border: 1px solid #777;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 18px;
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+#music-player-content {
+    padding: 0.5rem 1rem;
+    font-size: 0.9em;
+    text-align: center;
 }
 
 @media screen and (max-width: 48em) {

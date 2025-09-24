@@ -1979,6 +1979,165 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
         });
     });
+
+    // Music player logic
+    const musicPlayerContainer = document.getElementById('music-player-container');
+    const musicCheckbox = document.getElementById('music-checkbox') as HTMLInputElement;
+    const musicCloseButton = document.getElementById('music-player-close-btn');
+    let musicPlayer = null;
+
+    const stopMusic = () => {
+        if (musicPlayer) {
+            musicPlayer.stop();
+            musicPlayer = null;
+            console.log("Ambient music stopped.");
+        }
+    };
+
+    const setMusicState = (isPlaying: boolean) => {
+        localStorage.setItem("ambient-music-active", JSON.stringify(isPlaying));
+        musicCheckbox.checked = isPlaying;
+
+        if (isPlaying) {
+            // Only show the player if it wasn't manually closed.
+            const isPlayerVisible = JSON.parse(localStorage.getItem("music-player-visible") || 'true');
+            if (isPlayerVisible) {
+                musicPlayerContainer.classList.add('active');
+            }
+
+            // Dynamically import and start music
+            import('soundfont-player').then(({ default: Soundfont }) => {
+                import('midi-player-js').then(({ default: MidiPlayer }) => {
+                    const ac = new AudioContext();
+                    Soundfont.instrument(ac, 'acoustic_grand_piano').then(function (instrument) {
+                        const activeNotes = {};
+                        const player = new MidiPlayer.Player(function (event) {
+                            if (event.name === 'Note on' && event.velocity > 0) {
+                                const note = instrument.play(event.noteName, ac.currentTime, { gain: event.velocity / 100 });
+                                activeNotes[event.noteNumber] = note;
+                            } else if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
+                                if (activeNotes[event.noteNumber]) {
+                                    activeNotes[event.noteNumber].stop();
+                                    delete activeNotes[event.noteNumber];
+                                }
+                            }
+                        });
+                        musicPlayer = player;
+                        fetch('/static/mid/burup.mid')
+                            .then(response => response.arrayBuffer())
+                            .then(arrayBuffer => {
+                                const base64 = btoa(new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+                                const dataUri = `data:audio/midi;base64,${base64}`;
+                                player.loadDataUri(dataUri);
+                                player.play();
+                                console.log("Ambient music started.");
+                            });
+                    });
+                });
+            });
+        } else {
+            musicPlayerContainer.classList.remove('active');
+            stopMusic();
+        }
+    };
+
+    if (musicCheckbox) {
+        const isMusicActive = JSON.parse(localStorage.getItem("ambient-music-active") || 'false');
+        setMusicState(isMusicActive);
+
+        musicCheckbox.addEventListener('change', () => {
+            const isPlaying = musicCheckbox.checked;
+            // When the user toggles the music on, always show the player.
+            if (isPlaying) {
+                localStorage.setItem("music-player-visible", "true");
+            }
+            setMusicState(isPlaying);
+        });
+
+        musicCloseButton?.addEventListener('click', () => {
+            musicPlayerContainer.classList.remove('active');
+            localStorage.setItem("music-player-visible", "false");
+        });
+    }
+
+    // Make the Music player draggable
+    const musicDragHandle = document.getElementById('music-player-header');
+    if (musicPlayerContainer && musicDragHandle) {
+        let active = false;
+        let currentX, currentY, initialX, initialY;
+        let xOffset = 0, yOffset = 0;
+        let hasBeenPositionedByJs = false;
+
+        const setTranslate = (xPos, yPos, el) => {
+            el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+        }
+
+        const savedPosition = localStorage.getItem('music-player-position');
+        if (savedPosition) {
+            const pos = JSON.parse(savedPosition);
+            xOffset = pos.x;
+            yOffset = pos.y;
+            musicPlayerContainer.style.top = '0px';
+            musicPlayerContainer.style.left = '0px';
+            setTranslate(xOffset, yOffset, musicPlayerContainer);
+            hasBeenPositionedByJs = true;
+        }
+
+        const dragStart = (e) => {
+            // Use .closest() to check if the click was on or inside the drag handle.
+            if ((e.target as HTMLElement).closest('#music-player-header')) {
+                active = true;
+            } else {
+                return;
+            }
+
+            if (!hasBeenPositionedByJs) {
+                const rect = musicPlayerContainer.getBoundingClientRect();
+                musicPlayerContainer.style.top = '0px';
+                musicPlayerContainer.style.left = '0px';
+                xOffset = rect.left;
+                yOffset = rect.top;
+                setTranslate(xOffset, yOffset, musicPlayerContainer);
+                hasBeenPositionedByJs = true;
+            }
+
+            if (e.type === "touchstart") {
+                initialX = e.touches[0].clientX - xOffset;
+                initialY = e.touches[0].clientY - yOffset;
+            } else {
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+            }
+        }
+
+        const dragEnd = (e) => {
+            active = false;
+            localStorage.setItem('music-player-position', JSON.stringify({ x: xOffset, y: yOffset }));
+        }
+
+        const drag = (e) => {
+            if (active) {
+                e.preventDefault();
+                if (e.type === "touchmove") {
+                    currentX = e.touches[0].clientX - initialX;
+                    currentY = e.touches[0].clientY - initialY;
+                } else {
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                }
+                xOffset = currentX;
+                yOffset = currentY;
+                setTranslate(currentX, currentY, musicPlayerContainer);
+            }
+        }
+
+        musicDragHandle.addEventListener('mousedown', dragStart, false);
+        musicDragHandle.addEventListener('touchstart', dragStart, false);
+        document.addEventListener('mouseup', dragEnd, false);
+        document.addEventListener('touchend', dragEnd, false);
+        document.addEventListener('mousemove', drag, false);
+        document.addEventListener('touchmove', drag, false);
+    }
   }
   // end bindEvents();
 
