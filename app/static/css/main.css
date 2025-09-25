@@ -32,6 +32,8 @@
     --accent-bg: #2B2B2B;
     --border: #666;
     --node-bg: #191919;
+    --graph-bg: #222;
+    --links-bg: #222;
     --subnode-bg: #303030;
     --subnode-text-color: #cfcfcf;
     --pulled-pushed-bg: #101010;
@@ -63,6 +65,8 @@
     --accent-bg: #F5F7FF;
     --border: #D8DAE1;
     --node-bg: #f0f0f0;
+    --graph-bg: #fdfdfd;
+    --links-bg: #fdfdfd;
     --subnode-bg: #f8f8f8;
     --subnode-text-color: #000;
     --pulled-pushed-bg: #fdfdfd;
@@ -387,10 +391,6 @@ summary, #footer {
     justify-content: space-between;
     -ms-overflow-style: none;
     scrollbar-width: none;
-}
-
-#footer {
-    display: flex;
 }
 
 .navigation::-webkit-scrollbar {
@@ -1248,6 +1248,9 @@ input:checked + .slider:before {
 .context-flex {
     display: flex;
     flex-direction: column; /* Mobile-first: stack them by default */
+    gap: 10px;
+    position: relative; /* For positioning the toggle button */
+    padding-top: 10px;
 }
 
 .context-flex .graph-container {
@@ -1258,11 +1261,19 @@ input:checked + .slider:before {
 .links {
     width: 100%;
     order: 2; /* Links come second */
+    background-color: var(--links-bg);
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* This will center the content vertically */
+    gap: 20px; /* Add some space between the link lists */
 }
 
 @media screen and (min-width: 48em) {
     .context-flex {
         flex-direction: row; /* Side-by-side on desktop */
+        align-items: stretch; /* Make boxes the same height */
     }
 
     .context-flex .graph-container {
@@ -1276,6 +1287,9 @@ input:checked + .slider:before {
 
 .graph-container {
     position: relative;
+    background-color: var(--graph-bg);
+    padding: 10px;
+    border-radius: 8px;
 }
 
 #graph {
@@ -1290,9 +1304,10 @@ input:checked + .slider:before {
 
 #graph-toggle-labels {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
+    top: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
     padding: 3px 6px;
+    z-index: 1; /* Ensure it's above the graph */
 }
 
 .ai-provider-tab, .wiki-provider-tab, .web-provider-tab, .graph-size-tab {

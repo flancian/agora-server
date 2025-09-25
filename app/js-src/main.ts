@@ -1982,7 +1982,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Music player logic
     const musicPlayerContainer = document.getElementById('music-player-container');
-    const musicCheckbox = document.getElementById('music-checkbox') as HTMLInputElement;
+    const musicCheckboxes = document.querySelectorAll(".music-checkbox-input") as NodeListOf<HTMLInputElement>;
     const musicCloseButton = document.getElementById('music-player-close-btn');
     let musicPlayer = null;
 
@@ -1996,7 +1996,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const setMusicState = (isPlaying: boolean) => {
         localStorage.setItem("ambient-music-active", JSON.stringify(isPlaying));
-        musicCheckbox.checked = isPlaying;
+        musicCheckboxes.forEach(checkbox => {
+            checkbox.checked = isPlaying;
+        });
 
         if (isPlaying) {
             // Only show the player if it wasn't manually closed.
@@ -2041,17 +2043,18 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     };
 
-    if (musicCheckbox) {
+    if (musicCheckboxes.length > 0) {
         const isMusicActive = JSON.parse(localStorage.getItem("ambient-music-active") || 'false');
         setMusicState(isMusicActive);
 
-        musicCheckbox.addEventListener('change', () => {
-            const isPlaying = musicCheckbox.checked;
-            // When the user toggles the music on, always show the player.
-            if (isPlaying) {
-                localStorage.setItem("music-player-visible", "true");
-            }
-            setMusicState(isPlaying);
+        musicCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const isPlaying = checkbox.checked;
+                if (isPlaying) {
+                    localStorage.setItem("music-player-visible", "true");
+                }
+                setMusicState(isPlaying);
+            });
         });
 
         musicCloseButton?.addEventListener('click', () => {
