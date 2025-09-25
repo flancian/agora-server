@@ -18,18 +18,19 @@
     {% if subnode %}
         To see links, go up to full node <a href="/{{node.qstr}}">[[{{node.uri}}]]</a>.
     {% else %}
-
         <div class="links-flex">
-            <div class="backlinks">
-                <span class="backlinks-header">← Backlinks</span><br />
-            {% if node.back_nodes %}
-                {% for n in node.back_nodes() %}
-                <span class="node-name"><a href="/{{n.uri}}">{{n.description}}</a></span><br />
-                {% endfor %}
-            {% else %}
-                (none)
-            {% endif %}
-            <br />
+            <div class="link-list-wrapper">
+                <div class="backlinks">
+                    <span class="backlinks-header">← Backlinks</span><br />
+                {% if node.back_nodes %}
+                    {% for n in node.back_nodes() %}
+                    <span class="node-name"><a href="/{{n.uri}}">{{n.description}}</a></span><br />
+                    {% endfor %}
+                {% else %}
+                    (none)
+                {% endif %}
+                <br />
+                </div>
             </div>
 
             <!--
@@ -59,19 +60,20 @@
             </div>
             -->
 
-            <div class="forwardlinks">
-            <span class="forwardlinks-header">Outlinks →</span><br />
-            {% if node.forward_nodes %}
-                {% for n in node.forward_nodes() %}
-                <span class="node-name"><a href="/{{n.uri}}">{{n.description}}</a></span><br />
-                {% endfor %}
-            {% else %}
-                (none)
-            {% endif %}
-            <br />
+            <div class="link-list-wrapper">
+                <div class="forwardlinks">
+                <span class="forwardlinks-header">Outlinks →</span><br />
+                {% if node.forward_nodes %}
+                    {% for n in node.forward_nodes() %}
+                    <span class="node-name"><a href="/{{n.uri}}">{{n.description}}</a></span><br />
+                    {% endfor %}
+                {% else %}
+                    (none)
+                {% endif %}
+                <br />
+                </div>
             </div>
         </div>
-
     {% endif %}
 </div>
 

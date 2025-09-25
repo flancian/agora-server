@@ -816,8 +816,12 @@ details > summary {
 }
 
 .backlinks, .forwardlinks {
-    width: 50%;
-    overflow: auto;
+    flex: 1;
+}
+
+.link-list-wrapper {
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .pushlinks, .pulllinks {
@@ -1055,6 +1059,8 @@ table caption {
 .links-flex {
     display: flex;
     flex-direction: row;
+    width: 90%;
+    justify-content: space-evenly;
 }
 
 .overlay-content {
@@ -1106,6 +1112,27 @@ table caption {
     flex-shrink: 0;
 }
 
+.settings-switch {
+    display: inline-block;
+    height: 24px;
+    position: relative;
+    width: 50px;
+    flex-shrink: 0;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
 .toggle-container {
     display: flex;
     align-items: center;
@@ -1150,6 +1177,10 @@ table caption {
     content: "🔇"; /* Muted Speaker */
 }
 
+.settings-switch .slider:before {
+    content: "❌"; /* Off */
+}
+
 input:checked + .slider {
     background-color: #377ba8;
 }
@@ -1165,6 +1196,10 @@ input:checked + .slider:before {
 
 .music-switch input:checked + .slider:before {
     content: "🎵"; /* Musical Note */
+}
+
+.settings-switch input:checked + .slider:before {
+    content: "✔️"; /* On */
 }
 
 #demo-timer {
