@@ -932,7 +932,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                   const player = new MidiPlayer.Player(function (event) {
                       if (event.name === 'Note on' && event.velocity > 0) {
-                          const note = instrument.play(event.noteName, ac.currentTime, { gain: event.velocity / 100 });
+                          const note = instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 5 });
                           activeNotes[event.noteNumber] = note;
                       } else if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
                           if (activeNotes[event.noteNumber]) {
@@ -2014,7 +2014,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                         const activeNotes = {};
                         const player = new MidiPlayer.Player(function (event) {
                             if (event.name === 'Note on' && event.velocity > 0) {
-                                const note = instrument.play(event.noteName, ac.currentTime, { gain: event.velocity / 100 });
+                                const note = instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 5 });
                                 activeNotes[event.noteNumber] = note;
                             } else if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
                                 if (activeNotes[event.noteNumber]) {
