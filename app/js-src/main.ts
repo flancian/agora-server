@@ -673,7 +673,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 960) {
       // Mobile layout: [Search Input] [Toggles] [Scroll]
       searchContainer.appendChild(toggleContainer);
       searchContainer.appendChild(scrollToggle);

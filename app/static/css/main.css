@@ -279,7 +279,7 @@ details[open] > :not(summary) {
     }
 }
 
-@media screen and (max-width: 48em) {
+@media screen and (max-width: 60em) {
     iframe {
         max-height: 35em;
     }
@@ -298,7 +298,7 @@ details[open] > :not(summary) {
     border: 1px solid #ccc;
 }
 
-@media (min-width: 48em) {
+@media (min-width: 60em) {
     .container {
         flex-direction: row;
     }
@@ -1075,13 +1075,13 @@ table caption {
     padding-bottom: 80px; /* Extra space at the bottom */
 }
 
-@media (min-width: 48em) {
+@media (min-width: 60em) {
     .overlay-content {
         max-width: 70rem;
     }
 }
 
-@media screen and (max-width: 48em) {
+@media screen and (max-width: 60em) {
     .overlay-content {
         width: 100%;
         border-radius: 0;
@@ -1305,7 +1305,7 @@ input:checked + .slider:before {
     gap: 20px; /* Add some space between the link lists */
 }
 
-@media screen and (min-width: 48em) {
+@media screen and (min-width: 60em) {
     .context-flex {
         flex-direction: row; /* Side-by-side on desktop */
         align-items: stretch; /* Make boxes the same height */
@@ -1549,7 +1549,7 @@ input:checked + .slider:before {
     text-align: center;
 }
 
-@media screen and (max-width: 48em) {
+@media screen and (max-width: 60em) {
     #meditation-popup {
         width: 95%;
         max-height: 85vh;
@@ -1563,7 +1563,7 @@ input:checked + .slider:before {
 }
 
 /* Responsive action bar */
-@media screen and (max-width: 48em) {
+@media screen and (max-width: 60em) {
     .topline-node-wrapper {
         flex-wrap: wrap;
     }
