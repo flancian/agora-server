@@ -660,7 +660,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // end code from Claude Sonnet 3.5.
 
   // Responsive navbar rearrangement
-  const rearrangeNavbar = () => {
+  const setupNavbarLayoutEngine = () => {
     const toggleContainer = document.querySelector('.toggle-container');
     const searchButton = document.getElementById('mini-cli-exec');
     const scrollToggle = document.getElementById('scroll-toggle');
@@ -673,28 +673,27 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    if (window.innerWidth <= 960) {
-      // Mobile layout: [Search Input] [Toggles] [Scroll]
-      searchContainer.appendChild(toggleContainer);
-      searchContainer.appendChild(scrollToggle);
-      // Move search button to the beginning of the action bar
-      actionBar.insertBefore(searchButton, actionBar.firstChild);
-    } else {
-      // Desktop layout
-      // Move toggles back to the top nav
-      wideToggleContainer.appendChild(toggleContainer);
-      // Move search button back to the search container
-      searchContainer.insertBefore(searchButton, searchContainer.firstChild);
-      // Move scroll toggle back to the action bar
-      actionBar.appendChild(scrollToggle);
-    }
+    const mediaQuery = window.matchMedia('(max-width: 60em)');
+
+    const handleLayoutChange = (e: MediaQueryListEvent | MediaQueryList) => {
+        if (e.matches) {
+            // Mobile layout
+            searchContainer.appendChild(toggleContainer);
+            searchContainer.appendChild(scrollToggle);
+            actionBar.insertBefore(searchButton, actionBar.firstChild);
+        } else {
+            // Desktop layout
+            wideToggleContainer.appendChild(toggleContainer);
+            searchContainer.insertBefore(searchButton, searchContainer.firstChild);
+            actionBar.appendChild(scrollToggle);
+        }
+    };
+
+    mediaQuery.addEventListener('change', handleLayoutChange);
+    handleLayoutChange(mediaQuery); // Initial check
   };
 
-  // Initial placement
-  rearrangeNavbar();
-
-  // Re-evaluate on resize
-  window.addEventListener('resize', rearrangeNavbar);
+  setupNavbarLayoutEngine();
 
   // Scroll hints for horizontally scrollable elements
   const handleScrollHints = () => {
