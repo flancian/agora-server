@@ -35,6 +35,7 @@ import { makeDraggable } from './draggable';
 import { initDemoMode } from './demo';
 import { initMusicPlayer } from './music';
 import { renderGraph } from './graph';
+import { initPullButtons } from './pull';
 
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
@@ -922,103 +923,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // end async content code.
 
-    // pull nodes from the [[agora]]
-    // pull-node are high-ranking (above the 'fold' of context), .pull-related-node are looser links below.
-    document.querySelectorAll(".pull-node").forEach(element => {
-      element.addEventListener("click", function (e) {
-      let node = this.value;
-
-      if (this.classList.contains('pulled')) {
-        // already pulled.
-        document.querySelector(`#${node}.pulled-node-embed`).innerHTML = '';
-        this.innerText = 'pull';
-        this.classList.remove('pulled');
-      } else {
-        this.innerText = 'pulling';
-        console.log('pulling node');
-        // now with two methods! you can choose the simpler/faster one (just pulls static content) or the nerdy one (recursive) in settings.
-        if (pullRecursive) {
-        document.querySelector(`#${node}.pulled-node-embed`).innerHTML = `<iframe src="${AGORAURL}/embed/${node}" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>`;
-        } else {
-        fetch(`${AGORAURL}/pull/${node}`)
-          .then(response => response.text())
-          .then(data => {
-          document.querySelector(`#${node}.pulled-node-embed`).innerHTML = data;
-          });
-        }
-        this.innerText = 'fold';
-        this.classList.add('pulled');
-      }
-      });
-    });
-
-    // pull arbitrary URL
-    document.querySelectorAll(".pull-url").forEach(element => {
-      element.addEventListener("click", function (e) {
-      console.log("in pull-url!");
-      if (this.classList.contains('pulled')) {
-        // already pulled.
-        this.innerText = 'pull';
-        this.nextElementSibling.remove();
-        this.classList.remove('pulled');
-      } else {
-        // pull.
-        this.innerText = 'pulling';
-        let url = this.value;
-        console.log('pull url : ' + url);
-        const iframe = document.createElement('iframe');
-        iframe.className = 'stoa2-iframe';
-        iframe.setAttribute('allow', 'camera; microphone; fullscreen; display-capture; autoplay');
-        iframe.src = url;
-        this.after(iframe);
-        this.innerText = 'fold';
-        this.classList.add('pulled');
-      }
-      });
-    });
-
-    document.querySelectorAll(".pull-tweet").forEach(element => {
-      element.addEventListener("click", function (e) {
-      if (this.classList.contains('pulled')) {
-        const div = this.nextElementSibling;
-        div.remove();
-        this.innerText = 'pull';
-        this.classList.remove('pulled');
-      } else {
-        this.innerText = 'pulling';
-        let tweet = this.value;
-        const blockquote = document.createElement('blockquote');
-        blockquote.className = 'twitter-tweet';
-        blockquote.setAttribute('data-theme', 'dark');
-        blockquote.innerHTML = `<a href="${tweet}"></a>`;
-        this.after(blockquote);
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = "https://platform.twitter.com/widgets.js";
-        script.charset = "utf-8";
-        this.after(script);
-        this.classList.add('pulled');
-        this.innerText = 'fold';
-      }
-      });
-    });
-
-    // pull a mastodon status (toot) using the roughly correct way IIUC.
-    document.querySelectorAll(".pull-mastodon-status").forEach(element => {
-      element.addEventListener("click", function (e) {
-      if (this.classList.contains('pulled')) {
-        const div = this.nextElementSibling;
-        div.remove();
-        this.innerText = 'pull';
-        this.classList.remove('pulled');
-      } else {
-        this.innerText = 'pulling';
-        statusContent(this);
-        this.classList.add('pulled');
-        this.innerText = 'fold';
-      }
-      });
-    });
+    initPullButtons();
 
     // pull a pleroma status (toot) using the laziest way I found, might be a better one
     document.querySelectorAll(".pull-pleroma-status").forEach(element => {
