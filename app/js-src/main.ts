@@ -159,7 +159,7 @@ const CLIENT_DEFAULTS = {
   showGraphLabels: true,
   showHypothesis: false,
   autoExpandStoas: false,
-  demoTimeoutSeconds: '10',
+  demoTimeoutSeconds: '17',
   showEditSection: false,
 };
 
