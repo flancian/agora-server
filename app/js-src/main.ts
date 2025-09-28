@@ -16,45 +16,7 @@
 import { initializeStars } from './starring';
 
 
-/**
- * Darkens a hex color by a given percentage.
- * @param {string} color - The hex color code (e.g., "#RRGGBB").
- * @param {number} percent - The percentage to darken by (0 to 100).
- * @returns {string} The new, darkened hex color code.
- */
-function darkenColor(color, percent) {
-    // If color is invalid, return a default fallback.
-    if (typeof color !== 'string' || !color) {
-        return '#000000';
-    }
 
-    // Ensure the color starts with a hash
-    if (color.startsWith('#')) {
-        color = color.slice(1);
-    }
-
-    // Parse the R, G, B values
-    const num = parseInt(color, 16);
-    let r = (num >> 16);
-    let g = (num >> 8) & 0x00FF;
-    let b = num & 0x0000FF;
-
-    // Apply the darkening percentage
-    const factor = 1 - (percent / 100);
-    r = Math.round(r * factor);
-    g = Math.round(g * factor);
-    b = Math.round(b * factor);
-
-    // Ensure values are within the 0-255 range
-    r = Math.max(0, Math.min(255, r));
-    g = Math.max(0, Math.min(255, g));
-    b = Math.max(0, Math.min(255, b));
-
-    // Convert back to a hex string and pad with zeros if needed
-    const darkened = `#${(g | (b << 8) | (r << 16)).toString(16).padStart(6, '0')}`;
-    
-    return darkened;
-}
 
 
 // these define default dynamic behaviour client-side, based on local storage preferences.
@@ -68,10 +30,11 @@ const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
 import { initializeStars } from './starring';
 import { initSettings } from './settings';
-import { safeJsonParse } from './util';
+import { safeJsonParse, darkenColor } from './util';
 import { makeDraggable } from './draggable';
 import { initDemoMode } from './demo';
 import { initMusicPlayer } from './music';
+import { renderGraph } from './graph';
 
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
@@ -1452,108 +1415,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
   }
   
-	async function renderGraph(containerId: string, dataUrl: string) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-  
-      // Clear previous graph if any
-      container.innerHTML = '';
-  
-      const darkPalette = {
-          bg: 'rgba(0, 0, 0, 0)', // Transparent background
-          edge: 'rgba(150, 150, 150, 1)',
-          particle: 'rgba(150, 150, 150, 0.4)',
-          text: '#bfbfbf',
-          nodeBg: 'rgba(50, 50, 50, 1)'
-      };
-  
-      const lightPalette = {
-          bg: 'rgba(0, 0, 0, 0)', // Transparent background
-          edge: 'rgba(50, 50, 50, 1)',
-          particle: 'rgba(50, 50, 50, 0.4)',
-          text: '#000000',
-          nodeBg: '#f0f0f0'
-      };
-  
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-      const palette = currentTheme === 'dark' ? darkPalette : lightPalette;
-  
-      // Default to labels for per-node graph, no labels for full graph.
-      const defaultShowLabels = containerId === 'graph';
-      const storageKey = containerId === 'full-graph' ? 'graph-show-labels-full' : 'graph-show-labels';
-      const showLabels = safeJsonParse(localStorage.getItem(storageKey), defaultShowLabels);
-  
-      console.log("loading graph...")
-      fetch(dataUrl)
-      .then(res => res.json())
-      .then(data => {
-          setTimeout(() => {
-              const Graph = ForceGraph()(container);
-              const graphContainer = container.closest('.graph-container');
-  
-              // Give larger graphs more time to stabilize.
-              const cooldownTime = data.nodes.length > 200 ? 25000 : 5000;
-  
-              Graph.height((graphContainer as HTMLElement).getBoundingClientRect().height)
-                  .width(container.getBoundingClientRect().width)
-                  .backgroundColor(palette.bg)
-                  .onNodeClick(node => {
-                      let url = (node as any).id;
-                      location.assign(url)
-                  })
-                  .graphData(data)
-                  .nodeId('id')
-                  .nodeVal('val')
-                  .nodeAutoColorBy('group');
-  
-              if (showLabels) {
-                  Graph.nodeCanvasObject((node, ctx, globalScale) => {
-                      const label = (node as any).name;
-                      const fontSize = 12 / globalScale;
-                      ctx.font = `${fontSize}px Sans-Serif`;
-                      const textWidth = ctx.measureText(label).width;
-                      const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
-  
-                      ctx.fillStyle = palette.nodeBg;
-                      ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
-  
-                      ctx.textAlign = 'center';
-                      ctx.textBaseline = 'middle';
-  
-                      // Theme-aware node colors.
-                      let color = (node as any).color;
-                      if (currentTheme === 'light') {
-                          // simple heuristic to darken colors for light theme.
-                          color = darkenColor(color, 40);
-                      }
-                      ctx.fillStyle = color;
-                      ctx.fillText(label, (node as any).x, (node as any).y);
-  
-                      (node as any).__bckgDimensions = bckgDimensions;
-                  })
-                  .nodePointerAreaPaint((node, color, ctx) => {
-                      ctx.fillStyle = color;
-                      const bckgDimensions = (node as any).__bckgDimensions;
-                      bckgDimensions && ctx.fillRect((node as any).x - bckgDimensions[0] / 2, (node as any).y - bckgDimensions[1] / 2, ...bckgDimensions);
-                  });
-              } else {
-                  // In no-label mode, make the nodes smaller.
-                  Graph.nodeRelSize(2);
-              }
-  
-              Graph.linkDirectionalArrowLength(3)
-                  .linkDirectionalParticles(1)
-                  .linkDirectionalParticleSpeed(0.005)
-                  .linkDirectionalParticleColor(() => palette.particle)
-                  .linkColor(() => palette.edge);
-  
-              Graph.zoom(3);
-              Graph.cooldownTime(cooldownTime);
-              Graph.onEngineStop(() => Graph.zoomToFit(100));
-          }, 0);
-      })
-      .catch(error => console.error('Error fetching or rendering graph:', error));
-    }
+	
 
 
   // go to the specified URL

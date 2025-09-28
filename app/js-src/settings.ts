@@ -2,9 +2,9 @@
 // app/js-src/settings.ts
 
 import { CLIENT_DEFAULTS, safeJsonParse } from './util';
+import { renderGraph } from './graph';
 
 declare const NODENAME: string;
-declare function renderGraph(containerId: string, dataUrl: string): void;
 
 export function initSettings() {
     // set values from storage
