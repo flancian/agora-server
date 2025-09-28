@@ -1127,7 +1127,7 @@ table caption {
 
 .settings-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
 }
 
@@ -1206,6 +1206,7 @@ input:checked + .slider:before {
 .settings-switch input:checked + .slider:before {
     content: "✔️"; /* On */
 }
+
 
 #demo-timer {
     position: absolute;
@@ -1491,11 +1492,10 @@ input:checked + .slider:before {
     to { opacity: 1; }
 }
 
-/* Music Player Styles */
 #music-player-container {
     position: fixed;
-    top: 10%;
-    left: 10%;
+    bottom: 20px;
+    right: 20px;
     z-index: 1001;
     display: none;
     animation: fadeIn 0.3s ease-in-out;

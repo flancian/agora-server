@@ -278,12 +278,36 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   document.getElementById("auto-pull-search")?.addEventListener('change', (e) => {
-    localStorage["auto-pull-search"] = (e.target as HTMLInputElement).checked;
-    location.reload();
+    const isChecked = (e.target as HTMLInputElement).checked;
+    localStorage["auto-pull-search"] = isChecked;
+    document.querySelectorAll("details.search").forEach(function (element) {
+        const summary = element.querySelector('summary');
+        if (summary) {
+            const isOpen = (element as HTMLDetailsElement).open;
+            if (isChecked && !isOpen) {
+                summary.click();
+            } else if (!isChecked && isOpen) {
+                summary.click();
+            }
+        }
+    });
   });
   document.getElementById("auto-pull-wikipedia")?.addEventListener('change', (e) => {
-    localStorage["auto-pull-wikipedia"] = (e.target as HTMLInputElement).checked;
-    location.reload();
+    const isChecked = (e.target as HTMLInputElement).checked;
+    localStorage["auto-pull-wikipedia"] = isChecked;
+    // The container is #wp-wt-container, the details element has class .wiki
+    const wikipediaDetails = document.querySelector("details.wiki");
+    if (wikipediaDetails) {
+        const summary = wikipediaDetails.querySelector('summary');
+        if (summary) {
+            const isOpen = (wikipediaDetails as HTMLDetailsElement).open;
+            if (isChecked && !isOpen) {
+                summary.click();
+            } else if (!isChecked && isOpen) {
+                summary.click();
+            }
+        }
+    }
   });
   document.getElementById("show-brackets")?.addEventListener('change', (e) => {
     localStorage["showBrackets"] = (e.target as HTMLInputElement).checked;
@@ -311,8 +335,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   document.getElementById("auto-expand-stoas")?.addEventListener('change', (e) => {
-    localStorage["auto-expand-stoas"] = (e.target as HTMLInputElement).checked;
-    location.reload();
+    const isChecked = (e.target as HTMLInputElement).checked;
+    localStorage["auto-expand-stoas"] = isChecked;
+    document.querySelectorAll("details.stoa").forEach(function (element) {
+        (element as HTMLDetailsElement).open = isChecked;
+    });
   });
 
   document.getElementById("demo-timeout-seconds")?.addEventListener('change', (e) => {
@@ -834,8 +861,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
   };
 
-  let activeMidiPlayer = null;
-
   const showPopup = () => {
       const messages = [
           "The [[Agora]] is a [[Free Knowledge Commons]]. What will you contribute?",
@@ -878,11 +903,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   };
 
   const hidePopup = () => {
-      if (activeMidiPlayer) {
-          activeMidiPlayer.stop();
-          activeMidiPlayer = null;
-          console.log("MIDI playback stopped.");
-      }
       meditationPopupContainer.classList.remove('active');
   };
 
@@ -922,40 +942,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           hidePopup();
           return;
       }
-
-      // Dynamically import the audio libraries only when the button is clicked.
-      import('soundfont-player').then(({ default: Soundfont }) => {
-          import('midi-player-js').then(({ default: MidiPlayer }) => {
-              const ac = new AudioContext();
-              Soundfont.instrument(ac, 'acoustic_grand_piano').then(function (instrument) {
-                  const activeNotes = {}; // A map to store currently playing notes
-
-                  const player = new MidiPlayer.Player(function (event) {
-                      if (event.name === 'Note on' && event.velocity > 0) {
-                          const note = instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 5 });
-                          activeNotes[event.noteNumber] = note;
-                      } else if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
-                          if (activeNotes[event.noteNumber]) {
-                              activeNotes[event.noteNumber].stop();
-                              delete activeNotes[event.noteNumber];
-                          }
-                      }
-                  });
-                  activeMidiPlayer = player; // Store the player instance
-
-                  fetch('/static/mid/burup.mid')
-                    .then(response => response.arrayBuffer())
-                    .then(arrayBuffer => {
-                        const base64 = btoa(new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
-                        const dataUri = `data:audio/midi;base64,${base64}`;
-                        player.loadDataUri(dataUri);
-                        player.play();
-                        console.log("MIDI playback started.");
-                    })
-                    .catch(error => console.error('Error loading MIDI file:', error));
-              });
-          });
-      }).catch(error => console.error('Error loading audio libraries:', error));
 
       // If the demo is running, cancel it before showing the popup.
       const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
@@ -2057,8 +2043,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
 
         musicCloseButton?.addEventListener('click', () => {
-            musicPlayerContainer.classList.remove('active');
-            localStorage.setItem("music-player-visible", "false");
+            // This will turn off the music, uncheck the toggles, and hide the player.
+            setMusicState(false);
         });
     }
 
@@ -2275,6 +2261,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       const darkPalette = {
           bg: 'rgba(0, 0, 0, 0)', // Transparent background
           edge: 'rgba(150, 150, 150, 1)',
+          particle: 'rgba(150, 150, 150, 0.4)',
           text: '#bfbfbf',
           nodeBg: 'rgba(50, 50, 50, 1)'
       };
@@ -2282,6 +2269,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       const lightPalette = {
           bg: 'rgba(0, 0, 0, 0)', // Transparent background
           edge: 'rgba(50, 50, 50, 1)',
+          particle: 'rgba(50, 50, 50, 0.4)',
           text: '#000000',
           nodeBg: '#f0f0f0'
       };
@@ -2353,6 +2341,9 @@ document.addEventListener("DOMContentLoaded", async function () {
               }
   
               Graph.linkDirectionalArrowLength(3)
+                  .linkDirectionalParticles(1)
+                  .linkDirectionalParticleSpeed(0.005)
+                  .linkDirectionalParticleColor(() => palette.particle)
                   .linkColor(() => palette.edge);
   
               Graph.zoom(3);

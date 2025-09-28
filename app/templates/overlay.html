@@ -26,30 +26,28 @@
 
 		<div>
 			<h2>Settings</h2>
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                <label class="theme-switch" for="theme-checkbox-overlay">
-                    <input type="checkbox" id="theme-checkbox-overlay" class="theme-checkbox-input" />
-                    <div class="slider round"></div>
-                </label>
-                <label for="theme-checkbox-overlay">Theme</label>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                <label class="music-switch" for="music-checkbox-overlay">
-                    <input type="checkbox" id="music-checkbox-overlay" class="music-checkbox-input" />
-                    <div class="slider round"></div>
-                </label>
-                <label for="music-checkbox-overlay">Ambient Music</label>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                <label class="demo-switch" for="demo-checkbox-overlay">
-                    <input type="checkbox" id="demo-checkbox-overlay" class="demo-checkbox-input" />
-                    <div class="slider round"></div>
-                </label>
-                <label for="demo-checkbox-overlay">Demo Mode (enables random navigation)</label>
-            </div>
-			<p>
-
-			<div class="settings-grid">
+            <div class="settings-grid">
+				<div class="settings-item">
+					<label class="theme-switch" for="theme-checkbox-overlay">
+						<input type="checkbox" id="theme-checkbox-overlay" class="theme-checkbox-input" />
+						<div class="slider round"></div>
+					</label>
+					<label for="theme-checkbox-overlay">Theme</label>
+				</div>
+				<div class="settings-item">
+					<label class="music-switch" for="music-checkbox-overlay">
+						<input type="checkbox" id="music-checkbox-overlay" class="music-checkbox-input" />
+						<div class="slider round"></div>
+					</label>
+					<label for="music-checkbox-overlay">Ambient Music</label>
+				</div>
+				<div class="settings-item">
+					<label class="demo-switch" for="demo-checkbox-overlay">
+						<input type="checkbox" id="demo-checkbox-overlay" class="demo-checkbox-input" />
+						<div class="slider round"></div>
+					</label>
+					<label for="demo-checkbox-overlay">Demo Mode (enables random navigation)</label>
+				</div>
 				<div class="settings-item">
 					<label class="settings-switch" for="auto-pull-wikipedia">
 						<input id="auto-pull-wikipedia" type="checkbox" />
@@ -62,7 +60,7 @@
 						<input id="auto-pull-search" type="checkbox" />
 						<div class="slider round"></div>
 					</label>
-					<label for="auto-pull-search">Auto-embed search results</label>
+					<label for="auto-pull-search">Auto-embed full text search</label>
 				</div>
 				<div class="settings-item">
 					<label class="settings-switch" for="auto-expand-stoas">
@@ -97,7 +95,7 @@
 						<input id="show-edit-section" type="checkbox" />
 						<div class="slider round"></div>
 					</label>
-					<label for="show-edit-section">Show edit section</label>
+					<label for="show-edit-section">Show edit section (experimental)</label>
 				</div>
 			</div>
 
