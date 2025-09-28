@@ -6,6 +6,7 @@
 - The user appreciates creative language like metaphors and poetry, but prefers technical explanations to be direct. I should use metaphors judiciously and avoid over-explaining simple concepts.
 - The user prefers JavaScript logic to be in `main.ts` rather than in inline `<script>` tags. I should follow this convention.
 - Always run `npm run build` after modifying any `.ts` files in `app/js-src/` to compile the changes.
+- The user prefers to keep `main.ts` as a thin orchestrator. Self-contained features (e.g., settings, demo mode, music player) should be extracted into their own modules in `app/js-src/` to keep the codebase organized.
 --- End of Context from: ../.gemini/GEMINI.md ---
 
 --- Context from: GEMINI.md ---
