@@ -1657,3 +1657,64 @@ input:checked + .slider:before {
     font-weight: bold;
     color: var(--link-color);
 }
+
+/* Mastodon Embed Styles */
+.mastodon-embed-container {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    font-family: sans-serif;
+    max-width: 500px;
+}
+
+.mastodon-embed-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.mastodon-embed-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 1rem;
+}
+
+.mastodon-embed-author {
+    display: flex;
+    flex-direction: column;
+}
+
+.mastodon-embed-author span {
+    color: var(--text-color-light);
+}
+
+.mastodon-embed-content p {
+    margin-top: 0;
+}
+
+.mastodon-embed-media {
+    margin-top: 1rem;
+}
+
+.mastodon-embed-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.mastodon-embed-footer {
+    margin-top: 1rem;
+    font-size: 0.9em;
+}
+
+.mastodon-embed-footer a {
+    color: var(--text-color-light);
+    text-decoration: none;
+}
+
+.mastodon-embed-footer a:hover {
+    text-decoration: underline;
+}

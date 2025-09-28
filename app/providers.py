@@ -72,7 +72,7 @@ def gemini_complete(prompt):
 
         genai.configure(api_key=api_key)
         # Updated to a more recent model, as seen in other parts of the code.
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
 
         enriched_prompt = current_app.config['AI_PROMPT'] + prompt
         

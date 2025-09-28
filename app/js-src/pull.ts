@@ -1,4 +1,3 @@
-
 // app/js-src/pull.ts
 
 // This is the legacy pull-node logic.
@@ -43,6 +42,41 @@ function pullTweet(button: HTMLButtonElement) {
     button.after(script);
 }
 
+function renderMastodonPost(post: any): string {
+    const date = new Date(post.created_at).toLocaleString();
+    let media = '';
+    if (post.media_attachments.length > 0) {
+        media = post.media_attachments.map((attachment: any) => {
+            if (attachment.type === 'image') {
+                return `<a href="${attachment.url}" target="_blank"><img src="${attachment.preview_url}" alt="${attachment.description || 'Mastodon image'}" class="mastodon-embed-image"></a>`;
+            }
+            return '';
+        }).join('');
+    }
+
+    return `
+        <div class="mastodon-embed-container">
+            <div class="mastodon-embed-header">
+                <img src="${post.account.avatar}" class="mastodon-embed-avatar">
+                <div class="mastodon-embed-author">
+                    <strong>${post.account.display_name}</strong>
+                    <span>@${post.account.acct}</span>
+                </div>
+            </div>
+            <div class="mastodon-embed-content">
+                ${post.content}
+            </div>
+            <div class="mastodon-embed-media">
+                ${media}
+            </div>
+            <div class="mastodon-embed-footer">
+                <a href="${post.url}" target="_blank">${date}</a>
+            </div>
+        </div>
+    `;
+}
+
+
 async function pullMastodonStatus(button: HTMLButtonElement) {
     const toot = button.value;
     let domain, post;
@@ -64,14 +98,11 @@ async function pullMastodonStatus(button: HTMLButtonElement) {
         const req = `${domain}/api/v1/statuses/${post}`;
         const response = await fetch(req);
         const data = await response.json();
-        const actual_url = data['url'];
-
-        const oembed_req = `${domain}/api/oembed?url=${actual_url}`;
-        const oembedResponse = await fetch(oembed_req);
-        const oembedData = await oembedResponse.json();
-        button.insertAdjacentHTML('afterend', oembedData['html']);
+        const embedHTML = renderMastodonPost(data);
+        button.insertAdjacentHTML('afterend', embedHTML);
     } catch (error) {
         console.error('Error fetching Mastodon status:', error);
+        button.insertAdjacentHTML('afterend', '<div class="error">Could not load Mastodon post.</div>');
     }
 }
 
