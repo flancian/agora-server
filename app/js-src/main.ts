@@ -780,6 +780,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // This function is ONLY for implicit cancellation via user interaction.
   const cancelOnInteraction = (event: Event) => {
+      // A guard clause to ensure the event target is a DOM element.
+      if (!(event.target instanceof Element)) {
+        return;
+      }
       const target = event.target as HTMLElement;
       const demoSwitch = target.closest('.demo-switch');
       const burgerMenu = target.closest('#burger');
