@@ -824,6 +824,10 @@ details > summary {
     overflow-y: auto;
 }
 
+.forwardlinks {
+    text-align: right;
+}
+
 .pushlinks, .pulllinks {
     width: 33%;
     overflow: auto;
@@ -1058,9 +1062,10 @@ table caption {
 
 .links-flex {
     display: flex;
-    flex-direction: row;
-    width: 90%;
-    justify-content: space-evenly;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
 }
 
 .overlay-content {
@@ -1282,26 +1287,26 @@ input:checked + .slider:before {
 
 .context-flex {
     display: flex;
-    flex-direction: column; /* Mobile-first: stack them by default */
+    flex-direction: row; /* Mobile-first: stack them by default */
     gap: 10px;
     position: relative; /* For positioning the toggle button */
     padding-top: 10px;
 }
 
 .context-flex .graph-container {
-    width: 100%;
+    width: 70%;
     order: 1; /* Graph comes first */
 }
 
 .links {
-    width: 100%;
+    width: 30%;
     order: 2; /* Links come second */
     background-color: var(--links-bg);
     padding: 10px;
     border-radius: 8px;
     display: flex;
     justify-content: center;
-    align-items: center; /* This will center the content vertically */
+    align-items: flex-start; /* This will center the content vertically */
     gap: 20px; /* Add some space between the link lists */
 }
 
