@@ -674,7 +674,26 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (endpoint) {
                 try {
                     const response = await fetch(AGORAURL + endpoint + encodeURIComponent(nodeId));
-                    embedDiv.innerHTML = await response.text();
+                    const data = await response.json();
+
+                    // Create a collapsible section for the prompt
+                    const promptDetails = document.createElement('details');
+                    const promptSummary = document.createElement('summary');
+                    promptSummary.textContent = 'View Full Prompt';
+                    promptDetails.appendChild(promptSummary);
+
+                    const promptPre = document.createElement('pre');
+                    promptPre.textContent = data.prompt;
+                    promptDetails.appendChild(promptPre);
+                    
+                    // Clear the spinner and add the new content
+                    embedDiv.innerHTML = '';
+                    embedDiv.appendChild(promptDetails);
+
+                    const answerDiv = document.createElement('div');
+                    answerDiv.innerHTML = data.answer;
+                    embedDiv.appendChild(answerDiv);
+
                     embedDiv.classList.add('visible');
                 } catch (error) {
                     embedDiv.innerHTML = `<p>Error loading content: ${error}</p>`;

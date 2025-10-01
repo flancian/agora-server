@@ -999,16 +999,22 @@ def callback():
 @bp.route("/api/complete/<prompt>")
 def complete(prompt):
     if current_app.config["ENABLE_AI"]:
-        answer = mistral_complete(prompt)
-        return render.markdown(answer)
+        full_prompt, answer = mistral_complete(prompt)
+        if full_prompt is None and "not properly set up" not in answer:
+            # This is likely an old cache entry. Reconstruct a prompt for display.
+            full_prompt = "The prompt for this cached response is not available, but the query was:" + prompt
+        return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
     else:
-        return("<em>This Agora is not AI-enabled yet</em>.")
+        return jsonify({'answer': "<em>This Agora is not AI-enabled yet</em>."})
 
 
 @bp.route("/api/gemini_complete/<prompt>")
 def gemini_complete_route(prompt):
-    answer = gemini_complete(prompt)
-    return render.markdown(answer)
+    full_prompt, answer = gemini_complete(prompt)
+    if full_prompt is None and "not properly set up" not in answer:
+        # This is likely an old cache entry. Reconstruct a prompt for display.
+        full_prompt = "The prompt for this cached response is not available, but the query was:" + prompt
+    return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
 
 @bp.route("/api/random_artifact")
 def random_artifact():

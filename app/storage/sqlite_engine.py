@@ -117,6 +117,13 @@ def create_tables(db):
             # This will fail if the column already exists, which is fine.
             pass
 
+        # Migration: Add the full_prompt column to the ai_generations table if it doesn't exist.
+        try:
+            db.execute("ALTER TABLE ai_generations ADD COLUMN full_prompt TEXT;")
+        except sqlite3.OperationalError:
+            # This will fail if the column already exists, which is fine.
+            pass
+
 def get_subnode_mtime(path):
     """
     Retrieves the last known modification time for a given subnode path.
@@ -178,21 +185,31 @@ def get_backlinking_nodes(node_uri):
 def get_ai_generation(prompt, provider):
     """
     Retrieves a cached AI generation for a given prompt and provider.
-    Returns a tuple of (content, timestamp) or (None, None) if not found.
+    Returns a tuple of (full_prompt, content, timestamp) or (None, None, None) if not found.
+    For backward compatibility, returns (None, content, timestamp) if full_prompt is not in the DB.
     """
     db = get_db()
     if not db:
-        return None, None
+        return None, None, None
     
     cursor = db.cursor()
-    cursor.execute(
-        "SELECT content, timestamp FROM ai_generations WHERE prompt = ? AND provider = ?",
-        (prompt, provider)
-    )
-    result = cursor.fetchone()
-    return (result[0], result[1]) if result else (None, None)
+    try:
+        cursor.execute(
+            "SELECT full_prompt, content, timestamp FROM ai_generations WHERE prompt = ? AND provider = ?",
+            (prompt, provider)
+        )
+        result = cursor.fetchone()
+        return (result[0], result[1], result[2]) if result else (None, None, None)
+    except sqlite3.OperationalError:
+        # Fallback for old schema without full_prompt
+        cursor.execute(
+            "SELECT content, timestamp FROM ai_generations WHERE prompt = ? AND provider = ?",
+            (prompt, provider)
+        )
+        result = cursor.fetchone()
+        return (None, result[0], result[1]) if result else (None, None, None)
 
-def save_ai_generation(prompt, provider, content, timestamp):
+def save_ai_generation(prompt, provider, full_prompt, content, timestamp):
     """
     Saves or updates a cached AI generation.
     """
@@ -203,8 +220,8 @@ def save_ai_generation(prompt, provider, content, timestamp):
     try:
         with db:
             db.execute(
-                "REPLACE INTO ai_generations (prompt, provider, content, timestamp) VALUES (?, ?, ?, ?)",
-                (prompt, provider, content, timestamp)
+                "REPLACE INTO ai_generations (prompt, provider, full_prompt, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (prompt, provider, full_prompt, content, timestamp)
             )
     except sqlite3.OperationalError as e:
         if 'read-only database' in str(e):
