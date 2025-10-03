@@ -346,7 +346,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (e.matches) {
             // Mobile layout
             searchContainer.appendChild(toggleContainer);
-            searchContainer.appendChild(scrollToggle);
+            actionBar.appendChild(scrollToggle);
             actionBar.insertBefore(searchButton, actionBar.firstChild);
         } else {
             // Desktop layout

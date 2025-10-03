@@ -432,6 +432,11 @@ summary, #footer {
     display: none;
 }
 
+#join {
+    margin-right: 0.5em;
+}
+
+
 .navigation, .intro {
     overflow-x: scroll;
     -ms-overflow-style: none;
