@@ -104,6 +104,13 @@ def create_tables(db):
                     value TEXT NOT NULL,
                     timestamp INTEGER NOT NULL
                 );
+            """,
+            'followers': """
+                CREATE TABLE IF NOT EXISTS followers (
+                    user_uri TEXT NOT NULL,
+                    follower_uri TEXT NOT NULL,
+                    PRIMARY KEY (user_uri, follower_uri)
+                );
             """
         }
         # Check all tables in the schema.
@@ -328,3 +335,35 @@ def save_cached_graph(key, value, timestamp):
             pass
         else:
             current_app.logger.error(f"Database write error: {e}")
+
+def add_follower(user_uri, follower_uri):
+    """
+    Adds a follower to a user's list of followers.
+    """
+    db = get_db()
+    if not db:
+        return
+
+    try:
+        with db:
+            db.execute(
+                "INSERT OR IGNORE INTO followers (user_uri, follower_uri) VALUES (?, ?)",
+                (user_uri, follower_uri)
+            )
+    except sqlite3.OperationalError as e:
+        if 'read-only database' in str(e):
+            pass
+        else:
+            current_app.logger.error(f"Database write error while adding follower: {e}")
+
+def get_followers(user_uri):
+    """
+    Retrieves all followers for a given user.
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT follower_uri FROM followers WHERE user_uri = ?", (user_uri,))
+    return [row[0] for row in cursor.fetchall()]

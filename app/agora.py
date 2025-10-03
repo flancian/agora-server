@@ -1099,6 +1099,93 @@ def ap_key_setup():
 		with open('public.pem', 'rb') as fp:
 			g.public_key = RSA.import_key(fp.read())
 
+@bp.route("/u/<user>/inbox", methods=['POST'])
+def user_inbox(user):
+    """Handles incoming ActivityPub activities."""
+    try:
+        activity = request.get_json()
+        if not activity:
+            return "Request is not JSON", 400
+    except Exception as e:
+        current_app.logger.error(f"Could not parse ActivityPub JSON for user {user}: {e}")
+        return "Could not parse JSON", 400
+
+    current_app.logger.info(f"Received activity for user {user}: {json.dumps(activity, indent=2)}")
+
+    if activity.get('type') == 'Follow':
+        actor = activity.get('actor')
+        if not actor or not isinstance(actor, str):
+            return "Invalid actor in Follow activity", 400
+
+        # The user being followed is the one whose inbox this is.
+        user_uri = url_for('.ap_user', username=user, _external=True)
+        
+        # Store the follower relationship.
+        sqlite_engine.add_follower(user_uri, actor)
+        current_app.logger.info(f"User {user_uri} is now followed by {actor}")
+
+        # TODO: Send an Accept activity back to the follower's inbox.
+        # This requires fetching the follower's actor object to find their inbox URL,
+        # and then signing and sending a POST request. This is a non-trivial
+        # task and will be implemented in a subsequent step.
+
+        return jsonify({"status": "success", "action": "follow_accepted"}), 202
+
+    # For now, we only handle Follow.
+    return jsonify({"status": "success", "action": "activity_received"}), 202
+
+
+@bp.route("/u/<user>/outbox")
+def user_outbox(user):
+    """Serves a user's recent subnodes as an ActivityPub OrderedCollection."""
+    
+    # Fetch the user's 20 most recent subnodes.
+    subnodes = api.subnodes_by_user(user, sort_by="mtime", reverse=True)[:20]
+    
+    activities = []
+    for subnode in subnodes:
+        # Construct fully qualified URLs for each object.
+        # The ID of the Create activity itself.
+        activity_id = url_for('.user_outbox', user=user, _external=True) + f'#/{subnode.uri}/{subnode.mtime}'
+        # The ID of the Note object, which is the subnode itself.
+        object_id = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
+        
+        # Format the timestamp to ISO 8601 format as required by ActivityPub.
+        published_time = datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat()
+
+        create_activity = {
+            'id': activity_id,
+            'type': 'Create',
+            'actor': url_for('.ap_user', username=user, _external=True, _scheme='https'),
+            'published': published_time,
+            'to': ['https://www.w3.org/ns/activitystreams#Public'],
+            'cc': [url_for('.ap_user', username=user, _external=True, _scheme='https') + '/followers'],
+            'object': {
+                'id': object_id,
+                'type': 'Note',
+                'published': published_time,
+                'attributedTo': url_for('.ap_user', username=user, _external=True, _scheme='https'),
+                'content': render.markdown(subnode.content),
+                'url': url_for('.root', node=subnode.wikilink, _external=True, _scheme='https'),
+                'to': ['https://www.w3.org/ns/activitystreams#Public'],
+                'cc': [url_for('.ap_user', username=user, _external=True, _scheme='https') + '/followers'],
+            }
+        }
+        activities.append(create_activity)
+
+    outbox_collection = {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        'id': url_for('.user_outbox', user=user, _external=True, _scheme='https'),
+        'type': 'OrderedCollection',
+        'totalItems': len(activities),
+        'orderedItems': activities
+    }
+    
+    r = make_response(jsonify(outbox_collection))
+    r.headers['Content-Type'] = 'application/activity+json'
+    return r
+
+
 @bp.route("/inbox", methods=['POST'])
 def inbox():
     """Reserved."""
@@ -1111,28 +1198,46 @@ def outbox():
 
 @bp.route("/users/<username>")
 def ap_user(username):
-    """TODO: implement."""
+    """Generates an ActivityPub actor profile for a given user."""
 
     ap_key_setup()
-    URI_BASE = current_app.config['URI_BASE']
+    
+    # Try to fetch the user's bio from their garden.
+    bio_subnode = api.subnode_by_uri(f'@{username}/bio')
+    if bio_subnode:
+        summary = bio_subnode.content.strip()
+    else:
+        summary = 'A user in the Agora of Flancia.'
+
+    # Construct fully qualified URLs.
+    user_url = url_for('.user', user=username, _external=True, _scheme='https')
+    actor_url = url_for('.ap_user', username=username, _external=True, _scheme='https')
+    inbox_url = url_for('.user_inbox', user=username, _external=True, _scheme='https')
+    outbox_url = url_for('.user_outbox', user=username, _external=True, _scheme='https')
+    icon_url = url_for('static', filename='img/agora.png', _external=True, _scheme='https')
 
     r = make_response({
         '@context': [
             'https://www.w3.org/ns/activitystreams',
             'https://w3id.org/security/v1',
         ],
-        'id': 'https://' + URI_BASE + f'/users/@{username}',
-        'inbox': 'https://' + URI_BASE + '/inbox',
-        'outbox': 'https://' + URI_BASE + '/outbox',
-        'name': f'@{username}@{URI_BASE}',
-        'preferredUsername': '{username}',
-        'url': 'https://' + URI_BASE + f'/@{username}',
-        'discoverable': True,
+        'id': actor_url,
         'type': 'Person',
-        'summary': 'A user in the Agora of Flancia.',
+        'preferredUsername': username,
+        'name': f'@{username}@{current_app.config["URI_BASE"]}',
+        'summary': summary,
+        'inbox': inbox_url,
+        'outbox': outbox_url,
+        'url': user_url,
+        'discoverable': True,
+        'icon': {
+            'type': 'Image',
+            'mediaType': 'image/png',
+            'url': icon_url
+        },
         'publicKey': {
-            'id': 'https://' + URI_BASE + f'/users/{username}' + '#main-key',
-            'owner': 'https://' + URI_BASE + f'/users/{username}',
+            'id': f'{actor_url}#main-key',
+            'owner': actor_url,
 			'publicKeyPem': g.public_key.exportKey(format='PEM').decode('ascii'),
         }
     })
@@ -1143,28 +1248,38 @@ def ap_user(username):
 @bp.route("/.well-known/webfinger")
 def webfinger():
     resource = request.args.get('resource')
+    
+    if not resource or not resource.startswith('acct:'):
+        return "Invalid resource", 400
 
-    users = api.all_users()
-
-    links = []
-
+    # Extract user@domain from 'acct:user@domain'
+    account = resource[5:]
+    
+    # For now, we only respond to queries for users on this Agora's domain.
     URI_BASE = current_app.config['URI_BASE']
+    if '@' not in account or account.split('@')[1].lower() != URI_BASE.lower():
+        return "User not found on this instance", 404
 
-    for user in users:
-            links.append({'rel': 'self',
-             'href': 'https://' + URI_BASE + '/users/' + f'{user}',
-             'type': 'application/activity+json',
-             'titles': {'und': f'@{user}@{URI_BASE}'},
-             })
-            links.append({'rel': 'http://webfinger.net/rel/profile-page',
-             'href': 'https://' + URI_BASE + '/@' + f'{user}',
-             'type': 'application/activity+json',
-             'titles': {'und': f'@{user}@{URI_BASE}'},
-             })
+    username = account.split('@')[0]
+    
+    # Check if the user actually exists in the Agora.
+    all_usernames = [u.uri for u in api.all_users()]
+    if username not in all_usernames:
+        return "User not found", 404
 
-    # filter down to the actual user requested if any
-    if resource:
-        links = [link for link in links if resource in link['titles']['und']]
+    # If we found the user, generate their links.
+    links = [
+        {
+            'rel': 'self',
+            'href': url_for('.ap_user', username=username, _external=True, _scheme='https'),
+            'type': 'application/activity+json'
+        },
+        {
+            'rel': 'http://webfinger.net/rel/profile-page',
+            'href': url_for('.user', user=username, _external=True, _scheme='https'),
+            'type': 'text/html'
+        }
+    ]
 
     r = make_response({
         'subject': resource,
