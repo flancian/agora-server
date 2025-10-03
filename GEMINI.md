@@ -435,3 +435,62 @@ The protocol is a set of architectural patterns that enable the Agora's vision:
 -   **Nodes are Concepts, Subnodes are Utterances**: A key distinction where abstract topics (`[[Calculus]]`) are composed of concrete contributions (`@user/calculus-notes.md`).
 -   **Composition over Centralization**: Nodes are built by pulling and combining content from other, more specialized nodes (e.g., `[[170]]` pulling from `[[calc/170]]`).
 -   **Everything Has a Place (No 404s)**: Every possible query resolves to a node, turning dead ends into invitations to contribute.
+---
+# Session Summary (Gemini, 2025-09-29)
+
+*This section documents a collaborative debugging session focused on CSS layout, spacing, and JavaScript event handling.*
+
+## Key Learnings & Codebase Insights
+
+-   **CSS Spacing Strategy**: A critical distinction was clarified:
+    -   The main content containers (`.content`, `.async-content`) use `display: flex` with a `gap: 10px` property. This is the **single source of truth** for spacing *between* major, top-level sections (e.g., `.genai`, `.web`, `.stoa`).
+    -   Individual components that can appear in lists *within* a section (like `.subnode` or `.related`) require their own `margin-top` and `margin-bottom` to ensure consistent spacing *among themselves*.
+    -   Attempting to apply a single spacing strategy to both cases leads to bugs like double margins or collapsed margins. The correct approach is to use the parent `gap` for top-level sections and child `margin`s for repeated items within a section.
+-   **Structural Inconsistencies**: Debugging the `.related` nodes revealed that some templates (`related.html`) generate multiple sibling `<details>` elements, while others (`genai.html`) generate a single one. This structural difference explains why the parent `gap` property is insufficient for spacing the multi-element sections.
+-   **JavaScript Event Handling**: Diagnosed and fixed several bugs related to missing or incorrect event listeners for dynamically created popups (Hypothesis, Meditation, Music Player). The key is to ensure the element ID in the HTML template matches the ID being targeted by the `getElementById` call in the corresponding TypeScript module.
+-   **Async UI Pattern**: Implemented a user-friendly loading pattern for asynchronous content (Wikimedia section):
+    1.  An initial placeholder with a "Loading..." message is rendered in the server-side template (`sync.html`).
+    2.  CSS animations (`fade-in`, `fade-out`) are defined in `main.css`.
+    3.  The placeholder is given a `.fade-in` class to appear smoothly.
+    4.  The client-side TypeScript (`main.ts`) fetches the real content, adds a `.fade-out` class to the placeholder, and on the `animationend` event, replaces the content and adds a `.fade-in` class to the new element. This ensures a smooth, non-jarring transition for the user.
+
+## Summary of Changes Implemented
+
+1.  **AI Generations Prompt Display**:
+    -   Modified the Mistral and Gemini API routes to return the full, historically accurate prompt used for a generation.
+    -   Updated the SQLite schema and provider logic to cache the full prompt alongside the answer, ensuring data integrity.
+    -   Updated the frontend to display the prompt in a collapsible `<details>` section.
+2.  **Layout & Spacing Fixes**:
+    -   **Context Section**: Adjusted the CSS to create a 70/30 split between the graph and the links section. The link lists were centered, made to share vertical space equally, and styled with custom scrollbars.
+    -   **Global Spacing**: After a detailed debugging process, the correct spacing model was implemented. The parent containers' `gap` property now handles spacing for all top-level sections, while `.subnode`, `.pulled-node`, and `.related` elements have their own margins to ensure consistent spacing both between and within sections.
+3.  **Bug Fixes & UI Polish**:
+    -   Fixed the non-functional Hypothesis close button and settings toggle by re-implementing their event listeners in `main.ts`.
+    -   Replaced the static "Annotate" button with a functional, synchronized toggle switch and moved it to the main toggle group.
+    -   Customized the annotate toggle's CSS to use a consistent "pen" icon.
+    -   Fixed a series of critical JavaScript crashes and layout breakages by restoring missing HTML elements (`#meditation-popup-container`, `#music-player-container`, `#async-content`) to `base.html` and correcting the overall template inheritance structure.
+    -   Fixed the broken "Meditate" button by correcting its HTML ID to match what the JavaScript expected.
+    -   Fixed a bug preventing interaction with the page when the music player was open.
+    -   Fixed a bug causing the music player to default to the top-left corner.
+    -   **Wikimedia Loading**: Implemented an animated loading placeholder for the Wikimedia section to prevent layout shifts and provide better user feedback.
+4.  **Codebase & Process Improvements**:
+    -   **Self-Correction**: Adopted a new internal rule to always use precise, context-heavy `replace` commands for modifying existing files, and to use `write_file` only for creating new files, to prevent the kind of destructive errors that occurred during this session. A mandatory sanity check after each modification is now part of the workflow.
+
+---
+
+## Agora Core Concepts (as of 2025-09-29)
+
+*This is a summary of my understanding of the project's architecture and user experience principles.*
+
+-   **The Default View is a Composite**: The main user experience is not just a single page, but a composition of a central topic and a suite of satellite information panels. The "default view" for any given node is a collection of:
+    -   The **Node Proper**: The collection of subnodes (user contributions) that define the node.
+    -   **Contextual Sections**: A series of `<details>` summaries that provide automatically-fetched context about the node's topic from various sources, including:
+        -   Web Results (Google, Bing, etc.)
+        -   AI Generations (Mistral, Gemini)
+        -   Wikimedia Commons (Wikipedia, Wiktionary)
+        -   Stoas (embedded documents)
+        -   Full-text search of the Agora
+
+-   **Nodes are Collections, Subnodes are Resources**: A key architectural pattern is the distinction between nodes and subnodes.
+    -   A **Node** (`[[wikilink]]`) represents a topic, a location, or a collection of things. It is an abstract concept.
+    -   A **Subnode** (`@user/document.md`) is a specific, concrete resource or "utterance" contributed by a user that is associated with a node. Subnodes are the individual documents that, when gathered together, form the content of a node.
+    -   Styling and layout should respect this distinction. For example, `.node` is a general class, while `.subnode` has specific styling for individual content blocks.
