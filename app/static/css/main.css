@@ -1211,6 +1211,11 @@ input:checked + .slider:before {
     content: "✔️"; /* On */
 }
 
+/* Custom icons for Annotate toggle */
+.settings-switch input.annotate-toggle-input + .slider:before {
+    content: "🖋️"; /* Fountain Pen for both On and Off */
+}
+
 
 #demo-timer {
     position: absolute;
@@ -1503,6 +1508,7 @@ input:checked + .slider:before {
     z-index: 1001;
     display: none;
     animation: fadeIn 0.3s ease-in-out;
+    width: fit-content; /* Constrain container to its content */
 }
 
 #music-player-container.active {

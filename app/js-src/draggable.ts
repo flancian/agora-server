@@ -22,10 +22,15 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         xOffset = pos.x;
         yOffset = pos.y;
         // If we have a saved position, we must switch to transform-based positioning immediately.
-        container.style.top = '0px';
-        container.style.left = '0px';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.right = 'auto';
+        container.style.bottom = 'auto';
         setTranslate(xOffset, yOffset, container);
         hasBeenPositionedByJs = true;
+    } else {
+        // If no position is saved, we do nothing and let CSS handle the initial position.
+        // The first drag event will then capture the initial position.
     }
 
     const dragStart = (e: MouseEvent | TouchEvent) => {

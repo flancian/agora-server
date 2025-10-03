@@ -103,6 +103,48 @@ document.addEventListener("DOMContentLoaded", async function () {
     makeDraggable(hypothesisFrame, dragHandle, 'hypothesis-position');
   }
 
+  // Event listener for the close button on the Hypothesis frame
+  const hypothesisCloseBtn = document.getElementById('hypothesis-close-btn');
+  const showHypothesisCheckbox = document.getElementById("show-hypothesis") as HTMLInputElement;
+  const showHypothesisNavbar = document.getElementById("show-hypothesis-navbar") as HTMLInputElement;
+
+  if (hypothesisCloseBtn && hypothesisFrame && showHypothesisCheckbox) {
+    hypothesisCloseBtn.addEventListener('click', () => {
+      hypothesisFrame.classList.remove('visible');
+      showHypothesisCheckbox.checked = false;
+      showHypothesisNavbar.checked = false;
+      localStorage.setItem('show-hypothesis', 'false');
+    });
+  }
+
+  // Function to sync hypothesis toggles and panel visibility
+  const syncHypothesisState = (isVisible: boolean) => {
+    if (hypothesisFrame) {
+      hypothesisFrame.classList.toggle('visible', isVisible);
+    }
+    if (showHypothesisCheckbox) {
+      showHypothesisCheckbox.checked = isVisible;
+    }
+    if (showHypothesisNavbar) {
+      showHypothesisNavbar.checked = isVisible;
+    }
+    localStorage.setItem('show-hypothesis', isVisible.toString());
+  };
+
+  // Event listener for the "Show annotations" toggle in settings
+  if (showHypothesisCheckbox) {
+    showHypothesisCheckbox.addEventListener('change', () => {
+      syncHypothesisState(showHypothesisCheckbox.checked);
+    });
+  }
+
+  // Event listener for the new navbar toggle
+  if (showHypothesisNavbar) {
+    showHypothesisNavbar.addEventListener('change', () => {
+      syncHypothesisState(showHypothesisNavbar.checked);
+    });
+  }
+
   // Watch for Hypothesis highlights and auto-show the panel
   const annotationObserver = new MutationObserver((mutations) => {
     for (const mutation of mutations) {

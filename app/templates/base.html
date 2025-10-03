@@ -65,13 +65,6 @@
 	
 	<script type="module" src="{{url_for('static', filename='js/index.js')}}"></script>
 
-	<!--
-			{
-				"externalContainerSelector": "#hypothesis-frame",
-				"openSidebar": true,
-			}
-	-->
-
 	<script type="application/json" class="js-hypothesis-config">
     {
       "externalContainerSelector": "#hypothesis-client-container"
@@ -93,134 +86,117 @@
         <!-- navigation chrome is simplified if embed=True -->
         <div class="navigation">
             <div class="navigation-content">
-            <div style="display: flex; align-items: center; gap: 0.5em;">
-                <div class="burger" id="burger" style="display: flex; align-items: center; gap: 0.25em; cursor: pointer;">
-                    <span>☰</span>
-                    <img src="/static/img/agora.png" class="logo" width="36px" height="36px" title="An Agora is a Free Knowledge Commons.">
+                <div style="display: flex; align-items: center; gap: 0.5em;">
+                    <div class="burger" id="burger" style="display: flex; align-items: center; gap: 0.25em; cursor: pointer;">
+                        <span>☰</span>
+                        <img src="/static/img/agora.png" class="logo" width="36px" height="36px" title="An Agora is a Free Knowledge Commons.">
+                    </div>
+                    <a href="/" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a>
                 </div>
-                <a href="/" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many."><strong>{{config['URI_BASE']}}</strong></a>
-            </div>
-            <!-- ፨ -->
-            <!-- <span style="margin-left: 0.3em;">☛</span>-->
-            <!-- ⟶  -->
-            ➳
-            <!-- ⸖ this is called a [[diple]], particularly [[Diple periestigmene]] -->
-            <a href="/nodes" class="navlink" style="text-decoration: none;"><span class="navbar-item"><span>📚</span><span>nodes</span></span></a>
-            {{config['MENU_SEPARATOR']}} <a href="/random" style="text-decoration: none;"><span class="navbar-item"><span>🎲️</span><span>random</span></span></a>
-            {{config['MENU_SEPARATOR']}} <a href="/starred" style="text-decoration: none;"><span class="navbar-item"><span>✨</span><span>starred</span></span></a>
-            {{config['MENU_SEPARATOR']}} <a href="/latest" style="text-decoration: none;"><span class="navbar-item"><span>🌱</span><span>latest</span></span></a>
-            <!-- {{config['MENU_SEPARATOR']}} <a href="/latest" style="text-decoration: none;"><span class="navbar-item"><span>🌀</span>latest</span></a>-->
-          {{config['MENU_SEPARATOR']}} <a href="/journals/365" style="text-decoration: none;"><span class="navbar-item"><span>📜</span><span>journals</span></span></a>
-          {{config['MENU_SEPARATOR']}} <a href="/today" style="text-decoration: none;"><span class="navbar-item"><span>📆</span><span>today</span></a>
-          <!-- {{config['MENU_SEPARATOR']}} <a href="/today" style="text-decoration: none;"><span>📅</span><span>Today</span></a> -->
-          <!-- {{config['MENU_SEPARATOR']}} <a href="/journals" style="text-decoration: none;"><span>📆</span><span>Journals</span></a> -->
-          {{config['MENU_SEPARATOR']}} <a title="Commoners" href="/users" style="text-decoration: none;"><span class="navbar-item"><span>🫂</span><span>users</span></span></a>
-          {{config['MENU_SEPARATOR']}} <a href="#" style="text-decoration: none;" id="join"><span class="navbar-item"><span>🙏</span><span>join</span></span></a>
-		  <!-- Now moved to burger: overlay.html 
-          {{config['MENU_SEPARATOR']}} <a href="/settings" style="text-decoration: none;"><span><strong>⚙</strong></span><span>Settings</span></a>
-			-->
-      <span class="hide-on-mobile">{{config['MENU_SEPARATOR']}}</span>
-      <div class="toggle-container">
-        <label class="theme-switch" for="theme-checkbox">
-          <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
-          <div class="slider round"></div>
-        </label>
-        {% if config.ENABLE_DEMO %}
-        <label class="demo-switch" for="demo-checkbox" title="Toggle Demo Mode">
-          <input type="checkbox" id="demo-checkbox" class="demo-checkbox-input" />
-          <div class="slider round">
-              <span id="demo-timer"></span>
-          </div>
-        </label>
-        {% endif %}
-        <label class="music-switch" for="music-checkbox" title="Toggle Ambient Music">
-          <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
-          <div class="slider round"></div>
-        </label>
-      </div>
-	</div>
-    </div>
+                ➳
+                <a href="/nodes" class="navlink" style="text-decoration: none;"><span class="navbar-item"><span>📚</span><span>nodes</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/random" style="text-decoration: none;"><span class="navbar-item"><span>🎲️</span><span>random</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/starred" style="text-decoration: none;"><span class="navbar-item"><span>✨</span><span>starred</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/latest" style="text-decoration: none;"><span class="navbar-item"><span>🌱</span><span>latest</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/journals/365" style="text-decoration: none;"><span class="navbar-item"><span>📜</span><span>journals</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/today" style="text-decoration: none;"><span class="navbar-item"><span>📆</span><span>today</span></a>
+                {{config['MENU_SEPARATOR']}} <a title="Commoners" href="/users" style="text-decoration: none;"><span class="navbar-item"><span>🫂</span><span>users</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="#" style="text-decoration: none;" id="join"><span class="navbar-item"><span>🙏</span><span>join</span></span></a>
+                <span class="hide-on-mobile">{{config['MENU_SEPARATOR']}}</span>
+                <div class="toggle-container">
+                    <label class="theme-switch" for="theme-checkbox">
+                        <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
+                        <div class="slider round"></div>
+                    </label>
+                    {% if config.ENABLE_DEMO %}
+                    <label class="demo-switch" for="demo-checkbox" title="Toggle Demo Mode">
+                        <input type="checkbox" id="demo-checkbox" class="demo-checkbox-input" />
+                        <div class="slider round">
+                            <span id="demo-timer"></span>
+                        </div>
+                    </label>
+                    {% endif %}
+                    <label class="music-switch" for="music-checkbox" title="Toggle Ambient Music">
+                        <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
+                        <div class="slider round"></div>
+                    </label>
+                    {% if config.ENABLE_HYPOTHESIS %}
+                    <label class="settings-switch" for="show-hypothesis-navbar" title="Toggle the annotation sidebar.">
+                        <input id="show-hypothesis-navbar" type="checkbox" class="annotate-toggle-input" />
+                        <div class="slider round"></div>
+                    </label>
+                    {% endif %}
+                </div>
+	        </div>
+        </div>
         {% endif %}
 
         <div class="topline-node">
-          <div class="topline-node-wrapper">
-            <div class="search-container">
-                <button id="mini-cli-exec" value="exec" title="Searches the Agora Commons and the wider internet for resources relevant to the current location.">
-                  🔎 search
-                </button>
-                <div class="topline-cli">
-                  <form action="/" method="get">
-                    <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
-                  </form>
+            <div class="topline-node-wrapper">
+                <div class="search-container">
+                    <button id="mini-cli-exec" value="exec" title="Searches the Agora Commons and the wider internet for resources relevant to the current location.">
+                        🔎 search
+                    </button>
+                    <div class="topline-cli">
+                        <form action="/" method="get">
+                            <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
+                        </form>
+                    </div>
+                    <!-- Toggles will be moved here by JS on mobile -->
                 </div>
-                <!-- Toggles will be moved here by JS on mobile -->
+                <div class="action-bar">
+                    <button id="mini-cli-pull" value="pull" title="Tries to pull (embed) more into this context">
+    					🧲 pull 
+                    </button>
+                    <button id="mini-cli-go" value="go" title="Follows a go link if one is found in this node; may redirect outside the Agora or to a different Agora location.">
+                        ➡️ go
+                    </button>
+                    <button id="show-meditation-popup" title="Agora Meditation.">🧘 Meditate</button>
+                </div>
+                <button id="scroll-toggle" title="Scroll to bottom">▼</button>
             </div>
-            <div class="action-bar">
-               <button id="mini-cli-pull" value="pull" title="Tries to pull (embed) more into this context">
-    						🧲 pull 
-               </button>
-               <button id="mini-cli-go" value="go" title="Follows a go link if one is found in this node; may redirect outside the Agora or to a different Agora location.">
-                ➡️ go
-               </button>
-               {% if config.ENABLE_HYPOTHESIS %}
-               <button id="toggle-hypothesis" title="Toggle annotations sidebar">
-                    🖋️ Annotate
-               </button>
-               {% endif %}
-               <button id="show-meditation-popup" title="Show the Agora Meditation popup.">
-                 🧘 Meditate
-               </button>
-               <button id="scroll-toggle" title="Scroll to bottom">▼</button>
+        </div>
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+
+    </div> <!-- end content -->
+
+    {% if config.ENABLE_HYPOTHESIS %}
+    <div id='hypothesis-frame'>
+        <div id="hypothesis-controls">
+            <span id="hypothesis-drag-handle">Hypothes.is</span>
+            <span id="hypothesis-close-btn">x</span>
+        </div>
+        <div id="hypothesis-client-container"></div>
+    </div>
+    {% endif %}
+
+    <div id="meditation-popup-container">
+        <div id="meditation-popup">
+            <div id="meditation-popup-header">
+                <span id="meditation-popup-title">Agora Meditation</span>
+                <span id="meditation-popup-close-btn">x</span>
             </div>
-          </div>
-        </div>
-  </nav>
-
-  <!-- Demo Mode Popup -->
-  <div id="meditation-popup-container" class="display-none">
-    <div id="meditation-popup">
-        <div id="meditation-popup-header">
-            <span id="meditation-popup-title">Agora Meditation</span>
-            <span id="meditation-popup-close-btn">x</span>
-        </div>
-        <div id="meditation-popup-content">
-        </div>
-        <midi-player id="midi-player" style="display: none; width: 100%;"></midi-player>
-    </div>
-</div>
-
-<!-- Music Player Popup -->
-<div id="music-player-container" class="display-none">
-    <div id="music-player">
-        <div id="music-player-header">
-            <span id="music-player-title">Ambient Music</span>
-            <span id="music-player-close-btn">x</span>
-        </div>
-        <div id="music-player-content">
-            <p>Now playing: <em>burup.mid</em></p>
-            <!-- We can add more controls here later if needed -->
+            <div id="meditation-popup-content">
+                <!-- Content will be loaded here by demo.ts -->
+            </div>
         </div>
     </div>
-</div>
 
-  <!-- hypothesis -->
-  <div id='hypothesis-frame'>
-    <div id="hypothesis-controls">
-        <div id="hypothesis-drag-handle">hypothes.is</div>
-        <span id="hypothesis-close-btn">x</span>
+    <div id="music-player-container">
+        <div id="music-player">
+            <div id="music-player-header">
+                <span id="music-player-title">Ambient Music</span>
+                <span id="music-player-close-btn">x</span>
+            </div>
+            <div id="music-player-content">
+                <p>Now playing...</p>
+            </div>
+        </div>
     </div>
-    <div id="hypothesis-client-container"></div>
-  </div>
 
-	{% block content %}
-	{% endblock %}
-
-  <div id="toast-container"></div>
-
-
-    </div>
-	
-    <!-- class="content" -->
 </body>
 
 </html>
