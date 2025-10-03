@@ -1348,35 +1348,46 @@ document.addEventListener("DOMContentLoaded", async function () {
         .then(response => response.text())
         .then(html => {
             if (html.trim()) {
-                const container = document.getElementById('wp-wt-container');
-                container.innerHTML = html;
-
-                if (localStorage.getItem('auto-pull-wikipedia') === 'true') {
-                    (container.querySelector('.wiki') as HTMLDetailsElement).setAttribute('open', '');
-                }
-
-                container.querySelectorAll('.wiki-provider-tab').forEach(tab => {
-                    tab.addEventListener('click', e => {
-                        e.preventDefault();
-                        
-                        // Open the details section if it's closed
-                        const details = container.querySelector('.wiki');
-                        if (!details.hasAttribute('open')) {
-                            details.setAttribute('open', '');
+                const placeholder = wpWtContainer.querySelector('.node');
+                if (placeholder) {
+                    placeholder.classList.add('fade-out');
+                    placeholder.addEventListener('animationend', () => {
+                        wpWtContainer.innerHTML = html;
+                        const newContent = wpWtContainer.querySelector('.node');
+                        if (newContent) {
+                            newContent.classList.add('fade-in');
                         }
 
-                        const provider = (e.target as HTMLElement).dataset.provider;
-                        container.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
-                        (e.target as HTMLElement).classList.add('active');
-                        container.querySelectorAll('.wiki-embed').forEach(embed => {
-                            if ((embed as HTMLElement).dataset.provider === provider) {
-                                (embed as HTMLElement).style.display = 'block';
-                            } else {
-                                (embed as HTMLElement).style.display = 'none';
-                            }
+                        // Re-attach event listeners for the new content
+                        if (localStorage.getItem('auto-pull-wikipedia') === 'true') {
+                            (wpWtContainer.querySelector('.wiki') as HTMLDetailsElement)?.setAttribute('open', '');
+                        }
+
+                        wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(tab => {
+                            tab.addEventListener('click', e => {
+                                e.preventDefault();
+                                const details = wpWtContainer.querySelector('.wiki');
+                                if (details && !details.hasAttribute('open')) {
+                                    details.setAttribute('open', '');
+                                }
+
+                                const provider = (e.target as HTMLElement).dataset.provider;
+                                wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
+                                (e.target as HTMLElement).classList.add('active');
+                                wpWtContainer.querySelectorAll('.wiki-embed').forEach(embed => {
+                                    if ((embed as HTMLElement).dataset.provider === provider) {
+                                        (embed as HTMLElement).style.display = 'block';
+                                    } else {
+                                        (embed as HTMLElement).style.display = 'none';
+                                    }
+                                });
+                            });
                         });
-                    });
-                });
+                    }, { once: true });
+                } else {
+                    // Fallback for safety
+                    wpWtContainer.innerHTML = html;
+                }
             }
         });
   }
