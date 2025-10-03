@@ -820,12 +820,25 @@ details > summary {
 }
 
 .link-list-wrapper {
-    max-height: 400px;
-    overflow-y: auto;
+    /* Do not grow by default, only take content height */
+    max-height: 50%; /* But do not exceed 50% of the container */
+    overflow-y: auto; /* And scroll if you do */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) var(--links-bg);
 }
 
-.forwardlinks {
-    text-align: right;
+.link-list-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.link-list-wrapper::-webkit-scrollbar-track {
+    background: var(--links-bg);
+}
+
+.link-list-wrapper::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 4px;
+    border: 2px solid var(--links-bg);
 }
 
 .pushlinks, .pulllinks {
@@ -1315,8 +1328,9 @@ input:checked + .slider:before {
     padding: 10px;
     border-radius: 8px;
     display: flex;
-    justify-content: center;
-    align-items: flex-start; /* This will center the content vertically */
+    flex-direction: column; /* Stack children vertically */
+    justify-content: flex-start; /* Align to the top */
+    align-items: center; /* Center children horizontally */
     gap: 20px; /* Add some space between the link lists */
 }
 
@@ -1327,11 +1341,11 @@ input:checked + .slider:before {
     }
 
     .context-flex .graph-container {
-        width: 50%;
+        width: 70%;
     }
 
     .links {
-        width: 50%;
+        width: 30%;
     }
 }
 
