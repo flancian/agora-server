@@ -823,7 +823,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (content != null) {
       // block on node loading (expensive if the task is freshly up)
       response = await fetch(AGORAURL + '/node/' + node);
-      content.innerHTML = await response.text();
+      content.outerHTML = await response.text();
     }
 
     setTimeout(bindEvents, 10)
