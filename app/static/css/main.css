@@ -110,6 +110,7 @@ body {
     gap: 10px;
 }
 
+
 pre {
     white-space: pre-line;
 }
@@ -605,6 +606,16 @@ summary {
     overflow-x: auto;
     position: relative;
     transition: background-color 0.8s ease-out;
+}
+
+/* Ensure top-level pulled/related nodes have the same spacing as subnodes. */
+.pulled-node, .related {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.related + .related {
+    margin-top: 10px;
 }
 
 .subnode-arrived {
