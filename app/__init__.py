@@ -17,6 +17,7 @@ import logging
 import os
 from flask import Flask
 from flask_compress import Compress
+from werkzeug.middleware.proxy_fix import ProxyFix
 from . import agora
 from . import util
 from app.exec import *
@@ -30,6 +31,10 @@ def create_app():
 
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    
+    # Add ProxyFix middleware to handle X-Forwarded-Proto headers
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
     config = os.environ.get("AGORA_CONFIG", "DevelopmentConfig")
     app.config.from_object("app.config." + config)
     CORS(app)

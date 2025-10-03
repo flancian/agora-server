@@ -12,17 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
+import base64
 import collections
 import datetime
 import json
 import os
 import re
+import requests
 import time
+import threading
 import urllib.parse
 from copy import copy
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlparse
 
 import jsons
+from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from flask import (Blueprint, Response, abort, current_app, g, jsonify,
@@ -1083,6 +1088,98 @@ def get_starred_subnodes():
 
 # Fediverse space is: /inbox, /outbox, /users/<username>, .well-known/webfinger, .well-known/nodeinfo?
 
+def send_accept(follow_activity, actor_url, key_id, app_context):
+    """
+    Constructs and sends an Accept activity to the follower's inbox.
+    This function is designed to be run in a background thread.
+    """
+    with app_context:
+        import requests
+        current_app.logger.info("Attempting to send Accept activity in background thread.")
+        follower_actor_uri = follow_activity.get('actor')
+        
+        # 1. Fetch the follower's profile to find their inbox.
+        try:
+            current_app.logger.info(f"Fetching follower profile from {follower_actor_uri}")
+            actor_res = requests.get(
+                follower_actor_uri,
+                headers={'Accept': 'application/activity+json, application/ld+json'},
+                timeout=5
+            )
+            actor_res.raise_for_status()
+            actor_profile = actor_res.json()
+            follower_inbox = actor_profile.get('inbox')
+            if not follower_inbox:
+                raise ValueError("Follower's profile does not contain an inbox URL.")
+            current_app.logger.info(f"Found follower inbox: {follower_inbox}")
+        except (requests.RequestException, ValueError) as e:
+            current_app.logger.error(f"Could not fetch follower's profile or find inbox for {follower_actor_uri}: {e}")
+            return
+
+        # 2. Construct the Accept activity.
+        accept_activity = {
+            '@context': 'https://www.w3.org/ns/activitystreams',
+            'id': actor_url + f'#accepts/follows/{follow_activity["id"].split("/")[-1]}',
+            'type': 'Accept',
+            'actor': actor_url,
+            'object': follow_activity
+        }
+
+        # 3. Sign and POST the request.
+        send_signed_request(follower_inbox, key_id, accept_activity)
+
+def send_signed_request(inbox_url, key_id, activity):
+    """
+    Signs and sends an ActivityPub activity to a remote inbox.
+    """
+    current_app.logger.info(f"Preparing to send signed request to {inbox_url}")
+    ap_key_setup() # Ensure g.private_key is loaded
+    
+    inbox_domain = urlparse(inbox_url).netloc
+    target_path = urlparse(inbox_url).path
+    
+    date_header = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+    
+    body = json.dumps(activity, separators=(',', ':')).encode('utf-8')
+    digest_header = 'SHA-256=' + base64.b64encode(SHA256.new(body).digest()).decode('utf-8')
+
+    string_to_sign = (
+        f'(request-target): post {target_path}\n'
+        f'host: {inbox_domain}\n'
+        f'date: {date_header}\n'
+        f'digest: {digest_header}'
+    )
+
+    signer = pkcs1_15.new(g.private_key)
+    signature = base64.b64encode(signer.sign(SHA256.new(string_to_sign.encode('utf-8'))))
+
+    header = (
+        f'keyId="{key_id}",'
+        f'headers="(request-target) host date digest",'
+        f'signature="{signature.decode("utf-8")}"'
+    )
+
+
+    headers = {
+        'Host': inbox_domain,
+        'Date': date_header,
+        'Digest': digest_header,
+        'Signature': header,
+        'Content-Type': 'application/activity+json',
+        'Accept': 'application/activity+json, application/ld+json'
+    }
+    current_app.logger.info(f"Sending signed request with headers: {headers}")
+
+    try:
+        response = requests.post(inbox_url, data=body, headers=headers, timeout=10)
+        response.raise_for_status()
+        current_app.logger.info(f"Successfully sent signed request to {inbox_url}. Response: {response.status_code}")
+    except requests.RequestException as e:
+        current_app.logger.error(f"Error sending signed request to {inbox_url}: {e}")
+        if e.response is not None:
+            current_app.logger.error(f"Response body: {e.response.text}")
+
+
 def ap_key_setup():
 	if hasattr(g, 'private_key') and hasattr(g, 'public_key'):
 		return
@@ -1113,21 +1210,25 @@ def user_inbox(user):
     current_app.logger.info(f"Received activity for user {user}: {json.dumps(activity, indent=2)}")
 
     if activity.get('type') == 'Follow':
-        actor = activity.get('actor')
-        if not actor or not isinstance(actor, str):
+        actor_uri = activity.get('actor')
+        if not actor_uri or not isinstance(actor_uri, str):
             return "Invalid actor in Follow activity", 400
 
         # The user being followed is the one whose inbox this is.
         user_uri = url_for('.ap_user', username=user, _external=True)
         
         # Store the follower relationship.
-        sqlite_engine.add_follower(user_uri, actor)
-        current_app.logger.info(f"User {user_uri} is now followed by {actor}")
+        sqlite_engine.add_follower(user_uri, actor_uri)
+        current_app.logger.info(f"User {user_uri} is now followed by {actor_uri}")
 
-        # TODO: Send an Accept activity back to the follower's inbox.
-        # This requires fetching the follower's actor object to find their inbox URL,
-        # and then signing and sending a POST request. This is a non-trivial
-        # task and will be implemented in a subsequent step.
+        # Generate all necessary URLs within the request context.
+        actor_url = url_for('.ap_user', username=user, _external=True)
+        key_id = actor_url + '#main-key'
+
+        # Send an Accept activity back to the follower's inbox in a background thread.
+        app_context = current_app.app_context()
+        thread = threading.Thread(target=send_accept, args=(activity, actor_url, key_id, app_context))
+        thread.start()
 
         return jsonify({"status": "success", "action": "follow_accepted"}), 202
 
@@ -1146,7 +1247,7 @@ def user_outbox(user):
     for subnode in subnodes:
         # Construct fully qualified URLs for each object.
         # The ID of the Create activity itself.
-        activity_id = url_for('.user_outbox', user=user, _external=True) + f'#/{subnode.uri}/{subnode.mtime}'
+        activity_id = url_for('.user_outbox', user=user, _external=True, _scheme='https') + f'#/{subnode.uri}/{subnode.mtime}'
         # The ID of the Note object, which is the subnode itself.
         object_id = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
         
@@ -1210,11 +1311,11 @@ def ap_user(username):
         summary = 'A user in the Agora of Flancia.'
 
     # Construct fully qualified URLs.
-    user_url = url_for('.user', user=username, _external=True, _scheme='https')
-    actor_url = url_for('.ap_user', username=username, _external=True, _scheme='https')
-    inbox_url = url_for('.user_inbox', user=username, _external=True, _scheme='https')
-    outbox_url = url_for('.user_outbox', user=username, _external=True, _scheme='https')
-    icon_url = url_for('static', filename='img/agora.png', _external=True, _scheme='https')
+    user_url = url_for('.user', user=username, _external=True)
+    actor_url = url_for('.ap_user', username=username, _external=True)
+    inbox_url = url_for('.user_inbox', user=username, _external=True)
+    outbox_url = url_for('.user_outbox', user=username, _external=True)
+    icon_url = url_for('static', filename='img/agora.png', _external=True)
 
     r = make_response({
         '@context': [
@@ -1271,12 +1372,12 @@ def webfinger():
     links = [
         {
             'rel': 'self',
-            'href': url_for('.ap_user', username=username, _external=True, _scheme='https'),
+            'href': url_for('.ap_user', username=username, _external=True),
             'type': 'application/activity+json'
         },
         {
             'rel': 'http://webfinger.net/rel/profile-page',
-            'href': url_for('.user', user=username, _external=True, _scheme='https'),
+            'href': url_for('.user', user=username, _external=True),
             'type': 'text/html'
         }
     ]
