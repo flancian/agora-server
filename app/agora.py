@@ -38,7 +38,7 @@ from markupsafe import escape
 from mistralai.client import MistralClient, MistralException
 from mistralai.models.chat_completion import ChatMessage
 
-from . import forms, providers, render, util
+from . import federation, forms, providers, render, util
 from .providers import gemini_complete, mistral_complete
 from .storage import api, feed, sqlite_engine
 from . import visualization
@@ -1045,6 +1045,12 @@ def star_subnode(subnode_uri):
             (subnode_uri,)
         )
         db.commit()
+
+        # Federate the star action as a Create activity to followers.
+        app_context = current_app.app_context()
+        thread = threading.Thread(target=federate_create, args=(subnode_uri, app_context))
+        thread.start()
+
         return jsonify({"status": "success", "action": "starred", "uri": subnode_uri})
     except Exception as e:
         current_app.logger.error(f"API: Error starring subnode {subnode_uri}: {e}")
@@ -1088,45 +1094,100 @@ def get_starred_subnodes():
 
 # Fediverse space is: /inbox, /outbox, /users/<username>, .well-known/webfinger, .well-known/nodeinfo?
 
-def send_accept(follow_activity, actor_url, key_id, app_context):
+def send_accept(app, follow_activity, actor_url, key_id, base_url):
     """
     Constructs and sends an Accept activity to the follower's inbox.
     This function is designed to be run in a background thread.
     """
+    with app.app_context():
+        with app.test_request_context(base_url=base_url):
+            # This import is needed as it's run in a separate thread.
+            import requests
+            current_app.logger.info("Attempting to send Accept activity in background thread.")
+            follower_actor_uri = follow_activity.get('actor')
+            
+            # 1. Fetch the follower's profile to find their inbox.
+            try:
+                current_app.logger.info(f"Fetching follower profile from {follower_actor_uri}")
+                actor_res = requests.get(
+                    follower_actor_uri,
+                    headers={'Accept': 'application/activity+json, application/ld+json'},
+                    timeout=5
+                )
+                actor_res.raise_for_status()
+                actor_profile = actor_res.json()
+                follower_inbox = actor_profile.get('inbox')
+                if not follower_inbox:
+                    raise ValueError("Follower's profile does not contain an inbox URL.")
+                current_app.logger.info(f"Found follower inbox: {follower_inbox}")
+            except (requests.RequestException, ValueError) as e:
+                current_app.logger.error(f"Could not fetch follower's profile or find inbox for {follower_actor_uri}: {e}")
+                return
+
+            # 2. Construct the Accept activity.
+            accept_activity = {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                'id': actor_url + f'#accepts/follows/{follow_activity["id"].split("/")[-1]}',
+                'type': 'Accept',
+                'actor': actor_url,
+                'object': follow_activity
+            }
+
+            # 3. Sign and POST the Accept request.
+            private_key, _ = federation.ap_key_setup()
+            federation.send_signed_request(follower_inbox, key_id, accept_activity, private_key)
+
+            # 4. Prepare the 5 most recent posts to be sent to the new follower.
+            # All URL generation must happen here, within the app context.
+            username = actor_url.split('/')[-1]
+            subnodes = api.subnodes_by_user(username, sort_by="mtime", reverse=True)[:5]
+            posts_to_send = []
+            for subnode in subnodes:
+                posts_to_send.append({
+                    "published_time": datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat(),
+                    "object_id": url_for('.root', node=subnode.wikilink, _external=True) + f'#/{subnode.uri}',
+                    "activity_id": url_for('.user_outbox', user=username, _external=True) + f'#/{subnode.uri}/{subnode.mtime}',
+                    "actor_url": url_for('.ap_user', username=username, _external=True),
+                    "content": render.markdown(subnode.content),
+                    "url": url_for('.root', node=subnode.wikilink, _external=True)
+                })
+
+            # 5. Send the recent posts in a new background thread.
+            # We create a new app_context for this new thread.
+            new_app_context = current_app.app_context()
+            thread = threading.Thread(target=send_recent_posts, args=(follower_inbox, key_id, posts_to_send, new_app_context))
+            thread.start()
+
+def send_recent_posts(follower_inbox, key_id, posts_to_send, app_context):
+    """
+    Sends a list of pre-constructed post activities to a new follower.
+    This function is designed to be run in a background thread.
+    """
     with app_context:
-        import requests
-        current_app.logger.info("Attempting to send Accept activity in background thread.")
-        follower_actor_uri = follow_activity.get('actor')
-        
-        # 1. Fetch the follower's profile to find their inbox.
-        try:
-            current_app.logger.info(f"Fetching follower profile from {follower_actor_uri}")
-            actor_res = requests.get(
-                follower_actor_uri,
-                headers={'Accept': 'application/activity+json, application/ld+json'},
-                timeout=5
-            )
-            actor_res.raise_for_status()
-            actor_profile = actor_res.json()
-            follower_inbox = actor_profile.get('inbox')
-            if not follower_inbox:
-                raise ValueError("Follower's profile does not contain an inbox URL.")
-            current_app.logger.info(f"Found follower inbox: {follower_inbox}")
-        except (requests.RequestException, ValueError) as e:
-            current_app.logger.error(f"Could not fetch follower's profile or find inbox for {follower_actor_uri}: {e}")
-            return
+        current_app.logger.info(f"Sending {len(posts_to_send)} recent posts to {follower_inbox}")
+        private_key, _ = federation.ap_key_setup()
 
-        # 2. Construct the Accept activity.
-        accept_activity = {
-            '@context': 'https://www.w3.org/ns/activitystreams',
-            'id': actor_url + f'#accepts/follows/{follow_activity["id"].split("/")[-1]}',
-            'type': 'Accept',
-            'actor': actor_url,
-            'object': follow_activity
-        }
+        for post_data in posts_to_send:
+            create_activity = {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                'id': post_data['activity_id'],
+                'type': 'Create',
+                'actor': post_data['actor_url'],
+                'to': [follower_inbox],
+                'object': {
+                    'id': post_data['object_id'],
+                    'type': 'Note',
+                    'published': post_data['published_time'],
+                    'attributedTo': post_data['actor_url'],
+                    'content': post_data['content'],
+                    'url': post_data['url'],
+                    'to': ['https://www.w3.org/ns/activitystreams#Public'],
+                }
+            }
+            federation.send_signed_request(follower_inbox, key_id, create_activity, private_key)
+            # Small delay to avoid overwhelming the remote server.
+            time.sleep(0.5)
 
-        # 3. Sign and POST the request.
-        send_signed_request(follower_inbox, key_id, accept_activity)
 
 def send_signed_request(inbox_url, key_id, activity):
     """
@@ -1224,10 +1285,11 @@ def user_inbox(user):
         # Generate all necessary URLs within the request context.
         actor_url = url_for('.ap_user', username=user, _external=True)
         key_id = actor_url + '#main-key'
+        base_url = request.url_root
+        app = current_app._get_current_object()
 
         # Send an Accept activity back to the follower's inbox in a background thread.
-        app_context = current_app.app_context()
-        thread = threading.Thread(target=send_accept, args=(activity, actor_url, key_id, app_context))
+        thread = threading.Thread(target=send_accept, args=(app, activity, actor_url, key_id, base_url))
         thread.start()
 
         return jsonify({"status": "success", "action": "follow_accepted"}), 202
