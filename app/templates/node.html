@@ -35,8 +35,8 @@
             </summary>
             <!--
             <span class="agora-actions">
-                <button id="pull-all" value="pull-all" title="Pulls embeds below">pull all</button>
-                <button id="fold-all" value="fold-all" title="Folds embeds below">fold all</button>
+                <button id="pull-all" value="pull-all" title="Expand all expandable sections below.">pull all</button>
+                <button id="fold-all" value="fold-all" title="Collapse all expandable sections below.">fold all</button>
             </span> 
             -->
         {% endif %} 
@@ -105,8 +105,8 @@
                             <a href="{{subnode.support}}" title="support (user specified)">🤗</a>
                         {% endif %}
                         <!-- disabled 2023-10 as we never made these persist, and ranking code was seeding the console with exceptions.
-                        <button onClick="downvote('{{loop.index}}')" title="uprank this subnode">⇣</button>
-                        <button onClick="upvote('{{loop.index}}')" title="uprank this subnode">⇡</button> 
+                        <button onClick="downvote('{{loop.index}}')" title="Downrank this subnode">⇣</button>
+                        <button onClick="upvote('{{loop.index}}')" title="Uprank this subnode">⇡</button> 
                         -->
                         </span>
 

@@ -103,7 +103,7 @@
                 {{config['MENU_SEPARATOR']}} <a title="Commoners" href="/users" style="text-decoration: none;"><span class="navbar-item"><span>🫂</span><span>users</span></span></a>
                 {{config['MENU_SEPARATOR']}} <a href="#" style="text-decoration: none;" id="join"><span class="navbar-item"><span>🙏</span><span>join</span></span></a>
                 <div class="toggle-container">
-                    <label class="theme-switch" for="theme-checkbox">
+                    <label class="theme-switch" for="theme-checkbox" title="Toggle light/dark theme">
                         <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
@@ -133,7 +133,7 @@
         <div class="topline-node">
             <div class="topline-node-wrapper">
                 <div class="search-container">
-                    <button id="mini-cli-exec" value="exec" title="Searches the Agora Commons and the wider internet for resources relevant to the current location.">
+                    <button id="mini-cli-exec" value="exec" title="Search the Agora and the web for the text in the input box.">
                         🔎 search
                     </button>
                     <div class="topline-cli">
@@ -144,14 +144,14 @@
                     <!-- Toggles will be moved here by JS on mobile -->
                 </div>
                 <div class="action-bar">
-                    <button id="mini-cli-pull" value="pull" title="Tries to pull (embed) more into this context">
+                    <button id="mini-cli-pull" value="pull" title="Embed available content within this node.">
     					🧲 pull 
                     </button>
-                    <button id="mini-cli-go" value="go" title="Follows a go link if one is found in this node; may redirect outside the Agora or to a different Agora location.">
+                    <button id="mini-cli-go" value="go" title="Follow a [[go]] link defined in this node.">
                         ➡️ go
                     </button>
-                    <button id="show-meditation-popup" title="Agora Meditation.">🧘 Meditate</button>
-                    <button id="scroll-toggle" title="Scroll to bottom">▼</button>
+                    <button id="show-meditation-popup" title="Agora Meditation: a moment of calm.">🧘 Meditate</button>
+                    <button id="scroll-toggle" title="Scroll to bottom / top">▼</button>
                 </div>
             </div>
         </div>

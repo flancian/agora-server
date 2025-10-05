@@ -26,7 +26,7 @@ class DefaultConfig(object):
 
     # What the Agora shows as 'class'/category in the summary (title) for the node div.
     NODE_LABEL = '📚 Node'
-    STOAS_LABEL = '🗣️ Stoas'
+    STOAS_LABEL = '💬 Stoas'
     # MENU_SEPARATOR = '⸖'
     # Keep it simple?
     MENU_SEPARATOR = '❦'

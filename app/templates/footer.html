@@ -11,14 +11,14 @@
     at <strong>__NOW__</strong>
     {% if 'Flan' in config['AGORA_NAME'] %} for the benefit of all beings{% else %} {% endif %}
     &nbsp;
-    <button id="mini-cli-retry" value="retry" title="Retries/reloads, might fix transient errors, might show content from a different Agora eventually.">
+    <button id="mini-cli-retry" value="retry" title="Reload the page. May fix transient errors.">
               🔄 Retry
            </button>
     {% if config.ENABLE_FLUSH_CACHE_BUTTON %}
-    <button id="mini-cli-cachez" title="Clears the in-memory caches for the current server process.">
+    <button id="mini-cli-cachez" title="Clear in-memory cache for this server process. Resolves some inconsistencies.">
         🧠 Flush Disk Cache
     </button>
-    <button id="mini-cli-invalidate-sqlite" title="Deletes cached data from the SQLite database file, forcing a full re-index from the filesystem on next load.">
+    <button id="mini-cli-invalidate-sqlite" title="Flush SQLite cache. Forces a full re-index from the filesystem on the next page load.">
         💾 Flush SQLite
     </button>
     {% endif %}
