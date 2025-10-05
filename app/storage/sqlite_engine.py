@@ -111,6 +111,11 @@ def create_tables(db):
                     follower_uri TEXT NOT NULL,
                     PRIMARY KEY (user_uri, follower_uri)
                 );
+            """,
+            'federated_subnodes': """
+                CREATE TABLE IF NOT EXISTS federated_subnodes (
+                    subnode_uri TEXT PRIMARY KEY
+                );
             """
         }
         # Check all tables in the schema.
@@ -367,3 +372,35 @@ def get_followers(user_uri):
     cursor = db.cursor()
     cursor.execute("SELECT follower_uri FROM followers WHERE user_uri = ?", (user_uri,))
     return [row[0] for row in cursor.fetchall()]
+
+def add_federated_subnode(subnode_uri):
+    """
+    Adds a subnode URI to the set of subnodes that have been federated.
+    """
+    db = get_db()
+    if not db:
+        return
+
+    try:
+        with db:
+            db.execute(
+                "INSERT OR IGNORE INTO federated_subnodes (subnode_uri) VALUES (?)",
+                (subnode_uri,)
+            )
+    except sqlite3.OperationalError as e:
+        if 'read-only database' in str(e):
+            pass
+        else:
+            current_app.logger.error(f"Database write error while adding federated subnode: {e}")
+
+def is_subnode_federated(subnode_uri):
+    """
+    Checks if a subnode has already been federated.
+    """
+    db = get_db()
+    if not db:
+        return False
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT 1 FROM federated_subnodes WHERE subnode_uri = ?", (subnode_uri,))
+    return cursor.fetchone() is not None

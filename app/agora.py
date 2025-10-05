@@ -1137,18 +1137,38 @@ def send_accept(app, follow_activity, actor_url, key_id, base_url):
             private_key, _ = federation.ap_key_setup()
             federation.send_signed_request(follower_inbox, key_id, accept_activity, private_key)
 
-            # 4. Prepare the 5 most recent posts to be sent to the new follower.
+            if not current_app.config.get('ACTIVITYPUB_SEND_WELCOME_PACKAGE', False):
+                return
+
+            # 4. Prepare the 5 most recent unfederated posts to be sent to the new follower.
             # All URL generation must happen here, within the app context.
             username = actor_url.split('/')[-1]
-            subnodes = api.subnodes_by_user(username, sort_by="mtime", reverse=True)[:5]
+            
+            # Fetch a larger pool of recent subnodes to find some that are not yet federated.
+            all_recent_subnodes = api.subnodes_by_user(username, sort_by="mtime", reverse=True)[:50]
+            unfederated_subnodes = []
+            for subnode in all_recent_subnodes:
+                if not sqlite_engine.is_subnode_federated(subnode.uri):
+                    unfederated_subnodes.append(subnode)
+            
+            # Take the 5 most recent from the unfederated list.
+            subnodes_to_send = unfederated_subnodes[:5]
+
             posts_to_send = []
-            for subnode in subnodes:
+            for subnode in subnodes_to_send:
+                object_id = url_for('.root', node=subnode.wikilink, _external=True) + f'#/{subnode.uri}'
+                content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+                content_with_link = f"""{content_str}
+<br><br>
+<p>Source: <a href="{object_id}" rel="nofollow noopener noreferrer" target="_blank">{object_id}</a></p>
+"""
+
                 posts_to_send.append({
                     "published_time": datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat(),
-                    "object_id": url_for('.root', node=subnode.wikilink, _external=True) + f'#/{subnode.uri}',
+                    "object_id": object_id,
                     "activity_id": url_for('.user_outbox', user=username, _external=True) + f'#/{subnode.uri}/{subnode.mtime}',
                     "actor_url": url_for('.ap_user', username=username, _external=True),
-                    "content": render.markdown(subnode.content),
+                    "content": render.markdown(content_with_link),
                     "url": url_for('.root', node=subnode.wikilink, _external=True)
                 })
 
@@ -1168,6 +1188,14 @@ def send_recent_posts(follower_inbox, key_id, posts_to_send, app_context):
         private_key, _ = federation.ap_key_setup()
 
         for post_data in posts_to_send:
+            # The object_id is the canonical URL to the subnode.
+            # We can extract the subnode_uri from it.
+            subnode_uri = post_data['object_id'].split('#/')[-1]
+            
+            if sqlite_engine.is_subnode_federated(subnode_uri):
+                current_app.logger.info(f"Skipping already federated subnode: {subnode_uri}")
+                continue
+
             create_activity = {
                 '@context': 'https://www.w3.org/ns/activitystreams',
                 'id': post_data['activity_id'],
@@ -1185,6 +1213,10 @@ def send_recent_posts(follower_inbox, key_id, posts_to_send, app_context):
                 }
             }
             federation.send_signed_request(follower_inbox, key_id, create_activity, private_key)
+            
+            # Mark as federated after sending.
+            sqlite_engine.add_federated_subnode(subnode_uri)
+
             # Small delay to avoid overwhelming the remote server.
             time.sleep(0.5)
 
@@ -1310,11 +1342,17 @@ def user_outbox(user):
         # Construct fully qualified URLs for each object.
         # The ID of the Create activity itself.
         activity_id = url_for('.user_outbox', user=user, _external=True, _scheme='https') + f'#/{subnode.uri}/{subnode.mtime}'
-        # The ID of the Note object, which is the subnode itself.
+                # The ID of the Note object, which is the subnode itself.
         object_id = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
         
         # Format the timestamp to ISO 8601 format as required by ActivityPub.
         published_time = datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat()
+
+        content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+        content_with_link = f"""{content_str}
+<br><br>
+<p>Source: <a href="{object_id}" rel="nofollow noopener noreferrer" target="_blank">{object_id}</a></p>
+"""
 
         create_activity = {
             'id': activity_id,
@@ -1328,7 +1366,7 @@ def user_outbox(user):
                 'type': 'Note',
                 'published': published_time,
                 'attributedTo': url_for('.ap_user', username=user, _external=True, _scheme='https'),
-                'content': render.markdown(subnode.content),
+                'content': render.markdown(content_with_link),
                 'url': url_for('.root', node=subnode.wikilink, _external=True, _scheme='https'),
                 'to': ['https://www.w3.org/ns/activitystreams#Public'],
                 'cc': [url_for('.ap_user', username=user, _external=True, _scheme='https') + '/followers'],
