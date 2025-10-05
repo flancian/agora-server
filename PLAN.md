@@ -16,26 +16,50 @@
         -   Implement a tab for `chiptune.app`, which will be loaded on-demand into an iframe.
         -   The implementation will use the existing embeddability check to provide a graceful fallback if the site cannot be embedded.
 
+# 🎵 Future Work
+
+## Musical Side Quests
+
+**Goal:** Enrich the Agora's atmosphere and provide tools for musical exploration.
+**Priority: Low**
+
+-   **Tasks:**
+    -   **Ambient Music Toggle (In Progress):**
+        -   Add a `🎵` toggle to the main action bar.
+        -   When enabled, it will show a small, draggable mini-player that plays a looping, ambient MIDI track.
+        -   The feature will use dynamic imports to load audio libraries on-demand, preserving initial page load speed.
+        -   The player's state (on/off) and position will be saved to `localStorage`.
+    -   **A/V Provider Tab (Next Up):**
+        -   Create a new "Media" section alongside the existing AI, Web, and Wikimedia sections.
+        -   Implement a tab for `chiptune.app`, which will be loaded on-demand into an iframe.
+        -   The implementation will use the existing embeddability check to provide a graceful fallback if the site cannot be embedded.
+
 ## Fediverse Integration (ActivityPub)
 
 **Goal:** Integrate the Agora with the Fediverse, allowing Agora users to be followed and their contributions to appear as posts on platforms like Mastodon.
 **Priority: Medium**
 
--   **Tasks:**
-    -   **Step 1: Flesh out the Actor Profile**
-        -   Update the `/u/<user>` endpoint to dynamically pull user data from the Agora.
-        -   Populate fields like `name`, `preferredUsername`, and `summary` (perhaps from a `[[@user/bio]]` node).
-        -   Ensure the `url` field points to the user's HTML profile page in the Agora.
-    -   **Step 2: Implement a Dynamic Outbox**
-        -   Modify the `/u/<user>/outbox` endpoint to serve a collection of the user's recent subnodes.
-        -   For each subnode, generate a `Create` activity with a `Note` object.
-        -   The `Note` content should be the subnode's Markdown content converted to sanitized HTML.
-        -   The `Note` should include a `url` linking back to the original subnode in the Agora.
-    -   **Step 3: Handle Follows & Implement Inbox**
-        -   Implement logic in the `/u/<user>/inbox` endpoint to handle incoming `Follow` activities.
-        -   **Use the existing SQLite database to store follower relationships.** This will require a new `followers` table (e.g., with columns for `user_being_followed` and `follower_actor_url`).
-        -   Upon receiving a valid `Follow` request, the server should send an `Accept` activity back to the follower's inbox.
-        -   (Future) Evolve from a pull-based outbox to a push-based model where new subnodes are sent to followers' inboxes directly.
+### Completed (October 2025)
+-   ✅ **Actor Profile:** The `/u/<user>` endpoint now generates a valid ActivityPub actor profile, pulling the user's bio from `[[@user/bio]]`.
+-   ✅ **WebFinger:** Users are discoverable via WebFinger (`.well-known/webfinger`).
+-   ✅ **Dynamic Outbox:** The `/u/<user>/outbox` endpoint serves a collection of the user's 20 most recent subnodes as `Create` activities.
+-   ✅ **Source Links:** All federated posts now include an HTML link back to the original subnode in the Agora.
+-   ✅ **Inbox and Follows:** The `/u/<user>/inbox` endpoint correctly handles `Follow` activities, stores follower relationships in the database, and sends back an `Accept` confirmation.
+-   ✅ **Welcome Package:** Upon a successful follow, the Agora sends the 5 most recent, previously unfederated subnodes to the new follower. This is controlled by the `ACTIVITYPUB_SEND_WELCOME_PACKAGE` feature flag.
+-   ✅ **Federation Tracking:** A new `federated_subnodes` table in the database tracks which subnodes have been sent to prevent duplicates.
+
+### Next Steps
+-   **Real-time Push:** The most important next step is to move from a pull/welcome-only model to a push model. New and updated subnodes should be pushed to the inboxes of all of a user's followers in near real-time.
+-   **Federate Stars as Likes:** Implement the logic in the `star_subnode` function to send a `Like` activity to the original author's server when a user stars a subnode. This makes the Agora an active participant, not just a publisher.
+-   **Handle More Incoming Activities:**
+    -   **Undo(Follow):** The inbox should handle `Undo` activities to correctly process unfollows.
+    -   **Like/Announce:** The inbox should be able to receive `Like` and `Announce` (boost/repost) activities from other servers and potentially represent them in the Agora UI.
+-   **Federate Replies and Mentions:**
+    -   Parse subnode content for `@user@domain` mentions.
+    -   If a subnode is a reply to a Fediverse post, it should be sent with the `inReplyTo` field pointing to the original post.
+-   **UI Enhancements:**
+    -   Add UI elements to a user's profile page to show their follower/following counts.
+    -   Consider adding a "Federate" button to subnodes for manual sharing.
 
 
 # ✅ Completed Work: Refactoring `main.ts`
