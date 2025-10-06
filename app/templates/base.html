@@ -29,6 +29,24 @@
 	<!-- This is a development Agora, so it's likely better if it's not indexed (it might not be up most of the time). -->
 	<meta name="robots" content="noindex" />
 	{% endif %}
+
+    <script>
+      // IIFE to prevent leaking variables into global scope
+      (function() {
+        try {
+          // 1. Read theme from localStorage
+          var theme = localStorage.getItem('theme');
+          if (theme) {
+            // 2. If it exists, apply it to the root <html> element
+            document.documentElement.setAttribute('data-theme', theme);
+          }
+        } catch (e) {
+          // If localStorage is disabled or unavailable, just log an error
+          console.error('Could not apply theme from localStorage', e);
+        }
+      })();
+    </script>
+
 	<meta name="description" content="The Agora is a free knowledge commons: {{config['URI_BASE']}}." />
 	<meta name="HandheldFriendly" content="True" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
