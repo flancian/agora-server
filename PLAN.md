@@ -16,23 +16,22 @@
         -   Implement a tab for `chiptune.app`, which will be loaded on-demand into an iframe.
         -   The implementation will use the existing embeddability check to provide a graceful fallback if the site cannot be embedded.
 
-# 🎵 Future Work
+## Go Links UX Improvements
 
-## Musical Side Quests
-
-**Goal:** Enrich the Agora's atmosphere and provide tools for musical exploration.
-**Priority: Low**
+**Goal:** Make the powerful "go link" feature more intuitive and user-friendly.
+**Priority: Medium**
 
 -   **Tasks:**
-    -   **Ambient Music Toggle (In Progress):**
-        -   Add a `🎵` toggle to the main action bar.
-        -   When enabled, it will show a small, draggable mini-player that plays a looping, ambient MIDI track.
-        -   The feature will use dynamic imports to load audio libraries on-demand, preserving initial page load speed.
-        -   The player's state (on/off) and position will be saved to `localStorage`.
-    -   **A/V Provider Tab (Next Up):**
-        -   Create a new "Media" section alongside the existing AI, Web, and Wikimedia sections.
-        -   Implement a tab for `chiptune.app`, which will be loaded on-demand into an iframe.
-        -   The implementation will use the existing embeddability check to provide a graceful fallback if the site cannot be embedded.
+    -   **Backend: Ensure `#go` and `[[go]]` are equivalent.**
+        -   Review the link detection logic in the backend to confirm that both `#go` and `[[go]]` are treated as valid ways to define a go link.
+    -   **UI: Make the "Go" Button Smarter.**
+        -   The frontend should check if a valid go link exists for the current node.
+        -   If a link exists, the button should be enabled. Consider changing its text to be more descriptive if possible (e.g., "Go to Source").
+        -   If no link exists, the button should be disabled and have a tooltip explaining why (e.g., "No go link defined in this node").
+    -   **UI: Provide Feedback on Failure.**
+        -   If a user clicks the "Go" button but no valid link is found, flash a message to the user explaining what happened instead of silently failing.
+    -   **UI: Visually Highlight Go Link Definitions.**
+        -   Apply a special CSS class or icon (e.g., ➡️) to subnodes that contain a `[[go]]` or `#go` definition, making them easier to spot when reading a node.
 
 ## Fediverse Integration (ActivityPub)
 

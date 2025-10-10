@@ -41,6 +41,46 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
   initSettings();
 
+  // This function reads localStorage and hides any info-boxes that have been previously dismissed.
+  // It's safe to call multiple times.
+  function applyDismissals() {
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('dismissed-')) {
+            if (localStorage.getItem(key) === 'true') {
+                const infoBoxId = key.substring('dismissed-'.length);
+                const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
+                if (infoBox) {
+                    infoBox.classList.add("hidden");
+                    infoBox.style.display = "none";
+                }
+            }
+        }
+    }
+  }
+
+  // Run on initial load for static elements.
+  applyDismissals();
+
+  // Event delegation for dismiss buttons.
+  // This handles buttons present on initial load AND those added dynamically.
+  document.body.addEventListener('click', function(event) {
+    const target = event.target as HTMLElement;
+    if (target.classList.contains('dismiss-button')) {
+      const infoBoxId = target.getAttribute("info-box-id");
+      const parentDiv = target.parentElement;
+      if (parentDiv) {
+        console.log("Dismissing info box: " + infoBoxId);
+        parentDiv.classList.add("hidden");
+        localStorage.setItem(`dismissed-${infoBoxId}`, "true");
+
+        parentDiv.addEventListener("transitionend", function () {
+          parentDiv.style.display = "none";
+        }, { once: true });
+      }
+    }
+  });
+
   // Observer to initialize stars on dynamically added subnodes.
   const starObserver = new MutationObserver((mutations) => {
       let needsUpdate = false;
@@ -615,31 +655,22 @@ document.addEventListener("DOMContentLoaded", async function () {
     // give some time to Wikipedia to search before trying to pull it (if it's considered relevant here).
     setTimeout(autoPullAsync, 1000)
 
-    // Check local storage to see if the info boxes should be hidden
-    const dismissButtons = document.querySelectorAll(".dismiss-button");
-    dismissButtons.forEach(button => {
-      const infoBoxId = button.getAttribute("info-box-id");
-      const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
-      // Add click event to the dismiss button
+    // New, safe info box dismissal logic.
+    // First, apply dismissals from localStorage.
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('dismissed-')) {
+            if (localStorage.getItem(key) === 'true') {
+                const infoBoxId = key.substring('dismissed-'.length);
+                const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
+                if (infoBox) {
+                    infoBox.classList.add("hidden");
+                    infoBox.style.display = "none";
+                }
+            }
+        }
+    }
 
-      if (localStorage.getItem(`dismissed-${infoBoxId}`) === "true") {
-        infoBox.classList.add("hidden");
-        infoBox.style.display = "none";
-      }
-
-      button.addEventListener("click", function () {
-        const parentDiv = button.parentElement;
-        console.log("Dismissing info box");
-        parentDiv.classList.add("hidden");
-        localStorage.setItem(`dismissed-${infoBoxId}`, "true");
-
-        // Optionally, you can completely remove the element from the DOM after the transition
-        parentDiv.addEventListener("transitionend", function () {
-          parentDiv.style.display = "none";
-        }, { once: true });
-
-      });
-    });
     // end infobox dismiss code.
 
     // bind stoas, search and genai early.
@@ -838,6 +869,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function bindEvents() {
     initializeStars();
+    applyDismissals(); // Run again for dynamically loaded info-boxes.
 
     const user = localStorage.getItem('user') || 'flancian';
 
@@ -888,30 +920,23 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Initial sort after async content is loaded
     sortSubnodes();
 
-    // Check local storage to see if the info boxes should be hidden
-    const dismissButtons = document.querySelectorAll(".dismiss-button");
-    dismissButtons.forEach(button => {
-      const infoBoxId = button.getAttribute("info-box-id");
-      const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
-      // Add click event to the dismiss button
+    // New, safe info box dismissal logic.
+    // This is duplicated from loadAsyncContent to handle elements that might be added after the initial load.
+    // First, apply dismissals from localStorage.
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('dismissed-')) {
+            if (localStorage.getItem(key) === 'true') {
+                const infoBoxId = key.substring('dismissed-'.length);
+                const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
+                if (infoBox) {
+                    infoBox.classList.add("hidden");
+                    infoBox.style.display = "none";
+                }
+            }
+        }
+    }
 
-      if (localStorage.getItem(`dismissed-${infoBoxId}`) === "true") {
-        infoBox.classList.add("hidden");
-        infoBox.style.display = "none";
-      }
-
-      button.addEventListener("click", function () {
-        const parentDiv = button.parentElement;
-        parentDiv.classList.add("hidden");
-        localStorage.setItem(`dismissed-${infoBoxId}`, "true");
-
-        // Optionally, you can completely remove the element from the DOM after the transition
-        parentDiv.addEventListener("transitionend", function () {
-          parentDiv.style.display = "none";
-        }, { once: true });
-
-      });
-    });
     // end infobox dismiss code.
 
     // this works and has already replaced most pull buttons for Agora sections.
@@ -1383,10 +1408,12 @@ document.addEventListener("DOMContentLoaded", async function () {
                                 });
                             });
                         });
+                        applyDismissals(); // Run again, as the wp info-box is now in the DOM.
                     }, { once: true });
                 } else {
                     // Fallback for safety
                     wpWtContainer.innerHTML = html;
+                    applyDismissals(); // Also run here in the fallback case.
                 }
             }
         });
