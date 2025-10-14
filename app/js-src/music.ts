@@ -7,29 +7,43 @@ export function initMusicPlayer() {
     const musicPlayerContainer = document.getElementById('music-player-container');
     const musicCheckboxes = document.querySelectorAll(".music-checkbox-input") as NodeListOf<HTMLInputElement>;
     const musicCloseButton = document.getElementById('music-player-close-btn');
+    const prevButton = document.getElementById('music-player-prev');
+    const pauseButton = document.getElementById('music-player-pause');
+    const nextButton = document.getElementById('music-player-next');
+    const trackNameSpan = document.getElementById('music-player-track-name');
+
     let musicPlayer: any = null;
+    let opusPlayer: HTMLAudioElement | null = null;
+    let currentTrackIndex = 0;
+    let isPaused = false;
+
+    const playlist = [
+        { name: "Burup", path: '/static/mid/burup.mid' },
+        { name: "Rainbow Folding", path: 'https://anagora.org/assets/rainbow-folding-64.opus' }
+    ];
 
     const stopMusic = () => {
         if (musicPlayer) {
             musicPlayer.stop();
             musicPlayer = null;
-            console.log("Ambient music stopped.");
         }
+        if (opusPlayer) {
+            opusPlayer.pause();
+            opusPlayer.src = "";
+            opusPlayer = null;
+        }
+        console.log("Music stopped.");
     };
 
-    const setMusicState = (isPlaying: boolean) => {
-        localStorage.setItem("ambient-music-active", JSON.stringify(isPlaying));
-        musicCheckboxes.forEach(checkbox => {
-            checkbox.checked = isPlaying;
-        });
+    const playTrack = (trackIndex: number) => {
+        stopMusic();
+        isPaused = false;
+        pauseButton.textContent = '⏸';
+        currentTrackIndex = trackIndex;
+        const track = playlist[trackIndex];
+        trackNameSpan.textContent = track.name;
 
-        if (isPlaying) {
-            // Only show the player if it wasn't manually closed.
-            const isPlayerVisible = JSON.parse(localStorage.getItem("music-player-visible") || 'true');
-            if (isPlayerVisible) {
-                musicPlayerContainer.classList.add('active');
-            }
-
+        if (track.path.endsWith('.mid')) {
             // Dynamically import and start music
             import('soundfont-player').then(({ default: Soundfont }) => {
                 import('midi-player-js').then(({ default: MidiPlayer }) => {
@@ -47,19 +61,49 @@ export function initMusicPlayer() {
                                 }
                             }
                         });
+
+                        player.on('end', function () {
+                            console.log('Midi file finished, playing next track.');
+                            playTrack((currentTrackIndex + 1) % playlist.length);
+                        });
+
                         musicPlayer = player;
-                        fetch('/static/mid/burup.mid')
+                        fetch(track.path)
                             .then(response => response.arrayBuffer())
                             .then(arrayBuffer => {
                                 const base64 = btoa(new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ''));
                                 const dataUri = `data:audio/midi;base64,${base64}`;
                                 player.loadDataUri(dataUri);
                                 player.play();
-                                console.log("Ambient music started.");
+                                console.log(`Playing MIDI: ${track.name}`);
                             });
                     });
                 });
             });
+        } else if (track.path.endsWith('.opus')) {
+            opusPlayer = new Audio(track.path);
+            opusPlayer.loop = false; // We want to advance to the next track, not loop this one.
+            opusPlayer.play();
+            opusPlayer.addEventListener('ended', () => {
+                console.log('Opus file finished, playing next track.');
+                playTrack((currentTrackIndex + 1) % playlist.length);
+            });
+            console.log(`Playing Opus: ${track.name}`);
+        }
+    };
+
+    const setMusicState = (isPlaying: boolean) => {
+        localStorage.setItem("ambient-music-active", JSON.stringify(isPlaying));
+        musicCheckboxes.forEach(checkbox => {
+            checkbox.checked = isPlaying;
+        });
+
+        if (isPlaying) {
+            const isPlayerVisible = JSON.parse(localStorage.getItem("music-player-visible") || 'true');
+            if (isPlayerVisible) {
+                musicPlayerContainer.classList.add('active');
+            }
+            playTrack(currentTrackIndex);
         } else {
             musicPlayerContainer.classList.remove('active');
             stopMusic();
@@ -81,8 +125,28 @@ export function initMusicPlayer() {
         });
 
         musicCloseButton?.addEventListener('click', () => {
-            // This will turn off the music, uncheck the toggles, and hide the player.
             setMusicState(false);
+        });
+
+        pauseButton?.addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+                musicPlayer?.pause();
+                opusPlayer?.pause();
+                pauseButton.textContent = '▶️';
+            } else {
+                musicPlayer?.play();
+                opusPlayer?.play();
+                pauseButton.textContent = '⏸';
+            }
+        });
+
+        nextButton?.addEventListener('click', () => {
+            playTrack((currentTrackIndex + 1) % playlist.length);
+        });
+
+        prevButton?.addEventListener('click', () => {
+            playTrack((currentTrackIndex - 1 + playlist.length) % playlist.length);
         });
     }
 

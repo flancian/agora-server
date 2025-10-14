@@ -1553,39 +1553,61 @@ input:checked + .slider:before {
     z-index: 1001;
     display: none;
     animation: fadeIn 0.3s ease-in-out;
-    width: fit-content; /* Constrain container to its content */
+    width: 250px; /* Give it a fixed width */
+    background-color: var(--node-bg);
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 1px solid var(--link-color);
 }
 
 #music-player-container.active {
     display: block;
 }
 
-#music-player {
-    background-color: var(--node-bg);
-    border-radius: 8px;
-    width: 250px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    border: 1px solid var(--link-color);
-}
-
 #music-player-header {
+    cursor: move;
+    padding: 5px;
+    background-color: var(--accent-bg); /* A slightly different color for the header */
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #333;
-    color: #ccc;
-    padding: 2px 8px;
-    border-radius: 5px 5px 0 0;
-    cursor: move;
+    border-radius: 8px 8px 0 0; /* Rounded top corners */
 }
 
+
+.music-player-body {
+    padding: 10px;
+}
+
+#track-info {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#music-player-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.control-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.2em;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+
 #music-player-title {
+    flex-grow: 1;
+    text-align: center;
     font-weight: bold;
     font-size: 0.9em;
     font-family: sans-serif;
-    color: #ccc;
-    flex-grow: 1;
-    text-align: center;
 }
 
 #music-player-close-btn {
@@ -1596,17 +1618,20 @@ input:checked + .slider:before {
     border-radius: 50%;
     width: 20px;
     height: 20px;
-    text-align: center;
-    line-height: 18px;
     font-family: sans-serif;
     font-weight: bold;
     font-size: 16px;
+    /* Use flexbox for perfect centering */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1; /* Reset line-height */
 }
 
 #music-player-content {
     padding: 0.5rem 1rem;
     font-size: 0.9em;
-    text-align: center;
 }
 
 @media screen and (max-width: 60em) {
