@@ -13,24 +13,32 @@
 // limitations under the License.
 //
 
-import { initializeStars } from './starring';
-
-
+import { initializeStars, initializeNodeStars } from './starring';
 
 
 
 // these define default dynamic behaviour client-side, based on local storage preferences.
+
 // these come from toggles in settings.ts.
+
 const autoPullExtra = JSON.parse(localStorage["auto-pull-extra"] || 'false')
+
 // This would make sense but Hedgedoc currently steals focus on embed and I've been unable to fix it so far :).
+
 const autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || 'false')
+
 const autoPullWikipedia = JSON.parse(localStorage["auto-pull-wikipedia"] || 'false')
+
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
+
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
-import { initializeStars } from './starring';
+
+
 import { initSettings } from './settings';
+
 import { safeJsonParse, darkenColor } from './util';
+
 import { makeDraggable } from './draggable';
 import { initDemoMode } from './demo';
 import { initMusicPlayer } from './music';
@@ -869,6 +877,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function bindEvents() {
     initializeStars();
+    initializeNodeStars();
     applyDismissals(); // Run again for dynamically loaded info-boxes.
 
     const user = localStorage.getItem('user') || 'flancian';

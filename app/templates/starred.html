@@ -19,17 +19,27 @@
 
 <details class="listing node" open>
 <summary>
-<span class="node-header main-header">★ <strong>Starred subnodes</strong></span>
+<span class="node-header main-header">★ <strong>Starred items</strong></span>
 </summary>
 
 <div class="delta node subnode">
     <div class="delta-nodes">
-        {% if subnodes %}
-            {% for subnode in subnodes %}
-            <a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a> by <a href="{{ ('@' + subnode.user)|node_url }}">@{{subnode.user}}</a> on <span class="wikilink-marker">[[</span><a href="{{ (subnode.mtime|datetimeformat('%Y-%m-%d'))|node_url }}"><span class="node-name">{{ subnode.mtime|datetimeformat('%Y-%m-%d') }}</span></a><span class="wikilink-marker">]]</span><br />
+        {% if nodes %}
+            <strong>Nodes</strong><br />
+            {% for node in nodes %}
+            <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span> starred on {{ node.starred_timestamp.strftime('%Y-%m-%d') }}<br />
             {% endfor %}
-        {% else %}
-            You haven't starred any subnodes yet. Click the ☆ icon next to a subnode to star it.
+        {% endif %}
+
+        {% if subnodes %}
+            <br /><strong>Subnodes</strong><br />
+            {% for subnode in subnodes %}
+            <a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a> by <a href="{{ ('@' + subnode.user)|node_url }}">@{{subnode.user}}</a> starred on {{ subnode.starred_timestamp.strftime('%Y-%m-%d') }}<br />
+            {% endfor %}
+        {% endif %}
+
+        {% if not subnodes and not nodes %}
+            You haven't starred any items yet. Click the ☆ icon next to a node or subnode to star it.
         {% endif %}
     </div>
 </div>

@@ -26,12 +26,13 @@
            </summary>
         {% else %}
             <summary class="node-header main-header">
-                <!-- <div class="inline-flex"> -->
-                    <span style="flex: auto; flex-grow: 1;" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">
-                        <strong>{{config['NODE_LABEL']}}</strong> 
-                        <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span> exact match
-                   <!-- <div style="flex: auto; margin-left: auto; text-align: right;"> <button id="pull-all" value="pull-all" title='Tries to retrieve most resources that can be pulled below'>pull all</button> -->
-                    <!-- </div> -->
+                <span style="flex: auto; flex-grow: 1;" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">
+                    <strong>{{config['NODE_LABEL']}}</strong> 
+                    <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span> exact match
+                </span>
+                <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="Star this node">
+                    {% if node.uri in starred_nodes %}★{% else %}☆{% endif %}
+                </span>
             </summary>
             <!--
             <span class="agora-actions">
@@ -140,8 +141,15 @@
 
 <details class="node" id="{{node.uri}}" open>
 
-    <summary class="node-header main-header"><span style="flex: auto; flex-grow: 1;" title="A Node is an Agora location. It contains resources contributed by users having to do with a location according to the Agora you're using.">
-        <strong>{{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span> empty</span></summary>
+    <summary class="node-header main-header">
+        <span style="flex: auto; flex-grow: 1;" title="A Node is an Agora location. It contains resources contributed by users having to do with a location according to the Agora you're using.">
+            <strong>{{config['NODE_LABEL']}}</strong>
+            <span class="wikilink-marker">[[</span><a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span> empty
+        </span>
+        <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="Star this node">
+            {% if node.uri in starred_nodes %}★{% else %}☆{% endif %}
+        </span>
+    </summary>
 
 {% include "empty.html" %}
 

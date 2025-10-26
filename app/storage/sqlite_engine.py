@@ -95,7 +95,14 @@ def create_tables(db):
             """,
             'starred_subnodes': """
                 CREATE TABLE IF NOT EXISTS starred_subnodes (
-                    subnode_uri TEXT PRIMARY KEY
+                    subnode_uri TEXT PRIMARY KEY,
+                    timestamp INTEGER
+                );
+            """,
+            'starred_nodes': """
+                CREATE TABLE IF NOT EXISTS starred_nodes (
+                    node_uri TEXT PRIMARY KEY,
+                    timestamp INTEGER
                 );
             """,
             'graph_cache': """
@@ -118,23 +125,28 @@ def create_tables(db):
                 );
             """
         }
-        # Check all tables in the schema.
+        # Create all tables if they don't exist.
         for table, query in SCHEMA.items():
             db.execute(query)
 
-        # Migration: Add the source_node column to the links table if it doesn't exist.
-        try:
-            db.execute("ALTER TABLE links ADD COLUMN source_node TEXT;")
-        except sqlite3.OperationalError:
-            # This will fail if the column already exists, which is fine.
-            pass
+        cursor = db.cursor()
 
-        # Migration: Add the full_prompt column to the ai_generations table if it doesn't exist.
-        try:
-            db.execute("ALTER TABLE ai_generations ADD COLUMN full_prompt TEXT;")
-        except sqlite3.OperationalError:
-            # This will fail if the column already exists, which is fine.
-            pass
+        # --- Migrations ---
+        # A list of tuples: (table_name, column_name, column_definition)
+        migrations = [
+            ('links', 'source_node', 'TEXT'),
+            ('ai_generations', 'full_prompt', 'TEXT'),
+            ('starred_subnodes', 'timestamp', 'INTEGER DEFAULT CURRENT_TIMESTAMP'),
+            ('starred_nodes', 'timestamp', 'INTEGER DEFAULT CURRENT_TIMESTAMP'),
+        ]
+
+        for table, column, definition in migrations:
+            cursor.execute(f"PRAGMA table_info({table})")
+            columns = [row[1] for row in cursor.fetchall()]
+            if column not in columns:
+                current_app.logger.info(f"Migrating {table} table: adding '{column}' column.")
+                db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition};")
+
 
 def get_subnode_mtime(path):
     """
@@ -295,15 +307,27 @@ def get_random_ai_generation():
 
 def get_all_starred_subnodes():
     """
-    Retrieves all starred subnode URIs.
+    Retrieves all starred subnode URIs and their timestamps, newest first.
     """
     db = get_db()
     if not db:
         return []
     
     cursor = db.cursor()
-    cursor.execute("SELECT subnode_uri FROM starred_subnodes")
-    return [row[0] for row in cursor.fetchall()]
+    cursor.execute("SELECT subnode_uri, timestamp FROM starred_subnodes ORDER BY timestamp DESC")
+    return cursor.fetchall()
+
+def get_all_starred_nodes():
+    """
+    Retrieves all starred node URIs and their timestamps, newest first.
+    """
+    db = get_db()
+    if not db:
+        return []
+
+    cursor = db.cursor()
+    cursor.execute("SELECT node_uri, timestamp FROM starred_nodes ORDER BY timestamp DESC")
+    return cursor.fetchall()
 
 def get_cached_graph(key):
     """
