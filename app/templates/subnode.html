@@ -14,57 +14,24 @@
  limitations under the License.
 -->
 
-{% if node %}
-{% if not subnode and not node.subnodes %}
-<div class="not-found">
-    No subnodes matching your query.
-    <br /><br />
-    Try going up to node <a href="{{node.uri|node_url}}">[[{{node.uri}}]]</a> or perhaps <a href="{{'search'|node_url}}">search</a>.
-</div>
-{% endif %}
-{% endif %}
-
-<!-- the new subnode route uses this, actually receiving a node whose subnodes are partial -->
-{% if node %}
-<div class="node">
-<span class="node-header main-header">∂ part of node <a href="{{node.uri|node_url}}">[[{{node.uri}}]]</a></span>
-{% for subnode in node.subnodes %}
-<div class="subnode">
-    <div class="subnode-header">
-            <span class="subnode-id"><a
-                    href="{{('@' + subnode.user + '/' + node.uri)|node_url}}">📓</a>
-            <span class="subnode-links"><a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                    href="{{('@' + subnode.user)|node_url}}">@<span class="subnode-user">{{subnode.user}}</span></span></a></span>
-    </div>
-    {{ subnode.render()|linkify|safe }}
-</div>
-{% endfor %}
-</div>
-</div>
-
-<div class="links">
-    <div class="backlinks">
-        <span class="backlinks-header">To see links, go up to full node <a href="{{node.uri|node_url}}">[[{{node.uri}}]]</a>.</span>
-    </div>
-</div>
-{% endif %}
-<!-- end new subnode route -->
-
-<!-- old_subnode uses this -->
 {% if subnode %}
 <div class="subnode">
-    <span class="subnode-header">Subnode <a href="{{subnode.uri|node_url}}">[[{{subnode.uri}}]]</a> by <a
-            href="{{('@' + subnode.user)|node_url}}">@{{subnode.user}}</a> in node <a
-            href="{{subnode.wikilink|node_url}}">[[{{subnode.wikilink}}]]</a></span>
+    <div class="subnode-header">
+    <span class="subnode-id">
+        <span class="subnode-links">
+          <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see only this subnode.">📓</a> 
+            <a href="/raw/{{subnode.uri}}"><span title="Click to see the raw resource.">{{subnode.garden_relative}}</span></a> 
+            <span title="This resource was contributed to this Agora and seems relevant to the current topic."> by </span>
+            <a class="user" href="/@{{subnode.user}}"" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>
+        </span>
+    </span>
+
+    <span class="subnode-contrib">
+        <span class="star-toggle {% if subnode.uri in starred_subnodes %}starred{% endif %}" data-subnode-uri="{{ subnode.uri }}" title="Star this subnode">
+{% if subnode.uri in starred_subnodes %}★{% else %}☆{% endif %}
+</span>
+    </span>
+</div>
     {{ subnode.render()|linkify|safe }}
 </div>
-<div class="links">
-    <div class="backlinks">
-        <span class="backlinks-header">To see links, go up to node <a
-                href="{{subnode.wikilink|node_url}}">[[{{subnode.wikilink}}]]</a>.</span>
-    </div>
-</div>
-
-
 {% endif %}
-<!-- end: old_subnode uses this -->

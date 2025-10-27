@@ -29,9 +29,9 @@
     </div>
 
     {% for date, subnodes in subnodes_by_date.items() %}
-        <h2>{{ date }}</h2>
+        <h2><a href="/{{ date }}">{{ date }}</a></h2>
         {% for subnode in subnodes %}
-            {% include "subnode.html" %}
+            {% include "subnode.html" with context %}
         {% endfor %}
     {% endfor %}
 

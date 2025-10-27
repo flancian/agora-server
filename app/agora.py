@@ -809,14 +809,17 @@ def user_journal(user):
     
     subnodes_by_date = collections.defaultdict(list)
     for subnode in journal_subnodes:
-        # The URI of a journal subnode is its date, e.g., "2025-09-12".
-        subnodes_by_date[subnode.uri].append(subnode)
+        # Group by wikilink, which is the date for a journal subnode.
+        subnodes_by_date[subnode.wikilink].append(subnode)
+
+    # Sort by date descending
+    sorted_subnodes_by_date = collections.OrderedDict(sorted(subnodes_by_date.items(), reverse=True))
 
     return render_template(
         "journals.html",
         header=f"Journals for user @{user}",
         node=n,
-        subnodes_by_date=subnodes_by_date,
+        subnodes_by_date=sorted_subnodes_by_date,
     )
 
 
@@ -848,14 +851,24 @@ def journals(entries):
     journal_subnodes = api.all_journals()[0:entries]
     subnodes_by_date = collections.defaultdict(list)
     for subnode in journal_subnodes:
-        # The URI of a journal subnode is its date, e.g., "2025-09-12".
-        subnodes_by_date[subnode.uri].append(subnode)
+        # Group by wikilink, which is the date for a journal subnode.
+        subnodes_by_date[subnode.wikilink].append(subnode)
+
+    # Sort users within each day
+    for date in subnodes_by_date:
+        subnodes_by_date[date].sort(key=lambda s: s.user)
+    
+    # Sort by date descending
+    sorted_subnodes_by_date = collections.OrderedDict(sorted(subnodes_by_date.items(), reverse=True))
+
+    starred_subnodes = sqlite_engine.get_all_starred_subnodes()
 
     return render_template(
         "journals.html",
         node=n,
         header=f"Journal entries in the last {entries} days",
-        subnodes_by_date=subnodes_by_date,
+        subnodes_by_date=sorted_subnodes_by_date,
+        starred_subnodes=starred_subnodes,
     )
 
 
@@ -1031,6 +1044,12 @@ def random_artifact():
                 'content': render.markdown(content)
             })
     return jsonify({'content': '<em>No artifacts found in the database cache.</em>'})
+
+def federate_create(subnode_uri, app_context):
+    """Federation for stars is not yet implemented."""
+    current_app.logger.info(f"Federation for star on {subnode_uri} is a stub.")
+    return
+
 
 @bp.route("/api/star/<path:subnode_uri>", methods=["POST"])
 def star_subnode(subnode_uri):

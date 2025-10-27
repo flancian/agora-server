@@ -437,18 +437,24 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
   */
 
-  document.querySelector("#mini-cli-exec").addEventListener("click", () => {
-    console.log("exec mini-cli");
-    let val = document.querySelector("#mini-cli").value;
-    document.querySelector("#mini-cli").parentElement.submit();
-  });
+  const miniCliExec = document.querySelector("#mini-cli-exec");
+  if (miniCliExec) {
+    miniCliExec.addEventListener("click", () => {
+      console.log("exec mini-cli");
+      let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
+      (document.querySelector("#mini-cli").parentElement as HTMLFormElement).submit();
+    });
+  }
 
-  document.querySelector("#mini-cli-go").addEventListener("click", () => {
-    console.log("go mini-cli executes");
-    let val = document.querySelector("#mini-cli").value;
-    document.querySelector("#mini-cli").value = 'go/' + val;
-    document.querySelector("#mini-cli").parentElement.submit();
-  });
+  const miniCliGo = document.querySelector("#mini-cli-go");
+  if (miniCliGo) {
+    miniCliGo.addEventListener("click", () => {
+      console.log("go mini-cli executes");
+      let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
+      (document.querySelector("#mini-cli") as HTMLInputElement).value = 'go/' + val;
+      (document.querySelector("#mini-cli").parentElement as HTMLFormElement).submit();
+    });
+  }
 
   initDemoMode();
 
@@ -483,54 +489,60 @@ document.addEventListener("DOMContentLoaded", async function () {
 			}, duration);
 	}
 
-  document.querySelector("#mini-cli-retry").addEventListener("click", () => {
-    console.log("retry mini-cli executes");
-    const url = new URL(window.location.href);
-    url.searchParams.set('t', new Date().getTime());
-    window.location.href = url.href;
-  });
+  const miniCliRetry = document.querySelector("#mini-cli-retry");
+  if (miniCliRetry) {
+    miniCliRetry.addEventListener("click", () => {
+      console.log("retry mini-cli executes");
+      const url = new URL(window.location.href);
+      url.searchParams.set('t', new Date().getTime());
+      window.location.href = url.href;
+    });
+  }
 
-  document.querySelector("#mini-cli-pull")?.addEventListener("click", (e) => {
-    const button = e.currentTarget as HTMLElement;
-    const isExpanded = button.dataset.state === 'expanded';
+  const miniCliPull = document.querySelector("#mini-cli-pull");
+  if (miniCliPull) {
+    miniCliPull.addEventListener("click", (e) => {
+      const button = e.currentTarget as HTMLElement;
+      const isExpanded = button.dataset.state === 'expanded';
 
-    if (isExpanded) {
-      console.log("pull mini-cli executes: collapsing top-level details");
-      document.querySelectorAll("details[open]").forEach(detail => {
-        // Only click the summary if this <details> element is not nested within another <details> element.
-        if (!detail.parentElement.closest('details')) {
-            const summary = detail.querySelector(':scope > summary');
-            if (summary) {
-                (summary as HTMLElement).click();
-            }
-        }
-      });
-      button.innerHTML = '🧲 pull';
-      button.title = 'Tries to pull (embed) more into this context';
-      button.dataset.state = 'collapsed';
-    } else {
-      console.log("pull mini-cli executes: expanding top-level details");
-      document.querySelectorAll("details:not([open])").forEach(detail => {
-        // Only click the summary if this <details> element is not nested within another <details> element.
-        if (!detail.parentElement.closest('details')) {
-            const summary = detail.querySelector(':scope > summary');
-            if (summary) {
-                (summary as HTMLElement).click();
-            }
-        }
-      });
-      button.innerHTML = '✕ fold';
-      button.title = 'Collapses all expanded sections';
-      button.dataset.state = 'expanded';
+      if (isExpanded) {
+        console.log("pull mini-cli executes: collapsing top-level details");
+        document.querySelectorAll("details[open]").forEach(detail => {
+          // Only click the summary if this <details> element is not nested within another <details> element.
+          if (!detail.parentElement.closest('details')) {
+              const summary = detail.querySelector(':scope > summary');
+              if (summary) {
+                  (summary as HTMLElement).click();
+              }
+          }
+        });
+        button.innerHTML = '🧲 pull';
+        button.title = 'Tries to pull (embed) more into this context';
+        button.dataset.state = 'collapsed';
+      } else {
+        console.log("pull mini-cli executes: expanding top-level details");
+        document.querySelectorAll("details:not([open])").forEach(detail => {
+          // Only click the summary if this <details> element is not nested within another <details> element.
+          if (!detail.parentElement.closest('details')) {
+              const summary = detail.querySelector(':scope > summary');
+              if (summary) {
+                  (summary as HTMLElement).click();
+              }
+          }
+        });
+        button.innerHTML = '✕ fold';
+        button.title = 'Collapses all expanded sections';
+        button.dataset.state = 'expanded';
 
-      document.querySelectorAll(".pull-mastodon-status").forEach(element => {
-        if (!element.classList.contains('pulled')) {
-            console.log('auto pulling mastodon status from navbar');
-            (element as HTMLElement).click();
-        }
-      });
-    }
-  });
+        document.querySelectorAll(".pull-mastodon-status").forEach(element => {
+          if (!element.classList.contains('pulled')) {
+              console.log('auto pulling mastodon status from navbar');
+              (element as HTMLElement).click();
+          }
+        });
+      }
+    });
+  }
 
   /*
   document.querySelector("#internet-go").addEventListener("click", () => {
