@@ -15,25 +15,44 @@
 -->
 
 {% extends "base.html" %}
+
 {% block content %}
-
-<details class="listing node" open>
-<summary>
-<span class="node-header main-header">★ <strong>Starred subnodes</strong></span>
-</summary>
-
-<div class="delta node subnode">
-    <div class="delta-nodes">
-        {% if subnodes %}
-            {% for subnode in subnodes %}
-            <a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a> by <a href="{{ ('@' + subnode.user)|node_url }}">@{{subnode.user}}</a> on <span class="wikilink-marker">[[</span><a href="{{ (subnode.mtime|datetimeformat('%Y-%m-%d'))|node_url }}"><span class="node-name">{{ subnode.mtime|datetimeformat('%Y-%m-%d') }}</span></a><span class="wikilink-marker">]]</span><br />
-            {% endfor %}
+<div class="node">
+    <div class="starred-nodes">
+        <h2>Starred Nodes</h2>
+        {% if starred_nodes %}
+            <ul>
+                {% for node_uri in starred_nodes|sort %}
+                    <li><span class="wikilink-marker">[[</span><a href="/{{ node_uri }}">{{ node_uri }}</a><span class="wikilink-marker">]]</span></li>
+                {% endfor %}
+            </ul>
         {% else %}
-            You haven't starred any subnodes yet. Click the ☆ icon next to a subnode to star it.
+            <p>No starred nodes yet.</p>
         {% endif %}
     </div>
-</div>
-</details>
 
+    <div class="starred-subnodes">
+        <h2>Starred Subnodes</h2>
+        {% if subnodes %}
+            <ul>
+            {% for subnode in subnodes %}
+                <li>
+                <details>
+                    <summary>
+                        <a href="/subnode/{{ subnode.uri }}">{{ subnode.uri }}</a> by <a href="/@{{ subnode.user }}">@{{ subnode.user }}</a>
+                    </summary>
+                    <div style="margin-left: 2em; margin-top: 1em;">
+                    {% include "subnode.html" %}
+                    </div>
+                </details>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No starred subnodes yet.</p>
+        {% endif %}
+    </div>
+
+</div>
 {% include "footer.html" %}
 {% endblock %}

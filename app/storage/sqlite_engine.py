@@ -293,17 +293,58 @@ def get_random_ai_generation():
     result = cursor.fetchone()
     return (result[0], result[1]) if result else (None, None)
 
-def get_all_starred_subnodes():
-    """
-    Retrieves all starred subnode URIs.
-    """
+#
+# Starred Subnodes
+#
+def star_subnode(subnode_uri):
     db = get_db()
-    if not db:
-        return []
-    
-    cursor = db.cursor()
-    cursor.execute("SELECT subnode_uri FROM starred_subnodes")
-    return [row[0] for row in cursor.fetchall()]
+    if db:
+        db.execute("INSERT INTO starred_subnodes (subnode_uri) VALUES (?)", (subnode_uri,))
+        db.commit()
+
+def unstar_subnode(subnode_uri):
+    db = get_db()
+    if db:
+        db.execute("DELETE FROM starred_subnodes WHERE subnode_uri = ?", (subnode_uri,))
+        db.commit()
+
+def get_all_starred_subnodes():
+    db = get_db()
+    if db is None:
+        return set()
+    try:
+        cursor = db.execute("SELECT subnode_uri FROM starred_subnodes")
+        return {row[0] for row in cursor.fetchall()}
+    except sqlite3.OperationalError as e:
+        # This can happen if the table doesn't exist yet.
+        current_app.logger.warning(f"Could not fetch starred subnodes, table might not exist yet: {e}")
+        return set()
+
+#
+# Starred Nodes
+#
+def star_node(node_uri):
+    db = get_db()
+    if db:
+        db.execute("INSERT INTO starred_nodes (node_uri) VALUES (?)", (node_uri,))
+        db.commit()
+
+def unstar_node(node_uri):
+    db = get_db()
+    if db:
+        db.execute("DELETE FROM starred_nodes WHERE node_uri = ?", (node_uri,))
+        db.commit()
+
+def get_all_starred_nodes():
+    db = get_db()
+    if db is None:
+        return set()
+    try:
+        cursor = db.execute("SELECT node_uri FROM starred_nodes")
+        return {row[0] for row in cursor.fetchall()}
+    except sqlite3.OperationalError as e:
+        current_app.logger.warning(f"Could not fetch starred nodes, table might not exist yet: {e}")
+        return set()
 
 def get_cached_graph(key):
     """
@@ -373,6 +414,20 @@ def get_followers(user_uri):
     cursor.execute("SELECT follower_uri FROM followers WHERE user_uri = ?", (user_uri,))
     return [row[0] for row in cursor.fetchall()]
 
+def get_all_starred_nodes():
+    db = get_db()
+    if db is None:
+        return set()
+    try:
+        cursor = db.execute("SELECT node_uri FROM starred_nodes")
+        return {row[0] for row in cursor.fetchall()}
+    except sqlite3.OperationalError as e:
+        current_app.logger.warning(f"Could not fetch starred nodes, table might not exist yet: {e}")
+        return set()
+
+#
+# Federated Subnodes
+#
 def add_federated_subnode(subnode_uri):
     """
     Adds a subnode URI to the set of subnodes that have been federated.

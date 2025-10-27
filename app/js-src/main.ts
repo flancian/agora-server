@@ -28,7 +28,7 @@ const autoPullWikipedia = JSON.parse(localStorage["auto-pull-wikipedia"] || 'fal
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
-import { initializeStars } from './starring';
+import { initializeStars, initializeNodeStars } from './starring';
 import { initSettings } from './settings';
 import { safeJsonParse, darkenColor } from './util';
 import { makeDraggable } from './draggable';
@@ -881,6 +881,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function bindEvents() {
     initializeStars();
+    initializeNodeStars();
     applyDismissals(); // Run again for dynamically loaded info-boxes.
 
     const user = localStorage.getItem('user') || 'flancian';

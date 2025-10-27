@@ -82,7 +82,71 @@ function updateStarUI(starredUris: string[]) {
 }
 
 // We need to run this on initial load, but also whenever new subnodes are added to the DOM.
-export async function initializeStars() {
-    const starredUris = await getStarredUris();
-    updateStarUI(starredUris);
-};
+export function initializeStars() {
+    document.querySelectorAll('.star-toggle').forEach(button => {
+        // Remove any existing listener to prevent duplicates
+        button.removeEventListener('click', handleStarClick);
+        button.addEventListener('click', handleStarClick);
+    });
+}
+
+function handleStarClick(event) {
+    const button = event.currentTarget as HTMLElement;
+    const subnodeUri = button.dataset.subnodeUri;
+    const isStarred = button.classList.contains('starred');
+
+    const endpoint = isStarred ? `/api/unstar/${subnodeUri}` : `/api/star/${subnodeUri}`;
+
+    fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            button.classList.toggle('starred');
+            button.innerHTML = isStarred ? '☆' : '★';
+        } else {
+            console.error('Failed to update star status:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+export function initializeNodeStars() {
+    document.querySelectorAll('.node-star-toggle').forEach(button => {
+        button.removeEventListener('click', handleNodeStarClick);
+        button.addEventListener('click', handleNodeStarClick);
+    });
+}
+
+function handleNodeStarClick(event) {
+    const button = event.currentTarget as HTMLElement;
+    const nodeUri = button.dataset.nodeUri;
+    const isStarred = button.classList.contains('starred');
+
+    const endpoint = isStarred ? `/api/unstar_node/${nodeUri}` : `/api/star_node/${nodeUri}`;
+
+    fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            button.classList.toggle('starred');
+            button.innerHTML = isStarred ? '☆' : '★';
+        } else {
+            console.error('Failed to update node star status:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}

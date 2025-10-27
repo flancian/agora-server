@@ -146,12 +146,14 @@ def root(node, user_list=""):
 def node(node, user_list=""):
     n = api.build_node(node)
     starred_subnodes = sqlite_engine.get_all_starred_subnodes()
+    starred_nodes = sqlite_engine.get_all_starred_nodes()
 
     return render_template(
         "async.html",
         node=n,
         config=current_app.config,
         starred_subnodes=starred_subnodes,
+        starred_nodes=starred_nodes,
         # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
         # sorry for the fuzzy thinking but I'm short on time and want to get things done.
         # (...famous last words).
@@ -424,13 +426,15 @@ def latest():
 @bp.route("/starred")
 def starred():
     n = api.build_node("starred")
-    starred_uris = sqlite_engine.get_all_starred_subnodes()
-    subnodes = [api.subnode_by_uri(uri) for uri in starred_uris if api.subnode_by_uri(uri) is not None]
+    starred_subnode_uris = sqlite_engine.get_all_starred_subnodes()
+    starred_node_uris = sqlite_engine.get_all_starred_nodes()
+    subnodes = [api.subnode_by_uri(uri) for uri in starred_subnode_uris if api.subnode_by_uri(uri) is not None]
     return render_template(
         "starred.html",
-        header="Starred subnodes",
+        header="Starred",
         subnodes=subnodes,
         node=n,
+        starred_nodes=starred_node_uris,
     )
 
 
@@ -1054,18 +1058,10 @@ def federate_create(subnode_uri, app_context):
 @bp.route("/api/star/<path:subnode_uri>", methods=["POST"])
 def star_subnode(subnode_uri):
     try:
-        db = sqlite_engine.get_db()
-        if db is None:
-            current_app.logger.error("API: Database connection is not available for starring.")
-            return jsonify({"status": "error", "message": "Database connection failed"}), 500
-        
-        db.execute(
-            "INSERT INTO starred_subnodes (subnode_uri) VALUES (?)",
-            (subnode_uri,)
-        )
-        db.commit()
+        # The core logic is now in sqlite_engine, making this a thin wrapper.
+        sqlite_engine.star_subnode(subnode_uri)
 
-        # Federate the star action as a Create activity to followers.
+        # Federation is still handled here as it involves application-level context.
         app_context = current_app.app_context()
         thread = threading.Thread(target=federate_create, args=(subnode_uri, app_context))
         thread.start()
@@ -1078,16 +1074,8 @@ def star_subnode(subnode_uri):
 @bp.route("/api/unstar/<path:subnode_uri>", methods=["POST"])
 def unstar_subnode(subnode_uri):
     try:
-        db = sqlite_engine.get_db()
-        if db is None:
-            current_app.logger.error("API: Database connection is not available for unstarring.")
-            return jsonify({"status": "error", "message": "Database connection failed"}), 500
-
-        db.execute(
-            "DELETE FROM starred_subnodes WHERE subnode_uri = ?",
-            (subnode_uri,)
-        )
-        db.commit()
+        # The core logic is now in sqlite_engine.
+        sqlite_engine.unstar_subnode(subnode_uri)
         return jsonify({"status": "success", "action": "unstarred", "uri": subnode_uri})
     except Exception as e:
         current_app.logger.error(f"API: Error unstarring subnode {subnode_uri}: {e}")
@@ -1096,18 +1084,37 @@ def unstar_subnode(subnode_uri):
 @bp.route("/api/starred")
 def get_starred_subnodes():
     try:
-        db = sqlite_engine.get_db()
-        if db is None:
-            current_app.logger.error("API: Database connection is not available for fetching stars.")
-            return jsonify({"status": "error", "message": "Database connection failed"}), 500
-
-        cursor = db.execute(
-            "SELECT subnode_uri FROM starred_subnodes"
-        )
-        starred_uris = [row[0] for row in cursor.fetchall()]
-        return jsonify(starred_uris)
+        starred_uris = sqlite_engine.get_all_starred_subnodes()
+        return jsonify(list(starred_uris))
     except Exception as e:
         current_app.logger.error(f"API: Error fetching starred subnodes: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@bp.route("/api/star_node/<path:node_uri>", methods=["POST"])
+def star_node(node_uri):
+    try:
+        sqlite_engine.star_node(node_uri)
+        return jsonify({"status": "success", "action": "starred", "uri": node_uri})
+    except Exception as e:
+        current_app.logger.error(f"API: Error starring node {node_uri}: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@bp.route("/api/unstar_node/<path:node_uri>", methods=["POST"])
+def unstar_node(node_uri):
+    try:
+        sqlite_engine.unstar_node(node_uri)
+        return jsonify({"status": "success", "action": "unstarred", "uri": node_uri})
+    except Exception as e:
+        current_app.logger.error(f"API: Error unstarring node {node_uri}: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@bp.route("/api/starred_nodes")
+def get_starred_nodes():
+    try:
+        starred_uris = sqlite_engine.get_all_starred_nodes()
+        return jsonify(list(starred_uris))
+    except Exception as e:
+        current_app.logger.error(f"API: Error fetching starred nodes: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
