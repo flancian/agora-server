@@ -1577,10 +1577,26 @@ input:checked + .slider:before {
 }
 
 
-.music-player-body {
-    padding: 10px;
+#music-player-container #track-info {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
 }
 
+#music-player-autoplay-message {
+    padding: 5px 10px;
+    border: 1px solid var(--text-color);
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+#music-player-autoplay-message:hover {
+    background-color: var(--bg-hover);
+}
+
+.music-player-body {
+  padding: 10px;
+}
 #track-info {
     text-align: center;
     margin-bottom: 10px;
