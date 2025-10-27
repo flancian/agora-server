@@ -74,6 +74,12 @@ All future development should respect this separation of concerns.
 
 *This section tracks major completed initiatives.*
 
+### Node Starring (October 2025)
+-   ✅ **New Feature**: Implemented the ability for users to star nodes, not just subnodes.
+-   ✅ **Backend**: Added a `starred_nodes` table to the database and created new API endpoints for starring/unstarring nodes.
+-   ✅ **Frontend**: Added a star toggle to the main node header and the `/starred` page.
+-   ✅ **Refactoring**: Moved all starring logic for both nodes and subnodes into the `sqlite_engine` storage layer, making the API routes thinner and the code more modular.
+
 ### Fediverse Integration (October 2025)
 -   ✅ **Actor Profile:** The `/u/<user>` endpoint now generates a valid ActivityPub actor profile.
 -   ✅ **WebFinger:** Users are discoverable via WebFinger.
