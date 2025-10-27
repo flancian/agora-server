@@ -98,6 +98,11 @@ def create_tables(db):
                     subnode_uri TEXT PRIMARY KEY
                 );
             """,
+            'starred_nodes': """
+                CREATE TABLE IF NOT EXISTS starred_nodes (
+                    node_uri TEXT PRIMARY KEY
+                );
+            """,
             'graph_cache': """
                 CREATE TABLE IF NOT EXISTS graph_cache (
                     key TEXT PRIMARY KEY,
