@@ -1359,6 +1359,15 @@ document.addEventListener("DOMContentLoaded", async function () {
               event.preventDefault();
               event.stopPropagation();
 
+              if (tab.classList.contains('active')) {
+                  // If the clicked tab is already active, open its link in a new tab.
+                  const link = tab.nextElementSibling as HTMLAnchorElement;
+                  if (link && link.href) {
+                      window.open(link.href, '_blank');
+                  }
+                  return; // Stop further execution
+              }
+
               if (!(webContainer as HTMLDetailsElement).open) {
                   (webContainer as HTMLDetailsElement).open = true;
               }
@@ -1404,6 +1413,15 @@ document.addEventListener("DOMContentLoaded", async function () {
                         wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(tab => {
                             tab.addEventListener('click', e => {
                                 e.preventDefault();
+
+                                if (tab.classList.contains('active')) {
+                                    const linkElement = tab.nextElementSibling?.querySelector('a');
+                                    if (linkElement && linkElement.href) {
+                                        window.open(linkElement.href, '_blank');
+                                    }
+                                    return;
+                                }
+
                                 const details = wpWtContainer.querySelector('.wiki');
                                 if (details && !details.hasAttribute('open')) {
                                     details.setAttribute('open', '');

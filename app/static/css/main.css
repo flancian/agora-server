@@ -1060,11 +1060,7 @@ table caption {
     border-radius: 3px;
 }
 
-.web-header + .web-provider-tab {
-    padding-left: 0;
-}
-
-.ai-provider-tab.active, .wiki-provider-tab.active, .web-provider-tab.active, .graph-size-tab.active {
+.ai-provider-tab.active, .wiki-provider-tab.active, .web-provider-tab.active, ._graph-size-tab.active {
     font-weight: bold;
     background-color: var(--tab-active-bg);
     text-decoration: none;
