@@ -25,6 +25,10 @@
     <div class="subnode">
         <details class="url">
             <summary>📖 Shared document at <a href="https://doc.anagora.org/{{node.slug}}?edit">https://doc.anagora.org/{{node.slug}}</a></summary>
+            <div info-box-id="stoa-doc-help" class="info-box with-spacing">
+              <em>This is a shared document for <a href="/{{node.qstr}}" class="wikilink">[[{{node.qstr}}]]</a> where you can collaborate with others.</em>
+              <span title="Dismiss this tip." info-box-id="stoa-doc-help" class="dismiss-button">x</span>
+            </div>
             <div class="stoa-iframe" src="https://doc.anagora.org/{{node.slug}}">
             </div>
         </details>
@@ -42,9 +46,13 @@
 
     <div class="subnode">
     <details class="url">
-        <!-- we also like framatalk.org but as of 2024-01-20 they've suspended service due to (sigh) abuse. -->
-        <summary>📹 Meeting space at <a href="https://meet.evolix.org/{{node.slug}}">https://meet.evolix.org/{{node.slug}}</a></summary>
-        <div class="stoa-iframe" src="https://meet.evolix.org/{{node.slug}}">
+        <!-- Jitsi is a free, open source video conferencing service. -->
+        <summary>📹 Meeting space at <a href="https://jitsi.meet.coop/{{node.slug}}">https://jitsi.meet.coop/{{node.slug}}</a></summary>
+        <div info-box-id="stoa-jitsi-help" class="info-box with-spacing">
+          <em>This is a meeting space in <a href="/{{node.qstr}}" class="wikilink">[[{{node.qstr}}]]</a> which you can use to talk to like-minded people.</em>
+          <span title="Dismiss this tip." info-box-id="stoa-jitsi-help" class="dismiss-button">x</span>
+        </div>
+        <div class="stoa-iframe" src="https://jitsi.meet.coop/{{node.slug}}">
         </div>
     </details>
     </div>
