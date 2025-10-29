@@ -1358,18 +1358,20 @@ document.addEventListener("DOMContentLoaded", async function () {
           tab.addEventListener("click", (event) => {
               event.preventDefault();
               event.stopPropagation();
+              const details = webContainer as HTMLDetailsElement;
 
-              if (tab.classList.contains('active')) {
-                  // If the clicked tab is already active, open its link in a new tab.
+              if (details.open && tab.classList.contains('active')) {
+                  // If the details are open and the tab is already active, open link in a new window.
                   const link = tab.nextElementSibling as HTMLAnchorElement;
                   if (link && link.href) {
                       window.open(link.href, '_blank');
                   }
-                  return; // Stop further execution
+                  return;
               }
 
-              if (!(webContainer as HTMLDetailsElement).open) {
-                  (webContainer as HTMLDetailsElement).open = true;
+              // Otherwise, ensure the details are open and switch to the clicked tab.
+              if (!details.open) {
+                  details.open = true;
               }
 
               tabs.forEach(t => t.classList.remove('active'));
@@ -1413,8 +1415,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                         wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(tab => {
                             tab.addEventListener('click', e => {
                                 e.preventDefault();
+                                const details = wpWtContainer.querySelector('.wiki') as HTMLDetailsElement;
 
-                                if (tab.classList.contains('active')) {
+                                if (details && details.hasAttribute('open') && tab.classList.contains('active')) {
+                                    // If the details are open and the tab is already active, open link in a new window.
                                     const linkElement = tab.nextElementSibling?.querySelector('a');
                                     if (linkElement && linkElement.href) {
                                         window.open(linkElement.href, '_blank');
@@ -1422,14 +1426,14 @@ document.addEventListener("DOMContentLoaded", async function () {
                                     return;
                                 }
 
-                                const details = wpWtContainer.querySelector('.wiki');
+                                // Otherwise, ensure the details are open and switch to the clicked tab.
                                 if (details && !details.hasAttribute('open')) {
                                     details.setAttribute('open', '');
                                 }
 
-                                const provider = (e.target as HTMLElement).dataset.provider;
                                 wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
-                                (e.target as HTMLElement).classList.add('active');
+                                tab.classList.add('active');
+                                const provider = (tab as HTMLElement).dataset.provider;
                                 wpWtContainer.querySelectorAll('.wiki-embed').forEach(embed => {
                                     if ((embed as HTMLElement).dataset.provider === provider) {
                                         (embed as HTMLElement).style.display = 'block';
