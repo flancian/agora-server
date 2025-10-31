@@ -837,6 +837,10 @@ details > summary {
     flex: 1;
 }
 
+.forwardlinks {
+    text-align: right;
+}
+
 .link-list-wrapper {
     /* Do not grow by default, only take content height */
     max-height: 50%; /* But do not exceed 50% of the container */
@@ -1361,6 +1365,18 @@ input:checked + .slider:before {
 
     .links {
         width: 30%;
+    }
+}
+
+@media screen and (max-width: 60em) {
+    .context-flex {
+        flex-direction: column;
+    }
+
+    .context-flex .graph-container,
+    .context-flex .links {
+        width: 100%;
+        box-sizing: border-box; /* Ensure padding doesn't cause overflow */
     }
 }
 
