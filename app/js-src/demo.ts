@@ -118,12 +118,22 @@ export function initDemoMode() {
         meditationPopupContent.innerHTML = renderClientSideWikilinks(randomMessage);
         meditationPopupContainer.classList.add('active');
 
+        const setupArtifactSection = () => {
+            const artifactContainer = document.createElement('div');
+            artifactContainer.innerHTML = `${separator}<button id="fetch-artifact-btn">Show random artifact</button>`;
+            meditationPopupContent.appendChild(artifactContainer);
+
+            document.getElementById('fetch-artifact-btn')?.addEventListener('click', () => {
+                fetchRandomArtifact(artifactContainer);
+            }, { once: true }); // The listener removes itself after the first click.
+        };
+
         // AI Meditation on the current node.
         // NODENAME is a global constant set in base.html
         declare const NODENAME: string | undefined;
         if (typeof NODENAME !== 'undefined' && NODENAME) {
             const aiMeditationContainer = document.createElement('div');
-            aiMeditationContainer.innerHTML = separator + `Contemplating ${renderClientSideWikilinks('[[' + NODENAME + ']]')}<span class="loading-ellipsis">...</span>`;
+            aiMeditationContainer.innerHTML = `${separator}Contemplating ${renderClientSideWikilinks('[[' + NODENAME + ']]')}<span class="loading-ellipsis">...</span>`;
             meditationPopupContent.appendChild(aiMeditationContainer);
 
             fetch(`/api/meditate_on/${encodeURIComponent(NODENAME)}`)
@@ -138,44 +148,31 @@ export function initDemoMode() {
                 .catch(error => {
                     console.error('Error fetching AI meditation:', error);
                     aiMeditationContainer.innerHTML = separator + 'An error occurred while generating a meditation.';
-                })
-                .finally(() => {
-                    // Chain the random artifact fetch to happen after the AI meditation.
-                    fetchRandomArtifact();
                 });
-        } else {
-            // If there's no node, just fetch the artifact directly.
-            fetchRandomArtifact();
         }
+        
+        // Set up the artifact section immediately, so the button is always there.
+        setupArtifactSection();
     };
 
-    const fetchRandomArtifact = () => {
-        // Fetch and append a random artifact, THEN attach the listener.
+    const fetchRandomArtifact = (container: HTMLElement) => {
+        const separator = '<hr class="meditation-divider">';
+        container.innerHTML = `${separator}<em>Loading artifact...</em>`;
+
         fetch('/api/random_artifact')
             .then(response => response.json())
             .then(data => {
                 if (data.content) {
                     const promptHTML = `<strong>An artifact from node ${renderClientSideWikilinks(`[[${data.prompt}]]`)}:</strong><br>`;
                     const artifactHTML = data.content; // This is already rendered HTML from the server.
-                    meditationPopupContent.innerHTML += separator + promptHTML + artifactHTML;
+                    container.innerHTML = separator + promptHTML + artifactHTML;
+                } else {
+                    container.innerHTML = `${separator}<em>No artifacts found in the database cache.</em>`;
                 }
             })
-            .catch(error => console.error('Error fetching random artifact:', error))
-            .finally(() => {
-                // Attach the listener here, after all innerHTML changes are complete.
-                document.getElementById('demo-beyond-button')?.addEventListener('click', () => {
-                    hidePopup();
-                    // Programmatically check the toggle and dispatch an event
-                    // to make it the single source of truth for starting the demo.
-                    const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
-                    if (!anyCheckedDemoBox) {
-                        const mainCheckbox = document.getElementById('demo-checkbox') as HTMLInputElement;
-                        if (mainCheckbox) {
-                            mainCheckbox.checked = true;
-                            mainCheckbox.dispatchEvent(new Event('change'));
-                        }
-                    }
-                });
+            .catch(error => {
+                console.error('Error fetching random artifact:', error);
+                container.innerHTML = `${separator}<em>An error occurred while fetching an artifact.</em>`;
             });
     }
 
