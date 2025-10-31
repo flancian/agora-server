@@ -104,11 +104,52 @@ export function initDemoMode() {
             "The [[Agora]] is a [[Free Knowledge Commons]]. What will you contribute?",
             "Every [[wikilink]] is a potential connection. Where will you explore next?",
             "This Agora is running on a server somewhere, but the content comes from people like you. It is a [[distributed]] system.",
+            "A [[digital garden]] is a space for [[learning in public]]. What will you grow today?",
+            "The [[Agora Protocol]] is about composing knowledge, not just collecting it. How can you connect ideas?",
+            "Nodes are concepts, subnodes are utterances. What do you have to say?",
+
+            "No 404s here. Every missing page is an invitation to contribute.",
+            "This is a [[federated]] system. Your Agora can be part of a larger conversation.",
+            "Play is a valid and valuable mode of exploration. What will you discover?",
+            "Knowledge is a commons. By sharing what you learn, you enrich everyone.",
         ];
-        const separator = '<hr style="margin: 1rem 0;">';
+        const separator = '<hr class="meditation-divider">';
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
         meditationPopupContent.innerHTML = renderClientSideWikilinks(randomMessage);
+        meditationPopupContainer.classList.add('active');
 
+        // AI Meditation on the current node.
+        // NODENAME is a global constant set in base.html
+        declare const NODENAME: string | undefined;
+        if (typeof NODENAME !== 'undefined' && NODENAME) {
+            const aiMeditationContainer = document.createElement('div');
+            aiMeditationContainer.innerHTML = separator + `Contemplating ${renderClientSideWikilinks('[[' + NODENAME + ']]')}<span class="loading-ellipsis">...</span>`;
+            meditationPopupContent.appendChild(aiMeditationContainer);
+
+            fetch(`/api/meditate_on/${encodeURIComponent(NODENAME)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.meditation) {
+                        aiMeditationContainer.innerHTML = separator + data.meditation;
+                    } else {
+                        aiMeditationContainer.innerHTML = separator + 'Could not generate a meditation at this time.';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching AI meditation:', error);
+                    aiMeditationContainer.innerHTML = separator + 'An error occurred while generating a meditation.';
+                })
+                .finally(() => {
+                    // Chain the random artifact fetch to happen after the AI meditation.
+                    fetchRandomArtifact();
+                });
+        } else {
+            // If there's no node, just fetch the artifact directly.
+            fetchRandomArtifact();
+        }
+    };
+
+    const fetchRandomArtifact = () => {
         // Fetch and append a random artifact, THEN attach the listener.
         fetch('/api/random_artifact')
             .then(response => response.json())
@@ -136,9 +177,7 @@ export function initDemoMode() {
                     }
                 });
             });
-
-        meditationPopupContainer.classList.add('active');
-    };
+    }
 
     const hidePopup = () => {
         meditationPopupContainer.classList.remove('active');

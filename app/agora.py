@@ -1038,6 +1038,17 @@ def gemini_complete_route(prompt):
         full_prompt = "The prompt for this cached response is not available, but the query was:" + prompt
     return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
 
+@bp.route("/api/meditate_on/<path:node_name>")
+def meditate_on(node_name):
+    prompt = (
+        "You are a meditation guide inspired by secular Buddhism and humanism. "
+        f"Offer a short, one-paragraph reflection on the concept of '{node_name}'. "
+        "Focus on its connection to human experience, impermanence, or interconnectedness. "
+        "Avoid religious dogma. The tone should be calm and insightful."
+    )
+    _, answer = gemini_complete(prompt)
+    return jsonify({'meditation': render.markdown(answer)})
+
 @bp.route("/api/random_artifact")
 def random_artifact():
     if current_app.config.get('ENABLE_SQLITE', False):

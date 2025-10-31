@@ -1541,6 +1541,21 @@ input:checked + .slider:before {
     overflow-y: auto;
 }
 
+.meditation-divider {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin-top: 1rem;
+}
+
+.loading-ellipsis {
+    animation: pulse-ellipsis 1.5s infinite;
+}
+
+@keyframes pulse-ellipsis {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
