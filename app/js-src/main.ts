@@ -109,16 +109,22 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Unified scroll button logic
   const scrollToggle = document.getElementById("scroll-toggle") as HTMLElement;
+  const nav = document.querySelector("nav") as HTMLElement;
 
-  if (scrollToggle) {
+  if (scrollToggle && nav) {
     const updateScrollButton = () => {
+        const navHeight = nav.offsetHeight;
         // Check if we are at the bottom of the page (with a small tolerance)
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
             scrollToggle.innerHTML = '▲';
             scrollToggle.title = 'Scroll to top';
+            scrollToggle.style.top = `${navHeight + 10}px`;
+            scrollToggle.style.bottom = '';
         } else {
             scrollToggle.innerHTML = '▼';
             scrollToggle.title = 'Scroll to bottom';
+            scrollToggle.style.top = '';
+            scrollToggle.style.bottom = '10px';
         }
     };
 
@@ -376,13 +382,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   const setupNavbarLayoutEngine = () => {
     const toggleContainer = document.querySelector('.toggle-container');
     const searchButton = document.getElementById('mini-cli-exec');
-    const scrollToggle = document.getElementById('scroll-toggle');
     
     const wideToggleContainer = document.querySelector('.navigation-content');
     const searchContainer = document.querySelector('.search-container');
     const actionBar = document.querySelector('.action-bar');
 
-    if (!toggleContainer || !searchButton || !scrollToggle || !wideToggleContainer || !searchContainer || !actionBar) {
+    if (!toggleContainer || !searchButton || !wideToggleContainer || !searchContainer || !actionBar) {
       return;
     }
 
@@ -392,12 +397,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (e.matches) {
             // Mobile layout
             searchContainer.appendChild(toggleContainer);
-            searchContainer.appendChild(scrollToggle);
             actionBar.insertBefore(searchButton, actionBar.firstChild);
         } else {
             // Desktop layout
             wideToggleContainer.appendChild(toggleContainer);
-            actionBar.appendChild(scrollToggle);
             searchContainer.insertBefore(searchButton, searchContainer.firstChild);
         }
     };
