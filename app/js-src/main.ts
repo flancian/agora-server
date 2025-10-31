@@ -148,12 +148,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   const showHypothesisCheckbox = document.getElementById("show-hypothesis") as HTMLInputElement;
   const showHypothesisNavbar = document.getElementById("show-hypothesis-navbar") as HTMLInputElement;
 
-  if (hypothesisCloseBtn && hypothesisFrame && showHypothesisCheckbox) {
+  if (hypothesisCloseBtn) {
     hypothesisCloseBtn.addEventListener('click', () => {
-      hypothesisFrame.classList.remove('visible');
-      showHypothesisCheckbox.checked = false;
-      showHypothesisNavbar.checked = false;
-      localStorage.setItem('show-hypothesis', 'false');
+      syncHypothesisState(false);
     });
   }
 
@@ -183,6 +180,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     showHypothesisNavbar.addEventListener('change', () => {
       syncHypothesisState(showHypothesisNavbar.checked);
     });
+  }
+
+  // Event listener for the new action bar button
+  const annotateButton = document.getElementById('annotate-button');
+  if (annotateButton && hypothesisFrame) {
+      annotateButton.addEventListener('click', () => {
+          const isVisible = hypothesisFrame.classList.contains('visible');
+          syncHypothesisState(!isVisible);
+      });
   }
 
   // Watch for Hypothesis highlights and auto-show the panel
@@ -1361,12 +1367,12 @@ document.addEventListener("DOMContentLoaded", async function () {
               const details = webContainer as HTMLDetailsElement;
 
               if (details.open && tab.classList.contains('active')) {
-                  // If the details are open and the tab is already active, open link in a new window.
-                  const link = tab.nextElementSibling as HTMLAnchorElement;
-                  if (link && link.href) {
-                      window.open(link.href, '_blank');
+                  // If the details are open and the tab is already active, open its data-url in a new tab.
+                  const url = (tab as HTMLElement).dataset.url;
+                  if (url) {
+                      window.open(url, '_blank');
                   }
-                  return;
+                  return; // Stop further execution
               }
 
               // Otherwise, ensure the details are open and switch to the clicked tab.

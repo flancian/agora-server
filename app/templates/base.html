@@ -137,12 +137,6 @@
                         <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
-                    {% if config.ENABLE_HYPOTHESIS %}
-                    <label class="settings-switch" for="show-hypothesis-navbar" title="Toggle the annotation sidebar.">
-                        <input id="show-hypothesis-navbar" type="checkbox" class="annotate-toggle-input" />
-                        <div class="slider round"></div>
-                    </label>
-                    {% endif %}
                 </div>
 	        </div>
         </div>
@@ -168,7 +162,7 @@
                     <button id="mini-cli-go" value="go" title="Follow a [[go]] link defined in this node.">
                         ➡️ go
                     </button>
-                    <button id="show-meditation-popup" title="Agora Meditation: a moment of calm.">🙏 Meditate</button>
+                    <button id="annotate-button" title="Toggle annotations">🖋️ Annotate</button>
                     <button id="scroll-toggle" title="Scroll to bottom / top">▼</button>
                 </div>
             </div>

@@ -63,6 +63,18 @@ All future development should respect this separation of concerns.
     -   **CSS:** Add a special class to visually highlight subnodes that contain a go link definition, making them easier to spot.
     -   **JS:** If a user clicks a disabled "Go" button or the action fails, flash a message explaining what happened.
 
+### Priority 3: Conditional Autopull for Empty Nodes
+
+**Goal:** Automatically enrich empty nodes by pulling relevant external content (Wikipedia, Fediverse) to provide immediate value. This will only trigger if a node has no subnodes of its own.
+
+-   **Tasks:**
+    -   **UI:** Add an "Autopull" toggle switch to the settings overlay (`overlay.html`).
+    -   **State:** Manage the toggle's state in `settings.ts`, saving it to `localStorage`.
+    -   **Logic:** In `main.ts`, use a `MutationObserver` to detect when the main node content has loaded.
+    -   **Logic:** The observer will check if the "Autopull" setting is enabled and if the node is empty (has no `.subnode` elements).
+    -   **Logic:** If conditions are met, programmatically "click" the summaries for the Wikipedia section and any un-pulled Mastodon embeds.
+    -   **UX Feedback:** Display a toast notification to inform the user that content is being autopulled.
+
 ### UI/UX Polish (Ongoing)
 
 -   **Musical Side Quests:** Continue development of the ambient music player and other atmospheric features.
