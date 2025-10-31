@@ -392,13 +392,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (e.matches) {
             // Mobile layout
             searchContainer.appendChild(toggleContainer);
-            actionBar.appendChild(scrollToggle);
+            searchContainer.appendChild(scrollToggle);
             actionBar.insertBefore(searchButton, actionBar.firstChild);
         } else {
             // Desktop layout
             wideToggleContainer.appendChild(toggleContainer);
-            searchContainer.insertBefore(searchButton, searchContainer.firstChild);
             actionBar.appendChild(scrollToggle);
+            searchContainer.insertBefore(searchButton, searchContainer.firstChild);
         }
     };
 
