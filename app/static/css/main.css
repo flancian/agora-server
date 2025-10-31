@@ -1202,7 +1202,7 @@ table caption {
 }
 
 .demo-switch .slider:before {
-    content: "🧍"; /* Person Standing */
+    content: "🧘"; /* Person in Lotus Position */
 }
 
 .music-switch .slider:before {
