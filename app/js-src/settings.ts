@@ -11,6 +11,7 @@ export function initSettings() {
     (document.getElementById("user") as HTMLInputElement).value = localStorage["user"] || CLIENT_DEFAULTS.user;
     (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], CLIENT_DEFAULTS.autoPullSearch);
     (document.getElementById("auto-pull-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-wikipedia"], CLIENT_DEFAULTS.autoPullWikipedia);
+    (document.getElementById("auto-pull") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull"], CLIENT_DEFAULTS.autoPull);
     (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], CLIENT_DEFAULTS.showBrackets);
 
     // Set graph label visibility from storage, defaulting to true.
@@ -117,6 +118,9 @@ export function initSettings() {
                 }
             }
         }
+    });
+    document.getElementById("auto-pull")?.addEventListener('change', (e) => {
+        localStorage["auto-pull"] = (e.target as HTMLInputElement).checked;
     });
     document.getElementById("show-brackets")?.addEventListener('change', (e) => {
         localStorage["showBrackets"] = (e.target as HTMLInputElement).checked;

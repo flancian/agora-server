@@ -4,6 +4,7 @@ export const CLIENT_DEFAULTS = {
   user: 'flancian',
   autoPullSearch: false,
   autoPullWikipedia: false,
+  autoPull: false,
   showBrackets: false,
   showGraphLabels: true,
   showHypothesis: false,

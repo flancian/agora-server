@@ -14,21 +14,45 @@ from app.graph import Graph
 from app.storage.sqlite_engine import create_tables
 from app import create_app
 
-def get_db_path_from_instance():
+def get_db_path(app):
+
     """
-    Calculates the DB path without relying on a Flask app context.
-    Assumes the script is run from the repo root.
+
+    Extracts the SQLite database path from the Flask app's configuration.
+
     """
-    return os.path.join(os.getcwd(), 'instance', 'agora.db')
+
+    with app.app_context():
+
+        uri = app.config.get('SQLALCHEMY_DATABASE_URI')
+
+        if not uri or not uri.startswith('sqlite:///'):
+
+            raise ValueError("SQLALCHEMY_DATABASE_URI is not configured correctly for SQLite.")
+
+        # Remove 'sqlite:///' prefix and any query parameters.
+
+        db_path = uri.split('?')[0][10:]
+
+        return db_path
+
+
 
 def build_cache(app):
+
     """
+
     Builds the graph cache from the filesystem and stores it in new SQLite tables.
+
     """
+
     print("Starting cache build...")
+
     start_time = time.time()
 
-    db_path = get_db_path_from_instance()
+
+
+    db_path = get_db_path(app)
     
     # Ensure the database and base tables are created if they don't exist.
     # We connect directly to the db; this worker is independent of the Flask app.
@@ -106,12 +130,12 @@ def build_cache(app):
     print(f"Cache build complete in {time.time() - start_time:.2f} seconds.")
     return True
 
-def deploy_cache():
+def deploy_cache(app):
     """
     Atomically swaps the newly built cache tables into place.
     """
     print("Deploying cache...")
-    db_path = get_db_path_from_instance()
+    db_path = get_db_path(app)
     subnodes_table = "subnodes"
     links_table = "links"
     subnodes_new_table = "subnodes_new"
@@ -130,5 +154,5 @@ if __name__ == "__main__":
     app = create_app()
     main_start_time = time.time()
     if build_cache(app):
-        deploy_cache()
+        deploy_cache(app)
     print(f"Worker finished in {time.time() - main_start_time:.2f} seconds.")

@@ -25,6 +25,7 @@ const autoPullExtra = JSON.parse(localStorage["auto-pull-extra"] || 'false')
 // This would make sense but Hedgedoc currently steals focus on embed and I've been unable to fix it so far :).
 const autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || 'false')
 const autoPullWikipedia = JSON.parse(localStorage["auto-pull-wikipedia"] || 'false')
+const autoPull = JSON.parse(localStorage["auto-pull"] || 'false')
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
@@ -530,7 +531,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         button.dataset.state = 'collapsed';
       } else {
         console.log("pull mini-cli executes: expanding top-level details");
-        document.querySelectorAll("details:not([open])").forEach(detail => {
+        document.querySelectorAll("details:not([open]):not(.web):not(.edit-section-container)").forEach(detail => {
           // Only click the summary if this <details> element is not nested within another <details> element.
           if (!detail.parentElement.closest('details')) {
               const summary = detail.querySelector(':scope > summary');
@@ -1137,7 +1138,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     });
 
-    // For late rendered 'join' actions... YOLO :)
+    // For late rendered 'join'actions... YOLO :)
     document.querySelectorAll('#join2').forEach(element => {
       console.log(`Clicked ${element.id}`);
       element.addEventListener("click", function () {
@@ -1145,6 +1146,17 @@ document.addEventListener("DOMContentLoaded", async function () {
         overlay.classList.toggle('active');
       });
     });
+
+    // Auto-pull if enabled.
+    if (autoPull) {
+        setTimeout(() => {
+            const pullButton = document.querySelector("#mini-cli-pull") as HTMLElement;
+            if (pullButton && pullButton.dataset.state !== 'expanded') {
+                console.log("Auto-pulling all content.");
+                pullButton.click();
+            }
+        }, 500); // Wait half a second for content to settle.
+    }
 
     // For the full graph in /nodes
     const fullGraphDetails = document.getElementById('full-graph-details');
@@ -1328,7 +1340,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           
           const tabElement = webContainer.querySelector(`.web-provider-tab[data-provider="${provider}"]`);
           const url = (tabElement as HTMLElement).dataset.url;
-          const externalLink = (tabElement.nextElementSibling as HTMLAnchorElement).href;
+          const externalLink = (tabElement as HTMLElement).dataset.url;
 
           // Show a spinner while we check for embeddability
           embedDiv.innerHTML = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Checking embeddability...</em></p></center><br />`;

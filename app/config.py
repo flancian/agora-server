@@ -49,6 +49,10 @@ class DefaultConfig(object):
     AGORA_PATH = os.getenv(
         "AGORA_PATH", os.path.join("/home", getpass.getuser(), "agora")
     )
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(AGORA_PATH, 'agora.db') + '?check_same_thread=false'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
     SOURCES_CONFIG = getcfg(os.path.join(AGORA_PATH, "sources.yaml"))
     try:
         # try to load settings from a new-style Agora config if present.

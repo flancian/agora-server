@@ -23,7 +23,27 @@ def get_db():
     Handles read-only filesystems gracefully.
     """
     if 'sqlite_db' not in g:
-        db_path = os.path.join(current_app.instance_path, 'agora.db')
+        # The URI is in the format 'sqlite:///path/to/database.db?query_params'
+        # We need to extract the path part.
+        uri = current_app.config.get('SQLALCHEMY_DATABASE_URI')
+        if not uri or not uri.startswith('sqlite:///'):
+            current_app.logger.error("SQLALCHEMY_DATABASE_URI is not configured correctly for SQLite.")
+            g.sqlite_db = None
+            return None
+
+        # Extract path: remove 'sqlite:///' prefix and any query parameters.
+        db_path = uri.split('?')[0][10:]
+        
+        # Ensure the directory for the database exists.
+        db_dir = os.path.dirname(db_path)
+        if not os.path.exists(db_dir):
+            try:
+                os.makedirs(db_dir)
+            except OSError as e:
+                current_app.logger.error(f"Could not create database directory at {db_dir}: {e}")
+                g.sqlite_db = None
+                return None
+
         try:
             conn = sqlite3.connect(f"file:{db_path}?mode=rwc", uri=True)
             conn.execute("PRAGMA journal_mode=WAL;")
