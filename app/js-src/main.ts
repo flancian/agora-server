@@ -21,11 +21,10 @@ import { initializeStars } from './starring';
 
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
-const autoPullExtra = JSON.parse(localStorage["auto-pull-extra"] || 'false')
-// This would make sense but Hedgedoc currently steals focus on embed and I've been unable to fix it so far :).
-const autoPullSearch = JSON.parse(localStorage["auto-pull-search"] || 'false')
-const autoPullWikipedia = JSON.parse(localStorage["auto-pull-wikipedia"] || 'false')
-const autoPull = JSON.parse(localStorage["auto-pull"] || 'false')
+const autoExpandAll = JSON.parse(localStorage["auto-expand-all"] || 'false')
+const autoExpandSearch = JSON.parse(localStorage["auto-expand-search"] || 'false')
+const autoExpandWikipedia = JSON.parse(localStorage["auto-expand-wikipedia"] || 'false')
+const autoPull = JSON.parse(localStorage.getItem("auto-pull") ?? 'true')
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
@@ -256,10 +255,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   };
 
   // Set the theme on initial load
-  if (currentTheme === "dark") {
-    setTheme('dark');
-  } else {
+  if (currentTheme === "light") {
     setTheme('light');
+  } else {
+    setTheme('dark');
   }
 
   // Add event listeners to both checkboxes
@@ -509,16 +508,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  const miniCliPull = document.querySelector("#mini-cli-pull");
-  if (miniCliPull) {
-    miniCliPull.addEventListener("click", (e) => {
+  const expandAllButton = document.querySelector("#expand-all");
+  if (expandAllButton) {
+    expandAllButton.addEventListener("click", (e) => {
       const button = e.currentTarget as HTMLElement;
       const isExpanded = button.dataset.state === 'expanded';
 
       if (isExpanded) {
-        console.log("pull mini-cli executes: collapsing top-level details");
+        console.log("collapse all executes: collapsing top-level details");
         document.querySelectorAll("details[open]").forEach(detail => {
-          // Only click the summary if this <details> element is not nested within another <details> element.
           if (!detail.parentElement.closest('details')) {
               const summary = detail.querySelector(':scope > summary');
               if (summary) {
@@ -526,13 +524,12 @@ document.addEventListener("DOMContentLoaded", async function () {
               }
           }
         });
-        button.innerHTML = '🧲 pull';
-        button.title = 'Tries to pull (embed) more into this context';
+        button.innerHTML = '⊞ expand';
+        button.title = 'Expand all sections';
         button.dataset.state = 'collapsed';
       } else {
-        console.log("pull mini-cli executes: expanding top-level details");
-        document.querySelectorAll("details:not([open]):not(.web):not(.edit-section-container)").forEach(detail => {
-          // Only click the summary if this <details> element is not nested within another <details> element.
+        console.log("expand all executes: expanding top-level details");
+        document.querySelectorAll("details:not([open]):not(.edit-section-container)").forEach(detail => {
           if (!detail.parentElement.closest('details')) {
               const summary = detail.querySelector(':scope > summary');
               if (summary) {
@@ -540,16 +537,9 @@ document.addEventListener("DOMContentLoaded", async function () {
               }
           }
         });
-        button.innerHTML = '✕ fold';
-        button.title = 'Collapses all expanded sections';
+        button.innerHTML = '⊟ collapse';
+        button.title = 'Collapse all sections';
         button.dataset.state = 'expanded';
-
-        document.querySelectorAll(".pull-mastodon-status").forEach(element => {
-          if (!element.classList.contains('pulled')) {
-              console.log('auto pulling mastodon status from navbar');
-              (element as HTMLElement).click();
-          }
-        });
       }
     });
   }
@@ -748,873 +738,1772 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     });
 
-    // same for GenAI if we have it enabled.
-    const genaiContainer = document.querySelector("details.genai");
-    if (genaiContainer) {
-        const tabs = genaiContainer.querySelectorAll(".ai-provider-tab");
-        const nodeId = NODENAME; // Assuming NODENAME is available globally
-        const spinner = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Generating text...</em></p></center><br />`;
+        // same for GenAI if we have it enabled.
 
-        const loadContent = async (provider, embedDiv) => {
-            if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
-            
-            embedDiv.innerHTML = spinner;
-            let endpoint = '';
-            if (provider === 'mistral') {
-                endpoint = '/api/complete/';
-            } else if (provider === 'gemini') {
-                endpoint = '/api/gemini_complete/';
-            }
+        const genaiContainer = document.querySelector("details.genai");
 
-            if (endpoint) {
-                try {
-                    const response = await fetch(AGORAURL + endpoint + encodeURIComponent(nodeId));
-                    const data = await response.json();
+        if (genaiContainer) {
 
-                    // Create a collapsible section for the prompt
-                    const promptDetails = document.createElement('details');
-                    const promptSummary = document.createElement('summary');
-                    promptSummary.textContent = 'View Full Prompt';
-                    promptDetails.appendChild(promptSummary);
+            const tabs = genaiContainer.querySelectorAll(".ai-provider-tab");
 
-                    const promptPre = document.createElement('pre');
-                    promptPre.textContent = data.prompt;
-                    promptDetails.appendChild(promptPre);
-                    
-                    // Clear the spinner and add the new content
-                    embedDiv.innerHTML = '';
-                    embedDiv.appendChild(promptDetails);
+            const nodeId = NODENAME; // Assuming NODENAME is available globally
 
-                    const answerDiv = document.createElement('div');
-                    answerDiv.innerHTML = data.answer;
-                    embedDiv.appendChild(answerDiv);
+            const spinner = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Generating text...</em></p></center><br />`;
 
-                    embedDiv.classList.add('visible');
-                } catch (error) {
-                    embedDiv.innerHTML = `<p>Error loading content: ${error}</p>`;
-                }
-            }
-        };
+    
 
-        genaiContainer.addEventListener("toggle", (event) => {
-            if ((genaiContainer as HTMLDetailsElement).open) {
-                const activeTab = genaiContainer.querySelector(".ai-provider-tab.active");
-                if (activeTab) {
-                    const provider = activeTab.getAttribute('data-provider');
-                    const embed = genaiContainer.querySelector(`.ai-embed[data-provider="${provider}"]`);
-                    loadContent(provider, embed);
-                }
-            }
-        });
+            const loadContent = async (provider, embedDiv) => {
 
-        tabs.forEach(tab => {
-            tab.addEventListener("click", (event) => {
-                event.preventDefault();
-                event.stopPropagation();
+                if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
 
-                const details = genaiContainer as HTMLDetailsElement;
-                if (!details.open) {
-                    details.open = true;
-                }
-
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-
-                const provider = tab.getAttribute('data-provider');
-                const embeds = genaiContainer.querySelectorAll(".ai-embed");
-                embeds.forEach((embed: HTMLElement) => {
-                    if (embed.dataset.provider === provider) {
-                        embed.style.display = 'block';
-                        loadContent(provider, embed);
-                    } else {
-                        embed.style.display = 'none';
-                    }
-                });
-            });
-        });
-    }
-
-    if (autoPullSearch) {
-        // auto pull search by default.
-        document.querySelectorAll("details.search").forEach(function (element) {
-          console.log('auto pulling search');
-          // We click the summary element to trigger the toggle event listener.
-          const summary = element.querySelector('summary');
-          if (summary && !(element as HTMLDetailsElement).open) {
-            summary.click();
-          }
-        });
-    }
-
-    if (safeJsonParse(localStorage["auto-expand-stoas"], false)) {
-        document.querySelectorAll("details.stoa").forEach(function (element) {
-            console.log('auto expanding stoas');
-            if (!(element as HTMLDetailsElement).open) {
-                element.open = true;
-            }
-        });
-    }
-
-    if (autoPullWikipedia) {
-        const observer = new MutationObserver((mutations, obs) => {
-            const wikipediaDetails = document.querySelector("details.wikipedia");
-            if (wikipediaDetails) {
-                console.log('auto pulling wikipedia');
-                const summary = wikipediaDetails.querySelector('summary');
-                if (summary && !(wikipediaDetails as HTMLDetailsElement).open) {
-                    summary.click();
-                }
-                obs.disconnect(); // Stop observing once we've found and clicked it.
-            }
-        });
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    }
-
-    if (content != null) {
-      // block on node loading (expensive if the task is freshly up)
-      response = await fetch(AGORAURL + '/node/' + node);
-      content.outerHTML = await response.text();
-    }
-
-    setTimeout(bindEvents, 10)
-
-  }
-
-  async function autoPullAsync() {
-    // autopull if the local node is empty.
-    console.log('auto pulling resources');
-    // }
-  }
-
-  async function bindEvents() {
-    initializeStars();
-    initializeNodeStars();
-    applyDismissals(); // Run again for dynamically loaded info-boxes.
-
-    const user = localStorage.getItem('user') || 'flancian';
-
-    // Debounce function to limit how often a function can run.
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // Function to sort subnodes, bringing the current user's to the top.
-    const sortSubnodes = () => {
-        const subnodesContainer = document.querySelector('.node[open]');
-        if (!subnodesContainer) return;
-
-        const allSubnodes = Array.from(subnodesContainer.querySelectorAll('details.subnode[data-author]'));
-        if (allSubnodes.length < 2) return;
-
-        const userSubnodes = allSubnodes.filter(subnode => (subnode as HTMLElement).dataset.author === user);
-        if (userSubnodes.length === 0) return;
-
-        // Move the elements to their new position.
-        const firstSubnode = subnodesContainer.querySelector('details.subnode[data-author]');
-        if (firstSubnode) {
-            userSubnodes.reverse().forEach(subnode => {
-                firstSubnode.parentNode.insertBefore(subnode, firstSubnode);
-            });
-        }
-
-        // Add the highlight class, then remove it to fade back to normal.
-        console.log(`Animating ${userSubnodes.length} subnodes for user ${user}.`);
-        userSubnodes.forEach(subnode => {
-            // Start the highlight.
-            subnode.classList.add('subnode-arrived');
-            // Set a timer to remove the highlight, which triggers the fade-out transition.
-            setTimeout(() => {
-                subnode.classList.remove('subnode-arrived');
-            }, 100); // A short delay before fading back.
-        });
-    };
-
-    // Initial sort after async content is loaded
-    sortSubnodes();
-
-    // New, safe info box dismissal logic.
-    // This is duplicated from loadAsyncContent to handle elements that might be added after the initial load.
-    // First, apply dismissals from localStorage.
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('dismissed-')) {
-            if (localStorage.getItem(key) === 'true') {
-                const infoBoxId = key.substring('dismissed-'.length);
-                const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
-                if (infoBox) {
-                    infoBox.classList.add("hidden");
-                    infoBox.style.display = "none";
-                }
-            }
-        }
-    }
-
-    // end infobox dismiss code.
-
-    // this works and has already replaced most pull buttons for Agora sections.
-    // this is for 'zippies' that require pulling (e.g. pulled nodes).
-    var details = document.querySelectorAll("details.node");
-    details.forEach((item) => {
-      item.addEventListener("toggle", (event) => {
-        if (item.open) {
-          console.log("Details have been shown");
-          let nodeEmbed = item.querySelector(".node-embed");
-          if (nodeEmbed) {
-            let node = nodeEmbed.id;
-            console.log("Node embed found, here we would pull.");
-            nodeEmbed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>';
-          }
-        } else {
-          console.log("Details have been hidden");
-          let nodeEmbed = item.querySelector(".node-embed");
-          if (nodeEmbed) {
-            console.log("Node embed found, here we would fold.");
-            nodeEmbed.innerHTML = '';
-          }
-        }
-      });
-    });
-
-
-    // end zippies.
-
-    document.querySelectorAll(".pushed-subnodes-embed").forEach(async function (element) {
-      // auto pull pushed subnodes by default.
-      // it would be better to infer this from node div id?
-      let node = NODENAME;
-      let arg = ARG;
-      let id = ".pushed-subnodes-embed";
-      console.log('auto pulling pushed subnodes, will write to id: ' + id);
-      let response;
-      if (arg != '') {
-      response = await fetch(AGORAURL + '/push/' + node + '/' + arg);
-      } else {
-      response = await fetch(AGORAURL + '/push/' + node);
-      }
-      const data = await response.text();
-      document.querySelector(id).innerHTML = data;
-      // end auto pull pushed subnodes.
-    });
-
-    document.querySelectorAll(".context").forEach(async function (element) {
-      // auto pull context by default.
-      // it would be better to infer this from node div id?
-      let node = NODENAME;
-      let id = '.context';
-      console.log('auto pulling context, will write to id: ' + id);
-      const response = await fetch(AGORAURL + '/context/' + node);
-      const data = await response.text();
-      document.querySelector(id).innerHTML = data;
-      console.log('auto pulled context');
-      
-      // Finally!
-      renderGraph('graph', '/graph/json/' + node);
-
-      document.getElementById('graph-toggle-labels')?.addEventListener('click', () => {
-          const currentSetting = safeJsonParse(localStorage.getItem('graph-show-labels'), true);
-          localStorage.setItem('graph-show-labels', JSON.stringify(!currentSetting));
-          renderGraph('graph', '/graph/json/' + node);
-      });
-
-      console.log("graph loaded.")
-    });
-
-    // end async content code.
-
-    initPullButtons();
-
-    // pull a pleroma status (toot) using the laziest way I found, might be a better one
-    document.querySelectorAll(".pull-pleroma-status").forEach(element => {
-      element.addEventListener("click", function (e) {
-      let toot = this.value;
-      const iframe = document.createElement('iframe');
-      iframe.src = toot;
-      iframe.className = 'mastodon-embed';
-      iframe.style.maxWidth = '100%';
-      iframe.width = '400';
-      iframe.setAttribute('allowfullscreen', 'allowfullscreen');
-      this.after(document.createElement('br'));
-      this.after(iframe);
-      const script = document.createElement('script');
-      script.src = "https://freethinkers.lgbt/embed.js";
-      script.async = true;
-      this.after(script);
-      this.innerText = 'pulled';
-      });
-    });
-
-    // pull all/fold all button in main node
-    document.querySelector("#pull-all")?.addEventListener("click", function (e) {
-      console.log('auto pulling all!');
-      document.querySelectorAll(".pull-node").forEach(element => {
-      if (!element.classList.contains('pulled')) {
-        console.log('auto pulling nodes');
-        (element as HTMLElement).click();
-      }
-      });
-      document.querySelectorAll(".pull-mastodon-status").forEach(element => {
-      if (!element.classList.contains('pulled')) {
-        console.log('auto pulling activity');
-        (element as HTMLElement).click();
-      }
-      });
-      document.querySelectorAll(".pull-tweet").forEach(element => {
-      if (!element.classList.contains('pulled')) {
-        console.log('auto pulling tweet');
-        (element as HTMLElement).click();
-      }
-      });
-      document.querySelectorAll(".pull-search").forEach(element => {
-      if (!element.classList.contains('pulled')) {
-        console.log('auto pulling search');
-        (element as HTMLElement).click();
-      }
-      });
-      document.querySelectorAll(".pull-url").forEach(element => {
-      if (!element.classList.contains('pulled')) {
-        console.log('auto pulling url');
-        (element as HTMLElement).click();
-      }
-      });
-
-      // experiment: make pull button expand all details.
-      var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary, details.stoa > summary, details.search > summary");
-      details.forEach(item => {
-      console.log('trying to click details');
-      (item as HTMLElement).click();
-      });
-    });
-
-    // fold all button in intro banner.
-    document.querySelector("#fold-all")?.addEventListener("click", function (e) {
-      // Already pulled -> fold.
-      document.querySelectorAll(".pull-node").forEach(element => {
-      if (element.classList.contains('pulled')) {
-        console.log('auto folding nodes');
-        (element as HTMLElement).click();
-      }
-      });
-      document.querySelectorAll(".pull-mastodon-status").forEach(element => {
-      if (element.classList.contains('pulled')) {
-        console.log('auto folding activity');
-        (element as HTMLElement).click();
-      }
-      });
-      document.querySelectorAll(".pull-tweet").forEach(element => {
-      if (element.classList.contains('pulled')) {
-        console.log('auto folding tweet');
-        (element as HTMLElement).click();
-      }
-      });
-      document.querySelectorAll(".pull-search").forEach(element => {
-      if (element.classList.contains('pulled')) {
-        console.log('auto folding search');
-        (element as HTMLElement).click();
-      }
-      });
-      document.querySelectorAll(".pull-url").forEach(element => {
-      if (element.classList.contains('pulled')) {
-        console.log('auto pulling url');
-        (element as HTMLElement).click();
-      }
-      });
-
-      // experiment: make fold button fold all details which are open.
-      var details = document.querySelectorAll("details[open] > summary");
-      details.forEach(item => {
-      console.log('trying to click details');
-      (item as HTMLElement).click();
-      });
-    });
-
-    // For late rendered 'join'actions... YOLO :)
-    document.querySelectorAll('#join2').forEach(element => {
-      console.log(`Clicked ${element.id}`);
-      element.addEventListener("click", function () {
-        const overlay = document.getElementById('overlay');
-        overlay.classList.toggle('active');
-      });
-    });
-
-    // Auto-pull if enabled.
-    if (autoPull) {
-        setTimeout(() => {
-            const pullButton = document.querySelector("#mini-cli-pull") as HTMLElement;
-            if (pullButton && pullButton.dataset.state !== 'expanded') {
-                console.log("Auto-pulling all content.");
-                pullButton.click();
-            }
-        }, 500); // Wait half a second for content to settle.
-    }
-
-    // For the full graph in /nodes
-    const fullGraphDetails = document.getElementById('full-graph-details');
-    if (fullGraphDetails) {
-        const tabs = fullGraphDetails.querySelectorAll(".graph-size-tab");
-        let graphInstance;
-        let labelsVisible = true;
-
-        const loadGraph = (size) => {
-            const url = size === 'all' ? '/graph./json/all' : `/graph/json/top/${size}`;
-            renderGraph('full-graph', url);
-        };
-
-        fullGraphDetails.addEventListener('toggle', () => {
-            if ((fullGraphDetails as HTMLDetailsElement).open) {
-                const activeTab = fullGraphDetails.querySelector(".graph-size-tab.active");
-                if (activeTab) {
-                    const size = activeTab.getAttribute('data-size');
-                    loadGraph(size);
-                }
-            }
-        });
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                if (!(fullGraphDetails as HTMLDetailsElement).open) {
-                    (fullGraphDetails as HTMLDetailsElement).open = true;
-                }
-
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
                 
-                const size = tab.getAttribute('data-size');
-                loadGraph(size);
-            });
-        });
 
-        document.getElementById('full-graph-toggle-labels')?.addEventListener('click', () => {
-            const currentSetting = safeJsonParse(localStorage.getItem('graph-show-labels-full'), false);
-            localStorage.setItem('graph-show-labels-full', JSON.stringify(!currentSetting));
-            const activeTab = fullGraphDetails.querySelector(".graph-size-tab.active");
-            if (activeTab) {
-                const size = activeTab.getAttribute('data-size');
-                loadGraph(size);
-            }
-        });
-    }
+                embedDiv.innerHTML = spinner;
 
-    // Cache clearing buttons in footer.
-    document.getElementById('mini-cli-cachez')?.addEventListener('click', (e) => {
-        const button = e.currentTarget as HTMLButtonElement;
-        const originalText = button.innerHTML;
-        button.innerHTML = '🧠 Flushing...';
-        button.disabled = true;
+                let endpoint = '';
 
-        fetch('/api/clear-in-memory-cache', {
-            method: 'POST',
-        })
-        .then(response => {
-            if (response.ok) {
-                button.innerHTML = '🧠 Flushed!';
-            } else {
-                button.innerHTML = '🧠 Error!';
-            }
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }, 2000);
-        })
-        .catch(error => {
-            console.error('Error flushing in-memory cache:', error);
-            button.innerHTML = '🧠 Error!';
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }, 2000);
-        });
-    });
+                if (provider === 'mistral') {
 
-    document.getElementById('mini-cli-invalidate-sqlite')?.addEventListener('click', (e) => {
-        const button = e.currentTarget as HTMLButtonElement;
-        const originalText = button.innerHTML;
-        button.innerHTML = '💾 Flushing...';
-        button.disabled = true;
+                    endpoint = '/api/complete/';
 
-        fetch('/invalidate-sqlite', {
-            method: 'POST',
-        })
-        .then(response => {
-            if (response.ok) {
-                button.innerHTML = '💾 Flushed!';
-            } else {
-                button.innerHTML = '💾 Error!';
-            }
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }, 2000);
-        })
-        .catch(error => {
-            console.error('Error invalidating SQLite:', error);
-            button.innerHTML = '💾 Error!';
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }, 2000);
-        });
-    });
+                } else if (provider === 'gemini') {
 
-    // Collapsible content handler
-    const initializeCollapsibleContent = () => {
-        document.querySelectorAll('.collapsible-content').forEach(content => {
-            if ((content as HTMLElement).dataset.processed) return;
+                    endpoint = '/api/gemini_complete/';
 
-            const button = document.querySelector(`.show-more-button[data-target="${content.id}"]`) as HTMLElement;
-            if (button) {
-                // Check if the content is overflowing
-                if (content.scrollHeight > content.clientHeight) {
-                    button.style.display = 'block';
-                } else {
-                    // If not overflowing, remove the gradient effect and ensure it's fully visible
-                    content.classList.add('expanded');
                 }
-            }
-            (content as HTMLElement).dataset.processed = 'true';
-        });
-    };
 
-    // Initial check
-    initializeCollapsibleContent();
+    
 
-    // Observer for dynamically added content
-    const collapsibleObserver = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            if (mutation.addedNodes.length) {
-                initializeCollapsibleContent();
-                break; 
-            }
+                if (endpoint) {
+
+                    try {
+
+                        const response = await fetch(AGORAURL + endpoint + encodeURIComponent(nodeId));
+
+                        const data = await response.json();
+
+    
+
+                        // Create a collapsible section for the prompt
+
+                        const promptDetails = document.createElement('details');
+
+                        const promptSummary = document.createElement('summary');
+
+                        promptSummary.textContent = 'View Full Prompt';
+
+                        promptDetails.appendChild(promptSummary);
+
+    
+
+                        const promptPre = document.createElement('pre');
+
+                        promptPre.textContent = data.prompt;
+
+                        promptDetails.appendChild(promptPre);
+
+                        
+
+                        // Clear the spinner and add the new content
+
+                        embedDiv.innerHTML = '';
+
+                        embedDiv.appendChild(promptDetails);
+
+    
+
+                        const answerDiv = document.createElement('div');
+
+                        answerDiv.innerHTML = data.answer;
+
+                        embedDiv.appendChild(answerDiv);
+
+    
+
+                        embedDiv.classList.add('visible');
+
+                    } catch (error) {
+
+                        embedDiv.innerHTML = `<p>Error loading content: ${error}</p>`;
+
+                    }
+
+                }
+
+            };
+
+    
+
+            genaiContainer.addEventListener("toggle", (event) => {
+
+                if ((genaiContainer as HTMLDetailsElement).open) {
+
+                    const activeTab = genaiContainer.querySelector(".ai-provider-tab.active");
+
+                    if (activeTab) {
+
+                        const provider = activeTab.getAttribute('data-provider');
+
+                        const embed = genaiContainer.querySelector(`.ai-embed[data-provider="${provider}"]`);
+
+                        loadContent(provider, embed);
+
+                    }
+
+                }
+
+            });
+
+    
+
+            tabs.forEach(tab => {
+
+                tab.addEventListener("click", (event) => {
+
+                    event.preventDefault();
+
+                    event.stopPropagation();
+
+    
+
+                    const details = genaiContainer as HTMLDetailsElement;
+
+                    if (!details.open) {
+
+                        details.open = true;
+
+                    }
+
+    
+
+                    tabs.forEach(t => t.classList.remove('active'));
+
+                    tab.classList.add('active');
+
+    
+
+                    const provider = tab.getAttribute('data-provider');
+
+                    const embeds = genaiContainer.querySelectorAll(".ai-embed");
+
+                    embeds.forEach((embed: HTMLElement) => {
+
+                        if (embed.dataset.provider === provider) {
+
+                            embed.style.display = 'block';
+
+                            loadContent(provider, embed);
+
+                        } else {
+
+                            embed.style.display = 'none';
+
+                        }
+
+                    });
+
+                });
+
+            });
+
         }
-    });
-    collapsibleObserver.observe(document.body, { childList: true, subtree: true });
 
+    
 
-    document.querySelectorAll('.show-more-button').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const targetId = (event.target as HTMLElement).dataset.target;
-            const content = document.getElementById(targetId);
-            if (content) {
-                content.classList.add('expanded');
-                (event.target as HTMLElement).style.display = 'none';
-            }
-        });
-    });
+        if (autoExpandSearch) {
 
-    initMusicPlayer();
-  }
-  // end bindEvents();
+            // auto pull search by default.
 
-  function setOverlayPosition() {
-    const nav = document.querySelector('nav');
-    const overlay = document.querySelector('.overlay');
-    if (nav && overlay) {
-      const navHeight = nav.offsetHeight;
-      (overlay as HTMLElement).style.top = navHeight + 'px';
-      (overlay as HTMLElement).style.height = `calc(100% - ${navHeight}px)`;
-    }
-  }
+            document.querySelectorAll("details.search").forEach(function (element) {
 
-  window.addEventListener('load', setOverlayPosition);
-  window.addEventListener('resize', setOverlayPosition);
+              console.log('auto expanding search');
 
-  const webContainer = document.querySelector('details.web');
-  if (webContainer) {
-      const tabs = webContainer.querySelectorAll('.web-provider-tab');
+              // We click the summary element to trigger the toggle event listener.
 
-      const loadContent = (provider, embedDiv) => {
-          if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
-          
-          const tabElement = webContainer.querySelector(`.web-provider-tab[data-provider="${provider}"]`);
-          const url = (tabElement as HTMLElement).dataset.url;
-          const externalLink = (tabElement as HTMLElement).dataset.url;
+              const summary = element.querySelector('summary');
 
-          // Show a spinner while we check for embeddability
-          embedDiv.innerHTML = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Checking embeddability...</em></p></center><br />`;
+              if (summary && !(element as HTMLDetailsElement).open) {
 
-          fetch(`/api/check_embeddable?url=${encodeURIComponent(url)}`)
-              .then(response => response.json())
-              .then(data => {
-                  if (data.embeddable) {
-                      const iframeHTML = `<iframe src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
-                      const overlayHTML = `<a href="${url}" target="_blank" class="iframe-url-overlay" title="Open in new tab">${url}</a>`;
-                      embedDiv.innerHTML = `<div class="iframe-container">${iframeHTML}${overlayHTML}</div>`;
-                  } else {
-                      embedDiv.innerHTML = `
-                          <div class="subnode node">
-                              This provider has disabled embedding for security reasons, often to prevent an attack called 'clickjacking' where a malicious site might try to trick you into clicking something on the embedded page.
-                              <br/><br/>
-                              You can <a href="${externalLink}" target="_blank">open the search results in a new tab</a> instead.
-                          </div>
-                      `;
-                  }
-              });
-      };
+                summary.click();
 
-      webContainer.addEventListener("toggle", (event) => {
-          if ((webContainer as HTMLDetailsElement).open) {
-              const activeTab = webContainer.querySelector(".web-provider-tab.active");
-              if (activeTab) {
-                  const provider = activeTab.getAttribute('data-provider');
-                  const embed = webContainer.querySelector(`.web-embed[data-provider="${provider}"]`);
-                  loadContent(provider, embed);
               }
+
+            });
+
+        }
+
+    
+
+        if (safeJsonParse(localStorage["auto-expand-stoas"], false)) {
+
+            document.querySelectorAll("details.stoa").forEach(function (element) {
+
+                console.log('auto expanding stoas');
+
+                if (!(element as HTMLDetailsElement).open) {
+
+                    element.open = true;
+
+                }
+
+            });
+
+        }
+
+    
+
+        if (autoExpandWikipedia) {
+
+            const observer = new MutationObserver((mutations, obs) => {
+
+                const wikipediaDetails = document.querySelector("details.wikipedia");
+
+                if (wikipediaDetails) {
+
+                    console.log('auto expanding wikipedia');
+
+                    const summary = wikipediaDetails.querySelector('summary');
+
+                    if (summary && !(wikipediaDetails as HTMLDetailsElement).open) {
+
+                        summary.click();
+
+                    }
+
+                    obs.disconnect(); // Stop observing once we've found and clicked it.
+
+                }
+
+            });
+
+            observer.observe(document.body, {
+
+                childList: true,
+
+                subtree: true
+
+            });
+
+        }
+
+    
+
+        if (content != null) {
+
+          // block on node loading (expensive if the task is freshly up)
+
+          response = await fetch(AGORAURL + '/node/' + node);
+
+          content.outerHTML = await response.text();
+
+        }
+
+    
+
+        setTimeout(bindEvents, 10)
+
+    
+
+      }
+
+    
+
+      async function autoPullAsync() {
+
+        // autopull if the local node is empty.
+
+        console.log('auto pulling resources');
+
+        // }
+
+      }
+
+    
+
+      async function bindEvents() {
+
+        initializeStars();
+
+        initializeNodeStars();
+
+        applyDismissals(); // Run again for dynamically loaded info-boxes.
+
+    
+
+        const user = localStorage.getItem('user') || 'flancian';
+
+    
+
+        // Debounce function to limit how often a function can run.
+
+        function debounce(func, wait) {
+
+            let timeout;
+
+            return function executedFunction(...args) {
+
+                const later = () => {
+
+                    clearTimeout(timeout);
+
+                    func(...args);
+
+                };
+
+                clearTimeout(timeout);
+
+                timeout = setTimeout(later, wait);
+
+            };
+
+        }
+
+    
+
+        // Function to sort subnodes, bringing the current user's to the top.
+
+        const sortSubnodes = () => {
+
+            const subnodesContainer = document.querySelector('.node[open]');
+
+            if (!subnodesContainer) return;
+
+    
+
+            const allSubnodes = Array.from(subnodesContainer.querySelectorAll('details.subnode[data-author]'));
+
+            if (allSubnodes.length < 2) return;
+
+    
+
+            const userSubnodes = allSubnodes.filter(subnode => (subnode as HTMLElement).dataset.author === user);
+
+            if (userSubnodes.length === 0) return;
+
+    
+
+            // Move the elements to their new position.
+
+            const firstSubnode = subnodesContainer.querySelector('details.subnode[data-author]');
+
+            if (firstSubnode) {
+
+                userSubnodes.reverse().forEach(subnode => {
+
+                    firstSubnode.parentNode.insertBefore(subnode, firstSubnode);
+
+                });
+
+            }
+
+    
+
+            // Add the highlight class, then remove it to fade back to normal.
+
+            console.log(`Animating ${userSubnodes.length} subnodes for user ${user}.`);
+
+            userSubnodes.forEach(subnode => {
+
+                // Start the highlight.
+
+                subnode.classList.add('subnode-arrived');
+
+                // Set a timer to remove the highlight, which triggers the fade-out transition.
+
+                setTimeout(() => {
+
+                    subnode.classList.remove('subnode-arrived');
+
+                }, 100); // A short delay before fading back.
+
+            });
+
+        };
+
+    
+
+        // Initial sort after async content is loaded
+
+        sortSubnodes();
+
+    
+
+        // New, safe info box dismissal logic.
+
+        // This is duplicated from loadAsyncContent to handle elements that might be added after the initial load.
+
+        // First, apply dismissals from localStorage.
+
+        for (let i = 0; i < localStorage.length; i++) {
+
+            const key = localStorage.key(i);
+
+            if (key && key.startsWith('dismissed-')) {
+
+                if (localStorage.getItem(key) === 'true') {
+
+                    const infoBoxId = key.substring('dismissed-'.length);
+
+                    const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
+
+                    if (infoBox) {
+
+                        infoBox.classList.add("hidden");
+
+                        infoBox.style.display = "none";
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    
+
+        // end infobox dismiss code.
+
+    
+
+        // this works and has already replaced most pull buttons for Agora sections.
+
+        // this is for 'zippies' that require pulling (e.g. pulled nodes).
+
+        var details = document.querySelectorAll("details.node");
+
+        details.forEach((item) => {
+
+          item.addEventListener("toggle", (event) => {
+
+            if (item.open) {
+
+              console.log("Details have been shown");
+
+              let nodeEmbed = item.querySelector(".node-embed");
+
+              if (nodeEmbed) {
+
+                let node = nodeEmbed.id;
+
+                console.log("Node embed found, here we would pull.");
+
+                nodeEmbed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>';
+
+              }
+
+            } else {
+
+              console.log("Details have been hidden");
+
+              let nodeEmbed = item.querySelector(".node-embed");
+
+              if (nodeEmbed) {
+
+                console.log("Node embed found, here we would fold.");
+
+                nodeEmbed.innerHTML = '';
+
+              }
+
+            }
+
+          });
+
+        });
+
+    
+
+    
+
+        // end zippies.
+
+    
+
+        document.querySelectorAll(".pushed-subnodes-embed").forEach(async function (element) {
+
+          // auto pull pushed subnodes by default.
+
+          // it would be better to infer this from node div id?
+
+          let node = NODENAME;
+
+          let arg = ARG;
+
+          let id = ".pushed-subnodes-embed";
+
+          console.log('auto pulling pushed subnodes, will write to id: ' + id);
+
+          let response;
+
+          if (arg != '') {
+
+          response = await fetch(AGORAURL + '/push/' + node + '/' + arg);
+
+          } else {
+
+          response = await fetch(AGORAURL + '/push/' + node);
+
           }
-      });
 
-      tabs.forEach(tab => {
-          tab.addEventListener("click", (event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              const details = webContainer as HTMLDetailsElement;
+          const data = await response.text();
 
-              if (details.open && tab.classList.contains('active')) {
-                  // If the details are open and the tab is already active, open its data-url in a new tab.
-                  const url = (tab as HTMLElement).dataset.url;
-                  if (url) {
-                      window.open(url, '_blank');
-                  }
-                  return; // Stop further execution
-              }
+          document.querySelector(id).innerHTML = data;
 
-              // Otherwise, ensure the details are open and switch to the clicked tab.
-              if (!details.open) {
-                  details.open = true;
-              }
+          // end auto pull pushed subnodes.
 
-              tabs.forEach(t => t.classList.remove('active'));
-              tab.classList.add('active');
-
-              const provider = tab.getAttribute('data-provider');
-              const embeds = webContainer.querySelectorAll(".web-embed");
-              embeds.forEach((embed) => {
-                  if ((embed as HTMLElement).dataset.provider === provider) {
-                      (embed as HTMLElement).style.display = 'block';
-                      loadContent(provider, embed);
-                  } else {
-                      (embed as HTMLElement).style.display = 'none';
-                  }
-              });
-          });
-      });
-  }
-
-  const wpWtContainer = document.getElementById('wp-wt-container');
-  if (wpWtContainer) {
-    fetch('/exec/wp/' + NODENAME)
-        .then(response => response.text())
-        .then(html => {
-            if (html.trim()) {
-                const placeholder = wpWtContainer.querySelector('.node');
-                if (placeholder) {
-                    placeholder.classList.add('fade-out');
-                    placeholder.addEventListener('animationend', () => {
-                        wpWtContainer.innerHTML = html;
-                        const newContent = wpWtContainer.querySelector('.node');
-                        if (newContent) {
-                            newContent.classList.add('fade-in');
-                        }
-
-                        // Re-attach event listeners for the new content
-                        if (localStorage.getItem('auto-pull-wikipedia') === 'true') {
-                            (wpWtContainer.querySelector('.wiki') as HTMLDetailsElement)?.setAttribute('open', '');
-                        }
-
-                        wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(tab => {
-                            tab.addEventListener('click', e => {
-                                e.preventDefault();
-                                const details = wpWtContainer.querySelector('.wiki') as HTMLDetailsElement;
-
-                                if (details && details.hasAttribute('open') && tab.classList.contains('active')) {
-                                    // If the details are open and the tab is already active, open link in a new window.
-                                    const linkElement = tab.nextElementSibling?.querySelector('a');
-                                    if (linkElement && linkElement.href) {
-                                        window.open(linkElement.href, '_blank');
-                                    }
-                                    return;
-                                }
-
-                                // Otherwise, ensure the details are open and switch to the clicked tab.
-                                if (details && !details.hasAttribute('open')) {
-                                    details.setAttribute('open', '');
-                                }
-
-                                wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
-                                tab.classList.add('active');
-                                const provider = (tab as HTMLElement).dataset.provider;
-                                wpWtContainer.querySelectorAll('.wiki-embed').forEach(embed => {
-                                    if ((embed as HTMLElement).dataset.provider === provider) {
-                                        (embed as HTMLElement).style.display = 'block';
-                                    } else {
-                                        (embed as HTMLElement).style.display = 'none';
-                                    }
-                                });
-                            });
-                        });
-                        applyDismissals(); // Run again, as the wp info-box is now in the DOM.
-                    }, { once: true });
-                } else {
-                    // Fallback for safety
-                    wpWtContainer.innerHTML = html;
-                    applyDismissals(); // Also run here in the fallback case.
-                }
-            }
         });
-  }
-  
-	
 
+    
 
-  // go to the specified URL
-  document.querySelectorAll(".go-url").forEach(element => {
-    element.addEventListener("click", function () {
-      let url = (this as HTMLInputElement).value;
-      (this as HTMLElement).innerText = 'going';
-      window.location.href = url;
-    });
-  });
+        document.querySelectorAll(".context").forEach(async function (element) {
 
-  if (autoExec) {
-    console.log('autoexec is enabled')
+          // auto pull context by default.
 
-    // commenting out as focus stealing issues are just too disruptive.
-    // setTimeout(autoPullStoaOnEmpty, 5000)
+          // it would be better to infer this from node div id?
 
-    document.querySelectorAll(".context-all").forEach(function (element) {
-      // auto pull whole Agora graph in /nodes.
-      const detailsElement = element.closest('details');
-      if (detailsElement) {
-          detailsElement.addEventListener('toggle', () => {
-              if (detailsElement.open) {
-                  const placeholder = document.getElementById('full-graph-placeholder');
-                  if (placeholder) {
-                      placeholder.addEventListener('click', async () => {
-                          const container = document.getElementById('full-graph-container');
-                          const spinner = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Loading graph... (please wait)</em></p></center><br />`;
-                          container.innerHTML = spinner;
+          let node = NODENAME;
 
-                          try {
-                              const response = await fetch(AGORAURL + '/context/all');
-                              container.innerHTML = await response.text();
-                          } catch (error) {
-                              container.innerHTML = `<p>Error loading graph: ${error}</p>`;
-                          }
-                      }, { once: true });
-                  }
-              }
+          let id = '.context';
+
+          console.log('auto pulling context, will write to id: ' + id);
+
+          const response = await fetch(AGORAURL + '/context/' + node);
+
+          const data = await response.text();
+
+          document.querySelector(id).innerHTML = data;
+
+          console.log('auto pulled context');
+
+          
+
+          // Finally!
+
+          renderGraph('graph', '/graph/json/' + node);
+
+    
+
+          document.getElementById('graph-toggle-labels')?.addEventListener('click', () => {
+
+              const currentSetting = safeJsonParse(localStorage.getItem('graph-show-labels'), true);
+
+              localStorage.setItem('graph-show-labels', JSON.stringify(!currentSetting));
+
+              renderGraph('graph', '/graph/json/' + node);
+
           });
-      }
-    });
 
-    console.log('dynamic execution for node begins: ' + NODENAME)
+    
 
-    // Begin Wikipedia code -- this is hacky/could be refactored (but then again, that applies to most of the Agora! :)
-    const req_wikipedia = AGORAURL + '/exec/wp/' + encodeURI(NODENAME);
-    console.log('req for Wikipedia: ' + req_wikipedia);
-    try {
-      const response = await fetch(req_wikipedia);
-      const data = await response.text();
-      const wikiSearchElement = document.querySelector(".wiki-search");
-      if (data && wikiSearchElement) {
-        console.log('Got some data from Wikipedia, showing data');
-        (wikiSearchElement as HTMLElement).style.display = '';
-        wikiSearchElement.innerHTML = data;
-      } else {
-        console.log('got empty data from Wikipedia, hiding div');
-        if (wikiSearchElement) {
-          (wikiSearchElement as HTMLElement).style.display = 'none';
+          console.log("graph loaded.")
+
+        });
+
+    
+
+        // end async content code.
+
+    
+
+        initPullButtons();
+
+    
+
+        // pull a pleroma status (toot) using the laziest way I found, might be a better one
+
+        document.querySelectorAll(".pull-pleroma-status").forEach(element => {
+
+          element.addEventListener("click", function (e) {
+
+          let toot = this.value;
+
+          const iframe = document.createElement('iframe');
+
+          iframe.src = toot;
+
+          iframe.className = 'mastodon-embed';
+
+          iframe.style.maxWidth = '100%';
+
+          iframe.width = '400';
+
+          iframe.setAttribute('allowfullscreen', 'allowfullscreen');
+
+          this.after(document.createElement('br'));
+
+          this.after(iframe);
+
+          const script = document.createElement('script');
+
+          script.src = "https://freethinkers.lgbt/embed.js";
+
+          script.async = true;
+
+          this.after(script);
+
+          this.innerText = 'pulled';
+
+          });
+
+        });
+
+    
+
+        // pull all/fold all button in main node
+
+        document.querySelector("#pull-all")?.addEventListener("click", function (e) {
+
+          console.log('auto pulling all!');
+
+          document.querySelectorAll(".pull-node").forEach(element => {
+
+          if (!element.classList.contains('pulled')) {
+
+            console.log('auto pulling nodes');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+          document.querySelectorAll(".pull-mastodon-status").forEach(element => {
+
+          if (!element.classList.contains('pulled')) {
+
+            console.log('auto pulling activity');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+          document.querySelectorAll(".pull-tweet").forEach(element => {
+
+          if (!element.classList.contains('pulled')) {
+
+            console.log('auto pulling tweet');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+          document.querySelectorAll(".pull-search").forEach(element => {
+
+          if (!element.classList.contains('pulled')) {
+
+            console.log('auto pulling search');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+          document.querySelectorAll(".pull-url").forEach(element => {
+
+          if (!element.classList.contains('pulled')) {
+
+            console.log('auto pulling url');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+    
+
+          // experiment: make pull button expand all details.
+
+          var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary, details.stoa > summary, details.search > summary");
+
+          details.forEach(item => {
+
+          console.log('trying to click details');
+
+          (item as HTMLElement).click();
+
+          });
+
+        });
+
+    
+
+        // fold all button in intro banner.
+
+        document.querySelector("#fold-all")?.addEventListener("click", function (e) {
+
+          // Already pulled -> fold.
+
+          document.querySelectorAll(".pull-node").forEach(element => {
+
+          if (element.classList.contains('pulled')) {
+
+            console.log('auto folding nodes');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+          document.querySelectorAll(".pull-mastodon-status").forEach(element => {
+
+          if (element.classList.contains('pulled')) {
+
+            console.log('auto folding activity');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+          document.querySelectorAll(".pull-tweet").forEach(element => {
+
+          if (element.classList.contains('pulled')) {
+
+            console.log('auto folding tweet');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+          document.querySelectorAll(".pull-search").forEach(element => {
+
+          if (element.classList.contains('pulled')) {
+
+            console.log('auto folding search');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+          document.querySelectorAll(".pull-url").forEach(element => {
+
+          if (element.classList.contains('pulled')) {
+
+            console.log('auto pulling url');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+    
+
+          // experiment: make fold button fold all details which are open.
+
+          var details = document.querySelectorAll("details[open] > summary");
+
+          details.forEach(item => {
+
+          console.log('trying to click details');
+
+          (item as HTMLElement).click();
+
+          });
+
+        });
+
+    
+
+        // For late rendered 'join' actions... YOLO :)
+
+        document.querySelectorAll('#join2').forEach(element => {
+
+          console.log(`Clicked ${element.id}`);
+
+          element.addEventListener("click", function () {
+
+            const overlay = document.getElementById('overlay');
+
+            overlay.classList.toggle('active');
+
+          });
+
+        });
+
+    
+
+        // Node-specific pull button logic.
+
+        const nodePullButton = document.querySelector("#pull-all-in-node");
+
+        if (nodePullButton) {
+
+            nodePullButton.addEventListener("click", (e) => {
+
+                const button = e.currentTarget as HTMLElement;
+
+                const nodeElement = button.closest('.node');
+
+                if (!nodeElement) return;
+
+    
+
+                const isPulled = button.dataset.state === 'pulled';
+
+                if (isPulled) {
+
+                    // Fold all pulled content within this node.
+
+                    nodeElement.querySelectorAll(".pull-node.pulled, .pull-mastodon-status.pulled, .pull-tweet.pulled, .pull-search.pulled, .pull-url.pulled").forEach(element => {
+
+                        (element as HTMLElement).click();
+
+                    });
+
+                    button.innerHTML = '🧲 Pull All';
+
+                    button.dataset.state = 'folded';
+
+                } else {
+
+                    // Pull all unpulled content within this node.
+
+                    nodeElement.querySelectorAll(".pull-node:not(.pulled), .pull-mastodon-status:not(.pulled), .pull-tweet:not(.pulled), .pull-search:not(.pulled), .pull-url:not(.pulled)").forEach(element => {
+
+                        (element as HTMLElement).click();
+
+                    });
+
+                    button.innerHTML = '✕ Fold All';
+
+                    button.dataset.state = 'pulled';
+
+                }
+
+            });
+
         }
-      }
-    } catch (error) {
-      console.error('Error fetching Wikipedia data:', error);
-    }
 
-    // Once more for Wiktionary, yolo :)
-    let req_wiktionary = AGORAURL + '/exec/wt/' + encodeURI(NODENAME)
-    console.log('req for Wiktionary: ' + req_wiktionary)
+    
 
-    try {
-      const response = await fetch(req_wiktionary);
-      const data = await response.text();
-      const wiktionaryElement = document.querySelector(".wiktionary-search");
-      if (data && wiktionaryElement) {
-      wiktionaryElement.innerHTML = data;
-      } else {
-      console.log('got empty data from Wiktionary, hiding div');
-      if (wiktionaryElement) {
-        (wiktionaryElement as HTMLElement).style.display = 'none';
-      }
-      }
-    } catch (error) {
-      console.error('Error fetching Wiktionary data:', error);
-    }
-  }
+        // Auto-pull if enabled.
 
-  if (autoPullExtra) {
-    console.log('auto pulling external resources!');
-    document.querySelectorAll(".pull-mastodon-status").forEach(function (element) {
-      console.log('auto pulling activity');
-      (element as HTMLElement).click();
-    });
-    document.querySelectorAll(".pull-tweet").forEach(function (element) {
-      console.log('auto pulling tweet');
-      (element as HTMLElement).click();
-    });
-    document.querySelectorAll(".pull-related-node").forEach(function (element) {
-      console.log('auto pulling related node');
-      (element as HTMLElement).click();
-    });
-    document.querySelectorAll(".pull-url").forEach(function (element) {
-      console.log('auto pulling url');
-      (element as HTMLElement).click();
-    });
-    document.querySelectorAll(".pull-node").forEach(function (element) {
-      console.log('auto pulling node');
-      (element as HTMLElement).click();
-    });
-    }
+        if (autoPull) {
 
-        // Get the elements
-    const featureLinkDialog = document.getElementById('feature-link-dialog');
-    // Check if the link exists on this page before adding listener
-    if (featureLinkDialog) {
-        const dialog = document.getElementById('not-implemented-dialog');
-        const closeButton = document.getElementById('close-dialog-btn');
+            setTimeout(() => {
 
-        // Check if dialog and button exist
-        if (dialog && closeButton) {
-            // Add click listener to the link
-            featureLinkDialog.addEventListener('click', function(ev) {
-                ev.preventDefault();
-                (dialog as HTMLDialogElement).showModal();
+                const pullButton = document.querySelector("#pull-all-in-node") as HTMLElement;
+
+                if (pullButton && pullButton.dataset.state !== 'pulled') {
+
+                    console.log("Auto-pulling all content in node.");
+
+                    pullButton.click();
+
+                }
+
+            }, 500); // Wait half a second for content to settle.
+
+        }
+
+    
+
+        // Auto-expand if enabled.
+
+        if (autoExpandAll) {
+
+            setTimeout(() => {
+
+                const expandButton = document.querySelector("#expand-all") as HTMLElement;
+
+                if (expandButton && expandButton.dataset.state !== 'expanded') {
+
+                    console.log("Auto-expanding all sections.");
+
+                    expandButton.click();
+
+                }
+
+            }, 500); // Wait half a second for content to settle.
+
+        }
+
+    
+
+        // For the full graph in /nodes
+
+        const fullGraphDetails = document.getElementById('full-graph-details');
+
+        if (fullGraphDetails) {
+
+            const tabs = fullGraphDetails.querySelectorAll(".graph-size-tab");
+
+            let graphInstance;
+
+            let labelsVisible = true;
+
+    
+
+            const loadGraph = (size) => {
+
+                const url = size === 'all' ? '/graph./json/all' : `/graph/json/top/${size}`;
+
+                renderGraph('full-graph', url);
+
+            };
+
+    
+
+            fullGraphDetails.addEventListener('toggle', () => {
+
+                if ((fullGraphDetails as HTMLDetailsElement).open) {
+
+                    const activeTab = fullGraphDetails.querySelector(".graph-size-tab.active");
+
+                    if (activeTab) {
+
+                        const size = activeTab.getAttribute('data-size');
+
+                        loadGraph(size);
+
+                    }
+
+                }
+
             });
 
-            // Add click listener to the close button
-            closeButton.addEventListener('click', function() {
-                (dialog as HTMLDialogElement).close();
+    
+
+            tabs.forEach(tab => {
+
+                tab.addEventListener('click', (event) => {
+
+                    event.preventDefault();
+
+                    event.stopPropagation();
+
+    
+
+                    if (!(fullGraphDetails as HTMLDetailsElement).open) {
+
+                        (fullGraphDetails as HTMLDetailsElement).open = true;
+
+                    }
+
+    
+
+                    tabs.forEach(t => t.classList.remove('active'));
+
+                    tab.classList.add('active');
+
+                    
+
+                    const size = tab.getAttribute('data-size');
+
+                    loadGraph(size);
+
+                });
+
             });
 
-            // Optional: Close on backdrop click
-            dialog.addEventListener('click', function(e) {
-              if (e.target === dialog) {
-                 (dialog as HTMLDialogElement).close();
+    
+
+            document.getElementById('full-graph-toggle-labels')?.addEventListener('click', () => {
+
+                const currentSetting = safeJsonParse(localStorage.getItem('graph-show-labels-full'), false);
+
+                localStorage.setItem('graph-show-labels-full', JSON.stringify(!currentSetting));
+
+                const activeTab = fullGraphDetails.querySelector(".graph-size-tab.active");
+
+                if (activeTab) {
+
+                    const size = activeTab.getAttribute('data-size');
+
+                    loadGraph(size);
+
+                }
+
+            });
+
+        }
+
+    
+
+        // Cache clearing buttons in footer.
+
+        document.getElementById('mini-cli-cachez')?.addEventListener('click', (e) => {
+
+            const button = e.currentTarget as HTMLButtonElement;
+
+            const originalText = button.innerHTML;
+
+            button.innerHTML = '🧠 Flushing...';
+
+            button.disabled = true;
+
+    
+
+            fetch('/api/clear-in-memory-cache', {
+
+                method: 'POST',
+
+            })
+
+            .then(response => {
+
+                if (response.ok) {
+
+                    button.innerHTML = '🧠 Flushed!';
+
+                } else {
+
+                    button.innerHTML = '🧠 Error!';
+
+                }
+
+                setTimeout(() => {
+
+                    button.innerHTML = originalText;
+
+                    button.disabled = false;
+
+                }, 2000);
+
+            })
+
+            .catch(error => {
+
+                console.error('Error flushing in-memory cache:', error);
+
+                button.innerHTML = '🧠 Error!';
+
+                setTimeout(() => {
+
+                    button.innerHTML = originalText;
+
+                    button.disabled = false;
+
+                }, 2000);
+
+            });
+
+        });
+
+    
+
+        document.getElementById('mini-cli-invalidate-sqlite')?.addEventListener('click', (e) => {
+
+            const button = e.currentTarget as HTMLButtonElement;
+
+            const originalText = button.innerHTML;
+
+            button.innerHTML = '💾 Flushing...';
+
+            button.disabled = true;
+
+    
+
+            fetch('/invalidate-sqlite', {
+
+                method: 'POST',
+
+            })
+
+            .then(response => {
+
+                if (response.ok) {
+
+                    button.innerHTML = '💾 Flushed!';
+
+                } else {
+
+                    button.innerHTML = '💾 Error!';
+
+                }
+
+                setTimeout(() => {
+
+                    button.innerHTML = originalText;
+
+                    button.disabled = false;
+
+                }, 2000);
+
+            })
+
+            .catch(error => {
+
+                console.error('Error invalidating SQLite:', error);
+
+                button.innerHTML = '💾 Error!';
+
+                setTimeout(() => {
+
+                    button.innerHTML = originalText;
+
+                    button.disabled = false;
+
+                }, 2000);
+
+            });
+
+        });
+
+    
+
+        // Collapsible content handler
+
+        const initializeCollapsibleContent = () => {
+
+            document.querySelectorAll('.collapsible-content').forEach(content => {
+
+                if ((content as HTMLElement).dataset.processed) return;
+
+    
+
+                const button = document.querySelector(`.show-more-button[data-target="${content.id}"]`) as HTMLElement;
+
+                if (button) {
+
+                    // Check if the content is overflowing
+
+                    if (content.scrollHeight > content.clientHeight) {
+
+                        button.style.display = 'block';
+
+                    } else {
+
+                        // If not overflowing, remove the gradient effect and ensure it's fully visible
+
+                        content.classList.add('expanded');
+
+                    }
+
+                }
+
+                (content as HTMLElement).dataset.processed = 'true';
+
+            });
+
+        };
+
+    
+
+        // Initial check
+
+        initializeCollapsibleContent();
+
+    
+
+        // Observer for dynamically added content
+
+        const collapsibleObserver = new MutationObserver((mutations) => {
+
+            for (const mutation of mutations) {
+
+                if (mutation.addedNodes.length) {
+
+                    initializeCollapsibleContent();
+
+                    break; 
+
+                }
+
+            }
+
+        });
+
+        collapsibleObserver.observe(document.body, { childList: true, subtree: true });
+
+    
+
+    
+
+        document.querySelectorAll('.show-more-button').forEach(button => {
+
+            button.addEventListener('click', (event) => {
+
+                const targetId = (event.target as HTMLElement).dataset.target;
+
+                const content = document.getElementById(targetId);
+
+                if (content) {
+
+                    content.classList.add('expanded');
+
+                    (event.target as HTMLElement).style.display = 'none';
+
+                }
+
+            });
+
+        });
+
+    
+
+        initMusicPlayer();
+
+      }
+
+      // end bindEvents();
+
+    
+
+      function setOverlayPosition() {
+
+        const nav = document.querySelector('nav');
+
+        const overlay = document.querySelector('.overlay');
+
+        if (nav && overlay) {
+
+          const navHeight = nav.offsetHeight;
+
+          (overlay as HTMLElement).style.top = navHeight + 'px';
+
+          (overlay as HTMLElement).style.height = `calc(100% - ${navHeight}px)`;
+
+        }
+
+      }
+
+    
+
+      window.addEventListener('load', setOverlayPosition);
+
+      window.addEventListener('resize', setOverlayPosition);
+
+    
+
+      const webContainer = document.querySelector('details.web');
+
+      if (webContainer) {
+
+          const tabs = webContainer.querySelectorAll('.web-provider-tab');
+
+    
+
+          const loadContent = (provider, embedDiv) => {
+
+              if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
+
+              
+
+              const tabElement = webContainer.querySelector(`.web-provider-tab[data-provider="${provider}"]`);
+
+              const url = (tabElement as HTMLElement).dataset.url;
+
+              const externalLink = (tabElement as HTMLElement).dataset.url;
+
+    
+
+              // Show a spinner while we check for embeddability
+
+              embedDiv.innerHTML = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Checking embeddability...</em></p></center><br />`;
+
+    
+
+              fetch(`/api/check_embeddable?url=${encodeURIComponent(url)}`)
+
+                  .then(response => response.json())
+
+                  .then(data => {
+
+                      if (data.embeddable) {
+
+                          const iframeHTML = `<iframe src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
+
+                          const overlayHTML = `<a href="${url}" target="_blank" class="iframe-url-overlay" title="Open in new tab">${url}</a>`;
+
+                          embedDiv.innerHTML = `<div class="iframe-container">${iframeHTML}${overlayHTML}</div>`;
+
+                      } else {
+
+                          embedDiv.innerHTML = `
+
+                              <div class="subnode node">
+
+                                  This provider has disabled embedding for security reasons, often to prevent an attack called 'clickjacking' where a malicious site might try to trick you into clicking something on the embedded page.
+
+                                  <br/><br/>
+
+                                  You can <a href="${externalLink}" target="_blank">open the search results in a new tab</a> instead.
+
+                              </div>
+
+                          `;
+
+                      }
+
+                  });
+
+          };
+
+    
+
+          webContainer.addEventListener("toggle", (event) => {
+
+              if ((webContainer as HTMLDetailsElement).open) {
+
+                  const activeTab = webContainer.querySelector(".web-provider-tab.active");
+
+                  if (activeTab) {
+
+                      const provider = activeTab.getAttribute('data-provider');
+
+                      const embed = webContainer.querySelector(`.web-embed[data-provider="${provider}"]`);
+
+                      loadContent(provider, embed);
+
+                  }
+
               }
+
+          });
+
+    
+
+          tabs.forEach(tab => {
+
+              tab.addEventListener("click", (event) => {
+
+                  event.preventDefault();
+
+                  event.stopPropagation();
+
+                  const details = webContainer as HTMLDetailsElement;
+
+    
+
+                  if (details.open && tab.classList.contains('active')) {
+
+                      // If the details are open and the tab is already active, open its data-url in a new tab.
+
+                      const url = (tab as HTMLElement).dataset.url;
+
+                      if (url) {
+
+                          window.open(url, '_blank');
+
+                      }
+
+                      return; // Stop further execution
+
+                  }
+
+    
+
+                  // Otherwise, ensure the details are open and switch to the clicked tab.
+
+                  if (!details.open) {
+
+                      details.open = true;
+
+                  }
+
+    
+
+                  tabs.forEach(t => t.classList.remove('active'));
+
+                  tab.classList.add('active');
+
+    
+
+                  const provider = tab.getAttribute('data-provider');
+
+                  const embeds = webContainer.querySelectorAll(".web-embed");
+
+                  embeds.forEach((embed) => {
+
+                      if ((embed as HTMLElement).dataset.provider === provider) {
+
+                          (embed as HTMLElement).style.display = 'block';
+
+                          loadContent(provider, embed);
+
+                      } else {
+
+                          (embed as HTMLElement).style.display = 'none';
+
+                      }
+
+                  });
+
+              });
+
+          });
+
+      }
+
+    
+
+      const wpWtContainer = document.getElementById('wp-wt-container');
+
+      if (wpWtContainer) {
+
+        fetch('/exec/wp/' + NODENAME)
+
+            .then(response => response.text())
+
+            .then(html => {
+
+                if (html.trim()) {
+
+                    const placeholder = wpWtContainer.querySelector('.node');
+
+                    if (placeholder) {
+
+                        placeholder.classList.add('fade-out');
+
+                        placeholder.addEventListener('animationend', () => {
+
+                            wpWtContainer.innerHTML = html;
+
+                            const newContent = wpWtContainer.querySelector('.node');
+
+                            if (newContent) {
+
+                                newContent.classList.add('fade-in');
+
+                            }
+
+    
+
+                            // Re-attach event listeners for the new content
+
+                            if (localStorage.getItem('auto-pull-wikipedia') === 'true') {
+
+                                (wpWtContainer.querySelector('.wiki') as HTMLDetailsElement)?.setAttribute('open', '');
+
+                            }
+
+    
+
+                            wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(tab => {
+
+                                tab.addEventListener('click', e => {
+
+                                    e.preventDefault();
+
+                                    const details = wpWtContainer.querySelector('.wiki') as HTMLDetailsElement;
+
+    
+
+                                    if (details && details.hasAttribute('open') && tab.classList.contains('active')) {
+
+                                        // If the details are open and the tab is already active, open link in a new window.
+
+                                        const linkElement = tab.nextElementSibling?.querySelector('a');
+
+                                        if (linkElement && linkElement.href) {
+
+                                            window.open(linkElement.href, '_blank');
+
+                                        }
+
+                                        return;
+
+                                    }
+
+    
+
+                                    // Otherwise, ensure the details are open and switch to the clicked tab.
+
+                                    if (details && !details.hasAttribute('open')) {
+
+                                        details.setAttribute('open', '');
+
+                                    }
+
+    
+
+                                    wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
+
+                                    tab.classList.add('active');
+
+                                    const provider = (tab as HTMLElement).dataset.provider;
+
+                                    wpWtContainer.querySelectorAll('.wiki-embed').forEach(embed => {
+
+                                        if ((embed as HTMLElement).dataset.provider === provider) {
+
+                                            (embed as HTMLElement).style.display = 'block';
+
+                                        } else {
+
+                                            (embed as HTMLElement).style.display = 'none';
+
+                                        }
+
+                                    });
+
+                                });
+
+                            });
+
+                            applyDismissals(); // Run again, as the wp info-box is now in the DOM.
+
+                        }, { once: true });
+
+                    } else {
+
+                        // Fallback for safety
+
+                        wpWtContainer.innerHTML = html;
+
+                        applyDismissals(); // Also run here in the fallback case.
+
+                    }
+
+                }
+
             });
+
+      }
+
+      
+
+    	
+
+    
+
+    
+
+      // go to the specified URL
+
+      document.querySelectorAll(".go-url").forEach(element => {
+
+        element.addEventListener("click", function () {
+
+          let url = (this as HTMLInputElement).value;
+
+          (this as HTMLElement).innerText = 'going';
+
+          window.location.href = url;
+
+        });
+
+      });
+
+    
+
+      if (autoExec) {
+
+        console.log('autoexec is enabled')
+
+    
+
+        // commenting out as focus stealing issues are just too disruptive.
+
+        // setTimeout(autoPullStoaOnEmpty, 5000)
+
+    
+
+        document.querySelectorAll(".context-all").forEach(function (element) {
+
+          // auto pull whole Agora graph in /nodes.
+
+          const detailsElement = element.closest('details');
+
+          if (detailsElement) {
+
+              detailsElement.addEventListener('toggle', () => {
+
+                  if (detailsElement.open) {
+
+                      const placeholder = document.getElementById('full-graph-placeholder');
+
+                      if (placeholder) {
+
+                          placeholder.addEventListener('click', async () => {
+
+                              const container = document.getElementById('full-graph-container');
+
+                              const spinner = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Loading graph... (please wait)</em></p></center><br />`;
+
+                              container.innerHTML = spinner;
+
+    
+
+                              try {
+
+                                  const response = await fetch(AGORAURL + '/context/all');
+
+                                  container.innerHTML = await response.text();
+
+                              } catch (error) {
+
+                                  container.innerHTML = `<p>Error loading graph: ${error}</p>`;
+
+                              }
+
+                          }, { once: true });
+
+                      }
+
+                  }
+
+              });
+
+          }
+
+        });
+
+    
+
+        console.log('dynamic execution for node begins: ' + NODENAME)
+
+    
+
+        // Begin Wikipedia code -- this is hacky/could be refactored (but then again, that applies to most of the Agora! :)
+
+        const req_wikipedia = AGORAURL + '/exec/wp/' + encodeURI(NODENAME);
+
+        console.log('req for Wikipedia: ' + req_wikipedia);
+
+        try {
+
+          const response = await fetch(req_wikipedia);
+
+          const data = await response.text();
+
+          const wikiSearchElement = document.querySelector(".wiki-search");
+
+          if (data && wikiSearchElement) {
+
+            console.log('Got some data from Wikipedia, showing data');
+
+            (wikiSearchElement as HTMLElement).style.display = '';
+
+            wikiSearchElement.innerHTML = data;
+
+          } else {
+
+            console.log('got empty data from Wikipedia, hiding div');
+
+            if (wikiSearchElement) {
+
+              (wikiSearchElement as HTMLElement).style.display = 'none';
+
+            }
+
+          }
+
+        } catch (error) {
+
+          console.error('Error fetching Wikipedia data:', error);
+
         }
-    }
 
+    
 
-});
+        // Once more for Wiktionary, yolo :)
+
+        let req_wiktionary = AGORAURL + '/exec/wt/' + encodeURI(NODENAME)
+
+        console.log('req for Wiktionary: ' + req_wiktionary)
+
+    
+
+        try {
+
+          const response = await fetch(req_wiktionary);
+
+          const data = await response.text();
+
+          const wiktionaryElement = document.querySelector(".wiktionary-search");
+
+          if (data && wiktionaryElement) {
+
+          wiktionaryElement.innerHTML = data;
+
+          } else {
+
+          console.log('got empty data from Wiktionary, hiding div');
+
+          if (wiktionaryElement) {
+
+            (wiktionaryElement as HTMLElement).style.display = 'none';
+
+          }
+
+          }
+
+        } catch (error) {
+
+                console.error('Error fetching Wiktionary data:', error);
+
+              }
+
+            }
+
+          
+
+                  // Get the elements
+
+              const featureLinkDialog = document.getElementById('feature-link-dialog');
+
+              // Check if the link exists on this page before adding listener
+
+              if (featureLinkDialog) {
+
+            const dialog = document.getElementById('not-implemented-dialog');
+
+            const closeButton = document.getElementById('close-dialog-btn');
+
+    
+
+            // Check if dialog and button exist
+
+            if (dialog && closeButton) {
+
+                // Add click listener to the link
+
+                featureLinkDialog.addEventListener('click', function(ev) {
+
+                    ev.preventDefault();
+
+                    (dialog as HTMLDialogElement).showModal();
+
+                });
+
+    
+
+                // Add click listener to the close button
+
+                closeButton.addEventListener('click', function() {
+
+                    (dialog as HTMLDialogElement).close();
+
+                });
+
+    
+
+                // Optional: Close on backdrop click
+
+                dialog.addEventListener('click', function(e) {
+
+                  if (e.target === dialog) {
+
+                     (dialog as HTMLDialogElement).close();
+
+                  }
+
+                });
+
+            }
+
+        }
+
+    
+
+    
+
+    });
+
+    

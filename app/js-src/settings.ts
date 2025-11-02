@@ -9,8 +9,9 @@ declare const NODENAME: string;
 export function initSettings() {
     // set values from storage
     (document.getElementById("user") as HTMLInputElement).value = localStorage["user"] || CLIENT_DEFAULTS.user;
-    (document.getElementById("auto-pull-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-search"], CLIENT_DEFAULTS.autoPullSearch);
-    (document.getElementById("auto-pull-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull-wikipedia"], CLIENT_DEFAULTS.autoPullWikipedia);
+    (document.getElementById("auto-expand-all") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-all"], CLIENT_DEFAULTS.autoExpandAll);
+    (document.getElementById("auto-expand-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-search"], CLIENT_DEFAULTS.autoExpandSearch);
+    (document.getElementById("auto-expand-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-wikipedia"], CLIENT_DEFAULTS.autoExpandWikipedia);
     (document.getElementById("auto-pull") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull"], CLIENT_DEFAULTS.autoPull);
     (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], CLIENT_DEFAULTS.showBrackets);
 
@@ -87,9 +88,13 @@ export function initSettings() {
         location.reload();
     });
 
-    document.getElementById("auto-pull-search")?.addEventListener('change', (e) => {
+    document.getElementById("auto-expand-all")?.addEventListener('change', (e) => {
+        localStorage["auto-expand-all"] = (e.target as HTMLInputElement).checked;
+    });
+
+    document.getElementById("auto-expand-search")?.addEventListener('change', (e) => {
         const isChecked = (e.target as HTMLInputElement).checked;
-        localStorage["auto-pull-search"] = isChecked;
+        localStorage["auto-expand-search"] = isChecked;
         document.querySelectorAll("details.search").forEach(function (element) {
             const summary = element.querySelector('summary');
             if (summary) {
@@ -102,9 +107,9 @@ export function initSettings() {
             }
         });
     });
-    document.getElementById("auto-pull-wikipedia")?.addEventListener('change', (e) => {
+    document.getElementById("auto-expand-wikipedia")?.addEventListener('change', (e) => {
         const isChecked = (e.target as HTMLInputElement).checked;
-        localStorage["auto-pull-wikipedia"] = isChecked;
+        localStorage["auto-expand-wikipedia"] = isChecked;
         // The container is #wp-wt-container, the details element has class .wiki
         const wikipediaDetails = document.querySelector("details.wiki");
         if (wikipediaDetails) {

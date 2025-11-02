@@ -1173,6 +1173,17 @@ table caption {
     gap: 10px;
 }
 
+.settings-group {
+    margin-bottom: 20px;
+}
+
+.settings-group-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 5px;
+}
+
 
 .toggle-container {
     display: flex;

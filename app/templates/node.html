@@ -34,6 +34,7 @@
                     <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="Star this node">
                         {% if node.uri in starred_nodes %}★{% else %}☆{% endif %}
                     </span>
+                    <button id="pull-all-in-node" value="pull-all" title='Pull all embeddable content in this node.'>🧲 Pull All</button>
                    <!-- <div style="flex: auto; margin-left: auto; text-align: right;"> <button id="pull-all" value="pull-all" title='Tries to retrieve most resources that can be pulled below'>pull all</button> -->
                     <!-- </div> -->
             </summary>

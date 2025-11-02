@@ -2,9 +2,10 @@
 
 export const CLIENT_DEFAULTS = {
   user: 'flancian',
-  autoPullSearch: false,
-  autoPullWikipedia: false,
-  autoPull: false,
+  autoExpandSearch: false,
+  autoExpandWikipedia: false,
+  autoExpandAll: false,
+  autoPull: true,
   showBrackets: false,
   showGraphLabels: true,
   showHypothesis: false,
