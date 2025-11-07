@@ -41,6 +41,15 @@ For an example Agora, and for more information on the Agora design, please refer
 To see the Agora Server in action with the example Agora, please visit
 <https://anagora.org>.
 
+## The Agora Protocol
+
+The Agora Protocol is not a formal network protocol, but rather a set of core principles that guide the project's design:
+
+-   **Decentralization**: The filesystem is the ultimate source of truth. The server is a lens, not a silo.
+-   **Nodes are Concepts, Subnodes are Utterances**: A key distinction where abstract topics (`[[Calculus]]`) are composed of concrete contributions (`@flancian/calculus.md`).
+-   **Composition over Centralization**: Nodes are built by pulling and combining content from other, more specialized nodes.
+-   **Everything Has a Place (No 4_04s)**: Every possible query resolves to a node, turning dead ends into invitations to contribute.
+
 # To develop
 
 Install OS dependencies:

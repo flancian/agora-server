@@ -2,6 +2,17 @@
 
 This document outlines the caching mechanisms used in the Agora Server, primarily focusing on the SQLite database.
 
+## Indexing Strategy: On-Demand / Lazy Indexing
+
+To ensure the index is always up-to-date without requiring a slow, separate worker process, the Agora Server uses an **on-demand** (or "lazy") indexing strategy.
+
+When a subnode (file) is accessed during a user request, the server performs a quick check:
+1.  It compares the file's current modification time (`mtime`) on the filesystem with the `mtime` stored in the `subnodes` table.
+2.  If the file is new or has been modified, the server immediately re-indexes that single file.
+3.  This process involves updating the relevant rows in the `subnodes`, `links`, and `node_links` tables.
+
+This ensures that any content being actively viewed is always fresh in the index, distributing the indexing load into small, instantaneous operations instead of a large, slow batch job.
+
 ## SQLite Database Schema & Review (as of 2025-09-19)
 
 The database acts as a **cache and index** to speed up operations that would otherwise require expensive filesystem reads across many small files. This is a very effective and appropriate use of SQLite in this context. The schema is generally simple, clear, and fit for this purpose.
@@ -10,7 +21,11 @@ The database acts as a **cache and index** to speed up operations that would oth
 
 -   **`subnodes`**: The core index. It maps a subnode's file `path` to its key metadata (`user`, parent `node`, `mtime`), allowing the application to quickly find subnodes without scanning the filesystem.
 
--   **`links`**: Stores the graph's edges. It maps which subnode (`source_path`) links to which node (`target_node`). This is critical for performance, as it makes calculating backlinks an efficient database query instead of a slow file-parsing operation. The `source_node` column is used to speed up queries that need the source node's name without parsing it from the path.
+-   **`links`**: Stores the graph's edges at the most granular level. It maps which subnode (`source_path`) links to which node (`target_node`). This is critical for performance, as it makes calculating backlinks an efficient database query instead of a slow file-parsing operation.
+
+-   **`node_links`**: A performance optimization table that stores direct, pre-aggregated node-to-node relationships.
+    -   **Schema**: `(source_node TEXT, target_node TEXT)`
+    -   **Purpose**: Instead of calculating node-level links by running a `DISTINCT` query on the larger `links` table every time, this table provides a fast, pre-computed lookup for high-level graph operations. It is updated automatically whenever a subnode is re-indexed.
 
 -   **`starred_subnodes`**: A simple list of subnode URIs that have been starred. As of this writing, this is a global list.
 

@@ -14,6 +14,11 @@ export function initDemoMode() {
 
     // This function is ONLY for implicit cancellation via user interaction.
     const cancelOnInteraction = (event: Event) => {
+        // Ignore events that are not triggered by direct user action.
+        if (!event.isTrusted) {
+            return;
+        }
+
         // A guard clause to ensure the event target is a DOM element.
         if (!(event.target instanceof Element)) {
             return;

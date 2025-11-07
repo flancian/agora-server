@@ -1,1 +1,1 @@
-gemini --include-directories ~/agora-bridge
+gemini --include-directories ~/agora-bridge --include-directories ~/agora

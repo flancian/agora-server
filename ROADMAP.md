@@ -2,14 +2,20 @@
 
 This document outlines the future work for the Agora project, with a focus on the architectural split between the `agora-server` (this repository) and the `agora-bridge`.
 
-## Core Architecture: The Server/Bridge Split
+## Core Architecture: The Server/Bridge Split and Hybrid Indexing
 
-The Agora is composed of two primary components:
+The Agora's architecture is a hybrid model designed for both real-time responsiveness and powerful, asynchronous processing. It is composed of two primary components that communicate and coordinate through a shared SQLite database (`agora.db`).
 
--   **Agora Server:** A user-facing Flask web application. Its sole responsibility is to handle HTTP requests, query for data, and render HTML as quickly as possible. It is the **read-only** and **request-handling** layer.
--   **Agora Bridge:** A background worker application. Its responsibility is to perform slow, asynchronous, and state-changing tasks, such as indexing content, pulling from external sources, and pushing updates to the Fediverse. It is the **write-only** and **processing** layer.
+-   **Agora Server:** A user-facing Flask web application. Its primary responsibility is to handle HTTP requests and render HTML as quickly as possible.
+    -   It performs **"hot" or "on-demand" indexing**: When a file is requested, the server instantly updates its metadata and links in the database. This ensures that recently accessed parts of the Agora are always perfectly up-to-date.
+    -   It is the **read-mostly** and **request-handling** layer.
 
-All future development should respect this separation of concerns.
+-   **Agora Bridge:** A background worker application. Its responsibility is to perform slow, asynchronous, and state-changing tasks that are not on the critical path of a user request.
+    -   It performs **"cold" or "batch" indexing**: It runs periodic scans to backfill the index with files that haven't been accessed recently, performs expensive full-text indexing (FTS5), and can recover the index from scratch.
+    -   It also handles all other asynchronous tasks like federation (pushing to the Fediverse) and pulling content from external sources.
+    -   It is the **write-heavy** and **background processing** layer.
+
+This hybrid approach provides the best of both worlds: the data users are actively viewing is indexed in real-time by the server, while the bridge ensures the entire Agora is eventually consistent and handles heavy tasks without impacting user-facing performance.
 
 ---
 
@@ -22,10 +28,10 @@ All future development should respect this separation of concerns.
 **Goal:** Create a comprehensive SQLite index of all content in the Agora to enable powerful new features and dramatically improve performance for complex queries.
 
 -   **Tasks:**
-    -   Implement a filesystem watcher to detect changes to subnodes in real-time.
-    -   On change, parse the subnode and update a series of tables in the `agora.db` SQLite database (e.g., `subnodes`, `links`, `tags`).
+    -   Implement a batch process for initial, full-Agora indexing.
+    -   Implement a periodic filesystem scanner to find and index changes to "cold" (infrequently accessed) subnodes, complementing the server's "hot" indexing.
     -   Integrate SQLite's FTS5 extension to build a full-text search index of all subnode content.
-    -   The Bridge will be the **only** component with write access to this database.
+    -   The Bridge will be the primary **writer** to the database for batch operations.
 
 ### Priority 2: Real-Time Federation (Push Model)
 

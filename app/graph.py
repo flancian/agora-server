@@ -768,12 +768,12 @@ class Node:
         # The on-demand indexing for SQLite backlinks is flawed and misses links until the source nodes are viewed.
         # Reverting to the file-based method for now to ensure correctness.
         # TODO: Implement a full index backfill/update strategy for SQLite backlinks.
-        # if _is_sqlite_enabled():
-        #     # Fast path: get backlinking node URIs directly from the index.
-        #     # This is extremely fast as it requires no file I/O.
-        #     backlinking_node_uris = sqlite_engine.get_backlinking_nodes(self.wikilink)
-        #     nodes = [G.node(uri) for uri in backlinking_node_uris if uri != self.wikilink]
-        #     return sorted(nodes)
+        if _is_sqlite_enabled():
+            # Fast path: get backlinking node URIs directly from the index.
+            # This is extremely fast as it requires no file I/O.
+            backlinking_node_uris = sqlite_engine.get_backlinking_nodes(self.wikilink)
+            nodes = [G.node(uri) for uri in backlinking_node_uris if uri != self.wikilink]
+            return sorted(nodes)
 
         # Slow path: fall back to the file-based method if SQLite is disabled.
         return sorted(
@@ -855,6 +855,23 @@ class Subnode:
         self.datetime = datetime.datetime.fromtimestamp(self.mtime).replace(
             microsecond=0
         )
+
+        if _is_sqlite_enabled():
+            # Get the last known modification time from our index.
+            stored_mtime = sqlite_engine.get_subnode_mtime(self.uri)
+
+            # If the file is new or has been updated since the last time we saw it...
+            if stored_mtime is None or self.mtime > stored_mtime:
+                # ...then we update its index entry.
+                # This function handles both the 'subnodes' and 'links' tables.
+                current_app.logger.info(f"INDEX: Re-indexing changed subnode: {self.uri}")
+                sqlite_engine.update_subnode(
+                    path=self.uri,
+                    user=self.user,
+                    node=self.canonical_wikilink,
+                    mtime=self.mtime,
+                    links=self.forward_links
+                )
 
         self.node = self.canonical_wikilink
 
