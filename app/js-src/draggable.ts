@@ -66,8 +66,10 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
     }
 
     const drag = (e: MouseEvent | TouchEvent) => {
-        if (active) {
+        if (e.type === "touchmove") {
             e.preventDefault();
+        }
+        if (active) {
             if (e.type === "touchmove") {
                 currentX = (e as TouchEvent).touches[0].clientX - initialX;
                 currentY = (e as TouchEvent).touches[0].clientY - initialY;
@@ -90,5 +92,5 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
     document.addEventListener('touchend', dragEnd, false);
 
     document.addEventListener('mousemove', drag, false);
-    document.addEventListener('touchmove', drag, false);
+    document.addEventListener('touchmove', drag, { passive: false });
 }
