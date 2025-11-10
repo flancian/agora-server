@@ -226,7 +226,7 @@ class Graph:
                 # Create the filtered, canonical-only version
                 canonical_nodes = {
                     k: v for k, v in full_nodes.items()
-                    if not util.is_journal(k) and k == util.canonical_wikilink(k)
+                    if k == util.canonical_wikilink(k)
                 }
 
                 duration = time.time() - start_time
@@ -279,7 +279,7 @@ class Graph:
         
         canonical_nodes = {
             k: v for k, v in full_nodes.items()
-            if not util.is_journal(k) and k == util.canonical_wikilink(k)
+            if k == util.canonical_wikilink(k)
         }
 
         end = datetime.datetime.now()
