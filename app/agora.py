@@ -43,6 +43,7 @@ from .providers import gemini_complete, mistral_complete
 from .storage import api, feed, sqlite_engine
 from . import visualization
 from .graph import G
+import atexit
 
 # End uWSGI Cache Warming
 
@@ -622,6 +623,18 @@ def context(node):
     # returns by default an html view for the 'context' section: graph, links (including pushes, which can be costly)
     n = api.build_node(node)
 
+    # Phase 3: Smart Context Endpoint
+    # If background indexing is enabled, we check if the links for this node have been indexed.
+    if current_app.config.get('ENABLE_BACKGROUND_INDEXING', False):
+        # We can check if any links exist for any of the subnodes of this node.
+        # This is a proxy for whether the node has been indexed.
+        if n.subnodes and not sqlite_engine.get_links_for_subnode(n.subnodes[0].uri):
+            # No links found, so we assume this node has not been indexed yet.
+            # We fall back to the old, slow method of building the node on-demand.
+            # This will be slow for the first user, but fast for everyone else.
+            current_app.logger.info(f"CONTEXT: No indexed links found for [[{node}]]. Falling back to on-demand scan.")
+            n = api.build_node_on_demand(node)
+    
     return render_template(
         "context.html",
         embed=True,

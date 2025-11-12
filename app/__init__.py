@@ -15,6 +15,7 @@
 import bleach
 import logging
 import os
+import os
 from flask import Flask
 from flask_compress import Compress
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -28,7 +29,7 @@ from app.exec import web
 
 
 def create_app():
-
+    import os
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     
@@ -122,5 +123,62 @@ def create_app():
         return f"/{node_uri}"
 
     
+
+    if app.config.get('ENABLE_BACKGROUND_INDEXING', False):
+        import atexit
+        import threading
+        from .storage import sqlite_engine
+        from .graph import G
+        import os
+        from flask import current_app
+        import time
+
+        def background_indexer(app):
+            """
+            This function runs in a background thread and is responsible for the slow,
+            post-startup task of reading all subnode contents and indexing their links.
+            """
+            with app.app_context():
+                worker_pid = os.getpid()
+                current_app.logger.info(f"[Indexer PID {worker_pid}] Worker started, checking for indexing lock...")
+
+                if sqlite_engine.acquire_lock('full_link_indexing', worker_pid):
+                    current_app.logger.info(f"[Indexer PID {worker_pid}] Acquired lock, starting background indexing.")
+                    try:
+                        # Get all subnodes (this is fast as it doesn't read content)
+                        all_subnodes = G.subnodes()
+                        total_subnodes = len(all_subnodes)
+                        current_app.logger.info(f"[Indexer PID {worker_pid}] Indexing links for {total_subnodes} subnodes.")
+                        start_time = time.time()
+
+                        for i, subnode in enumerate(all_subnodes):
+                            # This is where the slow work happens: accessing .content reads the file.
+                            links = subnode.forward_links
+                            
+                            # Update the database with the links.
+                            sqlite_engine.update_subnode(
+                                path=subnode.uri,
+                                user=subnode.user,
+                                node=subnode.canonical_wikilink,
+                                mtime=subnode.mtime,
+                                links=links
+                            )
+
+                            if i % 1000 == 0 and i > 0:
+                                progress = (i / total_subnodes) * 100
+                                current_app.logger.info(f"[Indexer PID {worker_pid}] Indexing progress: {progress:.0f}% complete ({i} / {total_subnodes} subnodes).")
+
+                        duration = time.time() - start_time
+                        current_app.logger.info(f"[Indexer PID {worker_pid}] Background indexing finished in {duration:.2f}s.")
+
+                    finally:
+                        current_app.logger.info(f"[Indexer PID {worker_pid}] Releasing lock.")
+                        sqlite_engine.release_lock('full_link_indexing', worker_pid)
+                else:
+                    current_app.logger.info(f"[Indexer PID {worker_pid}] Another worker holds the lock. Standing by.")
+        
+        thread = threading.Thread(target=background_indexer, args=(app,))
+        thread.daemon = True
+        thread.start()
 
     return app

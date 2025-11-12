@@ -28,31 +28,12 @@ def _is_sqlite_enabled():
     """Checks if the SQLite engine is enabled in the config."""
     return current_app.config.get('ENABLE_SQLITE', False)
 
-def build_node(title):
-    """
-    Builds a node.
-    If SQLite is enabled, it will be used as a cache.
-    The file engine is always used as the source of truth.
-    """
-    # For now, we only cache/index backlinks.
-    # Other node properties are still calculated on the fly.
-    # This function is a template for how to cache other properties in the future.
-    node = file_engine.build_node(title)
+def build_node(node, extension="", user_list="", qstr=""):
+    return file_engine.build_node(node, extension, user_list, qstr)
 
-    if _is_sqlite_enabled():
-        # Let's try to get backlinks from the index.
-        # This is a read-only operation, so it's safe.
-        indexed_backlinks = sqlite_engine.get_backlinking_nodes(node.uri)
-        # Here you could merge or replace the file-based backlinks
-        # For now, we'll just log that we have them.
-        if indexed_backlinks:
-            current_app.logger.debug(f"Got {len(indexed_backlinks)} backlinks for [[{title}]] from SQLite index.")
-            # In a full implementation, you would replace node.back_links with these.
-            # For example: node.back_links = indexed_backlinks
+def build_node_on_demand(node):
+    return file_engine.build_node_on_demand(node)
 
-    # The write-through caching happens within the Graph object methods,
-    # specifically when subnodes are accessed, to ensure freshness.
-    return node
 
 def build_multinode(node0, node1):
     # This function is complex and for now will remain file-based.

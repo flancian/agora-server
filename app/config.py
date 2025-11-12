@@ -139,6 +139,7 @@ class DefaultConfig(object):
     ENABLE_SQLITE = False
     ENABLE_AGORA_PROTOCOL = False
     ENABLE_FLUSH_CACHE_BUTTON = False
+    ENABLE_BACKGROUND_INDEXING = False
 
     # ActivityPub settings
     ACTIVITYPUB_SEND_WELCOME_PACKAGE = True
@@ -249,6 +250,7 @@ class AlphaConfig(DefaultConfig):
     ENABLE_SQLITE = True
     ENABLE_DEMO = True
     ENABLE_AGORA_PROTOCOL = True
+    ENABLE_BACKGROUND_INDEXING = True
 
 
 class DevelopmentConfig(DefaultConfig):
@@ -274,6 +276,7 @@ class DevelopmentConfig(DefaultConfig):
     # Set MISTRAL_API_KEY env variable when enabling :)
     ENABLE_AI = True
     ENABLE_AGORA_PROTOCOL = True
+    ENABLE_BACKGROUND_INDEXING = True
 
 
 class LocalDevelopmentConfig(DefaultConfig):
@@ -299,6 +302,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     # Set MISTRAL_API_KEY and GEMINI_API_KEY env variables when enabling :)
     ENABLE_AI = True
     ENABLE_AGORA_PROTOCOL = True
+    ENABLE_BACKGROUND_INDEXING = True
 
     # Demo mode settings
     ENABLE_DEMO = True

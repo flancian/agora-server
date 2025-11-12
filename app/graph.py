@@ -857,15 +857,14 @@ class Subnode:
             self.load_user_config()
 
         self.mediatype = mediatype
+        self._content = None  # Content will be loaded on demand.
+        self.forward_links = [] # Will be populated when content is loaded.
 
         if self.mediatype == "text/plain":
-            self.load_text_subnode()
             self.type = "text"
         elif self.mediatype.startswith("image"):
-            self.load_image_subnode()
             self.type = "image"
         elif self.mediatype.startswith("text/x-python"):
-            self.load_text_subnode()
             self.type = "text"
         else:
             raise ValueError
@@ -873,39 +872,25 @@ class Subnode:
         try:
             self.mtime = os.path.getmtime(path)
         except FileNotFoundError:
-            # Perhaps it makes sense to treat this as a 'virtual file'? give it now() as mtime?
             self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
         self.datetime = datetime.datetime.fromtimestamp(self.mtime).replace(
-            microsecond=0
+            micro_second=0
         )
 
-        if _is_sqlite_enabled():
-            # Get the last known modification time from our index.
-            stored_mtime = sqlite_engine.get_subnode_mtime(self.uri)
-
-            # If the file is new or has been updated since the last time we saw it...
-            if stored_mtime is None or self.mtime > stored_mtime:
-                # ...then we update its index entry.
-                # This function handles both the 'subnodes' and 'links' tables.
-                # Suppress logging during a full graph rebuild.
-                is_rebuilding = False
-                try:
-                    is_rebuilding = getattr(g, 'rebuilding_graph', False)
-                except RuntimeError:
-                    pass # Not in request context.
-
-                if not is_rebuilding:
-                    current_app.logger.debug(f"INDEX: Re-indexing changed subnode: {self.uri}")
-
-                sqlite_engine.update_subnode(
-                    path=self.uri,
-                    user=self.user,
-                    node=self.canonical_wikilink,
-                    mtime=self.mtime,
-                    links=self.forward_links
-                )
-
+        # The expensive file I/O and link parsing is now deferred.
+        # The re-indexing logic will be handled by the background worker.
         self.node = self.canonical_wikilink
+
+    @property
+    def content(self):
+        if self._content is None:
+            if self.mediatype == "text/plain":
+                self.load_text_subnode()
+            elif self.mediatype.startswith("image"):
+                self.load_image_subnode()
+            elif self.mediatype.startswith("text/x-python"):
+                self.load_text_subnode()
+        return self._content
 
     def __repr__(self):
         return f"<Subnode: {self.uri} ({self.mediatype})>"
@@ -913,28 +898,27 @@ class Subnode:
     def load_text_subnode(self):
         try:
             with open(self.path) as f:
-                self.content = f.read()
-                # Marko raises IndexError on render if the file doesn't terminate with a newline.
-                if not self.content.endswith("\n"):
-                    self.content = self.content + "\n"
-                self.forward_links = sorted(list(set(content_to_forward_links(self.content))))
+                self._content = f.read()
+                if not self._content.endswith("\n"):
+                    self._content = self._content + "\n"
+                self.forward_links = sorted(list(set(content_to_forward_links(self._content))))
         except IsADirectoryError:
-            self.content = "(A directory).\n"
+            self._content = "(A directory).\n"
             self.forward_links = []
         except FileNotFoundError:
-            self.content = "(File not found).\n"
+            self._content = "(File not found).\n"
             self.forward_links = []
             current_app.logger.exception(
                 f"Could not read file due to FileNotFoundError in Subnode __init__ (Heisenbug)."
             )
         except OSError:
-            self.content = "(File could not be read).\n"
+            self._content = "(File could not be read).\n"
             self.forward_links = []
             current_app.logger.exception(
                 f"Could not read file due to OSError in Subnode __init__ (Heisenbug)."
             )
         except:
-            self.content = "(Unhandled exception when trying to read).\n"
+            self._content = "(Unhandled exception when trying to read).\n"
             self.forward_links = []
             current_app.logger.exception(
                 f"Could not read file due to unhandled exception in Subnode __init__ (Heisenbug)."
@@ -942,7 +926,7 @@ class Subnode:
 
     def load_image_subnode(self):
         with open(self.path, "rb") as f:
-            self.content = f.read()
+            self._content = f.read()
             self.forward_links = []
 
     def load_user_config(self):
@@ -1597,6 +1581,19 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
 
     duration = time.time() - start_time
     current_app.logger.info(f"[[{node}]]: Assembled in {duration:.2f}s ({', '.join(timings)}).")
+    return n
+
+
+def build_node_on_demand(node: str) -> 'Node':
+    """
+    This is the old, slow version of build_node that reads file contents on the fly.
+    It's used as a fallback when the link index is not yet populated.
+    """
+    n = copy(G.node(node))
+    # We need to manually load the content for all subnodes to parse the links.
+    for subnode in n.subnodes:
+        # Accessing .content triggers the on-demand file read.
+        _ = subnode.content
     return n
 
 

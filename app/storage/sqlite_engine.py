@@ -141,6 +141,13 @@ def create_tables(db):
                 CREATE TABLE IF NOT EXISTS federated_subnodes (
                     subnode_uri TEXT PRIMARY KEY
                 );
+            """,
+            'background_tasks': """
+                CREATE TABLE IF NOT EXISTS background_tasks (
+                    task_name TEXT PRIMARY KEY,
+                    worker_pid INTEGER NOT NULL,
+                    locked_at INTEGER NOT NULL
+                );
             """
         }
         # Check all tables in the schema.
@@ -492,3 +499,77 @@ def is_subnode_federated(subnode_uri):
     cursor = db.cursor()
     cursor.execute("SELECT 1 FROM federated_subnodes WHERE subnode_uri = ?", (subnode_uri,))
     return cursor.fetchone() is not None
+
+def get_links_for_subnode(subnode_uri):
+    """
+    Checks if any links are indexed for a given subnode.
+    Returns True if links exist, False otherwise.
+    """
+    db = get_db()
+    if not db:
+        return False
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT 1 FROM links WHERE source_path = ?", (subnode_uri,))
+    return cursor.fetchone() is not None
+
+#
+# Background Task Locking
+#
+
+def acquire_lock(task_name, worker_pid, timeout=120):
+    """
+    Tries to acquire a lock for a given task.
+    Returns True if the lock was acquired, False otherwise.
+    """
+    db = get_db()
+    if not db:
+        return False
+
+    now = int(time.time())
+    try:
+        with db:
+            cursor = db.cursor()
+            cursor.execute("SELECT worker_pid, locked_at FROM background_tasks WHERE task_name = ?", (task_name,))
+            lock = cursor.fetchone()
+
+            if lock is None:
+                # No lock exists, so we can take it.
+                cursor.execute(
+                    "INSERT INTO background_tasks (task_name, worker_pid, locked_at) VALUES (?, ?, ?)",
+                    (task_name, worker_pid, now)
+                )
+                return True
+            else:
+                # A lock exists, check if it's stale.
+                locked_at = lock[1]
+                if (now - locked_at) > timeout:
+                    # Lock is stale, so we can steal it.
+                    cursor.execute(
+                        "UPDATE background_tasks SET worker_pid = ?, locked_at = ? WHERE task_name = ?",
+                        (worker_pid, now, task_name)
+                    )
+                    return True
+                else:
+                    # Lock is fresh, so we can't take it.
+                    return False
+    except sqlite3.Error as e:
+        current_app.logger.error(f"Database error while acquiring lock for {task_name}: {e}")
+        return False
+
+def release_lock(task_name, worker_pid):
+    """
+    Releases a lock for a given task, but only if it is held by the current worker.
+    """
+    db = get_db()
+    if not db:
+        return
+
+    try:
+        with db:
+            db.execute(
+                "DELETE FROM background_tasks WHERE task_name = ? AND worker_pid = ?",
+                (task_name, worker_pid)
+            )
+    except sqlite3.Error as e:
+        current_app.logger.error(f"Database error while releasing lock for {task_name}: {e}")
