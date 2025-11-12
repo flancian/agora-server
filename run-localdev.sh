@@ -13,9 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Exit gracefully on Ctrl+C
+trap "echo 'Exiting localdev loop.' && kill \$FLASK_PID && exit" INT
+
 export MISTRAL_API_KEY=$(cat ~/flancia/secret/api/mistral.txt)
 export GEMINI_API_KEY=$(cat ~/flancia/secret/api/gemini.txt)
 while true; do
-    timeout 3600 ./run-dev.sh Local
+    # Source the script to run it in the current shell process
+    # This allows us to access the FLASK_PID variable
+    . ./run-dev.sh Local
+    wait $FLASK_PID
     sleep 2
 done

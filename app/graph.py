@@ -235,6 +235,7 @@ class Graph:
                 return full_nodes, canonical_nodes
 
         current_app.logger.info("CACHE MISS (sqlite): Recomputing all nodes.")
+        current_app.logger.info("GRAPH REBUILD: Starting full graph rebuild from filesystem. This may take a moment.")
         begin = datetime.datetime.now()
         current_app.logger.debug("*** Loading nodes at {begin}.")
 
@@ -283,6 +284,8 @@ class Graph:
         }
 
         end = datetime.datetime.now()
+        duration = end - begin
+        current_app.logger.info(f"GRAPH REBUILD: Finished. Scanned and loaded {len(full_nodes)} nodes in {duration}.")
         current_app.logger.debug(f"*** Nodes loaded from {begin} to {end}.")
         return full_nodes, canonical_nodes
 
@@ -330,7 +333,17 @@ class Graph:
                 return subnodes
 
         # The following block is executed on a cache miss (in-memory or sqlite).
-        current_app.logger.info("CACHE MISS (sqlite): Scanning filesystem for all subnodes.")
+        current_app.logger.info("GRAPH REBUILD: Starting full graph rebuild from filesystem. This may take a moment.")
+        
+        # Set a flag to indicate a full rebuild is in progress to suppress verbose logging.
+        is_rebuilding_context = False
+        try:
+            g.rebuilding_graph = True
+            is_rebuilding_context = True
+        except RuntimeError:
+            # Not in a request context, which is fine.
+            pass
+
         start_time = time.time()
         begin = datetime.datetime.now()
         current_app.logger.debug(f"*** Loading subnodes at {begin}.")
@@ -397,6 +410,10 @@ class Graph:
             ]
         )
 
+        # Unset the flag now that all subnodes have been created.
+        if is_rebuilding_context:
+            g.rebuilding_graph = False
+
         if _is_sqlite_enabled():
             # After scanning, save the result to the SQLite cache.
             # We only need to store the path and mediatype to reconstruct the object.
@@ -405,7 +422,7 @@ class Graph:
             current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_subnodes to persistent cache.")
 
         duration = time.time() - start_time
-        current_app.logger.info(f"CACHE MISS (filesystem): Scanned and loaded {len(subnodes)} subnodes in {duration:.2f}s.")
+        current_app.logger.info(f"GRAPH REBUILD: Finished. Scanned and loaded {len(subnodes)} subnodes in {duration:.2f}s.")
         end = datetime.datetime.now()
         current_app.logger.debug(f"*** Loaded subnodes from {begin} to {end}.")
         if sort:
@@ -500,6 +517,12 @@ class Node:
         # for subnode in self.subnodes + self.pushed_subnodes():
         for subnode in self.subnodes:
             links.extend(subnode.go())
+        return links
+
+    def meet(self):
+        links = []
+        for subnode in self.subnodes:
+            links.extend(subnode.meet())
         return links
 
     def filter(self, other):
@@ -864,7 +887,16 @@ class Subnode:
             if stored_mtime is None or self.mtime > stored_mtime:
                 # ...then we update its index entry.
                 # This function handles both the 'subnodes' and 'links' tables.
-                current_app.logger.info(f"INDEX: Re-indexing changed subnode: {self.uri}")
+                # Suppress logging during a full graph rebuild.
+                is_rebuilding = False
+                try:
+                    is_rebuilding = getattr(g, 'rebuilding_graph', False)
+                except RuntimeError:
+                    pass # Not in request context.
+
+                if not is_rebuilding:
+                    current_app.logger.debug(f"INDEX: Re-indexing changed subnode: {self.uri}")
+
                 sqlite_engine.update_subnode(
                     path=self.uri,
                     user=self.user,
@@ -885,7 +917,7 @@ class Subnode:
                 # Marko raises IndexError on render if the file doesn't terminate with a newline.
                 if not self.content.endswith("\n"):
                     self.content = self.content + "\n"
-                self.forward_links = content_to_forward_links(self.content)
+                self.forward_links = sorted(list(set(content_to_forward_links(self.content))))
         except IsADirectoryError:
             self.content = "(A directory).\n"
             self.forward_links = []
@@ -1067,6 +1099,23 @@ class Subnode:
                 # hack hack.
                 sanitized_golinks.append("https://" + golink)
         return sanitized_golinks
+
+    def meet(self):
+        """
+        returns a set of meet links contained in this subnode
+        meet links are blocks of the form:
+        - #meet https://example.org
+        """
+        current_app.logger.debug(f"in subnode meet ({self.uri}")
+        meetlinks = subnode_to_taglink(self, "meet", blocks_only=True)
+        sanitized_meetlinks = []
+        for meetlink in meetlinks:
+            if "://" in meetlink:
+                sanitized_meetlinks.append(meetlink)
+            else:
+                # hack hack.
+                sanitized_meetlinks.append("https://" + meetlink)
+        return sanitized_meetlinks
 
     def filter(self, other):
         """

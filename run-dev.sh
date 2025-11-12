@@ -22,4 +22,5 @@ export FLASK_ENV="development"
 export AGORA_CONFIG="${1}DevelopmentConfig"
 # This shouldn't be needed but it is when running as a systemd service for some reason.
 export PATH=$HOME/.local/bin:${PATH}
-uv run flask --debug run -h 0.0.0.0 -p 5017
+uv run flask --debug run -h 0.0.0.0 -p 5017 &
+FLASK_PID=$!

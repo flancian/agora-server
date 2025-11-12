@@ -175,34 +175,42 @@ def get_subnode_mtime(path):
     result = cursor.fetchone()
     return result[0] if result else None
 
-def update_subnode(path, user, node, mtime, links):
-    """
-    Updates or inserts a subnode and its associated links in the index.
-    The 'node' parameter is the source_node for the links.
-    """
-    db = get_db()
-    if not db:
-        return
+from flask import current_app, g
+import sqlite3
+import time
+import orjson
 
-    current_app.logger.debug(f"SQLite: Writing data for subnode [[{path}]]")
+# ... (rest of the file) ...
+
+def update_subnode(path, user, node, mtime, links):
+    """Updates or inserts a subnode and its associated links in the index."""
+    # Suppress logging during a full graph rebuild.
+    is_rebuilding = False
+    try:
+        is_rebuilding = getattr(g, 'rebuilding_graph', False)
+    except RuntimeError:
+        pass # Not in request context.
+
+    if not is_rebuilding:
+        current_app.logger.debug(f"SQLite: Writing data for subnode [[{path}]]")
+    
+    db = get_db()
     try:
         with db:
             db.execute(
                 "REPLACE INTO subnodes (path, user, node, mtime) VALUES (?, ?, ?, ?)",
-                (path, user, node, mtime)
+                (path, user, node, mtime),
             )
-            
+            # First, remove all existing links for this subnode to handle deletions.
             db.execute("DELETE FROM links WHERE source_path = ?", (path,))
+            # Then, insert the current links.
             if links:
-                unique_links = set(links)
-                # Note the new 'node' field being inserted as source_node.
-                link_data = [(path, node, target, 'wikilink') for target in unique_links]
-                db.executemany("INSERT INTO links (source_path, source_node, target_node, type) VALUES (?, ?, ?, ?)", link_data)
-    except sqlite3.OperationalError as e:
-        if 'read-only database' in str(e):
-            pass
-        else:
-            current_app.logger.error(f"Database write error: {e}")
+                db.executemany(
+                    "INSERT INTO links (source_path, target_node, type, source_node) VALUES (?, ?, ?, ?)",
+                    [(path, link, 'wikilink', node) for link in links],
+                )
+    except sqlite3.Error as e:
+        current_app.logger.error(f"Database write error for subnode {path}: {e}")
 
 def get_backlinking_nodes(node_uri):
     """
@@ -216,7 +224,7 @@ def get_backlinking_nodes(node_uri):
     # current_app.logger.debug(f"SQLite: Reading backlinks for node [[{node_uri}]] from index.")
     cursor = db.cursor()
     # We select the source_node directly and use DISTINCT to avoid duplicates.
-    cursor.execute("SELECT DISTINCT source_node FROM links WHERE target_node = ?", (node_uri,))
+    cursor.execute("SELECT DISTINCT source_node FROM links WHERE target_node = ? AND source_node IS NOT NULL", (node_uri,))
     return [row[0] for row in cursor.fetchall()]
 
 def get_ai_generation(prompt, provider):
