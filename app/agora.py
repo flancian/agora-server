@@ -576,6 +576,19 @@ def go(node0, node1=""):
         return redirect(f"{base}/{node0}")
 
 
+@bp.route("/meet/<node>")
+def meet(node):
+    """Redirects to a video stoa for the given node."""
+    n = api.build_node(node)
+    links = n.meet()
+
+    if links:
+        return redirect(links[0])
+
+    # Default to jitsi
+    return redirect(f"https://jitsi.meet.coop/{n.slug}")
+
+
 @bp.route("/push/<node>/<other>")
 def push2(node, other):
 

@@ -502,6 +502,12 @@ class Node:
             links.extend(subnode.go())
         return links
 
+    def meet(self):
+        links = []
+        for subnode in self.subnodes:
+            links.extend(subnode.meet())
+        return links
+
     def filter(self, other):
         # There's surely a much better way to do this. Alas :)
         current_app.logger.debug(f"filter {self}, {other}")
@@ -1067,6 +1073,23 @@ class Subnode:
                 # hack hack.
                 sanitized_golinks.append("https://" + golink)
         return sanitized_golinks
+
+    def meet(self):
+        """
+        returns a set of meet links contained in this subnode
+        meet links are blocks of the form:
+        - #meet https://example.org
+        """
+        current_app.logger.debug(f"in subnode meet ({self.uri}")
+        meetlinks = subnode_to_taglink(self, "meet", blocks_only=True)
+        sanitized_meetlinks = []
+        for meetlink in meetlinks:
+            if "://" in meetlink:
+                sanitized_meetlinks.append(meetlink)
+            else:
+                # hack hack.
+                sanitized_meetlinks.append("https://" + meetlink)
+        return sanitized_meetlinks
 
     def filter(self, other):
         """
