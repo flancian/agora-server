@@ -42,6 +42,29 @@ from .storage import feed, sqlite_engine
 
 GRAPH_INSTANCE_COUNTER = 0
 
+def get_git_mtime(path):
+    try:
+        # Check if the path is within a git repository.
+        # We do this by running git rev-parse --is-inside-work-tree from the file's directory.
+        if subprocess.run(
+            ['git', 'rev-parse', '--is-inside-work-tree'],
+            cwd=os.path.dirname(path),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        ).stdout.strip().decode('utf-8') != 'true':
+            return None
+
+        # Get the last commit timestamp for the file.
+        timestamp = subprocess.check_output(
+            ['git', 'log', '-1', '--pretty=%ct', '--', path],
+            cwd=os.path.dirname(path)
+        ).strip().decode('utf-8')
+        return int(timestamp)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # This can happen if the file is not in a git repo, or git is not installed.
+        return None
+
+
 def _is_sqlite_enabled():
     """Checks if the SQLite engine is enabled in the config."""
     try:
@@ -398,6 +421,10 @@ class Graph:
         )
 
         if _is_sqlite_enabled():
+            if 'subnodes_to_index' in g and g.subnodes_to_index:
+                sqlite_engine.update_subnodes_bulk(g.subnodes_to_index)
+                g.subnodes_to_index = [] # clear the list
+
             # After scanning, save the result to the SQLite cache.
             # We only need to store the path and mediatype to reconstruct the object.
             subnode_data = [{'path': s.path, 'mediatype': s.mediatype} for s in subnodes]
@@ -854,7 +881,14 @@ class Subnode:
             raise ValueError
 
         try:
-            self.mtime = os.path.getmtime(path)
+            if current_app.config.get('USE_GIT_MTIME'):
+                git_mtime = get_git_mtime(path)
+                if git_mtime:
+                    self.mtime = git_mtime
+                else:
+                    self.mtime = os.path.getmtime(path)
+            else:
+                self.mtime = os.path.getmtime(path)
         except FileNotFoundError:
             # Perhaps it makes sense to treat this as a 'virtual file'? give it now() as mtime?
             self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
@@ -868,16 +902,18 @@ class Subnode:
 
             # If the file is new or has been updated since the last time we saw it...
             if stored_mtime is None or self.mtime > stored_mtime:
-                # ...then we update its index entry.
-                # This function handles both the 'subnodes' and 'links' tables.
-                current_app.logger.info(f"INDEX: Re-indexing changed subnode: {self.uri}")
-                sqlite_engine.update_subnode(
-                    path=self.uri,
-                    user=self.user,
-                    node=self.canonical_wikilink,
-                    mtime=self.mtime,
-                    links=self.forward_links
-                )
+                # ...then we add it to a list of subnodes to be indexed in bulk later.
+                current_app.logger.info(f"INDEX: Queuing changed subnode for re-indexing: {self.uri}")
+                if 'subnodes_to_index' not in g:
+                    g.subnodes_to_index = []
+                
+                g.subnodes_to_index.append({
+                    'path': self.uri,
+                    'user': self.user,
+                    'node': self.canonical_wikilink,
+                    'mtime': self.mtime,
+                    'links': self.forward_links
+                })
 
         self.node = self.canonical_wikilink
 

@@ -19,3 +19,4 @@ agora-server.log
 .aider*
 instance/
 app/static/js
+app/static/opus

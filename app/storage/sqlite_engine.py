@@ -204,6 +204,54 @@ def update_subnode(path, user, node, mtime, links):
         else:
             current_app.logger.error(f"Database write error: {e}")
 
+def update_subnodes_bulk(subnodes_to_update):
+    """
+    Updates or inserts a batch of subnodes and their associated links in the index.
+    """
+    db = get_db()
+    if not db or not subnodes_to_update:
+        return
+
+    current_app.logger.info(f"SQLite: Bulk writing data for {len(subnodes_to_update)} subnodes.")
+    
+    subnode_data = []
+    link_data = []
+    paths_to_update = []
+
+    for subnode in subnodes_to_update:
+        paths_to_update.append(subnode['path'])
+        subnode_data.append((subnode['path'], subnode['user'], subnode['node'], subnode['mtime']))
+        if subnode['links']:
+            unique_links = set(subnode['links'])
+            for target in unique_links:
+                link_data.append((subnode['path'], subnode['node'], target, 'wikilink'))
+
+    try:
+        with db:
+            # Update subnodes table
+            db.executemany(
+                "REPLACE INTO subnodes (path, user, node, mtime) VALUES (?, ?, ?, ?)",
+                subnode_data
+            )
+            
+            # Update links table
+            # Delete old links for all subnodes in the batch
+            # Using a temporary table to pass the list of paths is safer and can be faster
+            db.execute("CREATE TEMP TABLE paths_to_delete (path TEXT PRIMARY KEY)")
+            db.executemany("INSERT INTO paths_to_delete (path) VALUES (?)", [(p,) for p in paths_to_update])
+            db.execute("DELETE FROM links WHERE source_path IN (SELECT path FROM paths_to_delete)")
+            db.execute("DROP TABLE paths_to_delete")
+
+            # Insert new links
+            if link_data:
+                db.executemany("INSERT INTO links (source_path, source_node, target_node, type) VALUES (?, ?, ?, ?)", link_data)
+    except sqlite3.OperationalError as e:
+        if 'read-only database' in str(e):
+            pass
+        else:
+            current_app.logger.error(f"Database write error during bulk update: {e}")
+
+
 def get_backlinking_nodes(node_uri):
     """
     Retrieves all unique source_node URIs that link to a given node.
