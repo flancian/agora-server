@@ -73,6 +73,7 @@ dependencies = [
     "gunicorn>=23.0.0",
     "uwsgi>=2.0.29",
     "google-generativeai>=0.7.2",
+    "pygit2",
 ]
 
 [project.optional-dependencies]

@@ -130,6 +130,12 @@ def create_tables(db):
                     timestamp INTEGER NOT NULL
                 );
             """,
+            'git_repo_state': """
+                CREATE TABLE IF NOT EXISTS git_repo_state (
+                    repo_path TEXT PRIMARY KEY,
+                    last_commit_hash TEXT NOT NULL
+                );
+            """,
             'followers': """
                 CREATE TABLE IF NOT EXISTS followers (
                     user_uri TEXT NOT NULL,
@@ -160,6 +166,26 @@ def create_tables(db):
         except sqlite3.OperationalError:
             # This will fail if the column already exists, which is fine.
             pass
+
+        # Migration: Add the git_mtime column to the subnodes table if it doesn't exist.
+        try:
+            db.execute("ALTER TABLE subnodes ADD COLUMN git_mtime INTEGER;")
+        except sqlite3.OperationalError:
+            # This will fail if the column already exists, which is fine.
+            pass
+
+def get_all_git_mtimes():
+    """
+    Retrieves all git_mtime values from the database.
+    Returns a dictionary of {path: git_mtime}.
+    """
+    db = get_db()
+    if not db:
+        return {}
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT path, git_mtime FROM subnodes WHERE git_mtime IS NOT NULL")
+    return dict(cursor.fetchall())
 
 def get_subnode_mtime(path):
     """

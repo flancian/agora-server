@@ -326,25 +326,20 @@ class Graph:
     @cachetools.func.ttl_cache(ttl=get_cache_ttl("subnodes"))
     def subnodes(self, sort=_default_subnode_sort) -> List['Subnode']:
         if _is_sqlite_enabled():
-            cache_key = 'all_subnodes_v1'
+            cache_key = 'all_subnodes_v2_git_mtime' if current_app.config.get('USE_GIT_MTIME') else 'all_subnodes_v2'
             ttl = get_cache_ttl('subnodes')
             cached_value, timestamp = sqlite_engine.get_cached_graph(cache_key)
 
             if cached_value and (time.time() - timestamp < ttl):
                 current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for subnodes.")
-                current_app.logger.info("CACHE WARMING (in-memory): Starting deserialization of subnodes from SQLite.")
                 start_time = time.time()
 
                 subnode_data = orjson.loads(cached_value)
-                # Subnode objects are reconstructed from cached metadata.
-                # The Subnode constructor is relatively cheap as it doesn't do file I/O
-                # when content is not accessed. We defer content loading.
-                subnodes = [Subnode(s['path'], s['mediatype']) for s in subnode_data]
+                subnodes = [Subnode(s['path'], s['mediatype'], mtime_override=s.get('mtime')) for s in subnode_data]
                 
                 duration = time.time() - start_time
                 current_app.logger.info(f"CACHE WARMING (in-memory): Finished deserialization of {len(subnodes)} subnodes in {duration:.2f}s.")
 
-                # Manually populate the in-memory cache for this request.
                 key = cachetools.keys.hashkey(self, sort=sort)
                 self.subnodes.cache[key] = subnodes
 
@@ -352,89 +347,51 @@ class Graph:
                     return sorted(subnodes, key=sort)
                 return subnodes
 
-        # The following block is executed on a cache miss (in-memory or sqlite).
         current_app.logger.info("CACHE MISS (sqlite): Scanning filesystem for all subnodes.")
         start_time = time.time()
-        begin = datetime.datetime.now()
-        current_app.logger.debug(f"*** Loading subnodes at {begin}.")
         base = current_app.config["AGORA_PATH"]
         
-        # The logic to find all files remains the same.
-        current_app.logger.debug(f"*** Loading subnodes: markdown.")
-        subnodes = [
-            Subnode(f) for f in glob.glob(os.path.join(base, "**/*.md"), recursive=True)
-        ]
-        current_app.logger.debug(f"*** Loading subnodes: org mode and mycomarkup.")
-        subnodes.extend(
-            [
-                Subnode(f)
-                for f in glob.glob(
-                    os.path.join(base, "garden", "**/*.org"), recursive=True
-                )
-            ]
-        )
-        subnodes.extend(
-            [
-                Subnode(f)
-                for f in glob.glob(
-                    os.path.join(base, "garden", "**/*.myco"), recursive=True
-                )
-            ]
-        )
-        current_app.logger.debug(f"*** Loading subnodes: images.")
-        subnodes.extend(
-            [
-                Subnode(f, mediatype="image/jpg")
-                for f in glob.glob(os.path.join(base, "**/*.jpg"), recursive=True)
-            ]
-        )
-        subnodes.extend(
-            [
-                Subnode(f, mediatype="image/jpg")
-                for f in glob.glob(os.path.join(base, "**/*.jpeg"), recursive=True)
-            ]
-        )
-        subnodes.extend(
-            [
-                Subnode(f, mediatype="image/png")
-                for f in glob.glob(os.path.join(base, "**/*.png"), recursive=True)
-            ]
-        )
-        subnodes.extend(
-            [
-                Subnode(f, mediatype="image/gif")
-                for f in glob.glob(os.path.join(base, "**/*.gif"), recursive=True)
-            ]
-        )
-        subnodes.extend(
-            [
-                Subnode(f, mediatype="image/webp")
-                for f in glob.glob(os.path.join(base, "**/*.webp"), recursive=True)
-            ]
-        )
-        current_app.logger.debug(f"*** Loading subnodes: executable.")
-        subnodes.extend(
-            [
-                Subnode(f, mediatype="text/x-python")
-                for f in glob.glob(os.path.join(base, "**/*.py"), recursive=True)
-            ]
-        )
+        # Glob all potential subnode files.
+        patterns = ["**/*.md", "garden/**/*.org", "garden/**/*.myco", "**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.gif", "**/*.webp", "**/*.py"]
+        all_files = []
+        for pattern in patterns:
+            all_files.extend(glob.glob(os.path.join(base, pattern), recursive=True))
+
+        # Get mtimes from DB if enabled
+        mtimes = {}
+        if _is_sqlite_enabled() and current_app.config.get('USE_GIT_MTIME'):
+            mtimes = sqlite_engine.get_all_git_mtimes()
+
+        subnodes = []
+        subnode_data_for_cache = []
+
+        for f in all_files:
+            mediatype = "text/plain"
+            if f.endswith((".jpg", ".jpeg")):
+                mediatype = "image/jpg"
+            elif f.endswith(".png"):
+                mediatype = "image/png"
+            elif f.endswith(".gif"):
+                mediatype = "image/gif"
+            elif f.endswith(".webp"):
+                mediatype = "image/webp"
+            elif f.endswith(".py"):
+                mediatype = "text/x-python"
+
+            uri = path_to_uri(f)
+            mtime_override = mtimes.get(uri)
+            
+            s = Subnode(f, mediatype, mtime_override=mtime_override)
+            subnodes.append(s)
+            subnode_data_for_cache.append({'path': f, 'mediatype': mediatype, 'mtime': s.mtime})
 
         if _is_sqlite_enabled():
-            if 'subnodes_to_index' in g and g.subnodes_to_index:
-                sqlite_engine.update_subnodes_bulk(g.subnodes_to_index)
-                g.subnodes_to_index = [] # clear the list
-
-            # After scanning, save the result to the SQLite cache.
-            # We only need to store the path and mediatype to reconstruct the object.
-            subnode_data = [{'path': s.path, 'mediatype': s.mediatype} for s in subnodes]
-            sqlite_engine.save_cached_graph(cache_key, orjson.dumps(subnode_data), time.time())
+            sqlite_engine.save_cached_graph(cache_key, orjson.dumps(subnode_data_for_cache), time.time())
             current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_subnodes to persistent cache.")
 
         duration = time.time() - start_time
         current_app.logger.info(f"CACHE MISS (filesystem): Scanned and loaded {len(subnodes)} subnodes in {duration:.2f}s.")
-        end = datetime.datetime.now()
-        current_app.logger.debug(f"*** Loaded subnodes from {begin} to {end}.")
+        
         if sort:
             return sorted(subnodes, key=sort)
         else:
@@ -847,7 +804,7 @@ class Subnode:
     It maps to a particular file in the Agora repository, stored (relative to
     the Agora root) in the attribute 'uri'."""
 
-    def __init__(self, path: str, mediatype: str = "text/plain") -> None:
+    def __init__(self, path: str, mediatype: str = "text/plain", mtime_override: int = None) -> None:
         self.path = path
         # Use a subnode's URI as its identifier.
         self.uri: str = path_to_uri(path)
@@ -880,18 +837,14 @@ class Subnode:
         else:
             raise ValueError
 
-        try:
-            if current_app.config.get('USE_GIT_MTIME'):
-                git_mtime = get_git_mtime(path)
-                if git_mtime:
-                    self.mtime = git_mtime
-                else:
-                    self.mtime = os.path.getmtime(path)
-            else:
+        if mtime_override:
+            self.mtime = mtime_override
+        else:
+            try:
                 self.mtime = os.path.getmtime(path)
-        except FileNotFoundError:
-            # Perhaps it makes sense to treat this as a 'virtual file'? give it now() as mtime?
-            self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
+            except FileNotFoundError:
+                # Perhaps it makes sense to treat this as a 'virtual file'? give it now() as mtime?
+                self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
         self.datetime = datetime.datetime.fromtimestamp(self.mtime).replace(
             microsecond=0
         )
@@ -903,7 +856,7 @@ class Subnode:
             # If the file is new or has been updated since the last time we saw it...
             if stored_mtime is None or self.mtime > stored_mtime:
                 # ...then we add it to a list of subnodes to be indexed in bulk later.
-                current_app.logger.info(f"INDEX: Queuing changed subnode for re-indexing: {self.uri}")
+                current_app.logger.debug(f"INDEX: Queuing changed subnode for re-indexing: {self.uri}")
                 if 'subnodes_to_index' not in g:
                     g.subnodes_to_index = []
                 
