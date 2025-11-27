@@ -125,6 +125,11 @@ def create_app():
     with app.app_context():
         if app.config.get('USE_GIT_MTIME'):
             from . import git_utils
-            git_utils.update_all_git_mtimes()
+            db = sqlite_engine.get_db()
+            git_utils.update_all_git_mtimes(
+                db=db,
+                agora_path=app.config['AGORA_PATH'],
+                logger=app.logger
+            )
 
     return app

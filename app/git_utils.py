@@ -15,7 +15,6 @@
 import os
 import pygit2
 import sqlite3
-from flask import current_app
 
 from .storage import sqlite_engine
 
@@ -62,18 +61,16 @@ def get_last_commit_for_file(repo, file_path_relative_to_repo):
         return None
 
 
-def update_all_git_mtimes():
+def update_all_git_mtimes(db, agora_path, logger):
     """
     Scans all git repositories in the Agora, finds the last commit time for each
     file, and updates the database.
     """
-    current_app.logger.info("Starting git mtime update process.")
-    agora_path = current_app.config["AGORA_PATH"]
+    logger.info("Starting git mtime update process.")
     repos = discover_repos(agora_path)
-    db = sqlite_engine.get_db()
 
     if not db:
-        current_app.logger.error("Cannot get database connection for git mtime update.")
+        logger.error("Cannot get database connection for git mtime update.")
         return
 
     mtime_updates = []
@@ -84,7 +81,7 @@ def update_all_git_mtimes():
             if repo.is_empty:
                 continue
         except pygit2.errors.RepositoryError:
-            current_app.logger.warning(f"Could not open repository at {repo_path}, skipping.")
+            logger.warning(f"Could not open repository at {repo_path}, skipping.")
             continue
 
         cursor = db.cursor()
@@ -94,10 +91,10 @@ def update_all_git_mtimes():
         current_hash = str(repo.head.target)
 
         if last_known_hash == current_hash:
-            current_app.logger.info(f"Repository at {repo_path} is unchanged (commit {current_hash[:7]}). Skipping.")
+            logger.info(f"Repository at {repo_path} is unchanged (commit {current_hash[:7]}). Skipping.")
             continue
 
-        current_app.logger.info(f"Repository at {repo_path} has changed. Old: {last_known_hash[:7] if last_known_hash else 'None'}, New: {current_hash[:7]}. Scanning files.")
+        logger.info(f"Repository at {repo_path} has changed. Old: {last_known_hash[:7] if last_known_hash else 'None'}, New: {current_hash[:7]}. Scanning files.")
 
         # Using a walker to go through all commits
         # This is still not the most efficient way, a better way would be to walk the tree.
@@ -130,11 +127,11 @@ def update_all_git_mtimes():
                     (repo_path, current_hash)
                 )
         except sqlite3.OperationalError as e:
-            current_app.logger.error(f"DB error updating git_repo_state for {repo_path}: {e}")
+            logger.error(f"DB error updating git_repo_state for {repo_path}: {e}")
 
 
     if mtime_updates:
-        current_app.logger.info(f"Updating git_mtime for {len(mtime_updates)} files.")
+        logger.info(f"Updating git_mtime for {len(mtime_updates)} files.")
         try:
             with db:
                 db.executemany(
@@ -142,8 +139,8 @@ def update_all_git_mtimes():
                     mtime_updates
                 )
         except sqlite3.OperationalError as e:
-            current_app.logger.error(f"DB error during bulk git_mtime update: {e}")
+            logger.error(f"DB error during bulk git_mtime update: {e}")
     else:
-        current_app.logger.info("No file mtimes to update.")
+        logger.info("No file mtimes to update.")
 
-    current_app.logger.info("Finished git mtime update process.")
+    logger.info("Finished git mtime update process.")
