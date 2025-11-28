@@ -26,13 +26,17 @@
     <div class="delta-nodes">
         <span class="backlinks-header">Recently edited nodes</span><br />
         {% if subnodes_by_user %}
-            {% for user, subnodes in subnodes_by_user.items()|sort %}
-                <h3 class="user-header">
-                    <a href="{{ ('@' + user)|node_url }}">@{{ user }}</a>
-                </h3>
-                {% for subnode in subnodes %}
-                    <a href="{{ ('/' + subnode.uri)|node_url }}">[[{{subnode.wikilink}}]]</a> on <span class="wikilink-marker">[[</span><a href="{{ (subnode.mtime|datetimeformat('%Y-%m-%d'))|node_url }}"><span class="node-name">{{ subnode.mtime|datetimeformat('%Y-%m-%d %H:%M') }}</span></a><span class="wikilink-marker">]]</span><br />
-                {% endfor %}
+            {% for user, subnodes in subnodes_by_user %}
+                <details class="user-changes" open style="margin-bottom: 1em;">
+                    <summary class="user-header">
+                        <a href="{{ ('@' + user)|node_url }}">@{{ user }}</a>
+                    </summary>
+                    <div class="user-changes-list">
+                        {% for subnode in subnodes %}
+                            <a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a> on <span class="wikilink-marker">[[</span><a href="{{ (subnode.mtime|datetimeformat('%Y-%m-%d'))|node_url }}"><span class="node-name">{{ subnode.mtime|datetimeformat('%Y-%m-%d %H:%M') }}</span></a><span class="wikilink-marker">]]</span><br />
+                        {% endfor %}
+                    </div>
+                </details>
             {% endfor %}
         {% else %}
             <p>No recent changes found in Git history.</p>

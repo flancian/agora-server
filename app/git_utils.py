@@ -30,12 +30,13 @@ def discover_repos(path):
             repos.add(repo_path)
     return list(repos)
 
-def get_latest_changes_per_repo(agora_path, logger, max_commits=10):
+def get_latest_changes_per_repo(agora_path, logger, max_commits=10, max_files_per_user=10):
     """
     Scans all git repositories in the Agora and returns a dictionary of the most
     recently modified files in the last `max_commits` commits, grouped by user.
+    The returned list of users is sorted by the most recent change.
     """
-    logger.info(f"Starting on-demand scan for latest changes (last {max_commits} commits).")
+    logger.info(f"Starting on-demand scan for latest changes (last {max_commits} commits, max {max_files_per_user} files per user).")
     repos = discover_repos(agora_path)
     latest_changes = {}
 
@@ -76,13 +77,21 @@ def get_latest_changes_per_repo(agora_path, logger, max_commits=10):
                         }
             
             if repo_changes:
-                # Sort the collected changes for this repo by time before adding
+                # Sort the collected changes for this repo by time and cap the number of files
                 sorted_changes = sorted(repo_changes.values(), key=lambda x: x['mtime'], reverse=True)
-                latest_changes[user] = sorted_changes
+                latest_changes[user] = sorted_changes[:max_files_per_user]
 
         except (pygit2.errors.RepositoryError, KeyError, ValueError) as e:
             logger.warning(f"Could not process repository at {repo_path}: {e}")
             continue
     
-    logger.info(f"Finished on-demand scan. Found changes for {len(latest_changes)} users.")
-    return latest_changes
+    # Sort the users by the timestamp of their most recent change.
+    # The first item in each user's list is their most recent change because we sorted them above.
+    sorted_users = sorted(
+        latest_changes.items(), 
+        key=lambda item: item[1][0]['mtime'] if item[1] else 0, 
+        reverse=True
+    )
+
+    logger.info(f"Finished on-demand scan. Found changes for {len(sorted_users)} users.")
+    return sorted_users
