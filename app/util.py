@@ -13,6 +13,8 @@
 # limitations under the License.
 import re
 import datetime
+import os
+from flask import current_app
 from dateparser import DateDataParser
 from functools import lru_cache
 from urllib.parse import urlparse
@@ -145,3 +147,31 @@ def format_datetime(value, format='%Y-%m-%d %H:%M'):
     if value is None:
         return ""
     return datetime.datetime.fromtimestamp(value).strftime(format)
+
+def path_to_uri(path: str, agora_path: str) -> str:
+    return path.replace(agora_path + "/", "")
+
+def path_to_garden_relative(path: str, agora_path: str) -> str:
+    relative = re.sub(agora_path + '/', "", path)
+    relative = re.sub(r"(garden|stream|stoa)/.*?/", "", relative)
+    return relative
+
+def path_to_user(path: str) -> str:
+    m = re.search("garden/(.+?)/", path)
+    if m:
+        return m.group(1)
+    m = re.search("stoa/(.+?)/", path)
+    if m:
+        return "anonymous@" + m.group(1)
+    m = re.search("stream/(.+?)/", path)
+    if m:
+        return m.group(1)
+    return "agora"
+
+
+def path_to_wikilink(path: str) -> str:
+    return os.path.splitext(os.path.basename(path))[0]
+
+
+def path_to_basename(path: str) -> str:
+    return os.path.basename(path)

@@ -122,14 +122,4 @@ def create_app():
         return f"/{node_uri}"
 
     
-    with app.app_context():
-        if app.config.get('USE_GIT_MTIME'):
-            from . import git_utils
-            db = sqlite_engine.get_db()
-            git_utils.update_all_git_mtimes(
-                db=db,
-                agora_path=app.config['AGORA_PATH'],
-                logger=app.logger
-            )
-
     return app

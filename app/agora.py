@@ -38,7 +38,7 @@ from markupsafe import escape
 from mistralai.client import MistralClient, MistralException
 from mistralai.models.chat_completion import ChatMessage
 
-from . import federation, forms, providers, render, util
+from . import federation, forms, providers, render, util, git_utils
 from .providers import gemini_complete, mistral_complete
 from .storage import api, feed, sqlite_engine
 from . import visualization
@@ -414,12 +414,35 @@ def index():
 @bp.route("/latest")
 def latest():
     n = api.build_node("latest")
+    
+    # New on-demand logic with caching.
+    cache_key = 'latest_per_user_v1'
+    ttl = 300 # 5 minutes
+    cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
+
+    if cached_value and (time.time() - timestamp < ttl):
+        current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for latest_per_user.")
+        latest_changes = json.loads(cached_value)
+        # The 'subnodes' variable is a legacy name; we pass the new structure to the template.
+        return render_template(
+            "recent.html", 
+            header="Recent Deltas (by user, from Git)", 
+            subnodes_by_user=latest_changes, 
+            node=n,
+        )
+
+    current_app.logger.info(f"CACHE MISS (sqlite): Recomputing latest_per_user from Git.")
+    latest_changes = git_utils.get_latest_changes_per_repo(
+        agora_path=current_app.config['AGORA_PATH'],
+        logger=current_app.logger
+    )
+    sqlite_engine.save_cached_query(cache_key, json.dumps(latest_changes), time.time())
+
     return render_template(
         "recent.html", 
-        header="Recent deltas", 
-        subnodes=api.latest(max=1000), 
+        header="Recent Deltas (by user, from Git)", 
+        subnodes_by_user=latest_changes, 
         node=n,
-        annotations=feed.get_latest(),
     )
 
 

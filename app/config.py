@@ -139,7 +139,6 @@ class DefaultConfig(object):
     ENABLE_SQLITE = False
     ENABLE_AGORA_PROTOCOL = False
     ENABLE_FLUSH_CACHE_BUTTON = False
-    USE_GIT_MTIME = False
 
     # ActivityPub settings
     ACTIVITYPUB_SEND_WELCOME_PACKAGE = True
@@ -300,7 +299,6 @@ class LocalDevelopmentConfig(DefaultConfig):
     # Set MISTRAL_API_KEY and GEMINI_API_KEY env variables when enabling :)
     ENABLE_AI = True
     ENABLE_AGORA_PROTOCOL = True
-    USE_GIT_MTIME = False
 
     # Demo mode settings
     ENABLE_DEMO = True

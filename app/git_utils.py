@@ -16,7 +16,7 @@ import os
 import pygit2
 import sqlite3
 
-from .storage import sqlite_engine
+from . import util
 
 def discover_repos(path):
     """Walks a directory and finds all git repositories."""
@@ -30,117 +30,59 @@ def discover_repos(path):
             repos.add(repo_path)
     return list(repos)
 
-def get_last_commit_for_file(repo, file_path_relative_to_repo):
-    """Gets the last commit that touched a file."""
-    try:
-        # Walker starts from the latest commit.
-        walker = repo.walk(repo.head.target, pygit2.GIT_SORT_TIME)
-        for commit in walker:
-            if commit.tree:
-                try:
-                    # Check if the file exists in the parent commit's tree
-                    if commit.parents:
-                        parent_tree = commit.parents[0].tree
-                        if file_path_relative_to_repo in parent_tree:
-                            # Compare blobs to see if the file changed in this commit
-                            if parent_tree[file_path_relative_to_repo].id != commit.tree[file_path_relative_to_repo].id:
-                                return commit
-                        else:
-                            # File was added in this commit
-                            return commit
-                    else:
-                        # Initial commit
-                        return commit
-                except KeyError:
-                    # File not in tree, continue walking
-                    continue
-        return None
-    except (KeyError, ValueError):
-        # KeyError: repo.head.target doesn't exist (empty repo)
-        # ValueError: object not found - invalid reference
-        return None
-
-
-def update_all_git_mtimes(db, agora_path, logger):
+def get_latest_changes_per_repo(agora_path, logger, max_commits=10):
     """
-    Scans all git repositories in the Agora, finds the last commit time for each
-    file, and updates the database.
+    Scans all git repositories in the Agora and returns a dictionary of the most
+    recently modified files in the last `max_commits` commits, grouped by user.
     """
-    logger.info("Starting git mtime update process.")
+    logger.info(f"Starting on-demand scan for latest changes (last {max_commits} commits).")
     repos = discover_repos(agora_path)
-
-    if not db:
-        logger.error("Cannot get database connection for git mtime update.")
-        return
-
-    mtime_updates = []
+    latest_changes = {}
 
     for repo_path in repos:
+        user = util.path_to_user(repo_path)
+        if user == 'agora': # Skip the main agora repo if needed
+            continue
+
+        repo_changes = {}
         try:
             repo = pygit2.Repository(repo_path)
             if repo.is_empty:
                 continue
-        except pygit2.errors.RepositoryError:
-            logger.warning(f"Could not open repository at {repo_path}, skipping.")
-            continue
 
-        cursor = db.cursor()
-        cursor.execute("SELECT last_commit_hash FROM git_repo_state WHERE repo_path = ?", (repo_path,))
-        result = cursor.fetchone()
-        last_known_hash = result[0] if result else None
-        current_hash = str(repo.head.target)
+            # Walk the last `max_commits` from HEAD
+            walker = repo.walk(repo.head.target, pygit2.GIT_SORT_TIME)
+            for i, commit in enumerate(walker):
+                if i >= max_commits:
+                    break
 
-        if last_known_hash == current_hash:
-            logger.info(f"Repository at {repo_path} is unchanged (commit {current_hash[:7]}). Skipping.")
-            continue
+                if commit.parents:
+                    diff = commit.tree.diff_to_tree(commit.parents[0].tree)
+                else:
+                    diff = commit.tree.diff_to_tree()
 
-        logger.info(f"Repository at {repo_path} has changed. Old: {last_known_hash[:7] if last_known_hash else 'None'}, New: {current_hash[:7]}. Scanning files.")
-
-        # Using a walker to go through all commits
-        # This is still not the most efficient way, a better way would be to walk the tree.
-        # But let's start with this.
-        
-        # A more efficient approach: walk the tree of the latest commit.
-        # For each blob (file), get its last commit.
-        
-        index = repo.index
-        index.read()
-        
-        for entry in index:
-            file_path_abs = os.path.join(repo.workdir, entry.path)
+                for patch in diff:
+                    file_path = patch.delta.new_file.path
+                    
+                    # Only record the most recent change for each file
+                    if file_path not in repo_changes:
+                        file_path_abs = os.path.join(repo.workdir, file_path)
+                        uri = util.path_to_uri(file_path_abs, agora_path)
+                        repo_changes[file_path] = {
+                            'uri': uri,
+                            'wikilink': util.path_to_wikilink(file_path_abs),
+                            'mtime': commit.commit_time,
+                            'user': user
+                        }
             
-            # This is still slow as it walks history for each file.
-            # A truly fast way is complex. Let's see if this is acceptable first.
-            commit = get_last_commit_for_file(repo, entry.path)
+            if repo_changes:
+                # Sort the collected changes for this repo by time before adding
+                sorted_changes = sorted(repo_changes.values(), key=lambda x: x['mtime'], reverse=True)
+                latest_changes[user] = sorted_changes
 
-            if commit:
-                git_mtime = commit.commit_time
-                # The path stored in the DB is relative to the Agora root
-                subnode_path = file_path_abs.replace(agora_path + '/', '')
-                mtime_updates.append((git_mtime, subnode_path))
-
-        # Update the state for this repo
-        try:
-            with db:
-                db.execute(
-                    "REPLACE INTO git_repo_state (repo_path, last_commit_hash) VALUES (?, ?)",
-                    (repo_path, current_hash)
-                )
-        except sqlite3.OperationalError as e:
-            logger.error(f"DB error updating git_repo_state for {repo_path}: {e}")
-
-
-    if mtime_updates:
-        logger.info(f"Updating git_mtime for {len(mtime_updates)} files.")
-        try:
-            with db:
-                db.executemany(
-                    "UPDATE subnodes SET git_mtime = ? WHERE path = ?",
-                    mtime_updates
-                )
-        except sqlite3.OperationalError as e:
-            logger.error(f"DB error during bulk git_mtime update: {e}")
-    else:
-        logger.info("No file mtimes to update.")
-
-    logger.info("Finished git mtime update process.")
+        except (pygit2.errors.RepositoryError, KeyError, ValueError) as e:
+            logger.warning(f"Could not process repository at {repo_path}: {e}")
+            continue
+    
+    logger.info(f"Finished on-demand scan. Found changes for {len(latest_changes)} users.")
+    return latest_changes

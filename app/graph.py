@@ -39,6 +39,10 @@ from functools import wraps
 
 from . import config, regexes, render, util
 from .storage import feed, sqlite_engine
+from .util import (
+    path_to_uri, path_to_garden_relative, path_to_user, 
+    path_to_wikilink, path_to_basename
+)
 
 GRAPH_INSTANCE_COUNTER = 0
 
@@ -378,7 +382,7 @@ class Graph:
             elif f.endswith(".py"):
                 mediatype = "text/x-python"
 
-            uri = path_to_uri(f)
+            uri = path_to_uri(f, base)
             mtime_override = mtimes.get(uri)
             
             s = Subnode(f, mediatype, mtime_override=mtime_override)
@@ -806,9 +810,10 @@ class Subnode:
 
     def __init__(self, path: str, mediatype: str = "text/plain", mtime_override: int = None) -> None:
         self.path = path
+        agora_path = current_app.config["AGORA_PATH"]
         # Use a subnode's URI as its identifier.
-        self.uri: str = path_to_uri(path)
-        self.garden_relative: str = path_to_garden_relative(path)
+        self.uri: str = path_to_uri(path, agora_path)
+        self.garden_relative: str = path_to_garden_relative(path, agora_path)
         self.url = "/subnode/" + self.uri
         self.basename: str = path_to_basename(path)
 
@@ -839,9 +844,11 @@ class Subnode:
 
         if mtime_override:
             self.mtime = mtime_override
+            # current_app.logger.debug(f"Subnode {self.uri}: using git_mtime override: {self.mtime}")
         else:
             try:
                 self.mtime = os.path.getmtime(path)
+                # current_app.logger.debug(f"Subnode {self.uri}: using filesystem mtime: {self.mtime}")
             except FileNotFoundError:
                 # Perhaps it makes sense to treat this as a 'virtual file'? give it now() as mtime?
                 self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
@@ -856,7 +863,7 @@ class Subnode:
             # If the file is new or has been updated since the last time we saw it...
             if stored_mtime is None or self.mtime > stored_mtime:
                 # ...then we add it to a list of subnodes to be indexed in bulk later.
-                current_app.logger.debug(f"INDEX: Queuing changed subnode for re-indexing: {self.uri}")
+                # current_app.logger.debug(f"INDEX: Queuing changed subnode for re-indexing: {self.uri}")
                 if 'subnodes_to_index' not in g:
                     g.subnodes_to_index = []
                 
@@ -1159,10 +1166,11 @@ class VirtualSubnode(Subnode):
         target_node: where this virtual subnode will attach (go to).
         block: the actual payload, as pre rendered html."""
         self.uri = source_subnode.uri
+        agora_path = current_app.config["AGORA_PATH"]
         self.basename: str = path_to_basename(self.uri)
-        self.garden_relative: str = path_to_garden_relative(current_app.config["AGORA_PATH"] + '/' + self.uri)
+        self.garden_relative: str = path_to_garden_relative(agora_path + '/' + self.uri, agora_path)
         # This is needed in Virtual subnodes as wikilink needs to be the node this is being pushed *to* due to a limitation of how we build nodes.
-        self.virtual_wikilink : str = path_to_wikilink(current_app.config["AGORA_PATH"] + '/' + self.uri)
+        self.virtual_wikilink : str = path_to_wikilink(agora_path + '/' + self.uri)
         self.url = "/subnode/virtual"
         self.virtual = True
         # Virtual subnodes are attached to their target
@@ -1221,10 +1229,11 @@ class ExecutableSubnode(Subnode):
         node: where this virtual subnode will attach (go to).
         block: the actual payload, as pre rendered html."""
         self.path = path
+        agora_path = current_app.config["AGORA_PATH"]
         # Use a subnode's URI as its identifier.
-        self.uri: str = path_to_uri(path)
+        self.uri: str = path_to_uri(path, agora_path)
         self.url = '/subnode/' + self.uri
-        self.basename: str = path_to_basename(self.uri)
+        self.basename: str = path_to_basename(path)
 
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
@@ -1306,35 +1315,6 @@ class User:
 
     def size(self) -> int:
         return len(self.subnodes())
-
-
-def path_to_uri(path: str) -> str:
-    return path.replace(current_app.config["AGORA_PATH"] + "/", "")
-
-def path_to_garden_relative(path: str) -> str:
-    relative = re.sub(current_app.config["AGORA_PATH"] + '/', "", path)
-    relative = re.sub(r"(garden|stream|stoa)/.*?/", "", relative)
-    return relative
-
-def path_to_user(path: str) -> str:
-    m = re.search("garden/(.+?)/", path)
-    if m:
-        return m.group(1)
-    m = re.search("stoa/(.+?)/", path)
-    if m:
-        return "anonymous@" + m.group(1)
-    m = re.search("stream/(.+?)/", path)
-    if m:
-        return m.group(1)
-    return "agora"
-
-
-def path_to_wikilink(path: str) -> str:
-    return os.path.splitext(os.path.basename(path))[0]
-
-
-def path_to_basename(path: str) -> str:
-    return os.path.basename(path)
 
 
 def content_to_forward_links(content: str) -> List[str]:

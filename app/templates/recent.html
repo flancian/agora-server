@@ -25,14 +25,23 @@
 <div class="delta node subnode">
     <div class="delta-nodes">
         <span class="backlinks-header">Recently edited nodes</span><br />
-        {% for subnode in subnodes %}
-        <a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a> by <a href="{{ ('@' + subnode.user)|node_url }}">@{{subnode.user}}</a> on <span class="wikilink-marker">[[</span><a href="{{ (subnode.mtime|datetimeformat('%Y-%m-%d'))|node_url }}"><span class="node-name">{{ subnode.mtime|datetimeformat('%Y-%m-%d') }}</span></a><span class="wikilink-marker">]]</span><br />
-        {% endfor %}
+        {% if subnodes_by_user %}
+            {% for user, subnodes in subnodes_by_user.items()|sort %}
+                <h3 class="user-header">
+                    <a href="{{ ('@' + user)|node_url }}">@{{ user }}</a>
+                </h3>
+                {% for subnode in subnodes %}
+                    <a href="{{ ('/' + subnode.uri)|node_url }}">[[{{subnode.wikilink}}]]</a> on <span class="wikilink-marker">[[</span><a href="{{ (subnode.mtime|datetimeformat('%Y-%m-%d'))|node_url }}"><span class="node-name">{{ subnode.mtime|datetimeformat('%Y-%m-%d %H:%M') }}</span></a><span class="wikilink-marker">]]</span><br />
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <p>No recent changes found in Git history.</p>
+        {% endif %}
     </div>
 
     <div class="delta-annotations">
         <span class="backlinks-header">Recent web annotations</span><br />
-    {% if annotations.entries %}
+    {% if annotations and annotations.entries %}
         {% for annotation in annotations.entries %}
         hypothes.is user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
         annotated <a href="{{annotation.link}}">{{annotation.title}}</a>
