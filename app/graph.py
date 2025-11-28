@@ -916,14 +916,15 @@ class Subnode:
             self.forward_links = []
 
     def load_user_config(self):
+        self.edit_path = ""
         try:
             self.edit_path = os.path.join(*self.uri.split("/")[2:])
-        except TypeError:
+        except (TypeError, IndexError):
             current_app.logger.debug(f"{self.uri} resulted in no edit_path")
         self.support = self.user_config.get("support", False)
         self.edit: Union[str, False] = self.user_config.get("edit", False)
         self.web: Union[str, False] = self.user_config.get("web", False)
-        if self.edit:
+        if self.edit and self.edit_path:
             # for edit paths with {path}
             self.edit = self.edit.replace("{path}", self.edit_path)
             # for edit paths with {slug}
@@ -931,7 +932,7 @@ class Subnode:
             self.edit = self.edit.replace(
                 "{slug}", str(Path(self.edit_path).with_suffix(""))
             )
-        if self.web:
+        if self.web and self.edit_path:
             # same as the above but for views
             # for web paths with {path}
             self.web = self.web.replace("{path}", self.edit_path)

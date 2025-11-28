@@ -157,13 +157,13 @@ def path_to_garden_relative(path: str, agora_path: str) -> str:
     return relative
 
 def path_to_user(path: str) -> str:
-    m = re.search("garden/(.+?)/", path)
+    m = re.search(r"garden/([^/]+)", path)
     if m:
         return m.group(1)
-    m = re.search("stoa/(.+?)/", path)
+    m = re.search(r"stoa/([^/]+)", path)
     if m:
         return "anonymous@" + m.group(1)
-    m = re.search("stream/(.+?)/", path)
+    m = re.search(r"stream/([^/]+)", path)
     if m:
         return m.group(1)
     return "agora"
