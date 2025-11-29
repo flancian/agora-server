@@ -594,50 +594,18 @@ def go(node0, node1=""):
             current_app.logger.info(f"Detected go link was not a valid URL: {link}.")
 
     # No matching viable links found after all tries.
-    # Fallback to a server-side "I'm Feeling Lucky" request to Google.
+    # Fallback to a server-side "I'm Feeling Lucky" request.
     if node0 != node1:
         query = f"{node0} {node1}"
     else:
         query = node0
     
-    lucky_url = f"http://www.google.com/search?q={urllib.parse.quote_plus(query)}&btnI"
-    current_app.logger.info(f"No go link found. Trying server-side I'm Feeling Lucky for query: '{query}'")
-
-    try:
-        headers = {'User-Agent': 'agora/0.9'}
-        
-        # We do not allow redirects on the server side, as we want to parse the 302 response body.
-        res = requests.get(lucky_url, headers=headers, timeout=2.5, allow_redirects=False)
-        res.raise_for_status()
-
-        # Check if we got a redirect response with a body containing the link.
-        if 300 <= res.status_code < 400 and res.text:
-            match = re.search(r'<A HREF="([^"]+)">', res.text)
-            if match:
-                redirect_url_from_google = match.group(1)
-                
-                # If Google returns a relative URL, make it absolute.
-                if redirect_url_from_google.startswith('/'):
-                    redirect_url_from_google = 'http://www.google.com' + redirect_url_from_google
-
-                parsed_url = urllib.parse.urlparse(redirect_url_from_google)
-                query_params = urllib.parse.parse_qs(parsed_url.query)
-                
-                final_url = query_params.get('q', [redirect_url_from_google])[0]
-
-                # The crucial check: is this a real, absolute URL?
-                if util.is_valid_url(final_url):
-                    current_app.logger.info(f"I'm Feeling Lucky redirect found: {final_url}")
-                    return redirect(final_url)
-                else:
-                    # Google returned a search page or other non-URL, meaning it wasn't "lucky".
-                    raise ValueError("Google was not lucky, returned a non-URL path.")
-
-        raise ValueError("Could not parse 'I'm Feeling Lucky' response.")
-
-    except (requests.RequestException, ValueError, KeyError) as e:
-        current_app.logger.warning(f"Server-side I'm Feeling Lucky failed: {e}. Falling back to local node.")
+    redirect_url = providers.feeling_lucky(query)
+    if redirect_url:
+        return redirect(redirect_url)
+    else:
         # Fall back to the original behavior: redirecting to the local Agora node.
+        current_app.logger.warning(f"I'm Feeling Lucky failed. Falling back to local node.")
         base = current_app.config["URL_BASE"]
         if node0 != node1:
             return redirect(f"{base}/{node0}/{node1}")

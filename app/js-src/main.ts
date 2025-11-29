@@ -455,13 +455,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  const miniCliGo = document.querySelector("#mini-cli-go");
+  const miniCliGo = document.querySelector("#mini-cli-go") as HTMLButtonElement;
   if (miniCliGo) {
     miniCliGo.addEventListener("click", () => {
       console.log("go mini-cli executes");
+      miniCliGo.textContent = "➡️ Going...";
+      miniCliGo.disabled = true;
       let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
-      (document.querySelector("#mini-cli") as HTMLInputElement).value = 'go/' + val;
-      (document.querySelector("#mini-cli").parentElement as HTMLFormElement).submit();
+      window.location.href = '/go/' + val;
     });
   }
 
