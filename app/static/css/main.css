@@ -487,10 +487,6 @@ summary, #footer {
 }
 
 #scroll-toggle {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    z-index: 100;
     flex-shrink: 0;
 }
 
@@ -1205,7 +1201,8 @@ table caption {
 .toggle-container {
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 8px;
+    margin-left: -2px;
 }
 
 .theme-switch input, .demo-switch input {

@@ -113,18 +113,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   if (scrollToggle && nav) {
     const updateScrollButton = () => {
-        const navHeight = nav.offsetHeight;
         // Check if we are at the bottom of the page (with a small tolerance)
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
             scrollToggle.innerHTML = '▲';
             scrollToggle.title = 'Scroll to top';
-            scrollToggle.style.top = `${navHeight + 10}px`;
-            scrollToggle.style.bottom = '';
         } else {
             scrollToggle.innerHTML = '▼';
             scrollToggle.title = 'Scroll to bottom';
-            scrollToggle.style.top = '';
-            scrollToggle.style.bottom = '10px';
         }
     };
 
