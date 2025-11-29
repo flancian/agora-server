@@ -827,6 +827,10 @@ details > summary {
     width: 50%;
 }
 
+.subnode .delta-nodes {
+    width: 100%;
+}
+
 .delta-annotations {
     background: var(--pulled-pushed-bg);
     float: left;

@@ -22,28 +22,30 @@
 <span class="node-header main-header">✨ <strong>Latest Changes</strong></span>
 </summary>
 
-<div class="delta node subnode">
+<div class="node subnode">
     <div class="delta-nodes">
-        <span class="latest-edits-header">Latest Edits per User</span>
+        <span class="latest-edits-header">Latest edits per user (most recently active first)</span>
         {% if subnodes_by_user %}
             {% for user, subnodes in subnodes_by_user %}
                 <details class="user-changes" open style="margin-bottom: 1em;">
                     <summary class="user-header">
-                        <a href="{{ ('@' + user)|node_url }}">@{{ user }}</a>
+                        🧍 <a href="{{ ('@' + user)|node_url }}">@{{ user }}</a>
                     </summary>
                     <div class="user-changes-list">
                         <table>
                             <thead>
                                 <tr>
                                     <th style="width: 25%;">Modified</th>
-                                    <th>Node</th>
+                                    <th>📚 Node</th>
+                                    <th>📓 Subnode</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for subnode in subnodes %}
                                 <tr>
                                     <td>{{ subnode.mtime|datetimeformat('%Y-%m-%d %H:%M') }}</td>
-                                    <td><a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[{{subnode.description}}]]</a></td>
+                                    <td><a href="{{ (subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a></td>
+                                    <td><a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[@{{subnode.user}}/{{subnode.wikilink}}]]</a></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -56,22 +58,6 @@
         {% endif %}
     </div>
 
-    <div class="delta-annotations">
-        <span class="latest-annotations-header">Latest Web Annotations</span>
-        <p><em>Start using <a href="https://hypothes.is">hypothes.is</a> today! Web annotations are an open web standard.</em></p>
-    {% if annotations and annotations.entries %}
-        {% for annotation in annotations.entries %}
-        hypothes.is user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
-        annotated <a href="{{annotation.link}}">{{annotation.title}}</a>
-        on {{annotation.published[:10]}}<br />
-        <blockquote>
-        <em>{{annotation.summary|linkify|safe}}</em>
-        </blockquote>
-        {% endfor %}
-    {% else %}
-        <p>No annotations found.</p>
-    {% endif %}
-    </div>
 </div>
 </details>
 

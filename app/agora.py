@@ -429,7 +429,6 @@ def latest():
             header="Latest Deltas (by user, from Git)", 
             subnodes_by_user=latest_changes, 
             node=n,
-            annotations=feed.get_latest(),
         )
 
     current_app.logger.info(f"CACHE MISS (sqlite): Recomputing latest_per_user from Git.")
@@ -444,7 +443,6 @@ def latest():
         header="Latest Deltas (by user, from Git)", 
         subnodes_by_user=latest_changes, 
         node=n,
-        annotations=feed.get_latest(),
     )
 
 
