@@ -37,7 +37,7 @@ from flask import current_app, request, g
 from thefuzz import fuzz
 from functools import wraps
 
-from . import config, regexes, render, util
+from . import config, regexes, render, util, git_utils
 from .storage import feed, sqlite_engine
 from .util import (
     path_to_uri, path_to_garden_relative, path_to_user, 
@@ -844,11 +844,9 @@ class Subnode:
 
         if mtime_override:
             self.mtime = mtime_override
-            # current_app.logger.debug(f"Subnode {self.uri}: using git_mtime override: {self.mtime}")
         else:
             try:
                 self.mtime = os.path.getmtime(path)
-                # current_app.logger.debug(f"Subnode {self.uri}: using filesystem mtime: {self.mtime}")
             except FileNotFoundError:
                 # Perhaps it makes sense to treat this as a 'virtual file'? give it now() as mtime?
                 self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
@@ -876,6 +874,13 @@ class Subnode:
                 })
 
         self.node = self.canonical_wikilink
+
+    def get_display_mtime(self):
+        """
+        Returns the most accurate modification time for display.
+        This is called at render time to avoid slow git lookups during startup.
+        """
+        return git_utils.get_mtime(self.path)
 
     def __repr__(self):
         return f"<Subnode: {self.uri} ({self.mediatype})>"

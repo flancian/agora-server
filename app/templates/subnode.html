@@ -33,5 +33,15 @@
     </span>
 </div>
     {{ subnode.render()|linkify|safe }}
+    <div class="subnode-footer">
+        {% set display_mtime, mtime_source = subnode.get_display_mtime() %}
+        <span class="wikilink-marker">[[</span><a href="{{ (display_mtime|datetimeformat('%Y-%m-%d'))|node_url }}"><span class="node-name">
+        {% if mtime_source == 'git' %}
+            commit: {{ display_mtime|datetimeformat('%Y-%m-%d %H:%M') }}
+        {% else %}
+            modified: {{ display_mtime|datetimeformat('%Y-%m-%d %H:%M') }}
+        {% endif %}
+        </span></a><span class="wikilink-marker">]]</span>
+    </div>
 </div>
 {% endif %}

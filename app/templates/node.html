@@ -74,8 +74,9 @@
                 </div>
                 <div class="show-more-button" data-target="virtual-subnode-content-{{ loop.index }}" style="display: none;">Show more...</div>
                 <div class="subnode-footer">
+                    {% set display_mtime, mtime_source = subnode.get_display_mtime() %}
                     <span class="footer-id">
-                        ⸎  ({{subnode.type}}) last updated <strong>{{subnode.datetime.astimezone()}}</strong>
+                        ⸎  ({{subnode.type}}) last updated <strong>{{ display_mtime|datetimeformat('%Y-%m-%d %H:%M:%S') }} {% if mtime_source == 'fs' %}(mtime){% else %}(git){% endif %}</strong>
                     </span>
                 </div>
             </details>
@@ -121,13 +122,9 @@
             <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
 
                 <div class="subnode-footer">
+                    {% set display_mtime, mtime_source = subnode.get_display_mtime() %}
                     <span class="footer-id">
-                        <!--
-                        <span class="footer-links">
-                            <a href="/raw/{{subnode.uri}}"><tt title="{{subnode.uri}}">{{subnode.basename}}</tt></a> by <a class="user" href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a>
-                        </span>
-                        -->
-                        ⸎  ({{subnode.type}}) last updated <strong>{{subnode.datetime.astimezone()}}</strong>
+                        ⸎  ({{subnode.type}}) last updated <strong>{{ display_mtime|datetimeformat('%Y-%m-%d %H:%M:%S') }} {% if mtime_source == 'fs' %}(mtime){% else %}(git){% endif %}</strong>
                     </span>
                 </div>
 
