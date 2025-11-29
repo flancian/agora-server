@@ -1020,17 +1020,91 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     
 
-      async function bindEvents() {
-
-        initializeStars();
-
-        initializeNodeStars();
-
-        applyDismissals(); // Run again for dynamically loaded info-boxes.
+                  async function bindEvents() {
 
     
 
-        const user = localStorage.getItem('user') || 'flancian';
+                    initializeStars();
+
+    
+
+                    initializeNodeStars();
+
+    
+
+                    applyDismissals(); // Run again for dynamically loaded info-boxes.
+
+    
+
+                    // New function to control the visibility of the "Pull All" button.
+
+    
+
+                    const updatePullAllButtonVisibility = () => {
+
+    
+
+                        const pullAllButton = document.getElementById("pull-all-in-node");
+
+    
+
+                        if (!pullAllButton) return;
+
+    
+
+            
+
+    
+
+                        // These are the selectors the "Pull All" button interacts with.
+
+    
+
+                        const pullableSelectors = ".pull-node, .pull-mastodon-status, .pull-tweet, .pull-search, .pull-url";
+
+    
+
+                        const pullableElements = document.querySelectorAll(pullableSelectors);
+
+    
+
+            
+
+    
+
+                        if (pullableElements.length > 0) {
+
+    
+
+                            pullAllButton.style.display = 'inline-block';
+
+    
+
+                        } else {
+
+    
+
+                            pullAllButton.style.display = 'none';
+
+    
+
+                        }
+
+    
+
+                    };
+
+    
+
+                    // Call the function to check for pullable elements.
+
+    
+
+                    updatePullAllButtonVisibility();
+
+    
+
+                    const user = localStorage.getItem('user') || 'flancian';
 
     
 

@@ -600,9 +600,9 @@ def go(node0, node1=""):
     else:
         query_terms = urllib.parse.quote_plus(node0)
     
-    # We explicitly construct the query with the URL-encoded backslash and space (%5C+)
+    # We explicitly construct the query with the URL-encoded backslash (%5C)
     # to ensure DuckDuckGo interprets it as the "I'm Feeling Ducky" command.
-    ducky_url = f"https://duckduckgo.com/?q=%5C+{query_terms}&we_feature_name=requery"
+    ducky_url = f"https://duckduckgo.com/?q=%5C{query_terms}&we_feature_name=requery"
     current_app.logger.info(f"No go link found. Falling back to I'm Feeling Ducky: {ducky_url}")
     return redirect(ducky_url)
 
