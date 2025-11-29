@@ -425,8 +425,13 @@ def get_all_starred_subnodes():
 def star_node(node_uri):
     db = get_db()
     if db:
-        db.execute("INSERT INTO starred_nodes (node_uri) VALUES (?)", (node_uri,))
-        db.commit()
+        try:
+            with db:
+                db.execute("INSERT INTO starred_nodes (node_uri) VALUES (?)", (node_uri,))
+        except sqlite3.IntegrityError:
+            # This is expected if the node is already starred. We can ignore it.
+            current_app.logger.info(f"Node '{node_uri}' is already starred.")
+            pass
 
 def unstar_node(node_uri):
     db = get_db()
@@ -512,17 +517,6 @@ def get_followers(user_uri):
     cursor = db.cursor()
     cursor.execute("SELECT follower_uri FROM followers WHERE user_uri = ?", (user_uri,))
     return [row[0] for row in cursor.fetchall()]
-
-def get_all_starred_nodes():
-    db = get_db()
-    if db is None:
-        return set()
-    try:
-        cursor = db.execute("SELECT node_uri FROM starred_nodes")
-        return {row[0] for row in cursor.fetchall()}
-    except sqlite3.OperationalError as e:
-        current_app.logger.warning(f"Could not fetch starred nodes, table might not exist yet: {e}")
-        return set()
 
 #
 # Federated Subnodes

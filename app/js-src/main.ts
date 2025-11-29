@@ -79,6 +79,37 @@ document.addEventListener("DOMContentLoaded", async function () {
         }, { once: true });
       }
     }
+
+    // Event delegation for node star toggles.
+    const starButton = target.closest('.node-star-toggle');
+    if (starButton) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        const button = starButton as HTMLElement;
+        const nodeUri = button.dataset.nodeUri;
+        if (!nodeUri) return;
+
+        const isStarred = button.classList.contains('starred');
+        const endpoint = isStarred ? `/api/unstar_node/${nodeUri}` : `/api/star_node/${nodeUri}`;
+
+        fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                button.classList.toggle('starred');
+                button.innerHTML = isStarred ? '☆' : '★';
+            } else {
+                console.error('Failed to update node star status:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
   });
 
   // Observer to initialize stars on dynamically added subnodes.
@@ -1021,15 +1052,103 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     
 
-                  async function bindEvents() {
+                                                                                                                  async function bindEvents() {
 
     
 
-                    initializeStars();
+                                                                                                
 
     
 
-                    initializeNodeStars();
+                                                                                                                    // Auto-expand Wikipedia on starred nodes.
+
+    
+
+                                                                                                                    const observer = new MutationObserver((mutations, obs) => {
+
+    
+
+                                                                                                                        const wikiDetails = document.querySelector("details.wiki.node");
+
+    
+
+                                                                                                                        if (wikiDetails) {
+
+    
+
+                                                                                                                            const isStarred = wikiDetails.querySelector('.node-star-toggle.starred');
+
+    
+
+                                                                                                                            if (isStarred) {
+
+    
+
+                                                                                                                                console.log('Auto-expanding Wikipedia because it is starred.');
+
+    
+
+                                                                                                                                const summary = wikiDetails.querySelector('summary');
+
+    
+
+                                                                                                                                if (summary && !(wikiDetails as HTMLDetailsElement).open) {
+
+    
+
+                                                                                                                                    summary.click();
+
+    
+
+                                                                                                                                }
+
+    
+
+                                                                                                                            }
+
+    
+
+                                                                                                                            obs.disconnect(); // Stop observing once we've found the wiki section.
+
+    
+
+                                                                                                                        }
+
+    
+
+                                                                                                                    });
+
+    
+
+                                                                                                                    observer.observe(document.body, {
+
+    
+
+                                                                                                                        childList: true,
+
+    
+
+                                                                                                                        subtree: true
+
+    
+
+                                                                                                                    });
+
+    
+
+                                                                                                
+
+    
+
+                                                                                                                    initializeStars();
+
+    
+
+                                                                                                
+
+    
+
+                                                                              
 
     
 

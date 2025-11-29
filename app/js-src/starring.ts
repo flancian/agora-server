@@ -116,39 +116,3 @@ function handleStarClick(event) {
         console.error('Error:', error);
     });
 }
-
-export function initializeNodeStars() {
-    document.querySelectorAll('.node-star-toggle').forEach(button => {
-        button.removeEventListener('click', handleNodeStarClick);
-        button.addEventListener('click', handleNodeStarClick);
-    });
-}
-
-function handleNodeStarClick(event) {
-    event.stopPropagation();
-    event.preventDefault();
-    const button = event.currentTarget as HTMLElement;
-    const nodeUri = button.dataset.nodeUri;
-    const isStarred = button.classList.contains('starred');
-
-    const endpoint = isStarred ? `/api/unstar_node/${nodeUri}` : `/api/star_node/${nodeUri}`;
-
-    fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            button.classList.toggle('starred');
-            button.innerHTML = isStarred ? '☆' : '★';
-        } else {
-            console.error('Failed to update node star status:', data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}

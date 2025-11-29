@@ -15,6 +15,7 @@
 from . import bp, Response
 import requests
 from flask import render_template
+from app.storage import sqlite_engine
 
 @bp.route("/exec/wp/<node>")
 def wp(node):
@@ -62,5 +63,6 @@ def wp(node):
     except (requests.exceptions.RequestException, ValueError):
         wt_data = None
 
-    return render_template("wp_wt.html", node=node, wp_data=wp_data, wt_data=wt_data)
+    starred_nodes = sqlite_engine.get_all_starred_nodes()
+    return render_template("wp_wt.html", node=node, wp_data=wp_data, wt_data=wt_data, starred_nodes=starred_nodes)
 
