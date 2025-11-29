@@ -20,7 +20,7 @@
         {% if subnode %}
             <summary class="node-header main-header">
                 <span class="flex-grow">
-                  <strong>Subnode</strong> <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span> in node <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>
+                  <strong>Subnode</strong> by user <a href="/@{{node.subnodes[0].user}}">@{{ node.subnodes[0].user }}</a> in node <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>
                 </span>
            </summary>
         {% else %}
@@ -167,7 +167,7 @@
         </div>
 
  
-
+{% if not subnode %}
 <details class="context subnode" open>
 
     <center>
@@ -182,6 +182,7 @@
     </center>
 
 </details>
+{% endif %}
 
 
 </details> <!-- closes node div-->
