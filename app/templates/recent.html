@@ -32,9 +32,22 @@
                         <a href="{{ ('@' + user)|node_url }}">@{{ user }}</a>
                     </summary>
                     <div class="user-changes-list">
-                        {% for subnode in subnodes %}
-                            <a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a> on <span class="wikilink-marker">[[</span><a href="{{ (subnode.mtime|datetimeformat('%Y-%m-%d'))|node_url }}"><span class="node-name">{{ subnode.mtime|datetimeformat('%Y-%m-%d %H:%M') }}</span></a><span class="wikilink-marker">]]</span><br />
-                        {% endfor %}
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Modified</th>
+                                    <th>Node</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subnode in subnodes %}
+                                <tr>
+                                    <td>{{ subnode.mtime|datetimeformat('%Y-%m-%d %H:%M') }}</td>
+                                    <td><a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </details>
             {% endfor %}
