@@ -33,13 +33,17 @@
   </form>
 </div>
 
-{% if subnodes %}
-<br />
-<h2> Results </h2>
-{% for subnode in subnodes %}
-(user: {{subnode.user}}) {{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
-{% endfor %}
-{% endif %}
+    <div class="subnode">
+    <span class="search-header">🔍 Regex search results for '{{form.query.data}}' in subnode content</span>
+    {% if subnodes %}
+        {% for subnode in subnodes %}
+        (user: {{subnode.user}}) {{ subnode.uri }}: <a href="{{subnode.url}}">{{subnode.wikilink}}</a><br />
+        {% endfor %}
+    {% else %}
+        (none)
+    {% endif %}
+    </div>
+</details>
 </div>
 
 {% endblock %}
