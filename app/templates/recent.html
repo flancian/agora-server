@@ -43,7 +43,7 @@
                                 {% for subnode in subnodes %}
                                 <tr>
                                     <td>{{ subnode.mtime|datetimeformat('%Y-%m-%d %H:%M') }}</td>
-                                    <td><a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a></td>
+                                    <td><a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[{{subnode.description}}]]</a></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

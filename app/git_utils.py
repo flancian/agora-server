@@ -118,9 +118,11 @@ def get_latest_changes_per_repo(agora_path, logger, max_commits=20, max_files_pe
                     if file_path not in repo_changes:
                         file_path_abs = os.path.join(repo.workdir, file_path)
                         uri = util.path_to_uri(file_path_abs, agora_path)
+                        wikilink = util.path_to_wikilink(file_path_abs)
                         repo_changes[file_path] = {
                             'uri': uri,
-                            'wikilink': util.path_to_wikilink(file_path_abs),
+                            'wikilink': wikilink,
+                            'description': util.canonical_wikilink(wikilink),
                             'mtime': commit.commit_time,
                             'user': user
                         }
