@@ -594,11 +594,17 @@ def go(node0, node1=""):
             current_app.logger.info(f"Detected go link was not a valid URL: {link}.")
 
     # No matching viable links found after all tries.
-    # TODO(flancian): flash an explanation :)
+    # Fallback to I'm Feeling Ducky.
     if node0 != node1:
-        return redirect(f"{base}/{node0}/{node1}")
+        query_terms = urllib.parse.quote_plus(f"{node0} {node1}")
     else:
-        return redirect(f"{base}/{node0}")
+        query_terms = urllib.parse.quote_plus(node0)
+    
+    # We explicitly construct the query with the URL-encoded backslash and space (%5C+)
+    # to ensure DuckDuckGo interprets it as the "I'm Feeling Ducky" command.
+    ducky_url = f"https://duckduckgo.com/?q=%5C+{query_terms}&we_feature_name=requery"
+    current_app.logger.info(f"No go link found. Falling back to I'm Feeling Ducky: {ducky_url}")
+    return redirect(ducky_url)
 
 
 @bp.route("/meet/<node>")
