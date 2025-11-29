@@ -20,9 +20,8 @@
         {% if subnode %}
             <summary class="node-header main-header">
                 <span class="flex-grow">
-                  <strong><!--📕-->{{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span> ⟶
-                    subnode <a href="/{{node.qstr}}">{{node.qstr}}</a></span>
-                
+                  <strong>Subnode</strong> <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span> in node <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>
+                </span>
            </summary>
         {% else %}
             <summary class="node-header main-header">
@@ -49,7 +48,7 @@
         <!-- yolo -- dedup with stoa.html when time is available :) -->
         <div info-box-id="node" class="info-box with-spacing">
 
-          <em>Nodes contain individual contributions whose filenames match your search.</em>
+          <em>Agora nodes contain community contributions whose titles match your search.</em>
             <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="node" id="dismissbutton" class="dismiss-button">x</span>
     
         </div>
@@ -72,6 +71,7 @@
                 <div id="virtual-subnode-content-{{ loop.index }}" class="collapsible-content">
                     <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
                 </div>
+                <div class="show-more-button" data-target="virtual-subnode-content-{{ loop.index }}" style="display: none;">Show more...</div>
                 <div class="subnode-footer">
                     {% set display_mtime, mtime_source = subnode.get_display_mtime() %}
                     <span class="footer-id">
@@ -80,15 +80,13 @@
                 </div>
             </details>
             {% else %}
-            <div class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}">
-
-                <div class="subnode-header">
+            <details class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}" open>
+                <summary class="subnode-header">
                     <span class="subnode-id">
-                        <span class="subnode-links">
-                          <a href="/@{{subnode.user}}/{{node.uri}}" title="Click to see only this subnode.">📓</a> 
-                            <strong>{{ subnode.type|capitalize }}</strong> <a href="/raw/{{subnode.uri}}" title="Click to see the raw resource.">{{subnode.garden_relative}}</a> 
-                            <span title="This resource was contributed to this Agora and seems relevant to the current topic."> by </span>
-                            <a class="user" href="/@{{subnode.user}}"" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>
+                                                    <span class="subnode-links">
+                                                      <a href="/raw/{{subnode.uri}}" title="Click to see the raw resource.">📓</a> 
+                                                        <strong>{{ subnode.type|capitalize }}</strong> <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see only this subnode.">{{subnode.garden_relative}}</a> 
+                                                        <span title="This resource was contributed to this Agora and seems relevant to the current topic."> by </span>                            <a class="user" href="/@{{subnode.user}}"" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>
                             <span class="star-toggle {% if subnode.uri in starred_subnodes %}starred{% endif %}" data-subnode-uri="{{ subnode.uri }}" title="Star this subnode">
     {% if subnode.uri in starred_subnodes %}★{% else %}☆{% endif %}
 </span>
@@ -116,9 +114,9 @@
                         </span>
 
                             </span>
-                    </div>
+                </summary>
 
-            <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+                <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
 
                 <div class="subnode-footer">
                     {% set display_mtime, mtime_source = subnode.get_display_mtime() %}
@@ -127,7 +125,7 @@
                     </span>
                 </div>
 
-            </div>
+            </details>
             {% endif %}
         {% endfor %}
 
