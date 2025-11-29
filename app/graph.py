@@ -1171,6 +1171,7 @@ class VirtualSubnode(Subnode):
         source_subnode: where this virtual subnode came from.
         target_node: where this virtual subnode will attach (go to).
         block: the actual payload, as pre rendered html."""
+        self.path = source_subnode.path
         self.uri = source_subnode.uri
         agora_path = current_app.config["AGORA_PATH"]
         self.basename: str = path_to_basename(self.uri)
