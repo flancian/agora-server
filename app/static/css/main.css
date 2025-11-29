@@ -877,7 +877,7 @@ details > summary {
     margin-bottom: 0.5em;
 }
 
-.subnode-header a {
+.subnode-header a.user {
     text-decoration: none;
     color: var(--text-color);
 }
