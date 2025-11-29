@@ -79,7 +79,7 @@ def discover_repos(path):
             repos.add(repo_path)
     return list(repos)
 
-def get_latest_changes_per_repo(agora_path, logger, max_commits=10, max_files_per_user=10):
+def get_latest_changes_per_repo(agora_path, logger, max_commits=20, max_files_per_user=10):
     """
     Scans all git repositories in the Agora and returns a dictionary of the most
     recently modified files in the last `max_commits` commits, grouped by user.
@@ -124,6 +124,10 @@ def get_latest_changes_per_repo(agora_path, logger, max_commits=10, max_files_pe
                             'mtime': commit.commit_time,
                             'user': user
                         }
+                
+                # Stop early if we have enough files for this user.
+                if len(repo_changes) >= max_files_per_user:
+                    break
             
             if repo_changes:
                 # Sort the collected changes for this repo by time and cap the number of files
