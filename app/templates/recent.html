@@ -19,12 +19,12 @@
 
 <details class="listing node" open>
 <summary>
-<span class="node-header main-header">✨ <strong>Recent changes</strong></span>
+<span class="node-header main-header">✨ <strong>Latest Changes</strong></span>
 </summary>
 
 <div class="delta node subnode">
     <div class="delta-nodes">
-        <span class="backlinks-header">Recently edited nodes</span><br />
+        <span class="latest-edits-header">Latest Edits per User</span>
         {% if subnodes_by_user %}
             {% for user, subnodes in subnodes_by_user %}
                 <details class="user-changes" open style="margin-bottom: 1em;">
@@ -44,7 +44,8 @@
     </div>
 
     <div class="delta-annotations">
-        <span class="backlinks-header">Recent web annotations</span><br />
+        <span class="latest-annotations-header">Latest Web Annotations</span>
+        <p><em>Start using <a href="https://hypothes.is">hypothes.is</a> today! Web annotations are an open web standard.</em></p>
     {% if annotations and annotations.entries %}
         {% for annotation in annotations.entries %}
         hypothes.is user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
@@ -55,11 +56,9 @@
         </blockquote>
         {% endfor %}
     {% else %}
-        No annotations found. <br />
-        <em>Start using <a href="https://hypothes.is">hypothes.is</a> today! Web annotations are an open web standard.</em>
+        <p>No annotations found.</p>
     {% endif %}
     </div>
-
 </div>
 </details>
 

@@ -868,8 +868,18 @@ details > summary {
     overflow: auto;
 }
 
-.backlinks-header, .pushlinks-header, .pulllinks-header, .forwardlinks-header {
-    font-style: italic;
+.backlinks-header,
+.forwardlinks-header,
+.latest-edits-header,
+.latest-annotations-header {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5em;
+}
+
+.subnode-header a {
+    text-decoration: none;
+    color: var(--text-color);
 }
 
 #agoragraph {

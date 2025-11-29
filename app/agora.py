@@ -426,7 +426,7 @@ def latest():
         # The 'subnodes' variable is a legacy name; we pass the new structure to the template.
         return render_template(
             "recent.html", 
-            header="Recent Deltas (by user, from Git)", 
+            header="Latest Deltas (by user, from Git)", 
             subnodes_by_user=latest_changes, 
             node=n,
             annotations=feed.get_latest(),
@@ -441,7 +441,7 @@ def latest():
 
     return render_template(
         "recent.html", 
-        header="Recent Deltas (by user, from Git)", 
+        header="Latest Deltas (by user, from Git)", 
         subnodes_by_user=latest_changes, 
         node=n,
         annotations=feed.get_latest(),
