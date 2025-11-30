@@ -15,10 +15,6 @@
 
 import { initializeStars } from './starring';
 
-
-
-
-
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
 const autoExpandAll = JSON.parse(localStorage["auto-expand-all"] || 'false')
@@ -196,7 +192,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const annotationObserver = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       if (mutation.addedNodes.length) {
-        const hasHighlights = Array.from(mutation.addedNodes).some(node => 
+        const hasHighlights = Array.from(mutation.addedNodes).some(node =>
             node.nodeName.toLowerCase() === 'hypothesis-highlight' || (node as HTMLElement).querySelector?.('hypothesis-highlight')
         );
 
@@ -213,7 +209,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             localStorage.setItem('show-hypothesis', 'true');
           }
           // No need to continue observing if we've found what we're looking for in this batch.
-          break; 
+          break;
         }
       }
     }
@@ -377,7 +373,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const setupNavbarLayoutEngine = () => {
     const toggleContainer = document.querySelector('.toggle-container');
     const searchButton = document.getElementById('mini-cli-exec');
-    
+
     const wideToggleContainer = document.querySelector('.navigation-content');
     const searchContainer = document.querySelector('.search-container');
     const actionBar = document.querySelector('.action-bar');
@@ -432,7 +428,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   window.addEventListener('resize', handleScrollHints);
   handleScrollHints(); // Initial check
 
-
   // clear mini cli on clicking clear button
   /*
   document.querySelector("#mini-cli-clear").addEventListener("click", () => {
@@ -463,17 +458,27 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   initDemoMode();
 
-  const toastContainer = document.getElementById('toast-container');
-  //
+  // No longer caching toastContainer at the top level to avoid initialization timing issues.
+  // const toastContainer = document.getElementById('toast-container');
 
-	function showToast(message, duration = 3000) {
+    // @ts-ignore
+	window.showToast = function(message, duration = 3000) {
+            console.log("Showing toast:", message);
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                console.warn("Toast container missing, creating one.");
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                document.body.appendChild(container);
+            }
+
 			// 1. Create a new toast element
 			const toastElement = document.createElement('div');
 			toastElement.className = 'toast'; // Start with base styles (hidden)
 			toastElement.textContent = message;
 
 			// 2. Add it to the container
-			toastContainer.appendChild(toastElement);
+			container.appendChild(toastElement);
 
 			// 3. Force a browser repaint, then add the 'visible' class to trigger the transition
 			// A tiny timeout is a reliable way to do this.
@@ -493,6 +498,18 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 			}, duration);
 	}
+
+    // Test toast on startup
+    /*
+    setTimeout(() => {
+        const loadTime = Math.round(performance.now());
+        // @ts-ignore
+        window.showToast(`Agora loaded in ${loadTime}ms!`);
+    }, 1000);
+    */
+
+    // internal helper for TS usage within this file
+    const showToast = (window as any).showToast;
 
   const miniCliRetry = document.querySelector("#mini-cli-retry");
   if (miniCliRetry) {
@@ -640,7 +657,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     self.innerText = 'pulled';
   }
 
-
   // start async content code.
   setTimeout(loadAsyncContent, 10)
 
@@ -746,13 +762,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             const spinner = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Generating text...</em></p></center><br />`;
 
-    
-
             const loadContent = async (provider, embedDiv) => {
 
                 if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
-
-                
 
                 embedDiv.innerHTML = spinner;
 
@@ -768,8 +780,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                 }
 
-    
-
                 if (endpoint) {
 
                     try {
@@ -777,8 +787,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                         const response = await fetch(AGORAURL + endpoint + encodeURIComponent(nodeId));
 
                         const data = await response.json();
-
-    
 
                         // Create a collapsible section for the prompt
 
@@ -790,15 +798,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                         promptDetails.appendChild(promptSummary);
 
-    
-
                         const promptPre = document.createElement('pre');
 
                         promptPre.textContent = data.prompt;
 
                         promptDetails.appendChild(promptPre);
-
-                        
 
                         // Clear the spinner and add the new content
 
@@ -806,15 +810,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                         embedDiv.appendChild(promptDetails);
 
-    
-
                         const answerDiv = document.createElement('div');
 
                         answerDiv.innerHTML = data.answer;
 
                         embedDiv.appendChild(answerDiv);
-
-    
 
                         embedDiv.classList.add('visible');
 
@@ -827,8 +827,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
 
             };
-
-    
 
             genaiContainer.addEventListener("toggle", (event) => {
 
@@ -850,8 +848,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             });
 
-    
-
             tabs.forEach(tab => {
 
                 tab.addEventListener("click", (event) => {
@@ -859,8 +855,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                     event.preventDefault();
 
                     event.stopPropagation();
-
-    
 
                     const details = genaiContainer as HTMLDetailsElement;
 
@@ -870,13 +864,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                     }
 
-    
-
                     tabs.forEach(t => t.classList.remove('active'));
 
                     tab.classList.add('active');
-
-    
 
                     const provider = tab.getAttribute('data-provider');
 
@@ -904,8 +894,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
         if (autoExpandSearch) {
 
             // auto pull search by default.
@@ -928,8 +916,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
         if (safeJsonParse(localStorage["auto-expand-stoas"], false)) {
 
             document.querySelectorAll("details.stoa").forEach(function (element) {
@@ -946,13 +932,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
         if (autoExpandWikipedia) {
 
             const observer = new MutationObserver((mutations, obs) => {
 
-                const wikipediaDetails = document.querySelector("details.wikipedia");
+                const wikipediaDetails = document.querySelector("details.wiki");
 
                 if (wikipediaDetails) {
 
@@ -982,8 +966,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
         if (content != null) {
 
           // block on node loading (expensive if the task is freshly up)
@@ -994,15 +976,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
         setTimeout(bindEvents, 10)
 
-    
-
       }
-
-    
 
       async function autoPullAsync() {
 
@@ -1014,95 +990,59 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       }
 
-    
+                                                      async function bindEvents() {
 
-                  async function bindEvents() {
+                                                        if (document.querySelector('.not-found') && autoPull) {
 
-    
+                                                            const wikiDetails = document.querySelector('#wp-wt-container .wiki') as HTMLDetailsElement;
 
-                    initializeStars();
+                                                            if (wikiDetails && !wikiDetails.hasAttribute('open')) {
 
-    
+                                                                showToast("Empty node: auto-expanding Wikipedia");
+
+                                                                wikiDetails.setAttribute('open', '');
+
+                                                            }
+
+                                                        }
+
+                                      initializeStars();
 
                     initializeNodeStars();
 
-    
-
                     applyDismissals(); // Run again for dynamically loaded info-boxes.
-
-    
 
                     // New function to control the visibility of the "Pull All" button.
 
-    
-
                     const updatePullAllButtonVisibility = () => {
-
-    
 
                         const pullAllButton = document.getElementById("pull-all-in-node");
 
-    
-
                         if (!pullAllButton) return;
-
-    
-
-            
-
-    
 
                         // These are the selectors the "Pull All" button interacts with.
 
-    
-
                         const pullableSelectors = ".pull-node, .pull-mastodon-status, .pull-tweet, .pull-search, .pull-url";
-
-    
 
                         const pullableElements = document.querySelectorAll(pullableSelectors);
 
-    
-
-            
-
-    
-
                         if (pullableElements.length > 0) {
-
-    
 
                             pullAllButton.style.display = 'inline-block';
 
-    
-
                         } else {
-
-    
 
                             pullAllButton.style.display = 'none';
 
-    
-
                         }
-
-    
 
                     };
 
-    
-
                     // Call the function to check for pullable elements.
-
-    
 
                     updatePullAllButtonVisibility();
 
-    
-
                     const user = localStorage.getItem('user') || 'flancian';
-
-    
 
         // Debounce function to limit how often a function can run.
 
@@ -1128,8 +1068,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
         // Function to sort subnodes, bringing the current user's to the top.
 
         const sortSubnodes = () => {
@@ -1138,19 +1076,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             if (!subnodesContainer) return;
 
-    
-
             const allSubnodes = Array.from(subnodesContainer.querySelectorAll('details.subnode[data-author]'));
 
             if (allSubnodes.length < 2) return;
 
-    
-
             const userSubnodes = allSubnodes.filter(subnode => (subnode as HTMLElement).dataset.author === user);
 
             if (userSubnodes.length === 0) return;
-
-    
 
             // Move the elements to their new position.
 
@@ -1165,8 +1097,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 });
 
             }
-
-    
 
             // Add the highlight class, then remove it to fade back to normal.
 
@@ -1190,13 +1120,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         };
 
-    
-
         // Initial sort after async content is loaded
 
         sortSubnodes();
-
-    
 
         // New, safe info box dismissal logic.
 
@@ -1230,11 +1156,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
         // end infobox dismiss code.
-
-    
 
         // this works and has already replaced most pull buttons for Agora sections.
 
@@ -1282,13 +1204,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         });
 
-    
-
-    
-
         // end zippies.
-
-    
 
         document.querySelectorAll(".pushed-subnodes-embed").forEach(async function (element) {
 
@@ -1324,8 +1240,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         });
 
-    
-
         document.querySelectorAll(".context").forEach(async function (element) {
 
           // auto pull context by default.
@@ -1346,13 +1260,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           console.log('auto pulled context');
 
-          
-
           // Finally!
 
           renderGraph('graph', '/graph/json/' + node);
-
-    
 
           document.getElementById('graph-toggle-labels')?.addEventListener('click', () => {
 
@@ -1364,21 +1274,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           });
 
-    
-
           console.log("graph loaded.")
 
         });
 
-    
-
         // end async content code.
 
-    
-
         initPullButtons();
-
-    
 
         // pull a pleroma status (toot) using the laziest way I found, might be a better one
 
@@ -1417,8 +1319,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           });
 
         });
-
-    
 
         // pull all/fold all button in main node
 
@@ -1486,8 +1386,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           });
 
-    
-
           // experiment: make pull button expand all details.
 
           var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary, details.stoa > summary, details.search > summary");
@@ -1501,8 +1399,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           });
 
         });
-
-    
 
         // fold all button in intro banner.
 
@@ -1570,8 +1466,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           });
 
-    
-
           // experiment: make fold button fold all details which are open.
 
           var details = document.querySelectorAll("details[open] > summary");
@@ -1585,8 +1479,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           });
 
         });
-
-    
 
         // For late rendered 'join' actions... YOLO :)
 
@@ -1604,8 +1496,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         });
 
-    
-
         // Node-specific pull button logic.
 
         const nodePullButton = document.querySelector("#pull-all-in-node");
@@ -1619,8 +1509,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 const nodeElement = button.closest('.node');
 
                 if (!nodeElement) return;
-
-    
 
                 const isPulled = button.dataset.state === 'pulled';
 
@@ -1658,8 +1546,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
         // Auto-pull if enabled.
 
         if (autoPull) {
@@ -1679,8 +1565,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             }, 500); // Wait half a second for content to settle.
 
         }
-
-    
 
         // Auto-expand if enabled.
 
@@ -1702,8 +1586,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
         // For the full graph in /nodes
 
         const fullGraphDetails = document.getElementById('full-graph-details');
@@ -1716,8 +1598,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             let labelsVisible = true;
 
-    
-
             const loadGraph = (size) => {
 
                 const url = size === 'all' ? '/graph./json/all' : `/graph/json/top/${size}`;
@@ -1725,8 +1605,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 renderGraph('full-graph', url);
 
             };
-
-    
 
             fullGraphDetails.addEventListener('toggle', () => {
 
@@ -1746,8 +1624,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             });
 
-    
-
             tabs.forEach(tab => {
 
                 tab.addEventListener('click', (event) => {
@@ -1756,21 +1632,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                     event.stopPropagation();
 
-    
-
                     if (!(fullGraphDetails as HTMLDetailsElement).open) {
 
                         (fullGraphDetails as HTMLDetailsElement).open = true;
 
                     }
 
-    
-
                     tabs.forEach(t => t.classList.remove('active'));
 
                     tab.classList.add('active');
-
-                    
 
                     const size = tab.getAttribute('data-size');
 
@@ -1779,8 +1649,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 });
 
             });
-
-    
 
             document.getElementById('full-graph-toggle-labels')?.addEventListener('click', () => {
 
@@ -1802,8 +1670,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
         // Cache clearing buttons in footer.
 
         document.getElementById('mini-cli-cachez')?.addEventListener('click', (e) => {
@@ -1815,8 +1681,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             button.innerHTML = '🧠 Flushing...';
 
             button.disabled = true;
-
-    
 
             fetch('/api/clear-in-memory-cache', {
 
@@ -1864,8 +1728,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         });
 
-    
-
         document.getElementById('mini-cli-invalidate-sqlite')?.addEventListener('click', (e) => {
 
             const button = e.currentTarget as HTMLButtonElement;
@@ -1875,8 +1737,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             button.innerHTML = '💾 Flushing...';
 
             button.disabled = true;
-
-    
 
             fetch('/invalidate-sqlite', {
 
@@ -1924,8 +1784,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         });
 
-    
-
         // Collapsible content handler
 
         const initializeCollapsibleContent = () => {
@@ -1933,8 +1791,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             document.querySelectorAll('.collapsible-content').forEach(content => {
 
                 if ((content as HTMLElement).dataset.processed) return;
-
-    
 
                 const button = document.querySelector(`.show-more-button[data-target="${content.id}"]`) as HTMLElement;
 
@@ -1962,13 +1818,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         };
 
-    
-
         // Initial check
 
         initializeCollapsibleContent();
-
-    
 
         // Observer for dynamically added content
 
@@ -1980,7 +1832,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                     initializeCollapsibleContent();
 
-                    break; 
+                    break;
 
                 }
 
@@ -1989,10 +1841,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
 
         collapsibleObserver.observe(document.body, { childList: true, subtree: true });
-
-    
-
-    
 
         document.querySelectorAll('.show-more-button').forEach(button => {
 
@@ -2014,15 +1862,17 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         });
 
-    
+                        initMusicPlayer();
 
-        initMusicPlayer();
+                        const loadTimeMs = performance.now();
 
-      }
+                        const loadTimeS = (loadTimeMs / 1000).toFixed(1);
 
-      // end bindEvents();
+                        showToast(`Agora loaded in ${loadTimeS}s`);
 
-    
+                      }
+
+                      // end bindEvents();
 
       function setOverlayPosition() {
 
@@ -2042,13 +1892,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       }
 
-    
-
       window.addEventListener('load', setOverlayPosition);
 
       window.addEventListener('resize', setOverlayPosition);
-
-    
 
       const webContainer = document.querySelector('details.web');
 
@@ -2056,13 +1902,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           const tabs = webContainer.querySelectorAll('.web-provider-tab');
 
-    
-
           const loadContent = (provider, embedDiv) => {
 
               if (!embedDiv || embedDiv.innerHTML.trim() !== '') return;
-
-              
 
               const tabElement = webContainer.querySelector(`.web-provider-tab[data-provider="${provider}"]`);
 
@@ -2070,13 +1912,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
               const externalLink = (tabElement as HTMLElement).dataset.url;
 
-    
-
               // Show a spinner while we check for embeddability
 
               embedDiv.innerHTML = `<br /><center><p><div class="spinner"><img src="/static/img/agora.png" class="logo"></img></div></p><p><em>Checking embeddability...</em></p></center><br />`;
-
-    
 
               fetch(`/api/check_embeddable?url=${encodeURIComponent(url)}`)
 
@@ -2114,8 +1952,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           };
 
-    
-
           webContainer.addEventListener("toggle", (event) => {
 
               if ((webContainer as HTMLDetailsElement).open) {
@@ -2136,8 +1972,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           });
 
-    
-
           tabs.forEach(tab => {
 
               tab.addEventListener("click", (event) => {
@@ -2147,8 +1981,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                   event.stopPropagation();
 
                   const details = webContainer as HTMLDetailsElement;
-
-    
 
                   if (details.open && tab.classList.contains('active')) {
 
@@ -2166,8 +1998,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                   }
 
-    
-
                   // Otherwise, ensure the details are open and switch to the clicked tab.
 
                   if (!details.open) {
@@ -2176,13 +2006,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                   }
 
-    
-
                   tabs.forEach(t => t.classList.remove('active'));
 
                   tab.classList.add('active');
-
-    
 
                   const provider = tab.getAttribute('data-provider');
 
@@ -2209,8 +2035,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           });
 
       }
-
-    
 
       const wpWtContainer = document.getElementById('wp-wt-container');
 
@@ -2242,17 +2066,24 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                             }
 
-    
-
                             // Re-attach event listeners for the new content
+                            const autoExpandWikipedia = localStorage.getItem('auto-expand-wikipedia') === 'true';
+                            const isEmptyNode = document.querySelector('.not-found') !== null;
+                            const shouldAutoPull = autoExpandWikipedia || (isEmptyNode && autoPull);
 
-                            if (localStorage.getItem('auto-pull-wikipedia') === 'true') {
-
-                                (wpWtContainer.querySelector('.wiki') as HTMLDetailsElement)?.setAttribute('open', '');
-
+                            if (shouldAutoPull) {
+                                const details = wpWtContainer.querySelector('.wiki') as HTMLDetailsElement;
+                                if (details) {
+                                     // Show toast explaining why we are expanding.
+                                     console.log('Checking toast conditions:', { isEmptyNode, autoPull, autoExpandWikipedia });
+                                     if (isEmptyNode && autoPull) {
+                                          showToast("Empty node: auto-expanding Wikipedia");
+                                     } else if (autoExpandWikipedia) {
+                                          showToast("Auto-expanding Wikipedia (per setting)");
+                                     }
+                                     details.setAttribute('open', '');
+                                }
                             }
-
-    
 
                             wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(tab => {
 
@@ -2261,8 +2092,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                                     e.preventDefault();
 
                                     const details = wpWtContainer.querySelector('.wiki') as HTMLDetailsElement;
-
-    
 
                                     if (details && details.hasAttribute('open') && tab.classList.contains('active')) {
 
@@ -2280,8 +2109,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                                     }
 
-    
-
                                     // Otherwise, ensure the details are open and switch to the clicked tab.
 
                                     if (details && !details.hasAttribute('open')) {
@@ -2289,8 +2116,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                                         details.setAttribute('open', '');
 
                                     }
-
-    
 
                                     wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
 
@@ -2336,14 +2161,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       }
 
-      
-
-    	
-
-    
-
-    
-
       // go to the specified URL
 
       document.querySelectorAll(".go-url").forEach(element => {
@@ -2360,19 +2177,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       });
 
-    
-
       if (autoExec) {
 
         console.log('autoexec is enabled')
 
-    
-
         // commenting out as focus stealing issues are just too disruptive.
 
         // setTimeout(autoPullStoaOnEmpty, 5000)
-
-    
 
         document.querySelectorAll(".context-all").forEach(function (element) {
 
@@ -2398,8 +2209,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                               container.innerHTML = spinner;
 
-    
-
                               try {
 
                                   const response = await fetch(AGORAURL + '/context/all');
@@ -2424,11 +2233,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         });
 
-    
-
         console.log('dynamic execution for node begins: ' + NODENAME)
-
-    
 
         // Begin Wikipedia code -- this is hacky/could be refactored (but then again, that applies to most of the Agora! :)
 
@@ -2470,15 +2275,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
         // Once more for Wiktionary, yolo :)
 
         let req_wiktionary = AGORAURL + '/exec/wt/' + encodeURI(NODENAME)
 
         console.log('req for Wiktionary: ' + req_wiktionary)
-
-    
 
         try {
 
@@ -2512,8 +2313,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             }
 
-          
-
                   // Get the elements
 
               const featureLinkDialog = document.getElementById('feature-link-dialog');
@@ -2525,8 +2324,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             const dialog = document.getElementById('not-implemented-dialog');
 
             const closeButton = document.getElementById('close-dialog-btn');
-
-    
 
             // Check if dialog and button exist
 
@@ -2542,8 +2339,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                 });
 
-    
-
                 // Add click listener to the close button
 
                 closeButton.addEventListener('click', function() {
@@ -2551,8 +2346,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                     (dialog as HTMLDialogElement).close();
 
                 });
-
-    
 
                 // Optional: Close on backdrop click
 
@@ -2570,10 +2363,5 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-    
-
-    
-
     });
 
-    
