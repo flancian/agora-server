@@ -1868,7 +1868,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                         const loadTimeS = (loadTimeMs / 1000).toFixed(1);
 
-                        showToast(`Agora loaded in ${loadTimeS}s`);
+                        showToast(`Welcome!`);
+                        showToast(`Agora loaded in ${loadTimeS}s.`);
 
                       }
 

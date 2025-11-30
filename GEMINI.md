@@ -70,3 +70,47 @@ The protocol is a set of architectural patterns that enable the Agora's vision:
     *   Cleaned up and improved the headers for the single-subnode view.
     *   Moved the subnode type (e.g., "Text") to the header for better information density.
     *   Fixed multiple styling and layout issues in the templates.
+
+---
+
+## Agora Database Schema (as of 2025-11-30)
+
+*This section provides a summary of the SQLite database schema, outlining table usage, status, and how each table supports the Agora's various views.*
+
+### 1. SQLite Usage Overview
+*   **Engine**: All database logic is centralized in `app/storage/sqlite_engine.py`.
+*   **Connection**: It uses a standard `sqlite3` connection in **WAL (Write-Ahead Log) mode** to handle concurrent reads/writes from multiple web workers.
+*   **Location**: The database file is typically located at `agora.db` (or as configured in `prod.ini` under `sqlalchemy.url`).
+
+### 2. Table Status & Usage
+
+| Table Name | Status | Description & Usage |
+| :--- | :--- | :--- |
+| **`subnodes`** | **Active** | The core index of all user contributions (files). Stores `path`, `user`, `node`, `mtime`. Used heavily by `app/graph.py` and the `worker.py` re-indexer. |
+| **`links`** | **Active** | The graph edges (backlinks). Stores relationships between subnodes and nodes. Critical for the **Node view**. |
+| **`ai_generations`** | **Active** | Caches LLM responses (Mistral/Gemini) to avoid re-generating text. Stores `prompt`, `content`, `full_prompt`. |
+| **`query_cache`** | **Active** | General-purpose cache for expensive operations. **Crucially**, it now stores the **Git-based "Latest Changes" list** to prevent server hangs. |
+| **`graph_cache`** | **Active** | Caches heavy serialized graph objects (like JSON dumps of nodes) to speed up API responses. |
+| **`starred_subnodes`** | **Active** | Stores user stars on specific contributions. |
+| **`starred_nodes`** | **Active** | Stores user stars on general topics. |
+| **`followers`** | **Active** | Stores ActivityPub relationships (who follows whom). |
+| **`federated_subnodes`** | **Active** | Tracks which subnodes have already been pushed to the Fediverse to prevent duplicate posts. |
+| **`git_repo_state`** | **Unused** | **Deprecated.** This was used by the old eager Git scanner. Since we moved to on-demand Git queries (cached in `query_cache`), this table is no longer read or written to. |
+
+### 3. Mapping Tables to Views
+
+*   **Node View** (`/node/<node>`):
+    *   **`links`**: Used to generate the "Backlinks" list (via `get_backlinking_nodes`).
+    *   **`subnodes`**: Indirectly used via the in-memory graph to find which files belong to the node.
+    *   **`starred_*`**: Checks if the current node/subnodes are starred by the user.
+
+*   **Context View** (`/context/<node>`):
+    *   **`ai_generations`**: Fetches cached AI summaries/meditations for the sidebar.
+    *   **`links`**: Used to visualize the local graph neighborhood.
+
+*   **Latest View** (`/latest`):
+    *   **`query_cache`**: The route checks this table for a key like `'latest_per_user_v1'`. If found, it serves the cached JSON. If not, it runs the Git command and saves the result here.
+    *   **`subnodes`**: Used as a fallback or for `mtime` sorting in other feed views (e.g. RSS).
+
+*   **Re-indexing (`worker.py`)**:
+    *   This background script completely drops and rebuilds `subnodes` and `links` from the filesystem to ensure the index is fresh. It does *not* touch the user-data tables (`starred_*`, `followers`).

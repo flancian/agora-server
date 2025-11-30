@@ -235,7 +235,12 @@ def update_subnodes_bulk(subnodes_to_update):
     Updates or inserts a batch of subnodes and their associated links in the index.
     """
     db = get_db()
-    if not db or not subnodes_to_update:
+    if not db:
+        current_app.logger.error("SQLite: Failed to get database connection in update_subnodes_bulk.")
+        return
+        
+    if not subnodes_to_update:
+        current_app.logger.debug("SQLite: No subnodes to update in bulk.")
         return
 
     current_app.logger.info(f"SQLite: Bulk writing data for {len(subnodes_to_update)} subnodes.")
@@ -254,11 +259,14 @@ def update_subnodes_bulk(subnodes_to_update):
 
     try:
         with db:
+            current_app.logger.debug(f"SQLite: Starting transaction for bulk update of {len(subnode_data)} subnodes.")
+            
             # Update subnodes table
             db.executemany(
                 "REPLACE INTO subnodes (path, user, node, mtime) VALUES (?, ?, ?, ?)",
                 subnode_data
             )
+            current_app.logger.debug("SQLite: Executed REPLACE INTO subnodes.")
             
             # Update links table
             # Delete old links for all subnodes in the batch
@@ -267,15 +275,23 @@ def update_subnodes_bulk(subnodes_to_update):
             db.executemany("INSERT INTO paths_to_delete (path) VALUES (?)", [(p,) for p in paths_to_update])
             db.execute("DELETE FROM links WHERE source_path IN (SELECT path FROM paths_to_delete)")
             db.execute("DROP TABLE paths_to_delete")
+            current_app.logger.debug("SQLite: Deleted old links for updated subnodes.")
 
             # Insert new links
             if link_data:
                 db.executemany("INSERT INTO links (source_path, source_node, target_node, type) VALUES (?, ?, ?, ?)", link_data)
+                current_app.logger.debug(f"SQLite: Inserted {len(link_data)} new links.")
+                
+            current_app.logger.info("SQLite: Bulk update transaction committed successfully.")
+
     except sqlite3.OperationalError as e:
         if 'read-only database' in str(e):
+            current_app.logger.warning(f"SQLite: Read-only database error during bulk update: {e}")
             pass
         else:
             current_app.logger.error(f"Database write error during bulk update: {e}")
+    except Exception as e:
+        current_app.logger.error(f"Unexpected error during bulk update: {e}")
 
 
 def get_backlinking_nodes(node_uri):

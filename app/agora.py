@@ -83,6 +83,18 @@ def after_request(response):
             .replace(b"__EXECTIME__", bytes(str(exectime), "utf-8"))
             .replace(b"__NOW__", bytes(str(now.astimezone()), "utf-8"))
         )
+    
+    # Process any subnodes queued for indexing after the request is complete.
+    if current_app.config.get('ENABLE_SQLITE', False) and hasattr(g, 'subnodes_to_index') and g.subnodes_to_index:
+        try:
+            current_app.logger.info(f"SQLite: Processing {len(g.subnodes_to_index)} subnodes for bulk update.")
+            sqlite_engine.update_subnodes_bulk(g.subnodes_to_index)
+        except Exception as e:
+            current_app.logger.error(f"SQLite: Error during bulk update in after_request: {e}")
+        finally:
+            # Clear the list after processing to prevent duplicate inserts on subsequent requests in the same app context
+            g.subnodes_to_index = []
+
     return response
 
 
