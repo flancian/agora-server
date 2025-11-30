@@ -76,8 +76,12 @@ def subnode_by_uri(uri):
     return file_engine.subnode_by_uri(uri)
 
 def random_node():
-    # For now, this remains file-based.
-    # Caching this would require a different strategy.
+    if _is_sqlite_enabled():
+        wikilink = sqlite_engine.get_random_node()
+        if wikilink:
+            # We return a lightweight Node object.
+            # Properties will be lazy-loaded if accessed.
+            return NodeClass(wikilink)
     return file_engine.random_node()
 
 def all_journals():

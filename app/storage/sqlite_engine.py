@@ -14,7 +14,19 @@
 
 import os
 import sqlite3
+import re
 from flask import current_app, g
+
+def regexp(expr, item):
+    """
+    Custom SQLite REGEXP function using Python's re module.
+    """
+    try:
+        reg = re.compile(expr, re.IGNORECASE)
+        return reg.search(item) is not None
+    except Exception as e:
+        # Log invalid regex errors but don't crash the query
+        return False
 
 def get_db():
     """
@@ -47,6 +59,8 @@ def get_db():
         try:
             conn = sqlite3.connect(f"file:{db_path}?mode=rwc", uri=True)
             conn.execute("PRAGMA journal_mode=WAL;")
+            # Register the REGEXP function
+            conn.create_function("REGEXP", 2, regexp)
             create_tables(conn)
             g.sqlite_db = conn
         except sqlite3.OperationalError as e:
@@ -58,6 +72,7 @@ def get_db():
                 if os.path.exists(db_path):
                     try:
                         g.sqlite_db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+                        g.sqlite_db.create_function("REGEXP", 2, regexp)
                     except sqlite3.OperationalError as ro_e:
                         current_app.logger.error(f"Could not open database in read-only mode: {ro_e}")
                         g.sqlite_db = None
@@ -294,6 +309,25 @@ def update_subnodes_bulk(subnodes_to_update):
         current_app.logger.error(f"Unexpected error during bulk update: {e}")
 
 
+def search_nodes_by_regex(regex):
+    """
+    Searches for nodes whose wikilink matches the given regex.
+    Returns a list of unique node wikilinks.
+    """
+    db = get_db()
+    if not db:
+        return []
+
+    cursor = db.cursor()
+    # We select DISTINCT node to avoid duplicates if multiple subnodes belong to the same node.
+    # The REGEXP operator works because we registered the python function in get_db.
+    try:
+        cursor.execute("SELECT DISTINCT node FROM subnodes WHERE node REGEXP ?", (regex,))
+        return [row[0] for row in cursor.fetchall()]
+    except sqlite3.OperationalError as e:
+        current_app.logger.error(f"SQLite regex search error: {e}")
+        return []
+
 def get_backlinking_nodes(node_uri):
     """
     Retrieves all unique source_node URIs that link to a given node.
@@ -308,6 +342,40 @@ def get_backlinking_nodes(node_uri):
     # We select the source_node directly and use DISTINCT to avoid duplicates.
     cursor.execute("SELECT DISTINCT source_node FROM links WHERE target_node = ?", (node_uri,))
     return [row[0] for row in cursor.fetchall()]
+
+def get_random_node():
+    """
+    Retrieves a single random node wikilink from the index.
+    Returns a string (wikilink) or None.
+    """
+    db = get_db()
+    if not db:
+        return None
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT node FROM subnodes ORDER BY RANDOM() LIMIT 1")
+    result = cursor.fetchone()
+    return result[0] if result else None
+
+def get_subnodes_by_node(node_uri):
+    """
+    Retrieves all subnodes associated with a specific node.
+    Returns a list of dicts: {'path': ..., 'user': ..., 'mtime': ...}
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT path, user, mtime FROM subnodes WHERE node = ?", (node_uri,))
+    results = []
+    for row in cursor.fetchall():
+        results.append({
+            'path': row[0],
+            'user': row[1],
+            'mtime': row[2]
+        })
+    return results
 
 def get_ai_generation(prompt, provider):
     """

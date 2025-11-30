@@ -160,7 +160,52 @@ class Graph:
     @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def node(self, uri: str) -> 'Node':
         # looks up a node by uri (essentially [[wikilink]]).
-        # this used to be even worse :)
+        
+        # Optimization: When SQLite is enabled, build the node on-demand
+        # without loading the entire graph into memory.
+        if _is_sqlite_enabled():
+            # Create a fresh node object
+            n = Node(uri)
+            
+            # Fetch its subnodes from the database
+            subnode_data = sqlite_engine.get_subnodes_by_node(uri)
+            
+            # Convert to Subnode objects
+            # We assume mediatype can be inferred from extension or defaults to text/plain
+            # Re-using the logic from subnodes() loop or Subnode constructor would be ideal,
+            # but for now we'll rely on Subnode's internal logic.
+            subnodes = []
+            agora_path = current_app.config["AGORA_PATH"]
+            for s_data in subnode_data:
+                # Reconstruct the absolute path from the stored URI (relative path)
+                absolute_path = os.path.join(agora_path, s_data['path'])
+
+                # We need to determine mediatype. For now, let's default to text/plain
+                # as the Subnode constructor will handle image extensions if passed the path.
+                # Ideally, we should store mediatype in the DB to avoid re-guessing.
+                mediatype = "text/plain" # Default
+                if absolute_path.endswith((".jpg", ".jpeg")):
+                    mediatype = "image/jpg"
+                elif absolute_path.endswith(".png"):
+                    mediatype = "image/png"
+                elif absolute_path.endswith(".gif"):
+                    mediatype = "image/gif"
+                elif absolute_path.endswith(".webp"):
+                    mediatype = "image/webp"
+                elif absolute_path.endswith(".py"):
+                    mediatype = "text/x-python"
+
+                # Pass the absolute path to the Subnode constructor
+                s = Subnode(absolute_path, mediatype, mtime_override=s_data['mtime'])
+                subnodes.append(s)
+
+                if absolute_path.endswith(".py"):
+                    n.executable_subnodes.append(ExecutableSubnode(absolute_path))
+            
+            n.subnodes = subnodes
+            return n
+
+        # Fallback: Load the full graph (slow)
         try:
             node = self.nodes()[uri.lower()]
             return node
@@ -189,6 +234,15 @@ class Graph:
     def match(self, regex):
         # returns a list of nodes reasonably matching a regex.
         current_app.logger.debug(f"*** Looking for nodes matching {regex}.")
+        
+        if _is_sqlite_enabled():
+            # Fast path: use SQLite REGEXP operator
+            node_wikilinks = sqlite_engine.search_nodes_by_regex(regex)
+            if node_wikilinks:
+                nodes = [self.node(wikilink) for wikilink in node_wikilinks]
+                # Filter out nodes with no subnodes, similar to the original logic
+                return [n for n in nodes if n.subnodes]
+
         nodes = [
             node
             for node in G.nodes(only_canonical=True).values()
@@ -204,6 +258,15 @@ class Graph:
     def search(self, regex):
         # returns a list of nodes reasonably freely matching a regex.
         current_app.logger.debug(f"*** Looking for nodes matching {regex} freely.")
+        
+        if _is_sqlite_enabled():
+            # Fast path: use SQLite REGEXP operator
+            node_wikilinks = sqlite_engine.search_nodes_by_regex(regex)
+            if node_wikilinks:
+                nodes = [self.node(wikilink) for wikilink in node_wikilinks]
+                # Filter out nodes with no subnodes
+                return [n for n in nodes if n.subnodes]
+
         nodes = [
             node
             for node in G.nodes(only_canonical=True).values()
@@ -626,13 +689,17 @@ class Node:
             # sometimes node names might contain invalid regexes.
             pass
 
-        l.extend(
-            [
-                node for node in G.search('.*') 
-                if fuzz.ratio(node.uri, self.uri) > FUZZ_FACTOR_RELATED 
-                and node.uri != self.uri
-            ]
-        )
+        # The following fuzzy search is too expensive if it loads the full graph for every comparison.
+        # Re-enable or re-implement with an efficient, SQL-native fuzzy matching (if possible) or a pre-cached URI list.
+        # For now, we disable it when SQLite is enabled to avoid loading the full graph.
+        if not _is_sqlite_enabled():
+            l.extend(
+                [
+                    node for node in G.search('.*') 
+                    if fuzz.ratio(node.uri, self.uri) > FUZZ_FACTOR_RELATED 
+                    and node.uri != self.uri
+                ]
+            )
 
         return sorted(set(l), key=lambda x: x.uri)
 
@@ -1496,23 +1563,6 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
                 else:
                     current_app.logger.warning(f"Auto-pull for [[{node}]] failed: Template '{template}' is not in the expected 'node/argument' format.")
 
-    # Prepend virtual subnodes to the main list so they appear at the top.
-    n.subnodes = virtual_subnodes + n.subnodes
-
-    # Auto pulls based on regex matching.
-    virtual_subnodes = []
-    for rule in current_app.config.get('AUTO_PULLS', []):
-        if re.match(rule['pattern'], node):
-            for template in rule['templates']:
-                target_node_name = template.format(node=node)
-                target_node = G.node(target_node_name)
-                if target_node and target_node.executable_subnodes:
-                    # Again, assuming the first executable subnode is the one we want.
-                    script_subnode = target_node.executable_subnodes[0]
-                    output = script_subnode.render(argument=node)
-                    vs = VirtualSubnode(source_subnode=script_subnode, target_node=n, block=output)
-                    virtual_subnodes.append(vs)
-    
     # Prepend virtual subnodes to the main list so they appear at the top.
     n.subnodes = virtual_subnodes + n.subnodes
 
