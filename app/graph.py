@@ -983,8 +983,13 @@ class Subnode:
             )
 
     def load_image_subnode(self):
-        with open(self.path, "rb") as f:
-            self.content = f.read()
+        try:
+            with open(self.path, "rb") as f:
+                self.content = f.read()
+                self.forward_links = []
+        except (FileNotFoundError, OSError):
+            current_app.logger.warning(f"Could not read image file: {self.path}")
+            self.content = b""
             self.forward_links = []
 
     def load_user_config(self):
