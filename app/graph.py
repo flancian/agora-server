@@ -161,9 +161,9 @@ class Graph:
     def node(self, uri: str) -> 'Node':
         # looks up a node by uri (essentially [[wikilink]]).
         
-        # Optimization: When SQLite is enabled, build the node on-demand
+        # Optimization: When SQLite AND Lazy Load are enabled, build the node on-demand
         # without loading the entire graph into memory.
-        if _is_sqlite_enabled():
+        if _is_sqlite_enabled() and current_app.config.get('ENABLE_LAZY_LOAD', False):
             # Create a fresh node object
             n = Node(uri)
             
@@ -235,7 +235,7 @@ class Graph:
         # returns a list of nodes reasonably matching a regex.
         current_app.logger.debug(f"*** Looking for nodes matching {regex}.")
         
-        if _is_sqlite_enabled():
+        if _is_sqlite_enabled() and current_app.config.get('ENABLE_LAZY_LOAD', False):
             # Fast path: use SQLite REGEXP operator
             node_wikilinks = sqlite_engine.search_nodes_by_regex(regex)
             if node_wikilinks:
@@ -259,7 +259,7 @@ class Graph:
         # returns a list of nodes reasonably freely matching a regex.
         current_app.logger.debug(f"*** Looking for nodes matching {regex} freely.")
         
-        if _is_sqlite_enabled():
+        if _is_sqlite_enabled() and current_app.config.get('ENABLE_LAZY_LOAD', False):
             # Fast path: use SQLite REGEXP operator
             node_wikilinks = sqlite_engine.search_nodes_by_regex(regex)
             if node_wikilinks:
@@ -692,7 +692,7 @@ class Node:
         # The following fuzzy search is too expensive if it loads the full graph for every comparison.
         # Re-enable or re-implement with an efficient, SQL-native fuzzy matching (if possible) or a pre-cached URI list.
         # For now, we disable it when SQLite is enabled to avoid loading the full graph.
-        if not _is_sqlite_enabled():
+        if not current_app.config.get('ENABLE_LAZY_LOAD', False):
             l.extend(
                 [
                     node for node in G.search('.*') 

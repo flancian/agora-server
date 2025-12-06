@@ -139,6 +139,9 @@ class DefaultConfig(object):
     ENABLE_SQLITE = False
     ENABLE_AGORA_PROTOCOL = False
     ENABLE_FLUSH_CACHE_BUTTON = False
+    # If True, G.node(uri) fetches from DB on demand (low RAM, high latency).
+    # If False, G.nodes() loads full graph into RAM at startup (high RAM, zero latency).
+    ENABLE_LAZY_LOAD = False
 
     # ActivityPub settings
     ACTIVITYPUB_SEND_WELCOME_PACKAGE = True

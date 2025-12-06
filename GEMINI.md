@@ -109,7 +109,58 @@ The protocol is a set of architectural patterns that enable the Agora's vision:
 
 ---
 
-## Agora Database Schema (as of 2025-11-30)
+## Session Summary (Gemini, 2025-12-05/06)
+
+*This session addressed critical performance regressions and clarified the caching architecture.*
+
+### Key Learnings & Codebase Insights
+
+-   **Cache Stampede in Production**: We identified a severe performance bottleneck (`15-30s` server restarts) caused by `uWSGI` workers (`lazy-apps = true`) simultaneously deserializing the entire `graph_cache` blob from SQLite into memory. This was due to the cache warming logic in `app/__init__.py` running in every worker process.
+-   **Filesystem I/O vs. Deserialization**: The "lazy loading" approach, while reducing RAM, introduced significant per-request I/O latency by re-reading subnode content from disk for every graph traversal, leading to slower complex node renders (e.g., `[[post scarcity]]`). The previous "monolithic" approach, though RAM-intensive, offered near-zero-latency access once the graph was in memory.
+-   **Reversion to Monolithic (Default)**: To prioritize production stability and performance, we decided to revert to the monolithic (full in-memory graph) loading strategy by default.
+-   **Feature Flag for Lazy Loading**: The "lazy loading" optimization was preserved behind a new `ENABLE_LAZY_LOAD` configuration flag, allowing future re-evaluation or gradual adoption.
+
+### Summary of Changes Implemented
+
+1.  **Reverted `prod.ini`**: Set `lazy-apps = true` back to ensure graceful worker reloading.
+2.  **Reverted `app/__init__.py` Cache Warming**: Restored the `uwsgi.worker_id() > 0` check, making cache warming run in each worker post-fork (as per the existing graceful reload strategy).
+3.  **Introduced `ENABLE_LAZY_LOAD`**: Added `ENABLE_LAZY_LOAD = False` to `app/config.py` as a default. This flag now gates the lazy-loading logic.
+4.  **Gated Lazy Logic**: Modified `G.node`, `G.match`, and `G.search` in `app/graph.py` to only use the SQLite-based lazy-loading paths if `ENABLE_LAZY_LOAD` is explicitly `True`. By default, they now revert to using the full in-memory graph (`G.nodes()`).
+5.  **Restored Fuzzy Search**: Re-enabled the `fuzz.ratio` based fuzzy search in `Node.related()` when `ENABLE_LAZY_LOAD` is `False`, as it operates on the in-memory graph.
+6.  **Fixed Executable Subnodes**: Corrected the logic in `G.node` to properly populate `executable_subnodes` when loading from SQLite (this fix remains, though currently behind the `ENABLE_LAZY_LOAD` flag).
+
+---
+
+## Agora Caching Architecture (as of 2025-12-06)
+
+*This section clarifies the purpose and contents of different cache layers in the Agora.*
+
+### 1. In-Memory Cache (Python `G` object & `cachetools`)
+
+This cache operates within each running Python worker process and provides the fastest data access, as it relies on direct memory lookups. It is cleared on application restarts or worker reloads.
+
+-   **Monolithic Graph (`ENABLE_LAZY_LOAD = False` - Default/Production):
+    -   **What**: Stores the entire graph. This includes all `Node` objects, `Subnode` objects, and crucially, the **full text content** (`Subnode.content`) of all markdown/org-mode/myco files, as well as pre-parsed `forward_links` for all subnodes.
+    -   **How**: During application startup (or the first request to each worker in `lazy-apps = true` mode), `G.nodes()` and `G.subnodes()` (which call `_get_all_nodes_cached`) either deserialize the `graph_cache` blob from SQLite or perform a full filesystem scan. The resulting Python objects are then stored in `cachetools` LRU caches within the `G` object.
+    -   **Impact**: High RAM usage, but subsequent access to any node or subnode property/content is near-instant, as no disk I/O or further parsing is typically needed.
+
+-   **Lazy-Loaded Graph (`ENABLE_LAZY_LOAD = True` - Experimental):
+    -   **What**: Stores individual `Node` and `Subnode` objects as they are accessed. `Subnode.content` is still read from disk upon each `Subnode`'s initialization if not already in memory/cache. The `G.node` method also caches individual `Node` objects.
+    -   **How**: `G.node(uri)` queries the SQLite `subnodes` table for metadata (paths, mtimes) and then reads the actual file content from disk to populate `Subnode.content`. The `G.node` cache (`cachetools.ttl_cache`) stores the resulting `Node` objects.
+    -   **Impact**: Lower peak RAM usage (doesn't load all content upfront), but can incur significant disk I/O latency for complex views that traverse many nodes or access their content if cache misses occur frequently.
+
+### 2. SQLite Cache (`agora.db`)
+
+This cache is persistent on disk and shared across all worker processes. It stores both structured relational data (for indexing and quick lookups) and serialized data blobs (for faster in-memory cache warming).
+
+-   **`subnodes` table**: The primary relational index of all user contributions. Stores `path` (relative URI), `user`, `node` (wikilink), `mtime`. Used by the lazy-loading `G.node` path and by `worker.py`.
+-   **`links` table**: The relational index of all parsed wikilinks. Stores `source_path`, `source_node`, `target_node`, `type`. Used for fast backlink retrieval.
+-   **`graph_cache` table**: Stores two large JSON blobs:
+    -   `all_nodes_v2`: Serialized data for all `Node` objects (metadata only, not content).
+    -   `all_subnodes_v2`: Serialized data for all `Subnode` objects (metadata, including file paths and mediatypes, but not content). *This is the direct source for warming the **Monolithic In-Memory Graph** on startup, offering faster startup than a full filesystem scan.*.
+-   **`query_cache` table**: General-purpose key-value store for results of expensive, non-graph-related queries (e.g., `/latest` changes).
+-   **`ai_generations` table**: Caches AI-generated responses (prompt, content, full_prompt).
+-   **Other tables**: `starred_nodes`, `starred_subnodes`, `followers`, `federated_subnodes` (store user preferences and federation state).
 
 *This section provides a summary of the SQLite database schema, outlining table usage, status, and how each table supports the Agora's various views.*
 

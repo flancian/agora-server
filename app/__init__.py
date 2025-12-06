@@ -81,7 +81,7 @@ def create_app():
         import time
 
         # This check ensures this code only runs in the worker processes, not the master.
-        # uwsgi.worker_id() will raise an exception if not running under a uWSGI worker.
+        # uwsgi.worker_id() will raise an an exception if not running under a uWSGI worker.
         if uwsgi.worker_id() > 0:
             # We must create an application context to use current_app and other globals.
             with app.app_context():
