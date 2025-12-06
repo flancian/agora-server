@@ -945,9 +945,11 @@ class Subnode:
     def get_display_mtime(self):
         """
         Returns the most accurate modification time for display.
-        This is called at render time to avoid slow git lookups during startup.
+        Now directly returns the cached mtime (filesystem or override) for performance.
+        # The original implementation called git_utils.get_mtime(self.path),
+        # which was removed due to significant performance overhead (subprocess calls).
         """
-        return git_utils.get_mtime(self.path)
+        return (self.mtime, 'fs')
 
     def __repr__(self):
         return f"<Subnode: {self.uri} ({self.mediatype})>"
