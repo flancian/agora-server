@@ -142,6 +142,7 @@ class DefaultConfig(object):
     # If True, G.node(uri) fetches from DB on demand (low RAM, high latency).
     # If False, G.nodes() loads full graph into RAM at startup (high RAM, zero latency).
     ENABLE_LAZY_LOAD = False
+    USE_GIT_MTIME = False
 
     # ActivityPub settings
     ACTIVITYPUB_SEND_WELCOME_PACKAGE = True

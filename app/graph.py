@@ -945,10 +945,11 @@ class Subnode:
     def get_display_mtime(self):
         """
         Returns the most accurate modification time for display.
-        Now directly returns the cached mtime (filesystem or override) for performance.
-        # The original implementation called git_utils.get_mtime(self.path),
-        # which was removed due to significant performance overhead (subprocess calls).
+        If USE_GIT_MTIME is enabled, it fetches the commit time (slow).
+        Otherwise, it returns the cached filesystem mtime (fast).
         """
+        if current_app.config.get('USE_GIT_MTIME', False):
+            return git_utils.get_mtime(self.path)
         return (self.mtime, 'fs')
 
     def __repr__(self):

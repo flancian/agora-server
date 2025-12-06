@@ -16,20 +16,13 @@ import os
 import pygit2
 import cachetools.func
 import time
+import subprocess
 from flask import current_app
 from . import util
 
 # Cache up to 1024 file paths for 5 minutes. This is a critical optimization
-# to prevent re-walking the git history for the same file multiple times in a request.
-import os
-import subprocess
-import cachetools.func
-import time
-from flask import current_app
-
-# Cache up to 1024 file paths for 5 minutes. This is a critical optimization
 # to prevent re-running the git command for the same file multiple times in a request.
-@cachetools.func.ttl_cache(maxsize=1024, ttl=300)
+@cachetools.func.ttl_cache(maxsize=100000, ttl=3600)
 def get_mtime(file_path: str) -> (int, str):
     """
     Gets the most accurate modification time for a file by shelling out to git.
