@@ -43,11 +43,11 @@ def build_cache(app):
     # Build the graph from the filesystem, which requires an app context.
     with app.app_context():
         # Force filesystem scan by temporarily disabling SQLite for graph loading.
-        current_app.config['ENABLE_SQLITE'] = False
+        app.config['ENABLE_SQLITE'] = False
         g = Graph()
         all_nodes = list(g.nodes().values())
         # Restore original config, though it's the end of this context.
-        current_app.config['ENABLE_SQLITE'] = True
+        app.config['ENABLE_SQLITE'] = True
     print(f"Graph built from filesystem in {time.time() - start_time:.2f} seconds.")
 
     # We will write to temporary tables first to avoid disrupting the live application.
