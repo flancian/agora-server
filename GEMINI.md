@@ -73,6 +73,42 @@ The protocol is a set of architectural patterns that enable the Agora's vision:
 
 ---
 
+## Session Summary (Gemini, 2025-11-30)
+
+*This section documents a comprehensive optimization session focused on SQLite integration, graph performance, and robustness.*
+
+### Key Learnings & Codebase Insights
+
+-   **The "Full Graph Load" Bottleneck**: We diagnosed that the application was deserializing the entire graph (47k+ nodes) from SQLite into memory for *every* request that triggered a fuzzy search (`G.match`) or node lookup (`G.node`), causing 5-9s delays.
+-   **SQLite as a Relational DB**: We shifted from treating SQLite as a key-value blob store to using its relational capabilities.
+    -   Implemented **Lazy Loading**: `G.node(uri)` now fetches only the specific node's subnodes from the `subnodes` table, making node instantiation instant (`0.00s`).
+    -   Implemented **SQL Regex**: Added a custom `REGEXP` function to SQLite and updated `G.match`/`G.search` to filter nodes at the database level, avoiding the need to load all nodes into Python.
+-   **Path Handling**: Discovered a critical issue where relative paths stored in SQLite caused `FileNotFoundError` when `Subnode` tried to open them. We fixed this by reconstructing absolute paths using `AGORA_PATH`.
+-   **Executable Subnodes**: Fixed a regression where `.py` scripts were not being added to `node.executable_subnodes` during the new lazy-load process.
+-   **"Ghost Files"**: Identified that the incremental update logic (`update_subnodes_bulk`) does not remove deleted files, leading to errors. A full re-index (via `worker.py`) is required to clean up.
+
+### Summary of Changes Implemented
+
+1.  **Optimized `G.node`**: Now uses `sqlite_engine.get_subnodes_by_node` to load data on-demand.
+2.  **Optimized Regex Search**: Implemented `sqlite_engine.search_nodes_by_regex` and updated `app/graph.py` to use it.
+3.  **Restored Executable Subnodes**: Updated `G.node` to correctly populate `executable_subnodes`.
+4.  **Robust File Loading**: Added `try...except FileNotFoundError` to `load_image_subnode` to prevent 500 errors on missing assets.
+5.  **Database Scripts**:
+    -   Created `scripts/reset_db.sh`: safely clears cache tables (`subnodes`, `links`, `query_cache`, `graph_cache`) while preserving user data.
+    -   Created `scripts/worker.py`: A local copy of the re-indexing worker for manual or cron execution.
+6.  **Performance Wins**:
+    -   Node assembly time reduced to **0.00s**.
+    -   Backlink retrieval time is negligible.
+    -   `/random` is now instant.
+    -   Disabled expensive Python-side fuzzy matching (`fuzz.ratio`) when SQLite is enabled to prevent graph explosion.
+
+### Production Recommendations
+
+-   **Deploy Hook**: Run `scripts/reset_db.sh` or `scripts/worker.py` after deployment to ensure the SQLite index matches the current filesystem and `AGORA_PATH`.
+-   **Periodic Re-indexing**: Schedule `scripts/worker.py` to run periodically (e.g., nightly) to clean up deleted files ("ghosts") from the index.
+
+---
+
 ## Agora Database Schema (as of 2025-11-30)
 
 *This section provides a summary of the SQLite database schema, outlining table usage, status, and how each table supports the Agora's various views.*

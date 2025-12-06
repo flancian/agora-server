@@ -85,15 +85,15 @@ def after_request(response):
         )
     
     # Process any subnodes queued for indexing after the request is complete.
-    if current_app.config.get('ENABLE_SQLITE', False) and hasattr(g, 'subnodes_to_index') and g.subnodes_to_index:
-        try:
-            current_app.logger.info(f"SQLite: Processing {len(g.subnodes_to_index)} subnodes for bulk update.")
-            sqlite_engine.update_subnodes_bulk(g.subnodes_to_index)
-        except Exception as e:
-            current_app.logger.error(f"SQLite: Error during bulk update in after_request: {e}")
-        finally:
-            # Clear the list after processing to prevent duplicate inserts on subsequent requests in the same app context
-            g.subnodes_to_index = []
+    # This has been disabled, as the worker is now responsible for populating the index.
+    # if current_app.config.get('ENABLE_SQLITE', False) and hasattr(g, 'subnodes_to_index') and g.subnodes_to_index:
+    #     try:
+    #         current_app.logger.info(f"SQLite: Processing {len(g.subnodes_to_index)} subnodes for bulk update.")
+    #         sqlite_engine.update_subnodes_bulk(g.subnodes_to_index)
+    #     except Exception as e:
+    #         current_app.logger.error(f"SQLite: Error during bulk update in after_request: {e}")
+    #     finally:
+    #         g.subnodes_to_index = []
 
     return response
 
