@@ -170,7 +170,7 @@ def create_app():
             # We must create an application context to use current_app and other globals.
             with app.app_context():
                 # Only warm the cache if lazy loading is NOT enabled.
-                if not current_app.config.get('ENABLE_LAZY_LOAD', False):
+                if not app.config.get('ENABLE_LAZY_LOAD', False):
                     app.logger.info(f"Worker {uwsgi.worker_id()} starting cache warmup...")
                     start_time = time.time()
                     G.nodes()
