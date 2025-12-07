@@ -15,6 +15,9 @@
 import bleach
 import logging
 import os
+import sys
+import subprocess
+import time
 from flask import Flask
 from flask_compress import Compress
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -25,6 +28,76 @@ from flask_cors import CORS
 
 # Import the new blueprint
 from app.exec import web
+
+def ensure_db_populated(app, sqlite_engine):
+    # Auto-index if DB is empty and Lazy Load is on.
+    # We skip this if we are running as the worker itself (AGORA_WORKER=true).
+    if app.config.get('ENABLE_LAZY_LOAD', False) and not os.environ.get('AGORA_WORKER'):
+         # Use a simple in-memory cache to avoid hitting the DB count on every request
+        now = time.time()
+        # Check at most once every 60 seconds
+        if hasattr(app, 'last_db_check') and (now - app.last_db_check < 60):
+            return
+
+        # Check if DB is empty
+        if sqlite_engine.get_subnode_count() == 0:
+            app.logger.warning("Runtime Check: SQLite index is empty. Attempting to acquire lock for indexing...")
+            
+            # Simple PID-based worker ID
+            worker_id = str(os.getpid())
+            
+            if sqlite_engine.try_acquire_lock(worker_id):
+                try:
+                    app.logger.info("Lock acquired. Starting worker subprocess to build index...")
+                    start_time = time.time()
+                    
+                    # Prepare environment for the subprocess to prevent recursion
+                    env = os.environ.copy()
+                    env['AGORA_WORKER'] = 'true'
+                    
+                    # Determine path to worker script
+                    # Assuming app/__init__.py is in app/, so we go up one level and into scripts/
+                    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                    worker_script = os.path.join(base_path, 'scripts', 'worker.py')
+                    
+                    # Run the worker synchronously using 'uv run'
+                    result = subprocess.run(
+                        ['uv', 'run', worker_script],
+                        cwd=base_path,
+                        env=env,
+                        capture_output=True,
+                        text=True
+                    )
+                    
+                    if result.returncode == 0:
+                        duration = time.time() - start_time
+                        app.logger.info(f"Worker finished successfully in {duration:.2f}s.")
+                        # app.logger.debug(f"Worker Output:\n{result.stdout}")
+                    else:
+                        app.logger.error(f"Worker failed with return code {result.returncode}.")
+                        app.logger.error(f"Worker Stderr:\n{result.stderr}")
+                        
+                except Exception as e:
+                    app.logger.error(f"Failed to spawn worker: {e}")
+                finally:
+                    sqlite_engine.release_lock(worker_id)
+            else:
+                app.logger.info("Could not acquire lock. Another worker is indexing. Waiting...")
+                # Wait loop
+                attempts = 0
+                while sqlite_engine.is_locked() and attempts < 60:
+                    time.sleep(1)
+                    attempts += 1
+                    if attempts % 5 == 0:
+                        app.logger.info(f"Still waiting for index build ({attempts}s)...")
+                
+                if attempts >= 60:
+                    app.logger.warning("Timed out waiting for index build. Proceeding with potentially empty DB.")
+                else:
+                    app.logger.info("Index build finished (lock released). Proceeding.")
+        
+        # Update last check time
+        app.last_db_check = now
 
 
 def create_app():
@@ -73,6 +146,17 @@ def create_app():
     from .storage import sqlite_engine
     app.teardown_appcontext(sqlite_engine.close_db)
 
+    # Run check once on startup
+    with app.app_context():
+        ensure_db_populated(app, sqlite_engine)
+
+    # Register before_request to run the check periodically
+    @app.before_request
+    def before_request_check():
+        ensure_db_populated(app, sqlite_engine)
+
+
+
     # uWSGI-specific blocking cache warming.
     # This runs in each worker after it has been forked, but before it can accept requests.
     try:
@@ -85,12 +169,16 @@ def create_app():
         if uwsgi.worker_id() > 0:
             # We must create an application context to use current_app and other globals.
             with app.app_context():
-                app.logger.info(f"Worker {uwsgi.worker_id()} starting cache warmup...")
-                start_time = time.time()
-                G.nodes()
-                G.subnodes()
-                duration = time.time() - start_time
-                app.logger.info(f"Worker {uwsgi.worker_id()} cache warmup complete in {duration:.2f}s.")
+                # Only warm the cache if lazy loading is NOT enabled.
+                if not current_app.config.get('ENABLE_LAZY_LOAD', False):
+                    app.logger.info(f"Worker {uwsgi.worker_id()} starting cache warmup...")
+                    start_time = time.time()
+                    G.nodes()
+                    G.subnodes()
+                    duration = time.time() - start_time
+                    app.logger.info(f"Worker {uwsgi.worker_id()} cache warmup complete in {duration:.2f}s.")
+                else:
+                    app.logger.info(f"Worker {uwsgi.worker_id()}: Lazy loading enabled, skipping cache warmup.")
 
     except (ImportError, AttributeError):
         # This will fail if not running under uWSGI, which is fine for dev.

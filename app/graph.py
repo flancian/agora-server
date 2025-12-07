@@ -164,6 +164,7 @@ class Graph:
         # Optimization: When SQLite AND Lazy Load are enabled, build the node on-demand
         # without loading the entire graph into memory.
         if _is_sqlite_enabled() and current_app.config.get('ENABLE_LAZY_LOAD', False):
+            current_app.logger.debug(f"LAZY LOAD (sqlite): Fetching node [[{uri}]] on-demand.")
             # Create a fresh node object
             n = Node(uri)
             
@@ -206,6 +207,7 @@ class Graph:
             return n
 
         # Fallback: Load the full graph (slow)
+        current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Fetching node [[{uri}]] from full graph.")
         try:
             node = self.nodes()[uri.lower()]
             return node
@@ -238,11 +240,11 @@ class Graph:
         if _is_sqlite_enabled() and current_app.config.get('ENABLE_LAZY_LOAD', False):
             # Fast path: use SQLite REGEXP operator
             node_wikilinks = sqlite_engine.search_nodes_by_regex(regex)
-            if node_wikilinks:
-                nodes = [self.node(wikilink) for wikilink in node_wikilinks]
-                # Filter out nodes with no subnodes, similar to the original logic
-                return [n for n in nodes if n.subnodes]
+            nodes = [self.node(wikilink) for wikilink in node_wikilinks]
+            # Filter out nodes with no subnodes, similar to the original logic
+            return [n for n in nodes if n.subnodes]
 
+        # Fallback to full graph load if lazy loading is not enabled or SQLite is not.
         nodes = [
             node
             for node in G.nodes(only_canonical=True).values()
@@ -262,11 +264,11 @@ class Graph:
         if _is_sqlite_enabled() and current_app.config.get('ENABLE_LAZY_LOAD', False):
             # Fast path: use SQLite REGEXP operator
             node_wikilinks = sqlite_engine.search_nodes_by_regex(regex)
-            if node_wikilinks:
-                nodes = [self.node(wikilink) for wikilink in node_wikilinks]
-                # Filter out nodes with no subnodes
-                return [n for n in nodes if n.subnodes]
+            nodes = [self.node(wikilink) for wikilink in node_wikilinks]
+            # Filter out nodes with no subnodes
+            return [n for n in nodes if n.subnodes]
 
+        # Fallback to full graph load if lazy loading is not enabled or SQLite is not.
         nodes = [
             node
             for node in G.nodes(only_canonical=True).values()

@@ -162,6 +162,13 @@ def create_tables(db):
                 CREATE TABLE IF NOT EXISTS federated_subnodes (
                     subnode_uri TEXT PRIMARY KEY
                 );
+            """,
+            'maintenance_lock': """
+                CREATE TABLE IF NOT EXISTS maintenance_lock (
+                    id INTEGER PRIMARY KEY CHECK (id = 1),
+                    worker_id TEXT,
+                    timestamp INTEGER
+                );
             """
         }
         # Check all tables in the schema.
@@ -188,6 +195,94 @@ def create_tables(db):
         except sqlite3.OperationalError:
             # This will fail if the column already exists, which is fine.
             pass
+
+def get_subnode_count():
+    """
+    Returns the number of rows in the subnodes table.
+    Returns 0 if table doesn't exist or error.
+    """
+    db = get_db()
+    if not db:
+        return 0
+    try:
+        cursor = db.execute("SELECT COUNT(*) FROM subnodes")
+        return cursor.fetchone()[0]
+    except sqlite3.OperationalError:
+        return 0
+
+import time
+
+def try_acquire_lock(worker_id, ttl_seconds=60):
+    """
+    Attempts to acquire the maintenance lock.
+    Returns True if acquired, False otherwise.
+    Auto-expires lock if older than ttl_seconds.
+    """
+    db = get_db()
+    if not db:
+        return False
+    
+    now = int(time.time())
+    
+    try:
+        with db:
+            # Check existing lock
+            cursor = db.execute("SELECT worker_id, timestamp FROM maintenance_lock WHERE id = 1")
+            row = cursor.fetchone()
+            
+            if row:
+                existing_worker, timestamp = row
+                if now - timestamp < ttl_seconds:
+                    # Lock is held and valid
+                    if existing_worker == worker_id:
+                        # We already hold it, refresh timestamp
+                        db.execute("UPDATE maintenance_lock SET timestamp = ? WHERE id = 1", (now,))
+                        return True
+                    return False
+                else:
+                    # Lock expired, steal it
+                    current_app.logger.warning(f"Stealing expired lock from {existing_worker}")
+            
+            # Acquire lock (Insert or Replace)
+            db.execute("REPLACE INTO maintenance_lock (id, worker_id, timestamp) VALUES (1, ?, ?)", (worker_id, now))
+            return True
+            
+    except sqlite3.OperationalError as e:
+        current_app.logger.error(f"Lock error: {e}")
+        return False
+
+def release_lock(worker_id):
+    """
+    Releases the lock if held by this worker.
+    """
+    db = get_db()
+    if not db:
+        return
+
+    try:
+        with db:
+            db.execute("DELETE FROM maintenance_lock WHERE id = 1 AND worker_id = ?", (worker_id,))
+    except sqlite3.OperationalError:
+        pass
+
+def is_locked():
+    """
+    Returns True if the lock is currently held and valid.
+    """
+    db = get_db()
+    if not db:
+        return False
+    
+    try:
+        cursor = db.execute("SELECT timestamp FROM maintenance_lock WHERE id = 1")
+        row = cursor.fetchone()
+        if row:
+            # We could check TTL here too, but simple existence is a good enough check for waiters
+            return True
+        return False
+    except sqlite3.OperationalError:
+        return False
+
 
 def get_all_git_mtimes():
     """
