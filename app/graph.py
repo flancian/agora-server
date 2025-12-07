@@ -327,6 +327,7 @@ class Graph:
                 return full_nodes, canonical_nodes
 
         current_app.logger.info("CACHE MISS (sqlite): Recomputing all nodes.")
+        current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Building full graph from filesystem.")
         begin = datetime.datetime.now()
         current_app.logger.debug("*** Loading nodes at {begin}.")
 
