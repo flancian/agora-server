@@ -91,6 +91,8 @@ export function initializeStars() {
 }
 
 function handleStarClick(event) {
+    event.stopPropagation();
+    event.preventDefault();
     const button = event.currentTarget as HTMLElement;
     const subnodeUri = button.dataset.subnodeUri;
     const isStarred = button.classList.contains('starred');

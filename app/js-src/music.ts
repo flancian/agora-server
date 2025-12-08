@@ -20,8 +20,8 @@ export function initMusicPlayer() {
     let isPaused = false;
 
     const playlist = [
-        { name: "Rainbow Folding", path: 'https://anagora.org/assets/rainbow-folding-64.opus', artist: "Heinali", artistUrl: "https://www.heinali.info/" },
-        { name: "Burup", path: '/static/mid/burup.mid', artist: "@flancian", artistUrl: "/@flancian" }
+        { name: "Burup", path: '/static/mid/burup.mid', artist: "@flancian", artistUrl: "/@flancian" },
+        { name: "Rainbow Folding", path: 'https://anagora.org/assets/rainbow-folding-64.opus', artist: "Heinali", artistUrl: "https://www.heinali.info/" }
     ];
 
     const stopMusic = () => {

@@ -1029,7 +1029,7 @@ table caption {
     left: 0; /* Start from the edge */
     position: fixed;
     background-color: rgba(20, 20, 20, 0);
-    z-index: 3;
+    z-index: 9998;
     display: flex; /* Use flexbox for centering */
     justify-content: center; /* Center horizontally */
     align-items: flex-start; /* Align to the top */
@@ -1048,12 +1048,12 @@ table caption {
 #toast-container {
     position: fixed;
     bottom: 10px;
-    right: 50px;
+    right: 20px;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 10px;
-    z-index: 1000;
+    z-index: 9999;
 }
 
 .toast {
@@ -1611,8 +1611,8 @@ input:checked + .slider:before {
     z-index: 1001;
     display: none;
     animation: fadeIn 0.3s ease-in-out;
-    width: 250px; /* Give it a fixed width */
-    background-color: var(--node-bg);
+    width: 200px; /* Give it a fixed width */
+    background-color: rgba(31, 41, 55, 0.8);
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     border: 1px solid var(--link-color);

@@ -29,8 +29,52 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         setTranslate(xOffset, yOffset, container);
         hasBeenPositionedByJs = true;
     } else {
-        // If no position is saved, we do nothing and let CSS handle the initial position.
-        // The first drag event will then capture the initial position.
+        // If no position is saved, set a default bottom-left position.
+        // Calculate initial xOffset and yOffset for bottom-left.
+        const leftMargin = 10; // px from left edge
+        const bottomMargin = 40; // px from bottom edge
+
+        // The container needs to be visible for offsetWidth/offsetHeight to be accurate
+        let containerWidth = container.offsetWidth;
+        let containerHeight = container.offsetHeight;
+
+        // If the container is hidden, we need to briefly show it to measure it.
+        if (containerWidth === 0 || containerHeight === 0) {
+            const originalDisplay = container.style.display;
+            const originalVisibility = container.style.visibility;
+            
+            container.style.visibility = 'hidden';
+            container.style.display = 'block';
+            
+            containerWidth = container.offsetWidth;
+            containerHeight = container.offsetHeight;
+            
+            // Restore original styles
+            container.style.display = originalDisplay;
+            container.style.visibility = originalVisibility;
+        }
+
+        // Fallback if measurement still fails (e.g. detached from DOM)
+        if (containerWidth === 0) containerWidth = 300; // Approximate width
+        if (containerHeight === 0) containerHeight = 150; // Approximate height
+
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        // Calculate top-left for translate3d to achieve bottom-left positioning
+        xOffset = leftMargin;
+        yOffset = viewportHeight - containerHeight - bottomMargin;
+
+        // Ensure the container is absolutely positioned for transform to work relative to viewport
+        container.style.position = 'fixed'; // Or absolute, depending on parent context
+        container.style.top = '0px';
+        container.style.left = '0px';
+        container.style.right = 'auto';
+        container.style.bottom = 'auto';
+
+        setTranslate(xOffset, yOffset, container);
+        localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
+        hasBeenPositionedByJs = true;
     }
 
     const dragStart = (e: MouseEvent | TouchEvent) => {
