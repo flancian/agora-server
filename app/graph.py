@@ -745,6 +745,7 @@ class Node:
         # Congratulations! You've gotten to the hackiest place in the [[agora]].
         # ...as of the time of writing :)
         subnodes = []
+        pushed_blocks = set()
         if other.wikilink in [n.wikilink for n in self.push_nodes()]:
             for subnode in self.subnodes:
                 if subnode.mediatype != "text/plain":
@@ -786,7 +787,9 @@ class Node:
                                 # the block to be pushed is this level and its children.
                                 # TODO: replace [[push]] [[other]] with something like [[pushed from]] [[node]], which makes more sense in the target.
                                 block = lxml.etree.tostring(parent)
-                                subnodes.append(VirtualSubnode(subnode, other, block))
+                                if block not in pushed_blocks:
+                                    pushed_blocks.add(block)
+                                    subnodes.append(VirtualSubnode(subnode, other, block))
                         except AttributeError:
                             # Better luck next time -- or when I fix this code :)
                             pass
@@ -795,7 +798,9 @@ class Node:
                     if other.wikilink in link[2] or other.wikilink.replace('-', ' ') in link[2]:
                         parent = link[0].getparent()
                         block = lxml.etree.tostring(parent)
-                        subnodes.append(VirtualSubnode(subnode, other, block))
+                        if block not in pushed_blocks:
+                            pushed_blocks.add(block)
+                            subnodes.append(VirtualSubnode(subnode, other, block))
                         # subnodes.append(
                         #    VirtualSubnode(
                         #        subnode,
