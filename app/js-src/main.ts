@@ -972,10 +972,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           response = await fetch(AGORAURL + '/node/' + node);
 
-          if (response.headers.get('X-Agora-Cold-Start') === 'true') {
+          const urlParams = new URLSearchParams(window.location.search);
+          if (response.headers.get('X-Agora-Cold-Start') === 'true' || urlParams.get('cold_start') === 'true') {
               setTimeout(() => {
-                  showToast(`(Apologies for the delay; that was a cold start.)`);
-              }, 500);
+                  showToast(`🙏 Apologies for the delay; that was a cold start.`);
+              }, 1000);
           }
 
           content.outerHTML = await response.text();

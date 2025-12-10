@@ -423,6 +423,11 @@ class Graph:
                     return sorted(subnodes, key=sort)
                 return subnodes
 
+        try:
+            g.cold_start = True
+        except RuntimeError:
+            pass
+
         current_app.logger.info("CACHE MISS (sqlite): Scanning filesystem for all subnodes.")
         start_time = time.time()
         base = current_app.config["AGORA_PATH"]

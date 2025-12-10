@@ -74,7 +74,7 @@ def after_request(response):
     now = datetime.datetime.now().replace(microsecond=0)
 
     # Check for cold start flag
-    if g.get('cold_start', False):
+    if g.get('cold_start', False) or request.args.get('cold_start'):
          response.headers['X-Agora-Cold-Start'] = 'true'
 
     if (
@@ -493,7 +493,10 @@ def annotations():
 def random():
     today = datetime.date.today()
     random = api.random_node()
-    return redirect(f"/{urllib.parse.quote_plus(random.description)}")
+    redirect_url = f"/{urllib.parse.quote_plus(random.description)}"
+    if g.get('cold_start'):
+        redirect_url += "?cold_start=true"
+    return redirect(redirect_url)
 
 
 @bp.route("/now")
