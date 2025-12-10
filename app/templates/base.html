@@ -59,6 +59,8 @@
 		const AGORANAME = "{{config['AGORA_NAME']}}";
 		const AGORAURI= "{{config['URI_BASE']}}";
 		const AGORAURL = "{{config['URL_BASE']}}";
+        window.COLD_START = {{ 'true' if cold_start else 'false' }};
+        console.log("Server reports COLD_START:", window.COLD_START);
 	</script>
 
 	{% if node is defined %}
