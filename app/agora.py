@@ -55,7 +55,6 @@ CORS(bp)
 @bp.before_request
 def before_request():
     g.start = time.time()
-    # Cold start check moved to context_processor to ensure it captures changes during request processing.
 
     # hack hack -- try dynamic URI_BASE based on what the browser sent our way.
     # this allows for easily provisioning an Agora in many virtual hosts, e.g. *.agor.ai.
@@ -69,24 +68,13 @@ def before_request():
         current_app.config["URL_BASE"] = prefix + current_app.config["URI_BASE"]
 
 
-@bp.context_processor
-def inject_common_variables():
-    # This runs before template rendering, so G.last_graph_load_time will have been updated
-    # if the graph was rebuilt during the request.
-    is_cold = G.is_cold_start()
-    current_app.logger.info(f"Context processor: cold_start={is_cold} (last_load: {G.last_graph_load_time}, time: {time.time()})")
-    return dict(cold_start=is_cold)
-
-
-
 @bp.after_request
 def after_request(response):
     exectime = round(time.time() - g.start, 2)
     now = datetime.datetime.now().replace(microsecond=0)
 
-    # Check for cold start flag, either from context processor or directly
-    is_cold_start = g.get('cold_start', False) or G.is_cold_start()
-    if is_cold_start:
+    # Check for cold start flag
+    if g.get('cold_start', False):
          response.headers['X-Agora-Cold-Start'] = 'true'
 
     if (

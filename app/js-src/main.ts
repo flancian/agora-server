@@ -973,7 +973,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           response = await fetch(AGORAURL + '/node/' + node);
 
           if (response.headers.get('X-Agora-Cold-Start') === 'true') {
-              console.log("Header detected cold start, showing toast.");
               setTimeout(() => {
                   showToast(`(Apologies for the delay; that was a cold start.)`);
               }, 500);

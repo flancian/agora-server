@@ -145,10 +145,7 @@ def _default_subnode_sort(subnode):
 class Graph:
     def __init__(self):
         # Revisit.
-        self.last_graph_load_time = 0
-
-    def is_cold_start(self, threshold=15):
-        return (time.time() - self.last_graph_load_time) < threshold
+        pass
 
     @cachetools.func.ttl_cache(ttl=CACHE_TTL)
     def edges(self):
@@ -295,8 +292,12 @@ class Graph:
     @log_cache_hits
     @cachetools.func.ttl_cache(maxsize=1, ttl=get_cache_ttl("node_data"))
     def _get_all_nodes_cached(self):
-        self.last_graph_load_time = time.time()
-        current_app.logger.info(f"Graph rebuild triggered. last_graph_load_time updated to {self.last_graph_load_time}")
+        try:
+            g.cold_start = True
+        except RuntimeError:
+            pass
+
+        current_app.logger.info(f"Graph rebuild triggered.")
         if _is_sqlite_enabled():
             cache_key = 'all_nodes_v2'
             ttl = get_cache_ttl('node_data')
