@@ -19,8 +19,8 @@
     {% for n in related %}
         {% if n.subnodes %}
         <details class="node related">
-            <summary><span class="node-header" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">
-                <strong>{{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{n.uri}}"><span class="node-name">{{n.description}}</span></a><span class="wikilink-marker">]]</span> perhaps related</span>
+            <summary><span class="node-header" title="An Agora location. It contains resources closely related to your search according to the Agora you're in.">
+                📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/{{n.uri}}"><span class="node-name">{{n.description}}</span></a><span class="wikilink-marker">]]</span> (perhaps related)</span>
         </summary>
         <div class="node-embed" id="{{n.uri}}"></div>
         </details>

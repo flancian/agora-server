@@ -27,6 +27,11 @@
 
     {% include "genai.html" %}
 
+    <div info-box-id="agora-intro" class="intro">
+    <span>This you find in the <strong>{{config['AGORA_NAME']}}</strong>…</span>
+      <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="agora-intro" id="dismissbutton" class="dismiss-button">x</span>
+    </div>
+                      
     {% if not subnode %}
     <div id="wp-wt-container">
         <details class="node fade-in">
@@ -50,16 +55,6 @@
         </details>
     </div>
     {% endif %}
-
-    <!-- trying without for now, for most Agora users wiktionary probably just mostly adds visual complexity about the fold.
-     would like to re-add once I figure some alternative to top level billing; maybe a tab of sorts in the wikipedia section? -->
-    {# include "wt.html" #} 
-
-    <div info-box-id="agora-intro" class="intro">
-    <span>This you find in the <strong>{{config['AGORA_NAME']}}</strong>…</span>
-      <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="agora-intro" id="dismissbutton" class="dismiss-button">x</span>
-    </div>
-                      
 
 {% if subnode %}
 <div id="async-content" src="{{subnode}}">

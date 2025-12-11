@@ -26,8 +26,8 @@
         {% else %}
             <summary class="node-header main-header">
                 <!-- <div class="inline-flex"> -->
-                    <span style="flex: auto; flex-grow: 1;" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">
-                        📚 <strong>Node</strong> 
+                    <span style="flex: auto; flex-grow: 1;" title="An Agora location. It contains resources closely related to your search according to the Agora you're in.">
+                        📚 <strong>Agora location</strong> 
                         <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
                     </span>
                     <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="Star this node">
@@ -48,7 +48,7 @@
         <!-- yolo -- dedup with stoa.html when time is available :) -->
         <div info-box-id="node" class="info-box with-spacing">
 
-          <em>Agora nodes contain community contributions whose titles match your search.</em>
+          <em>Agora locations contain community contributions whose titles or topics match your search.</em>
             <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="node" id="dismissbutton" class="dismiss-button">x</span>
     
         </div>
