@@ -969,14 +969,17 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (content != null) {
 
           // block on node loading (expensive if the task is freshly up)
+          
+          // Set a timer to show a "warming up" toast if the fetch takes too long.
+          const slowLoadDelay = 3000; // configurable delay in ms
+          const slowLoadTimer = setTimeout(() => {
+              showToast(`🌱 Warming up the Agora... (this might take a moment)`);
+          }, slowLoadDelay);
 
-          response = await fetch(AGORAURL + '/node/' + node);
-
-          const urlParams = new URLSearchParams(window.location.search);
-          if (response.headers.get('X-Agora-Cold-Start') === 'true' || urlParams.get('cold_start') === 'true') {
-              setTimeout(() => {
-                  showToast(`🙏 Apologies for the delay; that was a cold start.`);
-              }, 1000);
+          try {
+              response = await fetch(AGORAURL + '/node/' + node);
+          } finally {
+              clearTimeout(slowLoadTimer);
           }
 
           content.outerHTML = await response.text();

@@ -292,11 +292,6 @@ class Graph:
     @log_cache_hits
     @cachetools.func.ttl_cache(maxsize=1, ttl=get_cache_ttl("node_data"))
     def _get_all_nodes_cached(self):
-        try:
-            g.cold_start = True
-        except RuntimeError:
-            pass
-
         current_app.logger.info(f"Graph rebuild triggered.")
         if _is_sqlite_enabled():
             cache_key = 'all_nodes_v2'

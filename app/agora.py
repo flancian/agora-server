@@ -73,22 +73,19 @@ def after_request(response):
     exectime = round(time.time() - g.start, 2)
     now = datetime.datetime.now().replace(microsecond=0)
 
-    # Check for cold start flag
-    if g.get('cold_start', False) or request.args.get('cold_start'):
-         response.headers['X-Agora-Cold-Start'] = 'true'
-
     if (
         (response.response)
         and (200 <= response.status_code < 300)
         and (response.content_type.startswith("text/html"))
     ):
+        if g.get('cold_start', False):
+             response.headers['X-Agora-Cold-Start'] = 'true'
+
         response.set_data(
             response.get_data()
             .replace(b"__EXECTIME__", bytes(str(exectime), "utf-8"))
             .replace(b"__NOW__", bytes(str(now.astimezone()), "utf-8"))
-        )
-    
-    # Process any subnodes queued for indexing after the request is complete.
+        )    # Process any subnodes queued for indexing after the request is complete.
     # This has been disabled, as the worker is now responsible for populating the index.
     # if current_app.config.get('ENABLE_SQLITE', False) and hasattr(g, 'subnodes_to_index') and g.subnodes_to_index:
     #     try:
@@ -493,10 +490,7 @@ def annotations():
 def random():
     today = datetime.date.today()
     random = api.random_node()
-    redirect_url = f"/{urllib.parse.quote_plus(random.description)}"
-    if g.get('cold_start'):
-        redirect_url += "?cold_start=true"
-    return redirect(redirect_url)
+    return redirect(f"/{urllib.parse.quote_plus(random.description)}")
 
 
 @bp.route("/now")
