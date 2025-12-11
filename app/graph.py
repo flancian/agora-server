@@ -292,13 +292,16 @@ class Graph:
     @log_cache_hits
     @cachetools.func.ttl_cache(maxsize=1, ttl=get_cache_ttl("node_data"))
     def _get_all_nodes_cached(self):
-        current_app.logger.info(f"Graph rebuild triggered.")
         if _is_sqlite_enabled():
             cache_key = 'all_nodes_v2'
             ttl = get_cache_ttl('node_data')
             cached_value, timestamp = sqlite_engine.get_cached_graph(cache_key)
 
             if cached_value and (time.time() - timestamp < ttl):
+                try:
+                    g.cold_start = True
+                except RuntimeError:
+                    pass
                 current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for nodes.")
                 current_app.logger.info("CACHE WARMING (in-memory): Starting deserialization of nodes from SQLite.")
                 start_time = time.time()
@@ -327,6 +330,10 @@ class Graph:
                 
                 return full_nodes, canonical_nodes
 
+        try:
+            g.cold_start = True
+        except RuntimeError:
+            pass
         current_app.logger.info("CACHE MISS (sqlite): Recomputing all nodes.")
         current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Building full graph from filesystem.")
         begin = datetime.datetime.now()
