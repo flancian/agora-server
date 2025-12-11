@@ -587,7 +587,6 @@ summary {
     border-color: gray;
     border-style: dotted;
     border-width: 0px;
-    padding: 10px;
 }
 
 .context-all {
@@ -608,12 +607,21 @@ summary {
     max-height: 600px;
 }
 
-.subnode, .not-found {
+.subnode {
     background: var(--subnode-bg);
     color: var(--subnode-text-color);
     padding: 10px;
     margin-top: 10px;
     margin-bottom: 10px;
+    overflow-x: auto;
+    position: relative;
+    transition: background-color 0.8s ease-out;
+}
+
+.not-found {
+    background: var(--subnode-bg);
+    color: var(--subnode-text-color);
+    padding: 10px;
     overflow-x: auto;
     position: relative;
     transition: background-color 0.8s ease-out;
@@ -1355,7 +1363,6 @@ input:checked + .slider:before {
     flex-direction: row; /* Mobile-first: stack them by default */
     gap: 10px;
     position: relative; /* For positioning the toggle button */
-    padding-top: 10px;
 }
 
 .context-flex .graph-container {

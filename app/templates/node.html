@@ -27,8 +27,8 @@
             <summary class="node-header main-header">
                 <!-- <div class="inline-flex"> -->
                     <span style="flex: auto; flex-grow: 1;" title="A node is a location in an Agora. It contains resources closely related to your search according to the Agora you're in.">
-                        <strong>{{config['NODE_LABEL']}}</strong> 
-                        <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span> exact match
+                        📚 <strong>Node</strong> 
+                        <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
                     </span>
                     <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="Star this node">
                         {% if node.uri in starred_nodes %}★{% else %}☆{% endif %}
@@ -129,23 +129,6 @@
             {% endif %}
         {% endfor %}
 
-    <!-- details left open -->
-
-{% endif %} <!-- ends node with subnodes -->
-
-{% if not node.subnodes and not node.pushed_subnodes() %}
-
-<!-- "404" (but not really :) -->
-
-<details class="node" id="{{node.uri}}" open>
-
-    <summary class="node-header main-header"><span style="flex: auto; flex-grow: 1;" title="A Node is an Agora location. It contains resources contributed by users having to do with a location according to the Agora you're using.">
-        <strong>{{config['NODE_LABEL']}}</strong> <span class="wikilink-marker">[[</span><a href="/{{node}}" title="A node in {{config['NAME']}}."><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span> empty</span></summary>
-
-{% include "empty.html" %}
-
-{% endif %} <!-- node without subnodes -->
-
         <div class="pushed-subnodes-embed">
 
             <!-- removed from the sync rendering path as this is expensive (i.e. slow).
@@ -166,7 +149,15 @@
             </center>
         </div>
 
-</details> <!-- closes node div-->
+    </details> <!-- closes node div-->
+
+{% endif %} <!-- ends node with subnodes -->
+
+{% if not node.subnodes and not node.pushed_subnodes() %}
+
+{% include "empty.html" %}
+
+{% endif %} <!-- node without subnodes -->
 
  
 {% if not subnode %}
