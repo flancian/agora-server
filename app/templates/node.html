@@ -85,7 +85,7 @@
                     <span class="subnode-id">
                                                     <span class="subnode-links">
                                                       <a href="/raw/{{subnode.uri}}" title="Click to see the raw resource.">📓</a> 
-                                                        <strong>{{ subnode.type|capitalize }}</strong> <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see only this subnode.">{{subnode.garden_relative}}</a> 
+                                                        <strong>Contribution</strong> <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see only this subnode.">{{subnode.garden_relative}}</a> 
                                                         <span title="This resource was contributed to this Agora and seems relevant to the current topic."> by </span>                            <a class="user" href="/@{{subnode.user}}"" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>
                             <span class="star-toggle {% if subnode.uri in starred_subnodes %}starred{% endif %}" data-subnode-uri="{{ subnode.uri }}" title="Star this subnode">
     {% if subnode.uri in starred_subnodes %}★{% else %}☆{% endif %}
@@ -121,7 +121,7 @@
                 <div class="subnode-footer">
                     {% set display_mtime, mtime_source = subnode.get_display_mtime() %}
                     <span class="footer-id">
-                        ⸎ last updated <strong>{{ display_mtime|datetimeformat('%Y-%m-%d %H:%M:%S') }}</strong> {% if mtime_source == 'fs' %}(mtime){% else %}(git){% endif %}
+                        {{ subnode.type|capitalize }} last updated <strong>{{ display_mtime|datetimeformat('%Y-%m-%d %H:%M:%S') }}</strong> {% if mtime_source == 'fs' %}(mtime){% else %}(git){% endif %}
                     </span>
                 </div>
 
