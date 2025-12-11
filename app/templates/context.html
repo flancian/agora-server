@@ -1,6 +1,11 @@
 <!-- <div class="context"> now meant to be loaded async through /context/x -->
 
-<summary><span title="Information about the surroundings and connections between this location and others. May load slowly.">⥱ Context for <span class="wikilink-marker">[[</span><a href="/{{node}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span></span></summary>
+<summary class="node-header main-header" title="Context is assembled by the Agora from the rest of the graph.">
+    <span style="flex: auto; flex-grow: 1;">
+        ⥱ <strong>Context</strong> 
+        <span class="wikilink-marker">[[</span><a href="/context/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
+    </span>
+</summary>
 
 <div class="context-flex">
 {% if node.back_nodes() or node.push_nodes() or node.pull_nodes() or node.forward_nodes() %}
@@ -15,6 +20,5 @@
 <em>No context found.</em>
 </p>
 
-</div>
-
 {% endif %}
+</div>
