@@ -73,19 +73,20 @@ def after_request(response):
     exectime = round(time.time() - g.start, 2)
     now = datetime.datetime.now().replace(microsecond=0)
 
+    if g.get('cold_start', False):
+         current_app.logger.info(f"Cold start detected for request to {request.path}, setting X-Agora-Cold-Start header.")
+         response.headers['X-Agora-Cold-Start'] = 'true'
+
     if (
         (response.response)
         and (200 <= response.status_code < 300)
         and (response.content_type.startswith("text/html"))
     ):
-        if g.get('cold_start', False):
-             response.headers['X-Agora-Cold-Start'] = 'true'
-
         response.set_data(
             response.get_data()
             .replace(b"__EXECTIME__", bytes(str(exectime), "utf-8"))
             .replace(b"__NOW__", bytes(str(now.astimezone()), "utf-8"))
-        )    # Process any subnodes queued for indexing after the request is complete.
+        )
     # This has been disabled, as the worker is now responsible for populating the index.
     # if current_app.config.get('ENABLE_SQLITE', False) and hasattr(g, 'subnodes_to_index') and g.subnodes_to_index:
     #     try:

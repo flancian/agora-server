@@ -982,6 +982,12 @@ document.addEventListener("DOMContentLoaded", async function () {
               clearTimeout(slowLoadTimer);
           }
 
+          if (response.headers.get('X-Agora-Cold-Start') === 'true') {
+              setTimeout(() => {
+                  showToast(`🙏 Apologies for the delay; that was a cold start.`);
+              }, 1000);
+          }
+
           content.outerHTML = await response.text();
 
         }
