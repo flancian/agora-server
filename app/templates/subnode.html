@@ -20,7 +20,7 @@
     <span class="subnode-id">
         <span class="subnode-links">
           <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see only this subnode.">📓</a> 
-            <a href="/raw/{{subnode.uri}}"><span title="Click to see the raw resource.">{{subnode.garden_relative}}</span></a> 
+            <a href="/raw/{{subnode.uri}}"><span title="Click to see the raw resource.">{{subnode.garden_relative}}</span></a>
             <span title="This resource was contributed to this Agora and seems relevant to the current topic."> by </span>
             <a class="user" href="/@{{subnode.user}}"" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>
         </span>
@@ -35,7 +35,7 @@
     {{ subnode.render()|linkify|safe }}
     <div class="subnode-footer">
         {% set display_mtime, mtime_source = subnode.get_display_mtime() %}
-        <span class="wikilink-marker">[[</span><a href="{{ (display_mtime|datetimeformat('%Y-%m-%d'))|node_url }}"><span class="node-name">
+        {{ subnode.type|capitalize }} <span class="wikilink-marker">[[</span><a href="{{ (display_mtime|datetimeformat('%Y-%m-%d'))|node_url }}"><span class="node-name">
         {% if mtime_source == 'git' %}
             commit: {{ display_mtime|datetimeformat('%Y-%m-%d %H:%M') }}
         {% else %}
