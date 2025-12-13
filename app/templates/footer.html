@@ -5,7 +5,6 @@
 <div id='footer'>
     <!-- Served by the <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a> at <strong>__NOW__</strong> in <strong><a style="all: unset;"href="http://localhost:5017/{{node.qstr}}">__EXECTIME__s</a></strong>.
     -->
-    {% if 'development' in config.AGORA_NAME.lower() or 'alpha' in config.AGORA_NAME.lower() %}<a class="all-unset" href="{{config.PROD_URL_BASE}}/{{node.qstr}}">🍮</a>{% else %}<a class="all-unset" href="{{config.DEV_URL_BASE}}/{{node.qstr}}">🍮</a>{% endif %}
     Served by the 
     <a href="{{config['ROOT']}}" title="Go to the root of the Agora.">🏛️</a> <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a>
     at <strong>__NOW__</strong>
@@ -22,6 +21,6 @@
         💾 Flush SQLite
     </button>
     {% endif %}
-    <span class="footer-sign">⸎</span>
+    {% if 'development' in config.AGORA_NAME.lower() or 'alpha' in config.AGORA_NAME.lower() %}<a class="all-unset" href="{{config.PROD_URL_BASE}}/{{node.qstr}}">🍮</a>{% else %}<a class="all-unset" href="{{config.DEV_URL_BASE}}/{{node.qstr}}">🍮</a>{% endif %}
 </div>
 </div>

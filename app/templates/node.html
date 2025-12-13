@@ -75,7 +75,7 @@
                 <div class="subnode-footer">
                     {% set display_mtime, mtime_source = subnode.get_display_mtime() %}
                     <span class="footer-id">
-                        ⸎ {{ subnode.type|capitalize }} last updated <strong>{{ display_mtime|datetimeformat('%Y-%m-%d %H:%M:%S') }}</strong> <!-- source: {{ mtime_source }} -->
+                        ⸎ Last updated: <strong>{{ display_mtime|datetimeformat('%Y-%m-%d %H:%M:%S') }}</strong> <!-- source: {{ mtime_source }} -->
                     </span>
                 </div>
             </details>
@@ -121,7 +121,7 @@
                 <div class="subnode-footer">
                     {% set display_mtime, mtime_source = subnode.get_display_mtime() %}
                     <span class="footer-id">
-                        {{ subnode.type|capitalize }} last updated <strong>{{ display_mtime|datetimeformat('%Y-%m-%d %H:%M:%S') }}</strong> <!-- source: {{ mtime_source }} -->
+                        ⸎ Last updated: <strong>{{ display_mtime|datetimeformat('%Y-%m-%d %H:%M:%S') }}</strong> <!-- source: {{ mtime_source }} -->
                     </span>
                 </div>
 
