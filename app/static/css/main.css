@@ -886,7 +886,6 @@ details > summary {
 
 .subnode-header a.user {
     text-decoration: none;
-    color: var(--text-color);
 }
 
 #agoragraph {
