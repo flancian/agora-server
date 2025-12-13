@@ -150,6 +150,7 @@ class DefaultConfig(object):
     # EXPERIMENTS WHICH ARE SECURITY SENSITIVE.
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = False
+    EXECUTABLE_NODE_OUTPUT_LIMIT = 256 * 1024
 
     # AI features. ENABLE_AI controls the Agora trying to generate with providers; requires per-provider API keys to be available as environment variables.
     ENABLE_AI = False

@@ -1364,10 +1364,10 @@ class ExecutableSubnode(Subnode):
         # YOLO, use with caution only in high trust Agoras -- which will hopefully remain most of them ;)
 
         if current_app.config["ENABLE_EXECUTABLE_NODES"]:
+            cmd = [self.path]
             if argument:
-                output = subprocess.run(['/usr/bin/timeout', '-v', '3', self.path, argument], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
-            else:
-                output = subprocess.run(['/usr/bin/timeout', '-v', '3', self.path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.decode("utf-8") 
+                cmd.append(argument)
+            output = util.run_with_timeout_and_limit(cmd, timeout=1.0, limit=current_app.config["EXECUTABLE_NODE_OUTPUT_LIMIT"])
         else:
                 output = """
                 Executable subnodes have been disabled by the stewards of this Agora.

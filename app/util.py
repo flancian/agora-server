@@ -14,6 +14,9 @@
 import re
 import datetime
 import os
+import subprocess
+import time
+import select
 from flask import current_app
 from dateparser import DateDataParser
 from functools import lru_cache
@@ -175,3 +178,41 @@ def path_to_wikilink(path: str) -> str:
 
 def path_to_basename(path: str) -> str:
     return os.path.basename(path)
+
+
+def run_with_timeout_and_limit(cmd, timeout=1.0, limit=100*1024):
+    """
+    Runs a command with a timeout and stdout size limit.
+    """
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output_bytes = bytearray()
+        start_time = time.time()
+        
+        while time.time() - start_time < timeout:
+            rlist, _, _ = select.select([proc.stdout], [], [], 0.1)
+            if rlist:
+                chunk = os.read(proc.stdout.fileno(), 4096)
+                if not chunk:
+                    break
+                output_bytes.extend(chunk)
+                if len(output_bytes) > limit:
+                    output_bytes = output_bytes[:limit] + b"\n... [Output truncated: exceeded size limit]"
+                    proc.kill()
+                    break
+            elif proc.poll() is not None:
+                break
+        else:
+            proc.kill()
+            output_bytes += b"\n... [Execution timed out]"
+        
+        if proc.poll() is None:
+            proc.kill()
+            proc.wait()
+            
+        return output_bytes.decode("utf-8", errors="replace")
+
+    except Exception as e:
+        if 'proc' in locals() and proc.poll() is None:
+             proc.kill()
+        return f"<strong>Execution failed:</strong> {str(e)}"
