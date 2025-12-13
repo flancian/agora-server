@@ -690,7 +690,7 @@ summary {
     font-style: normal;
 }
 
-.intro::before {
+.intro::before, #footer::before {
   content: '➼';
   width: 1em;
   margin-right: 0.3em;
@@ -698,13 +698,7 @@ summary {
   transition: 0.3s;
 }
 
-#footer::before {
-  content: '⸎';
-  width: 1em;
-  margin-right: 0.3em;
-  flex-shrink: 0;
-  transition: 0.3s;
-}
+
 
 .pulled-subnode, .pushed-subnode, .stoa-public {
     background: var(--pulled-pushed-bg);
