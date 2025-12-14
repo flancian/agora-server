@@ -24,7 +24,7 @@ import time
 import threading
 import urllib.parse
 from copy import copy
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse, quote
 from functools import lru_cache
 
 import jsons
@@ -1549,9 +1549,10 @@ def federate_latest_loop(app):
                         
                     current_app.logger.info(f"Federation: New subnode found: {subnode.uri}. Federating...")
                     
+                    base_url = current_app.config['URL_BASE']
                     # Identify Actor (Author)
-                    actor_url = url_for('.ap_user', username=subnode.user, _external=True, _scheme='https')
-                    object_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
+                    actor_url = f"{base_url}/users/{subnode.user}"
+                    object_url = f"{base_url}/{quote(subnode.wikilink)}#/{quote(subnode.uri)}"
                     
                     # Ensure keys are ready
                     ap_key_setup()

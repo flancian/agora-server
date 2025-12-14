@@ -262,7 +262,7 @@ class AlphaConfig(DefaultConfig):
 class DevelopmentConfig(DefaultConfig):
     URL_BASE = "http://dev.anagora.org"
     URI_BASE = "dev.anagora.org"
-    API_BASE = "http://localhost:3000"
+    API_BASE = "https://api.anagora.org"
 
     AGORA_NAME = "Alpha " + DefaultConfig.AGORA_NAME
 
