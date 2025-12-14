@@ -1532,8 +1532,8 @@ def federate_latest_loop(app):
     with app.app_context():
         current_app.logger.info("Federation: Starting background loop.")
         
-        # Determine interval based on debug mode
-        interval = 10 if current_app.debug else 300
+        # Determine interval based on configuration
+        interval = current_app.config.get("FEDERATION_INTERVAL", 300)
 
         while True:
             try:

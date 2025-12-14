@@ -149,6 +149,7 @@ class DefaultConfig(object):
 
     # ActivityPub settings
     ACTIVITYPUB_SEND_WELCOME_PACKAGE = True
+    FEDERATION_INTERVAL = 300
 
     # EXPERIMENTS WHICH ARE SECURITY SENSITIVE.
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
@@ -265,6 +266,7 @@ class DevelopmentConfig(DefaultConfig):
     API_BASE = "https://api.anagora.org"
 
     AGORA_NAME = "Alpha " + DefaultConfig.AGORA_NAME
+    FEDERATION_INTERVAL = 60
 
     # EXPERIMENTS
     ENABLE_CTZN = True
@@ -291,6 +293,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     API_BASE = "http://localhost:3000"
 
     AGORA_NAME = "Development " + DefaultConfig.AGORA_NAME
+    FEDERATION_INTERVAL = 60
     # EXPERIMENTS
     ENABLE_CTZN = True
     ENABLE_STATS = True
