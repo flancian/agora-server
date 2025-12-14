@@ -25,6 +25,7 @@ import threading
 import urllib.parse
 from copy import copy
 from urllib.parse import parse_qs, urlparse
+from functools import lru_cache
 
 import jsons
 from Crypto.Hash import SHA256
@@ -1149,10 +1150,81 @@ def random_artifact():
             })
     return jsonify({'content': '<em>No artifacts found in the database cache.</em>'})
 
+@lru_cache(maxsize=1024)
+def resolve_inbox(actor_uri):
+    """
+    Fetches the Actor profile and returns their Inbox URL.
+    """
+    try:
+        headers = {
+            'Accept': 'application/activity+json'
+        }
+        # We should sign this fetch too if fetching from authorized-fetch instances!
+        # But for public profiles, unsigned might work.
+        # For robustness, we should sign. But ap_key_setup needs context or logic.
+        # Let's try unsigned first for simplicity.
+        response = requests.get(actor_uri, headers=headers, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        # Prefer sharedInbox if available, else inbox
+        if 'endpoints' in data and 'sharedInbox' in data['endpoints']:
+            return data['endpoints']['sharedInbox']
+        return data.get('inbox')
+    except Exception as e:
+        # We can't log here easily without current_app? lru_cache doesn't like side effects?
+        # Print is safer if context missing.
+        print(f"Federation Error resolving inbox for {actor_uri}: {e}")
+        return None
+
 def federate_create(subnode_uri, app_context):
-    """Federation for stars is not yet implemented."""
-    current_app.logger.info(f"Federation for star on {subnode_uri} is a stub.")
-    return
+    """
+    Federates a 'Like' activity when a subnode is starred.
+    """
+    with app_context:
+        # Identify the subnode
+        subnode = api.subnode_by_uri(subnode_uri)
+        if not subnode:
+            current_app.logger.warning(f"Federation: Subnode {subnode_uri} not found, skipping.")
+            return
+
+        object_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
+        
+        # Identify the Actor (System User 'agora')
+        system_user = 'agora'
+        actor_url = url_for('.ap_user', username=system_user, _external=True, _scheme='https')
+        
+        # Construct the Activity
+        activity_id = f"{actor_url}/likes/{subnode.uri}/{int(time.time())}"
+        
+        activity = {
+            "@context": "https://www.w3.org/ns/activitystreams",
+            "id": activity_id,
+            "type": "Like",
+            "actor": actor_url,
+            "object": object_url,
+            "published": datetime.datetime.utcnow().isoformat() + "Z",
+        }
+        
+        # Get Followers
+        followers = sqlite_engine.get_followers(actor_url)
+        
+        if not followers:
+            current_app.logger.info(f"Federation: No followers for {system_user}, skipping broadcast.")
+            return
+            
+        current_app.logger.info(f"Federation: Broadcasting Like for {subnode_uri} to {len(followers)} followers.")
+
+        # Prepare Keys
+        ap_key_setup()
+        key_id = f"{actor_url}#main-key"
+        
+        # Broadcast
+        for follower_uri in followers:
+            target_inbox = resolve_inbox(follower_uri)
+            if target_inbox:
+                send_signed_request(target_inbox, key_id, activity, g.private_key)
+            else:
+                current_app.logger.warning(f"Federation: Could not resolve inbox for {follower_uri}")
 
 
 @bp.route("/api/star/<path:subnode_uri>", methods=["POST"])
@@ -1454,6 +1526,79 @@ def user_inbox(user):
 
     # For now, we only handle Follow.
     return jsonify({"status": "success", "action": "activity_received"}), 202
+
+def federate_latest_loop(app):
+    """Background loop to federate new content."""
+    with app.app_context():
+        current_app.logger.info("Federation: Starting background loop.")
+        while True:
+            try:
+                # Sleep to prevent tight looping and allow startup
+                time.sleep(300) # 5 minutes
+                
+                # Get recent subnodes
+                recent = api.latest(20)
+                
+                if not recent:
+                    continue
+
+                for subnode in recent:
+                    # Skip if already federated
+                    if sqlite_engine.is_subnode_federated(subnode.uri):
+                        continue
+                        
+                    current_app.logger.info(f"Federation: New subnode found: {subnode.uri}. Federating...")
+                    
+                    # Identify Actor (Author)
+                    actor_url = url_for('.ap_user', username=subnode.user, _external=True, _scheme='https')
+                    object_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
+                    
+                    # Ensure keys are ready
+                    ap_key_setup()
+                    key_id = f"{actor_url}#main-key"
+                    
+                    # Render Content
+                    content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+                    content_html = render.markdown(content_str)
+                    
+                    # Construct Activity
+                    activity = {
+                        "@context": "https://www.w3.org/ns/activitystreams",
+                        "id": f"{actor_url}/create/{subnode.uri}/{int(subnode.mtime)}",
+                        "type": "Create",
+                        "actor": actor_url,
+                        "object": {
+                            "id": object_url,
+                            "type": "Note",
+                            "published": datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat(),
+                            "attributedTo": actor_url,
+                            "content": content_html,
+                            "url": object_url,
+                            "to": ["https://www.w3.org/ns/activitystreams#Public"],
+                            "cc": [f"{actor_url}/followers"]
+                        },
+                        "to": ["https://www.w3.org/ns/activitystreams#Public"],
+                        "cc": [f"{actor_url}/followers"]
+                    }
+                    
+                    # Get Followers
+                    followers = sqlite_engine.get_followers(actor_url)
+                    
+                    # Broadcast
+                    for follower in followers:
+                        inbox = resolve_inbox(follower)
+                        if inbox:
+                            send_signed_request(inbox, key_id, activity, g.private_key)
+                    
+                    # Mark as federated
+                    sqlite_engine.add_federated_subnode(subnode.uri)
+                    
+            except Exception as e:
+                try:
+                    current_app.logger.error(f"Federation Loop Error: {e}")
+                except:
+                    print(f"Federation Loop Critical Error: {e}")
+                time.sleep(60)
 
 
 @bp.route("/u/<user>/outbox")

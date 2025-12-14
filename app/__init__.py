@@ -209,5 +209,11 @@ def create_app():
     def node_url(node_uri):
         return f"/{node_uri}"
 
+    # Start Federation Loop (Background Thread)
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or os.environ.get('UWSGI_ORIGINAL_PROC_NAME'):
+         import threading
+         from .agora import federate_latest_loop
+         fed_thread = threading.Thread(target=federate_latest_loop, args=(app,), daemon=True)
+         fed_thread.start()
     
     return app
