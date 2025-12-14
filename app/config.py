@@ -109,6 +109,9 @@ class DefaultConfig(object):
         API_BASE = "https://api.anagora.org"
 
     AGORA = URI_BASE
+    
+    # Bridge URL (internal)
+    AGORA_BRIDGE_URL = "http://localhost:5018"
 
     try:
         SOURCE = AGORA_CONFIG["server"]
