@@ -186,4 +186,53 @@ export function initSettings() {
             (editSection as HTMLElement).style.display = isChecked ? 'block' : 'none';
         }
     });
+
+    // Join form handler
+    const joinBtn = document.getElementById("join-submit-btn");
+    if (joinBtn) {
+        joinBtn.addEventListener("click", async () => {
+            const statusDiv = document.getElementById("join-status");
+            if (!statusDiv) return;
+            
+            const usernameInput = document.getElementById("join-username") as HTMLInputElement;
+            const repoInput = document.getElementById("join-repo") as HTMLInputElement;
+            
+            const username = usernameInput.value.trim();
+            const repoUrl = repoInput.value.trim();
+            
+            if (!username || !repoUrl) {
+                statusDiv.innerText = "Please fill in both fields.";
+                statusDiv.style.color = "red";
+                return;
+            }
+            
+            statusDiv.innerText = "Processing...";
+            statusDiv.style.color = "inherit";
+            joinBtn.setAttribute("disabled", "true");
+            
+            try {
+                const response = await fetch("/api/join", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, repo_url: repoUrl })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.innerText = "Success! " + (data.message || "You have joined the Agora.");
+                    statusDiv.style.color = "lightgreen";
+                    // Optionally refresh or redirect
+                } else {
+                    statusDiv.innerText = "Error: " + (data.error || "Unknown error.");
+                    statusDiv.style.color = "red";
+                    joinBtn.removeAttribute("disabled");
+                }
+            } catch (e) {
+                statusDiv.innerText = "Network error: " + e;
+                statusDiv.style.color = "red";
+                joinBtn.removeAttribute("disabled");
+            }
+        });
+    }
 }

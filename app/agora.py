@@ -806,6 +806,42 @@ def user_json(user):
     return jsonify(jsons.dump(subnodes))
 
 
+@bp.route('/api/join', methods=['POST'])
+def join_api():
+    """Proxies join requests to the Agora Bridge."""
+    data = request.json
+    username = data.get('username')
+    repo_url = data.get('repo_url')
+    
+    if not username or not repo_url:
+        return jsonify({'error': 'Missing username or repo_url'}), 400
+        
+    # Sanitize username (remove @ if present)
+    if username.startswith('@'):
+        username = username[1:]
+        
+    # Construct target path for sources.yaml
+    target = f"garden/{username}"
+    
+    # Call Bridge API
+    # Assuming Bridge is at localhost:5000 (standard Flask dev port)
+    bridge_url = current_app.config.get('AGORA_BRIDGE_URL', 'http://localhost:5000')
+    
+    try:
+        response = requests.post(f"{bridge_url}/sources", json={
+            'url': repo_url,
+            'target': target,
+            'type': 'garden',
+            'format': 'git'
+        })
+        
+        # Pass through the response from Bridge
+        return jsonify(response.json()), response.status_code
+        
+    except requests.RequestException as e:
+        return jsonify({'error': f"Failed to contact Bridge: {str(e)}"}), 502
+
+
 @bp.route("/garden/<garden>")
 def garden(garden):
     current_app.logger.warning("Not implemented.")
