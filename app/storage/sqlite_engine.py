@@ -163,6 +163,7 @@ def create_tables(db):
                     url TEXT PRIMARY KEY,
                     title TEXT NOT NULL,
                     source TEXT NOT NULL,
+                    node TEXT,
                     timestamp INTEGER
                 );
             """,
