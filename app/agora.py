@@ -1342,15 +1342,37 @@ def send_accept(app, follow_activity, actor_url, key_id, base_url):
             # All URL generation must happen here, within the app context.
             username = actor_url.split('/')[-1]
             
-            # Fetch a larger pool of recent subnodes to find some that are not yet federated.
-            all_recent_subnodes = api.subnodes_by_user(username, sort_by="mtime", reverse=True)[:50]
-            unfederated_subnodes = []
-            for subnode in all_recent_subnodes:
-                if not sqlite_engine.is_subnode_federated(subnode.uri):
-                    unfederated_subnodes.append(subnode)
+            # Fetch recent subnodes from Git/Cache for consistency
+            cache_key = 'latest_per_user_v1'
+            cached_value, _ = sqlite_engine.get_cached_query(cache_key)
+            latest_changes = []
             
-            # Take the 5 most recent from the unfederated list.
-            subnodes_to_send = unfederated_subnodes[:5]
+            if cached_value:
+                 latest_changes = json.loads(cached_value)
+            else:
+                 latest_changes = git_utils.get_latest_changes_per_repo(
+                    agora_path=current_app.config['AGORA_PATH'],
+                    logger=current_app.logger
+                 )
+
+            user_subnodes_data = []
+            for user, subnodes in latest_changes:
+                if user == username:
+                    user_subnodes_data = subnodes
+                    break
+
+            subnodes_to_send = []
+            for s_data in user_subnodes_data:
+                uri = s_data.get('uri')
+                if sqlite_engine.is_subnode_federated(uri):
+                    continue
+                
+                subnode = api.subnode_by_uri(uri)
+                if subnode:
+                    subnodes_to_send.append(subnode)
+                
+                if len(subnodes_to_send) >= 5:
+                    break
 
             posts_to_send = []
             for subnode in subnodes_to_send:
@@ -1570,7 +1592,14 @@ def federate_latest_loop(app):
                         # Load full subnode to get content
                         subnode = api.subnode_by_uri(uri)
                         if not subnode:
-                             # This might happen if file was deleted or Git index is ahead of FS index?
+                             continue
+
+                        # Safety check: Don't federate content older than 24 hours.
+                        # This prevents spamming the timeline with "latest" items that are actually old.
+                        if time.time() - subnode.mtime > 86400:
+                             if current_app.debug:
+                                 current_app.logger.debug(f"Federation: Marking old subnode {uri} as federated without broadcasting.")
+                             sqlite_engine.add_federated_subnode(uri)
                              continue
 
                         current_app.logger.info(f"Federation: New subnode found: {uri}. Federating...")

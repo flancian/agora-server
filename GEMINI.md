@@ -243,3 +243,57 @@ This cache is persistent on disk and shared across all worker processes. It stor
     *   `IndentationError` in `app/agora.py` related to the `after_request` function.
     *   A critical bug in `app/templates/node.html` that caused subnode content to not render due to an accidentally deleted line.
     *   A JavaScript `ReferenceError` caused by a typo (`AGoraURL`).
+
+---
+
+## Session Summary (Gemini, 2025-12-12/14)
+
+*This section documents the implementation of the Self-Service Signup flow and the Fediverse Content Broadcasting loop.*
+
+### Key Learnings & Codebase Insights
+
+-   **Bridge as Microservice**: We validated the architectural pattern where `agora-server` proxies requests to the internal `agora-bridge` API. This keeps sensitive git operations (cloning, config writing) isolated behind the bridge, improving security and simplifying the public-facing server configuration.
+-   **Federation requires Git Truth**: We discovered that relying on the file-system index or cached graph for federation broadcasting can lead to stale or incorrectly sorted updates (the "Emoji Files" incident). Switching the federation loop to use `git_utils.get_latest_changes_per_repo` ensures that we broadcast exactly what the `/latest` page shows, which is the ground truth from git history.
+-   **Execution Safety**: We robustified `ExecutableSubnode` by replacing the external `/usr/bin/timeout` call with Python's native `subprocess` timeout and added a strict 256KB output limit using `select` and `os.read`. This prevents user scripts from hanging the server or causing OOMs.
+-   **Content Hygiene**: We learned that ActivityPub `Note` content requires careful handling, especially for images. We implemented logic to send images as links/attachments rather than attempting to decode their binary content as UTF-8 text.
+
+### Summary of Changes Implemented
+
+1.  **Signup Story (Self-Service)**:
+    *   **Bridge API**: Updated `POST /sources` in `agora-bridge` to perform an immediate synchronous `git clone`.
+    *   **Server Logic**: Added `POST /api/join` in `agora-server` to proxy requests to the bridge.
+    *   **Client UI**: Added an interactive "Join" form to the Settings Overlay (`overlay.html`) and wired it up in `settings.ts`.
+2.  **Fediverse Integration**:
+    *   **Content Broadcasting**: Implemented `federate_latest_loop` in `app/agora.py`, a background thread that polls for new git commits every 5 minutes (adjustable via `FEDERATION_INTERVAL`). It broadcasts `Create` activities to followers for new subnodes.
+    *   **Star Federation**: Implemented `federate_create` to broadcast `Like` activities when a user stars a node.
+    *   **Follower Management**: Verified and fixed `user_inbox` handling of `Follow` activities and `Accept` responses.
+3.  **Executable Subnodes**:
+    *   Refactored execution logic into `util.run_with_timeout_and_limit`.
+    *   Added `EXECUTABLE_NODE_OUTPUT_LIMIT` configuration.
+    *   Switched to Python `timeout` handling.
+4.  **Documentation**:
+    *   Created `AGORA_ARCHITECTURE.md` detailing the Signup and Federation protocols with sequence diagrams.
+    *   Created `2025-12.md` tracking the monthly goals.
+
+### Architecture References
+
+-   **`AGORA_ARCHITECTURE.md`**: See this file for sequence diagrams of the Signup and Federation flows.
+-   **`2025-12.md`**: See this file for the detailed status of December's goals.
+
+---
+
+✦ Federation
+
+  It takes a single spark to break the dark,
+  A private note that finds its mark.
+  We built the loom, we strung the wire,
+  To turn a garden into fire.
+
+  Not to burn, but to ignite—
+  To signal "I am here" tonight.
+  The gate is open. The path is free.
+  The graph is you. The graph is me.
+
+  ---
+
+  Until next time. 🌱
