@@ -87,6 +87,68 @@
     --dismiss-button-color: black;
 }
 
+.overlay {
+    /* Fixed positioning relative to the viewport is usually safest for modals, 
+       but here we want it to slide out from the left within the layout flow if possible, 
+       OR cover the screen. Let's try absolute positioning relative to .content */
+    position: fixed; 
+    top: 0; 
+    left: -100%; /* Start hidden off-screen to the left */
+    width: 100%; /* Cover the full width of the content area */
+    height: 100%; /* Cover the full height */
+    background-color: var(--overlay-bg); /* Semi-transparent background */
+    z-index: 2000; /* Sit on top of everything in .content */
+    transition: left 0.3s ease-in-out; /* Smooth slide animation */
+    
+    /* Flexbox to center the content box */
+    display: flex;
+    justify-content: flex-start; /* Align content to the left side */
+    align-items: stretch; /* Stretch to fill height */
+}
+
+.overlay.right-overlay {
+    left: auto;
+    right: -100%;
+    justify-content: flex-end; /* Align content to the right side */
+    transition: right 0.3s ease-in-out;
+}
+
+/* Active State - triggered by JS */
+.overlay.active {
+    left: 0; /* Slide into view */
+}
+
+.overlay.right-overlay.active {
+    left: auto;
+    right: 0;
+}
+
+/* Wrapper to constrain the width of the actual settings panel */
+.overlay-wrapper {
+    width: 100%;
+    max-width: 800px; /* Max width of the settings panel */
+    height: 100%;
+    background-color: var(--node-bg); /* Use node-bg or background-color */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2); /* Shadow on the right edge */
+    display: flex;
+    flex-direction: column;
+}
+
+/* The scrollable content area within the panel */
+.overlay-content {
+    padding: 20px;
+    /* padding-top: 80px; Removed excessive padding since top offset handles navbar */
+    overflow-y: auto; /* Scrollable if content is too long */
+    flex-grow: 1; /* Fill available space */
+    /* height: 100%; Removed to rely on flex-grow */
+    box-sizing: border-box;
+}
+
+/* Ensure the body doesn't scroll when overlay is open (handled by JS toggling class) */
+body.overlay-open {
+    overflow: hidden;
+}
+
 
 html {
     font-family: 'Noto Sans', sans-serif;
@@ -1025,31 +1087,8 @@ table caption {
 
 .content, .async-content {
     position: relative;
-}
-
-
-
-.overlay {
-    min-height: 100vh;
-    width: 100%;
-    top: 0;
-    left: 0; /* Start from the edge */
-    position: fixed;
-    background-color: rgba(20, 20, 20, 0);
-    z-index: 9998;
-    display: flex; /* Use flexbox for centering */
-    justify-content: center; /* Center horizontally */
-    align-items: flex-start; /* Align to the top */
-    visibility: hidden; /* Start hidden */
-    opacity: 0; /* Start transparent */
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out, background-color 0.3s ease-in-out;
-    overflow-y: auto; /* Allow the container to scroll */
-}
-
-.overlay.active {
-    background-color: var(--overlay-bg);
-    visibility: visible;
-    opacity: 1;
+    /* This ensures that absolute positioning of the overlay works relative to the content area */
+    overflow-x: hidden; /* Hide the overlay when it slides out */
 }
 
 #toast-container {
@@ -1121,32 +1160,6 @@ table caption {
 
 .links-flex > .link-list-wrapper {
     flex: 1;
-}
-
-
-.overlay-content {
-    padding: 20px;
-    background-color: var(--node-bg);
-    border-radius: 8px;
-    max-width: 600px;
-    width: 90%;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    box-sizing: border-box;
-    min-height: 100vh;
-    padding-bottom: 80px; /* Extra space at the bottom */
-}
-
-@media (min-width: 60em) {
-    .overlay-content {
-        max-width: 70rem;
-    }
-}
-
-@media screen and (max-width: 60em) {
-    .overlay-content {
-        width: 100%;
-        border-radius: 0;
-    }
 }
 
 .theme-switch {

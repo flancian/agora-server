@@ -260,13 +260,54 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   // Burger menu, where we keep settings presumably :)
-  document.querySelectorAll(['#burger', '#join', '#join2']).forEach(element => {
+  document.querySelectorAll(['#burger']).forEach(element => {
     console.log(`Clicked ${element.id}`);
     element.addEventListener("click", function () {
       const overlay = document.getElementById('overlay');
+      const joinOverlay = document.getElementById('join-overlay');
+      
+      // Close join overlay if open
+      if (joinOverlay && joinOverlay.classList.contains('active')) {
+          joinOverlay.classList.remove('active');
+      }
+
       overlay.classList.toggle('active');
-      document.body.classList.toggle('overlay-open');
+      if (overlay.classList.contains('active')) {
+          document.body.classList.add('overlay-open');
+      } else {
+          document.body.classList.remove('overlay-open');
+      }
       const overlayContent = overlay.querySelector('.overlay-content');
+      if (overlayContent) {
+        overlayContent.scrollTop = 0;
+      }
+    });
+  });
+
+  // Join menu
+  document.querySelectorAll(['#join', '#join2', '#open-join-overlay']).forEach(element => {
+    console.log(`Clicked ${element.id}`);
+    element.addEventListener("click", function (e) {
+      if (element.tagName === 'A') {
+          e.preventDefault();
+      }
+
+      const overlay = document.getElementById('overlay');
+      const joinOverlay = document.getElementById('join-overlay');
+
+      // Close settings overlay if open
+      if (overlay && overlay.classList.contains('active')) {
+          overlay.classList.remove('active');
+      }
+
+      joinOverlay.classList.toggle('active');
+      if (joinOverlay.classList.contains('active')) {
+          document.body.classList.add('overlay-open');
+      } else {
+          document.body.classList.remove('overlay-open');
+      }
+      
+      const overlayContent = joinOverlay.querySelector('.overlay-content');
       if (overlayContent) {
         overlayContent.scrollTop = 0;
       }
@@ -278,6 +319,16 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (overlay) {
     overlay.addEventListener('click', function(event) {
       if (event.target === overlay) {
+        this.classList.remove('active');
+        document.body.classList.remove('overlay-open');
+      }
+    });
+  }
+  
+  const joinOverlay = document.getElementById('join-overlay');
+  if (joinOverlay) {
+    joinOverlay.addEventListener('click', function(event) {
+      if (event.target === joinOverlay) {
         this.classList.remove('active');
         document.body.classList.remove('overlay-open');
       }
@@ -1897,15 +1948,16 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         const nav = document.querySelector('nav');
 
-        const overlay = document.querySelector('.overlay');
+        const overlays = document.querySelectorAll('.overlay');
 
-        if (nav && overlay) {
+        if (nav && overlays.length > 0) {
 
           const navHeight = nav.offsetHeight;
-
-          (overlay as HTMLElement).style.top = navHeight + 'px';
-
-          (overlay as HTMLElement).style.height = `calc(100% - ${navHeight}px)`;
+          
+          overlays.forEach(overlay => {
+              (overlay as HTMLElement).style.top = navHeight + 'px';
+              (overlay as HTMLElement).style.height = `calc(100% - ${navHeight}px)`;
+          });
 
         }
 
