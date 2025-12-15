@@ -24,7 +24,7 @@ const autoPull = JSON.parse(localStorage.getItem("auto-pull") ?? 'true')
 const autoExec = JSON.parse(localStorage["auto-exec"] || 'true')
 const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
-import { initializeStars, initializeNodeStars } from './starring';
+import { initializeStars, initializeNodeStars, initializeExternalStars } from './starring';
 import { initSettings } from './settings';
 import { safeJsonParse, darkenColor } from './util';
 import { makeDraggable } from './draggable';
@@ -1025,6 +1025,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                                       initializeStars();
 
                     initializeNodeStars();
+                    
+                    initializeExternalStars();
 
                     applyDismissals(); // Run again for dynamically loaded info-boxes.
 
@@ -2082,6 +2084,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                                 newContent.classList.add('fade-in');
 
                             }
+                            
+                            // Initialize stars for the newly added content
+                            initializeExternalStars();
 
                             // Re-attach event listeners for the new content
                             const autoExpandWikipedia = localStorage.getItem('auto-expand-wikipedia') === 'true';
@@ -2273,6 +2278,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             (wikiSearchElement as HTMLElement).style.display = '';
 
             wikiSearchElement.innerHTML = data;
+
+            // Initialize stars for the newly added content
+            initializeExternalStars();
 
           } else {
 

@@ -457,6 +457,7 @@ def starred():
     n = api.build_node("starred")
     starred_subnode_uris = sqlite_engine.get_all_starred_subnodes()
     starred_node_uris = sqlite_engine.get_all_starred_nodes()
+    starred_external = sqlite_engine.get_all_starred_external()
     subnodes = [api.subnode_by_uri(uri) for uri in starred_subnode_uris if api.subnode_by_uri(uri) is not None]
     return render_template(
         "starred.html",
@@ -464,6 +465,7 @@ def starred():
         subnodes=subnodes,
         node=n,
         starred_nodes=starred_node_uris,
+        starred_external=starred_external,
     )
 
 
@@ -1287,6 +1289,56 @@ def get_starred_nodes():
         return jsonify(list(starred_uris))
     except Exception as e:
         current_app.logger.error(f"API: Error fetching starred nodes: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@bp.route("/api/star_external", methods=["POST"])
+def star_external():
+    data = request.get_json()
+    url = data.get('url')
+    title = data.get('title')
+    source = data.get('source')
+    
+    if not url or not title or not source:
+        return jsonify({"status": "error", "message": "Missing required fields"}), 400
+
+    try:
+        sqlite_engine.star_external(url, title, source)
+        return jsonify({"status": "success", "action": "starred", "url": url})
+    except Exception as e:
+        current_app.logger.error(f"API: Error starring external {url}: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@bp.route("/api/unstar_external", methods=["POST"])
+def unstar_external():
+    data = request.get_json()
+    url = data.get('url')
+    
+    if not url:
+        return jsonify({"status": "error", "message": "Missing url"}), 400
+
+    try:
+        sqlite_engine.unstar_external(url)
+        return jsonify({"status": "success", "action": "unstarred", "url": url})
+    except Exception as e:
+        current_app.logger.error(f"API: Error unstarring external {url}: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@bp.route("/api/starred_external")
+def get_starred_external():
+    try:
+        starred = sqlite_engine.get_all_starred_external()
+        return jsonify(starred)
+    except Exception as e:
+        current_app.logger.error(f"API: Error fetching starred external: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@bp.route("/api/starred_external_urls")
+def get_starred_external_urls():
+    try:
+        starred_urls = sqlite_engine.get_all_starred_external_urls()
+        return jsonify(list(starred_urls))
+    except Exception as e:
+        current_app.logger.error(f"API: Error fetching starred external URLs: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 

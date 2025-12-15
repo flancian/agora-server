@@ -158,9 +158,12 @@ def create_tables(db):
                     PRIMARY KEY (user_uri, follower_uri)
                 );
             """,
-            'federated_subnodes': """
-                CREATE TABLE IF NOT EXISTS federated_subnodes (
-                    subnode_uri TEXT PRIMARY KEY
+            'starred_external': """
+                CREATE TABLE IF NOT EXISTS starred_external (
+                    url TEXT PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    source TEXT NOT NULL,
+                    timestamp INTEGER
                 );
             """,
             'maintenance_lock': """
@@ -737,3 +740,53 @@ def is_subnode_federated(subnode_uri):
     cursor = db.cursor()
     cursor.execute("SELECT 1 FROM federated_subnodes WHERE subnode_uri = ?", (subnode_uri,))
     return cursor.fetchone() is not None
+
+#
+# Starred External
+#
+def star_external(url, title, source):
+    db = get_db()
+    if db:
+        import time
+        timestamp = int(time.time())
+        db.execute(
+            "REPLACE INTO starred_external (url, title, source, timestamp) VALUES (?, ?, ?, ?)",
+            (url, title, source, timestamp)
+        )
+        db.commit()
+
+def unstar_external(url):
+    db = get_db()
+    if db:
+        db.execute("DELETE FROM starred_external WHERE url = ?", (url,))
+        db.commit()
+
+def get_all_starred_external():
+    """
+    Returns a list of dicts: {'url': ..., 'title': ..., 'source': ..., 'timestamp': ...}
+    """
+    db = get_db()
+    if db is None:
+        return []
+    try:
+        cursor = db.execute("SELECT url, title, source, timestamp FROM starred_external ORDER BY timestamp DESC")
+        return [
+            {'url': row[0], 'title': row[1], 'source': row[2], 'timestamp': row[3]}
+            for row in cursor.fetchall()
+        ]
+    except sqlite3.OperationalError as e:
+        current_app.logger.warning(f"Could not fetch starred external, table might not exist yet: {e}")
+        return []
+
+def get_all_starred_external_urls():
+    """
+    Returns a set of all starred external URLs for quick lookup.
+    """
+    db = get_db()
+    if db is None:
+        return set()
+    try:
+        cursor = db.execute("SELECT url FROM starred_external")
+        return {row[0] for row in cursor.fetchall()}
+    except sqlite3.OperationalError as e:
+        return set()

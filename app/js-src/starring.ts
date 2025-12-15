@@ -119,6 +119,78 @@ function handleStarClick(event) {
     });
 }
 
+// External Stars Logic
+
+async function starExternal(url: string, title: string, source: string) {
+    const response = await fetch(`/api/star_external`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, title, source })
+    });
+    return response.json();
+}
+
+async function unstarExternal(url: string) {
+    const response = await fetch(`/api/unstar_external`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+    });
+    return response.json();
+}
+
+async function getStarredExternalUrls(): Promise<string[]> {
+    const response = await fetch(`/api/starred_external_urls`);
+    if (!response.ok) {
+        return [];
+    }
+    return response.json();
+}
+
+export function initializeExternalStars() {
+    // Initial load check
+    getStarredExternalUrls().then(starredUrls => {
+        document.querySelectorAll('.external-star-toggle').forEach((button: HTMLElement) => {
+            const url = button.dataset.externalUrl;
+            if (url && starredUrls.includes(url)) {
+                button.classList.add('starred');
+                button.innerHTML = '★';
+                button.title = "Unstar this resource";
+            }
+        });
+    });
+
+    document.querySelectorAll('.external-star-toggle').forEach(button => {
+        button.removeEventListener('click', handleExternalStarClick);
+        button.addEventListener('click', handleExternalStarClick);
+    });
+}
+
+function handleExternalStarClick(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    const button = event.currentTarget as HTMLElement;
+    const url = button.dataset.externalUrl;
+    const title = button.dataset.externalTitle;
+    const source = button.dataset.externalSource;
+    const isStarred = button.classList.contains('starred');
+
+    const action = isStarred ? unstarExternal(url) : starExternal(url, title, source);
+
+    action.then(data => {
+        if (data.status === 'success') {
+            button.classList.toggle('starred');
+            button.innerHTML = isStarred ? '☆' : '★';
+            button.title = isStarred ? "Star this resource" : "Unstar this resource";
+        } else {
+            console.error('Failed to update external star status:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
 export function initializeNodeStars() {
     document.querySelectorAll('.node-star-toggle').forEach(button => {
         button.removeEventListener('click', handleNodeStarClick);

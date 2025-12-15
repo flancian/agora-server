@@ -53,6 +53,22 @@
         {% endif %}
     </div>
 
+    <div class="starred-external">
+        <h2>Starred External Resources</h2>
+        {% if starred_external %}
+            <ul>
+                {% for item in starred_external %}
+                    <li>
+                        <span class="wikilink-marker">[[</span><a href="{{ item.url }}" target="_blank">{{ item.title }}</a><span class="wikilink-marker">]]</span>
+                        <span style="color: var(--text-color-faint); font-size: 0.8em;">({{ item.source|capitalize }})</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No starred external resources yet.</p>
+        {% endif %}
+    </div>
+
 </div>
 {% include "footer.html" %}
 {% endblock %}
