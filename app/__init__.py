@@ -210,10 +210,16 @@ def create_app():
         return f"/{node_uri}"
 
     # Start Federation Loop (Background Thread)
-    if (os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or os.environ.get('UWSGI_ORIGINAL_PROC_NAME')) and app.config.get('ENABLE_AGORA_PROTOCOL'):
-         import threading
-         from .agora import federate_latest_loop
-         fed_thread = threading.Thread(target=federate_latest_loop, args=(app,), daemon=True)
-         fed_thread.start()
+    # This is a bit of a hack to ensure that we only run the federation loop once.
+    # We only run it if we are running the main process (not a worker) or if we are running uWSGI.
+    # We also check a config flag to allow disabling it (e.g. for testing).
+    if (os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or os.environ.get('UWSGI_ORIGINAL_PROC_NAME')) and app.config.get('ENABLE_FEDERATION_WORKER'):
+        # TODO: move this to a separate worker process.
+        # Currently we run this in a background thread in the main process.
+        # This is fine for now as the loop is not CPU intensive.
+        import threading
+        thread = threading.Thread(target=agora.federate_latest_loop, args=(app,))
+        thread.daemon = True
+        thread.start()
     
     return app

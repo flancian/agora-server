@@ -140,7 +140,7 @@ class DefaultConfig(object):
     ENABLE_ORGORA = False
     ENABLE_HYPOTHESIS = False
     ENABLE_SQLITE = False
-    ENABLE_AGORA_PROTOCOL = False
+    ENABLE_FEDERATION_WORKER = False
     ENABLE_FLUSH_CACHE_BUTTON = False
     # If True, G.node(uri) fetches from DB on demand (low RAM, high latency).
     # If False, G.nodes() loads full graph into RAM at startup (high RAM, zero latency).
@@ -257,7 +257,8 @@ class AlphaConfig(DefaultConfig):
     # Finally took place early on 2025-08-29. Requires a writeable filesystem.
     ENABLE_SQLITE = True
     ENABLE_DEMO = True
-    ENABLE_AGORA_PROTOCOL = True
+    # This should be False in production unless you are running a federation worker.
+    ENABLE_FEDERATION_WORKER = False
 
 
 class DevelopmentConfig(DefaultConfig):
@@ -283,7 +284,7 @@ class DevelopmentConfig(DefaultConfig):
 
     # Set MISTRAL_API_KEY env variable when enabling :)
     ENABLE_AI = True
-    ENABLE_AGORA_PROTOCOL = True
+    ENABLE_FEDERATION_WORKER = True
 
 
 class LocalDevelopmentConfig(DefaultConfig):
@@ -310,7 +311,7 @@ class LocalDevelopmentConfig(DefaultConfig):
 
     # Set MISTRAL_API_KEY and GEMINI_API_KEY env variables when enabling :)
     ENABLE_AI = True
-    ENABLE_AGORA_PROTOCOL = True
+    ENABLE_FEDERATION_WORKER = True
 
     # Demo mode settings
     ENABLE_DEMO = True
