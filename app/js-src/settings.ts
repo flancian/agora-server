@@ -196,9 +196,11 @@ export function initSettings() {
             
             const usernameInput = document.getElementById("join-username") as HTMLInputElement;
             const repoInput = document.getElementById("join-repo") as HTMLInputElement;
+            const formatInput = document.getElementById("join-format") as HTMLSelectElement;
             
             const username = usernameInput.value.trim();
             const repoUrl = repoInput.value.trim();
+            const format = formatInput ? formatInput.value : 'markdown'; // Default to markdown if missing
             
             if (!username || !repoUrl) {
                 statusDiv.innerText = "Please fill in both fields.";
@@ -214,7 +216,7 @@ export function initSettings() {
                 const response = await fetch("/api/join", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, repo_url: repoUrl })
+                    body: JSON.stringify({ username, repo_url: repoUrl, format })
                 });
                 
                 const data = await response.json();

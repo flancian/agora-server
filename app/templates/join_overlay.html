@@ -36,6 +36,19 @@
                     <label for="join-repo">Git Repository URL:</label>
                     <input type="url" id="join-repo" placeholder="https://github.com/..." style="width: 100%; box-sizing: border-box;">
                 </div>
+                <div style="margin-bottom: 10px;">
+                    <label for="join-format">Garden Flavor (Format):</label>
+                    <select id="join-format" style="width: 100%; box-sizing: border-box; padding: 5px;">
+                        <option value="markdown">Markdown (Generic)</option>
+                        <option value="obsidian">Obsidian</option>
+                        <option value="foam">Foam</option>
+                        <option value="logseq">Logseq</option>
+                        <option value="hugo">Hugo</option>
+                        <option value="jekyll">Jekyll</option>
+                        <option value="org-mode">Org-mode</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
                 <button id="join-submit-btn">Join Now</button>
                 <div id="join-status" style="margin-top: 10px; font-weight: bold;"></div>
             </div>

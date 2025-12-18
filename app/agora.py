@@ -815,6 +815,11 @@ def join_api():
     data = request.json
     username = data.get('username')
     repo_url = data.get('repo_url')
+    # Default to 'git' for backwards compatibility if not provided by frontend
+    # But since we updated frontend to send 'markdown'/'obsidian' etc, we use that.
+    # The bridge expects 'format' to be what we now call 'flavor' or 'content_format'.
+    # For now, we pass it as 'format' and let the bridge/pull.py handle it.
+    format_type = data.get('format', 'git') 
     
     if not username or not repo_url:
         return jsonify({'error': 'Missing username or repo_url'}), 400
@@ -835,7 +840,7 @@ def join_api():
             'url': repo_url,
             'target': target,
             'type': 'garden',
-            'format': 'git'
+            'format': format_type
         })
         
         # Pass through the response from Bridge
