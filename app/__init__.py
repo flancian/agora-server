@@ -210,10 +210,24 @@ def create_app():
         return f"/{node_uri}"
 
     # Start Federation Loop (Background Thread)
-    # This is a bit of a hack to ensure that we only run the federation loop once.
-    # We only run it if we are running the main process (not a worker) or if we are running uWSGI.
-    # We also check a config flag to allow disabling it (e.g. for testing).
-    if (os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or os.environ.get('UWSGI_ORIGINAL_PROC_NAME')) and app.config.get('ENABLE_FEDERATION_WORKER'):
+    # Ensure we only run the federation loop once.
+    should_start_thread = False
+
+    # 1. Development Server (Werkzeug)
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        should_start_thread = True
+    
+    # 2. uWSGI Production
+    elif os.environ.get('UWSGI_ORIGINAL_PROC_NAME'):
+        try:
+            import uwsgi
+            # Only start in the first worker to avoid race conditions/redundancy
+            if uwsgi.worker_id() == 1:
+                should_start_thread = True
+        except ImportError:
+            pass # Not actually running under uWSGI
+
+    if should_start_thread and app.config.get('ENABLE_FEDERATION_WORKER'):
         # TODO: move this to a separate worker process.
         # Currently we run this in a background thread in the main process.
         # This is fine for now as the loop is not CPU intensive.
