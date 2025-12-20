@@ -189,6 +189,22 @@ export function initSettings() {
 
     // Join form handler
     const joinBtn = document.getElementById("join-submit-btn");
+    const contractCheckbox = document.getElementById("join-contract") as HTMLInputElement;
+
+    if (contractCheckbox && joinBtn) {
+        contractCheckbox.addEventListener('change', () => {
+            if (contractCheckbox.checked) {
+                joinBtn.removeAttribute("disabled");
+                joinBtn.style.opacity = "1";
+                joinBtn.style.cursor = "pointer";
+            } else {
+                joinBtn.setAttribute("disabled", "true");
+                joinBtn.style.opacity = "0.6";
+                joinBtn.style.cursor = "not-allowed";
+            }
+        });
+    }
+
     if (joinBtn) {
         joinBtn.addEventListener("click", async () => {
             const statusDiv = document.getElementById("join-status");
