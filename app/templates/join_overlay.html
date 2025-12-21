@@ -42,6 +42,11 @@
                     <input type="url" id="join-repo" placeholder="https://github.com/..." style="width: 100%; box-sizing: border-box;">
                 </div>
                 <div style="margin-bottom: 10px;">
+                    <label for="join-web-url">Published URL (optional):</label>
+                    <input type="url" id="join-web-url" placeholder="https://my-garden.com/..." style="width: 100%; box-sizing: border-box;">
+                    <small style="color: #888;">If your garden is already online, link to it here so the Agora can drive traffic to you.</small>
+                </div>
+                <div style="margin-bottom: 10px;">
                     <label for="join-format">Garden Flavor (Format):</label>
                     <select id="join-format" style="width: 100%; box-sizing: border-box; padding: 5px;">
                         <option value="markdown">Markdown (Generic)</option>
@@ -53,6 +58,10 @@
                         <option value="org-mode">Org-mode</option>
                         <option value="other">Other</option>
                     </select>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label for="join-message">Message / Reason to Join (optional):</label>
+                    <textarea id="join-message" rows="3" placeholder="Tell us a bit about yourself or why you'd like to join!" style="width: 100%; box-sizing: border-box;"></textarea>
                 </div>
                 <div style="margin-bottom: 15px; display: flex; align-items: start; gap: 8px;">
                     <input type="checkbox" id="join-contract" style="margin-top: 4px;">

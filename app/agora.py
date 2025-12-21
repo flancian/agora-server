@@ -820,6 +820,8 @@ def join_api():
     # The bridge expects 'format' to be what we now call 'flavor' or 'content_format'.
     # For now, we pass it as 'format' and let the bridge/pull.py handle it.
     format_type = data.get('format', 'git') 
+    web_url = data.get('web_url')
+    message = data.get('message')
     
     if not username or not repo_url:
         return jsonify({'error': 'Missing username or repo_url'}), 400
@@ -835,13 +837,19 @@ def join_api():
     # Assuming Bridge is at localhost:5000 (standard Flask dev port)
     bridge_url = current_app.config.get('AGORA_BRIDGE_URL', 'http://localhost:5000')
     
+    payload = {
+        'url': repo_url,
+        'target': target,
+        'type': 'garden',
+        'format': format_type
+    }
+    if web_url:
+        payload['web'] = web_url
+    if message:
+        payload['message'] = message
+
     try:
-        response = requests.post(f"{bridge_url}/sources", json={
-            'url': repo_url,
-            'target': target,
-            'type': 'garden',
-            'format': format_type
-        })
+        response = requests.post(f"{bridge_url}/sources", json=payload)
         
         # Pass through the response from Bridge
         return jsonify(response.json()), response.status_code
