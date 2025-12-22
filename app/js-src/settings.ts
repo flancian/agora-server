@@ -190,6 +190,31 @@ export function initSettings() {
     // Join form handler
     const joinBtn = document.getElementById("join-submit-btn");
     const contractCheckbox = document.getElementById("join-contract") as HTMLInputElement;
+    const hostMeCheckbox = document.getElementById("join-host-me") as HTMLInputElement;
+    
+    // Form containers
+    const emailContainer = document.getElementById("join-email-container");
+    const repoContainer = document.getElementById("join-repo-container");
+    const webUrlContainer = document.getElementById("join-web-url-container");
+    const formatContainer = document.getElementById("join-format-container");
+
+    if (hostMeCheckbox) {
+        hostMeCheckbox.addEventListener('change', () => {
+            if (hostMeCheckbox.checked) {
+                // Host Me Mode
+                if (emailContainer) emailContainer.style.display = 'block';
+                if (repoContainer) repoContainer.style.display = 'none';
+                if (webUrlContainer) webUrlContainer.style.display = 'none';
+                if (formatContainer) formatContainer.style.display = 'none';
+            } else {
+                // Bring your own garden Mode
+                if (emailContainer) emailContainer.style.display = 'none';
+                if (repoContainer) repoContainer.style.display = 'block';
+                if (webUrlContainer) webUrlContainer.style.display = 'block';
+                if (formatContainer) formatContainer.style.display = 'block';
+            }
+        });
+    }
 
     if (contractCheckbox && joinBtn) {
         contractCheckbox.addEventListener('change', () => {
@@ -215,17 +240,34 @@ export function initSettings() {
             const formatInput = document.getElementById("join-format") as HTMLSelectElement;
             const webUrlInput = document.getElementById("join-web-url") as HTMLInputElement;
             const messageInput = document.getElementById("join-message") as HTMLTextAreaElement;
+            const emailInput = document.getElementById("join-email") as HTMLInputElement;
             
             const username = usernameInput.value.trim();
-            const repoUrl = repoInput.value.trim();
-            const format = formatInput ? formatInput.value : 'markdown'; // Default to markdown if missing
-            const webUrl = webUrlInput ? webUrlInput.value.trim() : '';
             const message = messageInput ? messageInput.value.trim() : '';
+            const hostMe = hostMeCheckbox ? hostMeCheckbox.checked : false;
             
-            if (!username || !repoUrl) {
-                statusDiv.innerText = "Please fill in both fields.";
-                statusDiv.style.color = "red";
-                return;
+            let repoUrl = '';
+            let format = 'markdown';
+            let webUrl = '';
+            let email = '';
+
+            if (hostMe) {
+                email = emailInput ? emailInput.value.trim() : '';
+                if (!username || !email) {
+                    statusDiv.innerText = "Please fill in username and email.";
+                    statusDiv.style.color = "red";
+                    return;
+                }
+            } else {
+                repoUrl = repoInput.value.trim();
+                format = formatInput ? formatInput.value : 'markdown';
+                webUrl = webUrlInput ? webUrlInput.value.trim() : '';
+                
+                if (!username || !repoUrl) {
+                    statusDiv.innerText = "Please fill in username and repo URL.";
+                    statusDiv.style.color = "red";
+                    return;
+                }
             }
             
             statusDiv.innerText = "Processing...";
@@ -236,13 +278,30 @@ export function initSettings() {
                 const response = await fetch("/api/join", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, repo_url: repoUrl, format, web_url: webUrl, message })
+                    body: JSON.stringify({ 
+                        username, 
+                        repo_url: repoUrl, 
+                        format, 
+                        web_url: webUrl, 
+                        message,
+                        email,
+                        host_me: hostMe
+                    })
                 });
                 
                 const data = await response.json();
                 
                 if (response.ok) {
-                    statusDiv.innerText = "Success! " + (data.message || "You have joined the Agora.");
+                    let successMsg = "Success! " + (data.message || "You have joined the Agora.");
+                    if (hostMe && data.password) {
+                        // Display the generated password for hosted gardens
+                        successMsg += `<br><br><strong>Your new garden is ready!</strong><br>
+                        Clone URL: <code>${data.repo_url}</code><br>
+                        Username: <strong>${data.username}</strong><br>
+                        Password: <strong>${data.password}</strong><br>
+                        <br><em>Please save this password immediately! It will not be shown again.</em>`;
+                    }
+                    statusDiv.innerHTML = successMsg; // Use innerHTML to render bold tags
                     statusDiv.style.color = "lightgreen";
                     // Optionally refresh or redirect
                 } else {

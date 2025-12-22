@@ -822,40 +822,57 @@ def join_api():
     format_type = data.get('format', 'git') 
     web_url = data.get('web_url')
     message = data.get('message')
-    
-    if not username or not repo_url:
-        return jsonify({'error': 'Missing username or repo_url'}), 400
-        
-    # Sanitize username (remove @ if present)
-    if username.startswith('@'):
-        username = username[1:]
-        
-    # Construct target path for sources.yaml
-    target = f"garden/{username}"
+    host_me = data.get('host_me', False)
+    email = data.get('email')
     
     # Call Bridge API
     # Assuming Bridge is at localhost:5000 (standard Flask dev port)
     bridge_url = current_app.config.get('AGORA_BRIDGE_URL', 'http://localhost:5000')
-    
-    payload = {
-        'url': repo_url,
-        'target': target,
-        'type': 'garden',
-        'format': format_type
-    }
-    if web_url:
-        payload['web'] = web_url
-    if message:
-        payload['message'] = message
 
-    try:
-        response = requests.post(f"{bridge_url}/sources", json=payload)
+    # Sanitize username (remove @ if present)
+    if username and username.startswith('@'):
+        username = username[1:]
+
+    if host_me:
+        if not username or not email:
+             return jsonify({'error': 'Missing username or email for hosted garden.'}), 400
         
-        # Pass through the response from Bridge
-        return jsonify(response.json()), response.status_code
+        try:
+            response = requests.post(f"{bridge_url}/provision", json={
+                'username': username,
+                'email': email,
+                'message': message
+            })
+            return jsonify(response.json()), response.status_code
+        except requests.RequestException as e:
+            return jsonify({'error': f"Failed to contact Bridge for provisioning: {str(e)}"}), 502
+
+    else:
+        if not username or not repo_url:
+            return jsonify({'error': 'Missing username or repo_url'}), 400
+            
+        # Construct target path for sources.yaml
+        target = f"garden/{username}"
         
-    except requests.RequestException as e:
-        return jsonify({'error': f"Failed to contact Bridge: {str(e)}"}), 502
+        payload = {
+            'url': repo_url,
+            'target': target,
+            'type': 'garden',
+            'format': format_type
+        }
+        if web_url:
+            payload['web'] = web_url
+        if message:
+            payload['message'] = message
+
+        try:
+            response = requests.post(f"{bridge_url}/sources", json=payload)
+            
+            # Pass through the response from Bridge
+            return jsonify(response.json()), response.status_code
+            
+        except requests.RequestException as e:
+            return jsonify({'error': f"Failed to contact Bridge: {str(e)}"}), 502
 
 
 @bp.route("/garden/<garden>")

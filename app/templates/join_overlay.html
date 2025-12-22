@@ -33,20 +33,33 @@
             <div id="join-agora-form">
                 <p>Enter these details to join! Your application will be reviewed by a human.</p>
 
+                <div style="margin-bottom: 15px; display: flex; align-items: start; gap: 8px; background-color: var(--accent-bg); padding: 10px; border-radius: 4px;">
+                    <input type="checkbox" id="join-host-me" style="margin-top: 4px;">
+                    <label for="join-host-me" style="font-size: 0.9em; line-height: 1.4; cursor: pointer;">
+                        <strong>I don't have a garden yet.</strong> Please host one for me on <code>git.anagora.org</code>!
+                    </label>
+                </div>
+
                 <div style="margin-bottom: 10px;">
                     <label for="join-username">Username <a href="/users" target="_blank" style="font-weight: normal; font-size: 0.9em;">(check existing users here)</a>:</label>
                     <input type="text" id="join-username" placeholder="@yourname" style="width: 100%; box-sizing: border-box;">
                 </div>
-                <div style="margin-bottom: 10px;">
+
+                <div id="join-email-container" style="margin-bottom: 10px; display: none;">
+                    <label for="join-email">Email (required for account setup):</label>
+                    <input type="email" id="join-email" placeholder="you@example.com" style="width: 100%; box-sizing: border-box;">
+                </div>
+
+                <div id="join-repo-container" style="margin-bottom: 10px;">
                     <label for="join-repo">Git Repository URL:</label>
                     <input type="url" id="join-repo" placeholder="https://github.com/..." style="width: 100%; box-sizing: border-box;">
                 </div>
-                <div style="margin-bottom: 10px;">
+                <div id="join-web-url-container" style="margin-bottom: 10px;">
                     <label for="join-web-url">Published URL (optional):</label>
                     <input type="url" id="join-web-url" placeholder="https://my-garden.com/..." style="width: 100%; box-sizing: border-box;">
                     <small style="color: #888;">If your garden is already online, link to it here so the Agora can drive traffic to you.</small>
                 </div>
-                <div style="margin-bottom: 10px;">
+                <div id="join-format-container" style="margin-bottom: 10px;">
                     <label for="join-format">Garden Flavor (Format):</label>
                     <select id="join-format" style="width: 100%; box-sizing: border-box; padding: 5px;">
                         <option value="markdown">Markdown (Generic)</option>
