@@ -11,8 +11,8 @@
 Description=Agora Server, see https://github.com/flancian/agora-server.
 
 [Service]
-WorkingDirectory=/home/agora/agora-server
-ExecStart=/home/agora/agora-server/run-prod.sh
+WorkingDirectory=/home/flancian/agora-server
+ExecStart=/home/flancian/agora-server/run-prod.sh
 ExecReload=/bin/touch /tmp/agora-restart
 Restart=always
 RestartSec=3

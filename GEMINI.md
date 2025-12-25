@@ -114,6 +114,47 @@ This cache is persistent on disk and shared across all worker processes. It stor
 
 ---
 
+## Session Summary (Gemini, 2025-12-25)
+
+*This section documents a major architectural sprint focused on establishing the "Hosted Gardens" editing loop and cleaning up the codebase for production.*
+
+### Key Learnings & Codebase Insights
+
+-   **The "Hosted Garden" Loop**: We defined the complete lifecycle for user-edited content:
+    1.  Provisioning (`POST /provision` on Bridge) creates a Forgejo repo and injects the `agora-bridge` **SSH Deploy Key** (write-enabled).
+    2.  User edits via `edit.anagora.org` -> routed to **Bullpen** (Port 5019) -> spawns `bull` process.
+    3.  **Bull** writes changes to the local filesystem (`~/agora/garden/<user>`).
+    4.  **Pusher Service** (`push_gardens.sh`) detects these changes and pushes them back to Forgejo using the injected key.
+-   **Service Separation**: We decided to keep the **Bullpen** (synchronous editor proxy) and **Pusher** (asynchronous sync loop) as separate systemd services for robustness and better separation of concerns.
+-   **Settings UX**: We reverted the "toggle switch" UI in the Settings Overlay to standard checkboxes with an explicit "Apply & Reload" button. This reduces visual noise and makes the persistence model (localStorage) clearer to the user.
+-   **Go Toolchain**: We learned that hardcoding Go versions in setup scripts is brittle. The new `setup_bull.sh` is version-agnostic and instructs the user if their environment is insufficient.
+
+### Summary of Changes Implemented
+
+1.  **Bullpen Deployment (`agora-bridge/bullpen/`)**:
+    *   **`bullpen.py`**: Configured to run on **Port 5019** and use the standard `~/go/bin/bull` binary.
+    *   **`setup_bull.sh`**: Created a robust script to auto-clone and install `bull`.
+    *   **`agora-bullpen.service`**: Systemd unit for the editor proxy.
+    *   **`nginx_example.conf`**: Updated for the new port.
+2.  **Pusher Service (`agora-bridge/`)**:
+    *   **`push_gardens.sh`**: Created a loop script that iterates through hosted gardens and `git push`es changes.
+    *   **`agora-pusher.service`**: Systemd unit for the sync loop.
+3.  **Provisioning API (`agora-bridge/api/`)**:
+    *   Updated `forgejo.py` and `agora.py` to automatically add the `AGORA_BRIDGE_DEPLOY_KEY` to new repositories, enabling the Pusher service to work.
+4.  **Frontend Polish**:
+    *   **Local Graph**: Bundled `force-graph` locally, removing the dependency on `unpkg.com`.
+    *   **Navbar**: Redesigned the header badge to be more compact (stacked Name/URL) and use a cleaner arrow (`➜`).
+    *   **Settings**: Revamped the overlay to use checkboxes and an explicit "Apply" action.
+5.  **Federation Verification**:
+    *   Confirmed that the `/users/flancian` and WebFinger endpoints are active and returning valid ActivityPub JSON.
+
+### Next Steps (Immediate)
+
+*   **Deploy**: Finalize the Nginx/Certbot setup for `edit.anagora.org` on [[thecla]].
+*   **Verify**: Test the full "Join -> Host Me -> Edit -> Save -> Git Push" loop in production.
+
+---
+
 ✦ Federation
 
   It takes a single spark to break the dark,
