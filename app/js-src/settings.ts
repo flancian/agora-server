@@ -224,13 +224,11 @@ export function initSettings() {
         hostMeCheckbox.addEventListener('change', () => {
             if (hostMeCheckbox.checked) {
                 // Host Me Mode
-                if (emailContainer) emailContainer.style.display = 'block';
                 if (repoContainer) repoContainer.style.display = 'none';
                 if (webUrlContainer) webUrlContainer.style.display = 'none';
                 if (formatContainer) formatContainer.style.display = 'none';
             } else {
                 // Bring your own garden Mode
-                if (emailContainer) emailContainer.style.display = 'none';
                 if (repoContainer) repoContainer.style.display = 'block';
                 if (webUrlContainer) webUrlContainer.style.display = 'block';
                 if (formatContainer) formatContainer.style.display = 'block';
@@ -284,14 +282,13 @@ export function initSettings() {
             const username = usernameInput.value.trim();
             const message = messageInput ? messageInput.value.trim() : '';
             const hostMe = hostMeCheckbox ? hostMeCheckbox.checked : false;
+            const email = emailInput ? emailInput.value.trim() : '';
             
             let repoUrl = '';
             let format = 'markdown';
             let webUrl = '';
-            let email = '';
 
             if (hostMe) {
-                email = emailInput ? emailInput.value.trim() : '';
                 if (!username || !email) {
                     statusDiv.innerText = "Please fill in username and email.";
                     statusDiv.style.color = "red";
@@ -302,8 +299,8 @@ export function initSettings() {
                 format = formatInput ? formatInput.value : 'markdown';
                 webUrl = webUrlInput ? webUrlInput.value.trim() : '';
                 
-                if (!username || !repoUrl) {
-                    statusDiv.innerText = "Please fill in username and repo URL.";
+                if (!username || !email || !repoUrl) {
+                    statusDiv.innerText = "Please fill in username, email, and repo URL.";
                     statusDiv.style.color = "red";
                     return;
                 }

@@ -864,6 +864,8 @@ def join_api():
             payload['web'] = web_url
         if message:
             payload['message'] = message
+        if email:
+            payload['email'] = email
 
         try:
             response = requests.post(f"{bridge_url}/sources", json=payload)
