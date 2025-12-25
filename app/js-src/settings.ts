@@ -87,11 +87,7 @@ export function initSettings() {
     const applyUser = () => {
         const user = (document.getElementById("user") as HTMLInputElement).value;
         localStorage["user"] = user;
-        // @ts-ignore
-        if (window.showToast) window.showToast(`Browsing Agora as ${user}...`);
-        
-        // Delay reload to let the toast be seen/animation start
-        setTimeout(() => location.reload(), 1000);
+        location.reload();
     };
 
     // Handle Enter key on username input

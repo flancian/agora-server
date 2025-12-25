@@ -1,7 +1,7 @@
 // app/js-src/util.ts
 
 export const CLIENT_DEFAULTS = {
-  user: 'flancian',
+  user: 'agora',
   autoExpandSearch: false,
   autoExpandWikipedia: false,
   autoExpandAll: false,

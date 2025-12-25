@@ -526,7 +526,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 			// 1. Create a new toast element
 			const toastElement = document.createElement('div');
 			toastElement.className = 'toast'; // Start with base styles (hidden)
-			toastElement.textContent = message;
+			toastElement.innerHTML = message;
 
 			// 2. Add it to the container
 			container.appendChild(toastElement);
@@ -2253,6 +2253,30 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
 
       });
+
+      // Show toast on load if user is not 'agora'
+      const currentUser = localStorage.getItem('user');
+      if (currentUser && currentUser !== 'agora') {
+          setTimeout(() => {
+              const safeUser = currentUser.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+              showToast(`Browsing as <strong>@${safeUser}</strong> <a href="#" id="toast-change-user" style="font-size: 0.85em; text-decoration: underline;">(change)</a>`);
+              
+              // Bind the click handler
+              setTimeout(() => {
+                  const link = document.getElementById('toast-change-user');
+                  if (link) {
+                      link.addEventListener('click', (e) => {
+                          e.preventDefault();
+                          const overlay = document.getElementById('overlay');
+                          if (overlay) {
+                              overlay.classList.add('active');
+                              document.body.classList.add('overlay-open');
+                          }
+                      });
+                  }
+              }, 50);
+          }, 1000);
+      }
 
       if (autoExec) {
 
