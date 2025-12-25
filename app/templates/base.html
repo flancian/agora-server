@@ -76,11 +76,6 @@
 	{% endif %}
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-	<!-- commented out on 2025-03-15 due to unpkg.com outage -->
-	{% if graph %}
-	<script src="//unpkg.com/force-graph"></script>
-	{% endif %}
-	
 	<script type="module" src="{{url_for('static', filename='js/index.js')}}"></script>
 
 	<script type="application/json" class="js-hypothesis-config">

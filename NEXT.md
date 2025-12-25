@@ -18,15 +18,15 @@
     *   Verify Actor endpoints.
     *   Test "Welcome Package" delivery for new followers.
 
-## 3. Graph Robustness (Local Bundling)
+## 3. Graph Robustness (Local Bundling) - DONE
 *   **Context**: The `force-graph` visualization library in `base.html` relies on `unpkg.com`, which has had outages. It is currently commented out.
 *   **Goal**: Restore the knowledge graph visualization.
 *   **Tasks**:
-    *   Download `force-graph` and its dependencies.
-    *   Bundle them into `app/static/js/`.
-    *   Update `base.html` to load locally.
+    *   [x] Download `force-graph` and its dependencies.
+    *   [x] Bundle them into `app/static/js/`.
+    *   [x] Update `base.html` to load locally.
 
-## 4. Documentation & Cleanup
+## 4. Documentation & Cleanup - DONE
 *   **Tasks**:
-    *   Review `DONE.md` and consolidate session logs.
-    *   Ensure all new env vars (`AGORA_FORGEJO_*`) are documented in `agora-bridge/README.md`.
+    *   [x] Review `DONE.md` and consolidate session logs.
+    *   [x] Ensure all new env vars (`AGORA_FORGEJO_*`) are documented in `agora-bridge/README.md`.

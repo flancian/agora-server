@@ -3,7 +3,6 @@
 
 import { safeJsonParse, darkenColor } from './util';
 
-declare const ForceGraph: any;
 declare const NODENAME: string;
 
 export async function renderGraph(containerId: string, dataUrl: string) {
@@ -12,6 +11,8 @@ export async function renderGraph(containerId: string, dataUrl: string) {
 
     // Clear previous graph if any
     container.innerHTML = '';
+
+    const { default: ForceGraph } = await import('force-graph');
 
     const darkPalette = {
         bg: 'rgba(0, 0, 0, 0)', // Transparent background
