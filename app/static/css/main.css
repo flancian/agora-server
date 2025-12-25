@@ -152,6 +152,7 @@ body.overlay-open {
 
 html {
     font-family: 'Noto Sans', sans-serif;
+    scrollbar-gutter: stable;
 }
 
 body {
@@ -1098,24 +1099,30 @@ table caption {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 10px;
+    /* gap: 10px; Removed to allow margin animation */
     z-index: 9999;
 }
 
 .toast {
     background-color: #1f2937;
     color: white;
-    padding: 1rem 1.5rem;
+    padding: 0 1.5rem; /* Start with 0 vertical padding */
     border-radius: 0.5rem;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     opacity: 0;
-    transform: translateY(100%);
-    transition: opacity 0.4s, transform 0.4s ease-in-out;
+    transform: translateY(20px);
+    max-height: 0;
+    margin-top: 0;
+    overflow: hidden;
+    transition: all 0.4s ease-in-out;
 }
 
 .toast-visible {
     opacity: 1;
     transform: translateY(0);
+    padding: 1rem 1.5rem;
+    max-height: 200px;
+    margin-top: 10px;
 }
 
 .ai-provider-tab, .wiki-provider-tab, .web-provider-tab {

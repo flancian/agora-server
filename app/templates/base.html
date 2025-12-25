@@ -96,11 +96,10 @@
 
 <body>
 
-    <div class="content">
-	    {% include "overlay.html" %}
-        {% include "join_overlay.html" %}
+    {% include "overlay.html" %}
+    {% include "join_overlay.html" %}
 
-	<nav>
+    <nav>
         {% if not embed %}
         <!-- navigation chrome is simplified if embed=True -->
         <div class="navigation">
@@ -172,6 +171,7 @@
         </div>
     </nav>
 
+    <div class="content">
     {% block content %}
     {% endblock %}
 
