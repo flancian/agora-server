@@ -759,7 +759,10 @@ document.addEventListener("DOMContentLoaded", async function () {
             let url = embed.getAttribute('src');
             if (embed.classList.contains('edit-iframe')) {
                 const user = localStorage.getItem('user') || 'flancian';
-                const nodeUri = url.split('/').pop();
+                let nodeUri = url.split('/').pop();
+                if (nodeUri && !nodeUri.includes('.')) {
+                    nodeUri += '.md';
+                }
                 url = `https://edit.anagora.org/@${user}/${nodeUri}`;
             }
             const iframeHTML = `<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="${url}" style="width: 100%;" height="700px"></iframe>`;

@@ -24,112 +24,109 @@
         This Agora is in active development. Please <a href="/go/agora server/bugs">report bugs</a> and <a href="mailto:0@flancia.org">send feedback</a>!
         </div>
 
-		<div>
-			<h2>Settings</h2>
-            <div class="settings-group">
-                <h3 class="settings-group-header">Auto-expand Settings</h3>
-                <div class="settings-grid">
-                    <div class="settings-item">
-                        <label class="settings-switch" for="auto-expand-all">
-                            <input id="auto-expand-all" type="checkbox" />
-                            <div class="slider round"></div>
-                        </label>
-                        <label for="auto-expand-all">Auto-expand all sections</label>
-                    </div>
-                    <div class="settings-item">
-                        <label class="settings-switch" for="auto-expand-wikipedia">
-                            <input id="auto-expand-wikipedia" type="checkbox" />
-                            <div class="slider round"></div>
-                        </label>
-                        <label for="auto-expand-wikipedia">Auto-expand Wikipedia & Wiktionary</label>
-                    </div>
-                    <div class="settings-item">
-                        <label class="settings-switch" for="auto-expand-search">
-                            <input id="auto-expand-search" type="checkbox" />
-                            <div class="slider round"></div>
-                        </label>
-                        <label for="auto-expand-search">Auto-expand search results</label>
-                    </div>
-                    <div class="settings-item">
-                        <label class="settings-switch" for="auto-expand-stoas">
-                            <input id="auto-expand-stoas" type="checkbox" />
-                            <div class="slider round"></div>
-                        </label>
-                        <label for="auto-expand-stoas">Auto-expand stoas (collaboration)</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-group">
-                <h3 class="settings-group-header">Auto-pull Settings</h3>
-                <div class="settings-grid">
-                    <div class="settings-item">
-                        <label class="settings-switch" for="auto-pull">
-                            <input id="auto-pull" type="checkbox" />
-                            <div class="slider round"></div>
-                        </label>
-                        <label for="auto-pull">Auto-pull all content in node</label>
-                    </div>
-                </div>
-            </div>
-
-			<div class="settings-group">
-                <h3 class="settings-group-header">Display Settings</h3>
-				<div class="settings-grid">
-					<div class="settings-item">
-						<label class="settings-switch" for="show-brackets">
-							<input id="show-brackets" type="checkbox" />
-							<div class="slider round"></div>
-						</label>
-						<label for="show-brackets">Show [[wikilink]] markers</label>
-					</div>
-					<div class="settings-item">
-						<label class="settings-switch" for="show-graph-labels">
-							<input id="show-graph-labels" type="checkbox" />
-							<div class="slider round"></div>
-						</label>
-						<label for="show-graph-labels">Show graph labels</label>
-					</div>
-					<div class="settings-item">
-						<label class="settings-switch" for="show-hypothesis">
-							<input id="show-hypothesis" type="checkbox" class="annotate-toggle-input" />
-							<div class="slider round"></div>
-						</label>
-						<label for="show-hypothesis">Show annotations sidebar</label>
-					</div>
-					<div class="settings-item">
-						<label class="settings-switch" for="show-edit-section">
-							<input id="show-edit-section" type="checkbox" />
-							<div class="slider round"></div>
-						</label>
-						<label for="show-edit-section">Show edit section (experimental)</label>
-					</div>
-				</div>
-			</div>
-
-			<p>
-
-            <div>
-                <label for="demo-timeout-seconds">Demo mode delay (seconds)</label>
-                <input id="demo-timeout-seconds" type="number" min="1" value="15" style="width: 50px;" />
-            </div>
-
-			<p>
-
-			<div>
-				Browse Agora as
-                <input id="user" type="text" placeholder="flancian" /> 
-			</div>
-
-			<p>
-
-			<button id="apply-user">Apply</button>
-			<button id="clear-settings">Clear local storage</button>
-
-			<p>
-
-            If you notice any strangeness, try clearing your local storage or reach out for support at <em>agora@flancia.org</em>.
-
+		        <div>
+					<h2>Settings</h2>
+		
+		                        <div class="settings-group">
+		                            <h3 class="settings-group-header">User</h3>
+		                            
+		                            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+		                                <label for="user" style="font-weight: bold; white-space: nowrap;">Browse as</label>
+		                                <div style="display: flex; gap: 10px; flex-grow: 1;">
+		                                    <input id="user" type="text" placeholder="flancian" style="flex-grow: 1; padding: 5px;" />
+		                                    <button id="apply-user" style="padding: 5px 10px;">Apply</button>
+		                                </div>
+		                            </div>		            </div>
+		
+		            <div class="settings-group">
+		                <h3 class="settings-group-header">Content</h3>
+		                <div class="settings-grid">
+		                    <div class="settings-item">
+		                        <label class="settings-switch" for="auto-expand-all">
+		                            <input id="auto-expand-all" type="checkbox" />
+		                            <div class="slider round"></div>
+		                        </label>
+		                        <label for="auto-expand-all">Auto-expand all sections</label>
+		                    </div>
+		                    <div class="settings-item">
+		                        <label class="settings-switch" for="auto-pull">
+		                            <input id="auto-pull" type="checkbox" />
+		                            <div class="slider round"></div>
+		                        </label>
+		                        <label for="auto-pull">Auto-pull content in node</label>
+		                    </div>
+		                    <div class="settings-item">
+		                        <label class="settings-switch" for="auto-expand-wikipedia">
+		                            <input id="auto-expand-wikipedia" type="checkbox" />
+		                            <div class="slider round"></div>
+		                        </label>
+		                        <label for="auto-expand-wikipedia">Auto-expand Wikipedia</label>
+		                    </div>
+		                    <div class="settings-item">
+		                        <label class="settings-switch" for="auto-expand-search">
+		                            <input id="auto-expand-search" type="checkbox" />
+		                            <div class="slider round"></div>
+		                        </label>
+		                        <label for="auto-expand-search">Auto-expand Search</label>
+		                    </div>
+		                    <div class="settings-item">
+		                        <label class="settings-switch" for="auto-expand-stoas">
+		                            <input id="auto-expand-stoas" type="checkbox" />
+		                            <div class="slider round"></div>
+		                        </label>
+		                        <label for="auto-expand-stoas">Auto-expand Stoas</label>
+		                    </div>
+		                </div>
+		            </div>
+		
+					<div class="settings-group">
+		                <h3 class="settings-group-header">Display</h3>
+						<div class="settings-grid">
+							<div class="settings-item">
+								<label class="settings-switch" for="show-brackets">
+									<input id="show-brackets" type="checkbox" />
+									<div class="slider round"></div>
+								</label>
+								<label for="show-brackets">Show [[wikilink]] markers</label>
+							</div>
+							<div class="settings-item">
+								<label class="settings-switch" for="show-graph-labels">
+									<input id="show-graph-labels" type="checkbox" />
+									<div class="slider round"></div>
+								</label>
+								<label for="show-graph-labels">Show graph labels</label>
+							</div>
+							<div class="settings-item">
+								<label class="settings-switch" for="show-hypothesis">
+									<input id="show-hypothesis" type="checkbox" class="annotate-toggle-input" />
+									<div class="slider round"></div>
+								</label>
+								<label for="show-hypothesis">Show annotations sidebar</label>
+							</div>
+							<div class="settings-item">
+								<label class="settings-switch" for="show-edit-section">
+									<input id="show-edit-section" type="checkbox" />
+									<div class="slider round"></div>
+								</label>
+								<label for="show-edit-section">Show edit section</label>
+							</div>
+						</div>
+		                <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+		                    <label for="demo-timeout-seconds">Demo mode delay (s)</label>
+		                    <input id="demo-timeout-seconds" type="number" min="1" value="15" style="width: 60px; padding: 5px;" />
+		                                </div>
+		                			</div>
+		                
+		                			<p>
+		                
+		                            <div style="display: flex; gap: 10px;">
+		                                <button id="apply-settings" style="flex: 1;">Apply & Reload</button>
+		                                <button id="clear-settings" style="flex: 1;">Clear local storage</button>
+		                            </div>
+		                
+		                			<p>
+		                
+		                            If you notice any strangeness, try clearing your local storage or reach out for support at <em>agora@flancia.org</em>.
 			<p>
 
 

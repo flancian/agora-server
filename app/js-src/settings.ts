@@ -84,7 +84,29 @@ export function initSettings() {
         localStorage["user"] = (e.target as HTMLInputElement).value;
     });
 
+    const applyUser = () => {
+        const user = (document.getElementById("user") as HTMLInputElement).value;
+        localStorage["user"] = user;
+        // @ts-ignore
+        if (window.showToast) window.showToast(`Browsing Agora as ${user}...`);
+        
+        // Delay reload to let the toast be seen/animation start
+        setTimeout(() => location.reload(), 1000);
+    };
+
+    // Handle Enter key on username input
+    document.getElementById("user")?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); 
+            applyUser();
+        }
+    });
+
     document.getElementById("apply-user")?.addEventListener('click', () => {
+        applyUser();
+    });
+
+    document.getElementById("apply-settings")?.addEventListener('click', () => {
         location.reload();
     });
 
@@ -230,6 +252,23 @@ export function initSettings() {
         });
     }
 
+    // Event delegation for dynamically added "Set User" button
+    document.body.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (target.classList.contains('set-user-btn')) {
+            const user = target.dataset.user;
+            if (user) {
+                localStorage.setItem('user', user);
+                const userInput = document.getElementById("user") as HTMLInputElement;
+                if (userInput) userInput.value = user;
+                // @ts-ignore
+                if (window.showToast) window.showToast(`Now browsing as ${user}!`);
+                target.innerText = "Done! (Reloading...)";
+                setTimeout(() => location.reload(), 1000);
+            }
+        }
+    });
+
     if (joinBtn) {
         joinBtn.addEventListener("click", async () => {
             const statusDiv = document.getElementById("join-status");
@@ -299,7 +338,8 @@ export function initSettings() {
                         Clone URL: <code>${data.repo_url}</code><br>
                         Username: <strong>${data.username}</strong><br>
                         Password: <strong>${data.password}</strong><br>
-                        <br><em>Please save this password immediately! It will not be shown again.</em>`;
+                        <br><em>Please save this password immediately! It will not be shown again.</em>
+                        <br><br><button class="set-user-btn" data-user="${data.username}">Browse Agora as ${data.username}</button>`;
                     }
                     statusDiv.innerHTML = successMsg; // Use innerHTML to render bold tags
                     statusDiv.style.color = "lightgreen";
