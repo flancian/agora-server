@@ -103,106 +103,33 @@ export function initSettings() {
     });
 
     document.getElementById("apply-settings")?.addEventListener('click', () => {
+        // Content Settings
+        localStorage["auto-expand-all"] = (document.getElementById("auto-expand-all") as HTMLInputElement).checked;
+        localStorage["auto-pull"] = (document.getElementById("auto-pull") as HTMLInputElement).checked;
+        localStorage["auto-expand-wikipedia"] = (document.getElementById("auto-expand-wikipedia") as HTMLInputElement).checked;
+        localStorage["auto-expand-search"] = (document.getElementById("auto-expand-search") as HTMLInputElement).checked;
+        localStorage["auto-expand-stoas"] = (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked;
+
+        // Display Settings
+        localStorage["showBrackets"] = (document.getElementById("show-brackets") as HTMLInputElement).checked;
+        localStorage["show-edit-section"] = (document.getElementById("show-edit-section") as HTMLInputElement).checked;
+        
+        const showGraphLabels = (document.getElementById("show-graph-labels") as HTMLInputElement).checked;
+        localStorage["graph-show-labels"] = showGraphLabels;
+        localStorage["graph-show-labels-full"] = showGraphLabels;
+
+        const showHypothesis = (document.getElementById("show-hypothesis") as HTMLInputElement).checked;
+        localStorage["show-hypothesis"] = showHypothesis;
+
         location.reload();
     });
 
-    document.getElementById("auto-expand-all")?.addEventListener('change', (e) => {
-        localStorage["auto-expand-all"] = (e.target as HTMLInputElement).checked;
-    });
-
-    document.getElementById("auto-expand-search")?.addEventListener('change', (e) => {
-        const isChecked = (e.target as HTMLInputElement).checked;
-        localStorage["auto-expand-search"] = isChecked;
-        document.querySelectorAll("details.search").forEach(function (element) {
-            const summary = element.querySelector('summary');
-            if (summary) {
-                const isOpen = (element as HTMLDetailsElement).open;
-                if (isChecked && !isOpen) {
-                    summary.click();
-                } else if (!isChecked && isOpen) {
-                    summary.click();
-                }
-            }
-        });
-    });
-    document.getElementById("auto-expand-wikipedia")?.addEventListener('change', (e) => {
-        const isChecked = (e.target as HTMLInputElement).checked;
-        localStorage["auto-expand-wikipedia"] = isChecked;
-        // The container is #wp-wt-container, the details element has class .wiki
-        const wikipediaDetails = document.querySelector("details.wiki");
-        if (wikipediaDetails) {
-            const summary = wikipediaDetails.querySelector('summary');
-            if (summary) {
-                const isOpen = (wikipediaDetails as HTMLDetailsElement).open;
-                if (isChecked && !isOpen) {
-                    summary.click();
-                } else if (!isChecked && isOpen) {
-                    summary.click();
-                }
-            }
-        }
-    });
-    document.getElementById("auto-pull")?.addEventListener('change', (e) => {
-        localStorage["auto-pull"] = (e.target as HTMLInputElement).checked;
-    });
-    document.getElementById("show-brackets")?.addEventListener('change', (e) => {
-        localStorage["showBrackets"] = (e.target as HTMLInputElement).checked;
-    });
-
-    document.getElementById("show-graph-labels")?.addEventListener('change', (e) => {
-        const isChecked = (e.target as HTMLInputElement).checked;
-        // Save setting for both per-node and full-agora graphs.
-        localStorage["graph-show-labels"] = isChecked;
-        localStorage["graph-show-labels-full"] = isChecked;
-
-        // Re-render the per-node graph if it exists.
-        // @ts-ignore
-        if (document.getElementById('graph') && typeof renderGraph !== 'undefined') {
-            // @ts-ignore
-            renderGraph('graph', '/graph/json/' + NODENAME);
-        }
-        // Re-render the full-agora graph if it exists.
-        const fullGraphContainer = document.getElementById('full-graph');
-        // @ts-ignore
-        if (fullGraphContainer && typeof renderGraph !== 'undefined') {
-            const activeTab = document.querySelector(".graph-size-tab.active");
-            if (activeTab) {
-                const size = activeTab.getAttribute('data-size');
-                // @ts-ignore
-                renderGraph('full-graph', `/graph/json/top/${size}`);
-            }
-        }
-    });
-
-    document.getElementById("auto-expand-stoas")?.addEventListener('change', (e) => {
-        const isChecked = (e.target as HTMLInputElement).checked;
-        localStorage["auto-expand-stoas"] = isChecked;
-        document.querySelectorAll("details.stoa").forEach(function (element) {
-            (element as HTMLDetailsElement).open = isChecked;
-        });
-    });
+    // We no longer auto-save these on change, as the user now must explicitly click "Apply & Reload".
+    // The previous event listeners for these inputs have been removed.
 
     document.getElementById("demo-timeout-seconds")?.addEventListener('change', (e) => {
         const value = (e.target as HTMLInputElement).value;
         localStorage.setItem("demo-timeout-seconds", value);
-    });
-
-    document.getElementById("show-hypothesis")?.addEventListener('change', (e) => {
-        const isChecked = (e.target as HTMLInputElement).checked;
-        localStorage["show-hypothesis"] = isChecked;
-        const hypothesisFrame = document.getElementById('hypothesis-frame');
-        if (hypothesisFrame) {
-            hypothesisFrame.classList.toggle('visible', isChecked);
-        }
-    });
-
-    document.getElementById("show-edit-section")?.addEventListener('change', (e) => {
-        const isChecked = (e.target as HTMLInputElement).checked;
-        localStorage["show-edit-section"] = isChecked;
-        const editSection = document.querySelector('.edit-section-container');
-        if (editSection) {
-            (editSection as HTMLElement).style.display = isChecked ? 'block' : 'none';
-        }
     });
 
     // Join form handler
