@@ -251,19 +251,58 @@ export function initSettings() {
                 const data = await response.json();
                 
                 if (response.ok) {
-                    let successMsg = "Success! " + (data.message || "You have joined the Agora.");
+                    let successMsg = "";
                     if (hostMe && data.password) {
-                        // Display the generated password for hosted gardens
-                        successMsg += `<br><br><strong>Your new garden is ready!</strong><br>
-                        Clone URL: <code>${data.repo_url}</code><br>
-                        Username: <strong>${data.username}</strong><br>
-                        Password: <strong>${data.password}</strong><br>
-                        <br><em>Please save this password immediately! It will not be shown again.</em>
-                        <br><br><button class="set-user-btn" data-user="${data.username}">Browse Agora as ${data.username}</button>`;
+                        // Rich success message for hosted gardens
+                        successMsg = `
+                        <div style="background: rgba(0, 255, 0, 0.1); padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid lightgreen; color: inherit;">
+                            <h3 style="margin-top: 0; color: lightgreen;">🎉 Welcome, ${data.username}!</h3>
+                            <p>Your digital garden has been successfully provisioned.</p>
+                            
+                            <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid #555;">
+                                <div style="margin-bottom: 5px;"><strong>Username:</strong> <code style="user-select: all; font-size: 1.1em;">${data.username}</code></div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <strong>Password:</strong> 
+                                    <code style="user-select: all; background: #ffffcc; color: black; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 1.2em;">${data.password}</code>
+                                    <button id="copy-password-btn" style="cursor: pointer; padding: 2px 8px; font-size: 0.9em;">Copy</button>
+                                </div>
+                                <div style="margin-top: 10px; color: #ffeb3b; font-weight: bold;">
+                                    ⚠️ IMPORTANT: Log in to the <a href="${data.editor_url}" target="_blank" style="color: inherit; text-decoration: underline;">Editor</a> or <a href="${data.forge_url}" target="_blank" style="color: inherit; text-decoration: underline;">Forge</a> NOW to save this password in your browser!
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+                                <a href="${data.editor_url}" target="_blank" class="btn" style="background: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Launch Editor 🐂</a>
+                                <a href="${data.forge_url}" target="_blank" class="btn" style="background: #2196F3; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Code Forge 🔨</a>
+                                <a href="${data.agora_url}" target="_blank" class="btn" style="background: #9C27B0; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Your Profile 👤</a>
+                            </div>
+                            
+                            <button class="set-user-btn" data-user="${data.username}" style="background: transparent; border: 1px solid currentColor; padding: 5px 10px; cursor: pointer; color: inherit; opacity: 0.8;">Browse locally as @${data.username}</button>
+                        </div>`;
+                    } else {
+                        // Standard success message for self-hosted
+                        successMsg = `
+                        <div style="color: lightgreen;">
+                            Success! ${data.message || "You have joined the Agora."}
+                            <br><br>
+                            <a href="/@${username}" target="_blank" style="color: lightgreen; text-decoration: underline;">View your Profile 👤</a>
+                            <br><br>
+                            <button class="set-user-btn" data-user="${username}" style="background: transparent; border: 1px solid currentColor; padding: 5px 10px; cursor: pointer; color: inherit;">Browse locally as @${username}</button>
+                        </div>`;
                     }
-                    statusDiv.innerHTML = successMsg; // Use innerHTML to render bold tags
-                    statusDiv.style.color = "lightgreen";
-                    // Optionally refresh or redirect
+                    statusDiv.innerHTML = successMsg; 
+                    statusDiv.style.color = "inherit";
+
+                    // Attach event listener for copy button if it exists
+                    const copyBtn = document.getElementById("copy-password-btn");
+                    if (copyBtn) {
+                        copyBtn.addEventListener("click", () => {
+                            navigator.clipboard.writeText(data.password).then(() => {
+                                copyBtn.innerText = "Copied!";
+                                setTimeout(() => copyBtn.innerText = "Copy", 2000);
+                            });
+                        });
+                    }
                 } else {
                     statusDiv.innerText = "Error: " + (data.error || "Unknown error.");
                     statusDiv.style.color = "red";
