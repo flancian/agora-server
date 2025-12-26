@@ -273,8 +273,8 @@ export function initSettings() {
 
                             <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
                                 <a href="${data.editor_url}" target="_blank" class="btn" style="background: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Launch Editor 🐂</a>
-                                <a href="${data.forge_url}" target="_blank" class="btn" style="background: #2196F3; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Code Forge 🔨</a>
-                                <a href="${data.agora_url}" target="_blank" class="btn" style="background: #9C27B0; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Your Profile 👤</a>
+                                <a href="${data.forge_url}" target="_blank" class="btn" style="background: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Code Forge 🔨</a>
+                                <a href="${data.agora_url}" target="_blank" class="btn" style="background: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Your Profile 👤</a>
                             </div>
                             
                             <button class="set-user-btn" data-user="${data.username}" style="background: transparent; border: 1px solid currentColor; padding: 5px 10px; cursor: pointer; color: inherit; opacity: 0.8;">Browse locally as @${data.username}</button>
