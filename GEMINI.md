@@ -178,6 +178,10 @@ This cache is persistent on disk and shared across all worker processes. It stor
     *   **Logging**: Improved logs to clearly indicate initial sync status.
 3.  **Provisioning (`agora-bridge/api/`)**:
     *   Updated `agora.py` to construct SSH URLs with port 2222 when provisioning new gardens.
+    *   **HTTPS Cloning**: Switched to using HTTPS URLs for the initial clone (reading) while reserving SSH URLs for the Pusher service (writing). This simplifies the architecture by decoupling read access from SSH keys.
+4.  **UI Polish**:
+    *   **Success Message**: Enhanced the provisioning success UI with clear credentials, a "Copy Password" button, and unified green action links.
+    *   **Navigation**: Added a direct link to the Forge in the Bullpen header and simplified the logout flow.
 
 ### Architectural Decision: Authentication
 

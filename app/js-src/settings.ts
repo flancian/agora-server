@@ -267,17 +267,17 @@ export function initSettings() {
                                     <button id="copy-password-btn" style="cursor: pointer; padding: 2px 8px; font-size: 0.9em;">Copy</button>
                                 </div>
                                 <div style="margin-top: 10px; color: #ffeb3b; font-weight: bold;">
-                                    ⚠️ IMPORTANT: Log in to the <a href="${data.editor_url}" target="_blank" style="color: inherit; text-decoration: underline;">Editor</a> or <a href="${data.forge_url}" target="_blank" style="color: inherit; text-decoration: underline;">Forge</a> NOW to save this password in your browser!
+                                    ⚠️ IMPORTANT: Log into the <a href="${data.editor_url}" target="_blank" style="color: inherit; text-decoration: underline;">Editor</a> or <a href="${data.forge_url}" target="_blank" style="color: inherit; text-decoration: underline;">Forge</a> NOW to save this password in your browser!
                                 </div>
                             </div>
 
                             <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
                                 <a href="${data.editor_url}" target="_blank" class="btn" style="background: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Launch Editor 🐂</a>
                                 <a href="${data.forge_url}" target="_blank" class="btn" style="background: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Code Forge 🔨</a>
-                                <a href="${data.agora_url}" target="_blank" class="btn" style="background: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Your Profile 👤</a>
+                                <a href="${data.agora_url}" target="_blank" class="btn" style="background: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 1.1em;">Your Agora Profile 👤</a>
                             </div>
                             
-                            <button class="set-user-btn" data-user="${data.username}" style="background: transparent; border: 1px solid currentColor; padding: 5px 10px; cursor: pointer; color: inherit; opacity: 0.8;">Browse locally as @${data.username}</button>
+                            <button class="set-user-btn" data-user="${data.username}" style="background: transparent; border: 1px solid currentColor; padding: 5px 10px; cursor: pointer; color: inherit; opacity: 0.8;">Browse Agora as @${data.username}</button>
                         </div>`;
                     } else {
                         // Standard success message for self-hosted
@@ -285,9 +285,9 @@ export function initSettings() {
                         <div style="color: lightgreen;">
                             Success! ${data.message || "You have joined the Agora."}
                             <br><br>
-                            <a href="/@${username}" target="_blank" style="color: lightgreen; text-decoration: underline;">View your Profile 👤</a>
+                            <a href="/@${username}" target="_blank" style="color: lightgreen; text-decoration: underline;">View your Agora Profile 👤</a>
                             <br><br>
-                            <button class="set-user-btn" data-user="${username}" style="background: transparent; border: 1px solid currentColor; padding: 5px 10px; cursor: pointer; color: inherit;">Browse locally as @${username}</button>
+                            <button class="set-user-btn" data-user="${username}" style="background: transparent; border: 1px solid currentColor; padding: 5px 10px; cursor: pointer; color: inherit;">Browse Agora as @${username}</button>
                         </div>`;
                     }
                     statusDiv.innerHTML = successMsg; 
