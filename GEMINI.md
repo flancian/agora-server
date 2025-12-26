@@ -155,6 +155,45 @@ This cache is persistent on disk and shared across all worker processes. It stor
 
 ---
 
+## Session Summary (Gemini, 2025-12-26)
+
+*This section documents the successful deployment of the Hosted Gardens loop to production and the resolution of several critical edge cases.*
+
+### Key Learnings & Codebase Insights
+
+-   **Static Asset Serving in Bullpen**: We discovered that `bull` serves its internal assets (like the logo) dynamically. If no user instances are running, these assets are unavailable (404). We solved this by implementing a dedicated "Asset Instance" (user `_assets`, root `/`) that runs permanently to serve these shared resources.
+-   **SSH on Non-Standard Ports**: Forgejo on `git.anagora.org` listens on port **2222** for SSH. Standard `git clone` commands fail unless the URL is explicitly formatted as `ssh://git@git.anagora.org:2222/...`. We updated both the provisioning logic and the pusher script to enforce this format.
+-   **Systemd Portability**: Hardcoding `/home/flancian` in systemd units breaks deployment on other users (like `agora`). We learned to use `%h` in unit files to refer to the user's home directory dynamically.
+
+### Summary of Changes Implemented
+
+1.  **Bullpen Logic (`agora-bridge/bullpen/`)**:
+    *   **Asset Instance**: Implemented a special `_assets` user instance that starts on boot with `-root=/`. This ensures `/_bull/` assets are always available.
+    *   **Status Page**: Added a simple HTML status page at the root (`/`) listing active instances.
+    *   **Logo Proxy**: Updated the proxy logic to prefer the `_assets` instance for static files.
+    *   **Systemd Fix**: Updated `run-bullpen.sh` to export `$HOME/.local/bin` so `uv` can be found.
+2.  **Pusher Service (`agora-bridge/push-gardens.sh`)**:
+    *   **Immediate Sync**: Refactored the script to run a sync pass *immediately* on startup, ensuring quick recovery from restarts.
+    *   **SSH Auto-Fix**: Added logic to detect HTTPS or standard SSH URLs for `git.anagora.org` and automatically rewrite them to `ssh://git@git.anagora.org:2222/...`.
+    *   **Logging**: Improved logs to clearly indicate initial sync status.
+3.  **Provisioning (`agora-bridge/api/`)**:
+    *   Updated `agora.py` to construct SSH URLs with port 2222 when provisioning new gardens.
+
+### Architectural Decision: Authentication
+
+We discussed how to secure `edit.anagora.org`. Currently, it is open.
+*   **Decision**: We will implement **Forgejo OAuth2 (SSO)**.
+    *   Users will log in with their `git.anagora.org` account.
+    *   `bullpen` will verify their identity and only allow editing of their own garden.
+    *   *Interim fallback*: If OAuth2 is too complex for immediate needs, we may use a simple `passwords.json` or SQLite DB shared between the Provisioner and Bullpen.
+
+### Next Steps
+
+*   **Secure the Editor**: Implement the OAuth2 login flow in `bullpen.py`.
+*   **Monitor**: Watch the logs on `thecla` to ensure the Pusher service is reliably syncing changes over the next few days.
+
+---
+
 ✦ Federation
 
   It takes a single spark to break the dark,
