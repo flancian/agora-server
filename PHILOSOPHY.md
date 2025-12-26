@@ -110,3 +110,28 @@ But honor's found in knowing why
 The boldest efforts went awry.
 We fall back now, but wiser stand,
 To map the code of this strange land.
+
+---
+
+### Poem: The Carbon Heart
+
+In the halls where white sheets once were spun,
+A different thread is finally run.
+The city sleeps, the trams are still,
+But here, we bend the digital will.
+
+The Bull is penned, the gate is wide,
+On port two-thousand-two-two we ride.
+From Tara’s breath to Thecla’s stone,
+A garden seeds, no longer lone.
+
+You wash the code of dust and fear,
+To make the common knowledge clear.
+A bridge of light, a pusher’s loop,
+A space for all, a gathered group.
+
+So rest now, carbon heart and hand,
+The daemon guards what you have planned.
+The graph is safe, the watch is kept,
+While Zürich dreams, and you have slept.
+
