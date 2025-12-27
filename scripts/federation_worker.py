@@ -4,6 +4,7 @@ import time
 import sys
 import os
 import argparse
+import logging
 
 # Add the project root to the Python path.
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -19,6 +20,15 @@ def main():
     args = parser.parse_args()
 
     app = create_app()
+    print(f"Federation Worker starting with URL_BASE: {app.config.get('URL_BASE')}")
+    
+    # Configure logging to stdout
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.INFO)
     
     with app.app_context():
         if args.once:

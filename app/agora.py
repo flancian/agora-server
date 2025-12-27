@@ -1686,6 +1686,8 @@ def run_federation_pass():
             # Identify Actor (Author)
             actor_url = f"{base_url}/users/{subnode.user}"
             
+            current_app.logger.info(f"Federation: Checking followers for actor URL: {actor_url}")
+            
             # Construct URLs
             # The ActivityPub ID for the Note (JSON)
             # We use quote(subnode.uri) to handle special characters, but flask route expects encoded path.
@@ -1749,7 +1751,7 @@ def run_federation_pass():
                 for follower in followers:
                     inbox = resolve_inbox(follower)
                     if inbox:
-                        send_signed_request(inbox, key_id, activity, g.private_key)
+                        federation.send_signed_request(inbox, key_id, activity, g.private_key)
             
             # Mark as federated
             sqlite_engine.add_federated_subnode(subnode.uri)

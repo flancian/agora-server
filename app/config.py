@@ -88,13 +88,13 @@ class DefaultConfig(object):
         # See https://anagora.org/agora+doc for more.
 
     try:
-        URL_BASE = AGORA_CONFIG["url_base"]
+        URL_BASE = os.environ.get("URL_BASE") or AGORA_CONFIG["url_base"]
     except (KeyError, TypeError):
         # We could try to run this as a 'wildcard Agora', serving back whatever we got in client headers.
         # pass
         # standard: no trailing slashes anywhere in variables.
         # with protocol
-        URL_BASE = "https://anagora.org"
+        URL_BASE = os.environ.get("URL_BASE", "https://anagora.org")
 
     try:
         URI_BASE = AGORA_CONFIG["uri_base"]
@@ -259,7 +259,7 @@ class AlphaConfig(DefaultConfig):
 
 
 class DevelopmentConfig(DefaultConfig):
-    URL_BASE = "http://dev.anagora.org"
+    URL_BASE = os.environ.get("URL_BASE", "http://dev.anagora.org")
     URI_BASE = "dev.anagora.org"
     API_BASE = "https://api.anagora.org"
 
@@ -285,7 +285,7 @@ class DevelopmentConfig(DefaultConfig):
 
 class LocalDevelopmentConfig(DefaultConfig):
     # Empty is better if you e.g. want to access this on localhost:5017 but also on the IP that the dev machine has in the LAN.
-    URL_BASE = ""
+    URL_BASE = os.environ.get("URL_BASE", "")
     URI_BASE = "localhost:5017"
     API_BASE = "http://localhost:3000"
 

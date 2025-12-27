@@ -183,6 +183,11 @@ def create_tables(db):
                     content TEXT,
                     timestamp INTEGER NOT NULL
                 );
+            """,
+            'federated_subnodes': """
+                CREATE TABLE IF NOT EXISTS federated_subnodes (
+                    subnode_uri TEXT PRIMARY KEY
+                );
             """
         }
         # Check all tables in the schema.
@@ -741,9 +746,12 @@ def get_followers(user_uri):
     if not db:
         return []
     
+    current_app.logger.info(f"SQLite: Querying followers for {user_uri}")
     cursor = db.cursor()
     cursor.execute("SELECT follower_uri FROM followers WHERE user_uri = ?", (user_uri,))
-    return [row[0] for row in cursor.fetchall()]
+    results = [row[0] for row in cursor.fetchall()]
+    current_app.logger.info(f"SQLite: Found {len(results)} followers for {user_uri}")
+    return results
 
 def get_all_starred_nodes():
     db = get_db()
