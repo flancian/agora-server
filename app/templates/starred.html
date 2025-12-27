@@ -70,6 +70,31 @@
         {% endif %}
     </div>
 
+    <div class="fediverse-reactions">
+        <h2>Fediverse Interactions</h2>
+        {% if reactions %}
+            <ul style="list-style: none; padding: 0;">
+                {% for reaction in reactions %}
+                    <li style="margin-bottom: 1em; padding: 0.5em; border: 1px solid var(--border-color); border-radius: 5px;">
+                        <div style="font-size: 0.9em; margin-bottom: 0.3em;">
+                            <strong>{{ reaction.type }}</strong> 
+                            by <a href="{{ reaction.actor }}" target="_blank">{{ reaction.actor }}</a>
+                            on <a href="{{ reaction.object }}" target="_blank">post</a>
+                            <span style="color: var(--text-color-faint); font-size: 0.8em;">({{ reaction.timestamp }})</span>
+                        </div>
+                        {% if reaction.content %}
+                            <div style="background: var(--background-color-secondary); padding: 0.5em; border-radius: 3px;">
+                                {{ reaction.content|safe }}
+                            </div>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No recent interactions.</p>
+        {% endif %}
+    </div>
+
 </div>
 {% include "footer.html" %}
 {% endblock %}

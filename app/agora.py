@@ -458,6 +458,7 @@ def starred():
     starred_subnode_uris = sqlite_engine.get_all_starred_subnodes()
     starred_node_uris = sqlite_engine.get_all_starred_nodes()
     starred_external = sqlite_engine.get_all_starred_external()
+    recent_reactions = sqlite_engine.get_recent_reactions()
     subnodes = [api.subnode_by_uri(uri) for uri in starred_subnode_uris if api.subnode_by_uri(uri) is not None]
     return render_template(
         "starred.html",
@@ -466,6 +467,7 @@ def starred():
         node=n,
         starred_nodes=starred_node_uris,
         starred_external=starred_external,
+        reactions=recent_reactions,
     )
 
 

@@ -223,9 +223,17 @@ We discussed how to secure `edit.anagora.org`. Currently, it is open.
 
 ### Frontend Enhancements
 
-*   **Wikipedia Auto-Expand Setting**: Implemented a new user setting "Auto-expand Exact Matches" (default: true).
-    *   This allows users to disable the automatic expansion of the Wikipedia section even when there is an exact title match, addressing potential intrusiveness.
+*   **Wikipedia Auto-Expand Settings**:
+    *   Renamed "Auto-expand Wikipedia" to **"Always expand Wikipedia"** for clarity.
+    *   Added **"Expand Wikipedia for exact matches"** (default: true) to allow disabling the automatic expansion behavior for exact matches.
     *   Files modified: `app/js-src/util.ts`, `app/js-src/settings.ts`, `app/js-src/main.ts`, `app/templates/overlay.html`.
+
+### ActivityPub Enhancements
+
+*   **Reactions Display**: Implemented display of incoming Fediverse interactions (Likes, Replies) on the `/starred` page.
+    *   Added `get_recent_reactions` to `app/storage/sqlite_engine.py`.
+    *   Updated `app/agora.py` to fetch reactions in the `starred` route.
+    *   Updated `app/templates/starred.html` to render a list of recent interactions with actor, type, and content.
 
 ### Verified Status
 

@@ -268,6 +268,22 @@ def get_reactions(object_uri):
         for row in cursor.fetchall()
     ]
 
+def get_recent_reactions(limit=20):
+    """
+    Retrieves the most recent reactions globally.
+    Returns a list of dicts including the object URI.
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT id, type, actor, object, content, timestamp FROM reactions ORDER BY timestamp DESC LIMIT ?", (limit,))
+    return [
+        {'id': row[0], 'type': row[1], 'actor': row[2], 'object': row[3], 'content': row[4], 'timestamp': row[5]}
+        for row in cursor.fetchall()
+    ]
+
 import time
 
 def try_acquire_lock(worker_id, ttl_seconds=60):
