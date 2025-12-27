@@ -769,6 +769,19 @@ def get_followers(user_uri):
     current_app.logger.info(f"SQLite: Found {len(results)} followers for {user_uri}")
     return results
 
+def get_all_followers():
+    """
+    Retrieves ALL followers (user_uri, follower_uri) tuples.
+    For debugging purposes.
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT user_uri, follower_uri FROM followers")
+    return cursor.fetchall()
+
 def get_all_starred_nodes():
     db = get_db()
     if db is None:
