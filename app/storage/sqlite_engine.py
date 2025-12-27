@@ -173,6 +173,16 @@ def create_tables(db):
                     worker_id TEXT,
                     timestamp INTEGER
                 );
+            """,
+            'reactions': """
+                CREATE TABLE IF NOT EXISTS reactions (
+                    id TEXT PRIMARY KEY,
+                    type TEXT NOT NULL,
+                    actor TEXT NOT NULL,
+                    object TEXT NOT NULL,
+                    content TEXT,
+                    timestamp INTEGER NOT NULL
+                );
             """
         }
         # Check all tables in the schema.
@@ -213,6 +223,45 @@ def get_subnode_count():
         return cursor.fetchone()[0]
     except sqlite3.OperationalError:
         return 0
+
+#
+# Reactions (Fediverse)
+#
+def add_reaction(id, type, actor, object, content, timestamp):
+    """
+    Adds a reaction (Like, Reply/Note) from the Fediverse.
+    """
+    db = get_db()
+    if not db:
+        return
+
+    try:
+        with db:
+            db.execute(
+                "INSERT OR REPLACE INTO reactions (id, type, actor, object, content, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+                (id, type, actor, object, content, timestamp)
+            )
+    except sqlite3.OperationalError as e:
+        if 'read-only database' in str(e):
+            pass
+        else:
+            current_app.logger.error(f"Database write error while adding reaction: {e}")
+
+def get_reactions(object_uri):
+    """
+    Retrieves all reactions for a given object URI.
+    Returns a list of dicts.
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT id, type, actor, content, timestamp FROM reactions WHERE object = ? ORDER BY timestamp DESC", (object_uri,))
+    return [
+        {'id': row[0], 'type': row[1], 'actor': row[2], 'content': row[3], 'timestamp': row[4]}
+        for row in cursor.fetchall()
+    ]
 
 import time
 

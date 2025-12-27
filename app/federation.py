@@ -100,3 +100,95 @@ def send_signed_request(inbox_url, key_id, activity, private_key):
         current_app.logger.error(f"Error sending signed request to {inbox_url}: {e}")
         if e.response is not None:
             current_app.logger.error(f"Response body: {e.response.text}")
+
+def verify_request(request):
+    """
+    Verifies the HTTP Signature of an incoming request.
+    Returns True if valid, False otherwise.
+    """
+    # 1. Check for Signature header
+    signature_header = request.headers.get('Signature')
+    if not signature_header:
+        current_app.logger.warning("Missing Signature header")
+        return False
+        
+    # 2. Parse Signature header
+    params = {}
+    for part in signature_header.split(','):
+        if '=' in part:
+            key, value = part.split('=', 1)
+            params[key.strip()] = value.strip().strip('"')
+            
+    key_id = params.get('keyId')
+    signature = params.get('signature')
+    headers_list = params.get('headers', '(request-target) host date digest').split(' ')
+    
+    if not key_id or not signature:
+        current_app.logger.warning("Invalid Signature header format")
+        return False
+        
+    # 3. Fetch Public Key (with caching ideally, but simple fetch for now)
+    # WARNING: In production, caching and rate limiting are essential here.
+    try:
+        current_app.logger.info(f"Fetching public key from {key_id}")
+        # Strip fragment if present, although requests usually handles it.
+        # However, key_id is the ID of the Key object, which we need to fetch.
+        # Sometimes the Key object is embedded in the Actor object.
+        
+        actor_response = requests.get(
+            key_id, 
+            headers={'Accept': 'application/activity+json, application/ld+json'},
+            timeout=5
+        )
+        actor_response.raise_for_status()
+        key_data = actor_response.json()
+        
+        # Logic to find the PEM.
+        public_key_pem = None
+        
+        # Case A: Returned object is the Key itself.
+        if 'publicKeyPem' in key_data:
+            public_key_pem = key_data['publicKeyPem']
+        # Case B: Returned object is the Actor, and contains the key.
+        elif 'publicKey' in key_data and isinstance(key_data['publicKey'], dict):
+             public_key_pem = key_data['publicKey'].get('publicKeyPem')
+        # Case C: Key is wrapped in a 'publicKey' property but flattened? Unlikely.
+        
+        # If we fetched the key ID but didn't find the PEM, it might be because the key ID
+        # resolves to the actor profile which *contains* the key.
+        if not public_key_pem and 'owner' in key_data:
+             # Try fetching the owner if it's different (recursion risk?)
+             # Usually key_id and owner are related.
+             pass
+
+        if not public_key_pem:
+             current_app.logger.warning(f"Could not find publicKeyPem in response from {key_id}")
+             return False
+
+        public_key = RSA.import_key(public_key_pem)
+    except Exception as e:
+        current_app.logger.error(f"Failed to fetch/parse public key from {key_id}: {e}")
+        return False
+
+    # 4. Construct comparison string
+    comparison_lines = []
+    for header_name in headers_list:
+        if header_name == '(request-target)':
+            comparison_lines.append(f'(request-target): post {request.path}')
+        elif header_name == 'host':
+            comparison_lines.append(f'host: {request.headers.get("Host")}')
+        else:
+             comparison_lines.append(f'{header_name}: {request.headers.get(header_name, "")}')
+             
+    comparison_string = '\n'.join(comparison_lines)
+    
+    # 5. Verify
+    try:
+        verifier = pkcs1_15.new(public_key)
+        digest = SHA256.new(comparison_string.encode('utf-8'))
+        verifier.verify(digest, base64.b64decode(signature))
+        current_app.logger.info(f"Signature verification successful for {key_id}")
+        return True
+    except (ValueError, TypeError) as e:
+         current_app.logger.warning(f"Signature verification failed: {e}")
+         return False

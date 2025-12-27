@@ -26,11 +26,12 @@ This document outlines the current implementation.
 ### Inbox
 
 -   **Endpoint:** `/u/<user>/inbox` (POST)
--   **Purpose:** Receives activities from other servers, such as `Follow` requests.
+-   **Purpose:** Receives activities from other servers.
 -   **Implementation:**
-    -   Currently, it only handles the `Follow` activity.
-    -   When a `Follow` is received, the Agora adds the follower to the user's follower list in the SQLite database.
-    -   It then dispatches a background task to send an `Accept` activity back to the follower's server to confirm the follow.
+    -   Handles `Follow`, `Like`, `Create` (Reply), and `Announce` (Boost) activities.
+    -   Incoming requests are verified using HTTP Signatures.
+    -   **Follow:** Adds the follower to the database and sends an `Accept` activity back.
+    -   **Reactions:** Stores Likes, Replies, and Boosts in the `reactions` table in SQLite.
 
 ### Outbox
 
@@ -38,7 +39,7 @@ This document outlines the current implementation.
 -   **Purpose:** Shows a collection of the user's recent public activities.
 -   **Implementation:**
     -   It returns an `OrderedCollection` of the user's 20 most recent subnodes, formatted as `Create` activities wrapping a `Note` object.
-    -   This endpoint is primarily for other servers to pull a user's recent history; it does not actively push new content.
+    -   Each `Note` object has a stable, unique ID (`/u/<user>/note/<path>`) that returns the ActivityPub JSON representation, ensuring compatibility with Mastodon and other platforms.
 
 ## Federation Logic
 
@@ -46,17 +47,35 @@ This document outlines the current implementation.
 
 1.  A user on a remote server follows an Agora user.
 2.  The remote server sends a `Follow` activity to the Agora user's inbox.
-3.  The Agora validates the activity and adds the follower to its database.
+3.  The Agora validates the activity (HTTP Signature) and adds the follower to its database.
 4.  The Agora sends an `Accept` activity back to the remote server.
 5.  Immediately after sending the `Accept`, the Agora sends the new follower the **5 most recent subnodes** from the followed user. This is to populate the new follower's timeline with some initial content.
 
 ### Sending Posts (Federating)
 
 -   **Initial Posts:** As described above, the 5 most recent posts are sent to new followers.
--   **Tracking:** The Agora now tracks which subnodes have been federated in a dedicated SQLite table (`federated_subnodes`). This prevents sending the same subnode to the same follower multiple times (e.g., on a re-follow).
--   **Future Posts:** **Note:** The current implementation does *not* automatically push new subnodes to all followers as they are created. Federation of new content is not yet fully implemented. The `star_subnode` function contains a placeholder comment to federate a post when it's starred, but the logic is not yet active.
+-   **Worker Process:** To automatically push new content to existing followers, you must run the **Federation Worker**.
+-   **Tracking:** The Agora tracks which subnodes have been federated in a dedicated SQLite table (`federated_subnodes`). This prevents sending the same subnode to the same follower multiple times.
+
+### Running the Federation Worker
+
+The federation worker is a separate process that polls the Git repositories for new commits and broadcasts them to followers.
+
+**Manual Run (Single Pass):**
+```bash
+uv run python3 scripts/federation_worker.py --once
+```
+
+**Continuous Loop (Default Interval: 5 minutes):**
+```bash
+uv run python3 scripts/federation_worker.py
+```
+
+**Systemd Service:**
+It is recommended to run this as a systemd service (e.g., `agora-federation.service`) to ensure it runs continuously in the background.
 
 ### Security
 
 -   **Keys:** The Agora automatically generates a `private.pem` and `public.pem` key pair on first run if they don't exist.
 -   **Signed Requests:** All outgoing activities (like `Accept` and `Create`) are signed with the user's private key. Remote servers can fetch the public key from the actor profile to verify that the requests are legitimate.
+-   **Incoming Verification:** The Inbox strictly validates HTTP Signatures on incoming requests to prevent spoofing.

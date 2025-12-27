@@ -1,3 +1,4 @@
+#!/usr/bin/env -S uv run
 # worker.py
 import time
 import sqlite3

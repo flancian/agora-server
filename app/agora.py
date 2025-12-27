@@ -1633,6 +1633,129 @@ def user_inbox(user):
     # For now, we only handle Follow.
     return jsonify({"status": "success", "action": "activity_received"}), 202
 
+def run_federation_pass():
+    """
+    Runs a single pass of the federation logic.
+    Requires an active application context.
+    """
+    # Get recent subnodes from Git (cached)
+    cache_key = 'latest_per_user_v1'
+    ttl = 300
+    cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
+    
+    if cached_value and (time.time() - timestamp < ttl):
+            latest_changes = json.loads(cached_value)
+    else:
+            # Recompute
+            latest_changes = git_utils.get_latest_changes_per_repo(
+            agora_path=current_app.config['AGORA_PATH'],
+            logger=current_app.logger
+            )
+            sqlite_engine.save_cached_query(cache_key, json.dumps(latest_changes), time.time())
+    
+    if not latest_changes:
+        current_app.logger.info("Federation: No latest changes found from git.")
+        return
+
+    current_app.logger.info(f"Federation: Found {len(latest_changes)} users with changes.")
+
+    for user, subnodes_data in latest_changes:
+        for s_data in subnodes_data:
+            uri = s_data.get('uri')
+            # Skip if already federated
+            if sqlite_engine.is_subnode_federated(uri):
+                # Log at INFO level for now to debug worker behavior
+                current_app.logger.info(f"Federation: Skipping {uri} (already federated).")
+                continue
+            
+            # Load full subnode to get content
+            subnode = api.subnode_by_uri(uri)
+            if not subnode:
+                    continue
+
+            # Safety check: Don't federate content older than 24 hours.
+            # This prevents spamming the timeline with "latest" items that are actually old.
+            if time.time() - subnode.mtime > 86400:
+                    current_app.logger.info(f"Federation: Marking old subnode {uri} as federated without broadcasting.")
+                    sqlite_engine.add_federated_subnode(uri)
+                    continue
+
+            current_app.logger.info(f"Federation: New subnode found: {uri}. Federating...")
+            
+            base_url = current_app.config['URL_BASE']
+            # Identify Actor (Author)
+            actor_url = f"{base_url}/users/{subnode.user}"
+            
+            # Construct URLs
+            # The ActivityPub ID for the Note (JSON)
+            # We use quote(subnode.uri) to handle special characters, but flask route expects encoded path.
+            # note_ap_url corresponds to /u/<user>/note/<path:note_id>
+            note_ap_url = f"{base_url}/u/{subnode.user}/note/{subnode.uri}"
+            
+            # The HTML Permalink
+            html_url = f"{base_url}/{quote(subnode.wikilink)}#/{quote(subnode.uri)}"
+            
+            # Ensure keys are ready
+            ap_key_setup()
+            key_id = f"{actor_url}#main-key"
+            
+            # Render Content
+            if subnode.mediatype.startswith('image/'):
+                    content_html = f'<p>New image uploaded: <a href="{html_url}">{subnode.basename}</a></p>'
+                    # TODO: Add ActivityPub 'attachment' property for proper image display in Mastodon.
+            else:
+                if not hasattr(subnode, 'content'):
+                    if hasattr(subnode, 'load_text_subnode'):
+                        subnode.load_text_subnode()
+                
+                if not hasattr(subnode, 'content'):
+                    current_app.logger.warning(f"Federation: Skipping {subnode.uri} (no content).")
+                    continue
+
+                content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+                content_html = render.markdown(content_str)
+                
+                # Add source link
+                content_html += f'<br><br><p>Source: <a href="{html_url}" rel="nofollow noopener noreferrer" target="_blank">{html_url}</a></p>'
+            
+            # Construct Activity
+            activity = {
+                "@context": "https://www.w3.org/ns/activitystreams",
+                "id": f"{actor_url}/create/{subnode.uri}/{int(subnode.mtime)}",
+                "type": "Create",
+                "actor": actor_url,
+                "object": {
+                    "id": note_ap_url,
+                    "type": "Note",
+                    "published": datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat(),
+                    "attributedTo": actor_url,
+                    "content": content_html,
+                    "url": html_url,
+                    "to": ["https://www.w3.org/ns/activitystreams#Public"],
+                    "cc": [f"{actor_url}/followers"]
+                },
+                "to": ["https://www.w3.org/ns/activitystreams#Public"],
+                "cc": [f"{actor_url}/followers"]
+            }
+            
+            # Get Followers
+            followers = sqlite_engine.get_followers(actor_url)
+            
+            if not followers:
+                current_app.logger.info(f"Federation: No followers for {subnode.user}, skipping broadcast.")
+            else:
+                current_app.logger.info(f"Federation: Broadcasting {uri} to {len(followers)} followers.")
+                # Broadcast
+                for follower in followers:
+                    inbox = resolve_inbox(follower)
+                    if inbox:
+                        send_signed_request(inbox, key_id, activity, g.private_key)
+            
+            # Mark as federated
+            sqlite_engine.add_federated_subnode(subnode.uri)
+            current_app.logger.info(f"Federation: Broadcast complete for {uri}.")
+
+
 def federate_latest_loop(app):
     """Background loop to federate new content."""
     with app.app_context():
@@ -1645,107 +1768,7 @@ def federate_latest_loop(app):
             try:
                 # Sleep to prevent tight looping and allow startup
                 time.sleep(interval)
-                
-                # Get recent subnodes from Git (cached)
-                cache_key = 'latest_per_user_v1'
-                ttl = 300
-                cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
-                
-                if cached_value and (time.time() - timestamp < ttl):
-                     latest_changes = json.loads(cached_value)
-                else:
-                     # Recompute
-                     latest_changes = git_utils.get_latest_changes_per_repo(
-                        agora_path=current_app.config['AGORA_PATH'],
-                        logger=current_app.logger
-                     )
-                     sqlite_engine.save_cached_query(cache_key, json.dumps(latest_changes), time.time())
-                
-                if not latest_changes:
-                    continue
-
-                for user, subnodes_data in latest_changes:
-                    for s_data in subnodes_data:
-                        uri = s_data.get('uri')
-                        # Skip if already federated
-                        if sqlite_engine.is_subnode_federated(uri):
-                            if current_app.debug:
-                                current_app.logger.debug(f"Federation: Skipping {uri} (already federated).")
-                            continue
-                        
-                        # Load full subnode to get content
-                        subnode = api.subnode_by_uri(uri)
-                        if not subnode:
-                             continue
-
-                        # Safety check: Don't federate content older than 24 hours.
-                        # This prevents spamming the timeline with "latest" items that are actually old.
-                        if time.time() - subnode.mtime > 86400:
-                             if current_app.debug:
-                                 current_app.logger.debug(f"Federation: Marking old subnode {uri} as federated without broadcasting.")
-                             sqlite_engine.add_federated_subnode(uri)
-                             continue
-
-                        current_app.logger.info(f"Federation: New subnode found: {uri}. Federating...")
-                        
-                        base_url = current_app.config['URL_BASE']
-                        # Identify Actor (Author)
-                        actor_url = f"{base_url}/users/{subnode.user}"
-                        object_url = f"{base_url}/{quote(subnode.wikilink)}#/{quote(subnode.uri)}"
-                        
-                        # Ensure keys are ready
-                        ap_key_setup()
-                        key_id = f"{actor_url}#main-key"
-                        
-                        # Render Content
-                        if subnode.mediatype.startswith('image/'):
-                             content_html = f'<p>New image uploaded: <a href="{object_url}">{subnode.basename}</a></p>'
-                             # TODO: Add ActivityPub 'attachment' property for proper image display in Mastodon.
-                        else:
-                            if not hasattr(subnode, 'content'):
-                                if hasattr(subnode, 'load_text_subnode'):
-                                    subnode.load_text_subnode()
-                            
-                            if not hasattr(subnode, 'content'):
-                                current_app.logger.warning(f"Federation: Skipping {subnode.uri} (no content).")
-                                continue
-
-                            content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
-                            content_html = render.markdown(content_str)
-                        
-                        # Construct Activity
-                        activity = {
-                            "@context": "https://www.w3.org/ns/activitystreams",
-                            "id": f"{actor_url}/create/{subnode.uri}/{int(subnode.mtime)}",
-                            "type": "Create",
-                            "actor": actor_url,
-                            "object": {
-                                "id": object_url,
-                                "type": "Note",
-                                "published": datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat(),
-                                "attributedTo": actor_url,
-                                "content": content_html,
-                                "url": object_url,
-                                "to": ["https://www.w3.org/ns/activitystreams#Public"],
-                                "cc": [f"{actor_url}/followers"]
-                            },
-                            "to": ["https://www.w3.org/ns/activitystreams#Public"],
-                            "cc": [f"{actor_url}/followers"]
-                        }
-                        
-                        # Get Followers
-                        followers = sqlite_engine.get_followers(actor_url)
-                        
-                        # Broadcast
-                        for follower in followers:
-                            inbox = resolve_inbox(follower)
-                            if inbox:
-                                send_signed_request(inbox, key_id, activity, g.private_key)
-                        
-                        # Mark as federated
-                        sqlite_engine.add_federated_subnode(subnode.uri)
-                        current_app.logger.info(f"Federation: Broadcast complete for {uri}.")
-                    
+                run_federation_pass()
             except Exception as e:
                 try:
                     current_app.logger.error(f"Federation Loop Error: {e}")
@@ -1854,8 +1877,78 @@ def user_outbox(user):
 
 @bp.route("/inbox", methods=['POST'])
 def inbox():
-    """Reserved."""
-    pass
+    """Receives ActivityPub activities."""
+    # 1. Verify Signature
+    # We skip verification for now if the sender is localhost (e.g. tests), 
+    # but strictly enforce it otherwise.
+    # Note: request.remote_addr might be the proxy. 
+    # For now, we rely on verify_request to handle logic.
+    if not federation.verify_request(request):
+        return "Invalid Signature", 401
+
+    # 2. Parse Activity
+    try:
+        activity = request.get_json()
+    except Exception as e:
+        return "Invalid JSON", 400
+
+    if not activity:
+        return "Empty body", 400
+
+    type = activity.get('type')
+    actor = activity.get('actor')
+    
+    current_app.logger.info(f"Inbox received {type} from {actor}")
+
+    try:
+        # 3. Handle 'Like'
+        if type == 'Like':
+            object_id = activity.get('object')
+            sqlite_engine.add_reaction(
+                id=activity.get('id'),
+                type='Like',
+                actor=actor,
+                object=object_id,
+                content=None,
+                timestamp=int(time.time())
+            )
+
+        # 4. Handle 'Create' (Reply)
+        elif type == 'Create':
+            obj = activity.get('object')
+            if isinstance(obj, dict) and obj.get('type') == 'Note':
+                # Check if it's a reply to one of our objects.
+                in_reply_to = obj.get('inReplyTo')
+                if in_reply_to:
+                    # Yes, it's a reply.
+                    content = obj.get('content')
+                    # We store the Note content as the reaction content.
+                    sqlite_engine.add_reaction(
+                        id=activity.get('id'), 
+                        type='Reply', # Differentiate from generic Note
+                        actor=actor,
+                        object=in_reply_to,
+                        content=content,
+                        timestamp=int(time.time())
+                    )
+        
+        # 5. Handle 'Announce' (Boost)
+        elif type == 'Announce':
+            object_id = activity.get('object')
+            sqlite_engine.add_reaction(
+                 id=activity.get('id'),
+                 type='Announce',
+                 actor=actor,
+                 object=object_id,
+                 content=None,
+                 timestamp=int(time.time())
+            )
+            
+    except Exception as e:
+        current_app.logger.error(f"Error processing activity: {e}")
+        return "Internal Error", 500
+
+    return "", 202
 
 @bp.route("/outbox")
 def outbox():
