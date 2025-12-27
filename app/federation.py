@@ -88,7 +88,8 @@ def send_signed_request(inbox_url, key_id, activity, private_key):
         'Digest': digest_header,
         'Signature': header,
         'Content-Type': 'application/activity+json',
-        'Accept': 'application/activity+json, application/ld+json'
+        'Accept': 'application/activity+json, application/ld+json',
+        'User-Agent': 'Agora/0.9.9 (https://anagora.org/; +https://github.com/flancian/agora-server)'
     }
     current_app.logger.info(f"Sending signed request with headers: {headers}")
 
