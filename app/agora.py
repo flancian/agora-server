@@ -1754,6 +1754,46 @@ def federate_latest_loop(app):
                 time.sleep(60)
 
 
+@bp.route("/u/<user>/note/<path:note_id>")
+def ap_note(user, note_id):
+    """Serves an individual subnode as an ActivityPub Note."""
+    # Note: note_id is the subnode URI (e.g. garden/user/node.md).
+    subnode = api.subnode_by_uri(note_id)
+    if not subnode:
+        return "Note not found", 404
+
+    # Construct fully qualified URLs.
+    # The ID of the Note object (this route).
+    object_id = url_for('.ap_note', user=user, note_id=note_id, _external=True, _scheme='https')
+    # The HTML URL (permalink to the node/subnode).
+    html_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
+
+    # Format timestamp.
+    published_time = datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat()
+
+    # Prepare content.
+    content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+    content_with_link = f"""{content_str}
+<br><br>
+<p>Source: <a href="{html_url}" rel="nofollow noopener noreferrer" target="_blank">{html_url}</a></p>
+"""
+
+    note = {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        'id': object_id,
+        'type': 'Note',
+        'published': published_time,
+        'attributedTo': url_for('.ap_user', username=user, _external=True, _scheme='https'),
+        'content': render.markdown(content_with_link),
+        'url': html_url,
+        'to': ['https://www.w3.org/ns/activitystreams#Public'],
+        'cc': [url_for('.ap_user', username=user, _external=True, _scheme='https') + '/followers'],
+    }
+
+    r = make_response(jsonify(note))
+    r.headers['Content-Type'] = 'application/activity+json'
+    return r
+
 @bp.route("/u/<user>/outbox")
 def user_outbox(user):
     """Serves a user's recent subnodes as an ActivityPub OrderedCollection."""
@@ -1766,8 +1806,9 @@ def user_outbox(user):
         # Construct fully qualified URLs for each object.
         # The ID of the Create activity itself.
         activity_id = url_for('.user_outbox', user=user, _external=True, _scheme='https') + f'#/{subnode.uri}/{subnode.mtime}'
-                # The ID of the Note object, which is the subnode itself.
-        object_id = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
+        # The ID of the Note object, which is the subnode itself.
+        object_id = url_for('.ap_note', user=user, note_id=subnode.uri, _external=True, _scheme='https')
+        html_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
         
         # Format the timestamp to ISO 8601 format as required by ActivityPub.
         published_time = datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat()
@@ -1775,7 +1816,7 @@ def user_outbox(user):
         content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
         content_with_link = f"""{content_str}
 <br><br>
-<p>Source: <a href="{object_id}" rel="nofollow noopener noreferrer" target="_blank">{object_id}</a></p>
+<p>Source: <a href="{html_url}" rel="nofollow noopener noreferrer" target="_blank">{html_url}</a></p>
 """
 
         create_activity = {
@@ -1791,7 +1832,7 @@ def user_outbox(user):
                 'published': published_time,
                 'attributedTo': url_for('.ap_user', username=user, _external=True, _scheme='https'),
                 'content': render.markdown(content_with_link),
-                'url': url_for('.root', node=subnode.wikilink, _external=True, _scheme='https'),
+                'url': html_url,
                 'to': ['https://www.w3.org/ns/activitystreams#Public'],
                 'cc': [url_for('.ap_user', username=user, _external=True, _scheme='https') + '/followers'],
             }

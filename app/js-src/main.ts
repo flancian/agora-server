@@ -2146,15 +2146,23 @@ document.addEventListener("DOMContentLoaded", async function () {
                             // Re-attach event listeners for the new content
                             const autoExpandWikipedia = localStorage.getItem('auto-expand-wikipedia') === 'true';
                             const isEmptyNode = document.querySelector('.not-found') !== null;
-                            const shouldAutoPull = autoExpandWikipedia || (isEmptyNode && autoPull);
+                            
+                            // Check for exact match
+                            const wikiTitleElement = wpWtContainer.querySelector('.external-star-toggle[data-external-source="wikipedia"]');
+                            const wikiTitle = wikiTitleElement ? wikiTitleElement.getAttribute('data-external-title') : null;
+                            const isExactMatch = wikiTitle && (wikiTitle.toLowerCase() === NODENAME.toLowerCase());
+
+                            const shouldAutoPull = autoExpandWikipedia || (isEmptyNode && autoPull) || isExactMatch;
 
                             if (shouldAutoPull) {
                                 const details = wpWtContainer.querySelector('.wiki') as HTMLDetailsElement;
                                 if (details) {
                                      // Show toast explaining why we are expanding.
-                                     console.log('Checking toast conditions:', { isEmptyNode, autoPull, autoExpandWikipedia });
+                                     console.log('Checking toast conditions:', { isEmptyNode, autoPull, autoExpandWikipedia, isExactMatch });
                                      if (isEmptyNode && autoPull) {
                                           showToast("Empty node: auto-expanding Wikipedia");
+                                     } else if (isExactMatch) {
+                                          showToast("Exact match: auto-expanding Wikipedia");
                                      } else if (autoExpandWikipedia) {
                                           showToast("Auto-expanding Wikipedia (per setting)");
                                      }
