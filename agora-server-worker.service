@@ -1,0 +1,21 @@
+# to run agora server worker as a service:
+#
+# 1. create a dedicated user, I use 'agora'. If you use a different user/path, adjust below.
+# 2. copy or symlink this to ~/.config/systemd/user/agora-server-worker.service in that user
+# 3. start: systemctl --user start agora-server-worker
+# 4. enable: systemctl --user enable agora-server-worker
+# 
+# logs: journalctl -u agora-server-worker.service -f
+
+[Unit]
+Description=Agora Server Worker (Cache Builder)
+After=network.target
+
+[Service]
+WorkingDirectory=%h/agora-server
+ExecStart=%h/agora-server/run-worker-prod.sh
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=default.target

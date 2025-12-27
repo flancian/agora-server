@@ -1,0 +1,21 @@
+# to run agora federation worker as a service:
+#
+# 1. create a dedicated user, I use 'agora'. If you use a different user/path, adjust below.
+# 2. copy or symlink this to ~/.config/systemd/user/agora-federation.service in that user
+# 3. start: systemctl --user start agora-federation
+# 4. enable: systemctl --user enable agora-federation
+# 
+# logs: journalctl -u agora-federation.service -f
+
+[Unit]
+Description=Agora Federation Worker (ActivityPub)
+After=network.target
+
+[Service]
+WorkingDirectory=%h/agora-server
+ExecStart=%h/agora-server/run-federation-prod.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
