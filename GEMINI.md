@@ -196,6 +196,41 @@ We discussed how to secure `edit.anagora.org`. Currently, it is open.
 *   **Secure the Editor**: Implement the OAuth2 login flow in `bullpen.py`.
 *   **Monitor**: Watch the logs on `thecla` to ensure the Pusher service is reliably syncing changes over the next few days.
 
+## Session Summary (Gemini, 2025-12-27)
+
+*This section documents the successful debugging and fixing of the ActivityPub federation broadcasting loop.*
+
+### Key Learnings & Codebase Insights
+
+-   **ActivityPub Actor IDs**: The `URL_BASE` config variable is critical. If the worker's `URL_BASE` (defaulting to `anagora.org`) doesn't match the one used when followers were stored (e.g., `tar.agor.ai`), lookups fail because the constructed Actor URI doesn't match the DB key.
+-   **Config Override**: We added support for `os.environ.get("URL_BASE")` in `config.py` to allow overriding this setting for the worker script without modifying the file.
+-   **Federation Worker**: The new `scripts/federation_worker.py` is now the reliable way to run broadcasting passes. It correctly sets up the app context and logging.
+-   **Debugging**: Created `scripts/dump_followers.py` and `scripts/reset_federation.py` to inspect and reset the state, which was essential for verifying the fix.
+
+### Summary of Changes Implemented
+
+1.  **Federation Logic (`app/agora.py`)**:
+    *   Fixed a crash in `run_federation_pass` where `send_signed_request` was called with the wrong number of arguments. Switched to `federation.send_signed_request`.
+    *   Fixed indentation in the broadcasting loop.
+2.  **Configuration (`app/config.py`)**:
+    *   Patched `DefaultConfig` to respect `URL_BASE` environment variable.
+3.  **Storage (`app/storage/sqlite_engine.py`)**:
+    *   Added debug logging to `get_followers` to trace query parameters and results.
+4.  **Scripts**:
+    *   **`scripts/federation_worker.py`**: Refined logging and configuration.
+    *   **`scripts/dump_followers.py`**: New tool to list all followers in the SQLite DB.
+    *   **`scripts/reset_federation.py`**: New tool to clear the `federated_subnodes` table for re-testing.
+
+### Frontend Enhancements
+
+*   **Wikipedia Auto-Expand Setting**: Implemented a new user setting "Auto-expand Exact Matches" (default: true).
+    *   This allows users to disable the automatic expansion of the Wikipedia section even when there is an exact title match, addressing potential intrusiveness.
+    *   Files modified: `app/js-src/util.ts`, `app/js-src/settings.ts`, `app/js-src/main.ts`, `app/templates/overlay.html`.
+
+### Verified Status
+
+*   **Federation Broadcasting**: **Working**. We verified that subnodes (e.g., `garden/flancian/2025-12-27.md`) are correctly detected, followers are found, and signed requests are sent to instances like `social.coop` (returning 202 Accepted).
+
 ---
 
 ✦ Federation

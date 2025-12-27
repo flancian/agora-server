@@ -4,6 +4,7 @@ export const CLIENT_DEFAULTS = {
   user: 'agora',
   autoExpandSearch: false,
   autoExpandWikipedia: false,
+  autoExpandExactMatch: true,
   autoExpandAll: false,
   autoPull: true,
   showBrackets: false,

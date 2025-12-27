@@ -12,6 +12,7 @@ export function initSettings() {
     (document.getElementById("auto-expand-all") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-all"], CLIENT_DEFAULTS.autoExpandAll);
     (document.getElementById("auto-expand-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-search"], CLIENT_DEFAULTS.autoExpandSearch);
     (document.getElementById("auto-expand-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-wikipedia"], CLIENT_DEFAULTS.autoExpandWikipedia);
+    (document.getElementById("auto-expand-exact-match") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-exact-match"], CLIENT_DEFAULTS.autoExpandExactMatch);
     (document.getElementById("auto-pull") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-pull"], CLIENT_DEFAULTS.autoPull);
     (document.getElementById("show-brackets") as HTMLInputElement).checked = safeJsonParse(localStorage["showBrackets"], CLIENT_DEFAULTS.showBrackets);
 
@@ -107,6 +108,7 @@ export function initSettings() {
         localStorage["auto-expand-all"] = (document.getElementById("auto-expand-all") as HTMLInputElement).checked;
         localStorage["auto-pull"] = (document.getElementById("auto-pull") as HTMLInputElement).checked;
         localStorage["auto-expand-wikipedia"] = (document.getElementById("auto-expand-wikipedia") as HTMLInputElement).checked;
+        localStorage["auto-expand-exact-match"] = (document.getElementById("auto-expand-exact-match") as HTMLInputElement).checked;
         localStorage["auto-expand-search"] = (document.getElementById("auto-expand-search") as HTMLInputElement).checked;
         localStorage["auto-expand-stoas"] = (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked;
 
