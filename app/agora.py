@@ -23,6 +23,7 @@ import requests
 import time
 import threading
 import urllib.parse
+import bleach
 from copy import copy
 from urllib.parse import parse_qs, urlparse, quote
 from functools import lru_cache
@@ -1681,6 +1682,10 @@ def user_inbox(user):
             in_reply_to = obj.get('inReplyTo')
             if in_reply_to:
                 content = obj.get('content')
+                # Sanitize content before storage to prevent XSS
+                allowed_tags = ['p', 'br', 'a', 'span', 'ul', 'li', 'ol', 'strong', 'em', 'b', 'i', 'blockquote', 'code', 'pre']
+                content = bleach.clean(content, tags=allowed_tags, strip=True)
+                
                 sqlite_engine.add_reaction(
                     id=activity.get('id'), 
                     type='Reply',
@@ -2009,6 +2014,10 @@ def inbox():
                 if in_reply_to:
                     # Yes, it's a reply.
                     content = obj.get('content')
+                    # Sanitize content before storage to prevent XSS
+                    allowed_tags = ['p', 'br', 'a', 'span', 'ul', 'li', 'ol', 'strong', 'em', 'b', 'i', 'blockquote', 'code', 'pre']
+                    content = bleach.clean(content, tags=allowed_tags, strip=True)
+                    
                     # We store the Note content as the reaction content.
                     sqlite_engine.add_reaction(
                         id=activity.get('id'), 
