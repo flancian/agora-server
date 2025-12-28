@@ -19,7 +19,7 @@ def main():
         # 1. Remove from federated_subnodes
         db = sqlite_engine.get_db()
         cursor = db.cursor()
-        cursor.execute("DELETE FROM federated_subnodes WHERE uri = ?", (args.uri,))
+        cursor.execute("DELETE FROM federated_subnodes WHERE subnode_uri = ?", (args.uri,))
         if cursor.rowcount > 0:
             print(f"Successfully removed '{args.uri}' from federated_subnodes.")
             db.commit()
