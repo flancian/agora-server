@@ -1864,17 +1864,29 @@ def user_outbox(user):
     activities = []
     for subnode in subnodes:
         # Construct fully qualified URLs for each object.
-        # The ID of the Create activity itself.
-        activity_id = url_for('.user_outbox', user=user, _external=True, _scheme='https') + f'#/{subnode.uri}/{subnode.mtime}'
-        # The ID of the Note object, which is the subnode itself.
+        # We align this with the Federation Worker (run_federation_pass) to ensure consistency.
+        
+        # Actor URL: /users/<username>
+        actor_url = url_for('.ap_user', username=user, _external=True, _scheme='https')
+        
+        # Activity ID: /users/<username>/create/<quoted_uri>/<mtime>
+        # We manually construct this to match the worker's format.
+        activity_id = f"{actor_url}/create/{quote(subnode.uri)}/{int(subnode.mtime)}"
+        
+        # Object ID (Note): /u/<username>/note/<quoted_uri>
+        # url_for('.ap_note') uses encoded paths by default, so we pass the uri as is? 
+        # flask url_for escapes path variables.
         object_id = url_for('.ap_note', user=user, note_id=subnode.uri, _external=True, _scheme='https')
-        html_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
+        
+        # HTML URL: /wikilink (Canonical Node View)
+        html_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https')
         
         # Format the timestamp to ISO 8601 format as required by ActivityPub.
         published_time = datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat()
 
         content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
-        content_with_link = f"""{content_str}
+        content_html = render.markdown(content_str)
+        content_with_link = f"""{content_html}
 <br><br>
 <p>Source: <a href="{html_url}" rel="nofollow noopener noreferrer" target="_blank">{html_url}</a></p>
 """
@@ -1882,19 +1894,19 @@ def user_outbox(user):
         create_activity = {
             'id': activity_id,
             'type': 'Create',
-            'actor': url_for('.ap_user', username=user, _external=True, _scheme='https'),
+            'actor': actor_url,
             'published': published_time,
             'to': ['https://www.w3.org/ns/activitystreams#Public'],
-            'cc': [url_for('.ap_user', username=user, _external=True, _scheme='https') + '/followers'],
+            'cc': [actor_url + '/followers'],
             'object': {
                 'id': object_id,
                 'type': 'Note',
                 'published': published_time,
-                'attributedTo': url_for('.ap_user', username=user, _external=True, _scheme='https'),
-                'content': render.markdown(content_with_link),
+                'attributedTo': actor_url,
+                'content': content_with_link,
                 'url': html_url,
                 'to': ['https://www.w3.org/ns/activitystreams#Public'],
-                'cc': [url_for('.ap_user', username=user, _external=True, _scheme='https') + '/followers'],
+                'cc': [actor_url + '/followers'],
             }
         }
         activities.append(create_activity)
