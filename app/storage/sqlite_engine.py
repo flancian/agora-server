@@ -229,6 +229,47 @@ def get_subnode_count():
     except sqlite3.OperationalError:
         return 0
 
+def get_active_users(days=30):
+    """
+    Returns the number of unique users who have modified subnodes in the last X days.
+    """
+    db = get_db()
+    if not db:
+        return 0
+    try:
+        import time
+        cutoff = int(time.time()) - (days * 86400)
+        cursor = db.execute("SELECT COUNT(DISTINCT user) FROM subnodes WHERE mtime > ?", (cutoff,))
+        return cursor.fetchone()[0]
+    except sqlite3.OperationalError:
+        return 0
+
+def get_node_count():
+    """
+    Returns the number of unique nodes in the subnodes table.
+    """
+    db = get_db()
+    if not db:
+        return 0
+    try:
+        cursor = db.execute("SELECT COUNT(DISTINCT node) FROM subnodes")
+        return cursor.fetchone()[0]
+    except sqlite3.OperationalError:
+        return 0
+
+def get_link_count():
+    """
+    Returns the total number of links.
+    """
+    db = get_db()
+    if not db:
+        return 0
+    try:
+        cursor = db.execute("SELECT COUNT(*) FROM links")
+        return cursor.fetchone()[0]
+    except sqlite3.OperationalError:
+        return 0
+
 #
 # Reactions (Fediverse)
 #

@@ -1216,6 +1216,51 @@ def resolve_inbox(actor_uri):
         print(f"Federation Error resolving inbox for {actor_uri}: {e}")
         return None
 
+@bp.route("/api/music/tracks")
+def music_tracks():
+    """Returns a list of music tracks from static directories."""
+    tracks = []
+    
+    def parse_track_info(filename):
+        # Remove extension
+        base = os.path.splitext(filename)[0]
+        # Replace underscores with spaces
+        clean = base.replace('_', ' ')
+        
+        if ' - ' in clean:
+            artist, title = clean.split(' - ', 1)
+            return artist, title
+        
+        return 'Unknown', clean.title()
+    
+    # MIDI
+    mid_dir = os.path.join(current_app.static_folder, 'mid')
+    if os.path.exists(mid_dir):
+        for f in os.listdir(mid_dir):
+            if f.endswith('.mid'):
+                artist, title = parse_track_info(f)
+                tracks.append({
+                    'name': title,
+                    'path': url_for('static', filename=f'mid/{f}'),
+                    'type': 'mid',
+                    'artist': artist
+                })
+    
+    # Opus
+    opus_dir = os.path.join(current_app.static_folder, 'opus')
+    if os.path.exists(opus_dir):
+        for f in os.listdir(opus_dir):
+            if f.endswith('.opus') or f.endswith('.ogg'):
+                 artist, title = parse_track_info(f)
+                 tracks.append({
+                    'name': title,
+                    'path': url_for('static', filename=f'opus/{f}'),
+                    'type': 'opus',
+                    'artist': artist
+                })
+                
+    return jsonify(tracks)
+
 def federate_create(subnode_uri, app_context):
     """
     Federates a 'Like' activity when a subnode is starred.
@@ -2157,6 +2202,7 @@ def nodeinfo_version(version="2.0"):
 
     # For now, return minimal placeholder data to fix the 500 error.
     # This should be expanded with actual Agora-specific information later.
+    stats = api.stats()
     return jsonify({
         "version": "2.0",
         "software": {
@@ -2173,16 +2219,23 @@ def nodeinfo_version(version="2.0"):
         "usage": {
             "users": {
                 "total": len(api.all_users()),
-                "activeMonth": 0, # Placeholder
-                "activeHalfyear": 0 # Placeholder
+                "activeMonth": sqlite_engine.get_active_users(30),
+                "activeHalfyear": sqlite_engine.get_active_users(180)
             },
-            "localPosts": sqlite_engine.get_subnode_count(), # Total subnodes as local posts
-            "localComments": 0 # Placeholder
+            "localPosts": stats["subnodes"], 
+            "localComments": 0
         },
         "openRegistrations": True,
         "metadata": {
-            "description": "The Agora is a Free Knowledge Commons.",
-            "maintainer": "flancian@flancia.org"
+            "nodeName": current_app.config['AGORA_NAME'],
+            "nodeDescription": "The Agora is a Free Knowledge Commons.",
+            "maintainer": {"name": "flancian", "email": "flancian@flancia.org"},
+            "nodeCount": stats["nodes"],
+            "linkCount": stats["edges"],
+            "joinUrl": "https://anagora.org/join",
+            "contributeUrl": "https://anagora.org/contribute",
+            "repositoryUrl": "https://github.com/flancian/agora-server",
+            "services": ["mastodon", "twitter", "bluesky"]
         }
     })
 
