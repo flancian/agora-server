@@ -406,7 +406,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Watch for new iframes being added
   const observer = new MutationObserver((mutations) => {
     mutations.forEach(mutation => {
-      console.log('Mutation detected:', mutation.type);
+      // console.log('Mutation detected:', mutation.type);
 
       mutation.addedNodes.forEach(node => {
         // console.log('Added node type: ', node.nodeName);

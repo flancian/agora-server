@@ -22,10 +22,7 @@
         <span class="node-header main-header">🌱 <strong>Latest changes per user (most recently active first)</strong></span>
     </summary>
     
-    <div class="starred-grid">
-        <div class="column">
-            <div class="starred-section-card">
-                <div class="delta-nodes">
+    <div class="delta-nodes">
                     {% if subnodes_by_user %}
                         {% for user, subnodes in subnodes_by_user %}
                             <details class="user-changes" open style="margin-bottom: 1em;">
@@ -57,11 +54,7 @@
                     {% else %}
                         <p>No recent changes found in Git history.</p>
                     {% endif %}
-                </div>
-            </div>
-        </div>
     </div>
-
 </details>
 
 {% include "footer.html" %}
