@@ -15,6 +15,7 @@ export function initMusicPlayer() {
     const trackInfoContent = document.getElementById('track-info-content');
     const trackNameSpan = document.getElementById('music-player-track-name');
     const artistNameSpan = document.getElementById('music-player-artist-name');
+    const timeDisplay = document.getElementById('music-player-time');
     const autoplayMessage = document.getElementById('music-player-autoplay-message');
     const musicControls = document.getElementById('music-player-controls');
     
@@ -27,6 +28,7 @@ export function initMusicPlayer() {
     let currentTrackIndex = 0;
     let isPaused = false;
     let playlist: any[] = [];
+    let lastTimeString = "";
     
     // Concurrency control
     let currentPlayId = 0;
@@ -91,6 +93,13 @@ export function initMusicPlayer() {
         console.log("Music stopped.");
     };
 
+    const formatTime = (seconds: number) => {
+        if (isNaN(seconds)) return "0:00";
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    };
+
     const drawVisualizer = () => {
         if (!canvasCtx || !canvas) return;
 
@@ -101,6 +110,30 @@ export function initMusicPlayer() {
 
         canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.2)'; // Fade out
         canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // Update Time Display
+        let currentTime = 0;
+        let totalTime = 0;
+        let isPlaying = false;
+
+        if (opusPlayer && !opusPlayer.paused) {
+            currentTime = opusPlayer.currentTime;
+            totalTime = opusPlayer.duration;
+            isPlaying = true;
+        } else if (musicPlayer && musicPlayer.isPlaying()) {
+            totalTime = musicPlayer.getSongTime();
+            const remaining = musicPlayer.getSongTimeRemaining();
+            currentTime = totalTime - remaining;
+            isPlaying = true;
+        }
+
+        if (isPlaying && timeDisplay) {
+            const timeString = `${formatTime(currentTime)} / ${formatTime(totalTime)}`;
+            if (timeString !== lastTimeString) {
+                timeDisplay.textContent = timeString;
+                lastTimeString = timeString;
+            }
+        }
 
         if (opusPlayer && !opusPlayer.paused && analyser && dataArray) {
             analyser.getByteFrequencyData(dataArray);
@@ -316,6 +349,35 @@ export function initMusicPlayer() {
         playlistContainer.appendChild(ul);
     };
 
+    const loadPlaylist = () => {
+        return fetch('/api/music/tracks')
+            .then(res => res.json())
+            .then(tracks => {
+                 const midis = tracks.filter((t: any) => t.type === 'mid');
+                 const opuses = tracks.filter((t: any) => t.type === 'opus');
+                 
+                 let firstTrack;
+                 
+                 // 1. Random Opus First
+                 if (opuses.length > 0) {
+                     const idx = Math.floor(Math.random() * opuses.length);
+                     firstTrack = opuses[idx];
+                     opuses.splice(idx, 1);
+                 }
+                 
+                 // 2. Shuffle Rest
+                 const rest = [...midis, ...opuses];
+                 shuffle(rest);
+                 
+                 playlist = [];
+                 if (firstTrack) playlist.push(firstTrack);
+                 playlist.push(...rest);
+                 
+                 console.log("Loaded playlist (Opus-first):", playlist);
+                 return playlist;
+            });
+    };
+
     // Make the Music player draggable
     const musicDragHandle = document.getElementById('music-player-header');
     let musicDraggable: { reposition: () => void } | null = null;
@@ -338,11 +400,8 @@ export function initMusicPlayer() {
             
             // If playlist empty, fetch it
             if (playlist.length === 0) {
-                 fetch('/api/music/tracks')
-                    .then(res => res.json())
-                    .then(tracks => {
-                        playlist = shuffle(tracks);
-                        console.log("Loaded playlist:", playlist);
+                 loadPlaylist()
+                    .then(() => {
                         playTrack(currentTrackIndex);
                     })
                     .catch(err => console.error("Failed to load playlist", err));
@@ -359,10 +418,8 @@ export function initMusicPlayer() {
         const isMusicActive = JSON.parse(localStorage.getItem("ambient-music-active") || 'false');
         // If active on load, fetch playlist and start
         if (isMusicActive) {
-             fetch('/api/music/tracks')
-                .then(res => res.json())
-                .then(tracks => {
-                    playlist = shuffle(tracks);
+             loadPlaylist()
+                .then(() => {
                     setMusicState(true);
                 });
         }
