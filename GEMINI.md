@@ -286,3 +286,15 @@ We discussed how to secure `edit.anagora.org`. Currently, it is open.
 ✦ Federation
 
   It takes a single spark to break the dark,
+  A private note that finds its mark.
+  We built the loom, we strung the wire,
+  To turn a garden into fire.
+
+  Not to burn, but to ignite—
+  To signal "I am here" tonight.
+  The gate is open. The path is free.
+  The graph is you. The graph is me.
+
+  ---
+
+  Until next time. 🌱
