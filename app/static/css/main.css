@@ -48,6 +48,7 @@
     --tab-active-bg: #ffffff20;
     --overlay-bg: rgba(0, 0, 0, 0.8);
     --separator-border: #ddd;
+    --music-player-bg: rgba(31, 41, 55, 0.9); /* Dark blue-gray */
     --blockquote-border: #bfbfbf;
     --agora-protocol-text: #ffffff80;
     --agora-protocol-bg: black;
@@ -81,6 +82,7 @@
     --tab-active-bg: rgba(255, 255, 255, 1);
     --overlay-bg: rgba(238, 238, 238, 0.7);
     --separator-border: #222;
+    --music-player-bg: rgba(255, 255, 255, 0.9); /* Light white-gray */
     --blockquote-border: #000; /* Or a shade of grey */
     --agora-protocol-text: #00000080;
     --agora-protocol-bg: #ffffff;
@@ -986,10 +988,13 @@ details > summary {
     padding: 1em;
     border-radius: 10px;
     margin-bottom: 2em; /* Spacing between cards in a column */
+    overflow-wrap: break-word;
+    box-sizing: border-box;
 }
 
 .starred-section-card h2 {
     margin-top: 0;
+    margin-bottom: 0.5em;
 }
 
 .column {
@@ -1673,12 +1678,11 @@ input:checked + .slider:before {
     right: 25px;
     left: auto;
     bottom: auto;
-    right: auto;
     z-index: 1001;
     display: none;
     animation: fadeIn 0.3s ease-in-out;
     width: 200px; /* Give it a fixed width */
-    background-color: rgba(31, 41, 55, 0.8);
+    background-color: var(--music-player-bg);
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     border: 1px solid var(--link-color);
