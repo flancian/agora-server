@@ -1498,6 +1498,8 @@ def send_accept(app, follow_activity, actor_url, key_id, base_url):
             for subnode in subnodes_to_send:
                 object_id = url_for('.root', node=subnode.wikilink, _external=True) + f'#/{subnode.uri}'
                 content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+                if len(content_str) > 2000:
+                    content_str = content_str[:2000] + '... (truncated)'
                 content_with_link = f"""{content_str}
 <br><br>
 <p>Source: <a href="{object_id}" rel="nofollow noopener noreferrer" target="_blank">{object_id}</a></p>
@@ -1777,6 +1779,8 @@ def run_federation_pass():
                     continue
 
                 content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+                if len(content_str) > 2000:
+                    content_str = content_str[:2000] + '... (truncated)'
                 content_html = render.markdown(content_str)
                 
                 # Add source link
@@ -1862,6 +1866,8 @@ def ap_note(user, note_id):
 
     # Prepare content.
     content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+    if len(content_str) > 2000:
+        content_str = content_str[:2000] + '... (truncated)'
     content_with_link = f"""{content_str}
 <br><br>
 <p>Source: <a href="{html_url}" rel="nofollow noopener noreferrer" target="_blank">{html_url}</a></p>
@@ -1914,6 +1920,8 @@ def user_outbox(user):
         published_time = datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat()
 
         content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+        if len(content_str) > 2000:
+            content_str = content_str[:2000] + '... (truncated)'
         content_html = render.markdown(content_str)
         content_with_link = f"""{content_html}
 <br><br>
