@@ -500,7 +500,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (miniCliGo) {
     miniCliGo.addEventListener("click", () => {
       console.log("go mini-cli executes");
-      miniCliGo.textContent = "➡️ Going...";
+      miniCliGo.textContent = "🏹 Going...";
       miniCliGo.disabled = true;
       let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
       window.location.href = '/go/' + val;
