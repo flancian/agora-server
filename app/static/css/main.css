@@ -996,15 +996,24 @@ details > summary {
     top: 10%; 
     right: 10px;
     width: 380px;
-    height: 80%;
+    height: 50vh;
     z-index: 1000;
     background-color: transparent;
     border: none;
     flex-direction: column;
+    overflow: hidden; /* Frame shouldn't scroll, inner container should */
+    border-radius: 5px; 
 }
 
 #hypothesis-frame.visible {
     display: flex;
+}
+
+#hypothesis-client-container {
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+    overflow-y: auto; /* Allow scrolling inside the container */
 }
 
 #hypothesis-controls {
