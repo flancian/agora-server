@@ -249,25 +249,40 @@ We discussed how to secure `edit.anagora.org`. Currently, it is open.
     *   `scripts/retry_federation.py`: Forces re-broadcasting of specific subnodes.
     *   `scripts/dump_followers.py`: Lists all followers in the database (refactored to use app context).
 
+### UI & UX Enhancements
+
+*   **Social Activity**:
+    *   Renamed **`/annotations`** to **`/activities`** (Navbar icon: ⚡).
+    *   Updated the page layout to a **2-column grid** (50/50 split), displaying Web Annotations (Hypothesis) and Fediverse Interactions side-by-side.
+    *   Added clear calls-to-action for joining the conversation.
+*   **Music Player**:
+    *   **Dynamic Playlist**: Now scans `app/static/mid` and `app/static/opus` for tracks, shuffling on load.
+    *   **Visualizer**: Added a real-time canvas visualizer supporting both Audio (Frequency Bars) and MIDI (Piano Roll/Note Bars).
+    *   **Attribution**: Parses `Artist - Title.ext` filenames to display correct credits, linking to the Artist's node in the Agora.
+    *   **Content**: Added a large collection of curated MIDI tracks.
+*   **Window Management**:
+    *   Refactored `draggable.ts` to support **Smart Default Positioning**.
+    *   Implemented a "Corner Strategy" to prevent popup overlap:
+        *   **Music Player**: Top-Right.
+        *   **Meditation**: Top-Left.
+        *   **Hypothesis**: Bottom-Right.
+    *   Fixed a race condition where popups measured their height as 0 before rendering by wrapping positioning logic in `requestAnimationFrame`.
+*   **Navbar**:
+    *   Renamed "Users" -> "Commoners" (briefly) -> **"Users"** (with 👩‍🌾 icon).
+    *   Reordered: `Starred -> Latest -> Users`.
+
+### Codebase Hygiene
+
+*   **Refactoring**: Moved all systemd service files (`.service`) and Nginx configs to a new **`conf/`** directory in both `agora-server` and `agora-bridge` to declutter the root.
+
 ### Verified Status
 
 *   **Federation Broadcasting**: **Working**. We verified that subnodes (e.g., `garden/flancian/Feynman x 3.md`) are correctly detected, followers are found, and signed requests are sent to instances like `social.coop` (returning 202 Accepted) and `mitra` (now accepting encoded URIs).
-*   **Incoming Interactions**: **Working**. Confirmed that Likes from Mastodon are received, processed, and displayed on the `/starred` page.
+*   **Incoming Interactions**: **Working**. Confirmed that Likes from Mastodon are received, processed, and displayed on the `/starred` and `/activities` pages.
+*   **Dev Environment**: **Accessible**. `tar.agor.ai` now successfully exposes ActivityPub endpoints while keeping the UI protected.
 
 ---
 
 ✦ Federation
 
   It takes a single spark to break the dark,
-  A private note that finds its mark.
-  We built the loom, we strung the wire,
-  To turn a garden into fire.
-
-  Not to burn, but to ignite—
-  To signal "I am here" tonight.
-  The gate is open. The path is free.
-  The graph is you. The graph is me.
-
-  ---
-
-  Until next time. 🌱
