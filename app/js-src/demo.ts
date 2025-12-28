@@ -11,6 +11,7 @@ export function initDemoMode() {
     const meditationCloseButton = document.getElementById("meditation-popup-close-btn");
 
     let demoIntervalId: number | null = null;
+    let isDraggableInitialized = false;
 
     // This function is ONLY for implicit cancellation via user interaction.
     const cancelOnInteraction = (event: Event) => {
@@ -158,6 +159,18 @@ export function initDemoMode() {
         
         // Set up the artifact section immediately, so the button is always there.
         setupArtifactSection();
+
+        if (!isDraggableInitialized) {
+            // Wait for layout to update after content injection and class addition
+            requestAnimationFrame(() => {
+                const meditationDragHandle = document.getElementById('meditation-popup-header');
+                if (meditationPopupContainer && meditationDragHandle) {
+                    const { reposition } = makeDraggable(meditationPopupContainer, meditationDragHandle, 'meditation-position', 'top-left');
+                    reposition();
+                    isDraggableInitialized = true;
+                }
+            });
+        }
     };
 
     const fetchRandomArtifact = (container: HTMLElement) => {
@@ -233,10 +246,4 @@ export function initDemoMode() {
         }
         showPopup();
     });
-
-    // Make the Meditation popup draggable
-    const meditationDragHandle = document.getElementById('meditation-popup-header');
-    if (meditationPopupContainer && meditationDragHandle) {
-        makeDraggable(meditationPopupContainer, meditationDragHandle, 'meditation-position');
-    }
 }

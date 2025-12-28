@@ -36,6 +36,7 @@ import { initPullButtons } from './pull';
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
   initSettings();
+  initMusicPlayer();
 
   // This function reads localStorage and hides any info-boxes that have been previously dismissed.
   // It's safe to call multiple times.
@@ -135,9 +136,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Make the Hypothesis frame draggable
   const hypothesisFrame = document.getElementById('hypothesis-frame');
   const dragHandle = document.getElementById('hypothesis-drag-handle');
+  let hypothesisDraggable: { reposition: () => void } | null = null;
 
   if (hypothesisFrame && dragHandle) {
-    makeDraggable(hypothesisFrame, dragHandle, 'hypothesis-position');
+    hypothesisDraggable = makeDraggable(hypothesisFrame, dragHandle, 'hypothesis-position', 'bottom-right');
+    // If initialized as visible (e.g. via initSettings), position it now so it stacks correctly
+    if (hypothesisFrame.classList.contains('visible')) {
+        hypothesisDraggable.reposition();
+    }
   }
 
   // Event listener for the close button on the Hypothesis frame
@@ -155,6 +161,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const syncHypothesisState = (isVisible: boolean) => {
     if (hypothesisFrame) {
       hypothesisFrame.classList.toggle('visible', isVisible);
+      if (isVisible && hypothesisDraggable) hypothesisDraggable.reposition();
     }
     if (showHypothesisCheckbox) {
       showHypothesisCheckbox.checked = isVisible;
@@ -1933,8 +1940,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             });
 
         });
-
-                        initMusicPlayer();
 
                         const loadTimeMs = performance.now();
 

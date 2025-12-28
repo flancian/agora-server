@@ -253,6 +253,13 @@ export function initMusicPlayer() {
         }
     };
 
+    // Make the Music player draggable
+    const musicDragHandle = document.getElementById('music-player-header');
+    let musicDraggable: { reposition: () => void } | null = null;
+    if (musicPlayerContainer && musicDragHandle) {
+        musicDraggable = makeDraggable(musicPlayerContainer, musicDragHandle, 'music-player-position', 'top-right');
+    }
+
     const setMusicState = (isPlaying: boolean) => {
         localStorage.setItem("ambient-music-active", JSON.stringify(isPlaying));
         musicCheckboxes.forEach(checkbox => {
@@ -263,6 +270,7 @@ export function initMusicPlayer() {
             const isPlayerVisible = JSON.parse(localStorage.getItem("music-player-visible") || 'true');
             if (musicPlayerContainer && isPlayerVisible) {
                 musicPlayerContainer.classList.add('active');
+                if (musicDraggable) musicDraggable.reposition();
             }
             
             // If playlist empty, fetch it
@@ -341,11 +349,5 @@ export function initMusicPlayer() {
         prevButton?.addEventListener('click', () => {
             playTrack((currentTrackIndex - 1 + playlist.length) % playlist.length);
         });
-    }
-
-    // Make the Music player draggable
-    const musicDragHandle = document.getElementById('music-player-header');
-    if (musicPlayerContainer && musicDragHandle) {
-        makeDraggable(musicPlayerContainer, musicDragHandle, 'music-player-position');
     }
 }

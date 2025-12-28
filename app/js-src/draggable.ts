@@ -1,7 +1,9 @@
 
 // app/js-src/draggable.ts
 
-export function makeDraggable(container: HTMLElement, handle: HTMLElement, storageKey: string) {
+export type PositionType = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center';
+
+export function makeDraggable(container: HTMLElement, handle: HTMLElement, storageKey: string, positionType: PositionType = 'top-right') {
     let active = false;
     let currentX: number;
     let currentY: number;
@@ -28,16 +30,23 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         container.style.bottom = 'auto';
         setTranslate(xOffset, yOffset, container);
         hasBeenPositionedByJs = true;
-    } else {
-        // If no position is saved, set a default top-right position (below navbar).
-        const rightMargin = 25; // px from right edge (clears scrollbar)
-        const topMargin = 70; // px from top edge (below navbar)
+    }
+
+    const reposition = () => {
+        if (hasBeenPositionedByJs) return;
+
+        // Calculate default position based on requested type
+        const rightMargin = 25;
+        const bottomMargin = 5; // Reduced from 40 to 5
+        const topMargin = 70;
 
         // The container needs to be visible for offsetWidth/offsetHeight to be accurate
         let containerWidth = container.offsetWidth;
         let containerHeight = container.offsetHeight;
 
         // If the container is hidden, we need to briefly show it to measure it.
+        // NOTE: The caller should ensure the container is effectively visible or renderable before calling reposition()
+        // But we keep the safety check here.
         if (containerWidth === 0 || containerHeight === 0) {
             const originalDisplay = container.style.display;
             const originalVisibility = container.style.visibility;
@@ -52,15 +61,33 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
             container.style.display = originalDisplay;
             container.style.visibility = originalVisibility;
         }
+        
+        console.log(`[Draggable] Measured ${storageKey}: ${containerWidth}x${containerHeight}`);
 
         // Fallback if measurement still fails
-        if (containerWidth === 0) containerWidth = 200; // Approximate width (from CSS)
+        if (containerWidth === 0) containerWidth = 200; 
+        if (containerHeight === 0) containerHeight = 300; 
 
         const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
         
-        // Calculate top-left coordinates for translate3d to achieve top-right positioning
-        xOffset = viewportWidth - containerWidth - rightMargin;
-        yOffset = topMargin;
+        if (positionType === 'center') {
+            xOffset = (viewportWidth - containerWidth) / 2;
+            yOffset = (viewportHeight - containerHeight) / 2;
+        } else if (positionType === 'bottom-right') {
+            xOffset = viewportWidth - containerWidth - rightMargin;
+            yOffset = viewportHeight - containerHeight - bottomMargin;
+        } else if (positionType === 'bottom-left') {
+            xOffset = 25; // Left margin
+            yOffset = viewportHeight - containerHeight - bottomMargin;
+        } else if (positionType === 'top-left') {
+            xOffset = 2; // Left margin (Reduced from 25)
+            yOffset = topMargin;
+        } else {
+            // Default: Top-Right (No cascading)
+            xOffset = viewportWidth - containerWidth - rightMargin;
+            yOffset = topMargin;
+        }
 
         // Ensure the container is absolutely positioned for transform to work relative to viewport
         container.style.position = 'fixed';
@@ -72,7 +99,7 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         setTranslate(xOffset, yOffset, container);
         localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
         hasBeenPositionedByJs = true;
-    }
+    };
 
     const dragStart = (e: MouseEvent | TouchEvent) => {
         if (!hasBeenPositionedByJs) {
@@ -132,4 +159,6 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
 
     document.addEventListener('mousemove', drag, false);
     document.addEventListener('touchmove', drag, { passive: false });
+
+    return { reposition };
 }
