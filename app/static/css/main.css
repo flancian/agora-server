@@ -973,9 +973,36 @@ details > summary {
     margin-left: 0.2em;
 }
 
+.starred-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2em;
+    align-items: flex-start;
+}
+
+.starred-section-card {
+    background: var(--subnode-bg);
+    color: var(--text-color);
+    padding: 1em;
+    border-radius: 10px;
+    margin-bottom: 2em; /* Spacing between cards in a column */
+}
+
+.starred-section-card h2 {
+    margin-top: 0;
+}
+
+.column {
+    flex: 1;
+    min-width: 300px;
+    background-color: transparent;
+    color: inherit;
+    border: none;
+    outline: none;
+}
+
 .wikilink-marker {
-    font-weight: lighter;
-    color: grey;
+    /* deemphasize */
 }
 
 .wikilink:link {
@@ -1697,6 +1724,20 @@ input:checked + .slider:before {
 #track-info {
     text-align: center;
     margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Marquee animation (Ping Pong) */
+@keyframes marquee {
+    0%, 10% { transform: translate(0, 0); } /* Pause at start */
+    90%, 100% { transform: translate(var(--scroll-distance), 0); } /* Pause at end */
+}
+
+.scrolling-track {
+    display: inline-block;
+    animation: marquee 8s linear infinite alternate;
 }
 
 #music-player-controls {

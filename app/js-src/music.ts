@@ -9,6 +9,8 @@ export function initMusicPlayer() {
     const prevButton = document.getElementById('music-player-prev');
     const pauseButton = document.getElementById('music-player-pause');
     const nextButton = document.getElementById('music-player-next');
+    const trackInfo = document.getElementById('track-info');
+    const trackInfoContent = document.getElementById('track-info-content');
     const trackNameSpan = document.getElementById('music-player-track-name');
     const artistNameSpan = document.getElementById('music-player-artist-name');
     const autoplayMessage = document.getElementById('music-player-autoplay-message');
@@ -144,6 +146,21 @@ export function initMusicPlayer() {
         if (trackNameSpan) trackNameSpan.textContent = track.name;
         // Link to the Node (wikilink) instead of User profile
         if (artistNameSpan) artistNameSpan.innerHTML = track.artist ? `by <a href="/${track.artist.replace('@','')}" target="_blank">${track.artist}</a>` : '';
+
+        // Check for overflow and apply marquee
+        if (trackInfoContent) {
+            trackInfoContent.classList.remove('scrolling-track');
+            trackInfoContent.style.removeProperty('--scroll-distance');
+        }
+        
+        // Small delay to allow layout update
+        setTimeout(() => {
+            if (trackInfo && trackInfoContent && trackInfo.scrollWidth > trackInfo.clientWidth) {
+                const distance = trackInfo.scrollWidth - trackInfo.clientWidth + 10; // Extra buffer
+                trackInfoContent.style.setProperty('--scroll-distance', `-${distance}px`);
+                trackInfoContent.classList.add('scrolling-track');
+            }
+        }, 50);
 
         // Start Visualizer Loop
         drawVisualizer();
