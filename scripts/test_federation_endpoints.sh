@@ -63,7 +63,27 @@ check_url "WebFinger" "$BASE_URL/.well-known/webfinger?resource=$ACCT" "applicat
 check_url "Actor Profile" "$BASE_URL/users/$USER" "application/activity+json"
 
 # 3. Outbox
-check_url "Outbox" "$BASE_URL/u/$USER/outbox" "application/activity+json"
+echo -n "Checking Outbox... "
+tmp_body=$(mktemp)
+stats=$(curl -s -o "$tmp_body" -w "%{http_code} %{time_total}" -H "Accept: application/activity+json" -L "$BASE_URL/u/$USER/outbox")
+code=$(echo "$stats" | awk '{print $1}')
+latency=$(echo "$stats" | awk '{print $2}')
+
+if [[ "$code" == "200" ]]; then
+    # Try to extract totalItems using grep/sed/awk combo to avoid jq dependency
+    # Matches "totalItems" : 123 with optional whitespace
+    count=$(grep -o '"totalItems"[[:space:]]*:[[:space:]]*[0-9]*' "$tmp_body" | cut -d: -f2 | tr -d '[:space:]')
+    if [[ -z "$count" ]]; then count="?"; fi
+    
+    echo "✅ PASS ($code) - ${latency}s - Items: $count"
+    if [[ "$count" == "0" ]]; then
+        echo "   ⚠️  Warning: Outbox is empty."
+    fi
+else
+    echo "❌ FAIL ($code) - ${latency}s"
+fi
+rm "$tmp_body"
+echo ""
 
 # 4. User Inbox (POST only, so GET might return 405, which proves it's not 401/403)
 check_url "User Inbox" "$BASE_URL/u/$USER/inbox" "application/activity+json"
