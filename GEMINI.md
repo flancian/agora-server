@@ -255,14 +255,17 @@ We discussed how to secure `edit.anagora.org`. Currently, it is open.
     *   Renamed **`/annotations`** to **`/activities`** (Navbar icon: ⚡).
     *   Updated the page layout to a **2-column grid** (50/50 split), displaying Web Annotations (Hypothesis) and Fediverse Interactions side-by-side.
     *   Added clear calls-to-action for joining the conversation.
-*   **Music Player**:
+    *   **Music Player**:
     *   **Dynamic Playlist**: Now scans `app/static/mid` and `app/static/opus` for tracks, shuffling on load.
     *   **Visualizer**: Added a real-time canvas visualizer supporting both Audio (Frequency Bars) and MIDI (Piano Roll/Note Bars).
     *   **Attribution**: Parses `Artist - Title.ext` filenames to display correct credits, linking to the Artist's node in the Agora.
     *   **Content**: Added a large collection of curated MIDI tracks.
+    *   **UI Polish**:
+        *   Added **Playlist View** (toggleable via `☰`).
+        *   Implemented **Ping-Pong Scrolling** (marquee) for long track titles.
+        *   Fixed race conditions in track switching to prevent accidental layering.
 *   **Window Management**:
-    *   Refactored `draggable.ts` to support **Smart Default Positioning**.
-    *   Implemented a "Corner Strategy" to prevent popup overlap:
+    *   Refactored `draggable.ts` to support **Smart Default Positioning**.    *   Implemented a "Corner Strategy" to prevent popup overlap:
         *   **Music Player**: Top-Right.
         *   **Meditation**: Top-Left.
         *   **Hypothesis**: Bottom-Right.
