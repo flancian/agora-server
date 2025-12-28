@@ -20,53 +20,70 @@
 <div class="listing node">
     <h1>Recent Activity</h1>
     
-    <h2>Web Annotations</h2>
-    <p>
-    <strong>These are powered by <a href="https://hypothes.is">hypothes.is</a> and open web standards. Click 'Annotate' above, sign up/log in, and start annotating the Agora!</strong>
-    </p>
+    <style>
+        .activities-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2em;
+        }
+        @media (max-width: 800px) {
+            .activities-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 
-    {% if annotations.entries %}
-        {% for annotation in annotations.entries %}
-        → hypothes.is user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
-        annotated <a href="{{annotation.link}}">{{annotation.title}}</a>
-        on {{annotation.published[:10]}}<br />
-        <blockquote>
-        <em>{{annotation.summary|linkify|safe}}</em>
-        </blockquote>
-        {% endfor %}
-    {% else %}
-        No annotations found. <br />
-        <em>Start using <a href="https://hypothes.is">hypothes.is</a> today! Web annotations are an open web standard.</em>
-    {% endif %}
+    <div class="activities-grid">
+        <div class="annotations-column">
+            <h2>Web Annotations</h2>
+            <p>
+            <strong>These are powered by <a href="https://hypothes.is">hypothes.is</a> and open web standards. Click 'Annotate' above, sign up/log in, and start annotating the Agora!</strong>
+            </p>
 
-    <hr style="margin: 2em 0;" />
-    
-    <h2>Fediverse Interactions</h2>
-    <p>
-        <strong>Incoming Likes and Replies from the Fediverse.</strong>
-    </p>
+            {% if annotations.entries %}
+                {% for annotation in annotations.entries %}
+                → hypothes.is user <a href="https://hypothes.is/users/{{annotation.author}}">{{annotation.author}}</a>
+                annotated <a href="{{annotation.link}}">{{annotation.title}}</a>
+                on {{annotation.published[:10]}}<br />
+                <blockquote>
+                <em>{{annotation.summary|linkify|safe}}</em>
+                </blockquote>
+                {% endfor %}
+            {% else %}
+                No annotations found. <br />
+                <em>Start using <a href="https://hypothes.is">hypothes.is</a> today! Web annotations are an open web standard.</em>
+            {% endif %}
+        </div>
 
-    {% if reactions %}
-        <ul style="list-style: none; padding: 0;">
-            {% for reaction in reactions %}
-                <li style="margin-bottom: 1em; padding: 0.5em; border: 1px solid var(--border-color); border-radius: 5px;">
-                    <div style="font-size: 0.9em; margin-bottom: 0.3em;">
-                        <strong>{{ reaction.type }}</strong> 
-                        by <a href="{{ reaction.actor }}" target="_blank">{{ reaction.actor }}</a>
-                        on <a href="{{ reaction.object }}" target="_blank">post</a>
-                        <span style="color: var(--text-color-faint); font-size: 0.8em;">({{ reaction.timestamp }})</span>
-                    </div>
-                    {% if reaction.content %}
-                        <div style="background: var(--background-color-secondary); padding: 0.5em; border-radius: 3px;">
-                            {{ reaction.content|safe }}
-                        </div>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No recent interactions found.</p>
-    {% endif %}
+        <div class="federation-column">
+            <h2>Fediverse Interactions</h2>
+            <p>
+                <strong>Incoming Likes and Replies from the Fediverse.</strong>
+            </p>
+
+            {% if reactions %}
+                <ul style="list-style: none; padding: 0;">
+                    {% for reaction in reactions %}
+                        <li style="margin-bottom: 1em; padding: 0.5em; border: 1px solid var(--border-color); border-radius: 5px;">
+                            <div style="font-size: 0.9em; margin-bottom: 0.3em;">
+                                <strong>{{ reaction.type }}</strong> 
+                                by <a href="{{ reaction.actor }}" target="_blank">{{ reaction.actor }}</a>
+                                on <a href="{{ reaction.object }}" target="_blank">post</a>
+                                <span style="color: var(--text-color-faint); font-size: 0.8em;">({{ reaction.timestamp }})</span>
+                            </div>
+                            {% if reaction.content %}
+                                <div style="background: var(--background-color-secondary); padding: 0.5em; border-radius: 3px;">
+                                    {{ reaction.content|safe }}
+                                </div>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No recent interactions found.</p>
+            {% endif %}
+        </div>
+    </div>
 
 </div>
 
