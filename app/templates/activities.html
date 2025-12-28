@@ -23,7 +23,7 @@
     <style>
         .activities-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 2em;
         }
         @media (max-width: 800px) {
@@ -58,7 +58,7 @@
         <div class="federation-column">
             <h2>Fediverse Interactions</h2>
             <p>
-                <strong>Incoming Likes and Replies from the Fediverse.</strong>
+                <strong>Incoming likes and replies via <a href="https://activitypub.rocks/">ActivityPub</a>. To participate, follow Agora users (like <a href="/@flancian">@flancian@anagora.org</a>) from Mastodon or your favorite Fediverse app!</strong>
             </p>
 
             {% if reactions %}
