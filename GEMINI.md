@@ -264,6 +264,9 @@ We discussed how to secure `edit.anagora.org`. Currently, it is open.
         *   Added **Playlist View** (toggleable via `☰`).
         *   Implemented **Ping-Pong Scrolling** (marquee) for long track titles.
         *   Fixed race conditions in track switching to prevent accidental layering.
+        *   Added **Time Display** (Current / Total) with accurate MIDI duration calculation.
+        *   **Interactive Visualizer**: Clicking the visualizer now seeks to that position in the track (with a visual playhead).
+        *   **UX**: Clicking anywhere on the player resumes playback if blocked by autoplay policy.
 *   **Window Management**:
     *   Refactored `draggable.ts` to support **Smart Default Positioning**.    *   Implemented a "Corner Strategy" to prevent popup overlap:
         *   **Music Player**: Top-Right.
