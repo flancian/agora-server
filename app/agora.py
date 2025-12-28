@@ -1756,7 +1756,7 @@ def run_federation_pass():
             # Construct Activity
             activity = {
                 "@context": "https://www.w3.org/ns/activitystreams",
-                "id": f"{actor_url}/create/{subnode.uri}/{int(subnode.mtime)}",
+                "id": f"{actor_url}/create/{quote(subnode.uri)}/{int(subnode.mtime)}",
                 "type": "Create",
                 "actor": actor_url,
                 "object": {
