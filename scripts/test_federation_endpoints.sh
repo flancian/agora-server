@@ -27,23 +27,27 @@ check_url() {
     
     echo -n "Checking $name... "
     
-    # Capture HTTP Code and Response Body
+    # Capture HTTP Code, Response Body, and Timing
     # We use a temporary file to store the body because capturing both in one go is tricky in bash
     tmp_body=$(mktemp)
-    code=$(curl -s -o "$tmp_body" -w "%{http_code}" -H "Accept: $accept" -L "$url")
+    # Fetch stats: http_code and time_total separated by a space
+    stats=$(curl -s -o "$tmp_body" -w "%{http_code} %{time_total}" -H "Accept: $accept" -L "$url")
+    
+    code=$(echo "$stats" | awk '{print $1}')
+    latency=$(echo "$stats" | awk '{print $2}')
     
     if [[ "$code" == "200" || "$code" == "202" ]]; then
-        echo "✅ PASS ($code)"
+        echo "✅ PASS ($code) - ${latency}s"
         rm "$tmp_body"
         echo ""
         return 0
     elif [[ "$code" == "405" ]]; then
-        echo "✅ PASS ($code - Method Not Allowed, but reachable)"
+        echo "✅ PASS ($code - Method Not Allowed, but reachable) - ${latency}s"
         rm "$tmp_body"
         echo ""
         return 0
     else
-        echo "❌ FAIL ($code)"
+        echo "❌ FAIL ($code) - ${latency}s"
         echo "   URL: $url"
         echo "   Response: $(cat "$tmp_body" | head -c 100)..."
         rm "$tmp_body"

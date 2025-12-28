@@ -24,14 +24,22 @@ from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from flask import current_app, g, url_for
 
+private_key = None
+public_key = None
+
 def ap_key_setup():
-    """Loads the RSA key pair from files, creating them if they don't exist."""
+    """Loads the RSA key pair from files, creating them if they don't exist. Caches keys at module level."""
+    global private_key, public_key
+    
+    if private_key and public_key:
+        return private_key, public_key
+
+    # Try to cache on g for request context, but also keep module-level for workers.
     if hasattr(g, 'private_key') and hasattr(g, 'public_key'):
-        return
-    # This function needs to be robust enough to be called from outside a request context,
-    # so we can't rely on g for caching when run from a worker.
-    # For now, we'll re-read from file, which is fine.
-    # A more advanced implementation might use a module-level cache.
+        private_key = g.private_key
+        public_key = g.public_key
+        return private_key, public_key
+
     try:
         with open('private.pem', 'rb') as fp:
             private_key = RSA.import_key(fp.read())

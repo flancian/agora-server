@@ -1252,14 +1252,14 @@ def federate_create(subnode_uri, app_context):
         current_app.logger.info(f"Federation: Broadcasting Like for {subnode_uri} to {len(followers)} followers.")
 
         # Prepare Keys
-        ap_key_setup()
+        private_key, _ = federation.ap_key_setup()
         key_id = f"{actor_url}#main-key"
         
         # Broadcast
         for follower_uri in followers:
             target_inbox = resolve_inbox(follower_uri)
             if target_inbox:
-                send_signed_request(target_inbox, key_id, activity, g.private_key)
+                send_signed_request(target_inbox, key_id, activity, private_key)
             else:
                 current_app.logger.warning(f"Federation: Could not resolve inbox for {follower_uri}")
 
@@ -1563,7 +1563,7 @@ def send_signed_request(inbox_url, key_id, activity):
     Signs and sends an ActivityPub activity to a remote inbox.
     """
     current_app.logger.info(f"Preparing to send signed request to {inbox_url}")
-    ap_key_setup() # Ensure g.private_key is loaded
+    private_key, _ = federation.ap_key_setup() # Ensure private_key is loaded
     
     inbox_domain = urlparse(inbox_url).netloc
     target_path = urlparse(inbox_url).path
@@ -1580,7 +1580,7 @@ def send_signed_request(inbox_url, key_id, activity):
         f'digest: {digest_header}'
     )
 
-    signer = pkcs1_15.new(g.private_key)
+    signer = pkcs1_15.new(private_key)
     signature = base64.b64encode(signer.sign(SHA256.new(string_to_sign.encode('utf-8'))))
 
     header = (
@@ -1608,23 +1608,6 @@ def send_signed_request(inbox_url, key_id, activity):
         current_app.logger.error(f"Error sending signed request to {inbox_url}: {e}")
         if e.response is not None:
             current_app.logger.error(f"Response body: {e.response.text}")
-
-
-def ap_key_setup():
-	if hasattr(g, 'private_key') and hasattr(g, 'public_key'):
-		return
-	if not os.path.isfile('public.pem') or not os.path.isfile('private.pem'):
-		g.private_key = RSA.generate(2048)
-		g.public_key = g.private_key.public_key()
-		with open('private.pem', 'wb') as fp:
-			fp.write(g.private_key.export_key('PEM'))
-		with open('public.pem', 'wb') as fp:
-			fp.write(g.public_key.export_key('PEM'))
-	else:
-		with open('private.pem', 'rb') as fp:
-			g.private_key = RSA.import_key(fp.read())
-		with open('public.pem', 'rb') as fp:
-			g.public_key = RSA.import_key(fp.read())
 
 @bp.route("/u/<user>/inbox", methods=['POST'])
 def user_inbox(user):
@@ -1774,7 +1757,7 @@ def run_federation_pass():
             current_app.logger.info(f"Federation: Constructed Note ID: {note_ap_url}")
 
             # Ensure keys are ready
-            ap_key_setup()
+            private_key, _ = federation.ap_key_setup()
             key_id = f"{actor_url}#main-key"
             
             # Render Content
@@ -1829,7 +1812,7 @@ def run_federation_pass():
                 for follower in followers:
                     inbox = resolve_inbox(follower)
                     if inbox:
-                        federation.send_signed_request(inbox, key_id, activity, g.private_key)
+                        federation.send_signed_request(inbox, key_id, activity, private_key)
             
             # Mark as federated
             sqlite_engine.add_federated_subnode(subnode.uri)
@@ -2055,7 +2038,7 @@ def outbox():
 def ap_user(username):
     """Generates an ActivityPub actor profile for a given user."""
 
-    ap_key_setup()
+    _, public_key = federation.ap_key_setup()
     
     # Try to fetch the user's bio from their garden.
     bio_subnode = api.subnode_by_uri(f'@{username}/bio')
@@ -2093,7 +2076,7 @@ def ap_user(username):
         'publicKey': {
             'id': f'{actor_url}#main-key',
             'owner': actor_url,
-			'publicKeyPem': g.public_key.exportKey(format='PEM').decode('ascii'),
+			'publicKeyPem': public_key.exportKey(format='PEM').decode('ascii'),
         }
     })
 
@@ -2182,7 +2165,7 @@ def nodeinfo_version(version="2.0"):
                 "activeMonth": 0, # Placeholder
                 "activeHalfyear": 0 # Placeholder
             },
-            "localPosts": len(api.all_subnodes()), # Total subnodes as local posts
+            "localPosts": sqlite_engine.get_subnode_count(), # Total subnodes as local posts
             "localComments": 0 # Placeholder
         },
         "openRegistrations": True,
