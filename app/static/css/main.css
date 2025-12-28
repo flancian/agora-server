@@ -1633,8 +1633,10 @@ input:checked + .slider:before {
 
 #music-player-container {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    top: 70px; /* Below navbar */
+    left: 2px;
+    bottom: auto;
+    right: auto;
     z-index: 1001;
     display: none;
     animation: fadeIn 0.3s ease-in-out;
