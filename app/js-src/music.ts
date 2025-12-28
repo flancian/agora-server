@@ -94,7 +94,7 @@ export function initMusicPlayer() {
     };
 
     const formatTime = (seconds: number) => {
-        if (isNaN(seconds)) return "0:00";
+        if (isNaN(seconds) || !isFinite(seconds)) return "--:--";
         const m = Math.floor(seconds / 60);
         const s = Math.floor(seconds % 60);
         return `${m}:${s.toString().padStart(2, '0')}`;
@@ -119,6 +119,9 @@ export function initMusicPlayer() {
         if (opusPlayer && !opusPlayer.paused) {
             currentTime = opusPlayer.currentTime;
             totalTime = opusPlayer.duration;
+            if (!isFinite(totalTime) && Math.random() < 0.01) {
+                console.log(`Opus Debug: Duration=${totalTime}, ReadyState=${opusPlayer.readyState}, NetworkState=${opusPlayer.networkState}`);
+            }
             isPlaying = true;
         } else if (musicPlayer && musicPlayer.isPlaying()) {
             totalTime = musicPlayer.getSongTime();
@@ -181,7 +184,7 @@ export function initMusicPlayer() {
             });
         }
         // Draw Playhead
-        if (isPlaying && totalTime > 0) {
+        if (isPlaying && totalTime > 0 && isFinite(totalTime)) {
             const x = (currentTime / totalTime) * WIDTH;
             canvasCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
             canvasCtx.fillRect(x, 0, 2, HEIGHT);
