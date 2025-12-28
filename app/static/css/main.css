@@ -1003,6 +1003,7 @@ details > summary {
 
 .column {
     flex: 1 1 0; /* Force equal width regardless of content */
+    min-width: 0; /* Allow shrinking below content size to force wrapping */
     background-color: transparent;
     color: inherit;
     border: none;
