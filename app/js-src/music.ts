@@ -180,7 +180,47 @@ export function initMusicPlayer() {
                 if (activeMidiNotes[note] < 1) delete activeMidiNotes[note];
             });
         }
+        // Draw Playhead
+        if (isPlaying && totalTime > 0) {
+            const x = (currentTime / totalTime) * WIDTH;
+            canvasCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            canvasCtx.fillRect(x, 0, 2, HEIGHT);
+        }
     };
+
+    const seek = (e: MouseEvent) => {
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percent = Math.max(0, Math.min(1, x / rect.width));
+        
+        let totalTime = 0;
+        
+        if (opusPlayer && !opusPlayer.paused) {
+             totalTime = opusPlayer.duration;
+             if (totalTime > 0) {
+                 opusPlayer.currentTime = percent * totalTime;
+             }
+        } else if (musicPlayer && musicPlayer.isPlaying()) {
+             totalTime = musicPlayer.getSongTime();
+             if (totalTime > 0) {
+                 const target = percent * totalTime;
+                 console.log(`Seeking MIDI to ${target} / ${totalTime}`);
+                 musicPlayer.skipToSeconds(target);
+                 // Ensure it keeps playing
+                 if (!musicPlayer.isPlaying()) {
+                     console.log("MIDI stopped after seek, resuming.");
+                     musicPlayer.play();
+                 }
+                 activeMidiNotes = {}; 
+             }
+        }
+    };
+    
+    if (canvas) {
+        canvas.style.cursor = 'pointer';
+        canvas.addEventListener('click', seek);
+    }
 
     const playTrack = (trackIndex: number) => {
         stopMusic();
