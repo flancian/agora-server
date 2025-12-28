@@ -481,6 +481,18 @@ export function initMusicPlayer() {
             });
         });
 
+        // Allow clicking anywhere on the container to resume if blocked
+        if (musicPlayerContainer) {
+            musicPlayerContainer.addEventListener('click', (e) => {
+                // If clicking a button, link, or playlist, ignore
+                if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a') || (e.target as HTMLElement).closest('#music-player-playlist')) return;
+
+                if (autoplayMessage && autoplayMessage.style.display === 'block') {
+                    autoplayMessage.click();
+                }
+            });
+        }
+
         autoplayMessage?.addEventListener('click', () => {
             autoplayMessage.style.display = 'none';
             if (musicControls) musicControls.style.display = 'flex';
