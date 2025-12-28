@@ -1694,10 +1694,8 @@ def run_federation_pass():
             # The ActivityPub ID for the Note (JSON)
             # We use quote(subnode.uri) to handle special characters, but flask route expects encoded path.
             # note_ap_url corresponds to /u/<user>/note/<path:note_id>
-            note_ap_url = f"{base_url}/u/{subnode.user}/note/{subnode.uri}"
-            
-            # The HTML Permalink
-            html_url = f"{base_url}/{quote(subnode.wikilink)}#/{quote(subnode.uri)}"
+            note_ap_url = f"{base_url}/u/{subnode.user}/note/{quote(subnode.uri)}"
+            html_url = f"{base_url}/{quote(subnode.uri)}"
             
             # Ensure keys are ready
             ap_key_setup()
