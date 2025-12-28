@@ -1638,17 +1638,19 @@ def user_inbox(user):
 
     current_app.logger.info(f"Received activity for user {user}: {json.dumps(activity, indent=2)}")
 
-    if activity.get('type') == 'Follow':
-        actor_uri = activity.get('actor')
-        if not actor_uri or not isinstance(actor_uri, str):
+    type = activity.get('type')
+    actor = activity.get('actor')
+
+    if type == 'Follow':
+        if not actor or not isinstance(actor, str):
             return "Invalid actor in Follow activity", 400
 
         # The user being followed is the one whose inbox this is.
         user_uri = url_for('.ap_user', username=user, _external=True)
         
         # Store the follower relationship.
-        sqlite_engine.add_follower(user_uri, actor_uri)
-        current_app.logger.info(f"User {user_uri} is now followed by {actor_uri}")
+        sqlite_engine.add_follower(user_uri, actor)
+        current_app.logger.info(f"User {user_uri} is now followed by {actor}")
 
         # Generate all necessary URLs within the request context.
         actor_url = url_for('.ap_user', username=user, _external=True)
@@ -1662,7 +1664,43 @@ def user_inbox(user):
 
         return jsonify({"status": "success", "action": "follow_accepted"}), 202
 
-    # For now, we only handle Follow.
+    # Handle Reactions (Like, Reply, Announce)
+    if type == 'Like':
+        object_id = activity.get('object')
+        sqlite_engine.add_reaction(
+            id=activity.get('id'),
+            type='Like',
+            actor=actor,
+            object=object_id,
+            content=None,
+            timestamp=int(time.time())
+        )
+    elif type == 'Create':
+        obj = activity.get('object')
+        if isinstance(obj, dict) and obj.get('type') == 'Note':
+            in_reply_to = obj.get('inReplyTo')
+            if in_reply_to:
+                content = obj.get('content')
+                sqlite_engine.add_reaction(
+                    id=activity.get('id'), 
+                    type='Reply',
+                    actor=actor,
+                    object=in_reply_to,
+                    content=content,
+                    timestamp=int(time.time())
+                )
+    elif type == 'Announce':
+        object_id = activity.get('object')
+        sqlite_engine.add_reaction(
+             id=activity.get('id'),
+             type='Announce',
+             actor=actor,
+             object=object_id,
+             content=None,
+             timestamp=int(time.time())
+        )
+
+    # For now, we only handle Follow and Reactions.
     return jsonify({"status": "success", "action": "activity_received"}), 202
 
 def run_federation_pass():
