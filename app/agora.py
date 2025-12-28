@@ -2145,8 +2145,52 @@ def webfinger():
 
 @bp.route("/.well-known/nodeinfo")
 def nodeinfo():
-    """Reserved."""
-    pass
+    """Returns a JSON object with a links array, where each link specifies a NodeInfo version and its corresponding URL."""
+    return jsonify({
+        "links": [
+            {
+                "rel": "http://nodeinfo.diaspora.software/ns/schema/2.0",
+                "href": url_for(".nodeinfo_version", version="2.0", _external=True)
+            }
+        ]
+    })
+
+@bp.route("/nodeinfo/2.0")
+def nodeinfo_version(version="2.0"):
+    """Returns NodeInfo 2.0 data."""
+    if version != "2.0":
+        abort(404)
+
+    # For now, return minimal placeholder data to fix the 500 error.
+    # This should be expanded with actual Agora-specific information later.
+    return jsonify({
+        "version": "2.0",
+        "software": {
+            "name": current_app.config['AGORA_NAME'],
+            "version": "0.1.0" # Placeholder, update with actual versioning later
+        },
+        "protocols": [
+            "activitypub"
+        ],
+        "services": {
+            "outbound": [],
+            "inbound": []
+        },
+        "usage": {
+            "users": {
+                "total": len(api.all_users()),
+                "activeMonth": 0, # Placeholder
+                "activeHalfyear": 0 # Placeholder
+            },
+            "localPosts": len(api.all_subnodes()), # Total subnodes as local posts
+            "localComments": 0 # Placeholder
+        },
+        "openRegistrations": True,
+        "metadata": {
+            "description": "The Agora is a Free Knowledge Commons.",
+            "maintainer": "flancian@flancia.org"
+        }
+    })
 
 
 
