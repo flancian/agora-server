@@ -1728,6 +1728,8 @@ def run_federation_pass():
             # Link to the Node view (canonical), as direct subnode links aren't routed.
             html_url = f"{base_url}/{quote(subnode.wikilink)}"
             
+            current_app.logger.info(f"Federation: Constructed Note ID: {note_ap_url}")
+
             # Ensure keys are ready
             ap_key_setup()
             key_id = f"{actor_url}#main-key"
@@ -1770,6 +1772,8 @@ def run_federation_pass():
                 "to": ["https://www.w3.org/ns/activitystreams#Public"],
                 "cc": [f"{actor_url}/followers"]
             }
+            
+            current_app.logger.debug(f"Federation: Activity: {json.dumps(activity)}")
             
             # Get Followers
             followers = sqlite_engine.get_followers(actor_url)
