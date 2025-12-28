@@ -30,7 +30,7 @@
                         📚 <strong>Agora location</strong> 
                         <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
                     </span>
-                    <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="Star this node">
+                    <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="{% if not node.subnodes %}A star on an empty node is a wish. Click to add this node to this Agora's wishlist.{% else %}Star this node to add it to this Agora's starred topics (visible on /starred).{% endif %}">
                         {% if node.uri in starred_nodes %}★{% else %}☆{% endif %}
                     </span>
                     <button id="pull-all-in-node" value="pull-all" title='Pull all embeddable content in this node.' style="display: none;">🧲 Pull All</button>

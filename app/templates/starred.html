@@ -17,84 +17,97 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="node">
-    <div class="starred-nodes">
-        <h2>Starred Nodes</h2>
-        {% if starred_nodes %}
-            <ul>
-                {% for node_uri in starred_nodes|sort %}
-                    <li><span class="wikilink-marker">[[</span><a href="/{{ node_uri }}">{{ node_uri }}</a><span class="wikilink-marker">]]</span></li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No starred nodes yet.</p>
-        {% endif %}
-    </div>
+<details class="listing node" open>
+    <summary>
+        <span class="node-header main-header">✨ <strong>Starred</strong></span>
+    </summary>
+    
+    <div class="starred-grid">
+        
+        <!-- Left Column: Agora Content -->
+        <div class="column">
+            <div class="starred-nodes starred-section-card">
+                <h2>Starred Topics</h2>
+                {% if starred_nodes %}
+                    <ul>
+                        {% for node_uri in starred_nodes|sort %}
+                            <li><span class="wikilink-marker">[[</span><a href="/{{ node_uri }}">{{ node_uri }}</a><span class="wikilink-marker">]]</span></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No starred nodes yet.</p>
+                {% endif %}
+            </div>
 
-    <div class="starred-subnodes">
-        <h2>Starred Subnodes</h2>
-        {% if subnodes %}
-            <ul>
-            {% for subnode in subnodes %}
-                <li>
-                <details>
-                    <summary>
-                        <a href="/subnode/{{ subnode.uri }}">{{ subnode.uri }}</a> by <a href="/@{{ subnode.user }}">@{{ subnode.user }}</a>
-                    </summary>
-                    <div style="margin-left: 2em; margin-top: 1em;">
-                    {% include "subnode.html" %}
-                    </div>
-                </details>
-                </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>No starred subnodes yet.</p>
-        {% endif %}
-    </div>
-
-    <div class="starred-external">
-        <h2>Starred External Resources</h2>
-        {% if starred_external %}
-            <ul>
-                {% for item in starred_external %}
-                    <li>
-                        <span class="wikilink-marker">[[</span><a href="{{ item.url }}" target="_blank">{{ item.title }}</a><span class="wikilink-marker">]]</span>
-                        <span style="color: var(--text-color-faint); font-size: 0.8em;">({{ item.source|capitalize }})</span>
-                        matches <span class="wikilink-marker">[[</span><a href="/{{ item.title }}">{{ item.title }}</a><span class="wikilink-marker">]]</span>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No starred external resources yet.</p>
-        {% endif %}
-    </div>
-
-    <div class="fediverse-reactions">
-        <h2>Fediverse Interactions</h2>
-        {% if reactions %}
-            <ul style="list-style: none; padding: 0;">
-                {% for reaction in reactions %}
-                    <li style="margin-bottom: 1em; padding: 0.5em; border: 1px solid var(--border-color); border-radius: 5px;">
-                        <div style="font-size: 0.9em; margin-bottom: 0.3em;">
-                            <strong>{{ reaction.type }}</strong> 
-                            by <a href="{{ reaction.actor }}" target="_blank">{{ reaction.actor }}</a>
-                            on <a href="{{ reaction.object }}" target="_blank">post</a>
-                            <span style="color: var(--text-color-faint); font-size: 0.8em;">({{ reaction.timestamp }})</span>
-                        </div>
-                        {% if reaction.content %}
-                            <div style="background: var(--background-color-secondary); padding: 0.5em; border-radius: 3px;">
-                                {{ reaction.content|safe }}
+            <div class="starred-subnodes starred-section-card" style="margin-top: 2em;">
+                <h2>Starred Contributions</h2>
+                {% if subnodes %}
+                    <ul>
+                    {% for subnode in subnodes %}
+                        <li>
+                        <details>
+                            <summary>
+                                <a href="/subnode/{{ subnode.uri }}">{{ subnode.uri }}</a> by <a href="/@{{ subnode.user }}">@{{ subnode.user }}</a>
+                            </summary>
+                            <div style="margin-left: 2em; margin-top: 1em;">
+                            {% include "subnode.html" %}
                             </div>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No recent interactions.</p>
-        {% endif %}
-    </div>
+                        </details>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No starred subnodes yet.</p>
+                {% endif %}
+            </div>
+        </div>
 
-</div>
+        <!-- Right Column: External & Activity -->
+        <div class="column">
+            <div class="starred-external starred-section-card">
+                <h2>Starred External Resources</h2>
+                {% if starred_external %}
+                    <ul>
+                        {% for item in starred_external %}
+                            <li>
+                                <span class="wikilink-marker">[[</span><a href="{{ item.url }}" target="_blank">{{ item.title }}</a><span class="wikilink-marker">]]</span>
+                                <span style="color: var(--text-color-faint); font-size: 0.8em;">({{ item.source|capitalize }})</span>
+                                matches topic <span class="wikilink-marker">[[</span><a href="/{{ item.title }}">{{ item.title }}</a><span class="wikilink-marker">]]</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No starred external resources yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="fediverse-reactions starred-section-card" style="margin-top: 2em;">
+                <h2>Fediverse Interactions</h2>
+                {% if reactions %}
+                    <ul style="list-style: none; padding: 0;">
+                        {% for reaction in reactions %}
+                            <li style="margin-bottom: 1em; padding: 0.5em; border: 1px solid var(--border-color); border-radius: 5px;">
+                                <div style="font-size: 0.9em; margin-bottom: 0.3em;">
+                                    <strong>{{ reaction.type }}</strong> 
+                                    by <a href="{{ reaction.actor }}" target="_blank">{{ reaction.actor }}</a>
+                                    on <a href="{{ reaction.object }}" target="_blank">post</a>
+                                    <span style="color: var(--text-color-faint); font-size: 0.8em;">({{ reaction.timestamp }})</span>
+                                </div>
+                                {% if reaction.content %}
+                                    <div style="background: var(--background-color-secondary); padding: 0.5em; border-radius: 3px;">
+                                        {{ reaction.content|safe }}
+                                    </div>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No recent interactions.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</details>
+
 {% include "footer.html" %}
 {% endblock %}

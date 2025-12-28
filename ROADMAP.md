@@ -81,6 +81,32 @@ This hybrid approach provides the best of both worlds: the data users are active
     -   **Logic:** If conditions are met, programmatically "click" the summaries for the Wikipedia section and any un-pulled Mastodon embeds.
     -   **UX Feedback:** Display a toast notification to inform the user that content is being autopulled.
 
+### Priority 4: Collaborative Features (The Read-Write Web)
+
+**Goal:** Close the loop on collaboration by allowing users to not just read, but actively "remix" and evolve content found in the Agora. This draws inspiration from Ward Cunningham's vision of the [Federated Wiki](http://fed.wiki.org/view/welcome-visitors), where copying is the first step of conversation.
+
+-   **Feature: "Fork to Garden"**
+    -   **Concept:** A user viewing a subnode (e.g., a note by `@flancian`) can click a "Fork" button. This action copies the content into their own hosted garden (e.g., `garden/my-user/forked-node.md`), preserving a backlink to the original source (`[[pushed from]]` or similar).
+    -   **Flow:**
+        1.  **UI:** Add a "Fork" (or "Remix") button to the subnode footer.
+        2.  **Auth:** Check if the current viewer is logged in (via the Bullpen/Forgejo auth). If not, prompt to login/signup.
+        3.  **Action:** The Agora Server (or Bridge) retrieves the raw content of the target subnode.
+        4.  **Write:** It writes a new file to the user's garden via the Bullpen API or direct filesystem access (if hosted).
+        5.  **Edit:** The user is immediately redirected to the **Bullpen** editor with the new file open, ready to annotate or modify.
+    -   **Attribution:** The system automatically prepends/appends metadata citing the original author, maintaining the lineage of ideas.
+
+### Priority 5: Semantic Search (The Compass)
+
+**Goal:** Move beyond exact string matching to connect thoughts that are semantically related but phrased differently (e.g., linking "collaborative cognition" with "group thinking").
+
+-   **Technology: `sqlite-vec`**
+    -   We can integrate [sqlite-vec](https://github.com/asg017/sqlite-vec), a lightweight vector search extension for SQLite.
+    -   **Process:**
+        1.  **Embed:** The Bridge (background worker) uses a local embedding model (e.g., `all-MiniLM-L6-v2` via `sentence-transformers` or `llm` CLI) to generate a vector for each subnode's content.
+        2.  **Store:** These vectors are stored in a virtual table in `agora.db` managed by `sqlite-vec`.
+        3.  **Query:** When a user views a node, the Server queries this table for the "nearest neighbors" in vector space.
+        4.  **Display:** These results are shown in a new "Related (Semantic)" section or merged into the existing "Related" list, creating a powerful discovery mechanism that acts as a compass through the knowledge graph.
+
 ### UI/UX Polish (Ongoing)
 
 -   **Musical Side Quests:** Continue development of the ambient music player and other atmospheric features.

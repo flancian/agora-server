@@ -18,46 +18,50 @@
 {% block content %}
 
 <details class="listing node" open>
-<summary>
-<span class="node-header main-header">🌱 <strong>Latest changes per user (most recently active first)</strong></span>
-</summary>
-
-<div class="node subnode">
-    <div class="delta-nodes">
-        {% if subnodes_by_user %}
-            {% for user, subnodes in subnodes_by_user %}
-                <details class="user-changes" open style="margin-bottom: 1em;">
-                    <summary class="user-header">
-                        🧍 <a href="{{ ('@' + user)|node_url }}">@{{ user }}</a>
-                    </summary>
-                    <div class="user-changes-list">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 25%;">Modified</th>
-                                    <th>📚 Node</th>
-                                    <th>📓 Subnode</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for subnode in subnodes %}
-                                <tr>
-                                    <td>{{ subnode.mtime|datetimeformat('%Y-%m-%d %H:%M') }}</td>
-                                    <td><a href="{{ (subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a></td>
-                                    <td><a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[@{{subnode.user}}/{{subnode.wikilink}}]]</a></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </details>
-            {% endfor %}
-        {% else %}
-            <p>No recent changes found in Git history.</p>
-        {% endif %}
+    <summary>
+        <span class="node-header main-header">🌱 <strong>Latest changes per user (most recently active first)</strong></span>
+    </summary>
+    
+    <div class="starred-grid">
+        <div class="column">
+            <div class="starred-section-card">
+                <div class="delta-nodes">
+                    {% if subnodes_by_user %}
+                        {% for user, subnodes in subnodes_by_user %}
+                            <details class="user-changes" open style="margin-bottom: 1em;">
+                                <summary class="user-header">
+                                    🧍 <a href="{{ ('@' + user)|node_url }}">@{{ user }}</a>
+                                </summary>
+                                <div class="user-changes-list">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 25%;">Modified</th>
+                                                <th>📚 Node</th>
+                                                <th>📓 Subnode</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for subnode in subnodes %}
+                                            <tr>
+                                                <td>{{ subnode.mtime|datetimeformat('%Y-%m-%d %H:%M') }}</td>
+                                                <td><a href="{{ (subnode.wikilink)|node_url }}">[[{{subnode.wikilink}}]]</a></td>
+                                                <td><a href="{{ ('@' + subnode.user + '/' + subnode.wikilink)|node_url }}">[[@{{subnode.user}}/{{subnode.wikilink}}]]</a></td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </details>
+                        {% endfor %}
+                    {% else %}
+                        <p>No recent changes found in Git history.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 
-</div>
 </details>
 
 {% include "footer.html" %}
