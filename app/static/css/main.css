@@ -1634,7 +1634,8 @@ input:checked + .slider:before {
 #music-player-container {
     position: fixed;
     top: 70px; /* Below navbar */
-    left: 2px;
+    right: 25px;
+    left: auto;
     bottom: auto;
     right: auto;
     z-index: 1001;

@@ -29,15 +29,37 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         setTranslate(xOffset, yOffset, container);
         hasBeenPositionedByJs = true;
     } else {
-        // If no position is saved, set a default top-left position (below navbar).
-        const leftMargin = 2; // px from left edge
+        // If no position is saved, set a default top-right position (below navbar).
+        const rightMargin = 25; // px from right edge (clears scrollbar)
         const topMargin = 70; // px from top edge (below navbar)
 
         // The container needs to be visible for offsetWidth/offsetHeight to be accurate
-        // (logic omitted as we don't need height for top-left positioning)
+        let containerWidth = container.offsetWidth;
+        let containerHeight = container.offsetHeight;
 
-        // Calculate top-left for translate3d
-        xOffset = leftMargin;
+        // If the container is hidden, we need to briefly show it to measure it.
+        if (containerWidth === 0 || containerHeight === 0) {
+            const originalDisplay = container.style.display;
+            const originalVisibility = container.style.visibility;
+            
+            container.style.visibility = 'hidden';
+            container.style.display = 'block';
+            
+            containerWidth = container.offsetWidth;
+            containerHeight = container.offsetHeight;
+            
+            // Restore original styles
+            container.style.display = originalDisplay;
+            container.style.visibility = originalVisibility;
+        }
+
+        // Fallback if measurement still fails
+        if (containerWidth === 0) containerWidth = 200; // Approximate width (from CSS)
+
+        const viewportWidth = window.innerWidth;
+        
+        // Calculate top-left coordinates for translate3d to achieve top-right positioning
+        xOffset = viewportWidth - containerWidth - rightMargin;
         yOffset = topMargin;
 
         // Ensure the container is absolutely positioned for transform to work relative to viewport
@@ -48,8 +70,6 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         container.style.bottom = 'auto';
 
         setTranslate(xOffset, yOffset, container);
-        // We do NOT save to localStorage immediately to allow CSS defaults to apply if JS fails?
-        // No, we must save to keep it draggable state consistent.
         localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
         hasBeenPositionedByJs = true;
     }
