@@ -125,6 +125,13 @@ export function initMusicPlayer() {
             const remaining = musicPlayer.getSongTimeRemaining();
             currentTime = totalTime - remaining;
             isPlaying = true;
+
+            // Fallback: If remaining is 0 (or very close), force next track
+            // This handles cases where 'end' event might be missed
+            if (remaining <= 0 && totalTime > 0) {
+                console.log("Visualizer detected end of MIDI track, advancing.");
+                playTrack((currentTrackIndex + 1) % playlist.length);
+            }
         }
 
         if (isPlaying && timeDisplay) {
@@ -459,6 +466,10 @@ export function initMusicPlayer() {
         }
 
         pauseButton?.addEventListener('click', () => {
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
             isPaused = !isPaused;
             if (isPaused) {
                 // @ts-ignore
