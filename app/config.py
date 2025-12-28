@@ -12,6 +12,7 @@ def getcfg(path):
 
 
 class DefaultConfig(object):
+    # A harmless comment to force reload for development. (2025-12-28-1)
     SECRET_KEY = os.environ.get("SECRET_KEY", "a-default-secret-key-for-development")
     # I wonder how much of this should be in [[agora.yaml]] instead :)
 

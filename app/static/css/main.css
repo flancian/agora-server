@@ -978,7 +978,7 @@ details > summary {
 .starred-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 2em;
+    gap: 1em; /* Reduced gap */
     align-items: flex-start;
 }
 
@@ -987,9 +987,13 @@ details > summary {
     color: var(--text-color);
     padding: 1em;
     border-radius: 10px;
-    margin-bottom: 2em; /* Spacing between cards in a column */
+    margin-bottom: 0; /* Let sibling selector handle internal spacing, or grid handle external */
     overflow-wrap: break-word;
     box-sizing: border-box;
+}
+
+.starred-section-card + .starred-section-card {
+    margin-top: 1em;
 }
 
 .starred-section-card h2 {
@@ -998,12 +1002,13 @@ details > summary {
 }
 
 .column {
-    flex: 1;
-    min-width: 300px;
+    flex: 1 1 0; /* Force equal width regardless of content */
     background-color: transparent;
     color: inherit;
     border: none;
     outline: none;
+    padding: 0; /* Ensure no default padding */
+    margin: 0; /* Ensure no default margin */
 }
 
 .wikilink-marker {
