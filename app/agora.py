@@ -1263,6 +1263,36 @@ def federate_create(subnode_uri, app_context):
                 current_app.logger.warning(f"Federation: Could not resolve inbox for {follower_uri}")
 
 
+@bp.route("/api/reactions/<path:subnode_uri>")
+def get_subnode_reactions(subnode_uri):
+    """
+    Returns ActivityPub reactions (replies, likes) for a specific subnode.
+    """
+    try:
+        # Resolve the subnode to get the user (needed for AP ID construction)
+        # We could parse the URI string, but loading the subnode is safer?
+        # Actually, we just need the user. URI format: 'garden/user/...'
+        # Let's try to parse it to avoid disk I/O if possible, or just use subnode_by_uri.
+        
+        parts = subnode_uri.split('/')
+        if len(parts) >= 2 and parts[0] == 'garden':
+             user = parts[1]
+        else:
+             # Fallback/Error?
+             return jsonify([])
+
+        base_url = current_app.config['URL_BASE']
+        # Construct the ActivityPub ID for the Note.
+        # MUST match the ID used when federating (see run_federation_pass).
+        # We quote the URI part.
+        note_ap_id = f"{base_url}/u/{user}/note/{quote(subnode_uri)}"
+        
+        reactions = sqlite_engine.get_reactions(note_ap_id)
+        return jsonify(reactions)
+    except Exception as e:
+        current_app.logger.error(f"API: Error fetching reactions for {subnode_uri}: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @bp.route("/api/star/<path:subnode_uri>", methods=["POST"])
 def star_subnode(subnode_uri):
     try:
@@ -1695,7 +1725,8 @@ def run_federation_pass():
             # We use quote(subnode.uri) to handle special characters, but flask route expects encoded path.
             # note_ap_url corresponds to /u/<user>/note/<path:note_id>
             note_ap_url = f"{base_url}/u/{subnode.user}/note/{quote(subnode.uri)}"
-            html_url = f"{base_url}/{quote(subnode.uri)}"
+            # Link to the Node view (canonical), as direct subnode links aren't routed.
+            html_url = f"{base_url}/{quote(subnode.wikilink)}"
             
             # Ensure keys are ready
             ap_key_setup()
