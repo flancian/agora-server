@@ -289,7 +289,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     URI_BASE = "localhost:5017"
     API_BASE = "http://localhost:3000"
 
-    AGORA_NAME = "Development " + DefaultConfig.AGORA_NAME
+    AGORA_NAME = "Development Agora"
     FEDERATION_INTERVAL = 60
     # EXPERIMENTS
     ENABLE_CTZN = True
