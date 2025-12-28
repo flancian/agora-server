@@ -18,7 +18,9 @@
 {% block content %}
 
 <div class="listing node">
-    <h1>Web annotations</h1>
+    <h1>Recent Activity</h1>
+    
+    <h2>Web Annotations</h2>
     <p>
     <strong>These are powered by <a href="https://hypothes.is">hypothes.is</a> and open web standards. Click 'Annotate' above, sign up/log in, and start annotating the Agora!</strong>
     </p>
@@ -35,6 +37,35 @@
     {% else %}
         No annotations found. <br />
         <em>Start using <a href="https://hypothes.is">hypothes.is</a> today! Web annotations are an open web standard.</em>
+    {% endif %}
+
+    <hr style="margin: 2em 0;" />
+    
+    <h2>Fediverse Interactions</h2>
+    <p>
+        <strong>Incoming Likes and Replies from the Fediverse.</strong>
+    </p>
+
+    {% if reactions %}
+        <ul style="list-style: none; padding: 0;">
+            {% for reaction in reactions %}
+                <li style="margin-bottom: 1em; padding: 0.5em; border: 1px solid var(--border-color); border-radius: 5px;">
+                    <div style="font-size: 0.9em; margin-bottom: 0.3em;">
+                        <strong>{{ reaction.type }}</strong> 
+                        by <a href="{{ reaction.actor }}" target="_blank">{{ reaction.actor }}</a>
+                        on <a href="{{ reaction.object }}" target="_blank">post</a>
+                        <span style="color: var(--text-color-faint); font-size: 0.8em;">({{ reaction.timestamp }})</span>
+                    </div>
+                    {% if reaction.content %}
+                        <div style="background: var(--background-color-secondary); padding: 0.5em; border-radius: 3px;">
+                            {{ reaction.content|safe }}
+                        </div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No recent interactions found.</p>
     {% endif %}
 
 </div>

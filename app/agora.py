@@ -472,14 +472,17 @@ def starred():
     )
 
 
-@bp.route("/annotations/")
+@bp.route("/activities/")
+@bp.route("/activities")
 @bp.route("/annotations")
-def annotations():
-    n = api.build_node("annotations")
+def activities():
+    n = api.build_node("activities")
+    recent_reactions = sqlite_engine.get_recent_reactions(limit=50)
     return render_template(
-        "annotations.html",
-        header="Recent annotations",
+        "activities.html",
+        header="Recent Activity",
         annotations=feed.get_latest(),
+        reactions=recent_reactions,
         node=n,
     )
 
