@@ -203,7 +203,9 @@
     </div>
     <div class="music-player-body">
         <div id="track-info">
-            <span id="music-player-track-name"></span> <span id="music-player-artist-name"></span>
+            <div id="track-info-content" style="display: inline-block;">
+                <span id="music-player-track-name"></span> <span id="music-player-artist-name"></span>
+            </div>
         </div>
         <canvas id="music-visualizer" width="300" height="60" style="width: 100%; height: 60px; margin: 5px 0; border-radius: 4px;"></canvas>
         <div id="music-player-autoplay-message" style="display: none; cursor: pointer;"></div>
@@ -211,7 +213,9 @@
             <button id="music-player-prev" class="control-btn">⏮</button>
             <button id="music-player-pause" class="control-btn">⏸</button>
             <button id="music-player-next" class="control-btn">⏭</button>
+            <button id="music-player-list-toggle" class="control-btn" title="Playlist">☰</button>
         </div>
+        <div id="music-player-playlist" style="display: none; max-height: 200px; overflow-y: auto; margin-top: 10px; font-size: 0.8em; border-top: 1px solid var(--border-color); padding-top: 5px;"></div>
     </div>
     </div>
 

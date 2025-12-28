@@ -9,6 +9,8 @@ export function initMusicPlayer() {
     const prevButton = document.getElementById('music-player-prev');
     const pauseButton = document.getElementById('music-player-pause');
     const nextButton = document.getElementById('music-player-next');
+    const playlistToggle = document.getElementById('music-player-list-toggle');
+    const playlistContainer = document.getElementById('music-player-playlist');
     const trackInfo = document.getElementById('track-info');
     const trackInfoContent = document.getElementById('track-info-content');
     const trackNameSpan = document.getElementById('music-player-track-name');
@@ -25,6 +27,9 @@ export function initMusicPlayer() {
     let currentTrackIndex = 0;
     let isPaused = false;
     let playlist: any[] = [];
+    
+    // Concurrency control
+    let currentPlayId = 0;
     
     // Audio Context for Visualizer
     let audioCtx: AudioContext | null = null;
@@ -63,8 +68,11 @@ export function initMusicPlayer() {
 
     const stopMusic = () => {
         if (musicPlayer) {
-            musicPlayer.stop();
-            // Don't nullify immediately if we want to reuse, but here we rebuild per track.
+            try {
+                musicPlayer.stop();
+            } catch (e) {
+                console.warn("Error stopping MIDI player:", e);
+            }
             // musicPlayer = null; 
         }
         if (opusPlayer) {
@@ -140,6 +148,9 @@ export function initMusicPlayer() {
         if (pauseButton) pauseButton.textContent = '⏸';
         currentTrackIndex = trackIndex;
         
+        // Concurrency token
+        const playId = ++currentPlayId;
+        
         if (!playlist || playlist.length === 0) return;
         
         const track = playlist[trackIndex];
@@ -164,6 +175,11 @@ export function initMusicPlayer() {
 
         // Start Visualizer Loop
         drawVisualizer();
+        
+        // Update playlist UI highlight if visible
+        if (playlistContainer && playlistContainer.style.display === 'block') {
+            renderPlaylist();
+        }
 
         if (track.type === 'mid') {
             const ac = initAudioContext();
@@ -171,16 +187,17 @@ export function initMusicPlayer() {
             // Import libraries if needed
             // Note: In a real build, these should be handled better, but preserving existing dynamic import pattern.
             import('soundfont-player').then(({ default: Soundfont }) => {
+                // Check if we are still the current play request
+                if (playId !== currentPlayId) return;
+
                 import('midi-player-js').then(({ default: MidiPlayer }) => {
-                    
+                    if (playId !== currentPlayId) return;
+
                     Soundfont.instrument(ac, 'acoustic_grand_piano').then(function (instrument) {
+                        if (playId !== currentPlayId) return;
+
                         const activeNotesDict: { [key: number]: any } = {};
                         
-                        // We need to connect instrument to analyser if possible?
-                        // soundfont-player usually connects to destination.
-                        // Currently hard to hook into soundfont-player's internal node without modifying it.
-                        // So we stick to note-event visualization for MIDI.
-
                         const player = new MidiPlayer.Player(function (event: any) {
                             if (event.name === 'Note on' && event.velocity > 0) {
                                 instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 2 });
@@ -202,8 +219,9 @@ export function initMusicPlayer() {
                         fetch(track.path)
                             .then(response => response.arrayBuffer())
                             .then(arrayBuffer => {
-                                // Convert to base64 for midi-player-js (it expects data URI or base64)
-                                // Actually midi-player-js loadArrayBuffer is better if supported, but loadDataUri is standard.
+                                if (playId !== currentPlayId) return;
+
+                                // Convert to base64 for midi-player-js
                                 const binary = new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '');
                                 const base64 = btoa(binary);
                                 const dataUri = `data:audio/midi;base64,${base64}`;
@@ -268,6 +286,34 @@ export function initMusicPlayer() {
             };
             console.log(`Playing Opus: ${track.name}`);
         }
+    };
+
+    const renderPlaylist = () => {
+        if (!playlistContainer) return;
+        playlistContainer.innerHTML = '';
+        const ul = document.createElement('ul');
+        ul.style.listStyle = 'none';
+        ul.style.padding = '0';
+        
+        playlist.forEach((track, index) => {
+            const li = document.createElement('li');
+            li.style.cursor = 'pointer';
+            li.style.padding = '4px 0';
+            li.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+            if (index === currentTrackIndex) {
+                li.style.fontWeight = 'bold';
+                li.style.color = 'var(--accent-color)';
+                li.innerHTML = `▶ ${track.name} <span style="font-size: 0.8em; opacity: 0.7;">(${track.artist})</span>`;
+            } else {
+                li.innerHTML = `${index + 1}. ${track.name} <span style="font-size: 0.8em; opacity: 0.7;">(${track.artist})</span>`;
+            }
+            
+            li.addEventListener('click', () => {
+                playTrack(index);
+            });
+            ul.appendChild(li);
+        });
+        playlistContainer.appendChild(ul);
     };
 
     // Make the Music player draggable
@@ -343,6 +389,17 @@ export function initMusicPlayer() {
         musicCloseButton?.addEventListener('click', () => {
             setMusicState(false);
         });
+
+        if (playlistToggle && playlistContainer) {
+            playlistToggle.addEventListener('click', () => {
+                if (playlistContainer.style.display === 'none') {
+                    renderPlaylist();
+                    playlistContainer.style.display = 'block';
+                } else {
+                    playlistContainer.style.display = 'none';
+                }
+            });
+        }
 
         pauseButton?.addEventListener('click', () => {
             isPaused = !isPaused;
