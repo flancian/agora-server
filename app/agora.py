@@ -1864,7 +1864,7 @@ def ap_note(user, note_id):
     # The ID of the Note object (this route).
     object_id = url_for('.ap_note', user=user, note_id=note_id, _external=True, _scheme='https')
     # The HTML URL (permalink to the node/subnode).
-    html_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
+    html_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https')
 
     # Format timestamp.
     published_time = datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat()
