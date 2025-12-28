@@ -234,10 +234,25 @@ We discussed how to secure `edit.anagora.org`. Currently, it is open.
     *   Added `get_recent_reactions` to `app/storage/sqlite_engine.py`.
     *   Updated `app/agora.py` to fetch reactions in the `starred` route.
     *   Updated `app/templates/starred.html` to render a list of recent interactions with actor, type, and content.
+    *   **Security**: Added `bleach` sanitization to `app/agora.py` to prevent XSS from incoming ActivityPub content.
+
+### Tooling & Operational Fixes
+
+*   **Federation Troubleshooting**:
+    *   **Invalid URIs**: Fixed `400 Bad Request` from Mitra by URL-encoding (`quote()`) all ActivityPub IDs and URLs.
+    *   **Key Mismatch**: Diagnosed that `anagora.org` was serving a different public key than the one stored in `private.pem` used by the worker. Confirmed `private2.pem` was the correct key.
+    *   **ID Alignment**: Aligned `user_outbox` generation logic to match the Federation Worker's format (`/create/` IDs, clean source links), ensuring consistency for subscribers.
+    *   **Dev Environment**: Created `dev_nginx_allowlist.conf` to allow ActivityPub traffic through HTTP Basic Auth on development instances.
+        *   **Fix**: Used a named location `@agora` with `auth_basic off;` to prevent auth inheritance during internal redirects (`try_files`), which solved the 401 errors on `tar.agor.ai`.
+*   **New Scripts**:
+    *   `scripts/test_federation_endpoints.sh`: Verifies public visibility of AP endpoints (WebFinger, Actor, Inbox, etc.).
+    *   `scripts/retry_federation.py`: Forces re-broadcasting of specific subnodes.
+    *   `scripts/dump_followers.py`: Lists all followers in the database (refactored to use app context).
 
 ### Verified Status
 
-*   **Federation Broadcasting**: **Working**. We verified that subnodes (e.g., `garden/flancian/2025-12-27.md`) are correctly detected, followers are found, and signed requests are sent to instances like `social.coop` (returning 202 Accepted).
+*   **Federation Broadcasting**: **Working**. We verified that subnodes (e.g., `garden/flancian/Feynman x 3.md`) are correctly detected, followers are found, and signed requests are sent to instances like `social.coop` (returning 202 Accepted) and `mitra` (now accepting encoded URIs).
+*   **Incoming Interactions**: **Working**. Confirmed that Likes from Mastodon are received, processed, and displayed on the `/starred` page.
 
 ---
 
