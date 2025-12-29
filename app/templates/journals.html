@@ -17,18 +17,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="node">
+<details class="listing node" open>
+    <summary>
+        <span class="node-header main-header">📜 <strong>{{ header }}</strong></span>
+    </summary>
 
-    <div class="intro">
-        {{header}}.
+    <div class="starred-grid">
+        <div class="column" style="flex: 1 1 100%; padding-top: 1em;">
+
+            {% for date, subnodes in subnodes_by_date.items() %}
+                <div class="date-section" style="margin-bottom: 2em;">
+                    <h2 style="margin-top: 0;"><a href="/{{ date }}">{{ date }}</a></h2>
+                    {% for subnode in subnodes %}
+                        <div class="journal-entry">
+                            {% include "subnode.html" with context %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
     </div>
+</details>
 
-    {% for date, subnodes in subnodes_by_date.items() %}
-        <h2><a href="/{{ date }}">{{ date }}</a></h2>
-        {% for subnode in subnodes %}
-            {% include "subnode.html" with context %}
-        {% endfor %}
-    {% endfor %}
-
-</div>
+{% include "footer.html" %}
 {% endblock %}
