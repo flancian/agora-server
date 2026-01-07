@@ -472,15 +472,16 @@ def starred():
     )
 
 
-@bp.route("/activities/")
+@bp.route("/federation/")
+@bp.route("/federation")
 @bp.route("/activities")
 @bp.route("/annotations")
-def activities():
-    n = api.build_node("activities")
+def federation():
+    n = api.build_node("federation")
     recent_reactions = sqlite_engine.get_recent_reactions(limit=50)
     return render_template(
-        "activities.html",
-        header="Recent Activity",
+        "federation.html",
+        header="Recent federated activity",
         annotations=feed.get_latest(),
         reactions=recent_reactions,
         node=n,
