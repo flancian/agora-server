@@ -822,21 +822,47 @@ def user_json(user):
 def debug_memory():
     import objgraph
     import gc
+    from .graph import G
     
     # Force a collection to clean up cyclic trash
     gc.collect()
     
-    # Get top 50 most common types
-    # This returns a list of (type_name, count) tuples
-    counts = objgraph.most_common_types(limit=50)
-    
-    # Also look for the object that has the most instances growing since last call?
-    # objgraph doesn't store state, so we just return the snapshot.
-    
-    return jsonify({
-        'most_common_types': counts,
-        'leaking_objects': objgraph.growth(limit=20) # This might be empty on first call
-    })
+    stats = {
+        'Subnode_count': objgraph.count('Subnode'),
+        'Node_count': objgraph.count('Node'),
+        'Identity_Shared': 'Unknown',
+        'Details': {}
+    }
+
+    try:
+        # Check if we have cached subnodes
+        subnodes = G.subnodes()
+        if subnodes:
+            # Pick a sample
+            s1 = subnodes[0]
+            # Try to find the corresponding node
+            n = G.node(s1.node)
+            if n and n.subnodes:
+                # Find the same subnode in the node's list
+                s2 = next((s for s in n.subnodes if s.uri == s1.uri), None)
+                if s2:
+                    stats['Identity_Shared'] = (s1 is s2)
+                    stats['Details'] = {
+                        'Sample_URI': s1.uri,
+                        'G_subnodes_id': id(s1),
+                        'G_node_subnodes_id': id(s2)
+                    }
+                else:
+                    stats['Identity_Shared'] = "Subnode not found in Node (Graph inconsistency?)"
+            else:
+                 stats['Identity_Shared'] = "Node not found or empty"
+        else:
+            stats['Identity_Shared'] = "No subnodes loaded"
+            
+    except Exception as e:
+        stats['Error'] = str(e)
+
+    return jsonify(stats)
 
 
 @bp.route('/api/join', methods=['POST'])
