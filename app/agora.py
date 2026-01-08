@@ -818,6 +818,27 @@ def user_json(user):
     return jsonify(jsons.dump(subnodes))
 
 
+@bp.route("/debug/memory")
+def debug_memory():
+    import objgraph
+    import gc
+    
+    # Force a collection to clean up cyclic trash
+    gc.collect()
+    
+    # Get top 50 most common types
+    # This returns a list of (type_name, count) tuples
+    counts = objgraph.most_common_types(limit=50)
+    
+    # Also look for the object that has the most instances growing since last call?
+    # objgraph doesn't store state, so we just return the snapshot.
+    
+    return jsonify({
+        'most_common_types': counts,
+        'leaking_objects': objgraph.growth(limit=20) # This might be empty on first call
+    })
+
+
 @bp.route('/api/join', methods=['POST'])
 def join_api():
     """Proxies join requests to the Agora Bridge."""
