@@ -1268,51 +1268,56 @@ def federate_create(subnode_uri, app_context):
     """
     Federates a 'Like' activity when a subnode is starred.
     """
-    with app_context:
-        # Identify the subnode
-        subnode = api.subnode_by_uri(subnode_uri)
-        if not subnode:
-            current_app.logger.warning(f"Federation: Subnode {subnode_uri} not found, skipping.")
-            return
+    # Extract the app from the context to create a request context
+    app = app_context.app
+    base_url = app.config.get('URL_BASE', 'https://anagora.org')
+    
+    with app.app_context():
+        with app.test_request_context(base_url=base_url):
+            # Identify the subnode
+            subnode = api.subnode_by_uri(subnode_uri)
+            if not subnode:
+                current_app.logger.warning(f"Federation: Subnode {subnode_uri} not found, skipping.")
+                return
 
-        object_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
-        
-        # Identify the Actor (System User 'agora')
-        system_user = 'agora'
-        actor_url = url_for('.ap_user', username=system_user, _external=True, _scheme='https')
-        
-        # Construct the Activity
-        activity_id = f"{actor_url}/likes/{subnode.uri}/{int(time.time())}"
-        
-        activity = {
-            "@context": "https://www.w3.org/ns/activitystreams",
-            "id": activity_id,
-            "type": "Like",
-            "actor": actor_url,
-            "object": object_url,
-            "published": datetime.datetime.utcnow().isoformat() + "Z",
-        }
-        
-        # Get Followers
-        followers = sqlite_engine.get_followers(actor_url)
-        
-        if not followers:
-            current_app.logger.info(f"Federation: No followers for {system_user}, skipping broadcast.")
-            return
+            object_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
             
-        current_app.logger.info(f"Federation: Broadcasting Like for {subnode_uri} to {len(followers)} followers.")
+            # Identify the Actor (System User 'agora')
+            system_user = 'agora'
+            actor_url = url_for('.ap_user', username=system_user, _external=True, _scheme='https')
+            
+            # Construct the Activity
+            activity_id = f"{actor_url}/likes/{subnode.uri}/{int(time.time())}"
+            
+            activity = {
+                "@context": "https://www.w3.org/ns/activitystreams",
+                "id": activity_id,
+                "type": "Like",
+                "actor": actor_url,
+                "object": object_url,
+                "published": datetime.datetime.utcnow().isoformat() + "Z",
+            }
+            
+            # Get Followers
+            followers = sqlite_engine.get_followers(actor_url)
+            
+            if not followers:
+                current_app.logger.info(f"Federation: No followers for {system_user}, skipping broadcast.")
+                return
+                
+            current_app.logger.info(f"Federation: Broadcasting Like for {subnode_uri} to {len(followers)} followers.")
 
-        # Prepare Keys
-        private_key, _ = federation.ap_key_setup()
-        key_id = f"{actor_url}#main-key"
-        
-        # Broadcast
-        for follower_uri in followers:
-            target_inbox = resolve_inbox(follower_uri)
-            if target_inbox:
-                send_signed_request(target_inbox, key_id, activity, private_key)
-            else:
-                current_app.logger.warning(f"Federation: Could not resolve inbox for {follower_uri}")
+            # Prepare Keys
+            private_key, _ = federation.ap_key_setup()
+            key_id = f"{actor_url}#main-key"
+            
+            # Broadcast
+            for follower_uri in followers:
+                target_inbox = resolve_inbox(follower_uri)
+                if target_inbox:
+                    send_signed_request(target_inbox, key_id, activity, private_key)
+                else:
+                    current_app.logger.warning(f"Federation: Could not resolve inbox for {follower_uri}")
 
 
 @bp.route("/api/reactions/<path:subnode_uri>")
