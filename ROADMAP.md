@@ -49,7 +49,15 @@ This hybrid approach provides the best of both worlds: the data users are active
 
 *The following tasks belong to the `agora-server` (this) repository and component.*
 
-### Priority 1: Transition to SQLite as Primary Data Source
+### Priority 1: Stability & Performance (The Foundation)
+
+**Goal:** Ensure the server remains lean, fast, and crash-free even as the graph grows.
+
+-   **Tasks:**
+    -   **Protect the Monolith:** Maintain the "Shared Object Identity" architecture in `graph.py`. A regression test (`tests/test_memory_optimization.py`) now enforces that `G.nodes()` and `G.subnodes()` share the same Python objects, keeping RAM usage low (~1.2GB).
+    -   **Search Optimization (FTS5):** Current search operations (like `/fullsearch`) are slow (~900ms) because they scan the filesystem or iterate in Python. We need to implement SQLite FTS5 (Full-Text Search) to make these queries instant.
+
+### Priority 2: Transition to SQLite as Primary Data Source
 
 **Goal:** Refactor the server to leverage the fast, comprehensive index built by the Bridge, making the server faster, more memory-efficient, and simpler.
 
