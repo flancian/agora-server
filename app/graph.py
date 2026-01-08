@@ -117,7 +117,7 @@ def get_cache_ttl(content_type: str = "default") -> int:
     ttls = {
         "graph_json": 7200,      # 2 hours - very expensive graph visualization data
         "graph_rdf": 7200,       # 2 hours - expensive RDF turtle data
-        "node_data": 1800,       # 30 min - moderately expensive node data
+        "node_data": 900,        # 15 min - match subnodes to prevent object duplication drift
         "search": 300,           # 5 min - changes frequently
         "subnodes": 900,         # 15 min - file content changes occasionally
         "default": random.randint(120, 240)  # Keep existing for compatibility
