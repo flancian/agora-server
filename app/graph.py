@@ -94,14 +94,14 @@ def log_cache_hits(func):
 
                 if func.__name__ not in g.logged_cache_hits:
                     path = request.path
-                    current_app.logger.info(f"CACHE HIT (in-memory) for request '{path}': Using cached data for {func.__name__}.")
+                    current_app.logger.debug(f"CACHE HIT (in-memory) for request '{path}': Using cached data for {func.__name__}.")
                     # Add the function name to the set to suppress future logs in this request.
                     g.logged_cache_hits.add(func.__name__)
 
             except RuntimeError:
                 # This will happen if we're not in a request context (e.g. startup).
                 # In this case, we log without deduplication.
-                current_app.logger.info(f"CACHE HIT (in-memory): Using cached data for {func.__name__}.")
+                current_app.logger.debug(f"CACHE HIT (in-memory): Using cached data for {func.__name__}.")
         
         return func(*args, **kwargs)
     return wrapper

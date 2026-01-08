@@ -116,7 +116,7 @@ def create_app():
     Compress(app)
 
     # there's probably a better way to make this distinction, but this works.
-    if config == "ProductionConfig":
+    if config in ["ProductionConfig", "AlphaConfig"]:
         logging.basicConfig(
             filename="agora.log",
             level=logging.WARNING,
