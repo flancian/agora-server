@@ -786,6 +786,8 @@ def search():
 @bp.route("/subnode/<path:subnode>")
 def old_subnode(subnode):
     sn = api.subnode_by_uri(subnode)
+    if sn is None:
+        abort(404)
     n = api.build_node(sn.wikilink)
     return render_template(
         "subnode.html", node=n, subnode=sn, backlinks=api.subnodes_by_outlink(subnode)
