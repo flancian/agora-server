@@ -30,23 +30,24 @@ def main():
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.INFO)
     
-    with app.app_context():
-        if args.once:
-            print("Running single federation pass...")
+    if args.once:
+        print("Running single federation pass...")
+        with app.app_context():
             run_federation_pass()
-            print("Done.")
-        else:
-            print(f"Starting federation loop (interval: {args.interval}s)...")
-            while True:
-                try:
+        print("Done.")
+    else:
+        print(f"Starting federation loop (interval: {args.interval}s)...")
+        while True:
+            try:
+                with app.app_context():
                     run_federation_pass()
-                    time.sleep(args.interval)
-                except KeyboardInterrupt:
-                    print("Stopping worker...")
-                    break
-                except Exception as e:
-                    print(f"Error in federation loop: {e}")
-                    time.sleep(60)
+                time.sleep(args.interval)
+            except KeyboardInterrupt:
+                print("Stopping worker...")
+                break
+            except Exception as e:
+                print(f"Error in federation loop: {e}")
+                time.sleep(60)
 
 if __name__ == "__main__":
     main()
