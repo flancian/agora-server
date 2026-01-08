@@ -141,7 +141,6 @@ def get_combined_date_regex():
     return re.compile(f'^({"|".join(date_regexes)})')
 
 
-@lru_cache(maxsize=None)
 def is_journal(wikilink):
     return get_combined_date_regex().match(wikilink)
 
