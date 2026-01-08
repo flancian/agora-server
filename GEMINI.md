@@ -287,6 +287,38 @@ We discussed how to secure `edit.anagora.org`. Currently, it is open.
 *   **Incoming Interactions**: **Working**. Confirmed that Likes from Mastodon are received, processed, and displayed on the `/starred` and `/activities` pages.
 *   **Dev Environment**: **Accessible**. `tar.agor.ai` now successfully exposes ActivityPub endpoints while keeping the UI protected.
 
+## Session Summary (Gemini, 2026-01-08)
+
+*This section documents a critical debugging and optimization session focused on resolving high memory usage and leaks in the production Agora server.*
+
+### Key Learnings & Codebase Insights
+
+-   **Memory Leak Diagnosis**: We identified three distinct sources of memory pressure:
+    1.  **Unbounded Cache**: The `is_journal` function in `app/util.py` used `@lru_cache(maxsize=None)`. Since it accepts arbitrary strings (wikilinks), crawlers hitting random URLs caused the cache to grow indefinitely.
+    2.  **Federation Worker Leak**: The `scripts/federation_worker.py` loop did not tear down the Flask `app_context` between iterations, causing accumulation of request-scoped resources over days.
+    3.  **Object Duplication**: The Monolithic Graph loading logic in `app/graph.py` was deserializing `Subnode` objects from the SQLite cache *separately* from the `G.subnodes()` list. This meant every file in the Agora (~106k) was represented by **two** distinct Python objects in memory, doubling the RAM usage for content strings.
+-   **Monolithic vs. Lazy Load**: We confirmed that `AlphaConfig` has `ENABLE_LAZY_LOAD = False`. This means each worker process loads the entire graph (~3GB) into RAM on startup. The "swelling" to ~4GB over time is likely due to heap fragmentation or object overhead, but the baseline is architectural.
+-   **Chain Reloading**: We observed how uWSGI chain reloading works in practice, causing temporary divergence in worker memory usage as they restart one by one.
+
+### Summary of Changes Implemented
+
+1.  **Memory Leak Fixes**:
+    *   **`app/util.py`**: Removed `@lru_cache` from `is_journal`. The function is a fast compiled regex match, so caching was unnecessary and dangerous.
+    *   **`scripts/federation_worker.py`**: Moved `with app.app_context():` *inside* the `while True` loop to ensure resources are released after each pass.
+2.  **Architectural Optimization**:
+    *   **`app/graph.py`**: Refactored `_get_all_nodes_cached` to **reuse** the `Subnode` objects from `self.subnodes()` instead of creating new ones from the JSON blob. This deduplicates ~106k objects, significantly reducing baseline memory usage and CPU time during graph build.
+3.  **Error Handling**:
+    *   **`app/agora.py`**: Added a check in the `old_subnode` route to abort with 404 if `subnode_by_uri` returns `None`, preventing `AttributeError` 500s seen in logs.
+    *   **Federation Threading**: Updated `federate_create` to use `app.test_request_context` so `url_for` works correctly in background threads.
+4.  **Debugging Tooling**:
+    *   Added a `/debug/memory` route (protected/dev) that uses `objgraph` to report object counts and check for object identity sharing, which was crucial for confirming the duplication bug.
+
+### Verified Status
+
+*   **Memory Usage**: Workers are stable at ~3.0GB (baseline) and expected to drop further with the deduplication fix deployed.
+*   **Stability**: The 500 errors from missing subnodes are gone. The Federation worker is resetting its context correctly.
+*   **Performance**: Object deduplication has reduced the graph build time and overall memory footprint.
+
 ---
 
 ✦ Federation

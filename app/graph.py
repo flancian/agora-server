@@ -292,86 +292,42 @@ class Graph:
     @log_cache_hits
     @cachetools.func.ttl_cache(maxsize=1, ttl=get_cache_ttl("node_data"))
     def _get_all_nodes_cached(self):
-        if _is_sqlite_enabled():
-            cache_key = 'all_nodes_v2'
-            ttl = get_cache_ttl('node_data')
-            cached_value, timestamp = sqlite_engine.get_cached_graph(cache_key)
-
-            if cached_value and (time.time() - timestamp < ttl):
-                try:
-                    g.cold_start = True
-                except RuntimeError:
-                    pass
-                current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for nodes.")
-                current_app.logger.info("CACHE WARMING (in-memory): Starting deserialization of nodes from SQLite.")
-                start_time = time.time()
-
-                cached_data = orjson.loads(cached_value)
-                
-                # This is the full map, equivalent to only_canonical=False
-                full_nodes = {}
-                node_to_subnodes = cached_data['node_to_subnodes']
-                node_to_executable_subnodes = cached_data['node_to_executable_subnodes']
-
-                for node_wikilink in node_to_subnodes:
-                    n = Node(node_wikilink)
-                    n.subnodes = [Subnode(s['path'], s['mediatype']) for s in node_to_subnodes[node_wikilink]]
-                    n.executable_subnodes = [ExecutableSubnode(s['path']) for s in node_to_executable_subnodes.get(node_wikilink, [])]
-                    full_nodes[node_wikilink] = n
-                
-                # Create the filtered, canonical-only version
-                canonical_nodes = {
-                    k: v for k, v in full_nodes.items()
-                    if k == util.canonical_wikilink(k)
-                }
-
-                duration = time.time() - start_time
-                current_app.logger.info(f"CACHE WARMING (in-memory): Finished deserialization of {len(full_nodes)} nodes in {duration:.2f}s.")
-                
-                return full_nodes, canonical_nodes
+        # We always start by getting the authoritative list of subnode objects.
+        # This is cached by self.subnodes(), so it is fast (and reuses objects).
+        all_subnodes = self.subnodes()
+        all_executable_subnodes = self.executable_subnodes()
 
         try:
             g.cold_start = True
         except RuntimeError:
             pass
-        current_app.logger.info("CACHE MISS (sqlite): Recomputing all nodes.")
-        current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Building full graph from filesystem.")
-        begin = datetime.datetime.now()
-        current_app.logger.debug("*** Loading nodes at {begin}.")
+
+        # If we have a cache for node METADATA (e.g. descriptions, slugs that are expensive to compute),
+        # we could load it here. But currently Node() __init__ is fast and mostly deterministic from the wikilink.
+        # So we can simply rebuild the Node objects by grouping the subnodes.
+        # This ensures we use the EXACT SAME Subnode objects as G.subnodes(), saving ~50% RAM.
+        
+        current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Grouping {len(all_subnodes)} subnodes to build graph.")
+        start_time = time.time()
 
         node_to_subnodes = defaultdict(list)
         node_to_executable_subnodes = defaultdict(list)
 
-        # Note: the 'not only_canonical' logic is tricky here.
-        # We build the *full* map first, then filter.
-        for subnode in self.subnodes():
+        for subnode in all_subnodes:
             node_to_subnodes[subnode.node].append(subnode)
+            # Handle non-canonical links if needed (though Subnode.node is usually canonical)
             if subnode.canonical_wikilink != subnode.wikilink:
                 node_to_subnodes[subnode.wikilink].append(subnode)
 
-        for executable_subnode in self.executable_subnodes():
+        for executable_subnode in all_executable_subnodes:
             node_to_executable_subnodes[executable_subnode.node].append(executable_subnode)
             if executable_subnode.canonical_wikilink != executable_subnode.wikilink:
                 node_to_executable_subnodes[executable_subnode.wikilink].append(executable_subnode)
 
-        if _is_sqlite_enabled():
-            serializable_node_map = {
-                key: [{'path': s.path, 'mediatype': s.mediatype} for s in value]
-                for key, value in node_to_subnodes.items()
-            }
-            serializable_exec_map = {
-                key: [{'path': s.path, 'mediatype': s.mediatype} for s in value]
-                for key, value in node_to_executable_subnodes.items()
-            }
-            data_to_cache = {
-                'node_to_subnodes': serializable_node_map,
-                'node_to_executable_subnodes': serializable_exec_map
-            }
-            sqlite_engine.save_cached_graph(cache_key, orjson.dumps(data_to_cache), time.time())
-            current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_nodes to persistent cache.")
-
+        # Build the Node map
         full_nodes = {}
         all_node_wikilinks = set(node_to_subnodes.keys()) | set(node_to_executable_subnodes.keys())
+        
         for node_wikilink in all_node_wikilinks:
             n = Node(node_wikilink)
             n.subnodes = node_to_subnodes.get(node_wikilink, [])
@@ -383,8 +339,9 @@ class Graph:
             if k == util.canonical_wikilink(k)
         }
 
-        end = datetime.datetime.now()
-        current_app.logger.debug(f"*** Nodes loaded from {begin} to {end}.")
+        duration = time.time() - start_time
+        current_app.logger.info(f"GRAPH BUILD (in-memory): Linked {len(full_nodes)} nodes from subnodes in {duration:.2f}s.")
+        
         return full_nodes, canonical_nodes
 
     # The following method is unused; it is far too slow given the current control flow.
