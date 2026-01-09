@@ -761,6 +761,24 @@ def get_random_ai_generation():
     result = cursor.fetchone()
     return (result[0], result[1]) if result else (None, None)
 
+def get_last_index_time():
+    """
+    Returns the timestamp of the last full index rebuild.
+    """
+    val, _ = get_cached_query('last_full_index')
+    try:
+        return float(val) if val else 0.0
+    except ValueError:
+        return 0.0
+
+def update_last_index_time():
+    """
+    Updates the timestamp of the last full index rebuild to now.
+    """
+    import time
+    now = time.time()
+    save_cached_query('last_full_index', str(now), int(now))
+
 #
 # Starred Subnodes
 #

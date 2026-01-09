@@ -167,6 +167,10 @@ class DefaultConfig(object):
     SQLITE_CACHE_TTL = {
         'ai_generation': 3600 * 24 * 7,  # 1 week
     }
+    
+    # TTL for the full index rebuild (FTS + Subnodes).
+    # Default to 24 hours.
+    INDEX_TTL_SECONDS = 86400
 
     QUERY_CACHE_TTL = {
         'all_users': 3600, # 1 hour

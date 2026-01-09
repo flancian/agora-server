@@ -28,62 +28,50 @@ from flask_cors import CORS
 
 # Import the new blueprint
 from app.exec import web
+from app.storage import maintenance
 
-def ensure_db_populated(app, sqlite_engine):
-    # Auto-index if DB is empty and Lazy Load is on.
+def maintain_index(app, sqlite_engine):
     # We skip this if we are running as the worker itself (AGORA_WORKER=true).
-    if app.config.get('ENABLE_LAZY_LOAD', False) and not os.environ.get('AGORA_WORKER'):
-         # Use a simple in-memory cache to avoid hitting the DB count on every request
-        now = time.time()
-        # Check at most once every 60 seconds
-        if hasattr(app, 'last_db_check') and (now - app.last_db_check < 60):
-            return
+    if os.environ.get('AGORA_WORKER'):
+        return
 
-        # Check if DB is empty
-        if sqlite_engine.get_subnode_count() == 0:
-            app.logger.warning("Runtime Check: SQLite index is empty. Attempting to acquire lock for indexing...")
-            
-            # Simple PID-based worker ID
-            worker_id = str(os.getpid())
-            
-            if sqlite_engine.try_acquire_lock(worker_id):
-                try:
-                    app.logger.info("Lock acquired. Starting worker subprocess to build index...")
-                    start_time = time.time()
-                    
-                    # Prepare environment for the subprocess to prevent recursion
-                    env = os.environ.copy()
-                    env['AGORA_WORKER'] = 'true'
-                    
-                    # Determine path to worker script
-                    # Assuming app/__init__.py is in app/, so we go up one level and into scripts/
-                    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                    worker_script = os.path.join(base_path, 'scripts', 'worker.py')
-                    
-                    # Run the worker synchronously using 'uv run'
-                    result = subprocess.run(
-                        ['uv', 'run', worker_script],
-                        cwd=base_path,
-                        env=env,
-                        capture_output=True,
-                        text=True
-                    )
-                    
-                    if result.returncode == 0:
-                        duration = time.time() - start_time
-                        app.logger.info(f"Worker finished successfully in {duration:.2f}s.")
-                        # app.logger.debug(f"Worker Output:\n{result.stdout}")
-                    else:
-                        app.logger.error(f"Worker failed with return code {result.returncode}.")
-                        app.logger.error(f"Worker Stderr:\n{result.stderr}")
-                        
-                except Exception as e:
-                    app.logger.error(f"Failed to spawn worker: {e}")
-                finally:
-                    sqlite_engine.release_lock(worker_id)
-            else:
+    # Check at most once every 60 seconds
+    now = time.time()
+    if hasattr(app, 'last_index_check') and (now - app.last_index_check < 60):
+        return
+    
+    app.last_index_check = now
+
+    # Condition 1: DB is empty (Lazy Load needs this)
+    db_empty = app.config.get('ENABLE_LAZY_LOAD', False) and sqlite_engine.get_subnode_count() == 0
+    
+    # Condition 2: Index is stale (FTS needs this)
+    index_stale = False
+    if app.config.get('ENABLE_FTS', False):
+        last_index = sqlite_engine.get_last_index_time()
+        ttl = app.config.get('INDEX_TTL_SECONDS', 86400)
+        if now - last_index > ttl:
+            index_stale = True
+
+    if db_empty or index_stale:
+        reason = "empty" if db_empty else "stale"
+        app.logger.info(f"Maintenance: SQLite index is {reason}. Attempting to acquire lock for re-indexing...")
+        
+        worker_id = str(os.getpid())
+        
+        if sqlite_engine.try_acquire_lock(worker_id):
+            try:
+                app.logger.info("Lock acquired. Starting in-process maintenance re-index...")
+                maintenance.run_full_reindex(app)
+                app.logger.info("Maintenance re-index complete.")
+            except Exception as e:
+                app.logger.error(f"Maintenance failed: {e}")
+            finally:
+                sqlite_engine.release_lock(worker_id)
+        else:
+            # If we are lazy loading and DB is empty, we MUST wait.
+            if db_empty:
                 app.logger.info("Could not acquire lock. Another worker is indexing. Waiting...")
-                # Wait loop
                 attempts = 0
                 while sqlite_engine.is_locked() and attempts < 60:
                     time.sleep(1)
@@ -92,12 +80,12 @@ def ensure_db_populated(app, sqlite_engine):
                         app.logger.info(f"Still waiting for index build ({attempts}s)...")
                 
                 if attempts >= 60:
-                    app.logger.warning("Timed out waiting for index build. Proceeding with potentially empty DB.")
+                    app.logger.warning("Timed out waiting for index build.")
                 else:
                     app.logger.info("Index build finished (lock released). Proceeding.")
-        
-        # Update last check time
-        app.last_db_check = now
+            else:
+                # If just stale, we don't wait.
+                app.logger.info("Could not acquire lock. Skipping stale index rebuild for now.")
 
 
 def create_app():
@@ -154,12 +142,12 @@ def create_app():
 
     # Run check once on startup
     with app.app_context():
-        ensure_db_populated(app, sqlite_engine)
+        maintain_index(app, sqlite_engine)
 
     # Register before_request to run the check periodically
     @app.before_request
     def before_request_check():
-        ensure_db_populated(app, sqlite_engine)
+        maintain_index(app, sqlite_engine)
 
 
 
