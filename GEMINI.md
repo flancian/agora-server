@@ -6,6 +6,15 @@ For essays and poems on the project's philosophy, see [[PHILOSOPHY.md]].
 
 ---
 
+## Memories & Mandates
+
+-   **Feature Flag Protocol:** Always enable new feature flags in `LocalDevelopmentConfig` first. Never enable in `AlphaConfig` or `ProductionConfig` without explicit user instruction and prior local verification.
+-   **Git Operations:** The user prefers to handle commits themselves, or explicitly approve them. Always `git status` and `git diff` before asking.
+-   **Development:** Run `npm run build` after TypeScript changes. Do not use `./run-dev.sh`; the user manages the server.
+-   **Tone:** Be direct and technical. Use metaphors sparingly (e.g., for "Federation").
+
+---
+
 ## Understanding the Agora (as of 2025-09-21)
 
 *This is a summary of my understanding of the project's philosophy and technical principles based on our collaboration.*
@@ -335,4 +344,60 @@ We discussed how to secure `edit.anagora.org`. Currently, it is open.
 
   ---
 
-  Until next time. 🌱
+    Until next time. 🌱
+
+  
+
+  ## Session Summary (Gemini, 2026-01-08) [Part 2]
+
+  
+
+  *This section documents the implementation of Full-Text Search (FTS5) and the fix for Hot Indexing.*
+
+  
+
+  ### Key Learnings & Codebase Insights
+
+  
+
+  -   **Database Location**: Confirmed `agora.db` resides in `AGORA_PATH` (e.g., `~/agora/agora.db`), not the server root. Documented in `CACHE.md`.
+
+  -   **FTS Feasibility**: Estimated `agora.db` growth to be <1GB with full content indexing, which is negligible compared to the 22GB asset footprint.
+
+  -   **Broken Hot Indexing**: Discovered that `g.subnodes_to_index` (the queue for updating the DB when a file changes) was being populated in `graph.py` but *never read or flushed*. This meant the SQLite index (and thus backlink cache) was only updated when `worker.py` ran, not in real-time.
+
+  
+
+  ### Summary of Changes Implemented
+
+  
+
+  1.  **SQLite FTS5 Implementation**:
+
+      *   **Config**: Added `ENABLE_FTS` (default False, True for Alpha/Prod).
+
+      *   **Schema**: Added `subnodes_fts` virtual table (using `fts5`) to `app/storage/sqlite_engine.py`.
+
+      *   **Worker**: Updated `scripts/worker.py` to populate `subnodes_fts` with full file content during the batch build.
+
+      *   **Search**: Updated `app/storage/api.py` to route `search_subnodes` queries to `sqlite_engine.search_subnodes_fts` when enabled. This should make `/fullsearch` instant (<50ms).
+
+  2.  **Hot Indexing Fix**:
+
+      *   **Graph**: Updated `Subnode.__init__` to include `content` in the update queue.
+
+      *   **Storage**: Implemented `flush_index_queue` in `sqlite_engine.py` to batch-write pending updates to both `subnodes` and `subnodes_fts` tables.
+
+      *   **Lifecycle**: Registered `flush_index_queue` as the `teardown_appcontext` handler in `app/__init__.py`. This ensures that any nodes loaded/changed during a request (or cache warmup) are immediately indexed.
+
+  
+
+  ### Next Steps
+
+  
+
+  *   **Deploy**: Pull changes to production.
+
+  *   **Initialize Index**: Run `uv run scripts/worker.py` to build the initial FTS index. Without this, search results will be empty until files are touched or the worker runs.
+
+  

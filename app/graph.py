@@ -910,12 +910,18 @@ class Subnode:
                 if 'subnodes_to_index' not in g:
                     g.subnodes_to_index = []
                 
+                content_for_fts = None
+                if current_app.config.get('ENABLE_FTS', False):
+                    # Ensure content is string for FTS
+                    content_for_fts = self.content if isinstance(self.content, str) else ""
+
                 g.subnodes_to_index.append({
                     'path': self.uri,
                     'user': self.user,
                     'node': self.canonical_wikilink,
                     'mtime': self.mtime,
-                    'links': self.forward_links
+                    'links': self.forward_links,
+                    'content': content_for_fts
                 })
 
         self.node = self.canonical_wikilink

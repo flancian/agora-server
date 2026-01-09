@@ -147,7 +147,25 @@ def subnodes_by_user(username, sort_by="mtime", mediatype=None, reverse=True):
 
 def search_subnodes(query):
     # This is a perfect candidate for FTS in SQLite.
-    # For now, it remains file-based.
+    if _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
+        start_time = time.time()
+        paths = sqlite_engine.search_subnodes_fts(query)
+        if paths:
+            current_app.logger.info(f"FTS search for '{query}' found {len(paths)} results in {time.time() - start_time:.4f}s.")
+            # Convert paths to Subnode objects.
+            # The paths in DB are relative to AGORA_PATH (e.g. garden/user/node.md).
+            agora_path = current_app.config['AGORA_PATH']
+            subnodes = []
+            for relative_path in paths:
+                absolute_path = os.path.join(agora_path, relative_path)
+                # We assume standard text subnodes for search results for now.
+                # Ideally we'd store/retrieve mediatype from DB.
+                subnodes.append(SubnodeClass(absolute_path))
+            return subnodes
+        else:
+            current_app.logger.info(f"FTS search for '{query}' found 0 results.")
+            return []
+
     return file_engine.search_subnodes(query)
 
 def search_subnodes_by_user(query, username):

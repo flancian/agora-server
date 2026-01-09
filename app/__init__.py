@@ -144,7 +144,13 @@ def create_app():
 
     # Register the teardown function for the database
     from .storage import sqlite_engine
-    app.teardown_appcontext(sqlite_engine.close_db)
+    
+    # Only enable hot indexing (flushing the queue) if FTS is enabled for now,
+    # as this is a new code path that might be causing instability.
+    if app.config.get('ENABLE_FTS', False):
+        app.teardown_appcontext(sqlite_engine.flush_index_queue)
+    else:
+        app.teardown_appcontext(sqlite_engine.close_db)
 
     # Run check once on startup
     with app.app_context():

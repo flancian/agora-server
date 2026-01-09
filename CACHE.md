@@ -33,6 +33,14 @@ The database acts as a **cache and index** to speed up operations that would oth
 
 -   **`cache_events`**: A logging table to track cache performance (hits, misses, errors, timings), which is excellent for diagnostics.
 
+## Database Location
+
+The SQLite database file is located at **`agora.db`** within the configured `AGORA_PATH`.
+-   **Production/Alpha**: Typically `/home/agora/agora/agora.db` (or `/home/flancian/agora/agora.db` depending on the user).
+-   **Local Development**: Typically `~/agora/agora.db` or constructed by the `setup.sh` script.
+
+The server does *not* store the database in the git repository (`agora-server/`) to avoid coupling code and state.
+
 ### Recommendations
 
 1.  **Add Indexes for Faster Lookups**: Queries on non-primary-key columns can be slow. Adding indexes to the following columns would significantly improve performance, especially for nodes with many backlinks and for user pages.

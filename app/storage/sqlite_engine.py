@@ -190,6 +190,17 @@ def create_tables(db):
                 );
             """
         }
+
+        # Add FTS5 table if enabled
+        if current_app.config.get('ENABLE_FTS', False):
+            SCHEMA['subnodes_fts'] = """
+                CREATE VIRTUAL TABLE IF NOT EXISTS subnodes_fts USING fts5(
+                    path, 
+                    content, 
+                    tokenize='porter'
+                );
+            """
+
         # Check all tables in the schema.
         for table, query in SCHEMA.items():
             db.execute(query)
@@ -416,13 +427,27 @@ def get_subnode_mtime(path):
     """
     Retrieves the last known modification time for a given subnode path.
     Returns None if the subnode is not in the index.
+    
+    If FTS is enabled, we also check if the node exists in the FTS table.
+    If it's missing from FTS, we return None to trigger a re-index.
     """
     db = get_db()
     if not db:
         return None
     
     cursor = db.cursor()
-    cursor.execute("SELECT mtime FROM subnodes WHERE path = ?", (path,))
+    
+    if current_app.config.get('ENABLE_FTS', False):
+        # Check both tables. FTS table names must be safe/sanitized if dynamic, but here it's static.
+        cursor.execute("""
+            SELECT subnodes.mtime 
+            FROM subnodes 
+            JOIN subnodes_fts ON subnodes.path = subnodes_fts.path 
+            WHERE subnodes.path = ?
+        """, (path,))
+    else:
+        cursor.execute("SELECT mtime FROM subnodes WHERE path = ?", (path,))
+        
     result = cursor.fetchone()
     return result[0] if result else None
 
@@ -472,6 +497,7 @@ def update_subnodes_bulk(subnodes_to_update):
     
     subnode_data = []
     link_data = []
+    fts_data = []
     paths_to_update = []
 
     for subnode in subnodes_to_update:
@@ -481,6 +507,10 @@ def update_subnodes_bulk(subnodes_to_update):
             unique_links = set(subnode['links'])
             for target in unique_links:
                 link_data.append((subnode['path'], subnode['node'], target, 'wikilink'))
+        
+        # Handle FTS data if present
+        if 'content' in subnode and subnode['content'] is not None:
+            fts_data.append((subnode['path'], subnode['content']))
 
     try:
         with db:
@@ -493,6 +523,16 @@ def update_subnodes_bulk(subnodes_to_update):
             )
             current_app.logger.debug("SQLite: Executed REPLACE INTO subnodes.")
             
+            # Update FTS table if needed
+            if fts_data and current_app.config.get('ENABLE_FTS', False):
+                # We use REPLACE INTO for FTS as well? Or INSERT OR REPLACE?
+                # FTS5 supports REPLACE (which does DELETE + INSERT).
+                db.executemany(
+                    "INSERT OR REPLACE INTO subnodes_fts (path, content) VALUES (?, ?)",
+                    fts_data
+                )
+                current_app.logger.debug(f"SQLite: Updated {len(fts_data)} FTS entries.")
+
             # Update links table
             # Delete old links for all subnodes in the batch
             # Using a temporary table to pass the list of paths is safer and can be faster
@@ -517,6 +557,51 @@ def update_subnodes_bulk(subnodes_to_update):
             current_app.logger.error(f"Database write error during bulk update: {e}")
     except Exception as e:
         current_app.logger.error(f"Unexpected error during bulk update: {e}")
+
+def flush_index_queue(e=None):
+    """
+    Flushes any pending subnode updates to the database.
+    Also closes the connection.
+    To be registered as a teardown_appcontext handler.
+    """
+    try:
+        if 'subnodes_to_index' in g and g.subnodes_to_index:
+            # current_app.logger.debug(f"Flushing {len(g.subnodes_to_index)} subnodes to index.")
+            update_subnodes_bulk(g.subnodes_to_index)
+            g.subnodes_to_index = []
+    except Exception as ex:
+        # Logging here might be risky if logger is also tearing down, but typically ok in Flask.
+        # Use print as fallback if needed, but app.logger is standard.
+        current_app.logger.error(f"Error flushing index queue: {ex}")
+    finally:
+        close_db(e)
+
+
+def search_subnodes_fts(query):
+    """
+    Searches for subnodes containing the given query using FTS5.
+    Returns a list of paths.
+    """
+    db = get_db()
+    if not db:
+        return []
+
+    if not current_app.config.get('ENABLE_FTS', False):
+        return []
+
+    cursor = db.cursor()
+    try:
+        # We use the FTS MATCH operator.
+        # We also need to sanitize the query to prevent syntax errors in FTS5 match expression.
+        # Simple sanitization: remove non-alphanumeric chars except spaces, or just quote it.
+        # FTS5 standard query syntax allows phrases in quotes.
+        # Let's try passing it as a phrase parameter.
+        # SEARCH ALL COLUMNS (path + content) by targeting the table name.
+        cursor.execute("SELECT path FROM subnodes_fts WHERE subnodes_fts MATCH ? ORDER BY rank", (query,))
+        return [row[0] for row in cursor.fetchall()]
+    except sqlite3.OperationalError as e:
+        current_app.logger.error(f"SQLite FTS search error: {e}")
+        return []
 
 
 def search_nodes_by_regex(regex):

@@ -146,6 +146,10 @@ class DefaultConfig(object):
     # If False, G.nodes() loads full graph into RAM at startup (high RAM, zero latency).
     ENABLE_LAZY_LOAD = False
     USE_GIT_MTIME = False
+    
+    # SQLite Full-Text Search (FTS5). Requires ENABLE_SQLITE = True.
+    # Adds full content indexing to agora.db for sub-second search.
+    ENABLE_FTS = False
 
     # ActivityPub settings
     ACTIVITYPUB_SEND_WELCOME_PACKAGE = True
@@ -256,6 +260,7 @@ class AlphaConfig(DefaultConfig):
 
     # Finally took place early on 2025-08-29. Requires a writeable filesystem.
     ENABLE_SQLITE = True
+    ENABLE_FTS = False
     ENABLE_DEMO = True
 
 
@@ -301,6 +306,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_ORGORA = False
     ENABLE_HYPOTHESIS = True
     ENABLE_SQLITE = True
+    ENABLE_FTS = False
     ENABLE_LAZY_LOAD = False
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)

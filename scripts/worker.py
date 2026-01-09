@@ -54,6 +54,7 @@ def build_cache(app):
     # We will write to temporary tables first to avoid disrupting the live application.
     subnodes_table = "subnodes_new"
     links_table = "links_new"
+    subnodes_fts_table = "subnodes_fts_new"
 
     with closing(sqlite3.connect(db_path)) as db:
         with db:  # This ensures the whole block is a single transaction.
@@ -61,6 +62,10 @@ def build_cache(app):
             db.execute(f"DROP TABLE IF EXISTS {subnodes_table}")
             db.execute(f"DROP TABLE IF EXISTS {links_table}")
             
+            if app.config.get('ENABLE_FTS', False):
+                db.execute(f"DROP TABLE IF EXISTS {subnodes_fts_table}")
+                db.execute(f"CREATE VIRTUAL TABLE {subnodes_fts_table} USING fts5(path, content, tokenize='porter')")
+
             # Schema must match sqlite_engine.py
             db.execute(f"""
                 CREATE TABLE {subnodes_table} (
@@ -82,6 +87,7 @@ def build_cache(app):
 
             print(f"Populating {subnodes_table}...")
             subnodes_to_insert = []
+            fts_to_insert = []
             for node in all_nodes:
                 for subnode in node.subnodes:
                     subnodes_to_insert.append((
@@ -90,11 +96,26 @@ def build_cache(app):
                         node.uri,
                         subnode.mtime
                     ))
+                    if app.config.get('ENABLE_FTS', False):
+                        content = subnode.content
+                        # FTS5 expects text. Ensure content is string.
+                        if isinstance(content, bytes):
+                            content = ""
+                        fts_to_insert.append((subnode.uri, content))
+
             db.executemany(
                 f"INSERT INTO {subnodes_table} (path, user, node, mtime) VALUES (?, ?, ?, ?)",
                 subnodes_to_insert
             )
             print(f"Inserted {len(subnodes_to_insert)} subnodes.")
+
+            if app.config.get('ENABLE_FTS', False) and fts_to_insert:
+                print(f"Populating {subnodes_fts_table}...")
+                db.executemany(
+                    f"INSERT INTO {subnodes_fts_table} (path, content) VALUES (?, ?)",
+                    fts_to_insert
+                )
+                print(f"Inserted {len(fts_to_insert)} FTS entries.")
 
             print(f"Populating {links_table}...")
             links_to_insert = []
@@ -123,8 +144,10 @@ def deploy_cache(app):
     db_path = get_db_path(app)
     subnodes_table = "subnodes"
     links_table = "links"
+    subnodes_fts_table = "subnodes_fts"
     subnodes_new_table = "subnodes_new"
     links_new_table = "links_new"
+    subnodes_fts_new_table = "subnodes_fts_new"
 
     with closing(sqlite3.connect(db_path)) as db:
         with db: # Transaction
@@ -133,6 +156,11 @@ def deploy_cache(app):
             db.execute(f"ALTER TABLE {subnodes_new_table} RENAME TO {subnodes_table}")
             db.execute(f"DROP TABLE IF EXISTS {links_table}")
             db.execute(f"ALTER TABLE {links_new_table} RENAME TO {links_table}")
+            
+            if app.config.get('ENABLE_FTS', False):
+                db.execute(f"DROP TABLE IF EXISTS {subnodes_fts_table}")
+                db.execute(f"ALTER TABLE {subnodes_fts_new_table} RENAME TO {subnodes_fts_table}")
+
     print("Cache deployed.")
 
 if __name__ == "__main__":
