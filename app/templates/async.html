@@ -2,7 +2,8 @@
 
 {% include "pulled.html" %}
 
-{% if not user %}
+<!-- DEBUG: user is '{{ target_user }}' -->
+{% if not target_user %}
 {% include "related.html" %}
 {% endif %}
 
