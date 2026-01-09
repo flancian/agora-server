@@ -301,6 +301,7 @@ def root_subnode(node, user):
     return render_template(
         "sync.html",
         node=n,
+        user=user,
         subnode=f"@{user}/" + n.wikilink,
     )
 

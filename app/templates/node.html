@@ -20,7 +20,8 @@
         {% if subnode %}
             <summary class="node-header main-header">
                 <span class="flex-grow">
-                  <strong>Subnode</strong> by user <a href="/@{{subnode.user}}">@{{ subnode.user }}</a> in node <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>
+                  {% set u = user if user else (subnode.user if subnode.user is defined else (node.subnodes[0].user if node.subnodes else '')) %}
+                  <strong>Contributions</strong> by <a href="/@{{u}}">@{{ u }}</a> in <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>
                 </span>
            </summary>
         {% else %}
