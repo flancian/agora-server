@@ -306,7 +306,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_ORGORA = False
     ENABLE_HYPOTHESIS = True
     ENABLE_SQLITE = True
-    ENABLE_FTS = False
+    ENABLE_FTS = True
     ENABLE_LAZY_LOAD = False
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)

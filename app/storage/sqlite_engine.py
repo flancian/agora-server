@@ -427,27 +427,13 @@ def get_subnode_mtime(path):
     """
     Retrieves the last known modification time for a given subnode path.
     Returns None if the subnode is not in the index.
-    
-    If FTS is enabled, we also check if the node exists in the FTS table.
-    If it's missing from FTS, we return None to trigger a re-index.
     """
     db = get_db()
     if not db:
         return None
     
     cursor = db.cursor()
-    
-    if current_app.config.get('ENABLE_FTS', False):
-        # Check both tables. FTS table names must be safe/sanitized if dynamic, but here it's static.
-        cursor.execute("""
-            SELECT subnodes.mtime 
-            FROM subnodes 
-            JOIN subnodes_fts ON subnodes.path = subnodes_fts.path 
-            WHERE subnodes.path = ?
-        """, (path,))
-    else:
-        cursor.execute("SELECT mtime FROM subnodes WHERE path = ?", (path,))
-        
+    cursor.execute("SELECT mtime FROM subnodes WHERE path = ?", (path,))
     result = cursor.fetchone()
     return result[0] if result else None
 
@@ -492,6 +478,10 @@ def update_subnodes_bulk(subnodes_to_update):
     if not subnodes_to_update:
         current_app.logger.debug("SQLite: No subnodes to update in bulk.")
         return
+
+    # Deduplicate by path, keeping the last entry (most recent state)
+    unique_updates = {s['path']: s for s in subnodes_to_update}
+    subnodes_to_update = list(unique_updates.values())
 
     current_app.logger.info(f"SQLite: Bulk writing data for {len(subnodes_to_update)} subnodes.")
     
