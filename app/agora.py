@@ -158,6 +158,7 @@ def node(node, user_list=""):
     return render_template(
         "async.html",
         node=n,
+        user=user,
         config=current_app.config,
         starred_subnodes=starred_subnodes,
         starred_nodes=starred_nodes,
