@@ -26,7 +26,7 @@ const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
 import { initializeStars, initializeNodeStars, initializeExternalStars } from './starring';
 import { initSettings } from './settings';
-import { safeJsonParse, darkenColor } from './util';
+import { safeJsonParse, darkenColor, CLIENT_DEFAULTS } from './util';
 import { makeDraggable } from './draggable';
 import { initDemoMode } from './demo';
 import { initMusicPlayer } from './music';
@@ -2150,7 +2150,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                             // Re-attach event listeners for the new content
                             const autoExpandWikipedia = localStorage.getItem('auto-expand-wikipedia') === 'true';
-                            const autoExpandExactMatch = localStorage.getItem('auto-expand-exact-match') !== 'false';
+                            const autoExpandExactMatch = safeJsonParse(localStorage.getItem('auto-expand-exact-match'), CLIENT_DEFAULTS.autoExpandExactMatch);
                             const isEmptyNode = document.querySelector('.not-found') !== null;
                             
                             // Check for exact match
