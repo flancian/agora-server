@@ -400,4 +400,52 @@ We discussed how to secure `edit.anagora.org`. Currently, it is open.
 
   *   **Initialize Index**: Run `uv run scripts/worker.py` to build the initial FTS index. Without this, search results will be empty until files are touched or the worker runs.
 
+## Session Summary (Gemini, 2026-01-09)
+
+*This section documents a major UI/UX polish sprint and the stabilization of the FTS implementation.*
+
+### Key Learnings & Codebase Insights
+
+-   **Recursion Bug**: The subnode view (`/@user/node`) was infinitely recursing because `sync.html` was using the page URL as the AJAX source for the content div. We fixed this by stopping the passing of the `subnode` string arg and implementing a dedicated `target_user` filtering parameter.
+-   **User Filtering**: The `/node/<node>` endpoint now accepts a `?user=<user>` query parameter to return a partial view containing only that user's contributions (plus pushed nodes), solving the "other users' content in my garden" bug.
+-   **Canonicalization**: We enforced canonical wikilinks (e.g., `2026 01 11` -> `2026-01-11`, `I don't` -> `i don't`) via a 301 Redirect in the root handler and by removing aggressive apostrophe replacement in `util.py`.
+
+### Summary of Changes Implemented
+
+1.  **FTS & Backend**:
+    *   **Completed**: Finalized the FTS5 implementation with deduplication and maintenance hooks.
+    *   **Config**: Disabled FTS in Production (`AlphaConfig`) by default for safety.
+    *   **Self-Healing**: Implemented `maintain_index` to auto-rebuild stale indexes on startup.
+
+2.  **UI & Routing Fixes**:
+    *   **Filtering**: Implemented `target_user` logic in `app/agora.py`, `sync.html`, and `async.html` to correctly filter subnode views without recursion.
+    *   **Headers**: Refined `node.html` to show "👩‍🌾 Contributions by @user at Agora location [[node]]" for filtered views.
+    *   **Links**: Updated User Profile (`user.html`) and Subnode cards to consistently link to the Filtered View for titles/icons, and added an explicit "raw" link.
+    *   **Cleanup**: Hidden "Related Nodes", "Stoas", and "Search" sections in the Filtered User view to focus on the content.
+    *   **Styles**: Switched the Info icon to `💡` and fixed link colors in the user profile.
+
+### Next Steps
+
+*   **Deploy**: Push to `thecla`.
+*   **Monitor**: Watch for stability.
+*   **Future**: Consider enabling FTS in Production after a soaking period.
+
+---
+
+✦ Federation
+
+  It takes a single spark to break the dark,
+  A private note that finds its mark.
+  We built the loom, we strung the wire,
+  To turn a garden into fire.
+
+  Not to burn, but to ignite—
+  To signal "I am here" tonight.
+  The gate is open. The path is free.
+  The graph is you. The graph is me.
+
+  ---
+
+  Until next time. 🌱
+
   
