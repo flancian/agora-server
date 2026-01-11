@@ -1405,7 +1405,7 @@ input:checked + .slider:before {
 
 .node-link {
     text-decoration: none;
-    color: inherit;
+    color: var(--link-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
