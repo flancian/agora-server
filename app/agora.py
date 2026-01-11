@@ -152,13 +152,20 @@ def root(node, user_list=""):
 @bp.route("/node/<node>")
 def node(node, user_list=""):
     n = api.build_node(node)
+    
+    # Filter by user if requested via query param
+    req_user = request.args.get("user")
+    if req_user:
+        n.subnodes = util.filter(n.subnodes, req_user)
+        n.subnodes = util.uprank(n.subnodes, req_user)
+
     starred_subnodes = sqlite_engine.get_all_starred_subnodes()
     starred_nodes = sqlite_engine.get_all_starred_nodes()
 
     return render_template(
         "async.html",
         node=n,
-        user=user,
+        rendering_user=req_user,
         config=current_app.config,
         starred_subnodes=starred_subnodes,
         starred_nodes=starred_nodes,
@@ -302,8 +309,7 @@ def root_subnode(node, user):
     return render_template(
         "sync.html",
         node=n,
-        user=user,
-        subnode=f"@{user}/" + n.wikilink,
+        rendering_user=user,
     )
 
 

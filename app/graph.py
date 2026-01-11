@@ -259,7 +259,7 @@ class Graph:
 
     def search(self, regex):
         # returns a list of nodes reasonably freely matching a regex.
-        current_app.logger.debug(f"*** Looking for nodes matching {regex} freely.")
+        # current_app.logger.debug(f"*** Looking for nodes matching {regex} freely.")
         
         if _is_sqlite_enabled() and current_app.config.get('ENABLE_LAZY_LOAD', False):
             # Fast path: use SQLite REGEXP operator
@@ -269,16 +269,18 @@ class Graph:
             return [n for n in nodes if n.subnodes]
 
         # Fallback to full graph load if lazy loading is not enabled or SQLite is not.
+        all_nodes = self.nodes(only_canonical=True)
+        # current_app.logger.debug(f"DEBUG: Searching {len(all_nodes)} nodes for {regex}")
         nodes = [
             node
-            for node in G.nodes(only_canonical=True).values()
+            for node in all_nodes.values()
             if
             # has some content
             node.subnodes and
             # its wikilink matches the regex
             re.search(regex, node.wikilink)
         ]
-        # current_app.logger.debug(f"*** Found related nodes: {nodes}.")
+        # current_app.logger.debug(f"*** Found related nodes: {len(nodes)}.")
         return nodes
 
     # @cache.memoize(timeout=30)

@@ -58,6 +58,8 @@
 
 {% if subnode %}
 <div id="async-content" src="{{subnode}}">
+{% elif rendering_user %}
+<div id="async-content" src="{{node.uri}}?user={{rendering_user}}">
 {% else %}
 <div id="async-content" src="{{node}}">
 {% endif %}
@@ -72,11 +74,13 @@
         <p><em>Loading Agora node...</em></p>
     </center>
 </div>
-{% if not subnode %}
+{% if not subnode and not rendering_user %}
 {% include "stoa.html" %}
 {% endif %}
 
+{% if not subnode and not rendering_user %}
 {% include "search.html" %}
+{% endif %}
 
 <div class="edit-section-container">
 {% include "edit.html" %}
