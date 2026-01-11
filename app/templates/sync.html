@@ -14,7 +14,7 @@
 -->
 
 <!-- yolo :) -->
-        {% if not subnode %}
+        {% if not subnode and not rendering_user %}
         <div info-box-id="internet-intro" class="intro">
 
             <span>You {{config['AGORA_ACTION_0']}} for '{{node.qstr}}' on the <strong>Internet</strong>…</span>
@@ -23,16 +23,18 @@
         </div>
         {% endif %}
 
+    {% if not subnode and not rendering_user %}
     {% include "web.html" %}
 
     {% include "genai.html" %}
+    {% endif %}
 
     <div info-box-id="agora-intro" class="intro">
     <span>This you find in the <strong>{{config['AGORA_NAME']}}</strong>…</span>
       <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="agora-intro" id="dismissbutton" class="dismiss-button">x</span>
     </div>
                       
-    {% if not subnode %}
+    {% if not subnode and not rendering_user %}
     <div id="wp-wt-container">
         <details class="node fade-in">
             <summary>
