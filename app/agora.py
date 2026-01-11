@@ -110,6 +110,11 @@ def root(node, user_list=""):
 
     # Builds a node with the bare minimum/stub metadata, should be quick.
     node = urllib.parse.unquote_plus(node)
+    
+    # Enforce canonical wikilinks (e.g. 2026-01-11 vs 2026 01 11, lowercase).
+    canonical = util.canonical_wikilink(node)
+    if node != canonical:
+        return redirect(url_for('.root', node=canonical), code=301)
 
     # We really need to get rid of this kind of hack :)
     # 2023-12-12: today is the day?

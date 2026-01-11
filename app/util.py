@@ -91,12 +91,11 @@ def canonical_wikilink(wikilink):
         # - example.tld
         # - filename.ext
         # .replace('.', '-')
-        .replace("'", "-")
         .replace("%", "-")
         .replace(".", "-")
         .replace(",", "-")
         .replace(":", "-")
-        .replace("'", "-")
+        # .replace("'", "-")
         .replace("+", "-")
     )
     wikilink = re.sub("-+", " ", wikilink)
