@@ -175,13 +175,15 @@ def wikilink_to_node(node):
 
 def search_subnodes(query):
     current_app.logger.debug(f"query: {query}, searching subnodes.")
+    all_subs = G.subnodes()
+    current_app.logger.debug(f"DEBUG: Checking {len(all_subs)} subnodes.")
     subnodes = [
         subnode
-        for subnode in G.subnodes()
+        for subnode in all_subs
         if subnode.mediatype == "text/plain"
         and re.search(re.escape(query), subnode.content, re.IGNORECASE)
     ]
-    current_app.logger.debug(f"query: {query}, searched subnodes.")
+    current_app.logger.debug(f"query: {query}, searched subnodes. Found {len(subnodes)}.")
     return subnodes
 
 
