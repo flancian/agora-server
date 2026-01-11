@@ -1254,7 +1254,11 @@ class VirtualSubnode(Subnode):
         except AttributeError:
             # sometimes just a string.
             self.content = block
-        self.forward_links = content_to_forward_links(self.content)
+            
+        if self.mediatype == "text/html":
+             self.forward_links = html_to_forward_links(self.content)
+        else:
+             self.forward_links = content_to_forward_links(self.content)
 
         self.mtime = source_subnode.mtime
         self.datetime = datetime.datetime.fromtimestamp(self.mtime).replace(
@@ -1383,6 +1387,60 @@ class User:
 
     def size(self) -> int:
         return len(self.subnodes())
+
+
+def html_to_forward_links(content: str) -> List[str]:
+    """
+    Extracts wikilinks from HTML content by parsing href attributes.
+    Assumes links to internal nodes are relative paths like '/node'.
+    """
+    links = []
+    try:
+        # lxml needs a root element, wrap content in div if fragment
+        if not content.strip().startswith("<html"):
+             content = f"<div>{content}</div>"
+        
+        tree = lxml.html.fromstring(content)
+        for element, attribute, link, pos in tree.iterlinks():
+            if attribute == "href":
+                # Decode URL encoded links
+                link = urllib.parse.unquote(link)
+                # Check for internal node links
+                # format: /<node> or /node/<node> or /@user/<node>
+                # We want to extract <node>.
+                
+                # Strip leading slash
+                if link.startswith("/"):
+                    clean_link = link[1:]
+                    
+                    # Ignore special paths
+                    if clean_link.startswith(("static/", "raw/", "exec/", "api/")):
+                        continue
+                    
+                    # Handle /node/ prefix
+                    if clean_link.startswith("node/"):
+                        clean_link = clean_link[5:]
+                    
+                    # Handle /@user/ prefix?
+                    # If /@user/node, we extract node? Or ignore?
+                    # Let's assume we want the node being linked to.
+                    if clean_link.startswith("@"):
+                         # @user/node -> split
+                         parts = clean_link.split("/", 1)
+                         if len(parts) == 2:
+                             clean_link = parts[1]
+                         else:
+                             # User profile link, ignore?
+                             continue
+                             
+                    if clean_link:
+                        links.append(util.canonical_wikilink(clean_link))
+
+    except Exception as e:
+        # current_app.logger.warning(f"Error parsing HTML links: {e}")
+        pass
+        
+    return links
 
 
 def content_to_forward_links(content: str) -> List[str]:
