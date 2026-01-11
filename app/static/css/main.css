@@ -738,7 +738,7 @@ summary {
 }
 
 .info-box::before {
-  content: '🛈';
+  content: '💡';
   width: 1em;
   margin-right: 0.3em;
   flex-shrink: 0;
