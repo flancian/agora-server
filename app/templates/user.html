@@ -47,48 +47,41 @@
     </div>
 
     <div class="subnodes">
-        <h1>Latest contributed</h1>
-            {% if not subnodes %}
-            No subnodes found for the given term or path.
-            <br /><br />
-            Go back to <a href="/nodes">/nodes</a>?
+        <h3>Latest contributed</h3>
+        <div class="nodes-list">
+            {% if not latest %}
+            No recent activity found.
             {% endif %}
 
             {% for subnode in latest %}
-            <a href="/{{subnode.wikilink}}">{{subnode.wikilink}}</a> &nbsp;
+            <div class="node-item">
+                <a href="/@{{user}}/{{subnode.wikilink}}" class="node-link">
+                    <span class="wikilink-marker">[[</span><span class="node-name">{{subnode.wikilink}}</span><span class="wikilink-marker">]]</span>
+                </a>
+                <span class="node-date" style="color: var(--u-muted-text-color); font-size: 0.9em;">
+                    {{ subnode.get_display_mtime()[0]|datetimeformat('%Y-%m-%d') }}
+                </span>
+            </div>
             {% endfor %}
-    </div>
-
-<div class="subnodes">
-    <span class="subnode-header">Readmes</span>
-    {% for subnode in readmes %}
-    <div class="subnode">
-        <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
-    </div>
-    {% endfor %}
-
-    <span class="subnode-header">Nodes</span>
-    <div class="nodes-list">
-    {% for subnode in subnodes %}
-        <div class="node-item">
-            <a href="{{subnode.url}}" class="node-link">
-                <span class="node-name">[[{{subnode.wikilink}}]]</span>
-            </a>
         </div>
-    {% endfor %}
     </div>
 
-    <span class="subnode-header">Latest</span>
-    <div class="nodes-list">
-    {% for subnode in latest %}
-        <div class="node-item">
-            <a href="{{subnode.url}}" class="node-link">
-                <span class="node-name">[[{{subnode.wikilink}}]]</span>
-            </a>
+    <div class="subnodes">
+        <h3>All Nodes ({{subnodes|length}})</h3>
+        <div class="nodes-list">
+            {% if not subnodes %}
+            No subnodes found.
+            {% endif %}
+
+            {% for subnode in subnodes %}
+            <div class="node-item">
+                <a href="/@{{user}}/{{subnode.wikilink}}" class="node-link">
+                    <span class="wikilink-marker">[[</span><span class="node-name">{{subnode.wikilink}}</span><span class="wikilink-marker">]]</span>
+                </a>
+            </div>
+            {% endfor %}
         </div>
-    {% endfor %}
     </div>
-</div>
 </details>
 
     <!--
