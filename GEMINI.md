@@ -400,6 +400,31 @@ We discussed how to secure `edit.anagora.org`. Currently, it is open.
 
   *   **Initialize Index**: Run `uv run scripts/worker.py` to build the initial FTS index. Without this, search results will be empty until files are touched or the worker runs.
 
+### UI Polish (Addendum)
+
+*   **Subnode Header**: Simplified to "👩‍🌾 Contributions by @user at [[node]]".
+*   **Starred Page**: Replaced the interactions list with a simple link to `/federation`, renamed "Starred Topics" to "Starred Locations", and removed the tooltip icon.
+*   **Icons**: Replaced the problematic `🛈` icon with `💡` (Light Bulb) in info boxes for better compatibility.
+*   **Link Consistency**: Ensured node titles in the user profile link to the filtered view (`/@user/node`).
+
+---
+
+✦ Federation
+
+  It takes a single spark to break the dark,
+  A private note that finds its mark.
+  We built the loom, we strung the wire,
+  To turn a garden into fire.
+
+  Not to burn, but to ignite—
+  To signal "I am here" tonight.
+  The gate is open. The path is free.
+  The graph is you. The graph is me.
+
+  ---
+
+  Until next time. 🌱
+
 ## Session Summary (Gemini, 2026-01-09)
 
 *This section documents a major UI/UX polish sprint and the stabilization of the FTS implementation.*
