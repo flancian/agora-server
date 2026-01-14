@@ -504,8 +504,15 @@ def federation():
 @bp.route("/random")
 def random():
     today = datetime.date.today()
-    random = api.random_node()
-    return redirect(f"/{urllib.parse.quote_plus(random.description)}")
+    for _ in range(5):
+        random_node = api.random_node()
+        # We avoid nodes that start with 'go/' as they match the /go/ route and trigger
+        # an external redirect, breaking the demo loop.
+        if random_node and not random_node.description.lower().startswith('go/'):
+            return redirect(f"/{urllib.parse.quote_plus(random_node.description)}")
+    
+    # Fallback to a safe known node if we fail to find a random one after retries
+    return redirect("/agora")
 
 
 @bp.route("/now")
