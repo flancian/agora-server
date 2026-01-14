@@ -4,7 +4,8 @@ from contextlib import closing
 import os
 from flask import current_app
 from app.graph import Graph
-from app.storage.sqlite_engine import create_tables, update_last_index_time
+from app.storage.sqlite_engine import create_tables, update_last_index_time, get_db
+import app.storage.api as api
 
 def get_db_path(app):
     """
@@ -148,16 +149,68 @@ def deploy_cache(app):
     with closing(sqlite3.connect(db_path)) as db:
         with db: # Transaction
             app.logger.info("Swapping tables...")
+            
+            # Subnodes
             db.execute(f"DROP TABLE IF EXISTS {subnodes_table}")
+            if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{subnodes_table}'").fetchone():
+                 raise RuntimeError(f"Failed to drop {subnodes_table}")
             db.execute(f"ALTER TABLE {subnodes_new_table} RENAME TO {subnodes_table}")
+            
+            # Links
             db.execute(f"DROP TABLE IF EXISTS {links_table}")
+            if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{links_table}'").fetchone():
+                 raise RuntimeError(f"Failed to drop {links_table}")
             db.execute(f"ALTER TABLE {links_new_table} RENAME TO {links_table}")
             
+            # FTS
             if app.config.get('ENABLE_FTS', False):
                 db.execute(f"DROP TABLE IF EXISTS {subnodes_fts_table}")
+                if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{subnodes_fts_table}'").fetchone():
+                     raise RuntimeError(f"Failed to drop {subnodes_fts_table}")
                 db.execute(f"ALTER TABLE {subnodes_fts_new_table} RENAME TO {subnodes_fts_table}")
 
     app.logger.info("Cache deployed.")
+
+def regenerate_expensive_queries(app):
+    """
+    Invalidates and regenerates expensive cached queries.
+    Must be called within an app context.
+    """
+    app.logger.info("Regenerating expensive queries...")
+    db = get_db()
+    if not db:
+        app.logger.error("Could not get DB connection for query regeneration.")
+        return
+
+    # Keys to invalidate
+    keys = ['latest_v2_1000', 'top_v2', 'all_users_v1']
+    
+    try:
+        with db:
+            # Delete existing cache entries to force regeneration
+            # sqlite3 doesn't support list binding for IN clause directly in standard way without separate placeholders
+            placeholders = ','.join(['?'] * len(keys))
+            db.execute(f"DELETE FROM query_cache WHERE key IN ({placeholders})", keys)
+            
+        # Trigger regeneration by calling the API functions
+        # 1. Latest
+        start = time.time()
+        api.latest(1000)
+        app.logger.info(f"Regenerated /latest in {time.time() - start:.2f}s")
+        
+        # 2. Top/Nodes
+        start = time.time()
+        api.top()
+        app.logger.info(f"Regenerated /nodes (top) in {time.time() - start:.2f}s")
+        
+        # 3. Users
+        start = time.time()
+        api.all_users()
+        app.logger.info(f"Regenerated /users in {time.time() - start:.2f}s")
+        
+        app.logger.info("Expensive queries regenerated.")
+    except Exception as e:
+        app.logger.error(f"Error regenerating expensive queries: {e}")
 
 def run_full_reindex(app=None):
     """
@@ -167,13 +220,18 @@ def run_full_reindex(app=None):
         app = current_app._get_current_object()
         
     start_time = time.time()
-    if build_cache(app):
-        deploy_cache(app)
-        # Update timestamp inside an app context (which deploy_cache might not be, but here we passed app object)
-        # But update_last_index_time uses 'get_db()' which relies on 'g' and 'current_app'.
-        # So we need an app context.
-        with app.app_context():
-            update_last_index_time()
+    try:
+        if build_cache(app):
+            deploy_cache(app)
+            # Update timestamp and regenerate queries inside an app context
+            with app.app_context():
+                update_last_index_time()
+                regenerate_expensive_queries(app)
+    except Exception as e:
+        app.logger.error(f"Maintenance re-index failed: {e}")
+        # We don't re-raise to ensure the worker keeps running if in a loop, 
+        # but here it's a script so maybe we should.
+        # For now, log and exit clean.
         
     duration = time.time() - start_time
     app.logger.info(f"Full maintenance re-index finished in {duration:.2f} seconds.")
