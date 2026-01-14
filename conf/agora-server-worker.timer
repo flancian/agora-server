@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Agora Server Worker periodically
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
