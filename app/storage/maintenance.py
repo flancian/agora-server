@@ -1,11 +1,13 @@
 import time
 import sqlite3
+import json
 from contextlib import closing
 import os
 from flask import current_app
 from app.graph import Graph
-from app.storage.sqlite_engine import create_tables, update_last_index_time, get_db
+from app.storage.sqlite_engine import create_tables, update_last_index_time, get_db, save_cached_query
 import app.storage.api as api
+from app import git_utils
 
 def get_db_path(app):
     """
@@ -183,12 +185,11 @@ def regenerate_expensive_queries(app):
         return
 
     # Keys to invalidate
-    keys = ['latest_v2_1000', 'top_v2', 'all_users_v1']
+    keys = ['latest_1000', 'top', 'all_users', 'latest_per_user']
     
     try:
         with db:
             # Delete existing cache entries to force regeneration
-            # sqlite3 doesn't support list binding for IN clause directly in standard way without separate placeholders
             placeholders = ','.join(['?'] * len(keys))
             db.execute(f"DELETE FROM query_cache WHERE key IN ({placeholders})", keys)
             
@@ -196,7 +197,7 @@ def regenerate_expensive_queries(app):
         # 1. Latest
         start = time.time()
         api.latest(1000)
-        app.logger.info(f"Regenerated /latest in {time.time() - start:.2f}s")
+        app.logger.info(f"Regenerated /latest (rss) in {time.time() - start:.2f}s")
         
         # 2. Top/Nodes
         start = time.time()
@@ -207,10 +208,22 @@ def regenerate_expensive_queries(app):
         start = time.time()
         api.all_users()
         app.logger.info(f"Regenerated /users in {time.time() - start:.2f}s")
+
+        # 4. Latest per user (git based)
+        start = time.time()
+        # This function is not exposed in api.py for caching purposes in the same way,
+        # so we call git_utils directly and save to cache manually, mimicking agora.py.
+        latest_changes = git_utils.get_latest_changes_per_repo(
+            agora_path=current_app.config['AGORA_PATH'],
+            logger=current_app.logger
+        )
+        save_cached_query('latest_per_user', json.dumps(latest_changes), time.time())
+        app.logger.info(f"Regenerated /latest (git) in {time.time() - start:.2f}s")
         
         app.logger.info("Expensive queries regenerated.")
     except Exception as e:
         app.logger.error(f"Error regenerating expensive queries: {e}")
+
 
 def run_full_reindex(app=None):
     """

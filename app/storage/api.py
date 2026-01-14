@@ -91,7 +91,7 @@ def all_journals():
     # TODO: Implement a correct caching strategy for all_journals, likely by caching
     # a list of dictionaries with full subnode paths and mediatypes.
     # if _is_sqlite_enabled():
-    #     cache_key = 'all_journals_v1'
+    #     cache_key = 'all_journals'
     #     ttl = current_app.config['QUERY_CACHE_TTL'].get('all_journals', 3600)
     #     cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
@@ -113,7 +113,7 @@ def all_journals():
 
 def all_users():
     if _is_sqlite_enabled():
-        cache_key = 'all_users_v1'
+        cache_key = 'all_users'
         ttl = current_app.config['QUERY_CACHE_TTL'].get(cache_key, 3600)
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
         
@@ -173,7 +173,7 @@ def search_subnodes_by_user(query, username):
 
 def latest(max):
     if _is_sqlite_enabled():
-        cache_key = f'latest_v2_{max}' # Changed key to v2 to invalidate old cache.
+        cache_key = f'latest_{max}' # Changed key to v2 to invalidate old cache.
         ttl = current_app.config['QUERY_CACHE_TTL'].get('latest', 3600)
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
@@ -205,7 +205,7 @@ def latest(max):
 
 def top():
     if _is_sqlite_enabled():
-        cache_key = 'top_v2' # Changed key to v2 to invalidate old cache.
+        cache_key = 'top' # Changed key to v2 to invalidate old cache.
         ttl = current_app.config['QUERY_CACHE_TTL'].get(cache_key, 3600)
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 

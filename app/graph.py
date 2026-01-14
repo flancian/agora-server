@@ -363,7 +363,7 @@ class Graph:
     @cachetools.func.ttl_cache(ttl=get_cache_ttl("subnodes"))
     def subnodes(self, sort=_default_subnode_sort) -> List['Subnode']:
         if _is_sqlite_enabled():
-            cache_key = 'all_subnodes_v2_git_mtime' if current_app.config.get('USE_GIT_MTIME') else 'all_subnodes_v2'
+            cache_key = 'all_subnodes_git_mtime' if current_app.config.get('USE_GIT_MTIME') else 'all_subnodes'
             ttl = get_cache_ttl('subnodes')
             cached_value, timestamp = sqlite_engine.get_cached_graph(cache_key)
 

@@ -436,7 +436,7 @@ def latest():
     n = api.build_node("latest")
     
     # New on-demand logic with caching.
-    cache_key = 'latest_per_user_v1'
+    cache_key = 'latest_per_user'
     ttl = 300 # 5 minutes
     cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
@@ -1309,11 +1309,13 @@ def music_tracks():
         for f in os.listdir(mid_dir):
             if f.endswith('.mid'):
                 artist, title = parse_track_info(f)
+                full_path = os.path.join(mid_dir, f)
                 tracks.append({
                     'name': title,
                     'path': url_for('static', filename=f'mid/{f}'),
                     'type': 'mid',
-                    'artist': artist
+                    'artist': artist,
+                    'size': os.path.getsize(full_path)
                 })
     
     # Opus
@@ -1322,11 +1324,13 @@ def music_tracks():
         for f in os.listdir(opus_dir):
             if f.endswith('.opus') or f.endswith('.ogg'):
                  artist, title = parse_track_info(f)
+                 full_path = os.path.join(opus_dir, f)
                  tracks.append({
                     'name': title,
                     'path': url_for('static', filename=f'opus/{f}'),
                     'type': 'opus',
-                    'artist': artist
+                    'artist': artist,
+                    'size': os.path.getsize(full_path)
                 })
                 
     return jsonify(tracks)
@@ -1583,7 +1587,7 @@ def send_accept(app, follow_activity, actor_url, key_id, base_url):
             username = actor_url.split('/')[-1]
             
             # Fetch recent subnodes from Git/Cache for consistency
-            cache_key = 'latest_per_user_v1'
+            cache_key = 'latest_per_user'
             cached_value, _ = sqlite_engine.get_cached_query(cache_key)
             latest_changes = []
             
@@ -1822,7 +1826,7 @@ def run_federation_pass():
     Requires an active application context.
     """
     # Get recent subnodes from Git (cached)
-    cache_key = 'latest_per_user_v1'
+    cache_key = 'latest_per_user'
     ttl = 300
     cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
     
