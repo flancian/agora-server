@@ -75,7 +75,7 @@ export function initMusicPlayer() {
             } catch (e) {
                 console.warn("Error stopping MIDI player:", e);
             }
-            // musicPlayer = null; 
+            musicPlayer = null; 
         }
         if (opusPlayer) {
             opusPlayer.pause();
@@ -90,6 +90,7 @@ export function initMusicPlayer() {
             canvasCtx.fillStyle = '#000';
             canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
         }
+        activeMidiNotes = {};
         console.log("Music stopped.");
     };
 
@@ -283,6 +284,7 @@ export function initMusicPlayer() {
                         
                         const player = new MidiPlayer.Player(function (event: any) {
                             if (event.name === 'Note on' && event.velocity > 0) {
+                                console.log('Midi Note:', event.noteName, event.velocity);
                                 instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 2 });
                                 activeMidiNotes[event.noteNumber] = event.velocity;
                                 activeNotesDict[event.noteNumber] = true; // Track for Note off logic if needed
@@ -403,27 +405,44 @@ export function initMusicPlayer() {
         return fetch('/api/music/tracks')
             .then(res => res.json())
             .then(tracks => {
-                 const midis = tracks.filter((t: any) => t.type === 'mid');
-                 const opuses = tracks.filter((t: any) => t.type === 'opus');
-                 
-                 let firstTrack;
-                 
-                 // 1. Random Opus First
-                 if (opuses.length > 0) {
-                     const idx = Math.floor(Math.random() * opuses.length);
-                     firstTrack = opuses[idx];
-                     opuses.splice(idx, 1);
-                 }
-                 
-                 // 2. Shuffle Rest
-                 const rest = [...midis, ...opuses];
-                 shuffle(rest);
+                 let midis = tracks.filter((t: any) => t.type === 'mid');
+                 let opuses = tracks.filter((t: any) => t.type === 'opus');
                  
                  playlist = [];
-                 if (firstTrack) playlist.push(firstTrack);
-                 playlist.push(...rest);
+
+                 // Sort MIDIs by size ascending
+                 midis.sort((a: any, b: any) => (a.size || 0) - (b.size || 0));
+
+                 // 1. Pick one of the 5 shortest MIDIs
+                 if (midis.length > 0) {
+                     const top5Count = Math.min(midis.length, 5);
+                     // Pick random index from 0 to top5Count-1
+                     const idx = Math.floor(Math.random() * top5Count);
+                     
+                     // Add to playlist
+                     playlist.push(midis[idx]);
+                     
+                     // Remove from the list of remaining midis
+                     midis.splice(idx, 1);
+                 }
                  
-                 console.log("Loaded playlist (Opus-first):", playlist);
+                 // 2. Add one Opus track (if available)
+                 if (opuses.length > 0) {
+                     const idx = Math.floor(Math.random() * opuses.length);
+                     playlist.push(opuses[idx]);
+                     opuses.splice(idx, 1);
+                 }
+
+                 // 3. Add the rest of the MIDIs (already sorted by size)
+                 playlist.push(...midis);
+
+                 // 4. Add remaining Opuses at the end
+                 if (opuses.length > 0) {
+                    shuffle(opuses);
+                    playlist.push(...opuses);
+                 }
+                 
+                 console.log("Loaded playlist (Top5-Shortest-Midi -> Opus -> Rest-Sorted):", playlist);
                  return playlist;
             });
     };
