@@ -14,16 +14,16 @@
                 <div class="stat-label">Nodes</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">{{ graph_stats.subnodes }}</div>
-                <div class="stat-label">Subnodes</div>
-            </div>
-            <div class="stat-card">
                 <div class="stat-value">{{ graph_stats.edges }}</div>
                 <div class="stat-label">Edges</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">{{ graph_stats.users }}</div>
                 <div class="stat-label">Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.subnodes }}</div>
+                <div class="stat-label">Contributions</div>
             </div>
         </div>
     </div>
@@ -52,6 +52,16 @@
         <p><em>No database statistics available.</em></p>
         {% endif %}
     </div>
+
+    <!-- Collapsible node content for [[stats]] -->
+    <details class="stats-node-content">
+        <summary class="node-header">
+            <strong>📄 Node Content: [[stats]]</strong>
+        </summary>
+        <div class="node-embed-container">
+            {% include "node.html" %}
+        </div>
+    </details>
 
 </div>
 
@@ -107,6 +117,40 @@
     th {
         font-weight: 600;
         color: var(--text-secondary);
+    }
+
+    .stats-node-content {
+        margin-top: 2rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background-color: var(--bg-secondary);
+    }
+
+    .stats-node-content summary {
+        padding: 1rem;
+        cursor: pointer;
+        list-style: none; /* Hide default triangle */
+    }
+    
+    .stats-node-content summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .stats-node-content summary::before {
+        content: '▶'; 
+        display: inline-block;
+        margin-right: 0.5rem;
+        transition: transform 0.2s;
+    }
+
+    .stats-node-content[open] summary::before {
+        transform: rotate(90deg);
+    }
+
+    .node-embed-container {
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+        background-color: var(--bg-primary);
     }
 </style>
 
