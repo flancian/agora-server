@@ -7,7 +7,7 @@
 
     <div class="stats-section">
         <h2>Graph Overview</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+        <div class="graph-overview-grid">
             <div class="stat-card">
                 <div class="stat-value">{{ graph_stats.nodes }}</div>
                 <div class="stat-label">Nodes</div>
@@ -107,6 +107,19 @@
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 1rem;
         margin-top: 1rem;
+    }
+
+    .graph-overview-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    @media (min-width: 768px) {
+        .graph-overview-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
     }
     
     .stat-card {
