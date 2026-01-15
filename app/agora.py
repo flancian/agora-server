@@ -485,6 +485,25 @@ def starred():
     )
 
 
+@bp.route("/stats")
+def stats_page():
+    n = api.build_node("stats")
+    
+    # Graph stats (high level)
+    graph_stats = api.stats()
+    
+    # DB stats (low level)
+    db_stats = sqlite_engine.get_db_stats()
+    
+    return render_template(
+        "stats.html",
+        header="Agora Status & Statistics",
+        node=n,
+        graph_stats=graph_stats,
+        db_stats=db_stats,
+    )
+
+
 @bp.route("/federation/")
 @bp.route("/federation")
 @bp.route("/activities")

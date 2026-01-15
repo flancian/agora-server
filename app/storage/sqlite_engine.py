@@ -1011,3 +1011,34 @@ def get_all_starred_external_urls():
         return {row[0] for row in cursor.fetchall()}
     except sqlite3.OperationalError as e:
         return set()
+
+def get_db_stats():
+    """
+    Returns statistics about the database tables.
+    Returns a list of dicts: [{'table': 'name', 'rows': count}, ...]
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    stats = []
+    try:
+        cursor = db.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [row[0] for row in cursor.fetchall()]
+        
+        for table in tables:
+            try:
+                # FTS shadow tables usually don't need individual counting and can be noisy
+                if table.startswith('subnodes_fts_'):
+                    continue
+                    
+                count = db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                stats.append({'table': table, 'rows': count})
+            except sqlite3.OperationalError:
+                # Could happen if table is locked or corrupt
+                stats.append({'table': table, 'rows': 'Error'})
+                
+        return sorted(stats, key=lambda x: x['table'])
+    except sqlite3.OperationalError as e:
+        current_app.logger.error(f"Error getting DB stats: {e}")
+        return []

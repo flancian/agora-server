@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-container">
+    <h1>{{ header }}</h1>
+
+    <div class="stats-section">
+        <h2>Graph Overview</h2>
+        <p><em>High-level counts from the active graph.</em></p>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.nodes }}</div>
+                <div class="stat-label">Nodes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.subnodes }}</div>
+                <div class="stat-label">Subnodes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.edges }}</div>
+                <div class="stat-label">Edges</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.users }}</div>
+                <div class="stat-label">Users</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <h2>Database Internals</h2>
+        <p><em>Row counts for SQLite tables (agora.db).</em></p>
+        {% if db_stats %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Table Name</th>
+                    <th>Row Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in db_stats %}
+                <tr>
+                    <td><code>{{ stat.table }}</code></td>
+                    <td>{{ stat.rows }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p><em>No database statistics available.</em></p>
+        {% endif %}
+    </div>
+
+</div>
+
+<style>
+    .stats-section {
+        margin-bottom: 2rem;
+        background-color: var(--bg-secondary);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .stat-card {
+        background-color: var(--bg-primary);
+        padding: 1rem;
+        border-radius: 6px;
+        text-align: center;
+        border: 1px solid var(--border-color);
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--link-color);
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    
+    th, td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    th {
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+</style>
+
+{% endblock %}
