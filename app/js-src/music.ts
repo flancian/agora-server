@@ -285,7 +285,7 @@ export function initMusicPlayer() {
                         const player = new MidiPlayer.Player(function (event: any) {
                             if (event.name === 'Note on' && event.velocity > 0) {
                                 console.log('Midi Note:', event.noteName, event.velocity);
-                                instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 2 });
+                                instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 3 });
                                 activeMidiNotes[event.noteNumber] = event.velocity;
                                 activeNotesDict[event.noteNumber] = true; // Track for Note off logic if needed
                             } else if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
@@ -307,7 +307,17 @@ export function initMusicPlayer() {
                                 if (playId !== currentPlayId) return;
 
                                 // Convert to base64 for midi-player-js
-                                const binary = new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '');
+                                // Optimization: Use a loop instead of reduce for large files
+                                const bytes = new Uint8Array(arrayBuffer);
+                                let binary = '';
+                                const len = bytes.byteLength;
+                                // Chunking to avoid stack overflow if we used apply, 
+                                // but string concat is safer albeit slower than apply. 
+                                // However, for 10MB+ midis, this might still be heavy.
+                                // 4096 is a safe chunk size.
+                                for (let i = 0; i < len; i++) {
+                                    binary += String.fromCharCode(bytes[i]);
+                                }
                                 const base64 = btoa(binary);
                                 const dataUri = `data:audio/midi;base64,${base64}`;
                                 
@@ -402,7 +412,7 @@ export function initMusicPlayer() {
     };
 
     const loadPlaylist = () => {
-        return fetch('/api/music/tracks')
+        return fetch(`/api/music/tracks?t=${Date.now()}`)
             .then(res => res.json())
             .then(tracks => {
                  let midis = tracks.filter((t: any) => t.type === 'mid');
@@ -410,14 +420,16 @@ export function initMusicPlayer() {
                  
                  playlist = [];
 
-                 // Sort MIDIs by size ascending
+                 // Sort MIDIs by size ascending to identify "short" ones
                  midis.sort((a: any, b: any) => (a.size || 0) - (b.size || 0));
 
-                 // 1. Pick one of the 5 shortest MIDIs
+                 // 1. Pick one short MIDI from the bottom 10% (or at least top 5 if set is small)
                  if (midis.length > 0) {
-                     const top5Count = Math.min(midis.length, 5);
-                     // Pick random index from 0 to top5Count-1
-                     const idx = Math.floor(Math.random() * top5Count);
+                     const thresholdIndex = Math.max(5, Math.floor(midis.length * 0.1));
+                     const candidatesCount = Math.min(midis.length, thresholdIndex);
+                     
+                     // Pick random index from candidates
+                     const idx = Math.floor(Math.random() * candidatesCount);
                      
                      // Add to playlist
                      playlist.push(midis[idx]);
@@ -429,20 +441,22 @@ export function initMusicPlayer() {
                  // 2. Add one Opus track (if available)
                  if (opuses.length > 0) {
                      const idx = Math.floor(Math.random() * opuses.length);
+                     
                      playlist.push(opuses[idx]);
                      opuses.splice(idx, 1);
                  }
 
-                 // 3. Add the rest of the MIDIs (already sorted by size)
+                 // 3. Add the rest of the MIDIs (SHUFFLED)
+                 shuffle(midis);
                  playlist.push(...midis);
 
-                 // 4. Add remaining Opuses at the end
+                 // 4. Add remaining Opuses at the end (SHUFFLED)
                  if (opuses.length > 0) {
                     shuffle(opuses);
                     playlist.push(...opuses);
                  }
                  
-                 console.log("Loaded playlist (Top5-Shortest-Midi -> Opus -> Rest-Sorted):", playlist);
+                 console.log("Loaded playlist (Short(10%) -> Opus(Rainbow?) -> Rest-Shuffled):", playlist);
                  return playlist;
             });
     };
@@ -551,9 +565,13 @@ export function initMusicPlayer() {
                 if (opusPlayer && !opusPlayer.paused) opusPlayer.pause();
                 if (pauseButton) pauseButton.textContent = '▶️';
             } else {
-                // @ts-ignore
-                if (musicPlayer && !musicPlayer.isPlaying()) musicPlayer.play();
-                if (opusPlayer && opusPlayer.paused) opusPlayer.play();
+                const track = playlist[currentTrackIndex];
+                if (track && track.type === 'mid') {
+                    // @ts-ignore
+                    if (musicPlayer && !musicPlayer.isPlaying()) musicPlayer.play();
+                } else {
+                    if (opusPlayer && opusPlayer.paused && opusPlayer.src) opusPlayer.play();
+                }
                 if (pauseButton) pauseButton.textContent = '⏸';
             }
         });

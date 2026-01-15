@@ -1333,7 +1333,9 @@ def music_tracks():
                     'size': os.path.getsize(full_path)
                 })
                 
-    return jsonify(tracks)
+    response = jsonify(tracks)
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
 
 def federate_create(subnode_uri, app_context):
     """
