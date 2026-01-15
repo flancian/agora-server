@@ -16,13 +16,5 @@
            </button>
     &nbsp;
     <a href="/stats" title="View Agora system statistics and health." style="text-decoration: none;">📊 Stats</a>
-    {% if config.ENABLE_FLUSH_CACHE_BUTTON %}
-    <button id="mini-cli-cachez" title="Clear in-memory cache for this server process. Resolves some inconsistencies.">
-        🧠 Flush In-Memory Cache
-    </button>
-    <button id="mini-cli-invalidate-sqlite" title="Flush SQLite cache. Forces a full re-index from the filesystem on the next page load.">
-        💾 Flush SQLite
-    </button>
-    {% endif %}
 </div>
 </div>
