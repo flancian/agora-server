@@ -15,7 +15,7 @@
 -->
 
 {% if node.subnodes or node.pushed_subnodes() %}
-    <details class="node" id="{{node.uri}}" open>
+    <details class="node" id="{{node.uri}}" {% if not collapsed %}open{% endif %}>
 
         {% if rendering_user or subnode %}
             <summary class="node-header main-header">
@@ -166,7 +166,7 @@
 
  
 {% if not subnode %}
-<details class="context node" open>
+<details class="context node" {% if not collapsed %}open{% endif %}>
 
     <center>
         <p>
