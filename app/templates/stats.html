@@ -41,16 +41,22 @@
         } %}
 
         <div class="stats-grid">
+            <!-- Memory Status -->
+            <div class="stat-card" style="border-color: var(--link-color);">
+                <div class="stat-value" style="font-size: 1.2rem;">{{ memory_stats.Status }}</div>
+                <div class="stat-label">Memory State</div>
+            </div>
+
             <!-- Worker Status -->
             <div class="stat-card" style="border-color: var(--link-color);">
                 <div class="stat-value" style="font-size: 1.2rem;">{{ worker_status }}</div>
                 <div class="stat-label">Worker Status</div>
             </div>
 
-            <!-- Memory Status -->
+            <!-- SQLite Status -->
             <div class="stat-card" style="border-color: var(--link-color);">
-                <div class="stat-value" style="font-size: 1.2rem;">{{ memory_stats.Status }}</div>
-                <div class="stat-label">Memory State</div>
+                <div class="stat-value" style="font-size: 1.2rem;">{{ sqlite_status }}</div>
+                <div class="stat-label">SQLite State</div>
             </div>
 
             <!-- Persistent Caches -->
@@ -88,7 +94,7 @@
         <h2>Database Internals</h2>
         <p><em>Row counts for SQLite tables (agora.db).</em></p>
         {% if db_stats %}
-        <table class="table table-striped">
+        <table class="table table-striped" style="border: 1px solid var(--border-color);">
             <thead>
                 <tr>
                     <th>Table Name</th>
@@ -109,9 +115,15 @@
         {% endif %}
     </div>
 
-    <!-- Transcluded content for [[stats]], collapsed by default -->
-    {% set collapsed = True %}
-    {% include "node.html" %}
+    <!-- Transcluded content for [[stats]] -->
+    <details class="node">
+        <summary>
+            <span class="node-header" title="An Agora location. It contains resources closely related to your search according to the Agora you're in.">
+                📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/stats"><span class="node-name">stats</span></a><span class="wikilink-marker">]]</span> (transcluded)
+            </span>
+        </summary>
+        <div class="node-embed" id="stats"></div>
+    </details>
 
 </div>
 
@@ -156,7 +168,6 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 1rem;
-        border-bottom: 1px solid var(--border-color); /* Added bottom border */
     }
     
     th, td {

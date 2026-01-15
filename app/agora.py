@@ -535,6 +535,12 @@ def stats_page():
         except (ValueError, TypeError):
             pass
 
+    # SQLite status
+    sqlite_status = "❌ Unavailable"
+    if db_stats:
+        table_count = len([t for t in db_stats if t['table'] != '(Database File Size)'])
+        sqlite_status = f"✅ Available ({table_count} tables)"
+
     return render_template(
         "stats.html",
         header="Agora Status & Statistics",
@@ -544,6 +550,7 @@ def stats_page():
         cache_info=cache_info,
         memory_stats=memory_stats,
         worker_status=worker_status,
+        sqlite_status=sqlite_status,
     )
 
 
