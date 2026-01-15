@@ -32,14 +32,6 @@
         <h2>System Caches</h2>
         <p><em>Status of background worker caches.</em></p>
         
-        {% set key_map = {
-            'all_users': 'User Index',
-            'latest_1000': 'Latest (Feed)',
-            'top': 'Top Nodes',
-            'latest_per_user': 'Latest (Git)',
-            'last_full_index': 'Last Full Re-Index'
-        } %}
-
         <div class="stats-grid">
             <!-- Memory Status -->
             <div class="stat-card" style="border-color: var(--link-color);">
@@ -59,10 +51,9 @@
                 <div class="stat-label">SQLite State</div>
             </div>
 
-            <!-- Persistent Caches -->
-            {% for key, label in key_map.items() %}
+            <!-- Graph Rebuild -->
             <div class="stat-card">
-                {% set timestamp = cache_info.get(key) %}
+                {% set timestamp = cache_info.get('last_full_index') %}
                 <div class="stat-value" style="font-size: 1.2rem;" {% if timestamp %}title="{{ timestamp|datetimeformat }}"{% endif %}>
                     {% if timestamp %}
                         {{ timestamp|timeago }}
@@ -70,9 +61,21 @@
                         <span style="color: var(--text-muted); font-size: 0.8em;">Pending...</span>
                     {% endif %}
                 </div>
-                <div class="stat-label">{{ label }}</div>
+                <div class="stat-label">Graph Rebuild</div>
             </div>
-            {% endfor %}
+
+            <!-- Additional Artifacts -->
+            <div class="stat-card">
+                {% set timestamp = cache_info.get('latest_1000') %}
+                <div class="stat-value" style="font-size: 1.2rem;" {% if timestamp %}title="{{ timestamp|datetimeformat }}"{% endif %}>
+                    {% if timestamp %}
+                        {{ timestamp|timeago }}
+                    {% else %}
+                        <span style="color: var(--text-muted); font-size: 0.8em;">Pending...</span>
+                    {% endif %}
+                </div>
+                <div class="stat-label">Additional Artifacts</div>
+            </div>
         </div>
         
         {% if memory_stats and not memory_stats.Error %}
