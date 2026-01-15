@@ -7,11 +7,26 @@
 
     <div class="stats-section">
         <h2>Graph Overview</h2>
-        <div style="font-size: 1.2rem; text-align: center; margin-top: 1rem; line-height: 1.6;">
-            <span class="stat-highlight">{{ graph_stats.nodes }}</span> nodes and 
-            <span class="stat-highlight">{{ graph_stats.edges }}</span> edges in 
-            <span class="stat-highlight">{{ graph_stats.subnodes }}</span> contributions by 
-            <span class="stat-highlight">{{ graph_stats.users }}</span> users
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; font-size: 1.2rem; margin-top: 1rem;">
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.nodes }}</div>
+                <div class="stat-label">Nodes</div>
+            </div>
+            <span style="color: var(--text-secondary);">and</span>
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.edges }}</div>
+                <div class="stat-label">Edges</div>
+            </div>
+            <span style="color: var(--text-secondary);">in</span>
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.subnodes }}</div>
+                <div class="stat-label">Contributions</div>
+            </div>
+            <span style="color: var(--text-secondary);">by</span>
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.users }}</div>
+                <div class="stat-label">Users</div>
+            </div>
         </div>
     </div>
 
