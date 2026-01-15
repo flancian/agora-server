@@ -1245,44 +1245,34 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         var details = document.querySelectorAll("details.node");
 
-        details.forEach((item) => {
-
-          item.addEventListener("toggle", (event) => {
-
+        const handleNodeToggle = (item: HTMLDetailsElement) => {
             if (item.open) {
-
               console.log("Details have been shown");
-
               let nodeEmbed = item.querySelector(".node-embed");
-
-              if (nodeEmbed) {
-
+              if (nodeEmbed && !nodeEmbed.hasChildNodes()) {
                 let node = nodeEmbed.id;
-
                 console.log("Node embed found, here we would pull.");
-
                 nodeEmbed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>';
-
               }
-
             } else {
-
               console.log("Details have been hidden");
-
               let nodeEmbed = item.querySelector(".node-embed");
-
               if (nodeEmbed) {
-
                 console.log("Node embed found, here we would fold.");
-
                 nodeEmbed.innerHTML = '';
-
               }
-
             }
+        };
 
+        details.forEach((item) => {
+          item.addEventListener("toggle", (event) => {
+            handleNodeToggle(item as HTMLDetailsElement);
           });
-
+          
+          // Check initial state
+          if ((item as HTMLDetailsElement).open) {
+              handleNodeToggle(item as HTMLDetailsElement);
+          }
         });
 
         // end zippies.
