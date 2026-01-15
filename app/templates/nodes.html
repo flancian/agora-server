@@ -28,14 +28,56 @@
 </summary>
 
 {% if stats %}
-<p>
-This Agora contains <strong>{{stats['subnodes']}} resources</strong> contributed by <a href="/users"><strong>{{stats['users']}} users</a></strong>.</strong>
-</p>
+<div class="stats-grid" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats['nodes'] }}</div>
+        <div class="stat-label">Nodes</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats['edges'] }}</div>
+        <div class="stat-label">Edges</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats['users'] }}</div>
+        <div class="stat-label">Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats['subnodes'] }}</div>
+        <div class="stat-label">Contributions</div>
+    </div>
+</div>
 
-<p>
-There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']}} links</strong>.
-</p>
+<style>
+/* Inline styles for stats grid to match /stats page */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 0 1rem;
+}
 
+.stat-card {
+    background-color: var(--bg-primary);
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--link-color);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+</style>
 {% endif %}
 
 <div class="nodes-grid subnode">

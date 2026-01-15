@@ -1037,8 +1037,40 @@ def get_db_stats():
             except sqlite3.OperationalError:
                 # Could happen if table is locked or corrupt
                 stats.append({'table': table, 'rows': 'Error'})
-                
+        
+        # Add DB file size
+        try:
+            uri = current_app.config.get('SQLALCHEMY_DATABASE_URI')
+            if uri and uri.startswith('sqlite:///'):
+                db_path = uri.split('?')[0][10:]
+                if os.path.exists(db_path):
+                    size_mb = os.path.getsize(db_path) / (1024 * 1024)
+                    stats.append({'table': '(Database File Size)', 'rows': f"{size_mb:.2f} MB"})
+        except Exception as e:
+            current_app.logger.error(f"Error getting DB size: {e}")
+
         return sorted(stats, key=lambda x: x['table'])
     except sqlite3.OperationalError as e:
         current_app.logger.error(f"Error getting DB stats: {e}")
         return []
+
+def get_cache_info():
+    """
+    Returns a dict of cache keys and their timestamps.
+    """
+    db = get_db()
+    if not db:
+        return {}
+    
+    keys = ['latest_1000', 'top', 'all_users', 'latest_per_user', 'last_full_index']
+    info = {}
+    try:
+        # sqlite3 doesn't support list binding for IN clause directly
+        placeholders = ','.join(['?'] * len(keys))
+        cursor = db.execute(f"SELECT key, timestamp FROM query_cache WHERE key IN ({placeholders})", keys)
+        for row in cursor.fetchall():
+            info[row[0]] = row[1]
+    except Exception as e:
+        current_app.logger.error(f"Error getting cache info: {e}")
+        pass
+    return info

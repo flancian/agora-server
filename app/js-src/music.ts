@@ -285,7 +285,7 @@ export function initMusicPlayer() {
                         const player = new MidiPlayer.Player(function (event: any) {
                             if (event.name === 'Note on' && event.velocity > 0) {
                                 console.log('Midi Note:', event.noteName, event.velocity);
-                                instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 3 });
+                                instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 4 });
                                 activeMidiNotes[event.noteNumber] = event.velocity;
                                 activeNotesDict[event.noteNumber] = true; // Track for Note off logic if needed
                             } else if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {

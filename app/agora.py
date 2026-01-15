@@ -494,6 +494,7 @@ def stats_page():
     
     # DB stats (low level)
     db_stats = sqlite_engine.get_db_stats()
+    cache_info = sqlite_engine.get_cache_info()
     
     return render_template(
         "stats.html",
@@ -501,6 +502,7 @@ def stats_page():
         node=n,
         graph_stats=graph_stats,
         db_stats=db_stats,
+        cache_info=cache_info,
     )
 
 
