@@ -1073,4 +1073,16 @@ def get_cache_info():
     except Exception as e:
         current_app.logger.error(f"Error getting cache info: {e}")
         pass
+        
+    # Fallback for last_full_index if missing but DB exists
+    if 'last_full_index' not in info:
+        try:
+            uri = current_app.config.get('SQLALCHEMY_DATABASE_URI')
+            if uri and uri.startswith('sqlite:///'):
+                db_path = uri.split('?')[0][10:]
+                if os.path.exists(db_path):
+                    info['last_full_index'] = os.path.getmtime(db_path)
+        except Exception:
+            pass
+
     return info
