@@ -93,36 +93,11 @@
         </div>
     </div>
 
-    <div class="stats-section">
-        <h2>Database Internals</h2>
-        <p><em>Row counts for SQLite tables (agora.db).</em></p>
-        {% if db_stats %}
-        <table class="table table-striped" style="border: 1px solid var(--border-color);">
-            <thead>
-                <tr>
-                    <th>Table Name</th>
-                    <th>Row Count</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stat in db_stats %}
-                <tr>
-                    <td><code>{{ stat.table }}</code></td>
-                    <td>{{ stat.rows }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p><em>No database statistics available.</em></p>
-        {% endif %}
-    </div>
-
     <!-- Transcluded content for [[stats]] -->
     <details class="node">
         <summary>
             <span class="node-header" title="An Agora location. It contains resources closely related to your search according to the Agora you're in.">
-                📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/stats"><span class="node-name">stats</span></a><span class="wikilink-marker">]]</span> (transcluded)
+                📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/node/stats"><span class="node-name">stats</span></a><span class="wikilink-marker">]]</span> (transcluded)
             </span>
         </summary>
         <div class="node-embed" id="stats"></div>
