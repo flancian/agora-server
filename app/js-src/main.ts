@@ -977,14 +977,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-        // Generic auto-expand class
-        document.querySelectorAll("details.auto-expand").forEach(function (element) {
-            console.log('processing .auto-expand');
-            const summary = element.querySelector('summary');
-            if (summary && !(element as HTMLDetailsElement).open) {
-                summary.click();
-            }
-        });
+
 
         if (safeJsonParse(localStorage["auto-expand-stoas"], false)) {
 
