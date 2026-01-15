@@ -48,10 +48,17 @@
             </div>
 
             <!-- Persistent Caches -->
-            {% for key, timestamp in cache_info.items() %}
+            {% for key, label in key_map.items() %}
             <div class="stat-card">
-                <div class="stat-value" style="font-size: 1.2rem;" title="{{ timestamp|datetimeformat }}">{{ timestamp|timeago }}</div>
-                <div class="stat-label">{{ key_map.get(key, key) }}</div>
+                {% set timestamp = cache_info.get(key) %}
+                <div class="stat-value" style="font-size: 1.2rem;" {% if timestamp %}title="{{ timestamp|datetimeformat }}"{% endif %}>
+                    {% if timestamp %}
+                        {{ timestamp|timeago }}
+                    {% else %}
+                        <span style="color: var(--text-muted); font-size: 0.8em;">Pending...</span>
+                    {% endif %}
+                </div>
+                <div class="stat-label">{{ label }}</div>
             </div>
             {% endfor %}
         </div>
