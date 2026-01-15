@@ -41,10 +41,16 @@
         } %}
 
         <div class="stats-grid">
+            <!-- Worker Status -->
+            <div class="stat-card" style="border-color: var(--link-color);">
+                <div class="stat-value" style="font-size: 1.2rem;">{{ worker_status }}</div>
+                <div class="stat-label">Worker Status</div>
+            </div>
+
             <!-- Memory Status -->
             <div class="stat-card" style="border-color: var(--link-color);">
                 <div class="stat-value" style="font-size: 1.2rem;">{{ memory_stats.Status }}</div>
-                <div class="stat-label">Application State</div>
+                <div class="stat-label">Memory State</div>
             </div>
 
             <!-- Persistent Caches -->

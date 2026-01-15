@@ -519,6 +519,22 @@ def stats_page():
 
     memory_stats['Status'] = "🔥 Hot (In-Memory)" if is_hot else "❄️ Cold (Disk/SQLite)"
 
+    # Worker status
+    last_index = cache_info.get('last_full_index')
+    worker_status = "❌ Inactive"
+    if last_index:
+        try:
+            # last_index might be a string or int/float
+            age = time.time() - float(last_index)
+            if age < 3600: # 1 hour
+                worker_status = "✅ Active"
+            elif age < 86400: # 24 hours
+                worker_status = "⚠️ Stale"
+            else:
+                worker_status = "❌ Inactive (>24h)"
+        except (ValueError, TypeError):
+            pass
+
     return render_template(
         "stats.html",
         header="Agora Status & Statistics",
@@ -527,6 +543,7 @@ def stats_page():
         db_stats=db_stats,
         cache_info=cache_info,
         memory_stats=memory_stats,
+        worker_status=worker_status,
     )
 
 
