@@ -242,8 +242,7 @@ class ProductionConfig(DefaultConfig):
 
     # This seems to work great but I haven't tested it beyond AlphaConfig (which is what we run in anagora.org as of [[2025]]), so leaving it set to False for now.
     # This keeps the Agora completely file-based and able to run in a read-only filesystem. Setting it to True if the Agora can't write should still work but default to file-based.
-    ENABLE_SQLITE = True
-    ENABLE_FLUSH_CACHE_BUTTON = True
+    ENABLE_SQLITE = False
 
 
 class AlphaConfig(DefaultConfig):
