@@ -1074,15 +1074,25 @@ def get_cache_info():
         current_app.logger.error(f"Error getting cache info: {e}")
         pass
         
-    # Fallback for last_full_index if missing but DB exists
-    if 'last_full_index' not in info:
-        try:
+    # Get graph blob timestamp (partial/lazy rebuild)
+    try:
+        cursor = db.execute("SELECT MAX(timestamp) FROM graph_cache WHERE key LIKE 'all_subnodes%'")
+        blob_ts = cursor.fetchone()[0]
+        if blob_ts:
+            info['graph_blob_time'] = blob_ts
+    except Exception:
+        pass
+
+    # Get DB file timestamp (last resort)
+    try:
+        count = db.execute("SELECT COUNT(*) FROM subnodes").fetchone()[0]
+        if count > 0:
             uri = current_app.config.get('SQLALCHEMY_DATABASE_URI')
             if uri and uri.startswith('sqlite:///'):
                 db_path = uri.split('?')[0][10:]
                 if os.path.exists(db_path):
-                    info['last_full_index'] = os.path.getmtime(db_path)
-        except Exception:
-            pass
+                    info['db_mtime'] = os.path.getmtime(db_path)
+    except Exception:
+        pass
 
     return info

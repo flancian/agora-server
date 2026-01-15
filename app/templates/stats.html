@@ -52,7 +52,7 @@
 
             <!-- Graph Rebuild -->
             <div class="stat-card">
-                {% set timestamp = cache_info.get('last_full_index') %}
+                {% set timestamp = cache_info.get('last_full_index') or cache_info.get('graph_blob_time') or cache_info.get('db_mtime') %}
                 <div class="stat-value" style="font-size: 1.2rem;" {% if timestamp %}title="{{ timestamp|datetimeformat }}"{% endif %}>
                     {% if timestamp %}
                         {{ timestamp|timeago }}
