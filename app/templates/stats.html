@@ -7,24 +7,11 @@
 
     <div class="stats-section">
         <h2>Graph Overview</h2>
-        <p><em>High-level counts from the active graph.</em></p>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value">{{ graph_stats.nodes }}</div>
-                <div class="stat-label">Nodes</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">{{ graph_stats.edges }}</div>
-                <div class="stat-label">Edges</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">{{ graph_stats.users }}</div>
-                <div class="stat-label">Users</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">{{ graph_stats.subnodes }}</div>
-                <div class="stat-label">Contributions</div>
-            </div>
+        <div style="font-size: 1.2rem; text-align: center; margin-top: 1rem; line-height: 1.6;">
+            <span class="stat-highlight">{{ graph_stats.nodes }}</span> nodes and 
+            <span class="stat-highlight">{{ graph_stats.edges }}</span> edges in 
+            <span class="stat-highlight">{{ graph_stats.subnodes }}</span> contributions by 
+            <span class="stat-highlight">{{ graph_stats.users }}</span> users
         </div>
     </div>
 
@@ -39,16 +26,16 @@
                 <div class="stat-label">Memory State</div>
             </div>
 
-            <!-- Worker Status -->
-            <div class="stat-card" style="border-color: var(--link-color);">
-                <div class="stat-value" style="font-size: 1.2rem;">{{ worker_status }}</div>
-                <div class="stat-label">Worker Status</div>
-            </div>
-
             <!-- SQLite Status -->
             <div class="stat-card" style="border-color: var(--link-color);">
                 <div class="stat-value" style="font-size: 1.2rem;">{{ sqlite_status }}</div>
                 <div class="stat-label">SQLite State</div>
+            </div>
+
+            <!-- Worker Status -->
+            <div class="stat-card" style="border-color: var(--link-color);">
+                <div class="stat-value" style="font-size: 1.2rem;">{{ worker_status }}</div>
+                <div class="stat-label">Worker Status</div>
             </div>
 
             <!-- Graph Rebuild -->
@@ -129,6 +116,12 @@
         border: 1px solid var(--border-color);
     }
     
+    .stat-highlight {
+        font-weight: bold;
+        color: var(--link-color);
+        font-size: 1.4rem;
+    }
+    
     .stat-value {
         font-size: 2rem;
         font-weight: bold;
@@ -146,6 +139,7 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 1rem;
+        border-bottom: 1px solid var(--border-color); /* Added bottom border */
     }
     
     th, td {
