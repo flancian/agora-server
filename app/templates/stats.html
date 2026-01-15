@@ -30,15 +30,41 @@
 
     <div class="stats-section">
         <h2>System Caches</h2>
-        <p><em>Status of background worker caches (timestamps show last update).</em></p>
+        <p><em>Status of background worker caches.</em></p>
+        
+        {% set key_map = {
+            'all_users': 'User Index',
+            'latest_1000': 'Latest (Feed)',
+            'top': 'Top Nodes',
+            'latest_per_user': 'Latest (Git)',
+            'last_full_index': 'Last Full Re-Index'
+        } %}
+
         <div class="stats-grid">
+            <!-- Memory Status -->
+            <div class="stat-card" style="border-color: var(--link-color);">
+                <div class="stat-value" style="font-size: 1.2rem;">{{ memory_stats.Status }}</div>
+                <div class="stat-label">Application State</div>
+            </div>
+
+            <!-- Persistent Caches -->
             {% for key, timestamp in cache_info.items() %}
             <div class="stat-card">
-                <div class="stat-value" style="font-size: 1.2rem;">{{ timestamp|datetimeformat }}</div>
-                <div class="stat-label">{{ key }}</div>
+                <div class="stat-value" style="font-size: 1.2rem;" title="{{ timestamp|datetimeformat }}">{{ timestamp|timeago }}</div>
+                <div class="stat-label">{{ key_map.get(key, key) }}</div>
             </div>
             {% endfor %}
         </div>
+        
+        {% if memory_stats and not memory_stats.Error %}
+        <div style="margin-top: 1rem; font-size: 0.9rem; text-align: center; color: var(--text-secondary);">
+            In-Memory Details: 
+            {% for k, v in memory_stats.items() if k != 'Status' %}
+                {{ k }}: <strong>{{ v }}</strong>{% if not loop.last %} | {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <div class="cache-actions" style="margin-top: 1rem; text-align: center;">
              <button id="mini-cli-cachez" title="Clear in-memory cache (fast)" style="margin-right: 0.5rem;">🧠 Clear Memory</button>
              <button id="mini-cli-invalidate-sqlite" title="Clear SQLite cache (thorough)">💾 Flush SQLite</button>

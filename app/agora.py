@@ -496,6 +496,29 @@ def stats_page():
     db_stats = sqlite_engine.get_db_stats()
     cache_info = sqlite_engine.get_cache_info()
     
+    # In-memory stats
+    memory_stats = {}
+    is_hot = False
+    try:
+        # Inspect cachetools caches
+        if hasattr(G.subnodes, 'cache'):
+            subnodes_cache = G.subnodes.cache
+            memory_stats['Subnodes Cache Entries'] = len(subnodes_cache)
+            memory_stats['Subnodes Cache Max'] = subnodes_cache.maxsize
+            if len(subnodes_cache) > 0:
+                is_hot = True
+        
+        if hasattr(G.node, 'cache'):
+            node_cache = G.node.cache
+            memory_stats['Node Cache Entries'] = len(node_cache)
+            memory_stats['Node Cache Max'] = node_cache.maxsize
+            
+    except Exception as e:
+        current_app.logger.error(f"Error inspecting memory cache: {e}")
+        memory_stats['Error'] = "Could not inspect caches"
+
+    memory_stats['Status'] = "🔥 Hot (In-Memory)" if is_hot else "❄️ Cold (Disk/SQLite)"
+
     return render_template(
         "stats.html",
         header="Agora Status & Statistics",
@@ -503,6 +526,7 @@ def stats_page():
         graph_stats=graph_stats,
         db_stats=db_stats,
         cache_info=cache_info,
+        memory_stats=memory_stats,
     )
 
 
