@@ -35,10 +35,12 @@ def is_valid_url(url):
     try:
         tokens = urlparse(url)
         min_attributes = ("scheme", "netloc")
-        return all(
-            [getattr(tokens, qualifying_attr) for qualifying_attr in min_attributes]
-        )
-    except AttributeError:
+        if not all([getattr(tokens, qualifying_attr) for qualifying_attr in min_attributes]):
+            return False
+        # Accessing port triggers value check (raises ValueError if invalid)
+        _ = tokens.port
+        return True
+    except (AttributeError, ValueError):
         return False
 
 
