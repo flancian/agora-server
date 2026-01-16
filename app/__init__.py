@@ -167,10 +167,13 @@ def create_app():
                 if not app.config.get('ENABLE_LAZY_LOAD', False):
                     app.logger.info(f"Worker {uwsgi.worker_id()} starting cache warmup...")
                     start_time = time.time()
-                    G.nodes()
-                    G.subnodes()
-                    duration = time.time() - start_time
-                    app.logger.info(f"Worker {uwsgi.worker_id()} cache warmup complete in {duration:.2f}s.")
+                    try:
+                        G.nodes()
+                        G.subnodes()
+                        duration = time.time() - start_time
+                        app.logger.info(f"Worker {uwsgi.worker_id()} cache warmup complete in {duration:.2f}s.")
+                    except Exception as e:
+                        app.logger.error(f"Worker {uwsgi.worker_id()} cache warmup failed: {e}")
                 else:
                     app.logger.info(f"Worker {uwsgi.worker_id()}: Lazy loading enabled, skipping cache warmup.")
 

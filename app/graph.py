@@ -428,8 +428,11 @@ class Graph:
             subnode_data_for_cache.append({'path': f, 'mediatype': mediatype, 'mtime': s.mtime})
 
         if _is_sqlite_enabled():
-            sqlite_engine.save_cached_graph(cache_key, orjson.dumps(subnode_data_for_cache), time.time())
-            current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_subnodes to persistent cache.")
+            try:
+                sqlite_engine.save_cached_graph(cache_key, orjson.dumps(subnode_data_for_cache), time.time())
+                current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_subnodes to persistent cache.")
+            except Exception as e:
+                current_app.logger.warning(f"CACHE WRITE FAILED (sqlite): {e}. Continuing with in-memory graph.")
 
         duration = time.time() - start_time
         current_app.logger.info(f"CACHE MISS (filesystem): Scanned and loaded {len(subnodes)} subnodes in {duration:.2f}s.")
