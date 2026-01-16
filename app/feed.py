@@ -92,7 +92,10 @@ def node_rss(node):
         fe = fg.add_entry()
         fe.id(f"{subnode.uri}")
         fe.title(f"{subnode.uri}")
-        fe.content(f"{subnode.content}")
+        content = subnode.content
+        if isinstance(content, bytes):
+             content = "(Binary content)"
+        fe.content(f"{content}")
         fe.description(f"A post by user @{subnode.user} in node [[{subnode.node}]].")
         fe.link(href=f"https://anagora.org/@{subnode.user}/{subnode.node}")
     return fg.rss_str(pretty=True)
@@ -112,7 +115,10 @@ def latest_rss(subnodes):
         fe = fg.add_entry()
         fe.id(f"{subnode.uri}")
         fe.title(f"{subnode.uri}")
-        fe.content(f"{subnode.content}")
+        content = subnode.content
+        if isinstance(content, bytes):
+             content = "(Binary content)"
+        fe.content(f"{content}")
         fe.description(f"A post by user @{subnode.user} in node [[{subnode.node}]].")
         fe.link(href=f"https://anagora.org/{subnode.node}")
     return fg.rss_str(pretty=True)
@@ -132,7 +138,10 @@ def user_rss(user, subnodes):
         fe = fg.add_entry()
         fe.id(f"{subnode.uri}")
         fe.title(f"{subnode.uri}")
-        fe.content(f"{subnode.content}")
+        content = subnode.content
+        if isinstance(content, bytes):
+             content = "(Binary content)"
+        fe.content(f"{content}")
         fe.description(f"A post by user @{user} in node [[{subnode.node}]].")
         fe.link(href=f"https://anagora.org/@{user}/{subnode.node}")
     return fg.rss_str(pretty=True)
