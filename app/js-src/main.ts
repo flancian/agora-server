@@ -213,7 +213,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (showHypothesisCheckbox) {
               showHypothesisCheckbox.checked = true;
             }
-            localStorage.setItem('show-hypothesis', 'true');
+            // We do NOT save this to localStorage, as it overrides the user's preference.
+            // localStorage.setItem('show-hypothesis', 'true');
           }
           // No need to continue observing if we've found what we're looking for in this batch.
           break;
