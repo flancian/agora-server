@@ -538,8 +538,13 @@ def stats_page():
     # SQLite status
     sqlite_status = "❌ Unavailable"
     if db_stats:
-        table_count = len([t for t in db_stats if t['table'] != '(Database File Size)'])
-        sqlite_status = f"✅ Available ({table_count} tables)"
+        # Try to find file size
+        size_entry = next((item for item in db_stats if item["table"] == "(Database File Size)"), None)
+        if size_entry:
+            sqlite_status = f"✅ Available ({size_entry['rows']})"
+        else:
+            table_count = len([t for t in db_stats if t['table'] != '(Database File Size)'])
+            sqlite_status = f"✅ Available ({table_count} tables)"
 
     return render_template(
         "stats.html",
