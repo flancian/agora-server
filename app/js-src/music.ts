@@ -42,6 +42,7 @@ export function initMusicPlayer() {
     
     // MIDI Visuals state
     let activeMidiNotes: { [key: number]: number } = {}; // note -> velocity
+    let cachedInstrument: any = null;
 
     const shuffle = (array: any[]) => {
         for (let i = array.length - 1; i > 0; i--) {
@@ -268,74 +269,79 @@ export function initMusicPlayer() {
         if (track.type === 'mid') {
             const ac = initAudioContext();
             
-            // Import libraries if needed
-            // Note: In a real build, these should be handled better, but preserving existing dynamic import pattern.
-            import('soundfont-player').then(({ default: Soundfont }) => {
-                // Check if we are still the current play request
+            // Define a function to play using the instrument (cached or new)
+            const playWithInstrument = (instrument: any, MidiPlayer: any) => {
                 if (playId !== currentPlayId) return;
 
-                import('midi-player-js').then(({ default: MidiPlayer }) => {
-                    if (playId !== currentPlayId) return;
+                const activeNotesDict: { [key: number]: any } = {};
+                
+                // If we already have a player, we can try to reuse it, but creating a new one 
+                // is safer to ensure clean state, provided we stop the old one (which we did).
+                const player = new MidiPlayer.Player(function (event: any) {
+                    if (event.name === 'Note on' && event.velocity > 0) {
+                        console.log('Midi Note:', event.noteName, event.velocity);
+                        instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 4 });
+                        activeMidiNotes[event.noteNumber] = event.velocity;
+                        activeNotesDict[event.noteNumber] = true; 
+                    } else if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
+                        // instrument handles decay usually
+                    }
+                });
 
-                    Soundfont.instrument(ac, 'acoustic_grand_piano').then(function (instrument) {
+                player.on('end', function () {
+                    console.log('Midi file finished, playing next track.');
+                    playTrack((currentTrackIndex + 1) % playlist.length);
+                });
+
+                musicPlayer = player;
+                
+                fetch(track.path)
+                    .then(response => response.arrayBuffer())
+                    .then(arrayBuffer => {
                         if (playId !== currentPlayId) return;
 
-                        const activeNotesDict: { [key: number]: any } = {};
+                        // Convert to base64 for midi-player-js
+                        const bytes = new Uint8Array(arrayBuffer);
+                        let binary = '';
+                        const len = bytes.byteLength;
+                        for (let i = 0; i < len; i++) {
+                            binary += String.fromCharCode(bytes[i]);
+                        }
+                        const base64 = btoa(binary);
+                        const dataUri = `data:audio/midi;base64,${base64}`;
                         
-                        const player = new MidiPlayer.Player(function (event: any) {
-                            if (event.name === 'Note on' && event.velocity > 0) {
-                                console.log('Midi Note:', event.noteName, event.velocity);
-                                instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 4 });
-                                activeMidiNotes[event.noteNumber] = event.velocity;
-                                activeNotesDict[event.noteNumber] = true; // Track for Note off logic if needed
-                            } else if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
-                                // instrument handles decay usually
-                                // We rely on visual decay in draw loop
+                        player.loadDataUri(dataUri);
+                        
+                        if (ac.state === 'suspended') {
+                            if (musicControls) musicControls.style.display = 'none';
+                            if (autoplayMessage) {
+                                autoplayMessage.style.display = 'block';
+                                autoplayMessage.textContent = '▶️ Click to play';
                             }
-                        });
-
-                        player.on('end', function () {
-                            console.log('Midi file finished, playing next track.');
-                            playTrack((currentTrackIndex + 1) % playlist.length);
-                        });
-
-                        musicPlayer = player;
-                        
-                        fetch(track.path)
-                            .then(response => response.arrayBuffer())
-                            .then(arrayBuffer => {
-                                if (playId !== currentPlayId) return;
-
-                                // Convert to base64 for midi-player-js
-                                // Optimization: Use a loop instead of reduce for large files
-                                const bytes = new Uint8Array(arrayBuffer);
-                                let binary = '';
-                                const len = bytes.byteLength;
-                                // Chunking to avoid stack overflow if we used apply, 
-                                // but string concat is safer albeit slower than apply. 
-                                // However, for 10MB+ midis, this might still be heavy.
-                                // 4096 is a safe chunk size.
-                                for (let i = 0; i < len; i++) {
-                                    binary += String.fromCharCode(bytes[i]);
-                                }
-                                const base64 = btoa(binary);
-                                const dataUri = `data:audio/midi;base64,${base64}`;
-                                
-                                player.loadDataUri(dataUri);
-                                
-                                if (ac.state === 'suspended') {
-                                    if (musicControls) musicControls.style.display = 'none';
-                                    if (autoplayMessage) {
-                                        autoplayMessage.style.display = 'block';
-                                        autoplayMessage.textContent = '▶️ Click to play';
-                                    }
-                                } else {
-                                    player.play();
-                                }
-                                console.log(`Playing MIDI: ${track.name}`);
-                            });
+                        } else {
+                            player.play();
+                        }
+                        console.log(`Playing MIDI: ${track.name}`);
                     });
-                });
+            };
+
+            // Import libraries if needed
+            import('midi-player-js').then(({ default: MidiPlayer }) => {
+                if (playId !== currentPlayId) return;
+
+                if (cachedInstrument) {
+                    playWithInstrument(cachedInstrument, MidiPlayer);
+                } else {
+                    import('soundfont-player').then(({ default: Soundfont }) => {
+                        if (playId !== currentPlayId) return;
+                        
+                        Soundfont.instrument(ac, 'acoustic_grand_piano').then(function (instrument) {
+                            if (playId !== currentPlayId) return;
+                            cachedInstrument = instrument;
+                            playWithInstrument(instrument, MidiPlayer);
+                        });
+                    });
+                }
             });
         } else if (track.type === 'opus' || track.path.endsWith('.opus') || track.path.endsWith('.ogg')) {
             const ac = initAudioContext();

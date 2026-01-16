@@ -1762,7 +1762,15 @@ input:checked + .slider:before {
     color: var(--text-color);
     font-size: 1.2em;
     cursor: pointer;
-    margin: 0 5px;
+    margin: 0 2px;
+    line-height: 1;
+    vertical-align: middle;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
 }
 
 
