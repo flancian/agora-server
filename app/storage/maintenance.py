@@ -173,12 +173,12 @@ def deploy_cache(app):
 
     app.logger.info("Cache deployed.")
 
-def regenerate_expensive_queries(app):
+def regenerate_expensive_cache(app):
     """
-    Invalidates and regenerates expensive cached queries.
+    Regenerates expensive cached queries immediately.
     Must be called within an app context.
     """
-    app.logger.info("Regenerating expensive queries...")
+    app.logger.info("Regenerating expensive query cache...")
     db = get_db()
     if not db:
         app.logger.error("Could not get DB connection for query regeneration.")
@@ -228,23 +228,32 @@ def regenerate_expensive_queries(app):
 def run_full_reindex(app=None):
     """
     Main entry point for running a full re-index.
+    Acquires a lock to prevent concurrent runs.
     """
     if app is None:
         app = current_app._get_current_object()
         
     start_time = time.time()
-    try:
-        if build_cache(app):
-            deploy_cache(app)
-            # Update timestamp and regenerate queries inside an app context
-            with app.app_context():
+    
+    # We need to get the db engine from the app context to use locking
+    with app.app_context():
+        from app.storage import sqlite_engine
+        worker_id = f"worker-{os.getpid()}"
+        
+        if not sqlite_engine.try_acquire_lock(worker_id):
+            app.logger.warning("Could not acquire maintenance lock. Another worker is running.")
+            return
+
+        try:
+            if build_cache(app):
+                deploy_cache(app)
+                # Update timestamp and regenerate queries
                 update_last_index_time()
-                regenerate_expensive_queries(app)
-    except Exception as e:
-        app.logger.error(f"Maintenance re-index failed: {e}")
-        # We don't re-raise to ensure the worker keeps running if in a loop, 
-        # but here it's a script so maybe we should.
-        # For now, log and exit clean.
+                regenerate_expensive_cache(app)
+        except Exception as e:
+            app.logger.error(f"Maintenance re-index failed: {e}")
+        finally:
+            sqlite_engine.release_lock(worker_id)
         
     duration = time.time() - start_time
     app.logger.info(f"Full maintenance re-index finished in {duration:.2f} seconds.")

@@ -587,7 +587,7 @@ def search_subnodes_fts(query):
         # FTS5 standard query syntax allows phrases in quotes.
         # Let's try passing it as a phrase parameter.
         # SEARCH ALL COLUMNS (path + content) by targeting the table name.
-        cursor.execute("SELECT path FROM subnodes_fts WHERE subnodes_fts MATCH ? ORDER BY rank", (query,))
+        cursor.execute("SELECT DISTINCT path FROM subnodes_fts WHERE subnodes_fts MATCH ? ORDER BY rank", (query,))
         return [row[0] for row in cursor.fetchall()]
     except sqlite3.OperationalError as e:
         current_app.logger.error(f"SQLite FTS search error: {e}")

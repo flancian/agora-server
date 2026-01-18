@@ -28,65 +28,6 @@ from flask_cors import CORS
 
 # Import the new blueprint
 from app.exec import web
-from app.storage import maintenance
-
-def maintain_index(app, sqlite_engine):
-    # We skip this if we are running as the worker itself (AGORA_WORKER=true).
-    if os.environ.get('AGORA_WORKER'):
-        return
-
-    # Check at most once every 60 seconds
-    now = time.time()
-    if hasattr(app, 'last_index_check') and (now - app.last_index_check < 60):
-        return
-    
-    app.last_index_check = now
-
-    # Condition 1: DB is empty (Lazy Load needs this)
-    db_empty = app.config.get('ENABLE_LAZY_LOAD', False) and sqlite_engine.get_subnode_count() == 0
-    
-    # Condition 2: Index is stale (FTS needs this)
-    index_stale = False
-    if app.config.get('ENABLE_FTS', False):
-        last_index = sqlite_engine.get_last_index_time()
-        ttl = app.config.get('INDEX_TTL_SECONDS', 86400)
-        if now - last_index > ttl:
-            index_stale = True
-
-    if db_empty or index_stale:
-        reason = "empty" if db_empty else "stale"
-        app.logger.info(f"Maintenance: SQLite index is {reason}. Attempting to acquire lock for re-indexing...")
-        
-        worker_id = str(os.getpid())
-        
-        if sqlite_engine.try_acquire_lock(worker_id):
-            try:
-                app.logger.info("Lock acquired. Starting in-process maintenance re-index...")
-                maintenance.run_full_reindex(app)
-                app.logger.info("Maintenance re-index complete.")
-            except Exception as e:
-                app.logger.error(f"Maintenance failed: {e}")
-            finally:
-                sqlite_engine.release_lock(worker_id)
-        else:
-            # If we are lazy loading and DB is empty, we MUST wait.
-            if db_empty:
-                app.logger.info("Could not acquire lock. Another worker is indexing. Waiting...")
-                attempts = 0
-                while sqlite_engine.is_locked() and attempts < 60:
-                    time.sleep(1)
-                    attempts += 1
-                    if attempts % 5 == 0:
-                        app.logger.info(f"Still waiting for index build ({attempts}s)...")
-                
-                if attempts >= 60:
-                    app.logger.warning("Timed out waiting for index build.")
-                else:
-                    app.logger.info("Index build finished (lock released). Proceeding.")
-            else:
-                # If just stale, we don't wait.
-                app.logger.info("Could not acquire lock. Skipping stale index rebuild for now.")
-
 
 def create_app():
 
@@ -139,17 +80,6 @@ def create_app():
         app.teardown_appcontext(sqlite_engine.flush_index_queue)
     else:
         app.teardown_appcontext(sqlite_engine.close_db)
-
-    # Run check once on startup
-    with app.app_context():
-        maintain_index(app, sqlite_engine)
-
-    # Register before_request to run the check periodically
-    @app.before_request
-    def before_request_check():
-        maintain_index(app, sqlite_engine)
-
-
 
     # uWSGI-specific blocking cache warming.
     # This runs in each worker after it has been forked, but before it can accept requests.

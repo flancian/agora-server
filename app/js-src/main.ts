@@ -78,6 +78,53 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
+  // Event delegation for search fallback (force filesystem search).
+  document.body.addEventListener('click', async function(event) {
+    const target = event.target as HTMLElement;
+    if (target.classList.contains('force-fs-trigger')) {
+      event.preventDefault();
+      const qstr = target.getAttribute('data-qstr');
+      const container = target.closest('.search-flex');
+      
+      if (!qstr || !container) return;
+
+      console.log(`Forcing filesystem search for: ${qstr}`);
+      
+      // Show loading state
+      container.innerHTML = `
+        <div class="search-agora">
+          <center>
+            <p>
+              <div class="spinner">
+                <img src="/static/img/agora.png" class="logo"></img>
+              </div>
+            </p>
+            <p><em>Searching filesystem directly (slower)...</em></p>
+          </center>
+        </div>`;
+
+      try {
+        const response = await fetch(`${AGORAURL}/fullsearch/${encodeURIComponent(qstr)}?force_fs=True`);
+        const html = await response.text();
+        
+        // Create a temporary element to parse the new HTML
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        const newContent = temp.querySelector('.search-flex');
+        
+        if (newContent) {
+          container.replaceWith(newContent);
+        } else {
+          // Fallback if structure is slightly different (shouldn't happen with our template)
+          container.innerHTML = html;
+        }
+      } catch (error) {
+        console.error('Error during filesystem search:', error);
+        container.innerHTML = `<div class="info-box error"><p>Error searching filesystem: ${error}</p></div>`;
+      }
+    }
+  });
+
   // Observer to initialize stars on dynamically added subnodes.
   const starObserver = new MutationObserver((mutations) => {
       let needsUpdate = false;

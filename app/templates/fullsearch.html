@@ -17,6 +17,7 @@
 <div class="search-flex">
         <div class="search-agora">
 
+            {% if search %}
             <table style="width: 100%"">
                 <thead>
                     <th style="width: 30%">📚 Node</th>
@@ -33,6 +34,20 @@
                     {% endfor %}
                 </tbody>
             </table>
+            {% else %}
+            <div class="search-fallback info-box">
+                No results found in the Agora index for "{{qstr}}".
+                {% if ENABLE_FTS and not force_fs %}
+                <br><b>Note:</b> Full-text search is enabled, but the index might be incomplete. <a href="#" class="force-fs-trigger" data-qstr="{{qstr}}">Click here to search the filesystem directly (slower).</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if ENABLE_FTS and not force_fs and search %}
+            <div class="search-footer info-box with-spacing">
+                Showing results from the index. <a href="#" class="force-fs-trigger" data-qstr="{{qstr}}">Search the filesystem directly instead (slower).</a>
+            </div>
+            {% endif %}
 
         </div>
 </div>

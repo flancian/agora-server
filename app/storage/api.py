@@ -145,9 +145,9 @@ def subnodes_by_user(username, sort_by="mtime", mediatype=None, reverse=True):
     # For now, it remains file-based.
     return file_engine.subnodes_by_user(username, sort_by, mediatype, reverse)
 
-def search_subnodes(query):
+def search_subnodes(query, force_fs=False):
     # This is a perfect candidate for FTS in SQLite.
-    if _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
+    if not force_fs and _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
         start_time = time.time()
         paths = sqlite_engine.search_subnodes_fts(query)
         if paths:
