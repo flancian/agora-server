@@ -24,6 +24,7 @@ function pullUrl(button: HTMLButtonElement) {
     const iframe = document.createElement('iframe');
     iframe.className = 'stoa2-iframe';
     iframe.setAttribute('allow', 'camera; microphone; fullscreen; display-capture; autoplay');
+    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms allow-presentation');
     iframe.src = url;
     button.after(iframe);
 }
@@ -117,6 +118,8 @@ export function initPullButtons() {
 
     document.querySelectorAll(selectors.join(', ')).forEach((element: HTMLButtonElement) => {
         element.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
             const button = e.currentTarget as HTMLButtonElement;
 
             if (button.classList.contains('pulled')) {

@@ -701,6 +701,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const iframe = document.createElement('iframe');
         iframe.className = 'stoa2-iframe';
         iframe.setAttribute('allow', 'camera; microphone; fullscreen; display-capture; autoplay');
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms allow-presentation');
         iframe.src = url;
         this.after(iframe);
         this.innerText = 'fold';
