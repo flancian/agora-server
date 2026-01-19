@@ -1746,11 +1746,22 @@ document.addEventListener("DOMContentLoaded", async function () {
             let labelsVisible = true;
 
             const loadGraph = (size) => {
-
                 const url = size === 'all' ? '/graph/json/all' : `/graph/json/top/${size}`;
-
-                renderGraph('full-graph', url);
-
+                const spinner = document.getElementById('graph-loading');
+                if (spinner) spinner.style.display = 'flex';
+                
+                // Auto-toggle labels based on graph size
+                if (size === 'all' || parseInt(size) >= 500) {
+                    localStorage.setItem('graph-show-labels-full', 'false');
+                } else {
+                    localStorage.setItem('graph-show-labels-full', 'true');
+                }
+                
+                renderGraph('full-graph', url).then(() => {
+                    if (spinner) spinner.style.display = 'none';
+                }).catch(() => {
+                    if (spinner) spinner.style.display = 'none';
+                });
             };
 
             fullGraphDetails.addEventListener('toggle', () => {

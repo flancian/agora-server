@@ -25,7 +25,13 @@
         <span class="graph-size-tab" data-size="1000">Top 1000</span>
         <span class="graph-size-tab" data-size="all">All (might crash browser)</span>
     </summary>
-    <div id="full-graph-container" class="graph-container">
+    <div id="full-graph-container" class="graph-container" style="min-height: 500px; position: relative;">
+        <div id="graph-loading" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 10; background-color: var(--graph-bg); opacity: 0.9; flex-direction: column; justify-content: center; align-items: center;">
+            <div class="spinner" style="margin-bottom: 1rem;">
+                <img src="/static/img/agora.png" class="logo" width="64" height="64">
+            </div>
+            <div style="font-size: 1.2rem; font-weight: bold; color: var(--text-color);">Loading graph...</div>
+        </div>
         <div id="full-graph">
         </div>
         <button id="full-graph-toggle-labels" title="Toggle graph node labels on/off">🏷️ Toggle Labels</button>

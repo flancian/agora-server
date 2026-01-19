@@ -5,7 +5,7 @@ import { safeJsonParse, darkenColor } from './util';
 
 declare const NODENAME: string;
 
-export async function renderGraph(containerId: string, dataUrl: string) {
+export async function renderGraph(containerId: string, dataUrl: string, forceNoLabels: boolean = false) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -36,10 +36,14 @@ export async function renderGraph(containerId: string, dataUrl: string) {
     // Default to labels for per-node graph, no labels for full graph.
     const defaultShowLabels = containerId === 'graph';
     const storageKey = containerId === 'full-graph' ? 'graph-show-labels-full' : 'graph-show-labels';
-    const showLabels = safeJsonParse(localStorage.getItem(storageKey), defaultShowLabels);
+    let showLabels = safeJsonParse(localStorage.getItem(storageKey), defaultShowLabels);
+    
+    if (forceNoLabels) {
+        showLabels = false;
+    }
 
     console.log("loading graph...")
-    fetch(dataUrl)
+    return fetch(dataUrl)
     .then(res => res.json())
     .then(data => {
         setTimeout(() => {
