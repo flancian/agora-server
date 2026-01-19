@@ -35,17 +35,31 @@
                 </tbody>
             </table>
             {% else %}
-            <div class="search-fallback info-box">
-                No results found in the Agora index for "{{qstr}}".
-                {% if ENABLE_FTS and not force_fs %}
-                <br><b>Note:</b> Full-text search is enabled, but the index might be incomplete. <a href="#" class="force-fs-trigger" data-qstr="{{qstr}}">Click here to search the filesystem directly (slower).</a>
+            <div class="search-fallback" style="opacity: 0.8;">
+                <p>No results found in the Agora index for "{{qstr}}".</p>
+                {% if ENABLE_FTS %}
+                <small>
+                    {% if mode == 'exact' %}
+                    <b>Note:</b> Using the search index. <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="broad">Try a broader search (fuzzy matches)</a> or <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">search the filesystem directly (slower).</a>
+                    {% elif mode == 'broad' %}
+                    <b>Note:</b> Using the search index. <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">Search the filesystem directly (slower).</a>
+                    {% endif %}
+                </small>
                 {% endif %}
             </div>
             {% endif %}
 
-            {% if ENABLE_FTS and not force_fs and search %}
-            <div class="search-footer info-box with-spacing">
-                Showing results from the index. <a href="#" class="force-fs-trigger" data-qstr="{{qstr}}">Search the filesystem directly instead (slower).</a>
+            {% if ENABLE_FTS and search %}
+            <div class="search-footer" style="margin-top: 20px; opacity: 0.8;">
+                <small>
+                {% if mode == 'exact' %}
+                    Showing phrase matches from index. <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="broad">Try broad search (fuzzy).</a> | <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">Search filesystem (slower).</a>
+                {% elif mode == 'broad' %}
+                    Showing broad matches from index. <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="exact">Try phrase search.</a> | <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">Search filesystem (slower).</a>
+                {% elif mode == 'fs' %}
+                    Showing results from filesystem. <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="exact">Search index (faster).</a>
+                {% endif %}
+                </small>
             </div>
             {% endif %}
 

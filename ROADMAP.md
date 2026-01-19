@@ -115,6 +115,18 @@ This hybrid approach provides the best of both worlds: the data users are active
         3.  **Query:** When a user views a node, the Server queries this table for the "nearest neighbors" in vector space.
         4.  **Display:** These results are shown in a new "Related (Semantic)" section or merged into the existing "Related" list, creating a powerful discovery mechanism that acts as a compass through the knowledge graph.
 
+### Priority 6: Search Enhancements (FTS5 & Fuzzy Search)
+
+**Goal:** Improve the robustness of search by handling typos and partial matches more gracefully.
+
+-   **Trigram Indexing (SQLite FTS5):**
+    -   Switch the tokenizer from `porter` to `trigram`. This breaks words into 3-letter chunks, allowing the index to find "agora" even if the user types "agra" or "agoura".
+    -   *Trade-off:* Increases index size and build time slightly.
+-   **Spellfix1:**
+    -   Evaluate the `spellfix1` SQLite extension for explicit fuzzy matching and "Did you mean?" suggestions.
+-   **Hybrid Fallback:**
+    -   If an FTS query returns 0 results, fall back to a Python-based Levenshtein distance search (using `thefuzz`) on a candidate set of node titles. This provides a "last resort" match for highly misspelled queries.
+
 ### UI/UX Polish (Ongoing)
 
 -   **Musical Side Quests:** Continue development of the ambient music player and other atmospheric features.

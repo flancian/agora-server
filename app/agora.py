@@ -821,8 +821,15 @@ def pull(node):
 @bp.route("/fullsearch/<qstr>")
 def fullsearch(qstr):
     current_app.logger.debug(f"full text search for [[{qstr}]].")
-    force_fs = request.args.get("force_fs", False)
-    search_subnodes = api.search_subnodes(qstr, force_fs=force_fs)
+    
+    # mode: exact, broad, fs
+    mode = request.args.get("mode", "exact")
+    
+    # legacy param support
+    if request.args.get("force_fs") == "True":
+        mode = "fs"
+
+    search_subnodes = api.search_subnodes(qstr, mode=mode)
 
     return render_template(
         "fullsearch.html", 
@@ -830,7 +837,7 @@ def fullsearch(qstr):
         q=qstr, 
         node=qstr, 
         search=search_subnodes, 
-        force_fs=force_fs,
+        mode=mode,
         ENABLE_FTS=current_app.config.get('ENABLE_FTS', False)
     )
 

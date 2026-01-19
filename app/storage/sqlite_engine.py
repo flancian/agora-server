@@ -567,10 +567,11 @@ def flush_index_queue(e=None):
         close_db(e)
 
 
-def search_subnodes_fts(query):
+def search_subnodes_fts(query, mode='exact'):
     """
     Searches for subnodes containing the given query using FTS5.
     Returns a list of paths.
+    mode: 'exact' (phrase match) or 'broad' (stemmed AND match).
     """
     db = get_db()
     if not db:
@@ -584,10 +585,16 @@ def search_subnodes_fts(query):
         # We use the FTS MATCH operator.
         # We also need to sanitize the query to prevent syntax errors in FTS5 match expression.
         # Simple sanitization: remove non-alphanumeric chars except spaces, or just quote it.
-        # FTS5 standard query syntax allows phrases in quotes.
-        # Let's try passing it as a phrase parameter.
+        
+        match_query = query
+        if mode == 'exact':
+            # Enforce phrase match by wrapping in double quotes
+            # Escape existing double quotes to avoid syntax errors
+            safe_query = query.replace('"', '""')
+            match_query = f'"{safe_query}"'
+        
         # SEARCH ALL COLUMNS (path + content) by targeting the table name.
-        cursor.execute("SELECT DISTINCT path FROM subnodes_fts WHERE subnodes_fts MATCH ? ORDER BY rank", (query,))
+        cursor.execute("SELECT DISTINCT path FROM subnodes_fts WHERE subnodes_fts MATCH ? ORDER BY rank", (match_query,))
         return [row[0] for row in cursor.fetchall()]
     except sqlite3.OperationalError as e:
         current_app.logger.error(f"SQLite FTS search error: {e}")

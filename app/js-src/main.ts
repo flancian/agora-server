@@ -78,19 +78,25 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
-  // Event delegation for search fallback (force filesystem search).
+  // Event delegation for search mode toggle (exact vs broad vs fs).
   document.body.addEventListener('click', async function(event) {
     const target = event.target as HTMLElement;
-    if (target.classList.contains('force-fs-trigger')) {
+    if (target.classList.contains('search-mode-trigger')) {
       event.preventDefault();
       const qstr = target.getAttribute('data-qstr');
+      const mode = target.getAttribute('data-mode');
       const container = target.closest('.search-flex');
       
-      if (!qstr || !container) return;
+      if (!qstr || !mode || !container) return;
 
-      console.log(`Forcing filesystem search for: ${qstr}`);
+      console.log(`Toggling search mode for: ${qstr} (mode=${mode})`);
       
       // Show loading state
+      let loadingText = 'Searching...';
+      if (mode === 'exact') loadingText = 'Searching index (exact)...';
+      if (mode === 'broad') loadingText = 'Searching index (broad)...';
+      if (mode === 'fs') loadingText = 'Searching filesystem (slower)...';
+
       container.innerHTML = `
         <div class="search-agora">
           <center>
@@ -99,15 +105,15 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <img src="/static/img/agora.png" class="logo"></img>
               </div>
             </p>
-            <p><em>Searching filesystem directly (slower)...</em></p>
+            <p><em>${loadingText}</em></p>
           </center>
         </div>`;
 
       try {
-        const response = await fetch(`${AGORAURL}/fullsearch/${encodeURIComponent(qstr)}?force_fs=True`);
+        const url = `${AGORAURL}/fullsearch/${encodeURIComponent(qstr)}?mode=${mode}`;
+        const response = await fetch(url);
         const html = await response.text();
         
-        // Create a temporary element to parse the new HTML
         const temp = document.createElement('div');
         temp.innerHTML = html;
         const newContent = temp.querySelector('.search-flex');
@@ -115,12 +121,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (newContent) {
           container.replaceWith(newContent);
         } else {
-          // Fallback if structure is slightly different (shouldn't happen with our template)
           container.innerHTML = html;
         }
       } catch (error) {
-        console.error('Error during filesystem search:', error);
-        container.innerHTML = `<div class="info-box error"><p>Error searching filesystem: ${error}</p></div>`;
+        console.error('Error during search mode toggle:', error);
+        container.innerHTML = `<div class="info-box error"><p>Error toggling search mode: ${error}</p></div>`;
       }
     }
   });
