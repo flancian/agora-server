@@ -106,7 +106,20 @@ export async function renderGraph(containerId: string, dataUrl: string, forceNoL
                 .linkDirectionalParticleColor(() => palette.particle)
                 .linkColor(() => palette.edge);
 
-            Graph.zoom(3);
+            // Dynamic zoom based on graph density
+            const nodeCount = data.nodes.length;
+            let zoomLevel = 3;
+            
+            if (nodeCount > 1500) {
+                zoomLevel = 0.2; // Galaxy scale (All)
+            } else if (nodeCount > 800) {
+                zoomLevel = 0.8; // Birds-eye (Top 1000)
+            } else if (nodeCount > 400) {
+                zoomLevel = 1.5; // Mid-range (Top 500)
+            }
+            
+            Graph.zoom(zoomLevel);
+
             Graph.cooldownTime(cooldownTime);
             Graph.onEngineStop(() => Graph.zoomToFit(100));
         }, 0);
