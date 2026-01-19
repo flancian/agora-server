@@ -17,6 +17,13 @@
 <div class="search-flex">
         <div class="search-agora">
 
+            <div class="search-header" style="margin-bottom: 1em; margin-top: 1em;">
+                <span style="margin-right: 10px;"><strong>Search Mode:</strong></span>
+                <span class="search-mode-tab {% if mode == 'exact' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="exact" title="Find phrase matches using the index (fast)">Exact</span> • 
+                <span class="search-mode-tab {% if mode == 'broad' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="broad" title="Find any matches using the index (fast, fuzzy)">Fuzzy</span> • 
+                <span class="search-mode-tab {% if mode == 'fs' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="fs" title="Scan all files directly (slow, literal)">Literal</span>
+            </div>
+
             {% if search %}
             <table style="width: 100%"">
                 <thead>
@@ -36,34 +43,42 @@
             </table>
             {% else %}
             <div class="search-fallback" style="opacity: 0.8;">
-                <p>No results found in the Agora index for "{{qstr}}".</p>
-                {% if ENABLE_FTS %}
+                <p>No results found for "{{qstr}}" in <strong>{{mode}}</strong> mode.</p>
+                {% if ENABLE_FTS and mode != 'fs' %}
                 <small>
-                    {% if mode == 'exact' %}
-                    <b>Note:</b> Using the search index. <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="broad">Try a broader search (fuzzy matches)</a> or <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">search the filesystem directly (slower).</a>
-                    {% elif mode == 'broad' %}
-                    <b>Note:</b> Using the search index. <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">Search the filesystem directly (slower).</a>
-                    {% endif %}
+                    Try switching to <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">Filesystem mode</a> if you suspect the index is incomplete.
                 </small>
                 {% endif %}
-            </div>
-            {% endif %}
-
-            {% if ENABLE_FTS and search %}
-            <div class="search-footer" style="margin-top: 20px; opacity: 0.8;">
-                <small>
-                {% if mode == 'exact' %}
-                    Showing phrase matches from index. <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="broad">Try broad search (fuzzy).</a> | <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">Search filesystem (slower).</a>
-                {% elif mode == 'broad' %}
-                    Showing broad matches from index. <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="exact">Try phrase search.</a> | <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">Search filesystem (slower).</a>
-                {% elif mode == 'fs' %}
-                    Showing results from filesystem. <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="exact">Search index (faster).</a>
-                {% endif %}
-                </small>
             </div>
             {% endif %}
 
         </div>
 </div>
+
+<style>
+.search-mode-tab {
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.search-mode-tab:hover {
+    background-color: var(--tab-active-bg);
+    opacity: 1;
+}
+
+.search-mode-tab.active {
+    font-weight: bold;
+    background-color: var(--tab-active-bg);
+    color: var(--link-color);
+    opacity: 1;
+    border: 1px solid var(--border);
+    cursor: default;
+}
+</style>
 
 

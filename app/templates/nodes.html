@@ -17,13 +17,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<details id="full-graph-details" class="url node full-graph-details no-border">
+<details id="full-graph-details" class="url node full-graph-details no-border" open>
     <summary>
-        <span class="agoragraph"><strong>🕸️ Graph</strong></span>
-        <span class="graph-size-tab active" data-size="100">Top 100</span>
+        <span class="agoragraph"><strong>🕸️ Agora Graph (experimental)</strong></span>
+        <span class="graph-size-tab active" data-size="250">Top 250</span>
         <span class="graph-size-tab" data-size="500">Top 500</span>
-        <span class="graph-size-tab" data-size="2500">Top 2500</span>
-        <span class="graph-size-tab" data-size="all">All (experimental)</span>
+        <span class="graph-size-tab" data-size="1000">Top 1000</span>
+        <span class="graph-size-tab" data-size="all">All (might crash browser)</span>
     </summary>
     <div id="full-graph-container" class="graph-container">
         <div id="full-graph">

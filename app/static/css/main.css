@@ -1179,11 +1179,15 @@ table caption {
     border-radius: 3px;
 }
 
-.ai-provider-tab.active, .wiki-provider-tab.active, .web-provider-tab.active, ._graph-size-tab.active {
+.ai-provider-tab.active, .wiki-provider-tab.active, .web-provider-tab.active, .graph-size-tab.active {
     font-weight: bold;
     background-color: var(--tab-active-bg);
+    color: var(--link-color);
+    opacity: 1;
+    border: 1px solid var(--border);
     text-decoration: none;
     margin-right: 0.3em;
+    cursor: default;
 }
 
 .ai-generations-container {
@@ -1506,8 +1510,16 @@ input:checked + .slider:before {
 
 .ai-provider-tab, .wiki-provider-tab, .web-provider-tab, .graph-size-tab {
     cursor: pointer;
-    padding: 2px 5px;
-    border-radius: 3px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.ai-provider-tab:hover, .wiki-provider-tab:hover, .web-provider-tab:hover, .graph-size-tab:hover {
+    background-color: var(--tab-active-bg);
+    opacity: 1;
 }
 
 /* Pagination styles from nodes.html */
