@@ -1750,14 +1750,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                 const spinner = document.getElementById('graph-loading');
                 if (spinner) spinner.style.display = 'flex';
                 
-                // Auto-toggle labels based on graph size
-                if (size === 'all' || parseInt(size) >= 500) {
-                    localStorage.setItem('graph-show-labels-full', 'false');
-                } else {
-                    localStorage.setItem('graph-show-labels-full', 'true');
-                }
+                // Auto-disable labels for large graphs to improve performance without saving to localStorage
+                const forceNoLabels = (size === 'all' || parseInt(size) >= 500);
                 
-                renderGraph('full-graph', url).then(() => {
+                renderGraph('full-graph', url, forceNoLabels).then(() => {
                     if (spinner) spinner.style.display = 'none';
                 }).catch(() => {
                     if (spinner) spinner.style.display = 'none';
