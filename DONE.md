@@ -4,6 +4,42 @@ This file contains a log of development sessions, capturing key learnings, archi
 
 ---
 
+## Session Summary (Gemini, 2026-01-17/18)
+
+*This section documents a major overhaul of the Search and Indexing architecture, critical security patches, and significant UX improvements for the Graph view.*
+
+### Key Learnings & Codebase Insights
+
+-   **Indexing Architecture**: We identified that the in-app background thread for re-indexing was fragile and redundant. The system is much more robust when consolidated onto the external `worker.py` process, which now handles full re-indexing, FTS population, and cache warming with proper locking.
+-   **Hot Indexing**: The "Hot Indexing" logic (updating SQLite on-demand when a node is viewed) proved highly effective, ensuring near-instant freshness even without the worker running constantly.
+-   **FTS5 Nuances**: We learned that SQLite's FTS5 `porter` tokenizer stems words aggressively (e.g., matching "togetherness" for "together"), which is great for broad searches but confusing for users expecting exact matches. We implemented a multi-mode search (Exact/Fuzzy/Literal) to handle this.
+-   **Security**: We discovered a critical vulnerability where auto-pulled URLs could trigger redirects via frame-busting scripts or clickjacking if a pull button was rendered inside an anchor tag. Sandboxing iframes and preventing event propagation fixed this.
+
+### Summary of Changes Implemented
+
+1.  **Search & Indexing Overhaul**:
+    *   **FTS5 Default**: Enabled `ENABLE_FTS` by default across all environments.
+    *   **Three-Way Search UI**: Implemented a tabbed interface for "Exact" (phrase), "Fuzzy" (stemmed), and "Literal" (filesystem grep) search modes.
+    *   **Architecture**: Removed the in-app maintenance thread. Updated `worker.py` to handle locking and active cache warming for `/latest`, `/top`, etc.
+    *   **Deduplication**: Fixed duplicate search results by using `SELECT DISTINCT` in the FTS query.
+
+2.  **Security Patches**:
+    *   **Iframe Sandboxing**: Added `sandbox="allow-scripts ..."` to all auto-pulled iframes in `main.ts` and `pull.ts`, blocking top-level navigation redirects.
+    *   **Clickjacking Prevention**: Added `e.stopPropagation()` and `e.preventDefault()` to pull button click handlers to prevent clicks from bubbling up to parent anchor tags.
+
+3.  **Graph UX Polish**:
+    *   **Auto-Expansion**: The `/top` graph now expands by default.
+    *   **Smart Labels**: Labels automatically turn off for large graphs (>= 500 nodes) to improve performance, but remain on for smaller ones.
+    *   **Adaptive Zoom**: Implemented a 4-tier zoom profile (0.2x to 3.0x) based on node count, ensuring both massive "galaxy" graphs and small local graphs are legible.
+    *   **Loading State**: Added a full-overlay loading spinner with a large logo to indicate background processing.
+
+### Architecture References
+
+-   **`worker.py`**: Now the single source of truth for background maintenance.
+-   **`app/storage/maintenance.py`**: Contains the core logic for re-indexing, locking, and cache warming.
+
+---
+
 ## Session Summary (Gemini, 2025-12-12/14)
 
 *This section documents the implementation of the Self-Service Signup flow and the Fediverse Content Broadcasting loop.*
