@@ -1408,13 +1408,15 @@ def music_tracks():
             if f.endswith('.mid'):
                 artist, title = parse_track_info(f)
                 full_path = os.path.join(mid_dir, f)
-                tracks.append({
-                    'name': title,
-                    'path': url_for('static', filename=f'mid/{f}'),
-                    'type': 'mid',
-                    'artist': artist,
-                    'size': os.path.getsize(full_path)
-                })
+                size = os.path.getsize(full_path)
+                if size > 0:
+                    tracks.append({
+                        'name': title,
+                        'path': url_for('static', filename=f'mid/{f}'),
+                        'type': 'mid',
+                        'artist': artist,
+                        'size': size
+                    })
     
     # Opus
     opus_dir = os.path.join(current_app.static_folder, 'opus')
@@ -1423,13 +1425,15 @@ def music_tracks():
             if f.endswith('.opus') or f.endswith('.ogg'):
                  artist, title = parse_track_info(f)
                  full_path = os.path.join(opus_dir, f)
-                 tracks.append({
-                    'name': title,
-                    'path': url_for('static', filename=f'opus/{f}'),
-                    'type': 'opus',
-                    'artist': artist,
-                    'size': os.path.getsize(full_path)
-                })
+                 size = os.path.getsize(full_path)
+                 if size > 0:
+                     tracks.append({
+                        'name': title,
+                        'path': url_for('static', filename=f'opus/{f}'),
+                        'type': 'opus',
+                        'artist': artist,
+                        'size': size
+                    })
                 
     response = jsonify(tracks)
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'

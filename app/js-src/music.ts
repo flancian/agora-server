@@ -161,6 +161,9 @@ export function initMusicPlayer() {
             musicPlayer = null; 
         }
         if (opusPlayer) {
+            // prevent triggering events during reset
+            opusPlayer.onended = null;
+            opusPlayer.onerror = null;
             opusPlayer.pause();
             opusPlayer.src = "";
             // We keep the element but reset source
@@ -386,6 +389,11 @@ export function initMusicPlayer() {
 
                         // Convert to base64 for midi-player-js
                         const bytes = new Uint8Array(arrayBuffer);
+                        if (bytes.length === 0) {
+                            console.warn(`MIDI file ${track.name} is empty, skipping.`);
+                            playTrack((currentTrackIndex + 1) % playlist.length);
+                            return;
+                        }
                         let binary = '';
                         const len = bytes.byteLength;
                         for (let i = 0; i < len; i++) {
@@ -395,6 +403,12 @@ export function initMusicPlayer() {
                         const dataUri = `data:audio/midi;base64,${base64}`;
                         
                         player.loadDataUri(dataUri);
+
+                        if (player.getSongTime() <= 0) {
+                            console.warn(`MIDI track ${track.name} has 0 duration, skipping.`);
+                            playTrack((currentTrackIndex + 1) % playlist.length);
+                            return;
+                        }
                         
                         if (ac.state === 'suspended') {
                             if (musicControls) musicControls.style.display = 'none';
@@ -467,6 +481,10 @@ export function initMusicPlayer() {
             
             opusPlayer.onended = () => {
                 console.log('Opus file finished, playing next track.');
+                playTrack((currentTrackIndex + 1) % playlist.length);
+            };
+            opusPlayer.onerror = () => {
+                console.error(`Error loading Opus track ${track.name}, skipping.`);
                 playTrack((currentTrackIndex + 1) % playlist.length);
             };
             console.log(`Playing Opus: ${track.name}`);
