@@ -866,6 +866,8 @@ class Subnode:
         self.garden_relative: str = path_to_garden_relative(path, agora_path)
         self.url = "/subnode/" + self.uri
         self.basename: str = path_to_basename(path)
+        
+        self.git_mtime = None
 
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
@@ -934,11 +936,27 @@ class Subnode:
     def get_display_mtime(self):
         """
         Returns the most accurate modification time for display.
-        If USE_GIT_MTIME is enabled, it fetches the commit time (slow).
-        Otherwise, it returns the cached filesystem mtime (fast).
+        Prioritizes cached git timestamp, then DB, then lazy git lookup, then filesystem.
         """
+        # 1. Already cached in object
+        if self.git_mtime:
+            return (self.git_mtime, 'git')
+
+        # 2. Check DB
+        if _is_sqlite_enabled():
+            db_mtime = sqlite_engine.get_git_mtime(self.uri)
+            if db_mtime:
+                self.git_mtime = db_mtime
+                return (db_mtime, 'git')
+
+        # 3. Lazy fallback (if enabled)
         if current_app.config.get('USE_GIT_MTIME', False):
-            return git_utils.get_mtime(self.path)
+            current_app.logger.debug(f"Git Mtime: Cache miss for {self.uri}, performing lazy lookup.")
+            mtime, source = git_utils.get_mtime(self.path)
+            if source == 'git':
+                self.git_mtime = mtime
+            return (mtime, source)
+            
         return (self.mtime, 'fs')
 
     def __repr__(self):

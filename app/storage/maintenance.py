@@ -249,6 +249,11 @@ def run_full_reindex(app=None):
                 deploy_cache(app)
                 # Update timestamp and regenerate queries
                 update_last_index_time()
+                
+                # Update git mtimes (new!)
+                db = sqlite_engine.get_db()
+                git_utils.update_git_mtimes_batch(app.config['AGORA_PATH'], db)
+                
                 regenerate_expensive_cache(app)
         except Exception as e:
             app.logger.error(f"Maintenance re-index failed: {e}")

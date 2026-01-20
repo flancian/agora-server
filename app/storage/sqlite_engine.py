@@ -437,6 +437,22 @@ def get_subnode_mtime(path):
     result = cursor.fetchone()
     return result[0] if result else None
 
+def get_git_mtime(path):
+    """
+    Retrieves the cached git commit time for a given subnode path.
+    """
+    db = get_db()
+    if not db:
+        return None
+    
+    cursor = db.cursor()
+    try:
+        cursor.execute("SELECT git_mtime FROM subnodes WHERE path = ?", (path,))
+        result = cursor.fetchone()
+        return result[0] if result else None
+    except sqlite3.OperationalError:
+        return None
+
 def update_subnode(path, user, node, mtime, links):
     """
     Updates or inserts a subnode and its associated links in the index.

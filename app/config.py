@@ -145,7 +145,7 @@ class DefaultConfig(object):
     # If True, G.node(uri) fetches from DB on demand (low RAM, high latency).
     # If False, G.nodes() loads full graph into RAM at startup (high RAM, zero latency).
     ENABLE_LAZY_LOAD = False
-    USE_GIT_MTIME = False
+    USE_GIT_MTIME = True
     
     # SQLite Full-Text Search (FTS5). Requires ENABLE_SQLITE = True.
     # Adds full content indexing to agora.db for sub-second search.
@@ -245,6 +245,7 @@ class ProductionConfig(DefaultConfig):
     ENABLE_SQLITE = True
     ENABLE_FTS = True
     ENABLE_FLUSH_CACHE_BUTTON = True
+    USE_GIT_MTIME = True
 
 
 class AlphaConfig(DefaultConfig):
@@ -268,6 +269,7 @@ class AlphaConfig(DefaultConfig):
     ENABLE_SQLITE = True
     ENABLE_FTS = True
     ENABLE_DEMO = True
+    USE_GIT_MTIME = True
 
 
 class DevelopmentConfig(DefaultConfig):

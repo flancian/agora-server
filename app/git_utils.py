@@ -143,3 +143,112 @@ def get_latest_changes_per_repo(agora_path, logger, max_commits=20, max_files_pe
 
     logger.info(f"Finished on-demand scan. Found changes for {len(sorted_users)} users.")
     return sorted_users
+
+def update_git_mtimes_batch(agora_path, db):
+    """
+    Efficiently updates git_mtime for all files in all repos.
+    Uses 'git log' streaming to find the last commit time for every file.
+    """
+    if not db:
+        return
+
+    start_time = time.time()
+    repos = discover_repos(agora_path)
+    updates_count = 0
+    
+    # Pre-fetch existing repo states
+    cursor = db.cursor()
+    try:
+        cursor.execute("SELECT repo_path, last_commit_hash FROM git_repo_state")
+        repo_states = dict(cursor.fetchall())
+    except sqlite3.OperationalError:
+        # Table might not exist yet
+        repo_states = {}
+
+    for repo_path in repos:
+        try:
+            # Check HEAD
+            head_rev = subprocess.check_output(
+                ['git', 'rev-parse', 'HEAD'], 
+                cwd=repo_path, 
+                stderr=subprocess.DEVNULL
+            ).strip().decode('utf-8')
+            
+            if repo_states.get(repo_path) == head_rev:
+                # Repo unchanged, skip
+                continue
+                
+            current_app.logger.info(f"Scanning repo {os.path.basename(repo_path)} for git mtimes...")
+            
+            # Get list of tracked files
+            tracked_files = set(subprocess.check_output(
+                ['git', 'ls-files'], 
+                cwd=repo_path
+            ).strip().decode('utf-8').splitlines())
+            
+            if not tracked_files:
+                continue
+
+            file_mtimes = {}
+            
+            # Stream log: "COMMIT <timestamp>" followed by file paths
+            # We use --format="COMMIT %ct" to mark commits clearly
+            proc = subprocess.Popen(
+                ['git', 'log', '--name-only', '--format=COMMIT %ct'],
+                cwd=repo_path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+                errors='replace' # Handle encoding issues safely
+            )
+            
+            current_ts = 0
+            found_count = 0
+            target_count = len(tracked_files)
+            
+            # Process stream
+            if proc.stdout:
+                for line in proc.stdout:
+                    line = line.strip()
+                    if not line:
+                        continue
+                        
+                    if line.startswith('COMMIT '):
+                        current_ts = int(line.split(' ')[1])
+                    else:
+                        # It's a file path
+                        if line in tracked_files and line not in file_mtimes:
+                            file_mtimes[line] = current_ts
+                            found_count += 1
+                            
+                    # Optimization: Stop if we found mtimes for all current files
+                    if found_count >= target_count:
+                        proc.terminate()
+                        break
+            
+            # Prepare DB updates
+            db_updates = []
+            for file_rel, mtime in file_mtimes.items():
+                # We need the path relative to AGORA_PATH for the DB key
+                abs_path = os.path.join(repo_path, file_rel)
+                db_key = util.path_to_uri(abs_path, agora_path)
+                db_updates.append((mtime, db_key))
+            
+            # Batch update subnodes
+            with db:
+                db.executemany("UPDATE subnodes SET git_mtime = ? WHERE path = ?", db_updates)
+                # Update repo state
+                db.execute(
+                    "INSERT OR REPLACE INTO git_repo_state (repo_path, last_commit_hash) VALUES (?, ?)",
+                    (repo_path, head_rev)
+                )
+                
+            updates_count += len(db_updates)
+
+        except Exception as e:
+            current_app.logger.warning(f"Error processing repo {repo_path}: {e}")
+            continue
+
+    duration = time.time() - start_time
+    if updates_count > 0:
+        current_app.logger.info(f"Updated git_mtimes for {updates_count} files in {duration:.2f}s.")
