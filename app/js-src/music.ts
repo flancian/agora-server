@@ -9,6 +9,7 @@ export function initMusicPlayer() {
     const prevButton = document.getElementById('music-player-prev');
     const pauseButton = document.getElementById('music-player-pause');
     const nextButton = document.getElementById('music-player-next');
+    const starButton = document.getElementById('music-player-star-btn');
     const playlistToggle = document.getElementById('music-player-list-toggle');
     const playlistContainer = document.getElementById('music-player-playlist');
     const trackInfo = document.getElementById('track-info');
@@ -28,6 +29,7 @@ export function initMusicPlayer() {
     let currentTrackIndex = 0;
     let isPaused = false;
     let playlist: any[] = [];
+    let starredTracks: Set<string> = new Set();
     let lastTimeString = "";
     
     // Concurrency control
@@ -51,6 +53,86 @@ export function initMusicPlayer() {
         }
         return array;
     };
+
+    const fetchStarredTracks = () => {
+        fetch('/api/starred_external_urls')
+            .then(res => res.json())
+            .then((urls: string[]) => {
+                starredTracks = new Set(urls);
+                // Update current track button if playing
+                if (playlist.length > 0) {
+                    const track = playlist[currentTrackIndex];
+                    updateStarButton(track);
+                }
+            })
+            .catch(err => console.error("Error fetching starred tracks:", err));
+    };
+
+    const updateStarButton = (track: any) => {
+        if (!starButton) return;
+        // Construct full URL if needed, but the API returns what we stored.
+        // tracks API returns relative path usually e.g. /static/mid/...
+        // We probably stored the full URL or relative? star_external takes URL.
+        // Let's assume we store the relative path for internal tracks or full for external.
+        // Ideally we resolve to full URL.
+        const url = new URL(track.path, window.location.origin).href;
+        
+        if (starredTracks.has(url)) {
+            starButton.textContent = '★';
+            starButton.title = "Unstar this track";
+            starButton.classList.add('starred');
+        } else {
+            starButton.textContent = '☆';
+            starButton.title = "Star this track";
+            starButton.classList.remove('starred');
+        }
+    };
+
+    const toggleStar = async () => {
+        if (!playlist.length) return;
+        const track = playlist[currentTrackIndex];
+        const url = new URL(track.path, window.location.origin).href;
+        
+        if (starredTracks.has(url)) {
+            // Unstar
+            try {
+                const res = await fetch('/api/unstar_external', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                if (res.ok) {
+                    starredTracks.delete(url);
+                    updateStarButton(track);
+                }
+            } catch (e) {
+                console.error("Error unstarring:", e);
+            }
+        } else {
+            // Star
+            try {
+                const res = await fetch('/api/star_external', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        url,
+                        title: track.name,
+                        source: 'Music Player' // or 'Agora Music'
+                    })
+                });
+                if (res.ok) {
+                    starredTracks.add(url);
+                    updateStarButton(track);
+                }
+            } catch (e) {
+                console.error("Error starring:", e);
+            }
+        }
+    };
+
+    if (starButton) {
+        starButton.addEventListener('click', toggleStar);
+    }
 
     // Initialize AudioContext if needed
     const initAudioContext = () => {
@@ -242,6 +324,8 @@ export function initMusicPlayer() {
         if (trackNameSpan) trackNameSpan.textContent = track.name;
         // Link to the Node (wikilink) instead of User profile
         if (artistNameSpan) artistNameSpan.innerHTML = track.artist ? `by <a href="/${track.artist.replace('@','')}" target="_blank">${track.artist}</a>` : '';
+        
+        updateStarButton(track);
 
         // Check for overflow and apply marquee
         if (trackInfoContent) {
@@ -504,6 +588,7 @@ export function initMusicPlayer() {
     };
 
     if (musicCheckboxes.length > 0) {
+        fetchStarredTracks();
         const isMusicActive = JSON.parse(localStorage.getItem("ambient-music-active") || 'false');
         // If active on load, fetch playlist and start
         if (isMusicActive) {
