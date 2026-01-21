@@ -74,7 +74,8 @@ def build_cache(app):
                     path TEXT PRIMARY KEY,
                     user TEXT NOT NULL,
                     node TEXT NOT NULL,
-                    mtime INTEGER NOT NULL
+                    mtime INTEGER NOT NULL,
+                    git_mtime INTEGER
                 )
             """)
             db.execute(f"""
