@@ -246,5 +246,17 @@ def stats():
 def subnodes_by_outlink(node):
     return file_engine.subnodes_by_outlink(node)
 
+def nodes_by_outlink(node):
+    if _is_sqlite_enabled():
+        # TODO: Implement full caching for this if needed.
+        # For now, we can try to use the SQLite index if it's a simple backlink lookup.
+        # But file_engine.nodes_by_outlink does complex logic with G.nodes().
+        # Let's stick to file_engine for correctness for now, or use sqlite_engine.get_backlinking_nodes?
+        # get_backlinking_nodes returns URIs, not Node objects.
+        # The file_engine version returns Node objects.
+        # Let's stick to file_engine to be safe and consistent with the object type expected.
+        pass
+    return file_engine.nodes_by_outlink(node)
+
 def user_journals(username):
     return file_engine.user_journals(username)

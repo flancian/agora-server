@@ -150,6 +150,9 @@ class DefaultConfig(object):
     # SQLite Full-Text Search (FTS5). Requires ENABLE_SQLITE = True.
     # Adds full content indexing to agora.db for sub-second search.
     ENABLE_FTS = False
+    
+    # AI Synthesis of node content.
+    ENABLE_SYNTHESIS = False
 
     # ActivityPub settings
     ACTIVITYPUB_SEND_WELCOME_PACKAGE = True
@@ -243,7 +246,7 @@ class ProductionConfig(DefaultConfig):
     # This seems to work great but I haven't tested it beyond AlphaConfig (which is what we run in anagora.org as of [[2025]]), so leaving it set to False for now.
     # This keeps the Agora completely file-based and able to run in a read-only filesystem. Setting it to True if the Agora can't write should still work but default to file-based.
     ENABLE_SQLITE = True
-    ENABLE_FTS = True
+    ENABLE_FTS = False
     ENABLE_FLUSH_CACHE_BUTTON = True
     USE_GIT_MTIME = True
 
@@ -267,7 +270,7 @@ class AlphaConfig(DefaultConfig):
 
     # Finally took place early on 2025-08-29. Requires a writeable filesystem.
     ENABLE_SQLITE = True
-    ENABLE_FTS = True
+    ENABLE_FTS = False
     ENABLE_DEMO = True
     USE_GIT_MTIME = True
 
@@ -289,7 +292,8 @@ class DevelopmentConfig(DefaultConfig):
     ENABLE_ORGORA = False
     ENABLE_HYPOTHESIS = True
     ENABLE_SQLITE = True
-    ENABLE_FTS = True
+    ENABLE_FTS = False
+    ENABLE_SYNTHESIS = True
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = True
@@ -316,6 +320,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_HYPOTHESIS = True
     ENABLE_SQLITE = True
     ENABLE_FTS = True
+    ENABLE_SYNTHESIS = True
     ENABLE_LAZY_LOAD = False
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)

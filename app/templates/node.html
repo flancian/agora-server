@@ -54,6 +54,20 @@
     
         </div>
 
+        {% if config.ENABLE_SYNTHESIS and not rendering_user and node.subnodes %}
+        <div id="synthesis-container" class="synthesis-container with-spacing">
+            <details id="synthesis-details">
+                <summary class="synthesis-header">
+                    <span>✨ Synthesis</span>
+                    <button id="synthesis-button" class="synthesis-button" data-node-uri="{{ node.uri }}">Synthesize</button>
+                </summary>
+                <div id="synthesis-content" class="synthesis-content">
+                    <p><em>Click the button to generate an AI synthesis of the contributions in this node.</em></p>
+                </div>
+            </details>
+        </div>
+        {% endif %}
+
        {% for subnode in node.subnodes %}
 
             {% if subnode.virtual %}

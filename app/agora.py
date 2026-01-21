@@ -1336,6 +1336,57 @@ def gemini_complete_route(prompt):
         full_prompt = "The prompt for this cached response is not available, but the query was:" + prompt
     return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
 
+@bp.route("/api/synthesize/<path:node_name>")
+def synthesize(node_name):
+    if not current_app.config.get("ENABLE_SYNTHESIS"):
+        return jsonify({'error': 'Synthesis is not enabled in this Agora.'}), 403
+
+    n = api.build_node(node_name)
+    if not n or not n.subnodes:
+        return jsonify({'error': 'Node not found or has no content to synthesize.'}), 404
+
+    # 1. Gather context from Backlinks (Nodes that link to this one)
+    backlinking_nodes = api.nodes_by_outlink(node_name)
+    backlinks_str = ""
+    if backlinking_nodes:
+        backlinks_list = [f"[[{node.uri}]]" for node in backlinking_nodes[:20]]
+        backlinks_str = "This node is referenced by the following other nodes: " + ", ".join(backlinks_list)
+
+    # 2. Aggregate content from subnodes. 
+    # Increased limit to 50 subnodes to capture more perspectives.
+    max_subnodes = 50
+    max_chars_per_subnode = 2000
+    aggregated_content = []
+
+    for s in n.subnodes[:max_subnodes]:
+        # Ensure content is loaded
+        if not hasattr(s, 'content') or not s.content:
+             if hasattr(s, 'load_text_subnode'):
+                  s.load_text_subnode()
+        
+        if hasattr(s, 'content') and s.content:
+            content_str = s.content.decode('utf-8', 'replace') if isinstance(s.content, bytes) else s.content
+            aggregated_content.append(f"--- Contribution by @{s.user} ---\n{content_str[:max_chars_per_subnode]}")
+
+    if not aggregated_content:
+        return jsonify({'error': 'Could not extract text content from subnodes.'}), 400
+
+    full_content = "\n\n".join(aggregated_content)
+    
+    prompt = (
+        f"Context: {backlinks_str}\n\n"
+        f"The following are various contributions to the topic [[{node_name}]] in a Knowledge Commons called the Agora.\n\n"
+        f"{full_content}\n\n"
+        "Please provide a concise synthesis of these contributions. "
+        "Highlight common themes, interesting differences in perspective, and key insights. "
+        "Use the provided context (backlinks) to understand how this topic fits into the broader Agora if relevant. "
+        "Try to maintain the spirit of collaborative knowledge building. "
+        "Surround interesting concepts with [[double square brackets]] to create wikilinks."
+    )
+
+    _, answer = gemini_complete(prompt)
+    return jsonify({'synthesis': render.markdown(answer)})
+
 @bp.route("/api/meditate_on/<path:node_name>")
 def meditate_on(node_name):
     prompt = (

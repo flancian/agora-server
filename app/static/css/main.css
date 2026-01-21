@@ -706,6 +706,66 @@ summary {
     border: 1px dashed var(--border);
 }
 
+/* Synthesis Styles */
+.synthesis-container {
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: var(--subnode-bg);
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.synthesis-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    cursor: pointer;
+    list-style: none; /* Hide default arrow */
+}
+
+.synthesis-header::-webkit-details-marker {
+    display: none; /* Hide default arrow in Chrome/Safari */
+}
+
+.synthesis-button {
+    background-color: var(--button-bg);
+    color: var(--button-text-color);
+    border: 1px solid var(--button-border-color);
+    border-radius: 4px;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: filter 0.2s;
+}
+
+.synthesis-button:hover {
+    filter: brightness(1.2);
+}
+
+.synthesis-button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.synthesis-content {
+    margin-top: 1rem;
+    line-height: 1.6;
+}
+
+.synthesis-footer {
+    font-size: 0.8rem;
+    color: var(--agora-protocol-text);
+    margin-top: 1rem;
+}
+
+.synthesis-footer hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 10px 0;
+}
+
 .intro, #footer {
     background: var(--intro-footer-bg);
     padding: 7px;
