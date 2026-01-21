@@ -148,28 +148,44 @@ def deploy_cache(app):
     links_new_table = "links_new"
     subnodes_fts_new_table = "subnodes_fts_new"
 
-    with closing(sqlite3.connect(db_path)) as db:
-        with db: # Transaction
-            app.logger.info("Swapping tables...")
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            with closing(sqlite3.connect(db_path)) as db:
+                # Set a busy timeout to wait for locks
+                db.execute("PRAGMA busy_timeout = 5000")
+                with db: # Transaction
+                    app.logger.info(f"Swapping tables (attempt {attempt+1})...")
+                    
+                    # Subnodes
+                    db.execute(f"DROP TABLE IF EXISTS {subnodes_table}")
+                    if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{subnodes_table}'").fetchone():
+                         raise RuntimeError(f"Failed to drop {subnodes_table}")
+                    db.execute(f"ALTER TABLE {subnodes_new_table} RENAME TO {subnodes_table}")
+                    
+                    # Links
+                    db.execute(f"DROP TABLE IF EXISTS {links_table}")
+                    if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{links_table}'").fetchone():
+                         raise RuntimeError(f"Failed to drop {links_table}")
+                    db.execute(f"ALTER TABLE {links_new_table} RENAME TO {links_table}")
+                    
+                    # FTS
+                    if app.config.get('ENABLE_FTS', False):
+                        db.execute(f"DROP TABLE IF EXISTS {subnodes_fts_table}")
+                        if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{subnodes_fts_table}'").fetchone():
+                             raise RuntimeError(f"Failed to drop {subnodes_fts_table}")
+                        db.execute(f"ALTER TABLE {subnodes_fts_new_table} RENAME TO {subnodes_fts_table}")
             
-            # Subnodes
-            db.execute(f"DROP TABLE IF EXISTS {subnodes_table}")
-            if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{subnodes_table}'").fetchone():
-                 raise RuntimeError(f"Failed to drop {subnodes_table}")
-            db.execute(f"ALTER TABLE {subnodes_new_table} RENAME TO {subnodes_table}")
+            # If we get here, success
+            break
             
-            # Links
-            db.execute(f"DROP TABLE IF EXISTS {links_table}")
-            if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{links_table}'").fetchone():
-                 raise RuntimeError(f"Failed to drop {links_table}")
-            db.execute(f"ALTER TABLE {links_new_table} RENAME TO {links_table}")
-            
-            # FTS
-            if app.config.get('ENABLE_FTS', False):
-                db.execute(f"DROP TABLE IF EXISTS {subnodes_fts_table}")
-                if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{subnodes_fts_table}'").fetchone():
-                     raise RuntimeError(f"Failed to drop {subnodes_fts_table}")
-                db.execute(f"ALTER TABLE {subnodes_fts_new_table} RENAME TO {subnodes_fts_table}")
+        except (RuntimeError, sqlite3.OperationalError) as e:
+            if attempt < max_retries - 1:
+                app.logger.warning(f"Swap failed due to lock/error: {e}. Retrying in 1s...")
+                time.sleep(1)
+            else:
+                app.logger.error(f"Swap failed after {max_retries} attempts.")
+                raise e
 
     app.logger.info("Cache deployed.")
 

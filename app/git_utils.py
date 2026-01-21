@@ -252,3 +252,5 @@ def update_git_mtimes_batch(agora_path, db):
     duration = time.time() - start_time
     if updates_count > 0:
         current_app.logger.info(f"Updated git_mtimes for {updates_count} files in {duration:.2f}s.")
+    else:
+        current_app.logger.info(f"No git repo changes detected in {duration:.2f}s.")
