@@ -1377,11 +1377,15 @@ def synthesize(node_name):
         f"Context: {backlinks_str}\n\n"
         f"The following are various contributions to the topic [[{node_name}]] in a Knowledge Commons called the Agora.\n\n"
         f"{full_content}\n\n"
-        "Please provide a concise synthesis of these contributions. "
-        "Highlight common themes, interesting differences in perspective, and key insights. "
-        "Use the provided context (backlinks) to understand how this topic fits into the broader Agora if relevant. "
-        "Try to maintain the spirit of collaborative knowledge building. "
-        "Surround interesting concepts with [[double square brackets]] to create wikilinks."
+        "Please provide a structured synthesis of this location using the following sections:\n"
+        "1. **Summary**: A very brief overview of what this Agora location is about.\n"
+        "2. **Contributions**: Describe the key points made by users, explicitly naming them (e.g. '@user says...'). Give top billing to distinct perspectives.\n"
+        "3. **Context**: Describe how this node fits into the broader Agora, referencing the provided backlinks if available.\n\n"
+        "**Constraints**:\n"
+        "- Use Markdown headers (###) for sections.\n"
+        "- Keep it concise: the entire synthesis should be under 200 words unless the content is extensive.\n"
+        "- If the content is sparse, keep the summary very short (1-2 sentences).\n"
+        "- Surround interesting concepts with [[double square brackets]] to create wikilinks."
     )
 
     _, answer = gemini_complete(prompt)
