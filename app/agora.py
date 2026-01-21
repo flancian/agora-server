@@ -1378,7 +1378,7 @@ def synthesize(node_name):
         f"The following are various contributions to the topic [[{node_name}]] in a Knowledge Commons called the Agora.\n\n"
         f"{full_content}\n\n"
         "Please provide a structured synthesis of this location using the following sections:\n"
-        "1. **Summary**: A brief overview of the topic and the key points made by users. Explicitly name contributors (e.g. '@user says...') and give top billing to distinct perspectives.\n"
+        "1. **Summary**: A brief overview of the topic. Then, use a bulleted list to describe the key points made by specific users (e.g. '- @user argues that...'). Give top billing to distinct perspectives.\n"
         "2. **Context**: Describe how this node fits into the broader Agora, referencing the provided backlinks if available.\n\n"
         "**Constraints**:\n"
         "- Use Markdown headers (###) for sections.\n"
