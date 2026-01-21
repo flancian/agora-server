@@ -268,8 +268,11 @@ def run_full_reindex(app=None):
                 update_last_index_time()
                 
                 # Update git mtimes (new!)
-                db = sqlite_engine.get_db()
-                git_utils.update_git_mtimes_batch(app.config['AGORA_PATH'], db)
+                if app.config.get('USE_GIT_MTIME', False):
+                    db = sqlite_engine.get_db()
+                    git_utils.update_git_mtimes_batch(app.config['AGORA_PATH'], db)
+                else:
+                    app.logger.info("Git mtime update skipped (USE_GIT_MTIME=False).")
                 
                 regenerate_expensive_cache(app)
         except Exception as e:
