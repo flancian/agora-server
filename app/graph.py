@@ -1281,11 +1281,19 @@ class VirtualSubnode(Subnode):
         else:
              self.forward_links = content_to_forward_links(self.content)
 
-        self.mtime = source_subnode.mtime
+        # Virtual subnodes are generated on the fly, so their mtime is now.
+        self.mtime = time.time()
         self.datetime = datetime.datetime.fromtimestamp(self.mtime).replace(
             microsecond=0
         )
+        # Explicitly None so get_display_mtime uses the fresh self.mtime
         self.node = self.canonical_wikilink
+
+    def get_display_mtime(self):
+        """
+        Virtual subnodes are generated on the fly, so we always return their instantiation time.
+        """
+        return (self.mtime, 'virtual')
 
     # We special case go for Virtual Subnodes as they're 'precooked', that is, content is html.
     # We could fix the special casing / at least use media types?
