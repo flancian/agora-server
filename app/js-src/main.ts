@@ -46,7 +46,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (key && key.startsWith('dismissed-')) {
             if (localStorage.getItem(key) === 'true') {
                 const infoBoxId = key.substring('dismissed-'.length);
-                const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
+                // Look for any div with this ID, not just .info-box
+                const infoBox = document.querySelector(`div[info-box-id="${infoBoxId}"]`);
                 if (infoBox) {
                     infoBox.classList.add("hidden");
                     infoBox.style.display = "none";
@@ -64,16 +65,37 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.body.addEventListener('click', function(event) {
     const target = event.target as HTMLElement;
     if (target.classList.contains('dismiss-button')) {
+      // Prevent default action (important if inside <summary>)
+      event.preventDefault();
+      event.stopPropagation();
+
       const infoBoxId = target.getAttribute("info-box-id");
-      const parentDiv = target.parentElement;
-      if (parentDiv) {
+      // Find the container. We exclude the button itself.
+      // We look for elements with the matching info-box-id that are NOT the dismiss button.
+      // Since info-box-id is used on both, we need to be specific.
+      // Usually the container is a div.
+      let container = document.querySelector(`div[info-box-id="${infoBoxId}"]`);
+      
+      // Fallback: use parentElement if no specific container found (legacy behavior)
+      if (!container) {
+          container = target.parentElement;
+      }
+
+      if (container) {
         console.log("Dismissing info box: " + infoBoxId);
-        parentDiv.classList.add("hidden");
+        container.classList.add("hidden");
         localStorage.setItem(`dismissed-${infoBoxId}`, "true");
 
-        parentDiv.addEventListener("transitionend", function () {
-          parentDiv.style.display = "none";
+        container.addEventListener("transitionend", function () {
+          container.style.display = "none";
         }, { once: true });
+        
+        // Immediate hide fallback if no transition
+        setTimeout(() => {
+            if (container.style.display !== "none") {
+                container.style.display = "none";
+            }
+        }, 300);
       }
     }
   });
@@ -804,21 +826,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     setTimeout(autoPullAsync, 1000)
 
     // New, safe info box dismissal logic.
-    // First, apply dismissals from localStorage.
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('dismissed-')) {
-            if (localStorage.getItem(key) === 'true') {
-                const infoBoxId = key.substring('dismissed-'.length);
-                const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
-                if (infoBox) {
-                    infoBox.classList.add("hidden");
-                    infoBox.style.display = "none";
-                }
-            }
-        }
-    }
-
+    applyDismissals();
     // end infobox dismiss code.
 
     // bind stoas, search and genai early.
@@ -1203,6 +1211,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                  if (synthesisContainer.dataset.synthesized === 'true') {
                      const provider = tab.getAttribute('data-provider') || 'mistral';
                      runSynthesis(provider);
+                 } else {
+                     // If not synthesized but active (weird state?), just run it.
+                     const provider = tab.getAttribute('data-provider') || 'mistral';
+                     runSynthesis(provider);
                  }
                  return;
             }
@@ -1210,11 +1222,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             tabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
 
-            // Always trigger synthesis on tab switch if the section is open
-            if (synthesisDetails.open) {
-                const provider = tab.getAttribute('data-provider') || 'mistral';
-                runSynthesis(provider);
-            }
+            // Always trigger synthesis on tab switch (runSynthesis will open details)
+            const provider = tab.getAttribute('data-provider') || 'mistral';
+            runSynthesis(provider);
         });
     });
 
@@ -1367,37 +1377,7 @@ async function bindEvents() {
         sortSubnodes();
 
         // New, safe info box dismissal logic.
-
-        // This is duplicated from loadAsyncContent to handle elements that might be added after the initial load.
-
-        // First, apply dismissals from localStorage.
-
-        for (let i = 0; i < localStorage.length; i++) {
-
-            const key = localStorage.key(i);
-
-            if (key && key.startsWith('dismissed-')) {
-
-                if (localStorage.getItem(key) === 'true') {
-
-                    const infoBoxId = key.substring('dismissed-'.length);
-
-                    const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
-
-                    if (infoBox) {
-
-                        infoBox.classList.add("hidden");
-
-                        infoBox.style.display = "none";
-
-                    }
-
-                }
-
-            }
-
-        }
-
+        applyDismissals();
         // end infobox dismiss code.
 
         // this works and has already replaced most pull buttons for Agora sections.
