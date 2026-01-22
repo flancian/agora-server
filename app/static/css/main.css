@@ -774,19 +774,21 @@ summary {
 
 /* Star Animations */
 @keyframes starPulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.2); opacity: 0.7; }
-    100% { transform: scale(1); opacity: 1; }
+    0% { transform: scale(1); }
+    14% { transform: scale(1.3); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.3); }
+    70% { transform: scale(1); }
 }
 
 @keyframes starPop {
     0% { transform: scale(1); }
-    50% { transform: scale(1.5); color: gold; }
+    50% { transform: scale(1.6); }
     100% { transform: scale(1); }
 }
 
 .star-pending {
-    animation: starPulse 1s infinite ease-in-out;
+    animation: starPulse 1.5s infinite ease-in-out;
     cursor: wait;
 }
 
