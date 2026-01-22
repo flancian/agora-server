@@ -4,39 +4,46 @@ This file contains a log of development sessions, capturing key learnings, archi
 
 ---
 
-## Session Summary (Gemini, 2026-01-17/18)
+## Session Summary (Gemini, 2026-01-20)
 
-*This section documents a major overhaul of the Search and Indexing architecture, critical security patches, and significant UX improvements for the Graph view.*
+*This session focused on optimizing Git-based timestamps, implementing experimental AI Synthesis of node content, and polishing the UI with animations and better cache management.*
 
 ### Key Learnings & Codebase Insights
 
--   **Indexing Architecture**: We identified that the in-app background thread for re-indexing was fragile and redundant. The system is much more robust when consolidated onto the external `worker.py` process, which now handles full re-indexing, FTS population, and cache warming with proper locking.
--   **Hot Indexing**: The "Hot Indexing" logic (updating SQLite on-demand when a node is viewed) proved highly effective, ensuring near-instant freshness even without the worker running constantly.
--   **FTS5 Nuances**: We learned that SQLite's FTS5 `porter` tokenizer stems words aggressively (e.g., matching "togetherness" for "together"), which is great for broad searches but confusing for users expecting exact matches. We implemented a multi-mode search (Exact/Fuzzy/Literal) to handle this.
--   **Security**: We discovered a critical vulnerability where auto-pulled URLs could trigger redirects via frame-busting scripts or clickjacking if a pull button was rendered inside an anchor tag. Sandboxing iframes and preventing event propagation fixed this.
+-   **Git Mtime Optimization**: We learned that a full filesystem scan followed by individual `git log` calls is too slow for startup. The new batching logic in `git_utils.py` uses `git log --name-only --format="COMMIT %ct"` to efficiently stream modification times for all tracked files in one pass per repo, which is significantly faster.
+-   **AI Synthesis Strategy**: We implemented "Semantic Synthesis" where Gemini processes direct contributions (subnodes) AND context (backlinks) to provide a cohesive overview of an Agora location. Structure and brevity are enforced via the prompt to keep it useful.
+-   **UI Responsiveness**: Adding animations (pulsing/heartbeat) to discrete actions like "Starring" improves the perceived performance and provides valuable feedback during network delays.
+-   **CSS Caching**: We discovered that missing version strings (query parameters) for `main.css` caused browsers to serve stale styles after updates. We centralized CSS versioning in the `css_versions` context processor.
 
 ### Summary of Changes Implemented
 
-1.  **Search & Indexing Overhaul**:
-    *   **FTS5 Default**: Enabled `ENABLE_FTS` by default across all environments.
-    *   **Three-Way Search UI**: Implemented a tabbed interface for "Exact" (phrase), "Fuzzy" (stemmed), and "Literal" (filesystem grep) search modes.
-    *   **Architecture**: Removed the in-app maintenance thread. Updated `worker.py` to handle locking and active cache warming for `/latest`, `/top`, etc.
-    *   **Deduplication**: Fixed duplicate search results by using `SELECT DISTINCT` in the FTS query.
+1.  **Git Mtime Optimization**:
+    -   Implemented `update_git_mtimes_batch` in `app/git_utils.py` using streaming `git log`.
+    -   Added caching for repo `HEAD` states in a new `git_repo_state` table to skip unchanged repos.
+    -   Updated `Subnode.get_display_mtime()` to prioritize cached Git timestamps.
+    -   Enabled `USE_GIT_MTIME = True` in `DefaultConfig`.
 
-2.  **Security Patches**:
-    *   **Iframe Sandboxing**: Added `sandbox="allow-scripts ..."` to all auto-pulled iframes in `main.ts` and `pull.ts`, blocking top-level navigation redirects.
-    *   **Clickjacking Prevention**: Added `e.stopPropagation()` and `e.preventDefault()` to pull button click handlers to prevent clicks from bubbling up to parent anchor tags.
+2.  **AI Synthesis Feature**:
+    -   Added `ENABLE_SYNTHESIS` experiment flag (enabled in `LocalDevelopmentConfig` and `DevelopmentConfig`).
+    -   Implemented `/api/synthesize/<path:node_name>` route in `app/agora.py`.
+    -   The synthesizer processes up to 50 subnodes and the first 20 backlinks.
+    -   Added an "AI Synthesis" section to `app/templates/node.html` with an asynchronous "Synthesize" button.
+    -   Refined the prompt for structured output (Summary, Context) and user attribution via bullet points.
 
-3.  **Graph UX Polish**:
-    *   **Auto-Expansion**: The `/top` graph now expands by default.
-    *   **Smart Labels**: Labels automatically turn off for large graphs (>= 500 nodes) to improve performance, but remain on for smaller ones.
-    *   **Adaptive Zoom**: Implemented a 4-tier zoom profile (0.2x to 3.0x) based on node count, ensuring both massive "galaxy" graphs and small local graphs are legible.
-    *   **Loading State**: Added a full-overlay loading spinner with a large logo to indicate background processing.
+3.  **UI & UX Polish**:
+    -   **Starring Animations**: Added `.star-pending` (pulsing) and `.star-popping` (heartbeat) CSS animations and integrated them into `app/js-src/starring.ts`.
+    -   **Web Results Cleanup**: Removed "Scholar" and "X" (Twitter) from the web results bar in `app/templates/web.html`.
+    -   **CSS Caching Fix**: Updated `app/__init__.py` to include `main.css` in the `css_versions` context processor.
 
-### Architecture References
+4.  **Backend Robustness**:
+    -   Added a retry loop (5 attempts) to the SQLite table swap logic in `app/storage/maintenance.py` to prevent `database is locked` errors during re-indexing.
+    -   Explicitly exposed `nodes_by_outlink` in `app/storage/api.py`.
 
--   **`worker.py`**: Now the single source of truth for background maintenance.
--   **`app/storage/maintenance.py`**: Contains the core logic for re-indexing, locking, and cache warming.
+### Next Steps
+
+-   **Monitor Synthesis**: Observe how the AI handles very large nodes or nodes with diverse languages.
+-   **Deploy to Production**: After soaking in dev, consider enabling `ENABLE_SYNTHESIS` for the broader community.
+-   **FTS for Alpha/Prod**: `ENABLE_FTS` is now toggled ON for Production/Alpha configurations.
 
 ---
 
