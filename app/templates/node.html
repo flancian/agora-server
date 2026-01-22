@@ -55,7 +55,7 @@
         </div>
 
         {% if config.ENABLE_SYNTHESIS and not rendering_user and node.subnodes %}
-        <div id="synthesis-container" class="synthesis-container with-spacing">
+        <div id="synthesis-container" info-box-id="ai-synthesis" class="synthesis-container with-spacing info-box-container">
             <details id="synthesis-details">
                 <summary class="synthesis-header">
                     <span>
@@ -63,10 +63,10 @@
                         <span class="synthesis-provider-tab active" data-provider="mistral" style="font-weight: normal; font-size: 0.8em; margin-left: 10px; padding: 2px 5px; border-radius: 4px;">Mistral</span>
                         <span class="synthesis-provider-tab" data-provider="gemini" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Gemini</span>
                     </span>
-                    <button id="synthesis-button" class="synthesis-button" data-node-uri="{{ node.uri }}">Synthesize</button>
+                    <span info-box-id="ai-synthesis" class="dismiss-button" title="Dismiss this section. To recall, clear local storage or settings.">x</span>
                 </summary>
                 <div id="synthesis-content" class="synthesis-content">
-                    <p><em>Click the button to generate an AI synthesis of the contributions in this node.</em></p>
+                    <p><em>Expanding this section will automatically generate an AI synthesis of the contributions in this node.</em></p>
                 </div>
             </details>
         </div>

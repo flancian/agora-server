@@ -241,6 +241,17 @@ button {
     text-transform: capitalize;
     padding: 3px 6px 3px 6px;
     white-space: nowrap;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+button:hover {
+    filter: brightness(1.2);
+}
+
+button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 ul {
@@ -718,14 +729,12 @@ summary {
     background-color: var(--synthesis-bg);
     margin-bottom: 10px;
     position: relative;
-    opacity: 0.6;
-    transition: all 0.3s ease;
+    opacity: 1.0;
 }
 
 .synthesis-container:hover,
 .synthesis-container:focus-within,
 .synthesis-container:has(details[open]) {
-    opacity: 1;
     border-color: var(--synthesis-border);
     border-style: solid;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -766,28 +775,7 @@ summary {
     cursor: default;
 }
 
-.synthesis-button {
-    background-color: var(--button-bg);
-    color: var(--button-text-color);
-    border: 1px solid var(--button-border-color);
-    border-radius: 4px;
-    padding: 4px 12px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: filter 0.2s;
-}
-
-.synthesis-button:hover {
-    filter: brightness(1.2);
-}
-
-.synthesis-button[disabled] {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
 .synthesis-content {
-    margin-top: 1rem;
     line-height: 1.6;
     padding: 10px;
     overflow-wrap: break-word;
