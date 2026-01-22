@@ -729,6 +729,28 @@ summary {
     display: none; /* Hide default arrow in Chrome/Safari */
 }
 
+.synthesis-provider-tab {
+    cursor: pointer;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    border: 1px solid transparent; /* Reserve space for border */
+}
+
+.synthesis-provider-tab:hover {
+    background-color: var(--tab-active-bg);
+    opacity: 1;
+}
+
+.synthesis-provider-tab.active {
+    font-weight: bold;
+    background-color: var(--tab-active-bg);
+    color: var(--link-color);
+    opacity: 1;
+    border: 1px solid var(--border);
+    cursor: default;
+}
+
 .synthesis-button {
     background-color: var(--button-bg);
     color: var(--button-text-color);
@@ -918,8 +940,10 @@ details > summary {
     margin-left: auto;
 }
 
-.star-toggle {
+.star-toggle, .node-star-toggle, .external-star-toggle {
     cursor: pointer;
+    display: inline-block;
+    transition: transform 0.1s; /* Smooth out manual hover effects if added later */
 }
 
 .footer-links, .footer-id {

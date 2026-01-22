@@ -1341,6 +1341,8 @@ def synthesize(node_name):
     if not current_app.config.get("ENABLE_SYNTHESIS"):
         return jsonify({'error': 'Synthesis is not enabled in this Agora.'}), 403
 
+    provider = request.args.get('provider', 'mistral') # Default to Mistral
+
     n = api.build_node(node_name)
     if not n or not n.subnodes:
         return jsonify({'error': 'Node not found or has no content to synthesize.'}), 404
@@ -1387,7 +1389,16 @@ def synthesize(node_name):
         "- Surround interesting concepts with [[double square brackets]] to create wikilinks."
     )
 
-    _, answer = gemini_complete(prompt)
+    if provider == 'gemini':
+        _, answer = gemini_complete(prompt)
+    else:
+        _, answer = mistral_complete(prompt)
+    
+    # Strip code fences if present (Models often wrap output in ```markdown ... ```)
+    if answer.startswith("```"):
+        answer = re.sub(r"^```(?:markdown)?\n", "", answer)
+        answer = re.sub(r"\n```$", "", answer)
+
     return jsonify({'synthesis': render.markdown(answer)})
 
 @bp.route("/api/meditate_on/<path:node_name>")
