@@ -1150,8 +1150,16 @@ document.addEventListener("DOMContentLoaded", async function () {
             e.preventDefault();
             e.stopPropagation(); // Prevent detail toggle
             
+            // If clicking the already active tab, do nothing
+            if (tab.classList.contains('active')) return;
+
             tabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
+
+            // If we have already synthesized (button says "Re-synthesize"), trigger it again with new provider.
+            if (synthesisButton.innerText === 'Re-synthesize') {
+                synthesisButton.click();
+            }
         });
     });
 
