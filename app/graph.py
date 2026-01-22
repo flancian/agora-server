@@ -209,6 +209,9 @@ class Graph:
         # Fallback: Load the full graph (slow)
         # current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Fetching node [[{uri}]] from full graph.")
         try:
+            if 'node_fetch_count' not in g:
+                g.node_fetch_count = 0
+            g.node_fetch_count += 1
             node = self.nodes()[uri.lower()]
             return node
         except (KeyError, IndexError):
@@ -1677,7 +1680,8 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
     n.q = n.qstr
 
     duration = time.time() - start_time
-    current_app.logger.info(f"[[{node}]]: Assembled FULL node in {duration:.2f}s ({', '.join(timings)}).")
+    fetch_count = getattr(g, 'node_fetch_count', 0)
+    current_app.logger.info(f"[[{node}]]: Assembled FULL node in {duration:.2f}s ({', '.join(timings)}). Fetched {fetch_count} nodes from graph.")
     return n
 
 
