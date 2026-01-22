@@ -37,7 +37,7 @@
     --subnode-bg: #303030;
     --subnode-text-color: #cfcfcf;
     --pulled-pushed-bg: #101010;
-    --info-box-bg: #2a3a59;
+    --info-box-bg: #34495e;
     --info-box-text-color: #cfcfcf;
     --intro-footer-bg: #2a3a59;
     --intro-footer-text-color: #cfcfcf;
@@ -789,6 +789,7 @@ summary {
 .synthesis-content {
     margin-top: 1rem;
     line-height: 1.6;
+    padding: 0.5rem 10px;
 }
 
 .synthesis-footer {
