@@ -789,7 +789,7 @@ summary {
 .synthesis-content {
     margin-top: 1rem;
     line-height: 1.6;
-    padding: 0.5rem;
+    padding: 10px;
     overflow-wrap: break-word;
 }
 
