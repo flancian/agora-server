@@ -714,6 +714,16 @@ summary {
     background-color: var(--subnode-bg);
     margin-bottom: 1.5rem;
     position: relative;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.synthesis-container:hover,
+.synthesis-container:focus-within,
+.synthesis-container:has(details[open]) {
+    opacity: 1;
+    border-color: var(--link-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .synthesis-header {
