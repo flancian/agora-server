@@ -134,7 +134,7 @@ def root(node, user_list=""):
     # search_subnodes = db.search_subnodes(node)
     n.q = n.qstr
     duration = time.time() - start_time
-    current_app.logger.debug(f"[[{node}]]: Assembled light node in {duration:.2f}s.")
+    current_app.logger.debug(f"[[{node}]]: Assembled SKELETON node in {duration:.2f}s.")
     
 
     return render_template(

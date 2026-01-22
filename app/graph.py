@@ -1677,7 +1677,7 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
     n.q = n.qstr
 
     duration = time.time() - start_time
-    current_app.logger.info(f"[[{node}]]: Assembled in {duration:.2f}s ({', '.join(timings)}).")
+    current_app.logger.info(f"[[{node}]]: Assembled FULL node in {duration:.2f}s ({', '.join(timings)}).")
     return n
 
 
