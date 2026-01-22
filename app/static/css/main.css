@@ -37,7 +37,7 @@
     --subnode-bg: #303030;
     --subnode-text-color: #cfcfcf;
     --pulled-pushed-bg: #101010;
-    --info-box-bg: #4a3b6a; /* A cool, violet color */
+    --info-box-bg: #2a3a59;
     --info-box-text-color: #cfcfcf;
     --intro-footer-bg: #2a3a59;
     --intro-footer-text-color: #cfcfcf;
@@ -714,7 +714,7 @@ summary {
 .synthesis-container {
     border: 1px dashed var(--synthesis-border);
     border-radius: 8px;
-    padding: 1rem;
+    padding: 7px;
     background-color: var(--synthesis-bg);
     margin-bottom: 10px;
     position: relative;
