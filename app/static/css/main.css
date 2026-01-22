@@ -53,6 +53,8 @@
     --agora-protocol-text: #ffffff80;
     --agora-protocol-bg: black;
     --dismiss-button-color: white;
+    --synthesis-bg: rgba(74, 59, 106, 0.4);
+    --synthesis-border: #6a5acd;
 }
 
 [data-theme="light"] {
@@ -87,6 +89,8 @@
     --agora-protocol-text: #00000080;
     --agora-protocol-bg: #ffffff;
     --dismiss-button-color: black;
+    --synthesis-bg: #e6e6fa;
+    --synthesis-border: #9370db;
 }
 
 .overlay {
@@ -708,10 +712,10 @@ summary {
 
 /* Synthesis Styles */
 .synthesis-container {
-    border: 1px dashed var(--border);
+    border: 1px dashed var(--synthesis-border);
     border-radius: 8px;
     padding: 1rem;
-    background-color: var(--subnode-bg);
+    background-color: var(--synthesis-bg);
     margin-bottom: 10px;
     position: relative;
     opacity: 0.6;
@@ -722,7 +726,8 @@ summary {
 .synthesis-container:focus-within,
 .synthesis-container:has(details[open]) {
     opacity: 1;
-    border-color: var(--link-color);
+    border-color: var(--synthesis-border);
+    border-style: solid;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
