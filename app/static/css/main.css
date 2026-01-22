@@ -772,6 +772,28 @@ summary {
     color: var(--intro-footer-text-color);
 }
 
+/* Star Animations */
+@keyframes starPulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes starPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); color: gold; }
+    100% { transform: scale(1); }
+}
+
+.star-pending {
+    animation: starPulse 1s infinite ease-in-out;
+    cursor: wait;
+}
+
+.star-popping {
+    animation: starPop 0.3s ease-out;
+}
+
 #footer {
     margin-bottom: 10px;
 }
