@@ -133,7 +133,6 @@ class DefaultConfig(object):
     # EXPERIMENTS
     # experiments can be booleans or probabilities (reals in 0..1).
     # release process: set them initially to False/0 in the DefaultConfig and then override in the right environment.
-    ENABLE_CTZN = False
     ENABLE_STATS = False
     ENABLE_OBSIDIAN_ATTACHMENTS = False
     ENABLE_AUTO_PULL = False
@@ -213,7 +212,6 @@ class DefaultConfig(object):
 class ProductionConfig(DefaultConfig):
 
     # EXPERIMENTS
-    ENABLE_CTZN = False
     ENABLE_STATS = True
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_PUSH = False
@@ -229,7 +227,6 @@ class ProductionConfig(DefaultConfig):
 
     # EXPERIMENTS 
     # we need to remove as CTZN is no longer a thing? or use to implement something similar in-place?
-    ENABLE_CTZN = False
     ENABLE_STATS = True
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_PUSH = True
@@ -255,7 +252,6 @@ class AlphaConfig(DefaultConfig):
 
     # EXPERIMENTS 
     # we need to remove as CTZN is no longer a thing? or use to implement something similar in-place?
-    ENABLE_CTZN = False
     ENABLE_STATS = True
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_PUSH = True
@@ -284,7 +280,6 @@ class DevelopmentConfig(DefaultConfig):
     FEDERATION_INTERVAL = 60
 
     # EXPERIMENTS
-    ENABLE_CTZN = True
     ENABLE_STATS = True
     ENABLE_OBSIDIAN_ATTACHMENTS = True
     ENABLE_AUTO_PULL = True
@@ -311,7 +306,6 @@ class LocalDevelopmentConfig(DefaultConfig):
     AGORA_NAME = "Development Agora"
     FEDERATION_INTERVAL = 60
     # EXPERIMENTS
-    ENABLE_CTZN = True
     ENABLE_STATS = True
     ENABLE_OBSIDIAN_ATTACHMENTS = True
     ENABLE_AUTO_PULL = True
@@ -322,6 +316,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_FTS = True
     ENABLE_SYNTHESIS = True
     ENABLE_LAZY_LOAD = False
+    USE_GIT_MTIME = False
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = True
