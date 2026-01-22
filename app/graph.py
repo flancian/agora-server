@@ -207,7 +207,7 @@ class Graph:
             return n
 
         # Fallback: Load the full graph (slow)
-        current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Fetching node [[{uri}]] from full graph.")
+        # current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Fetching node [[{uri}]] from full graph.")
         try:
             node = self.nodes()[uri.lower()]
             return node
