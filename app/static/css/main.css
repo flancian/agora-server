@@ -712,7 +712,7 @@ summary {
     border-radius: 8px;
     padding: 1rem;
     background-color: var(--subnode-bg);
-    margin-bottom: 1.5rem;
+    margin-bottom: 10px;
     position: relative;
     opacity: 0.6;
     transition: all 0.3s ease;
