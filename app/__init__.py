@@ -114,6 +114,10 @@ def create_app():
     @app.context_processor
     def css_versions():
         versions = {}
+        main_css_path = os.path.join(app.static_folder, 'css/main.css')
+        if os.path.exists(main_css_path):
+            versions['main_css_version'] = int(os.path.getmtime(main_css_path))
+
         dark_css_path = os.path.join(app.static_folder, 'css/screen-dark.css')
         if os.path.exists(dark_css_path):
             versions['dark_css_version'] = int(os.path.getmtime(dark_css_path))
