@@ -363,7 +363,8 @@ details .mastodon, .twitter {
 }
 
 details[open] > :not(summary) {
-    animation: slide-down 0.3s ease;
+    animation: slide-down 0.4s ease;
+    will-change: transform, opacity;
 }
   
 @keyframes slide-down {
