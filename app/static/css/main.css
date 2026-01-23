@@ -730,7 +730,7 @@ summary {
 /* Synthesis Styles */
 .synthesis-container {
     border: 1px dashed var(--synthesis-border);
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 7px;
     background-color: var(--synthesis-bg);
     margin-bottom: 10px;
