@@ -1746,8 +1746,8 @@ async function bindEvents() {
 
                     // Also collapse all open details (subnodes, synthesis, etc.)
                     nodeElement.querySelectorAll("details[open]").forEach(element => {
-                        // Don't close the node itself!
-                        if (element !== nodeElement) {
+                        // Don't close the node itself or the synthesis section!
+                        if (element !== nodeElement && element.id !== 'synthesis-details') {
                             (element as HTMLDetailsElement).open = false;
                         }
                     });
@@ -1768,7 +1768,9 @@ async function bindEvents() {
 
                     // Also expand all closed details (subnodes, synthesis, etc.)
                     nodeElement.querySelectorAll("details:not([open])").forEach(element => {
-                        (element as HTMLDetailsElement).open = true;
+                        if (element.id !== 'synthesis-details') {
+                            (element as HTMLDetailsElement).open = true;
+                        }
                     });
 
                     button.innerHTML = '✕ Fold All';
