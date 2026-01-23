@@ -303,6 +303,11 @@ li {
     color: var(--agora-protocol-text);
 }
 
+.subnode-content {
+    display: block;
+    overflow-wrap: break-word;
+}
+
 li img {
     vertical-align: top;
 }
