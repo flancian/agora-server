@@ -134,24 +134,6 @@
             {% endif %}
         {% endfor %}
 
-        {% if config.ENABLE_SYNTHESIS and not rendering_user and node.subnodes %}
-        <div id="synthesis-container" info-box-id="ai-synthesis" class="synthesis-container with-spacing info-box-container">
-            <details id="synthesis-details">
-                <summary class="synthesis-header">
-                    <span>
-                        ✨ AI Synthesis
-                        <span class="synthesis-provider-tab active" data-provider="mistral" style="font-weight: normal; font-size: 0.8em; margin-left: 10px; padding: 2px 5px; border-radius: 4px;">Mistral</span>
-                        <span class="synthesis-provider-tab" data-provider="gemini" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Gemini</span>
-                    </span>
-                    <span info-box-id="ai-synthesis" class="dismiss-button" title="Dismiss this section. To recall, clear local storage or settings.">x</span>
-                </summary>
-                <div id="synthesis-content" class="synthesis-content">
-                    <p><em>Expanding this section will automatically generate an AI synthesis of the contributions in this node.</em></p>
-                </div>
-            </details>
-        </div>
-        {% endif %}
-
         <div class="pushed-subnodes-embed">
 
             <!-- removed from the sync rendering path as this is expensive (i.e. slow).
@@ -171,6 +153,24 @@
                 <p><em>Loading pushes...</em></p>
             </center>
         </div>
+
+        {% if config.ENABLE_SYNTHESIS and not rendering_user and node.subnodes %}
+        <div id="synthesis-container" info-box-id="ai-synthesis" class="synthesis-container with-spacing info-box-container">
+            <details id="synthesis-details">
+                <summary class="synthesis-header">
+                    <span>
+                        ✨ AI Synthesis
+                        <span class="synthesis-provider-tab active" data-provider="mistral" style="font-weight: normal; font-size: 0.8em; margin-left: 10px; padding: 2px 5px; border-radius: 4px;">Mistral</span>
+                        <span class="synthesis-provider-tab" data-provider="gemini" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Gemini</span>
+                    </span>
+                    <span info-box-id="ai-synthesis" class="dismiss-button" title="Dismiss this section. To recall, clear local storage or settings.">x</span>
+                </summary>
+                <div id="synthesis-content" class="synthesis-content">
+                    <p><em>Expanding this section will automatically generate an AI synthesis of the contributions in this node.</em></p>
+                </div>
+            </details>
+        </div>
+        {% endif %}
 
     </details> <!-- closes node div-->
 
