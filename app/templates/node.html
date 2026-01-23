@@ -121,7 +121,9 @@
                             </span>
                 </summary>
 
-                <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+                <div>
+                    <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+                </div>
 
                 <div class="subnode-footer">
                     {% set display_mtime, mtime_source = subnode.get_display_mtime() %}
