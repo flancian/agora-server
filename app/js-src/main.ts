@@ -1744,6 +1744,14 @@ async function bindEvents() {
 
                     });
 
+                    // Also collapse all open details (subnodes, synthesis, etc.)
+                    nodeElement.querySelectorAll("details[open]").forEach(element => {
+                        // Don't close the node itself!
+                        if (element !== nodeElement) {
+                            (element as HTMLDetailsElement).open = false;
+                        }
+                    });
+
                     button.innerHTML = '🧲 Pull All';
 
                     button.dataset.state = 'folded';

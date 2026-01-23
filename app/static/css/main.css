@@ -891,6 +891,8 @@ summary {
 
 
 .node-header, .context-header, .stoa-header, .ctzn-header {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
     text-align: left;
     padding-bottom: 2px;
