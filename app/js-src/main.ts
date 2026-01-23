@@ -1766,6 +1766,11 @@ async function bindEvents() {
 
                     });
 
+                    // Also expand all closed details (subnodes, synthesis, etc.)
+                    nodeElement.querySelectorAll("details:not([open])").forEach(element => {
+                        (element as HTMLDetailsElement).open = true;
+                    });
+
                     button.innerHTML = '✕ Fold All';
 
                     button.dataset.state = 'pulled';
