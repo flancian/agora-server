@@ -25,15 +25,21 @@ This file contains a log of development sessions, capturing key learnings, archi
 
 2.  **AI Synthesis Feature**:
     -   Added `ENABLE_SYNTHESIS` experiment flag (enabled in `LocalDevelopmentConfig` and `DevelopmentConfig`).
-    -   Implemented `/api/synthesize/<path:node_name>` route in `app/agora.py`.
+    -   Implemented `/api/synthesize/<path:node_name>` route in `app/agora.py` supporting Mistral (default) and Gemini.
+    -   Added a tabbed interface for provider switching that auto-triggers synthesis on expand or tab click.
     -   The synthesizer processes up to 50 subnodes and the first 20 backlinks.
-    -   Added an "AI Synthesis" section to `app/templates/node.html` with an asynchronous "Synthesize" button.
-    -   Refined the prompt for structured output (Summary, Context) and user attribution via bullet points.
+    -   Refined the prompt for structured output (Summary, Context) and user attribution.
+    -   Made the section fully dismissable via an "x" button, behaving like a system utility.
 
 3.  **UI & UX Polish**:
-    -   **Starring Animations**: Added `.star-pending` (pulsing) and `.star-popping` (heartbeat) CSS animations and integrated them into `app/js-src/starring.ts`.
-    -   **Web Results Cleanup**: Removed "Scholar" and "X" (Twitter) from the web results bar in `app/templates/web.html`.
-    -   **CSS Caching Fix**: Updated `app/__init__.py` to include `main.css` in the `css_versions` context processor.
+    -   **Starring Animations**: Added `.star-pending` (pulsing) and `.star-popping` (heartbeat) animations.
+    -   **Global Button Uplift**: Promoted the high-polish button styles (hover brightness, pointer cursor) to all buttons globally.
+    -   **Subnode Animations**: Wrapped subnode content in `div`s and enabled `slide-down` animations for smoother expansion.
+    -   **Layout Alignment**: Capped the navbar width at `80em` to match the content column on ultra-wide screens.
+    -   **Visual Hierarchy**: Refined the color palette (Violet for AI, Navy/Slate for Tips) and reduced margins for a tighter, more intentional feel.
+    -   **Header Cleanup**: Removed emojis and unified "pushed from" strings in subnode attributions.
+    -   **Web Results Cleanup**: Removed "Scholar" and "X" (Twitter) from the web results bar.
+    -   **CSS Caching Fix**: Updated `app/__init__.py` to include `main.css` in versioning.
 
 4.  **Backend Robustness**:
     -   Added a retry loop (5 attempts) to the SQLite table swap logic in `app/storage/maintenance.py` to prevent `database is locked` errors during re-indexing.
