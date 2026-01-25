@@ -269,6 +269,7 @@ class AlphaConfig(DefaultConfig):
     ENABLE_FTS = True
     ENABLE_DEMO = True
     USE_GIT_MTIME = False
+    ENABLE_SYNTHESIS = True
 
 
 class DevelopmentConfig(DefaultConfig):
