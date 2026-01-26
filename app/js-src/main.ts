@@ -516,26 +516,30 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Scroll hints for horizontally scrollable elements
   const handleScrollHints = () => {
-    document.querySelectorAll('.navigation-content, .action-bar, #footer').forEach(element => {
+    // These elements have the overflow: auto
+    const elementsToCheck = document.querySelectorAll('.navigation-content, .topline-node-wrapper, #footer');
+    
+    elementsToCheck.forEach(element => {
       const el = element as HTMLElement;
-      const parent = el.parentElement;
-      if (!parent) return;
+      // Shadow target: the wrapper that has the ::after pseudo-element
+      const target = el.classList.contains('navigation-content') ? el.parentElement : el;
+      if (!target) return;
 
       // Debug scroll values to diagnose shading issues
-      console.log(`ScrollCheck for ${el.className || el.id}: scrollWidth=${el.scrollWidth}, clientWidth=${el.clientWidth}, diff=${el.scrollWidth - el.clientWidth}`);
+      // console.log(`ScrollCheck for ${el.className || el.id}: scrollWidth=${el.scrollWidth}, clientWidth=${el.clientWidth}, diff=${el.scrollWidth - el.clientWidth}`);
 
       const isScrollable = el.scrollWidth > el.clientWidth;
       if (isScrollable) {
         const isAtEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
-        parent.classList.toggle('scrolled-to-end', isAtEnd);
+        target.classList.toggle('scrolled-to-end', isAtEnd);
       } else {
-        parent.classList.add('scrolled-to-end');
+        target.classList.add('scrolled-to-end');
       }
     });
   };
 
   // Add scroll event listeners
-  document.querySelectorAll('.navigation-content, .action-bar, #footer').forEach(element => {
+  document.querySelectorAll('.navigation-content, .topline-node-wrapper, #footer').forEach(element => {
     element.addEventListener('scroll', handleScrollHints);
   });
 

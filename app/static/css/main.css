@@ -558,6 +558,14 @@ summary, #footer {
     align-items: center;
     gap: 4px;
     margin-bottom: 5px;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    max-width: 100%;
+}
+
+.topline-node-wrapper::-webkit-scrollbar {
+    display: none;
 }
 
 .topline-node-wrapper:first-child {
@@ -571,22 +579,10 @@ summary, #footer {
     gap: 4px;
 }
 
-.topline-cli {
-    flex-grow: 1;
-}
-
 .action-bar {
     display: flex;
     align-items: center;
     gap: 0.2em;
-    overflow-x: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    max-width: 100%;
-}
-
-.action-bar::-webkit-scrollbar {
-    display: none;
 }
 
 #scroll-toggle {
