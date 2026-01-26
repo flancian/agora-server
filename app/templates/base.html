@@ -108,7 +108,8 @@
                         <span class="navbar-item">
                             {% if config.ENABLE_AGORA_NAME_IN_HEADER %}
                                 <span style="font-weight: bold;">{{config['AGORA_NAME']}}</span>
-                                <span style="font-weight: normal; opacity: 0.8; margin-left: 0.3em;">{{config['URI_BASE']}}</span>
+                                <span style="opacity: 0.5; margin-left: 0.1em; margin-right: 0.1em;">·</span>
+                                <span style="font-weight: normal; opacity: 0.8;">{{config['URI_BASE']}}</span>
                             {% else %}
                                 <span style="font-weight: bold;">{{config['URI_BASE']}}</span>
                             {% endif %}
