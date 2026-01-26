@@ -514,6 +514,32 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log('Observer started');
   // end code from Claude Sonnet 3.5.
 
+  // Responsive navbar rearrangement
+  const setupNavbarLayoutEngine = () => {
+    const toggleContainer = document.querySelector('.toggle-container');
+    const searchWrapper = document.getElementById('search-wrapper');
+    const actionWrapper = document.getElementById('action-wrapper');
+
+    if (!toggleContainer || !searchWrapper || !actionWrapper) return;
+
+    const mediaQuery = window.matchMedia('(max-width: 60em)');
+
+    const handleLayoutChange = (e: MediaQueryListEvent | MediaQueryList) => {
+        if (e.matches) {
+            // Mobile: Toggles in Action Wrapper (Line 3)
+            actionWrapper.appendChild(toggleContainer);
+        } else {
+            // Desktop: Toggles in Search Wrapper (Line 2)
+            searchWrapper.appendChild(toggleContainer);
+        }
+    };
+
+    mediaQuery.addEventListener('change', handleLayoutChange);
+    handleLayoutChange(mediaQuery);
+  };
+
+  setupNavbarLayoutEngine();
+
   // Scroll hints for horizontally scrollable elements
   const handleScrollHints = () => {
     document.querySelectorAll('.navigation-content, .action-bar, #footer').forEach(element => {
