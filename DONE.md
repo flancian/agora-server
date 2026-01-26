@@ -33,15 +33,19 @@ This file contains a log of development sessions, capturing key learnings, archi
 
 3.  **UI & UX Polish**:
     -   **Navbar Iteration**: Conducted an extensive "Trial by Commit" iteration to establish a unified 3-line header layout. Previous attempts were inconsistent; the current stable version forces a clean 3-row structure across all devices.
-    -   **Identity & Flow**: Implemented `Title ≈ URL ➜ Navigation` logic. The `≈` symbol implies equivalence, while the `➜` arrow provides directional flow to menu items.
+    -   **Identity & Flow**: Implemented `Title › URL ➜ Navigation` logic (and variations thereof). The final version uses a clean whitespace break for identity and a solid `➜` arrow for global navigation.
     -   **Search Redesign**: Iconified the search button (`🔍 Search`) and moved it to the third row (Action row) to keep the search input area (Row 2) focused.
     -   **Control Consolidation**: Moved Dark/Demo/Music toggles and the Scroll-to-bottom button to Row 2, creating a clear "Control & Input" row.
     -   **Responsive Everything**: Removed legacy mobile-specific overrides in `main.css` and `main.ts`, moving to a truly unified responsive design that doesn't special-case desktop.
+    -   **Scroll Hints**: Implemented a robust horizontal scroll shadow for both the Search/Toggle and Action rows to indicate overflow on narrow screens. Fixed a bug where shading would disappear or overlap buttons.
     -   **Starring Animations**: Added `.star-pending` (pulsing) and `.star-popping` (heartbeat) animations.
     -   **Global Button Uplift**: Promoted the high-polish button styles (hover brightness, pointer cursor) to all buttons globally.
     -   **Subnode Animations**: Wrapped subnode content in `div`s and enabled `slide-down` animations for smoother expansion.
+    -   **Galaxy Emoji**: Updated the Context section header to "🌌 Agora context" for a more expansive feel.
+    -   **Tab Spacing**: Fixed "too much space" bugs in Wikipedia/Wiktionary tabs by removing manual margins and cleaning up template whitespace.
     -   **Layout Alignment**: Capped the navbar width at `80em` to match the content column on ultra-wide screens.
     -   **Header Cleanup**: Removed emojis and unified "pushed from" strings in subnode attributions.
+    -   **Footer Polish**: Restyled maintenance buttons to match standard Agora buttons and reordered them (Stats -> Flush Memory -> Flush SQLite).
     -   **CSS Caching Fix**: Updated `app/__init__.py` to include `main.css` in versioning.
 
 4.  **Backend Robustness**:
