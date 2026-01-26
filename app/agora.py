@@ -1405,13 +1405,12 @@ def synthesize(node_name):
 
     if provider == 'gemini':
         _, answer = gemini_complete(prompt)
+    elif provider == 'chatgpt':
+        answer = "ChatGPT synthesis is coming soon! Check back later."
+    elif provider == 'claude':
+        answer = "Claude synthesis is coming soon! Check back later."
     else:
         _, answer = mistral_complete(prompt)
-    
-    # Strip code fences if present (Models often wrap output in ```markdown ... ```)
-    if answer.startswith("```"):
-        answer = re.sub(r"^```(?:markdown)?\n", "", answer)
-        answer = re.sub(r"\n```$", "", answer)
 
     return jsonify({'synthesis': render.markdown(answer)})
 
