@@ -880,6 +880,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                     endpoint = '/api/gemini_complete/';
 
+                } else if (provider === 'chatgpt') {
+
+                    endpoint = '/api/chatgpt_complete/';
+
+                } else if (provider === 'claude') {
+
+                    endpoint = '/api/claude_complete/';
+
                 }
 
                 if (endpoint) {

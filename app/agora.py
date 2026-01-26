@@ -1336,6 +1336,20 @@ def gemini_complete_route(prompt):
         full_prompt = "The prompt for this cached response is not available, but the query was:" + prompt
     return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
 
+@bp.route("/api/chatgpt_complete/<prompt>")
+def chatgpt_complete_route(prompt):
+    # TODO: Implement ChatGPT integration
+    full_prompt = "Prompt not available."
+    answer = "ChatGPT integration is coming soon! Please check back later or contribute to the implementation on GitHub."
+    return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
+
+@bp.route("/api/claude_complete/<prompt>")
+def claude_complete_route(prompt):
+    # TODO: Implement Claude integration
+    full_prompt = "Prompt not available."
+    answer = "Claude integration is coming soon! Please check back later or contribute to the implementation on GitHub."
+    return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
+
 @bp.route("/api/synthesize/<path:node_name>")
 def synthesize(node_name):
     if not current_app.config.get("ENABLE_SYNTHESIS"):

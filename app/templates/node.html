@@ -164,6 +164,12 @@
                         ✨ AI Synthesis
                         <span class="synthesis-provider-tab active" data-provider="mistral" style="font-weight: normal; font-size: 0.8em; margin-left: 10px; padding: 2px 5px; border-radius: 4px;">Mistral</span>
                         <span class="synthesis-provider-tab" data-provider="gemini" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Gemini</span>
+                        {% if config.ENABLE_CHATGPT %}
+                        <span class="synthesis-provider-tab" data-provider="chatgpt" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">ChatGPT</span>
+                        {% endif %}
+                        {% if config.ENABLE_CLAUDE %}
+                        <span class="synthesis-provider-tab" data-provider="claude" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Claude</span>
+                        {% endif %}
                     </span>
                     <span info-box-id="ai-synthesis" class="dismiss-button" title="Dismiss this section. To recall, clear local storage or settings.">x</span>
                 </summary>

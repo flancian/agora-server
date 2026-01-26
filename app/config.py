@@ -152,6 +152,10 @@ class DefaultConfig(object):
     
     # AI Synthesis of node content.
     ENABLE_SYNTHESIS = False
+    
+    # Enable new AI providers (ChatGPT, Claude) as tabs instead of links.
+    ENABLE_CHATGPT = False
+    ENABLE_CLAUDE = False
 
     # ActivityPub settings
     ACTIVITYPUB_SEND_WELCOME_PACKAGE = True
@@ -324,6 +328,8 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_LAZY_LOAD = False
     USE_GIT_MTIME = False
     ENABLE_AGORA_NAME_IN_HEADER = True
+    ENABLE_CHATGPT = True
+    ENABLE_CLAUDE = True
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = True
