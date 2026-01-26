@@ -10,12 +10,12 @@
     <a href="{{config['ROOT']}}" title="Go to the root of the Agora.">🏛️</a> <a href="{{config['URL_BASE']}}">{{config['AGORA_NAME']}}</a>
     at <strong>__NOW__</strong>
     {% if 'Flan' in config['AGORA_NAME'] %} for the benefit of all beings{% else %} {% endif %}
+    &nbsp;
+    <a href="/stats" title="View Agora system statistics and health." style="text-decoration: none;">📊 Stats</a>
     {% if config.ENABLE_FLUSH_CACHE_BUTTON %}
     &nbsp;
     <button class="btn-flush-mem" title="Clear in-memory cache" style="margin-right: 0.2em;">🧠 flush memory</button>
     <button class="btn-flush-sqlite" title="Flush SQLite cache">💾 flush sqlite</button>
     {% endif %}
-    &nbsp;
-    <a href="/stats" title="View Agora system statistics and health." style="text-decoration: none;">📊 Stats</a>
 </div>
 </div>
