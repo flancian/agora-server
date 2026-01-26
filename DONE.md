@@ -32,13 +32,16 @@ This file contains a log of development sessions, capturing key learnings, archi
     -   Made the section fully dismissable via an "x" button, behaving like a system utility.
 
 3.  **UI & UX Polish**:
+    -   **Navbar Iteration**: Conducted an extensive "Trial by Commit" iteration to establish a unified 3-line header layout. Previous attempts were inconsistent; the current stable version forces a clean 3-row structure across all devices.
+    -   **Identity & Flow**: Implemented `Title ≈ URL ➜ Navigation` logic. The `≈` symbol implies equivalence, while the `➜` arrow provides directional flow to menu items.
+    -   **Search Redesign**: Iconified the search button (`🔍 Search`) and moved it to the third row (Action row) to keep the search input area (Row 2) focused.
+    -   **Control Consolidation**: Moved Dark/Demo/Music toggles and the Scroll-to-bottom button to Row 2, creating a clear "Control & Input" row.
+    -   **Responsive Everything**: Removed legacy mobile-specific overrides in `main.css` and `main.ts`, moving to a truly unified responsive design that doesn't special-case desktop.
     -   **Starring Animations**: Added `.star-pending` (pulsing) and `.star-popping` (heartbeat) animations.
     -   **Global Button Uplift**: Promoted the high-polish button styles (hover brightness, pointer cursor) to all buttons globally.
     -   **Subnode Animations**: Wrapped subnode content in `div`s and enabled `slide-down` animations for smoother expansion.
     -   **Layout Alignment**: Capped the navbar width at `80em` to match the content column on ultra-wide screens.
-    -   **Visual Hierarchy**: Refined the color palette (Violet for AI, Navy/Slate for Tips) and reduced margins for a tighter, more intentional feel.
     -   **Header Cleanup**: Removed emojis and unified "pushed from" strings in subnode attributions.
-    -   **Web Results Cleanup**: Removed "Scholar" and "X" (Twitter) from the web results bar.
     -   **CSS Caching Fix**: Updated `app/__init__.py` to include `main.css` in versioning.
 
 4.  **Backend Robustness**:
