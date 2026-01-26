@@ -190,6 +190,12 @@ export function initMusicPlayer() {
     const drawVisualizer = () => {
         if (!canvasCtx || !canvas) return;
 
+        // Auto-resume audio context if it suspended while we think we are playing
+        if (audioCtx && audioCtx.state === 'suspended' && !isPaused && ((musicPlayer && musicPlayer.isPlaying()) || (opusPlayer && !opusPlayer.paused))) {
+            console.warn("AudioContext suspended while playing, attempting resume...");
+            audioCtx.resume();
+        }
+
         visualizerFrame = requestAnimationFrame(drawVisualizer);
 
         const WIDTH = canvas.width;
@@ -365,13 +371,17 @@ export function initMusicPlayer() {
                 // If we already have a player, we can try to reuse it, but creating a new one 
                 // is safer to ensure clean state, provided we stop the old one (which we did).
                 const player = new MidiPlayer.Player(function (event: any) {
-                    if (event.name === 'Note on' && event.velocity > 0) {
-                        console.log('Midi Note:', event.noteName, event.velocity);
-                        instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 4 });
-                        activeMidiNotes[event.noteNumber] = event.velocity;
-                        activeNotesDict[event.noteNumber] = true; 
-                    } else if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
-                        // instrument handles decay usually
+                    try {
+                        if (event.name === 'Note on' && event.velocity > 0) {
+                            console.log('Midi Note:', event.noteName, event.velocity);
+                            instrument.play(event.noteName, ac.currentTime, { gain: (event.velocity / 100) * 4 });
+                            activeMidiNotes[event.noteNumber] = event.velocity;
+                            activeNotesDict[event.noteNumber] = true; 
+                        } else if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
+                            // instrument handles decay usually
+                        }
+                    } catch (e) {
+                        console.error("Error processing MIDI event:", e);
                     }
                 });
 
