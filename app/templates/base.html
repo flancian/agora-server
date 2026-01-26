@@ -106,14 +106,13 @@
                     </div>
                     <div class="navbar-item">
                         {% if config.ENABLE_AGORA_NAME_IN_HEADER %}
-                                                            <a href="/" class="navlink" style="text-decoration: none;" title="Go to the Agora home page.">
-                                                                <span style="font-weight: bold;">{{config['AGORA_NAME']}}</span>
-                                                            </a>
-                                                            <span style="margin: 0 0.1em; color: var(--main-text);">›</span>
-                                                            <a href="/" class="navlink" style="text-decoration: none;" title="Go to the Agora home page.">
-                                                                <span style="font-weight: normal;">{{config['URI_BASE']}}</span>
-                                                            </a>
-                                                        {% else %}
+                                                                                            <a href="/" class="navlink" style="text-decoration: none;" title="Go to the Agora home page.">
+                                                                                                <span style="font-weight: bold;">{{config['AGORA_NAME']}}</span>
+                                                                                            </a>
+                                                                                            <span style="margin: 0 0.1em; color: var(--main-text);">≡</span>
+                                                                                            <a href="/" class="navlink" style="text-decoration: none;" title="Go to the Agora home page.">
+                                                                                                <span style="font-weight: normal;">{{config['URI_BASE']}}</span>
+                                                                                            </a>                                                        {% else %}
                                                             <a href="/" class="navlink" style="text-decoration: none;" title="Go to the Agora home page.">
                                                                 <span style="font-weight: bold;">{{config['URI_BASE']}}</span>
                                                             </a>
