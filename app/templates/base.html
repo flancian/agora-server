@@ -125,8 +125,8 @@
                 {{config['MENU_SEPARATOR']}} <a href="/today" style="text-decoration: none;"><span class="navbar-item"><span>📆</span><span>today</span></a>
                 {{config['MENU_SEPARATOR']}} <a href="/federation" style="text-decoration: none;"><span class="navbar-item"><span>⚡</span><span>federation</span></span></a>
                 {{config['MENU_SEPARATOR']}} <a href="#" style="text-decoration: none;" id="join"><span class="navbar-item"><span>💪</span><span>join</span></span></a>
-                <button id="scroll-toggle" title="Scroll to bottom / top" style="margin-left: auto;">▼</button>
 	        </div>
+            <button id="scroll-toggle" title="Scroll to bottom / top" style="margin-left: 0.5em;">▼</button>
         </div>
         {% endif %}
 
@@ -141,6 +141,18 @@
                             <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
                         </form>
                     </div>
+                </div>
+            </div>
+            <div class="topline-node-wrapper">
+                <div class="action-bar">
+                    <button id="mini-cli-go" value="go" title="Follow a [[go]] link in the Agora, or try an 'I'm Feeling Lucky' search.">
+                        ➳ Go
+                    </button>
+                    <button id="expand-all" value="expand" title="Expand all sections.">
+    					⊞ expand
+                    </button>
+                    <button id="annotate-button" title="Toggle annotations">🖋️ Annotate</button>
+                    <button id="show-meditation-popup" title="Agora Meditation: a moment of calm.">🙏 Meditate</button>
                 </div>
                 <div class="toggle-container">
                     <label class="theme-switch" for="theme-checkbox" title="Toggle light/dark theme">
@@ -159,18 +171,6 @@
                         <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
-                </div>
-            </div>
-            <div class="topline-node-wrapper">
-                <div class="action-bar">
-                    <button id="mini-cli-go" value="go" title="Follow a [[go]] link in the Agora, or try an 'I'm Feeling Lucky' search.">
-                        ➳ Go
-                    </button>
-                    <button id="expand-all" value="expand" title="Expand all sections.">
-    					⊞ expand
-                    </button>
-                    <button id="annotate-button" title="Toggle annotations">🖋️ Annotate</button>
-                    <button id="show-meditation-popup" title="Agora Meditation: a moment of calm.">🙏 Meditate</button>
                 </div>
             </div>
         </div>
