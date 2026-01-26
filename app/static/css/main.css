@@ -177,7 +177,7 @@ body {
     display: flex;
     justify-content: center;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 
@@ -558,6 +558,10 @@ summary, #footer {
     align-items: center;
     gap: 4px;
     margin-bottom: 5px;
+}
+
+.topline-node-wrapper:first-child {
+    margin-bottom: 8px;
 }
 
 .search-container {
