@@ -1967,7 +1967,7 @@ input:checked + .slider:before {
         position: relative;
     }
 
-    .navigation::after, .footer-wrapper::after {
+    .navigation::after, .topline-node-wrapper::after, .footer-wrapper::after {
         content: '';
         position: absolute;
         right: 0;
@@ -1982,6 +1982,7 @@ input:checked + .slider:before {
 
     /* When the wrapper has this class, the shadow fades out. */
     .navigation.scrolled-to-end::after, 
+    .topline-node-wrapper.scrolled-to-end::after, 
     .footer-wrapper.scrolled-to-end::after {
         opacity: 0;
     }
