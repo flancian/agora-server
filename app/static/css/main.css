@@ -1316,8 +1316,6 @@ table caption {
     opacity: 1;
     border: 1px solid var(--border);
     text-decoration: none;
-    margin-right: 0.3em;
-    cursor: default;
 }
 
 .ai-generations-container {

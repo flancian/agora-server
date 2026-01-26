@@ -4,14 +4,12 @@
         <span class="wiki-header" title="Content from Wikimedia Commons.">
             <strong>📖</strong> 
             {% if wp_data %}
-            <span class="wiki-provider-tab active" data-provider="wp">Wikipedia article</span>
-            <em><a href="{{ wp_data.canonicalurl }}" target="_blank">{{ wp_data.title }}</a></em>
+            <span class="wiki-provider-tab active" data-provider="wp">Wikipedia article</span> <em style="margin-left: 0.3em;"><a href="{{ wp_data.canonicalurl }}" target="_blank">{{ wp_data.title }}</a></em>
             <span class="external-star-toggle" data-external-url="{{ wp_data.canonicalurl }}" data-external-title="{{ wp_data.title }}" data-external-source="wikipedia" title="Star this article">☆</span>
             {% endif %}
             {% if wt_data %}
-            {% if wp_data %}• {% endif %}
-            <span class="wiki-provider-tab {% if not wp_data %}active{% endif %}" data-provider="wt">Wiktionary entry</span>
-            <em><a href="{{ wt_data.canonicalurl }}" target="_blank">{{ wt_data.title }}</a></em>
+            {% if wp_data %} • {% endif %}
+            <span class="wiki-provider-tab {% if not wp_data %}active{% endif %}" data-provider="wt">Wiktionary entry</span> <em style="margin-left: 0.3em;"><a href="{{ wt_data.canonicalurl }}" target="_blank">{{ wt_data.title }}</a></em>
             <span class="external-star-toggle" data-external-url="{{ wt_data.canonicalurl }}" data-external-title="{{ wt_data.title }}" data-external-source="wiktionary" title="Star this entry">☆</span>
             {% endif %}
         </span>
