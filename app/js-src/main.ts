@@ -514,40 +514,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log('Observer started');
   // end code from Claude Sonnet 3.5.
 
-  // Responsive navbar rearrangement
-  const setupNavbarLayoutEngine = () => {
-    const toggleContainer = document.querySelector('.toggle-container');
-    const searchButton = document.getElementById('mini-cli-exec');
-
-    const wideToggleContainer = document.querySelector('.navigation-content');
-    const searchContainer = document.querySelector('.search-container');
-    const actionBar = document.querySelector('.action-bar');
-
-    if (!toggleContainer || !searchButton || !wideToggleContainer || !searchContainer || !actionBar) {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia('(max-width: 60em)');
-
-    const handleLayoutChange = (e: MediaQueryListEvent | MediaQueryList) => {
-        if (e.matches) {
-            // Mobile layout
-            searchContainer.appendChild(toggleContainer);
-            actionBar.insertBefore(searchButton, actionBar.firstChild);
-        } else {
-            // Desktop layout
-            // Keep toggles where they are (second line)
-            // wideToggleContainer.appendChild(toggleContainer);
-            searchContainer.insertBefore(searchButton, searchContainer.firstChild);
-        }
-    };
-
-    mediaQuery.addEventListener('change', handleLayoutChange);
-    handleLayoutChange(mediaQuery); // Initial check
-  };
-
-  setupNavbarLayoutEngine();
-
   // Scroll hints for horizontally scrollable elements
   const handleScrollHints = () => {
     document.querySelectorAll('.navigation-content, .action-bar, #footer').forEach(element => {
