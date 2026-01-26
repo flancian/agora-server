@@ -536,7 +536,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             actionBar.insertBefore(searchButton, actionBar.firstChild);
         } else {
             // Desktop layout
-            wideToggleContainer.appendChild(toggleContainer);
+            // Keep toggles where they are (second line)
+            // wideToggleContainer.appendChild(toggleContainer);
             searchContainer.insertBefore(searchButton, searchContainer.firstChild);
         }
     };
