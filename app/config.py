@@ -36,7 +36,6 @@ class DefaultConfig(object):
     MENU_SEPARATOR = '•'
     MENU_SEPARATOR = '𑗄'
     MENU_SEPARATOR = '⸱'
-    MENU_SEPARATOR = '/'
     AI_PROMPT = f"""
         You are a friendly and helpful assistant whose task is to help people navigate the internet in general and in particular the Knowledge Commons we are in, called the Agora.
 
