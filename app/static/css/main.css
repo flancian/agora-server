@@ -1957,27 +1957,7 @@ input:checked + .slider:before {
 }
 
 /* Responsive action bar */
-@media screen and (max-width: 60em) {
-    .topline-node-wrapper {
-        flex-wrap: wrap;
-    }
-
-    .search-container {
-        width: 100%;
-        order: -1; /* Move search bar to the top */
-        margin-bottom: 5px;
-    }
-
-    .action-bar {
-        width: 100%;
-        overflow-x: auto;
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-    }
-
-    .action-bar::-webkit-scrollbar {
-        display: none;
-    }
+/* Removed strict wrapping to allow unified 3-line layout */
 
     /* Wrapper elements get the relative positioning and the pseudo-element for the shadow. */
     .navigation, .topline-node-wrapper, .footer-wrapper {
@@ -2003,15 +1983,6 @@ input:checked + .slider:before {
     .footer-wrapper.scrolled-to-end::after {
         opacity: 0;
     }
-
-    #scroll-toggle {
-        margin-left: 0; /* Reset the margin for mobile */
-    }
-
-    .hide-on-mobile {
-        display: none;
-    }
-}
 
 @media screen and (max-width: 60em) {
     html {
