@@ -579,6 +579,14 @@ summary, #footer {
     display: flex;
     align-items: center;
     gap: 0.2em;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    max-width: 100%;
+}
+
+.action-bar::-webkit-scrollbar {
+    display: none;
 }
 
 #scroll-toggle {
