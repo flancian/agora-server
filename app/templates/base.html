@@ -107,7 +107,9 @@
                     <a href="/" class="navlink" style="text-decoration: none;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many.">
                         <span class="navbar-item">
                             {% if config.ENABLE_AGORA_NAME_IN_HEADER %}
-                                <span style="font-weight: bold;">{{config['AGORA_NAME']}}</span>{{config['MENU_SEPARATOR']}}<span style="font-weight: normal;">{{config['URI_BASE']}}</span>
+                                <span style="font-weight: bold;">{{config['AGORA_NAME']}}</span>
+                                <span style="margin: 0 0.2em; opacity: 0.7;">➜</span>
+                                <span style="font-weight: normal;">{{config['URI_BASE']}}</span>
                             {% else %}
                                 <span style="font-weight: bold;">{{config['URI_BASE']}}</span>
                             {% endif %}
