@@ -49,6 +49,8 @@ This hybrid approach provides the best of both worlds: the data users are active
 
 *The following tasks belong to the `agora-server` (this) repository and component.*
 
+**See also: [[7]] (The Seven Priorities for 2026) for the strategic arc.**
+
 ### Priority 1: Stability & Performance (The Foundation)
 
 **Goal:** Ensure the server remains lean, fast, and crash-free even as the graph grows.
