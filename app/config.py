@@ -208,6 +208,9 @@ class DefaultConfig(object):
         }
     ]
 
+    # Feature flags
+    ENABLE_AGORA_NAME_IN_HEADER = False
+
 
 class ProductionConfig(DefaultConfig):
 
@@ -270,6 +273,7 @@ class AlphaConfig(DefaultConfig):
     ENABLE_DEMO = True
     USE_GIT_MTIME = False
     ENABLE_SYNTHESIS = True
+    ENABLE_AGORA_NAME_IN_HEADER = True
 
 
 class DevelopmentConfig(DefaultConfig):
@@ -290,6 +294,7 @@ class DevelopmentConfig(DefaultConfig):
     ENABLE_SQLITE = True
     ENABLE_FTS = False
     ENABLE_SYNTHESIS = True
+    ENABLE_AGORA_NAME_IN_HEADER = True
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = True
@@ -318,6 +323,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_SYNTHESIS = True
     ENABLE_LAZY_LOAD = False
     USE_GIT_MTIME = False
+    ENABLE_AGORA_NAME_IN_HEADER = True
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = True
