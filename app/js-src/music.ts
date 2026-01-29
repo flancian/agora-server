@@ -17,6 +17,7 @@ export function initMusicPlayer() {
     const trackNameSpan = document.getElementById('music-player-track-name');
     const artistNameSpan = document.getElementById('music-player-artist-name');
     const timeDisplay = document.getElementById('music-player-time');
+    const notesOverlay = document.getElementById('music-player-notes-overlay');
     const autoplayMessage = document.getElementById('music-player-autoplay-message');
     const musicControls = document.getElementById('music-player-controls');
     
@@ -177,6 +178,7 @@ export function initMusicPlayer() {
             canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
         }
         activeMidiNotes = {};
+        if (notesOverlay) notesOverlay.textContent = '';
         console.log("Music stopped.");
     };
 
@@ -185,6 +187,13 @@ export function initMusicPlayer() {
         const m = Math.floor(seconds / 60);
         const s = Math.floor(seconds % 60);
         return `${m}:${s.toString().padStart(2, '0')}`;
+    };
+
+    const getNoteName = (midi: number) => {
+        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const note = notes[midi % 12];
+        const octave = Math.floor(midi / 12) - 1;
+        return `${note}${octave}`;
     };
 
     const drawVisualizer = () => {
@@ -261,6 +270,17 @@ export function initMusicPlayer() {
             // MIDI Visualizer
             // Draw active notes
             const notes = Object.keys(activeMidiNotes).map(Number);
+            
+            // Update Overlay
+            if (notesOverlay) {
+                 if (notes.length > 0) {
+                      notes.sort((a,b) => a-b);
+                      notesOverlay.textContent = notes.map(getNoteName).join(' ');
+                 } else {
+                      notesOverlay.textContent = '';
+                 }
+            }
+
             const barWidth = WIDTH / 88; // 88 keys
             
             notes.forEach(note => {
