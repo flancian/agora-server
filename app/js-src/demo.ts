@@ -95,7 +95,15 @@ export function initDemoMode() {
             updateTimer();
             if (countdown <= 0) {
                 clearInterval(demoIntervalId as number);
-                window.location.href = '/random';
+                // Fetch the random node URL first to ensure clean history navigation (avoiding 302 stack confusion)
+                fetch('/random', { method: 'HEAD' })
+                    .then(res => {
+                        window.location.href = res.url;
+                    })
+                    .catch(() => {
+                        // Fallback
+                        window.location.href = '/random';
+                    });
             }
         }, 1000);
 
