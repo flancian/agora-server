@@ -561,16 +561,14 @@ export function initMusicPlayer() {
                  // Sort MIDIs by size ascending (helper for fallback)
                  midis.sort((a: any, b: any) => (a.size || 0) - (b.size || 0));
 
-                 // 1. Pick one "Interesting" track first.
-                 // Calibration: 399 bytes was 35s (sparse).
-                 // Target: 7-17 seconds.
-                 // If sparse (~0.7 notes/sec), we need 5-12 notes.
-                 // (Size - 200) / 8
-                 const interestingCandidates = midis.filter((m: any) => {
-                     const estimatedNotes = Math.max(0, (m.size - 200) / 8);
-                     return estimatedNotes >= 3 && estimatedNotes <= 15;
-                 });
-                 
+                                  // 1. Pick one "Interesting" track first.
+                                  // Calibration: 399 bytes = ~30 notes (counted). 
+                                  // Formula: (Size - 100) / 10
+                                  // Target: 7 to 17 notes (aiming for 7-17 seconds).
+                                  const interestingCandidates = midis.filter((m: any) => {
+                                      const estimatedNotes = Math.max(0, (m.size - 100) / 10);
+                                      return estimatedNotes >= 7 && estimatedNotes <= 17;
+                                  });                 
                  let firstTrack = null;
                  
                  if (interestingCandidates.length > 0) {
