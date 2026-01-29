@@ -562,11 +562,12 @@ export function initMusicPlayer() {
                  midis.sort((a: any, b: any) => (a.size || 0) - (b.size || 0));
 
                  // 1. Pick one "Interesting" track first.
-                 // Recalibrated Heuristic V2:
-                 // 2845 bytes was ~3 minutes (sparse ambient).
-                 // To hit 7-17 seconds of sparse music (~15 bytes/sec), we need ~100-300 bytes + overhead.
-                 // Let's target 300 - 1000 bytes.
-                 const interestingCandidates = midis.filter((m: any) => m.size >= 300 && m.size <= 1200);
+                 // Estimate Note Count: (Size - Header~200) / ~8 bytes per note event pair
+                 // Target: 7 to 17 notes.
+                 const interestingCandidates = midis.filter((m: any) => {
+                     const estimatedNotes = Math.max(0, (m.size - 200) / 8);
+                     return estimatedNotes >= 7 && estimatedNotes <= 30; // Expanded slightly to 30 to catch chords
+                 });
                  
                  let firstTrack = null;
                  
