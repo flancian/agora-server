@@ -265,7 +265,7 @@ export function initDemoMode() {
     window.addEventListener('agora-track-change', (e: any) => {
         const isDemo = Array.from(demoCheckboxes).some(cb => cb.checked);
         const isMusic = (document.getElementById('music-checkbox') as HTMLInputElement)?.checked;
-        if (isDemo && isMusic && e.detail.trackIndex > 0) {
+        if (isDemo && isMusic) {
              startGentleScroll();
         }
     });
