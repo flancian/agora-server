@@ -47,6 +47,10 @@ export function initDemoMode() {
     };
 
     const cancelDeepDemo = () => {
+        if ((window as any).gentleScrollInterval) {
+            clearInterval((window as any).gentleScrollInterval);
+            (window as any).gentleScrollInterval = null;
+        }
         if (demoIntervalId) {
             clearInterval(demoIntervalId);
             demoIntervalId = null;
@@ -245,5 +249,24 @@ export function initDemoMode() {
             }
         }
         showPopup();
+    });
+
+    const startGentleScroll = () => {
+        if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
+        (window as any).gentleScrollInterval = setInterval(() => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
+                 clearInterval((window as any).gentleScrollInterval);
+            } else {
+                window.scrollBy(0, 1);
+            }
+        }, 50);
+    };
+
+    window.addEventListener('agora-track-change', (e: any) => {
+        const isDemo = Array.from(demoCheckboxes).some(cb => cb.checked);
+        const isMusic = (document.getElementById('music-checkbox') as HTMLInputElement)?.checked;
+        if (isDemo && isMusic && e.detail.trackIndex > 0) {
+             startGentleScroll();
+        }
     });
 }

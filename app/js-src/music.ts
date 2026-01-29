@@ -347,6 +347,10 @@ export function initMusicPlayer() {
         // Concurrency token
         const playId = ++currentPlayId;
         
+        // Dispatch event for Demo Mode integration
+        const event = new CustomEvent('agora-track-change', { detail: { trackIndex: currentTrackIndex } });
+        window.dispatchEvent(event);
+        
         if (!playlist || playlist.length === 0) return;
         
         const track = playlist[trackIndex];
