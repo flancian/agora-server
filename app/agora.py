@@ -823,7 +823,7 @@ def fullsearch(qstr):
     current_app.logger.debug(f"full text search for [[{qstr}]].")
     
     # mode: exact, broad, fs
-    mode = request.args.get("mode", "exact")
+    mode = request.args.get("mode", "broad")
     
     # legacy param support
     if request.args.get("force_fs") == "True":

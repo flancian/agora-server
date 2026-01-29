@@ -193,11 +193,21 @@ def create_tables(db):
 
         # Add FTS5 table if enabled
         if current_app.config.get('ENABLE_FTS', False):
+            # Migration: Check if existing table uses old tokenizer (porter) and drop it if so.
+            try:
+                cursor = db.execute("SELECT sql FROM sqlite_master WHERE name='subnodes_fts'")
+                row = cursor.fetchone()
+                if row and "tokenize='porter'" in row[0]:
+                    current_app.logger.warning("FTS table uses old tokenizer 'porter'. Dropping to upgrade to 'trigram'.")
+                    db.execute("DROP TABLE subnodes_fts")
+            except Exception as e:
+                current_app.logger.error(f"Error checking FTS schema: {e}")
+
             SCHEMA['subnodes_fts'] = """
                 CREATE VIRTUAL TABLE IF NOT EXISTS subnodes_fts USING fts5(
                     path, 
                     content, 
-                    tokenize='porter'
+                    tokenize='trigram'
                 );
             """
 

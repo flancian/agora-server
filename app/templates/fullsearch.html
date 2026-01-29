@@ -19,8 +19,8 @@
 
             <div class="search-header" style="margin-bottom: 1em; margin-top: 1em;">
                 <span style="margin-right: 10px;"><strong>Search Mode:</strong></span>
-                <span class="search-mode-tab {% if mode == 'exact' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="exact" title="Find phrase matches using the index (fast)">Exact</span> • 
                 <span class="search-mode-tab {% if mode == 'broad' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="broad" title="Find any matches using the index (fast, fuzzy)">Fuzzy</span> • 
+                <span class="search-mode-tab {% if mode == 'exact' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="exact" title="Find phrase matches using the index (fast)">Exact</span> • 
                 <span class="search-mode-tab {% if mode == 'fs' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="fs" title="Scan all files directly (slow, literal)">Literal</span>
             </div>
 
