@@ -11,7 +11,7 @@ export const CLIENT_DEFAULTS = {
   showGraphLabels: true,
   showHypothesis: false,
   autoExpandStoas: false,
-  demoTimeoutSeconds: '17',
+  demoTimeoutSeconds: '31',
   showEditSection: false,
 };
 

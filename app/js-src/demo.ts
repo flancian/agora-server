@@ -259,7 +259,7 @@ export function initDemoMode() {
             } else {
                 window.scrollBy(0, 1);
             }
-        }, 50);
+        }, 33);
     };
 
     window.addEventListener('agora-track-change', (e: any) => {
