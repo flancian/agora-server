@@ -55,6 +55,7 @@
     --dismiss-button-color: white;
     --synthesis-bg: rgba(74, 59, 106, 0.4);
     --synthesis-border: #6a5acd;
+    --music-overlay-color: #e1bee7;
 }
 
 [data-theme="light"] {
@@ -91,6 +92,7 @@
     --dismiss-button-color: black;
     --synthesis-bg: #e6e6fa;
     --synthesis-border: #9370db;
+    --music-overlay-color: #ffe0b2;
 }
 
 .overlay {
