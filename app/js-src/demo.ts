@@ -17,6 +17,7 @@ export function initDemoMode() {
     const cancelOnInteraction = (event: Event) => {
         // Ignore events that are not triggered by direct user action.
         if (!event.isTrusted) {
+            // console.log('Ignoring untrusted event:', event.type);
             return;
         }
 
@@ -36,7 +37,7 @@ export function initDemoMode() {
         // For any other interaction, programmatically uncheck the box.
         const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
         if (anyCheckedDemoBox) {
-            console.log('Deep demo mode cancelled by user interaction.');
+            console.log('Deep demo mode cancelled by user interaction:', event.type);
             // Programmatically uncheck the box and trigger the change event.
             const mainCheckbox = document.getElementById('demo-checkbox') as HTMLInputElement;
             if (mainCheckbox) {
@@ -48,10 +49,12 @@ export function initDemoMode() {
 
     const cancelDeepDemo = () => {
         if ((window as any).gentleScrollInterval) {
+            console.log('Clearing gentle scroll interval.');
             clearInterval((window as any).gentleScrollInterval);
             (window as any).gentleScrollInterval = null;
         }
         if (demoIntervalId) {
+            console.log('Cancelling deep demo timer.');
             clearInterval(demoIntervalId);
             demoIntervalId = null;
             const timerElement = document.getElementById('demo-timer');
@@ -252,9 +255,11 @@ export function initDemoMode() {
     });
 
     const startGentleScroll = () => {
+        console.log("Music + Demo: Starting gentle scroll.");
         if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
         (window as any).gentleScrollInterval = setInterval(() => {
             if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
+                 console.log("Gentle scroll hit bottom.");
                  clearInterval((window as any).gentleScrollInterval);
             } else {
                 window.scrollBy(0, 1);
@@ -265,6 +270,7 @@ export function initDemoMode() {
     window.addEventListener('agora-track-change', (e: any) => {
         const isDemo = Array.from(demoCheckboxes).some(cb => cb.checked);
         const isMusic = (document.getElementById('music-checkbox') as HTMLInputElement)?.checked;
+        console.log(`Track change detected. Demo: ${isDemo}, Music: ${isMusic}`);
         if (isDemo && isMusic) {
              startGentleScroll();
         }
