@@ -121,7 +121,7 @@ SCHEMA_TEMPLATES = {
         CREATE VIRTUAL TABLE IF NOT EXISTS {table_name} USING fts5(
             path, 
             content, 
-            tokenize='trigram'
+            tokenize='porter'
         );
     """
 }
@@ -212,12 +212,12 @@ def create_tables(db):
 
         # Add FTS5 table if enabled
         if current_app.config.get('ENABLE_FTS', False):
-            # Migration: Check if existing table uses old tokenizer (porter) and drop it if so.
+            # Migration: Check if existing table uses old tokenizer (trigram) and drop it if so.
             try:
                 cursor = db.execute("SELECT sql FROM sqlite_master WHERE name='subnodes_fts'")
                 row = cursor.fetchone()
-                if row and "tokenize='porter'" in row[0]:
-                    current_app.logger.warning("FTS table uses old tokenizer 'porter'. Dropping to upgrade to 'trigram'.")
+                if row and "tokenize='trigram'" in row[0]:
+                    current_app.logger.warning("FTS table uses 'trigram' tokenizer. Dropping to revert to 'porter'.")
                     db.execute("DROP TABLE subnodes_fts")
             except Exception as e:
                 current_app.logger.error(f"Error checking FTS schema: {e}")
@@ -627,6 +627,17 @@ def search_subnodes_fts(query, mode='exact'):
             # Escape existing double quotes to avoid syntax errors
             safe_query = query.replace('"', '""')
             match_query = f'"{safe_query}"'
+        elif mode == 'broad':
+            # Prefix match each term to handle typos and stemming better
+            # e.g. "gnossienes" -> "gnossienes*" -> matches "gnossienne" (via stemming)
+            # Remove quotes to avoid syntax errors with *
+            safe_query = query.replace('"', '')
+            # Filter out empty terms
+            terms = [t for t in safe_query.split() if t]
+            if terms:
+                match_query = ' '.join([f'{t}*' for t in terms])
+            else:
+                match_query = safe_query # Fallback if empty
         
         # SEARCH ALL COLUMNS (path + content) by targeting the table name.
         cursor.execute("SELECT DISTINCT path FROM subnodes_fts WHERE subnodes_fts MATCH ? ORDER BY rank", (match_query,))
