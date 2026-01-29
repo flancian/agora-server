@@ -66,7 +66,7 @@ def build_cache(app):
             
             if app.config.get('ENABLE_FTS', False):
                 db.execute(f"DROP TABLE IF EXISTS {subnodes_fts_table}")
-                db.execute(f"CREATE VIRTUAL TABLE {subnodes_fts_table} USING fts5(path, content, tokenize='porter')")
+                db.execute(f"CREATE VIRTUAL TABLE {subnodes_fts_table} USING fts5(path, content, tokenize='trigram')")
 
             # Schema must match sqlite_engine.py
             db.execute(f"""
