@@ -558,22 +558,37 @@ export function initMusicPlayer() {
                  
                  playlist = [];
 
-                 // Sort MIDIs by size ascending to identify "short" ones
+                 // Sort MIDIs by size ascending (helper for fallback)
                  midis.sort((a: any, b: any) => (a.size || 0) - (b.size || 0));
 
-                 // 1. Pick one short MIDI from the bottom 10% (or at least top 5 if set is small)
-                 if (midis.length > 0) {
-                     const thresholdIndex = Math.max(5, Math.floor(midis.length * 0.1));
-                     const candidatesCount = Math.min(midis.length, thresholdIndex);
-                     
-                     // Pick random index from candidates
-                     const idx = Math.floor(Math.random() * candidatesCount);
-                     
-                     // Add to playlist
-                     playlist.push(midis[idx]);
-                     
-                     // Remove from the list of remaining midis
-                     midis.splice(idx, 1);
+                 // 1. Pick one "Interesting" track first.
+                 // Heuristic: Size between 1.5KB and 10KB usually roughly maps to 15-60s of moderate complexity.
+                 // < 1KB is often just a chord or silence.
+                 const interestingCandidates = midis.filter((m: any) => m.size >= 1500 && m.size <= 10000);
+                 
+                 let firstTrack = null;
+                 
+                 if (interestingCandidates.length > 0) {
+                     // Pick random from interesting candidates
+                     const idx = Math.floor(Math.random() * interestingCandidates.length);
+                     firstTrack = interestingCandidates[idx];
+                 } else if (midis.length > 0) {
+                     // Fallback: Pick from the middle 50% (avoiding extremes) to avoid tiny files
+                     const start = Math.floor(midis.length * 0.25);
+                     const end = Math.floor(midis.length * 0.75);
+                     const candidates = midis.slice(start, end);
+                     if (candidates.length > 0) {
+                         firstTrack = candidates[Math.floor(Math.random() * candidates.length)];
+                     } else {
+                         firstTrack = midis[0];
+                     }
+                 }
+
+                 if (firstTrack) {
+                      playlist.push(firstTrack);
+                      // Remove it from midis list to avoid dupes
+                      const index = midis.indexOf(firstTrack);
+                      if (index > -1) midis.splice(index, 1);
                  }
                  
                  // 2. Add one Opus track (if available)
