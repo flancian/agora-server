@@ -219,8 +219,20 @@ export function initDemoMode() {
     };
 
     if (demoCheckboxes.length > 0) {
-        // Set initial state from localStorage
-        const isDemoActive = JSON.parse(localStorage.getItem("deep-demo-active") || 'false');
+        // Check for Back/Forward navigation to prevent history loops
+        let isDemoActive = JSON.parse(localStorage.getItem("deep-demo-active") || 'false');
+        
+        try {
+            const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+            if (navEntry && navEntry.type === 'back_forward' && isDemoActive) {
+                console.log("Detected Back/Forward navigation. Disabling Demo Mode to prevent loops.");
+                isDemoActive = false;
+            }
+        } catch (e) {
+            console.warn("Could not check navigation type:", e);
+        }
+
+        // Set initial state
         setDemoMode(isDemoActive);
 
         // Add event listeners to all demo checkboxes
