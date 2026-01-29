@@ -562,9 +562,10 @@ export function initMusicPlayer() {
                  midis.sort((a: any, b: any) => (a.size || 0) - (b.size || 0));
 
                  // 1. Pick one "Interesting" track first.
-                 // Heuristic: Size between 1.5KB and 10KB usually roughly maps to 15-60s of moderate complexity.
-                 // < 1KB is often just a chord or silence.
-                 const interestingCandidates = midis.filter((m: any) => m.size >= 1500 && m.size <= 10000);
+                 // Recalibrated Heuristic: 
+                 // Based on ~60 bytes/sec for standard MIDIs:
+                 // 800 - 3000 bytes roughly maps to 10-50 seconds.
+                 const interestingCandidates = midis.filter((m: any) => m.size >= 800 && m.size <= 3000);
                  
                  let firstTrack = null;
                  
