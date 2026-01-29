@@ -562,11 +562,13 @@ export function initMusicPlayer() {
                  midis.sort((a: any, b: any) => (a.size || 0) - (b.size || 0));
 
                  // 1. Pick one "Interesting" track first.
-                 // Estimate Note Count: (Size - Header~200) / ~8 bytes per note event pair
-                 // Target: 7 to 17 notes.
+                 // Calibration: 399 bytes was 35s (sparse).
+                 // Target: 7-17 seconds.
+                 // If sparse (~0.7 notes/sec), we need 5-12 notes.
+                 // (Size - 200) / 8
                  const interestingCandidates = midis.filter((m: any) => {
                      const estimatedNotes = Math.max(0, (m.size - 200) / 8);
-                     return estimatedNotes >= 7 && estimatedNotes <= 30; // Expanded slightly to 30 to catch chords
+                     return estimatedNotes >= 3 && estimatedNotes <= 15;
                  });
                  
                  let firstTrack = null;
