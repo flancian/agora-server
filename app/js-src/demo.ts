@@ -227,6 +227,25 @@ export function initDemoMode() {
         demoCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', () => {
                 setDemoMode(checkbox.checked);
+                // Auto-scroll check
+                const isMusic = (document.getElementById('music-checkbox') as HTMLInputElement)?.checked;
+                if (checkbox.checked && isMusic) {
+                    startGentleScroll();
+                }
+            });
+        });
+
+        // Listen to Music checkboxes as well to trigger auto-scroll
+        const musicCheckboxes = document.querySelectorAll(".music-checkbox-input") as NodeListOf<HTMLInputElement>;
+        musicCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const isDemo = Array.from(demoCheckboxes).some(cb => cb.checked);
+                if (checkbox.checked && isDemo) {
+                    startGentleScroll();
+                } else if (!checkbox.checked) {
+                    // Stop scrolling if music stops
+                    if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
+                }
             });
         });
 
