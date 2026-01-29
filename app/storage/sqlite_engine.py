@@ -17,6 +17,115 @@ import sqlite3
 import re
 from flask import current_app, g
 
+# Module-level schema templates to be shared with maintenance worker.
+# Using {table_name} placeholder to allow creating temporary/swap tables.
+SCHEMA_TEMPLATES = {
+    'subnodes': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            path TEXT PRIMARY KEY,
+            user TEXT NOT NULL,
+            node TEXT NOT NULL,
+            mtime INTEGER NOT NULL,
+            git_mtime INTEGER
+        );
+    """,
+    'links': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            source_path TEXT NOT NULL,
+            target_node TEXT NOT NULL,
+            type TEXT NOT NULL,
+            source_node TEXT,
+            PRIMARY KEY (source_path, target_node, type)
+        );
+    """,
+    'ai_generations': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            prompt TEXT NOT NULL,
+            provider TEXT NOT NULL,
+            content TEXT NOT NULL,
+            timestamp INTEGER NOT NULL,
+            full_prompt TEXT,
+            PRIMARY KEY (prompt, provider)
+        );
+    """,
+    'query_cache': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            key TEXT PRIMARY KEY,
+            value TEXT,
+            timestamp INTEGER
+        );
+    """,
+    'starred_subnodes': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            subnode_uri TEXT PRIMARY KEY
+        );
+    """,
+    'starred_nodes': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            node_uri TEXT PRIMARY KEY
+        );
+    """,
+    'graph_cache': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            timestamp INTEGER NOT NULL
+        );
+    """,
+    'git_repo_state': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            repo_path TEXT PRIMARY KEY,
+            last_commit_hash TEXT NOT NULL
+        );
+    """,
+    'followers': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            user_uri TEXT NOT NULL,
+            follower_uri TEXT NOT NULL,
+            PRIMARY KEY (user_uri, follower_uri)
+        );
+    """,
+    'starred_external': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            url TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            source TEXT NOT NULL,
+            node TEXT,
+            timestamp INTEGER
+        );
+    """,
+    'maintenance_lock': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            worker_id TEXT,
+            timestamp INTEGER
+        );
+    """,
+    'reactions': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            id TEXT PRIMARY KEY,
+            type TEXT NOT NULL,
+            actor TEXT NOT NULL,
+            object TEXT NOT NULL,
+            content TEXT,
+            timestamp INTEGER NOT NULL
+        );
+    """,
+    'federated_subnodes': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            subnode_uri TEXT PRIMARY KEY
+        );
+    """,
+    # FTS table template
+    'subnodes_fts': """
+        CREATE VIRTUAL TABLE IF NOT EXISTS {table_name} USING fts5(
+            path, 
+            content, 
+            tokenize='trigram'
+        );
+    """
+}
+
 def regexp(expr, item):
     """
     Custom SQLite REGEXP function using Python's re module.
@@ -95,101 +204,11 @@ def create_tables(db):
     Also handles simple schema migrations like adding a column.
     """
     with db:
-        SCHEMA = {
-            'subnodes': """
-                CREATE TABLE IF NOT EXISTS subnodes (
-                    path TEXT PRIMARY KEY,
-                    user TEXT NOT NULL,
-                    node TEXT NOT NULL,
-                    mtime INTEGER NOT NULL
-                );
-            """,
-            'links': """
-                CREATE TABLE IF NOT EXISTS links (
-                    source_path TEXT NOT NULL,
-                    target_node TEXT NOT NULL,
-                    type TEXT NOT NULL,
-                    PRIMARY KEY (source_path, target_node, type)
-                );
-            """,
-            'ai_generations': """
-                CREATE TABLE IF NOT EXISTS ai_generations (
-                    prompt TEXT NOT NULL,
-                    provider TEXT NOT NULL,
-                    content TEXT NOT NULL,
-                    timestamp INTEGER NOT NULL,
-                    PRIMARY KEY (prompt, provider)
-                );
-            """,
-            'query_cache': """
-                CREATE TABLE IF NOT EXISTS query_cache (
-                    key TEXT PRIMARY KEY,
-                    value TEXT,
-                    timestamp INTEGER
-                );
-            """,
-            'starred_subnodes': """
-                CREATE TABLE IF NOT EXISTS starred_subnodes (
-                    subnode_uri TEXT PRIMARY KEY
-                );
-            """,
-            'starred_nodes': """
-                CREATE TABLE IF NOT EXISTS starred_nodes (
-                    node_uri TEXT PRIMARY KEY
-                );
-            """,
-            'graph_cache': """
-                CREATE TABLE IF NOT EXISTS graph_cache (
-                    key TEXT PRIMARY KEY,
-                    value TEXT NOT NULL,
-                    timestamp INTEGER NOT NULL
-                );
-            """,
-            'git_repo_state': """
-                CREATE TABLE IF NOT EXISTS git_repo_state (
-                    repo_path TEXT PRIMARY KEY,
-                    last_commit_hash TEXT NOT NULL
-                );
-            """,
-            'followers': """
-                CREATE TABLE IF NOT EXISTS followers (
-                    user_uri TEXT NOT NULL,
-                    follower_uri TEXT NOT NULL,
-                    PRIMARY KEY (user_uri, follower_uri)
-                );
-            """,
-            'starred_external': """
-                CREATE TABLE IF NOT EXISTS starred_external (
-                    url TEXT PRIMARY KEY,
-                    title TEXT NOT NULL,
-                    source TEXT NOT NULL,
-                    node TEXT,
-                    timestamp INTEGER
-                );
-            """,
-            'maintenance_lock': """
-                CREATE TABLE IF NOT EXISTS maintenance_lock (
-                    id INTEGER PRIMARY KEY CHECK (id = 1),
-                    worker_id TEXT,
-                    timestamp INTEGER
-                );
-            """,
-            'reactions': """
-                CREATE TABLE IF NOT EXISTS reactions (
-                    id TEXT PRIMARY KEY,
-                    type TEXT NOT NULL,
-                    actor TEXT NOT NULL,
-                    object TEXT NOT NULL,
-                    content TEXT,
-                    timestamp INTEGER NOT NULL
-                );
-            """,
-            'federated_subnodes': """
-                CREATE TABLE IF NOT EXISTS federated_subnodes (
-                    subnode_uri TEXT PRIMARY KEY
-                );
-            """
-        }
+        # Create standard tables using templates
+        for name, template in SCHEMA_TEMPLATES.items():
+            if name == 'subnodes_fts':
+                continue # Handled separately below based on config
+            db.execute(template.format(table_name=name))
 
         # Add FTS5 table if enabled
         if current_app.config.get('ENABLE_FTS', False):
@@ -203,17 +222,7 @@ def create_tables(db):
             except Exception as e:
                 current_app.logger.error(f"Error checking FTS schema: {e}")
 
-            SCHEMA['subnodes_fts'] = """
-                CREATE VIRTUAL TABLE IF NOT EXISTS subnodes_fts USING fts5(
-                    path, 
-                    content, 
-                    tokenize='trigram'
-                );
-            """
-
-        # Check all tables in the schema.
-        for table, query in SCHEMA.items():
-            db.execute(query)
+            db.execute(SCHEMA_TEMPLATES['subnodes_fts'].format(table_name='subnodes_fts'))
 
         # Migration: Add the source_node column to the links table if it doesn't exist.
         try:

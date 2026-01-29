@@ -5,7 +5,7 @@ from contextlib import closing
 import os
 from flask import current_app
 from app.graph import Graph
-from app.storage.sqlite_engine import create_tables, update_last_index_time, get_db, save_cached_query
+from app.storage.sqlite_engine import create_tables, update_last_index_time, get_db, save_cached_query, SCHEMA_TEMPLATES
 import app.storage.api as api
 from app import git_utils
 
@@ -66,27 +66,11 @@ def build_cache(app):
             
             if app.config.get('ENABLE_FTS', False):
                 db.execute(f"DROP TABLE IF EXISTS {subnodes_fts_table}")
-                db.execute(f"CREATE VIRTUAL TABLE {subnodes_fts_table} USING fts5(path, content, tokenize='trigram')")
+                db.execute(SCHEMA_TEMPLATES['subnodes_fts'].format(table_name=subnodes_fts_table))
 
             # Schema must match sqlite_engine.py
-            db.execute(f"""
-                CREATE TABLE {subnodes_table} (
-                    path TEXT PRIMARY KEY,
-                    user TEXT NOT NULL,
-                    node TEXT NOT NULL,
-                    mtime INTEGER NOT NULL,
-                    git_mtime INTEGER
-                )
-            """)
-            db.execute(f"""
-                CREATE TABLE {links_table} (
-                    source_path TEXT NOT NULL,
-                    target_node TEXT NOT NULL,
-                    type TEXT NOT NULL,
-                    source_node TEXT,
-                    PRIMARY KEY (source_path, target_node, type)
-                )
-            """)
+            db.execute(SCHEMA_TEMPLATES['subnodes'].format(table_name=subnodes_table))
+            db.execute(SCHEMA_TEMPLATES['links'].format(table_name=links_table))
 
             app.logger.info(f"Populating {subnodes_table}...")
             subnodes_to_insert = []
