@@ -9,4 +9,4 @@ export AGORA_CONFIG="ProductionConfig"
 export URL_BASE="https://anagora.org"
 
 echo "Starting Agora Federation Worker..."
-uv run python3 scripts/federation_worker.py
+exec uv run python3 scripts/federation_worker.py
