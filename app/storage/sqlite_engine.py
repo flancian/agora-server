@@ -1052,16 +1052,29 @@ def get_all_starred_external():
         current_app.logger.warning(f"Could not fetch starred external, table might not exist yet: {e}")
         return []
 
+_starred_external_urls_cache = None
+_starred_external_urls_ts = 0
+
 def get_all_starred_external_urls():
     """
     Returns a set of all starred external URLs for quick lookup.
+    Cached for 60 seconds.
     """
+    global _starred_external_urls_cache, _starred_external_urls_ts
+    import time
+    
+    if _starred_external_urls_cache is not None and (time.time() - _starred_external_urls_ts < 60):
+        return _starred_external_urls_cache
+
     db = get_db()
     if db is None:
         return set()
     try:
         cursor = db.execute("SELECT url FROM starred_external")
-        return {row[0] for row in cursor.fetchall()}
+        result = {row[0] for row in cursor.fetchall()}
+        _starred_external_urls_cache = result
+        _starred_external_urls_ts = time.time()
+        return result
     except sqlite3.OperationalError as e:
         return set()
 

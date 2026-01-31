@@ -1710,7 +1710,9 @@ def get_starred_external():
 def get_starred_external_urls():
     try:
         starred_urls = sqlite_engine.get_all_starred_external_urls()
-        return jsonify(list(starred_urls))
+        response = jsonify(list(starred_urls))
+        response.headers['Cache-Control'] = 'public, max-age=600'
+        return response
     except Exception as e:
         current_app.logger.error(f"API: Error fetching starred external URLs: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
