@@ -715,6 +715,22 @@ def get_subnodes_by_node(node_uri):
         })
     return results
 
+def get_latest_subnodes(limit=100):
+    """
+    Retrieves the most recently modified subnodes from the index.
+    Returns a list of dicts: {'path': ..., 'user': ..., 'node': ..., 'mtime': ...}
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT path, user, node, mtime FROM subnodes ORDER BY mtime DESC LIMIT ?", (limit,))
+    return [
+        {'path': row[0], 'user': row[1], 'node': row[2], 'mtime': row[3]}
+        for row in cursor.fetchall()
+    ]
+
 def get_ai_generation(prompt, provider):
     """
     Retrieves a cached AI generation for a given prompt and provider.

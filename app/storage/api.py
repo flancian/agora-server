@@ -195,13 +195,19 @@ def latest(max):
                 subnodes.append(s)
             return subnodes
 
-        current_app.logger.info(f"CACHE MISS (sqlite): Recomputing latest.")
-        subnodes = file_engine.latest(max)
-        # Cache all the data needed to reconstruct the object without file I/O
-        data_to_cache = [
-            {'uri': s.uri, 'user': s.user, 'wikilink': s.wikilink, 'mtime': s.mtime}
-            for s in subnodes
-        ]
+        current_app.logger.info(f"CACHE MISS (sqlite): Recomputing latest from SQLite index.")
+        results = sqlite_engine.get_latest_subnodes(max)
+        subnodes = []
+        data_to_cache = []
+        for item in results:
+            s = SubnodeClass.__new__(SubnodeClass)
+            s.uri = item['path']
+            s.user = item['user']
+            s.wikilink = item['node']
+            s.mtime = item['mtime']
+            subnodes.append(s)
+            data_to_cache.append({'uri': s.uri, 'user': s.user, 'wikilink': s.wikilink, 'mtime': s.mtime})
+
         sqlite_engine.save_cached_query(cache_key, json.dumps(data_to_cache), time.time())
         return subnodes
     else:
