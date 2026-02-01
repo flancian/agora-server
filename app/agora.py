@@ -203,8 +203,19 @@ def node_feed(node):
 
 @bp.route("/feed/@<user>")
 def user_feed(user):
+    cache_key = f'feed_user_{user}'
+    cached_val, timestamp = sqlite_engine.get_cached_query(cache_key)
+    now = time.time()
+
+    if cached_val and (now - timestamp < 300):
+        return Response(cached_val, mimetype="application/rss+xml")
+
     subnodes = api.subnodes_by_user(user, mediatype="text/plain")
-    return Response(feed.user_rss(user, subnodes), mimetype="application/rss+xml")
+    rss_content = feed.user_rss(user, subnodes)
+    
+    sqlite_engine.save_cached_query(cache_key, rss_content, int(now))
+
+    return Response(rss_content, mimetype="application/rss+xml")
 
 
 @bp.route("/feed/journals/@<user>")
@@ -224,9 +235,22 @@ def journals_feed():
 
 @bp.route("/feed/latest")
 def latest_feed():
+    # Cache for 5 minutes (300 seconds)
+    cache_key = 'feed_latest'
+    cached_val, timestamp = sqlite_engine.get_cached_query(cache_key)
+    now = time.time()
+
+    if cached_val and (now - timestamp < 300):
+        return Response(cached_val, mimetype="application/rss+xml")
+
     subnodes = api.latest(1000)
     subnodes.reverse()
-    return Response(feed.latest_rss(subnodes), mimetype="application/rss+xml")
+    rss_content = feed.latest_rss(subnodes)
+    
+    # Save to cache
+    sqlite_engine.save_cached_query(cache_key, rss_content, int(now))
+    
+    return Response(rss_content, mimetype="application/rss+xml")
 
 
 @bp.route("/ttl/<node>")  # perhaps deprecated
