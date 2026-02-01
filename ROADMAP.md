@@ -95,7 +95,9 @@ This hybrid approach provides the best of both worlds: the data users are active
 
 **Goal:** Close the loop on collaboration by allowing users to not just read, but actively "remix" and evolve content found in the Agora. This draws inspiration from Ward Cunningham's vision of the [Federated Wiki](http://fed.wiki.org/view/welcome-visitors), where copying is the first step of conversation.
 
--   **Feature: "Fork to Garden"**
+-   **Feature: "Fork to Garden" (The Siphon)**
+    -   **Philosophy:** Aligned with the **Open Letter to the Free Software Community**, this feature acts as a "Siphon," allowing users to pull knowledge out of the commons and into their sovereign garden, converting read-only web content into write-enabled thought.
+    -   **Inspiration:** Ward Cunningham's [Federated Wiki](http://fed.wiki.org/view/welcome-visitors).
     -   **Concept:** A user viewing a subnode (e.g., a note by `@flancian`) can click a "Fork" button. This action copies the content into their own hosted garden (e.g., `garden/my-user/forked-node.md`), preserving a backlink to the original source (`[[pushed from]]` or similar).
     -   **Flow:**
         1.  **UI:** Add a "Fork" (or "Remix") button to the subnode footer.

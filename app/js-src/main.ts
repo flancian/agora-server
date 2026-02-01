@@ -1232,6 +1232,16 @@ async function bindEvents() {
                                                                 wikiDetails.setAttribute('open', '');
 
                                                             }
+                                                            
+                                                            // Also expand search for empty nodes, as a fallback.
+                                                            const searchDetails = document.querySelector('details.search') as HTMLDetailsElement;
+                                                            if (searchDetails && !searchDetails.hasAttribute('open')) {
+                                                                setTimeout(() => {
+                                                                    showToast("Empty node: auto-expanding Search");
+                                                                    const summary = searchDetails.querySelector('summary');
+                                                                    if (summary) summary.click();
+                                                                }, 750);
+                                                            }
 
                                                         }
 
