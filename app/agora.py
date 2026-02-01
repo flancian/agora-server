@@ -156,31 +156,39 @@ def root(node, user_list=""):
 @bp.route("/node/<node>/uprank/<user_list>")
 @bp.route("/node/<node>")
 def node(node, user_list=""):
+    t0 = time.time()
     n = api.build_node(node)
+    t1 = time.time()
     
     # Filter by user if requested via query param
     req_user = request.args.get("user")
     if req_user:
         n.subnodes = util.filter(n.subnodes, req_user)
         n.subnodes = util.uprank(n.subnodes, req_user)
+    t2 = time.time()
 
     starred_subnodes = sqlite_engine.get_all_starred_subnodes()
     starred_nodes = sqlite_engine.get_all_starred_nodes()
+    t3 = time.time()
 
-    return render_template(
+    ret = render_template(
         "async.html",
         node=n,
         rendering_user=req_user,
         config=current_app.config,
         starred_subnodes=starred_subnodes,
         starred_nodes=starred_nodes,
-        # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
-        # sorry for the fuzzy thinking but I'm short on time and want to get things done.
-        # (...famous last words).
-        # TODO(2022-06-06): this should now be done in the async path, essentially embedding /annotations/X from node X
-        # annotations=n.annotations(),
-        # annotations_enabled=True,
     )
+    t4 = time.time()
+    
+    slow_node_threshold = 2.0
+    total_time = t4 - t0
+    if total_time > slow_node_threshold:
+        current_app.logger.warning(
+            f"Slow node load for [[{node}]]: Total={total_time:.3f}s | "
+            f"Build={t1-t0:.3f}s | Filter={t2-t1:.3f}s | StarDB={t3-t2:.3f}s | Render={t4-t3:.3f}s"
+        )
+    return ret
 
 @bp.route("/node/<node0>/<node1>")
 @bp.route("/<node0>/<node1>")
