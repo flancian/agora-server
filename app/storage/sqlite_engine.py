@@ -632,6 +632,10 @@ def search_subnodes_fts(query, mode='exact'):
             # e.g. "gnossienes" -> "gnossienes*" -> matches "gnossienne" (via stemming)
             # Remove quotes to avoid syntax errors with *
             safe_query = query.replace('"', '')
+            # Replace punctuation with spaces to avoid creating tokens like "c.*" which fail to match "c"
+            # We keep alphanumeric chars and spaces/underscores.
+            safe_query = re.sub(r'[^\w\s]', ' ', safe_query)
+            
             # Filter out empty terms
             terms = [t for t in safe_query.split() if t]
             if terms:
