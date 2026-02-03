@@ -107,13 +107,70 @@ async function pullMastodonStatus(button: HTMLButtonElement) {
     }
 }
 
+async function pullBlueskyStatus(button: HTMLButtonElement) {
+    const url = button.value;
+    // Regex to parse handle and post ID
+    // https://bsky.app/profile/{handle}/post/{id}
+    const match = url.match(/https:\/\/bsky\.app\/profile\/([^\/]+)\/post\/([^\/]+)/);
+    
+    if (!match) {
+        console.error("Invalid Bluesky URL format");
+        return;
+    }
+
+    const handle = match[1];
+    const postId = match[2];
+
+    try {
+        let did = handle;
+        // If handle is not already a DID (did:plc:...), resolve it.
+        if (!handle.startsWith("did:")) {
+            const resolveReq = `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`;
+            const response = await fetch(resolveReq);
+            if (!response.ok) throw new Error(`Resolve handle failed: ${response.statusText}`);
+            const data = await response.json();
+            did = data.did;
+        }
+
+        const atUri = `at://${did}/app.bsky.feed.post/${postId}`;
+        
+        // Construct the widget HTML manually
+        // We use a blockquote with the specific data attributes that embed.js looks for.
+        const widgetHtml = `
+            <blockquote class="bluesky-embed" data-bluesky-uri="${atUri}" data-bluesky-cid="">
+              <p lang="en">
+                <a href="${url}">View on Bluesky</a>
+              </p>
+            </blockquote>
+            <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+        `;
+
+        button.insertAdjacentHTML('afterend', widgetHtml);
+
+        // Re-inject script to ensure execution (browsers block scripts in innerHTML/insertAdjacentHTML sometimes)
+        // Actually, for the widget to work, the script needs to run. 
+        // The standard widget snippet relies on the script tag being executed.
+        // Let's create the script element manually.
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = "https://embed.bsky.app/static/embed.js";
+        script.charset = "utf-8";
+        button.parentNode?.insertBefore(script, button.nextSibling.nextSibling);
+
+    } catch (error) {
+        console.error('Error fetching Bluesky status (client-side):', error);
+        button.insertAdjacentHTML('afterend', `<div class="error">Could not load Bluesky post: ${error}</div>`);
+    }
+}
+
 
 export function initPullButtons() {
     const selectors = [
         ".pull-node",
         ".pull-url",
         ".pull-tweet",
-        ".pull-mastodon-status"
+        ".pull-mastodon-status",
+        ".pull-bluesky-status"
     ];
 
     document.querySelectorAll(selectors.join(', ')).forEach((element: HTMLButtonElement) => {
@@ -159,9 +216,13 @@ export function initPullButtons() {
                     pullMastodonStatus(button).then(() => {
                         button.innerText = 'fold';
                     });
+                } else if (button.classList.contains('pull-bluesky-status')) {
+                    pullBlueskyStatus(button).then(() => {
+                        button.innerText = 'fold';
+                    });
                 }
                 
-                if (!button.classList.contains('pull-mastodon-status')) {
+                if (!button.classList.contains('pull-mastodon-status') && !button.classList.contains('pull-bluesky-status')) {
                     button.innerText = 'fold';
                 }
                 button.classList.add('pulled');

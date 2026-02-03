@@ -1263,7 +1263,7 @@ async function bindEvents() {
 
                         // These are the selectors the "Pull All" button interacts with.
 
-                        const pullableSelectors = ".pull-node, .pull-mastodon-status, .pull-tweet, .pull-search, .pull-url";
+                        const pullableSelectors = ".pull-node, .pull-mastodon-status, .pull-bluesky-status, .pull-tweet, .pull-search, .pull-url";
 
                         const pullableElements = document.querySelectorAll(pullableSelectors);
 
@@ -1561,6 +1561,18 @@ async function bindEvents() {
 
           });
 
+          document.querySelectorAll(".pull-bluesky-status").forEach(element => {
+
+          if (!element.classList.contains('pulled')) {
+
+            console.log('auto pulling bluesky');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
           document.querySelectorAll(".pull-tweet").forEach(element => {
 
           if (!element.classList.contains('pulled')) {
@@ -1634,6 +1646,18 @@ async function bindEvents() {
           if (element.classList.contains('pulled')) {
 
             console.log('auto folding activity');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+          document.querySelectorAll(".pull-bluesky-status").forEach(element => {
+
+          if (element.classList.contains('pulled')) {
+
+            console.log('auto folding bluesky');
 
             (element as HTMLElement).click();
 
@@ -1727,7 +1751,7 @@ async function bindEvents() {
 
                     // Fold all pulled content within this node.
 
-                    nodeElement.querySelectorAll(".pull-node.pulled, .pull-mastodon-status.pulled, .pull-tweet.pulled, .pull-search.pulled, .pull-url.pulled").forEach(element => {
+                    nodeElement.querySelectorAll(".pull-node.pulled, .pull-mastodon-status.pulled, .pull-bluesky-status.pulled, .pull-tweet.pulled, .pull-search.pulled, .pull-url.pulled").forEach(element => {
 
                         (element as HTMLElement).click();
 
@@ -1749,7 +1773,7 @@ async function bindEvents() {
 
                     // Pull all unpulled content within this node.
 
-                    nodeElement.querySelectorAll(".pull-node:not(.pulled), .pull-mastodon-status:not(.pulled), .pull-tweet:not(.pulled), .pull-search:not(.pulled), .pull-url:not(.pulled)").forEach(element => {
+                    nodeElement.querySelectorAll(".pull-node:not(.pulled), .pull-mastodon-status:not(.pulled), .pull-bluesky-status:not(.pulled), .pull-tweet:not(.pulled), .pull-search:not(.pulled), .pull-url:not(.pulled)").forEach(element => {
 
                         (element as HTMLElement).click();
 

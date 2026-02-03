@@ -161,6 +161,18 @@ def add_twitter_pull(content, subnode):
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
 
+def add_bluesky_pull(content, subnode):
+    if subnode and "subnode/virtual" in subnode.url:
+        return content
+
+    # BLUESKY_REGEX matches bsky.app/profile/{user}/post/{id}
+    # We use negative lookbehind to avoid matching links inside other tags
+    BLUESKY_REGEX = r'(?<!["[])(https://bsky\.app/profile/[^/]+/post/[^/\s]+)'
+    BLUESKY_EMBED = r'\1 <button class="pull-bluesky-status" value="\1">pull</button>'
+    ret = re.sub(BLUESKY_REGEX, BLUESKY_EMBED, content)
+    return ret
+
+
 def add_mastodon_pull(content, subnode):
     if subnode and "subnode/virtual" in subnode.url:
         # as per the above.
@@ -374,6 +386,7 @@ def preprocess(content, subnode=""):
         add_url_pull,
         add_twitter_pull,
         add_mastodon_pull,
+        add_bluesky_pull,
         add_pleroma_pull,
         add_hr,
     ]
