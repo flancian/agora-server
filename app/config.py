@@ -253,6 +253,8 @@ class ProductionConfig(DefaultConfig):
     ENABLE_FTS = True
     ENABLE_FLUSH_CACHE_BUTTON = True
     USE_GIT_MTIME = False
+    ENABLE_CHATGPT = True
+    ENABLE_CLAUDE = True
 
 
 class AlphaConfig(DefaultConfig):
@@ -278,6 +280,8 @@ class AlphaConfig(DefaultConfig):
     USE_GIT_MTIME = False
     ENABLE_SYNTHESIS = True
     ENABLE_AGORA_NAME_IN_HEADER = True
+    ENABLE_CHATGPT = True
+    ENABLE_CLAUDE = True
 
 
 class DevelopmentConfig(DefaultConfig):
