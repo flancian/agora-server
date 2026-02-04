@@ -1444,7 +1444,7 @@ def synthesize(node_name):
     else:
         _, answer = mistral_complete(prompt)
 
-    return jsonify({'synthesis': render.markdown(answer)})
+    return jsonify({'synthesis': render.markdown(answer), 'prompt': prompt})
 
 @bp.route("/api/meditate_on/<path:node_name>")
 def meditate_on(node_name):
