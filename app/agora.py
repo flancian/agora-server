@@ -1038,7 +1038,7 @@ def join_api():
                 'username': username,
                 'email': email,
                 'message': message
-            })
+            }, timeout=10)
             return jsonify(response.json()), response.status_code
         except requests.RequestException as e:
             return jsonify({'error': f"Failed to contact Bridge for provisioning: {str(e)}"}), 502
@@ -1064,7 +1064,7 @@ def join_api():
             payload['email'] = email
 
         try:
-            response = requests.post(f"{bridge_url}/sources", json=payload)
+            response = requests.post(f"{bridge_url}/sources", json=payload, timeout=10)
             
             # Pass through the response from Bridge
             return jsonify(response.json()), response.status_code

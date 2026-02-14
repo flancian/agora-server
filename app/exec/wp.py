@@ -26,7 +26,8 @@ def wp(node):
     try:
         search_response = requests.get(
             f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={node}&format=json",
-            headers=headers
+            headers=headers,
+            timeout=5
         ).json()
         search_results = search_response.get("query", {}).get("search", [])
         if not search_results:
@@ -35,7 +36,8 @@ def wp(node):
             pageid = search_results[0]["pageid"]
             result_response = requests.get(
                 f"https://en.wikipedia.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&ppprop=wikibase_item&format=json",
-                headers=headers
+                headers=headers,
+                timeout=5
             ).json()
             pages = result_response.get("query", {}).get("pages", {})
             wp_data = pages.get(str(pageid))
@@ -46,7 +48,8 @@ def wp(node):
     try:
         search_response = requests.get(
             f"https://en.wiktionary.org/w/api.php?action=query&list=search&srsearch={node}&format=json",
-            headers=headers
+            headers=headers,
+            timeout=5
         ).json()
         search_results = search_response.get("query", {}).get("search", [])
         if not search_results:
@@ -55,7 +58,8 @@ def wp(node):
             pageid = search_results[0]["pageid"]
             result_response = requests.get(
                 f"https://en.wiktionary.org/w/api.php?action=query&pageids={pageid}&prop=info&inprop=url&format=json",
-                headers=headers
+                headers=headers,
+                timeout=5
             ).json()
             pages = result_response.get("query", {}).get("pages", {})
             wt_data = pages.get(str(pageid))
