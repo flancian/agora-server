@@ -100,12 +100,18 @@ class HashtagRendererMixin(object):
         )
 
 
+class AgorahrRendererMixin(object):
+    def render_thematic_break(self, element):
+        return '<hr class="agora-hr" />'
+
+
 Wikilinks = MarkoExtension(
     elements=[WikilinkElement, TiddlylinkElement, HashtagElement],
     renderer_mixins=[
         WikilinkRendererMixin,
         TiddlylinkRendererMixin,
         HashtagRendererMixin,
+        AgorahrRendererMixin,
     ],
 )
 
@@ -287,7 +293,7 @@ def trim_p(content, subnode):
 
 def add_hr(content, subnode):
     HR_REGEX = r'^\s*--+\s*$'
-    return re.sub(HR_REGEX, '<hr class="agora-hr" />', content, flags=re.MULTILINE)
+    return re.sub(HR_REGEX, '\n---\n', content, flags=re.MULTILINE)
 
 # Trim obsidian block anchors until we do something useful with them.
 def trim_block_anchors(content, subnode):
