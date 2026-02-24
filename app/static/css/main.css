@@ -2093,3 +2093,30 @@ input:checked + .slider:before {
 .mastodon-embed-footer a:hover {
     text-decoration: underline;
 }
+
+/* Enhanced Horizontal Rule */
+.agora-hr {
+    border: 0;
+    height: 1px;
+    margin: 2.5em auto;
+    width: 80%;
+    background-image: linear-gradient(to right, transparent, var(--text-color), transparent);
+    opacity: 0.3;
+    position: relative;
+    overflow: visible;
+}
+
+/* Flourish - using a pseudo-element */
+.agora-hr::after {
+    content: "❖"; /* A decorative diamond */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%); /* Center on the line */
+    background-color: var(--subnode-bg); /* Match subnode background */
+    padding: 0 10px;
+    color: var(--text-color);
+    font-size: 1.1em;
+    opacity: 0.6;
+}
+
