@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import bp, Response
+from . import bp
 import requests
 from flask import render_template
 

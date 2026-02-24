@@ -36,7 +36,7 @@ class DefaultConfig(object):
     MENU_SEPARATOR = '•'
     MENU_SEPARATOR = '𑗄'
     MENU_SEPARATOR = '⸱'
-    AI_PROMPT = f"""
+    AI_PROMPT = """
         You are a friendly and helpful assistant whose task is to help people navigate the internet in general and in particular the Knowledge Commons we are in, called the Agora.
 
         When responding, please try to ALWAYS surround a few interesting entities (things, people or concepts) with [[double square brackets]]. The Agora will resolve these [[wikilinks]] to URLs for the convenience of the user. You can use Markdown in your responses.

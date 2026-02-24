@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import base64
-import base64
 import collections
 import datetime
 import json
@@ -24,25 +23,21 @@ import time
 import threading
 import urllib.parse
 import bleach
-from copy import copy
-from urllib.parse import parse_qs, urlparse, quote
+from urllib.parse import urlparse, quote
 from functools import lru_cache
 
 import jsons
 from Crypto.Hash import SHA256
-from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from flask import (Blueprint, Response, abort, current_app, g, jsonify,
                    make_response, redirect, render_template, request,
                    send_file, url_for, flash)
 from flask_cors import CORS
 from markupsafe import escape
-from mistralai.client import MistralClient, MistralException
-from mistralai.models.chat_completion import ChatMessage
 
 from . import federation, forms, providers, render, util, git_utils
 from .providers import gemini_complete, mistral_complete
-from .storage import api, feed, sqlite_engine, file_engine
+from .storage import api, feed, sqlite_engine
 from . import visualization
 from .graph import G
 
@@ -330,8 +325,6 @@ def root_subnode(node, user):
 
     n.subnodes = util.filter(n.subnodes, user)
     n.subnodes = util.uprank(n.subnodes, user)
-    search_subnodes = api.search_subnodes_by_user(node, user)
-
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
     n.qstr = request.args.get("q")
@@ -359,7 +352,6 @@ def subnode(node, user):
 
     n.subnodes = util.filter(n.subnodes, user)
     n.subnodes = util.uprank(n.subnodes, user)
-    search_subnodes = api.search_subnodes_by_user(node, user)
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
@@ -388,7 +380,6 @@ def subnode_export(node, user):
 
     n.subnodes = util.filter(n.subnodes, user)
     n.subnodes = util.uprank(n.subnodes, user)
-    search_subnodes = api.search_subnodes_by_user(node, user)
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
@@ -473,7 +464,7 @@ def latest():
     cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
     if cached_value and (time.time() - timestamp < ttl):
-        current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for latest_per_user.")
+        current_app.logger.info("CACHE HIT (sqlite): Using cached data for latest_per_user.")
         latest_changes = json.loads(cached_value)
         # The 'subnodes' variable is a legacy name; we pass the new structure to the template.
         return render_template(
@@ -483,7 +474,7 @@ def latest():
             node=n,
         )
 
-    current_app.logger.info(f"CACHE MISS (sqlite): Recomputing latest_per_user from Git.")
+    current_app.logger.info("CACHE MISS (sqlite): Recomputing latest_per_user from Git.")
     latest_changes = git_utils.get_latest_changes_per_repo(
         agora_path=current_app.config['AGORA_PATH'],
         logger=current_app.logger
@@ -609,7 +600,6 @@ def federation_view():
 
 @bp.route("/random")
 def random():
-    today = datetime.date.today()
     for _ in range(5):
         random_node = api.random_node()
         # We avoid nodes that start with 'go/' as they match the /go/ route and trigger
@@ -744,7 +734,7 @@ def go(node0, node1=""):
         return redirect(redirect_url)
     else:
         # Fall back to the original behavior: redirecting to the local Agora node.
-        current_app.logger.warning(f"I'm Feeling Lucky failed. Falling back to local node.")
+        current_app.logger.warning("I'm Feeling Lucky failed. Falling back to local node.")
         base = current_app.config["URL_BASE"]
         if node0 != node1:
             return redirect(f"{base}/{node0}/{node1}")
@@ -1168,7 +1158,7 @@ def journals(entries):
     if entries:
         n.qstr = f"journals/{entries}"
     if not entries:
-        n.qstr = f"journals"
+        n.qstr = "journals"
         entries = current_app.config["JOURNAL_ENTRIES"]
     elif entries == "all":
         entries = 2000000  # ~ 365 * 5500 ~ 3300 BC
@@ -2182,7 +2172,7 @@ def federate_latest_loop(app):
             except Exception as e:
                 try:
                     current_app.logger.error(f"Federation Loop Error: {e}")
-                except:
+                except Exception:
                     print(f"Federation Loop Critical Error: {e}")
                 time.sleep(60)
 
@@ -2315,7 +2305,7 @@ def inbox():
     # 2. Parse Activity
     try:
         activity = request.get_json()
-    except Exception as e:
+    except Exception:
         return "Invalid JSON", 400
 
     if not activity:

@@ -14,12 +14,10 @@
 #
 # The [[agora]] models search as an open market of providers (who bid content for each query) and users (who are interested in media of any type which is relevant within a given [[context]], which maps to a query).
 
-from collections import namedtuple
 from dataclasses import dataclass
 from enum import Enum
 from flask import current_app, redirect, url_for
 from typing import Sequence
-from uuid import uuid4
 import urllib.parse
 import time
 import functools

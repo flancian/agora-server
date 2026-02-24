@@ -22,14 +22,12 @@ import re
 import subprocess
 import time
 import urllib
-import json
 import orjson
 from collections import defaultdict
 from copy import copy
 from operator import attrgetter
 from pathlib import Path
-from typing import Union, List, Dict, Optional, Any
-import sys
+from typing import Union, List, Dict, Optional
 
 import lxml.etree
 import lxml.html
@@ -37,7 +35,7 @@ from flask import current_app, request, g
 from thefuzz import fuzz
 from functools import wraps
 
-from . import config, regexes, render, util, git_utils
+from . import regexes, render, util, git_utils
 from .storage import feed, sqlite_engine
 from .util import (
     path_to_uri, path_to_garden_relative, path_to_user, 
@@ -371,7 +369,7 @@ class Graph:
             cached_value, timestamp = sqlite_engine.get_cached_graph(cache_key)
 
             if cached_value and (time.time() - timestamp < ttl):
-                current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for subnodes.")
+                current_app.logger.info("CACHE HIT (sqlite): Using cached data for subnodes.")
                 start_time = time.time()
 
                 subnode_data = orjson.loads(cached_value)
@@ -433,7 +431,7 @@ class Graph:
         if _is_sqlite_enabled():
             try:
                 sqlite_engine.save_cached_graph(cache_key, orjson.dumps(subnode_data_for_cache), time.time())
-                current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_subnodes to persistent cache.")
+                current_app.logger.info("CACHE WRITE (sqlite): Saved all_subnodes to persistent cache.")
             except Exception as e:
                 current_app.logger.warning(f"CACHE WRITE FAILED (sqlite): {e}. Continuing with in-memory graph.")
 
@@ -460,7 +458,7 @@ class Graph:
         begin = datetime.datetime.now()
         current_app.logger.debug(f'*** Looking for executable subnodes at {begin}.')
         base = current_app.config['AGORA_PATH']
-        current_app.logger.debug(f'*** Looking for executable subnodes: Python.')
+        current_app.logger.debug('*** Looking for executable subnodes: Python.')
         # Scan user gardens
         subnodes = [ExecutableSubnode(f) for f in glob.glob(os.path.join(base, '**/*.py'), recursive=True)]
         # Scan built-in executables
@@ -793,7 +791,7 @@ class Node:
                 VirtualSubnode(
                     subnode,
                     other,
-                    f"<em>Couldn't parse #push. See source for content</em>.",
+                    "<em>Couldn't parse #push. See source for content</em>.",
                 )
             )
         return subnodes
@@ -980,19 +978,19 @@ class Subnode:
             self.content = "(File not found).\n"
             self.forward_links = []
             current_app.logger.exception(
-                f"Could not read file due to FileNotFoundError in Subnode __init__ (Heisenbug)."
+                "Could not read file due to FileNotFoundError in Subnode __init__ (Heisenbug)."
             )
         except OSError:
             self.content = "(File could not be read).\n"
             self.forward_links = []
             current_app.logger.exception(
-                f"Could not read file due to OSError in Subnode __init__ (Heisenbug)."
+                "Could not read file due to OSError in Subnode __init__ (Heisenbug)."
             )
         except:
             self.content = "(Unhandled exception when trying to read).\n"
             self.forward_links = []
             current_app.logger.exception(
-                f"Could not read file due to unhandled exception in Subnode __init__ (Heisenbug)."
+                "Could not read file due to unhandled exception in Subnode __init__ (Heisenbug)."
             )
 
     def load_image_subnode(self):
@@ -1468,7 +1466,7 @@ def html_to_forward_links(content: str) -> List[str]:
                     if clean_link:
                         links.append(util.canonical_wikilink(clean_link))
 
-    except Exception as e:
+    except Exception:
         # current_app.logger.warning(f"Error parsing HTML links: {e}")
         pass
         

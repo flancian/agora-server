@@ -133,7 +133,7 @@ def regexp(expr, item):
     try:
         reg = re.compile(expr, re.IGNORECASE)
         return reg.search(item) is not None
-    except Exception as e:
+    except Exception:
         # Log invalid regex errors but don't crash the query
         return False
 
@@ -1084,7 +1084,7 @@ def get_all_starred_external_urls():
         _starred_external_urls_cache = result
         _starred_external_urls_ts = time.time()
         return result
-    except sqlite3.OperationalError as e:
+    except sqlite3.OperationalError:
         return set()
 
 def get_db_stats():

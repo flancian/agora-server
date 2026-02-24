@@ -42,7 +42,7 @@ def check_embeddable():
 
         return jsonify({"embeddable": True})
 
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException:
         # If the request fails for any reason (timeout, DNS error, etc.),
         # we'll hope for the best and let the client try to embed it.
         return jsonify({"embeddable": True})

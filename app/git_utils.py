@@ -46,7 +46,7 @@ def get_mtime(file_path: str) -> (int, str):
             # This can happen if a file is new and untracked.
             raise ValueError("Git returned empty timestamp.")
 
-    except (subprocess.CalledProcessError, ValueError, FileNotFoundError) as e:
+    except (subprocess.CalledProcessError, ValueError, FileNotFoundError):
         # This will catch:
         # - Not a git repo (FileNotFoundError or CalledProcessError)
         # - File not in history (empty output -> ValueError)

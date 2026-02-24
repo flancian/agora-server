@@ -16,13 +16,12 @@ import base64
 import datetime
 import json
 import requests
-import threading
 from urllib.parse import urlparse
 
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
-from flask import current_app, g, url_for
+from flask import current_app, g
 
 private_key = None
 public_key = None

@@ -16,9 +16,8 @@
 
 import re
 import urllib
-from flask import current_app, redirect, url_for
+from flask import current_app
 from . import graph as db
-from . import util
 
 from json import dumps
 from rdflib import Graph, Namespace, URIRef
@@ -100,7 +99,7 @@ def turtle_nodes(nodes) -> str:
     g = Graph()
     g.bind("a", f"{base}/")  # Binds the 'a' prefix to your namespace URI
 
-    print(f"turtling agora using forward links only")
+    print("turtling agora using forward links only")
     node_count = len(nodes)
     print(f"node count: {node_count}")
 
@@ -245,7 +244,7 @@ def json_nodes(nodes):
     g = Graph()
     g.namespace_manager.bind("a", agora)
 
-    print(f"jsoing agora using forward links only")
+    print("jsoing agora using forward links only")
     node_count = len(nodes)
     print(f"node count: {node_count}")
 
@@ -282,7 +281,7 @@ def json_nodes(nodes):
         )
         uri_to_node_id[rdf_uri] = node_id
 
-    print(f"Have unique nodes, building triples...")
+    print("Have unique nodes, building triples...")
 
     for n0, link, n1 in g.triples((None, None, None)):
         # Convert RDF URIs back to node IDs

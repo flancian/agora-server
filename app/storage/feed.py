@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import glob
-import itertools
-import os
 from feedgen.feed import FeedGenerator
 from flask import current_app
 import feedparser
@@ -71,7 +68,7 @@ def get_latest():
     try:
         feed = feedparser.parse(url)
     except (UnicodeEncodeError, urllib.error.URLError):
-        current_app.logger.exception(f"Couldn't get annotations in feed.get_latest().")
+        current_app.logger.exception("Couldn't get annotations in feed.get_latest().")
     return feed
 
 
@@ -103,7 +100,7 @@ def latest_rss(subnodes):
     URL_BASE = current_app.config.get("URL_BASE", "https://anagora.org")
     # not sure what this field is for
     fg.id(f"{URL_BASE}/feed/latest")
-    fg.title(f"Agora feed for latest updates")
+    fg.title("Agora feed for latest updates")
     fg.author({"name": "anagora.org users", "email": "anagora@flancia.org"})
     fg.logo(f"{URL_BASE}/favicon.ico")
     fg.subtitle("The Agora is a crowdsourced distributed knowledge graph.")

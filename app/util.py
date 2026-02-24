@@ -17,7 +17,6 @@ import os
 import subprocess
 import time
 import select
-from flask import current_app
 from dateparser import DateDataParser
 from functools import lru_cache
 from urllib.parse import urlparse

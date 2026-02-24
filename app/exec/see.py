@@ -18,5 +18,5 @@ import sys
 
 if __name__ == '__main__':
     print("This is a diagnostic script.")
-    print(f"If you see this, the executable subnode mechanism is working.")
+    print("If you see this, the executable subnode mechanism is working.")
     print(f"Python executable: {sys.executable}")
