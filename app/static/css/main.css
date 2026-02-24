@@ -2120,3 +2120,30 @@ input:checked + .slider:before {
     opacity: 0.6;
 }
 
+/* Poetry / Verse Styling */
+/* Use ```poetry or ```verse in Markdown to trigger this. */
+code.language-poetry,
+code.language-verse {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 1.15em;
+    line-height: 1.6;
+    display: block;
+    color: var(--text-color);
+    white-space: pre-wrap;
+    padding: 1em 2em;
+    border-left: 2px solid var(--wikilink-color); /* A nice accent bar */
+    background-color: var(--tab-active-bg); /* Subtle background */
+    border-radius: 0 8px 8px 0;
+}
+
+/* Ensure the parent pre doesn't interfere too much */
+pre:has(code.language-poetry),
+pre:has(code.language-verse) {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 1.5em 0;
+}
+
+
