@@ -373,7 +373,7 @@ def preprocess(content, subnode=""):
     # add_logseq_embeds breaks links everywhere, there's an issue with the regex :)
     # filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_logseq_embeds, add_obsidian_embeds, add_url_pull, add_twitter_pull]
     filters = [
-        trim_p,
+        # trim_p,
         trim_front_matter,
         trim_block_anchors,
         trim_logbook,

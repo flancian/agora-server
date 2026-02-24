@@ -595,7 +595,7 @@ def stats_page():
 @bp.route("/federation")
 @bp.route("/activities")
 @bp.route("/annotations")
-def federation():
+def federation_view():
     n = api.build_node("federation")
     recent_reactions = sqlite_engine.get_recent_reactions(limit=50)
     return render_template(

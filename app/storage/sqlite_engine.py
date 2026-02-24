@@ -989,17 +989,6 @@ def get_all_followers():
     cursor.execute("SELECT user_uri, follower_uri FROM followers")
     return cursor.fetchall()
 
-def get_all_starred_nodes():
-    db = get_db()
-    if db is None:
-        return set()
-    try:
-        cursor = db.execute("SELECT node_uri FROM starred_nodes")
-        return {row[0] for row in cursor.fetchall()}
-    except sqlite3.OperationalError as e:
-        current_app.logger.warning(f"Could not fetch starred nodes, table might not exist yet: {e}")
-        return set()
-
 #
 # Federated Subnodes
 #

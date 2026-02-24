@@ -13,14 +13,13 @@
 # limitations under the License.
 
 from . import bp, Response
-import requests
-import pprint
 
 # As of [[2022-09-29]] unfinished/unused.
 # As of [[2024-10-12]]: Hmm, interesting. I didn't remember having started on this :)
 # I wonder if /exec makes sense for this kind of thing, what's the advantage over having another summary div like e.g. wp?
 @bp.route("/exec/nav/<node>")
 def nav(node):
+    url = "#" # Placeholder
     return Response(
         f"""
         <div class='exec topline-nav'>

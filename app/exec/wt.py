@@ -14,8 +14,7 @@
 
 from . import bp, Response
 import requests
-import pprint
-from thefuzz import fuzz
+from flask import current_app
 
 
 @bp.route("/exec/wt/<node>")
