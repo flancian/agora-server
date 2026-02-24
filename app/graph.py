@@ -36,7 +36,7 @@ from thefuzz import fuzz
 from functools import wraps
 
 from . import regexes, render, util, git_utils
-from .storage import feed, sqlite_engine
+from .storage import sqlite_engine
 from .util import (
     path_to_uri, path_to_garden_relative, path_to_user, 
     path_to_wikilink, path_to_basename
@@ -850,6 +850,7 @@ class Node:
         return subnodes
 
     def annotations(self):
+        from .storage import feed
         annotations = feed.get_by_uri(self.actual_uri)
         return annotations
 
