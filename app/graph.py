@@ -804,8 +804,9 @@ class Node:
 
         for subnode in self.executable_subnodes:
             # Note as of 2023-09 we don't support #push (or other actions?) from executable subnodes.
-            if parameters:
-                subnodes.append(VirtualSubnode(subnode, self.wikilink, subnode.exec(parameters)))
+            # if parameters:
+            #    subnodes.append(VirtualSubnode(subnode, self.wikilink, subnode.exec(parameters)))
+            pass
 
         return subnodes
 
@@ -987,7 +988,7 @@ class Subnode:
             current_app.logger.exception(
                 "Could not read file due to OSError in Subnode __init__ (Heisenbug)."
             )
-        except:
+        except Exception:
             self.content = "(Unhandled exception when trying to read).\n"
             self.forward_links = []
             current_app.logger.exception(
@@ -1064,7 +1065,7 @@ class Subnode:
             try:
                 content = render.preprocess(self.content, subnode=self)
                 content = render.markdown(content)
-            except:
+            except Exception:
                 # which exception exactly? this should be improved.
                 # as of 2022-04-20, this seems to be AttributeError most of the time.
                 # caused by: 'BlankLine' object has no attribute 'children' in html_renderer.py:84 in marko.
@@ -1076,7 +1077,7 @@ class Subnode:
                     self.load_text_subnode()
                     content = render.preprocess(self.content, subnode=self)
                     content = render.markdown(content)
-                except:
+                except Exception:
                     content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
                     current_app.logger.exception(
                         f"Subnode {self.uri} could not be rendered even after retrying read (Heisenbug)."
@@ -1092,7 +1093,7 @@ class Subnode:
                     import orgpython
                     content = render.preprocess(self.content, subnode=self)
                     content = orgpython.to_html(content)
-                except:
+                except Exception:
                     pass
         # note we might parse [[mycorrhiza]] as Markdown if the [[mycomarkup]] binary is not found.
         if self.uri.endswith("myco") or self.uri.endswith("MYCO"):

@@ -74,7 +74,7 @@ def canonical_wikilink(wikilink):
         try:
             wikilink = canonical_date(wikilink)
             return wikilink
-        except:
+        except Exception:
             # TODO: if we add logging, maybe log that we couldn't parse a date here
             pass
 

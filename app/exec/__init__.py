@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import Blueprint, Response
+from flask import Blueprint
 
 bp = Blueprint("exec", __name__)
 

@@ -17,6 +17,7 @@ import pygit2
 import cachetools.func
 import time
 import subprocess
+import sqlite3
 from flask import current_app
 from . import util
 

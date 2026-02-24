@@ -58,7 +58,7 @@ class DefaultConfig(object):
     try:
         # try to load settings from a new-style Agora config if present.
         AGORA_CONFIG = getcfg(os.path.join(AGORA_PATH, "agora.yaml"))
-    except:
+    except Exception:
         # we will catch missing settings anyway and use defaults below.
         AGORA_CONFIG = {}
 
@@ -188,12 +188,12 @@ class DefaultConfig(object):
     # Set os env variable MISTRAL_API_KEY when enabled.
     try:
         MISTRAL_API_KEY = os.environ["MISTRAL_API_KEY"]
-    except:
+    except Exception:
         MISTRAL_API_KEY = False
 
     try:
         GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
-    except:
+    except Exception:
         GEMINI_API_KEY = False
 
     # Auto pull rules.

@@ -15,6 +15,7 @@
 import os
 import sqlite3
 import re
+import time
 from flask import current_app, g
 
 # Module-level schema templates to be shared with maintenance worker.
@@ -354,8 +355,6 @@ def get_recent_reactions(limit=20):
         {'id': row[0], 'type': row[1], 'actor': row[2], 'object': row[3], 'content': row[4], 'timestamp': row[5]}
         for row in cursor.fetchall()
     ]
-
-import time
 
 def try_acquire_lock(worker_id, ttl_seconds=60):
     """

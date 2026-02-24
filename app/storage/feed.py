@@ -15,7 +15,6 @@
 from feedgen.feed import FeedGenerator
 from flask import current_app
 import feedparser
-import pprint
 import urllib.parse
 from ..graph import G
 
@@ -154,23 +153,3 @@ def user_rss(user, subnodes):
         fe.link(href=f"https://anagora.org/@{user}/{subnode.node}")
     return fg.rss_str(pretty=True)
 
-
-def main():
-    if DEBUG:
-        feeds = get_user_feeds()
-        # for user, feed in feeds.items():
-        #    for item in feed.entries:
-        #        print(f'user: {user}')
-        #        pprint.pprint(item)
-        #        print('***\n')
-
-        feeds = get_tag_feeds()
-        for item in feeds:
-            pprint.pprint(item)
-            print("***\n")
-    else:
-        api.update_status(phrase)
-
-
-if __name__ == "__main__":
-    main()
