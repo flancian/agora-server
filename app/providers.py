@@ -111,6 +111,65 @@ def mistral_complete(prompt):
         return None, "<em>This Agora is not AI-enabled yet</em>."
 
 
+def mistral_chat(messages):
+    """
+    Stateless chat completion for Mistral.
+    messages: list of {'role': 'user'|'assistant', 'content': str}
+    """
+    if current_app.config["ENABLE_AI"]:
+        api_key = current_app.config["MISTRAL_API_KEY"]
+        if not api_key:
+            return "Mistral API key not configured."
+
+        client = MistralClient(api_key=api_key)
+        # Convert to Mistral ChatMessage objects
+        chat_messages = [ChatMessage(role=m['role'], content=m['content']) for m in messages]
+
+        try:
+            chat_response = client.chat(
+                model="mistral-small-latest",
+                messages=chat_messages,
+            )
+            return chat_response.choices[0].message.content
+        except Exception as e:
+            return f"An error occurred with the Mistral API: {e}"
+    return "AI not enabled."
+
+
+def gemini_chat(messages):
+    """
+    Stateless chat completion for Gemini.
+    messages: list of {'role': 'user'|'assistant', 'content': str}
+    """
+    if current_app.config["ENABLE_AI"]:
+        api_key = current_app.config["GEMINI_API_KEY"]
+        if not api_key:
+            return "Gemini API key not configured."
+
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.5-flash')
+
+        # Convert history format
+        # Gemini expects roles 'user' and 'model'
+        # History passed to start_chat should NOT include the last message (which is sent via send_message)
+        # But here we are doing a stateless turn, so we reconstruct the chat.
+        
+        history = []
+        last_message = messages[-1]['content'] if messages else ""
+        
+        for m in messages[:-1]:
+            role = 'user' if m['role'] == 'user' else 'model'
+            history.append({'role': role, 'parts': [m['content']]})
+
+        try:
+            chat = model.start_chat(history=history)
+            response = chat.send_message(last_message)
+            return response.text
+        except Exception as e:
+            return f"An error occurred with the Gemini API: {e}"
+    return "AI not enabled."
+
+
 def feeling_lucky(query):
     """
     Performs a server-side "I'm Feeling Lucky" request to Google.

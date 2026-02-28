@@ -36,7 +36,7 @@ from flask_cors import CORS
 from markupsafe import escape
 
 from . import federation, forms, providers, render, util, git_utils
-from .providers import gemini_complete, mistral_complete
+from .providers import gemini_complete, mistral_complete, gemini_chat, mistral_chat
 from .storage import api, feed, sqlite_engine
 from . import visualization
 from .graph import G
@@ -1345,7 +1345,7 @@ def complete(prompt):
         if full_prompt is None and "not properly set up" not in answer:
             # This is likely an old cache entry. Reconstruct a prompt for display.
             full_prompt = "The prompt for this cached response is not available, but the query was:" + prompt
-        return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
+        return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer), 'raw_answer': answer})
     else:
         return jsonify({'answer': "<em>This Agora is not AI-enabled yet</em>."})
 
@@ -1356,7 +1356,7 @@ def gemini_complete_route(prompt):
     if full_prompt is None and "not properly set up" not in answer:
         # This is likely an old cache entry. Reconstruct a prompt for display.
         full_prompt = "The prompt for this cached response is not available, but the query was:" + prompt
-    return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
+    return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer), 'raw_answer': answer})
 
 @bp.route("/api/chatgpt_complete/<prompt>")
 def chatgpt_complete_route(prompt):
@@ -1434,7 +1434,29 @@ def synthesize(node_name):
     else:
         _, answer = mistral_complete(prompt)
 
-    return jsonify({'synthesis': render.markdown(answer), 'prompt': prompt})
+    return jsonify({'synthesis': render.markdown(answer), 'prompt': prompt, 'raw_answer': answer})
+
+@bp.route("/api/chat", methods=["POST"])
+def api_chat():
+    if not current_app.config.get("ENABLE_AI"):
+        return jsonify({'error': 'AI is not enabled.'}), 403
+
+    data = request.get_json()
+    provider = data.get('provider', 'mistral')
+    messages = data.get('messages', [])
+
+    if not messages:
+        return jsonify({'error': 'No messages provided.'}), 400
+
+    reply = ""
+    if provider == 'gemini':
+        reply = gemini_chat(messages)
+    elif provider == 'mistral':
+        reply = mistral_chat(messages)
+    else:
+        return jsonify({'error': f'Provider {provider} not supported for chat.'}), 400
+
+    return jsonify({'reply': render.markdown(reply), 'raw': reply})
 
 @bp.route("/api/meditate_on/<path:node_name>")
 def meditate_on(node_name):
