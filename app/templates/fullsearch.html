@@ -19,17 +19,23 @@
 
             <div class="search-header" style="margin-bottom: 1em; margin-top: 1em;">
                 <span style="margin-right: 10px;"><strong>Search Mode:</strong></span>
+                {% if ENABLE_SEMANTIC_SEARCH %}
+                <span class="search-mode-tab {% if mode == 'semantic' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="semantic" title="Find similar thoughts using AI embeddings (smart)">Semantic</span> • 
+                {% endif %}
                 <span class="search-mode-tab {% if mode == 'broad' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="broad" title="Find any matches using the index (fast, fuzzy)">Fuzzy</span> • 
                 <span class="search-mode-tab {% if mode == 'exact' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="exact" title="Find phrase matches using the index (fast)">Exact</span> • 
                 <span class="search-mode-tab {% if mode == 'fs' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="fs" title="Scan all files directly (slow, literal)">Literal</span>
             </div>
 
             {% if search %}
-            <table style="width: 100%"">
+            <table style="width: 100%">
                 <thead>
                     <th style="width: 30%">📚 Node</th>
                     <th style="width: 30%">📕 Resource</th>
                     <th style="width: 30%">🧍 User</th>
+                    {% if mode == 'semantic' %}
+                    <th style="width: 10%" title="Cosine Similarity Score">🎯 Match</th>
+                    {% endif %}
                 </thead>
                 <tbody>
                     {% for subnode in search %}
@@ -37,6 +43,9 @@
                     <td><a href="/{{subnode.wikilink}}">{{subnode.wikilink}}</a></td>
                     <td><a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.uri}}</a></td> 
                     <td><a href="/@{{subnode.user}}">@{{subnode.user}}</a></td>
+                    {% if mode == 'semantic' %}
+                    <td style="color: var(--text-muted);">{{ "%.2f"|format(subnode.search_score|default(0)) }}</td>
+                    {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>

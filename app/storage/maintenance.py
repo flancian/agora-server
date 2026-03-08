@@ -226,6 +226,100 @@ def regenerate_expensive_cache(app):
         app.logger.error(f"Error regenerating expensive queries: {e}")
 
 
+def update_vectors(app):
+    """
+    Incrementally updates semantic embeddings for all subnodes.
+    """
+    if not app.config.get('ENABLE_SEMANTIC_SEARCH', False):
+        return
+
+    from app import semantic
+    from app.storage.sqlite_engine import get_db
+    
+    app.logger.info("Semantic: Starting incremental vector update...")
+    start_time = time.time()
+    
+    db = get_db()
+    if not db:
+        return
+
+    # 1. Get current subnodes and their mtimes
+    cursor = db.execute("SELECT path, mtime FROM subnodes")
+    current_subnodes = dict(cursor.fetchall())
+    
+    # 2. Get existing vectors and their timestamps
+    cursor = db.execute("SELECT path, timestamp FROM subnode_vectors")
+    existing_vectors = dict(cursor.fetchall())
+    
+    # 3. Determine work
+    to_embed = []
+    for path, mtime in current_subnodes.items():
+        if path not in existing_vectors or mtime > existing_vectors[path]:
+            to_embed.append(path)
+            
+    to_delete = [path for path in existing_vectors if path not in current_subnodes]
+    
+    if not to_embed and not to_delete:
+        app.logger.info("Semantic: All vectors up to date.")
+        return
+
+    # 4. Process deletions
+    if to_delete:
+        app.logger.info(f"Semantic: Removing {len(to_delete)} stale vectors...")
+        with db:
+            db.executemany("DELETE FROM subnode_vectors WHERE path = ?", [(p,) for p in to_delete])
+
+    # 5. Process embeddings
+    if to_embed:
+        app.logger.info(f"Semantic: Generating {len(to_embed)} new embeddings...")
+        agora_path = app.config['AGORA_PATH']
+        
+        # Load model once
+        model = semantic.get_model()
+        if not model:
+            app.logger.error("Semantic: Failed to load model for worker.")
+            return
+            
+        count = 0
+        batch_size = 50
+        batch_data = []
+        
+        for path in to_embed:
+            abs_path = os.path.join(agora_path, path)
+            try:
+                with open(abs_path, 'r', encoding='utf-8', errors='replace') as f:
+                    content = f.read()
+                    
+                # We embed the raw content (the model handles truncation)
+                vector = semantic.embed(content)
+                if vector is not None:
+                    # Store as bytes for SQLite BLOB
+                    batch_data.append((path, vector.tobytes(), 'all-MiniLM-L6-v2', int(time.time())))
+                    count += 1
+                    
+                if len(batch_data) >= batch_size:
+                    with db:
+                        db.executemany(
+                            "REPLACE INTO subnode_vectors (path, embedding, model, timestamp) VALUES (?, ?, ?, ?)",
+                            batch_data
+                        )
+                    batch_data = []
+                    app.logger.info(f"Semantic: Processed {count}/{len(to_embed)} embeddings...")
+                    
+            except Exception as e:
+                app.logger.error(f"Semantic: Error embedding {path}: {e}")
+                
+        # Final batch
+        if batch_data:
+            with db:
+                db.executemany(
+                    "REPLACE INTO subnode_vectors (path, embedding, model, timestamp) VALUES (?, ?, ?, ?)",
+                    batch_data
+                )
+
+        app.logger.info(f"Semantic: Finished generating {count} embeddings in {time.time() - start_time:.2f}s.")
+
+
 def run_full_reindex(app=None):
     """
     Main entry point for running a full re-index.
@@ -257,6 +351,9 @@ def run_full_reindex(app=None):
                     git_utils.update_git_mtimes_batch(app.config['AGORA_PATH'], db)
                 else:
                     app.logger.info("Git mtime update skipped (USE_GIT_MTIME=False).")
+                
+                # Update semantic vectors
+                update_vectors(app)
                 
                 regenerate_expensive_cache(app)
         except Exception as e:

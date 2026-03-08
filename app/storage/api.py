@@ -146,9 +146,28 @@ def subnodes_by_user(username, sort_by="mtime", mediatype=None, reverse=True):
     return file_engine.subnodes_by_user(username, sort_by, mediatype, reverse)
 
 def search_subnodes(query, mode='exact'):
-    # mode: 'exact' (FTS phrase), 'broad' (FTS stemmed), 'fs' (filesystem)
+    # mode: 'exact' (FTS phrase), 'broad' (FTS stemmed), 'semantic' (Vector), 'fs' (filesystem)
     
-    if mode != 'fs' and _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
+    if mode == 'semantic' and _is_sqlite_enabled() and current_app.config.get('ENABLE_SEMANTIC_SEARCH', False):
+        from app import semantic
+        start_time = time.time()
+        results = semantic.search(query, top_k=50)
+        
+        if results:
+            current_app.logger.info(f"Semantic search for '{query}' found {len(results)} results in {time.time() - start_time:.4f}s.")
+            agora_path = current_app.config['AGORA_PATH']
+            subnodes = []
+            for path, score in results:
+                absolute_path = os.path.join(agora_path, path)
+                s = SubnodeClass(absolute_path)
+                s.search_score = score # Attach score for UI if desired
+                subnodes.append(s)
+            return subnodes
+        else:
+            current_app.logger.info(f"Semantic search for '{query}' found 0 results.")
+            return []
+
+    if mode != 'fs' and mode != 'semantic' and _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
         start_time = time.time()
         paths = sqlite_engine.search_subnodes_fts(query, mode=mode)
         if paths:

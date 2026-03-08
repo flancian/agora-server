@@ -860,7 +860,8 @@ def fullsearch(qstr):
         node=qstr, 
         search=search_subnodes, 
         mode=mode,
-        ENABLE_FTS=current_app.config.get('ENABLE_FTS', False)
+        ENABLE_FTS=current_app.config.get('ENABLE_FTS', False),
+        ENABLE_SEMANTIC_SEARCH=current_app.config.get('ENABLE_SEMANTIC_SEARCH', False)
     )
 
 

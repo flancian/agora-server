@@ -681,6 +681,23 @@ def search_nodes_by_regex(regex):
         current_app.logger.error(f"SQLite regex search error: {e}")
         return []
 
+def get_all_vectors():
+    """
+    Retrieves all vectors from the database for in-memory semantic search.
+    Returns a list of tuples: [(path, blob), ...]
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    try:
+        cursor = db.cursor()
+        cursor.execute("SELECT path, embedding FROM subnode_vectors")
+        return cursor.fetchall()
+    except sqlite3.OperationalError as e:
+        # Table might not exist yet if worker hasn't run
+        return []
+
 def get_backlinking_nodes(node_uri):
     """
     Retrieves all unique source_node URIs that link to a given node.
