@@ -124,6 +124,14 @@ SCHEMA_TEMPLATES = {
             content, 
             tokenize='porter'
         );
+    """,
+    'subnode_vectors': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            path TEXT PRIMARY KEY,
+            embedding BLOB NOT NULL,
+            model TEXT NOT NULL,
+            timestamp INTEGER NOT NULL
+        );
     """
 }
 
@@ -224,6 +232,10 @@ def create_tables(db):
                 current_app.logger.error(f"Error checking FTS schema: {e}")
 
             db.execute(SCHEMA_TEMPLATES['subnodes_fts'].format(table_name='subnodes_fts'))
+
+        # Add Semantic Vectors table if enabled
+        if current_app.config.get('ENABLE_SEMANTIC_SEARCH', False):
+            db.execute(SCHEMA_TEMPLATES['subnode_vectors'].format(table_name='subnode_vectors'))
 
         # Migration: Add the source_node column to the links table if it doesn't exist.
         try:
