@@ -23,11 +23,10 @@ def get_model():
 
     try:
         from sentence_transformers import SentenceTransformer
-        # Use a small, fast model.
-        # 'all-MiniLM-L6-v2' is a good balance.
-        current_app.logger.info("Semantic: Loading embedding model 'all-MiniLM-L6-v2'...")
+        # Use a high-quality model with a large context window.
+        current_app.logger.info("Semantic: Loading embedding model 'nomic-ai/nomic-embed-text-v1.5'...")
         start = time.time()
-        _model = SentenceTransformer('all-MiniLM-L6-v2')
+        _model = SentenceTransformer('nomic-ai/nomic-embed-text-v1.5', trust_remote_code=True)
         # Ensure CPU usage.
         _model.cpu()
         current_app.logger.info(f"Semantic: Model loaded in {time.time() - start:.2f}s.")

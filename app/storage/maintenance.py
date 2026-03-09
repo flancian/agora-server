@@ -294,7 +294,7 @@ def update_vectors(app):
                 vector = semantic.embed(content)
                 if vector is not None:
                     # Store as bytes for SQLite BLOB
-                    batch_data.append((path, vector.tobytes(), 'all-MiniLM-L6-v2', int(time.time())))
+                    batch_data.append((path, vector.tobytes(), 'nomic-embed-text-v1.5', int(time.time())))
                     count += 1
                     
                 if len(batch_data) >= batch_size:
