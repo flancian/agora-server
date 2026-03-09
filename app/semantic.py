@@ -26,10 +26,11 @@ def get_model():
         # Use a small, fast model.
         # 'all-MiniLM-L6-v2' is a good balance.
         current_app.logger.info("Semantic: Loading embedding model 'all-MiniLM-L6-v2'...")
+        start = time.time()
         _model = SentenceTransformer('all-MiniLM-L6-v2')
         # Ensure CPU usage.
         _model.cpu()
-        current_app.logger.info("Semantic: Model loaded.")
+        current_app.logger.info(f"Semantic: Model loaded in {time.time() - start:.2f}s.")
         return _model
     except ImportError:
         current_app.logger.error("Semantic: sentence_transformers not installed.")
@@ -43,6 +44,7 @@ def embed(text):
     Generates an embedding vector for the given text.
     Returns a numpy array (float32).
     """
+    start = time.time()
     model = get_model()
     if not model:
         return None
@@ -53,7 +55,8 @@ def embed(text):
 
     # Encode
     try:
-        vector = model.encode(text, convert_to_numpy=True)
+        vector = model.encode(text, convert_to_numpy=True, show_progress_bar=False)
+        current_app.logger.info(f"Semantic: Text embedded in {time.time() - start:.4f}s.")
         return vector
     except Exception as e:
         current_app.logger.error(f"Semantic: Error embedding text: {e}")
@@ -64,6 +67,7 @@ def cosine_similarity(query_vec, corpus_mat):
     Computes cosine similarity between a query vector (1D) and a corpus matrix (2D).
     Returns a 1D array of scores.
     """
+    start = time.time()
     # Normalize query vector
     norm_query = np.linalg.norm(query_vec)
     if norm_query == 0:
@@ -80,7 +84,9 @@ def cosine_similarity(query_vec, corpus_mat):
     dot_products = np.dot(corpus_mat, query_vec)
     
     # Cosine similarity
-    return dot_products / norm_corpus
+    res = dot_products / norm_corpus
+    current_app.logger.info(f"Semantic: Cosine similarity computed in {time.time() - start:.4f}s.")
+    return res
 
 def ensure_corpus():
     """
@@ -92,6 +98,7 @@ def ensure_corpus():
         return
 
     from app.storage.sqlite_engine import get_all_vectors
+    start = time.time()
     rows = get_all_vectors()
     if not rows:
         _corpus_matrix = np.array([])
@@ -109,7 +116,7 @@ def ensure_corpus():
     _corpus_matrix = np.array(vectors)
     _corpus_paths = paths
     _corpus_timestamp = time.time()
-    current_app.logger.info(f"Semantic: Loaded {len(paths)} vectors into memory matrix.")
+    current_app.logger.info(f"Semantic: Loaded {len(paths)} vectors from DB into memory matrix in {time.time() - start:.2f}s.")
 
 def search(query, top_k=20):
     """
@@ -119,6 +126,7 @@ def search(query, top_k=20):
     if not current_app.config.get('ENABLE_SEMANTIC_SEARCH', False):
         return []
 
+    overall_start = time.time()
     query_vec = embed(query)
     if query_vec is None:
         return []
@@ -129,6 +137,7 @@ def search(query, top_k=20):
 
     scores = cosine_similarity(query_vec, _corpus_matrix)
     
+    start = time.time()
     # Get top K indices efficiently
     if len(scores) <= top_k:
         top_indices = np.argsort(scores)[::-1]
@@ -145,4 +154,6 @@ def search(query, top_k=20):
         if score > 0.2:
             results.append((_corpus_paths[idx], score))
             
+    current_app.logger.info(f"Semantic: Top results processed in {time.time() - start:.4f}s.")
+    current_app.logger.info(f"Semantic: Total search time for '{query}': {time.time() - overall_start:.2f}s.")
     return results

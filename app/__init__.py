@@ -92,17 +92,38 @@ def create_app():
             with app.app_context():
                 # Only warm the cache if lazy loading is NOT enabled.
                 if not app.config.get('ENABLE_LAZY_LOAD', False):
-                    app.logger.info(f"Worker {uwsgi.worker_id()} starting cache warmup...")
+                    app.logger.info(f"Worker {uwsgi.worker_id()} starting graph cache warmup...")
                     start_time = time.time()
                     try:
                         G.nodes()
                         G.subnodes()
                         duration = time.time() - start_time
-                        app.logger.info(f"Worker {uwsgi.worker_id()} cache warmup complete in {duration:.2f}s.")
+                        app.logger.info(f"Worker {uwsgi.worker_id()} graph cache warmup complete in {duration:.2f}s.")
                     except Exception as e:
                         app.logger.error(f"Worker {uwsgi.worker_id()} cache warmup failed: {e}")
                 else:
-                    app.logger.info(f"Worker {uwsgi.worker_id()}: Lazy loading enabled, skipping cache warmup.")
+                    app.logger.info(f"Worker {uwsgi.worker_id()}: Lazy loading enabled, skipping graph cache warmup.")
+
+                # Warmup Semantic Search (Model + DB + First Inference)
+                if app.config.get('ENABLE_SEMANTIC_SEARCH', False):
+                    app.logger.info(f"Worker {uwsgi.worker_id()} starting semantic search warmup...")
+                    start_time = time.time()
+                    try:
+                        from app.semantic import get_model, ensure_corpus, embed
+                        
+                        # 1. Load Matrix from DB
+                        ensure_corpus()
+                        
+                        # 2. Load Model into RAM
+                        get_model()
+                        
+                        # 3. First Inference (takes ~3.5s to allocate PyTorch graphs)
+                        embed("agora warmup")
+                        
+                        duration = time.time() - start_time
+                        app.logger.info(f"Worker {uwsgi.worker_id()} semantic warmup complete in {duration:.2f}s.")
+                    except Exception as e:
+                        app.logger.error(f"Worker {uwsgi.worker_id()} semantic warmup failed: {e}")
 
     except (ImportError, AttributeError):
         # This will fail if not running under uWSGI, which is fine for dev.
