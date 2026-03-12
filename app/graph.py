@@ -758,8 +758,10 @@ class Node:
                                 argument,
                                 re.IGNORECASE,
                             ):
-                                # go one level up to find the <li>
+                                # go one level up to find the <li> (or <p> if loose list)
                                 parent = link[0].getparent()
+                                if parent.tag == 'p' and parent.getparent() is not None and parent.getparent().tag == 'li':
+                                    parent = parent.getparent()
                                 # the block to be pushed is this level and its children.
                                 # TODO: replace [[push]] [[other]] with something like [[pushed from]] [[node]], which makes more sense in the target.
                                 block = lxml.etree.tostring(parent)
@@ -773,7 +775,10 @@ class Node:
                     # New as of 2023-12-04. Try to support [[foo]]! and [[foo]]: syntax for pushes.
                     if other.wikilink in link[2] or other.wikilink.replace('-', ' ') in link[2]:
                         parent = link[0].getparent()
+                        if parent.tag == 'p' and parent.getparent() is not None and parent.getparent().tag == 'li':
+                            parent = parent.getparent()
                         block = lxml.etree.tostring(parent)
+
                         if block not in pushed_blocks:
                             pushed_blocks.add(block)
                             subnodes.append(VirtualSubnode(subnode, other, block))
