@@ -304,6 +304,7 @@ class DevelopmentConfig(DefaultConfig):
     ENABLE_HYPOTHESIS = True
     ENABLE_SQLITE = True
     ENABLE_FTS = False
+    ENABLE_SEMANTIC_SEARCH = True
     ENABLE_SYNTHESIS = True
     ENABLE_AGORA_NAME_IN_HEADER = True
 
