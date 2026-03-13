@@ -32,6 +32,7 @@ export function initMusicPlayer() {
     let playlist: any[] = [];
     let starredTracks: Set<string> = new Set();
     let lastTimeString = "";
+    let lastSaveTime = 0;
     
     // Concurrency control
     let currentPlayId = 0;
@@ -245,6 +246,13 @@ export function initMusicPlayer() {
                 timeDisplay.textContent = timeString;
                 lastTimeString = timeString;
             }
+
+            const now = Date.now();
+            if (now - lastSaveTime > 1000 && playlist[currentTrackIndex]) {
+                localStorage.setItem('agora-music-resume-path', playlist[currentTrackIndex].path);
+                localStorage.setItem('agora-music-resume-time', currentTime.toString());
+                lastSaveTime = now;
+            }
         }
 
         if (opusPlayer && !opusPlayer.paused && analyser && dataArray) {
@@ -438,10 +446,22 @@ export function initMusicPlayer() {
                         
                         player.loadDataUri(dataUri);
 
+                        const resumeTimeStr = localStorage.getItem('agora-music-resume-time');
+                        let resumeTime = 0;
+                        if (resumeTimeStr) {
+                            resumeTime = parseFloat(resumeTimeStr);
+                            localStorage.removeItem('agora-music-resume-time');
+                        }
+
                         if (player.getSongTime() <= 0) {
                             console.warn(`MIDI track ${track.name} has 0 duration, skipping.`);
                             playTrack((currentTrackIndex + 1) % playlist.length);
                             return;
+                        }
+
+                        if (resumeTime > 0 && resumeTime < player.getSongTime()) {
+                            console.log(`Resuming MIDI at ${resumeTime}s`);
+                            player.skipToSeconds(resumeTime);
                         }
                         
                         if (ac.state === 'suspended') {
@@ -485,6 +505,21 @@ export function initMusicPlayer() {
             opusPlayer.src = track.path;
             opusPlayer.loop = false;
             
+            const resumeTimeStr = localStorage.getItem('agora-music-resume-time');
+            if (resumeTimeStr) {
+                const resumeTime = parseFloat(resumeTimeStr);
+                localStorage.removeItem('agora-music-resume-time');
+                
+                const onLoadedMetadata = () => {
+                     if (resumeTime > 0 && resumeTime < opusPlayer!.duration) {
+                         console.log(`Resuming Opus at ${resumeTime}s`);
+                         opusPlayer!.currentTime = resumeTime;
+                     }
+                     opusPlayer!.removeEventListener('loadedmetadata', onLoadedMetadata);
+                };
+                opusPlayer.addEventListener('loadedmetadata', onLoadedMetadata);
+            }
+
             // Connect to Visualizer
             if (!opusSource && analyser) {
                 try {
@@ -586,6 +621,19 @@ export function initMusicPlayer() {
                  }
                  
                  console.log("Loaded playlist (Audio -> MIDI):", playlist);
+
+                 const resumePath = localStorage.getItem('agora-music-resume-path');
+                 if (resumePath) {
+                     const idx = playlist.findIndex((t: any) => t.path === resumePath);
+                     if (idx !== -1) {
+                         currentTrackIndex = idx;
+                     } else {
+                         currentTrackIndex = 0;
+                     }
+                 } else {
+                     currentTrackIndex = 0;
+                 }
+
                  return playlist;
             });
     };
