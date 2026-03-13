@@ -447,11 +447,13 @@ export function initMusicPlayer() {
                         player.loadDataUri(dataUri);
 
                         const resumeTimeStr = localStorage.getItem('agora-music-resume-time');
+                        const resumePathStr = localStorage.getItem('agora-music-resume-path');
                         let resumeTime = 0;
-                        if (resumeTimeStr) {
+                        if (resumeTimeStr && resumePathStr === track.path) {
                             resumeTime = parseFloat(resumeTimeStr);
-                            localStorage.removeItem('agora-music-resume-time');
                         }
+                        // Always clear the resume time once we've processed a track load
+                        localStorage.removeItem('agora-music-resume-time');
 
                         if (player.getSongTime() <= 0) {
                             console.warn(`MIDI track ${track.name} has 0 duration, skipping.`);
@@ -506,9 +508,10 @@ export function initMusicPlayer() {
             opusPlayer.loop = false;
             
             const resumeTimeStr = localStorage.getItem('agora-music-resume-time');
-            if (resumeTimeStr) {
+            const resumePathStr = localStorage.getItem('agora-music-resume-path');
+            
+            if (resumeTimeStr && resumePathStr === track.path) {
                 const resumeTime = parseFloat(resumeTimeStr);
-                localStorage.removeItem('agora-music-resume-time');
                 
                 const onLoadedMetadata = () => {
                      if (resumeTime > 0 && resumeTime < opusPlayer!.duration) {
@@ -519,6 +522,8 @@ export function initMusicPlayer() {
                 };
                 opusPlayer.addEventListener('loadedmetadata', onLoadedMetadata);
             }
+            // Always clear the resume time once we've processed a track load
+            localStorage.removeItem('agora-music-resume-time');
 
             // Connect to Visualizer
             if (!opusSource && analyser) {
