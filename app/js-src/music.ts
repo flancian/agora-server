@@ -557,10 +557,21 @@ export function initMusicPlayer() {
         return fetch(`/api/music/tracks?t=${Date.now()}`)
             .then(res => res.json())
             .then(tracks => {
-                 let midis = tracks.filter((t: any) => t.type === 'mid');
-                 let opuses = tracks.filter((t: any) => t.type === 'opus');
+                 const midiToggle = document.getElementById('music-toggle-midi') as HTMLInputElement;
+                 const opusToggle = document.getElementById('music-toggle-opus') as HTMLInputElement;
+                 
+                 const allowMidi = midiToggle ? midiToggle.checked : true;
+                 const allowOpus = opusToggle ? opusToggle.checked : true;
+
+                 let midis = allowMidi ? tracks.filter((t: any) => t.type === 'mid') : [];
+                 let opuses = allowOpus ? tracks.filter((t: any) => t.type === 'opus') : [];
                  
                  playlist = [];
+
+                 // If nothing is selected, return empty playlist
+                 if (midis.length === 0 && opuses.length === 0) {
+                     return playlist;
+                 }
 
                  // Sort MIDIs by size ascending (helper for fallback)
                  midis.sort((a: any, b: any) => (a.size || 0) - (b.size || 0));
@@ -702,6 +713,36 @@ export function initMusicPlayer() {
         musicCloseButton?.addEventListener('click', () => {
             setMusicState(false);
         });
+
+        const midiToggle = document.getElementById('music-toggle-midi') as HTMLInputElement;
+        const opusToggle = document.getElementById('music-toggle-opus') as HTMLInputElement;
+
+        const handleToggleChange = () => {
+            // Stop current track
+            stopMusic();
+            
+            // If both are disabled, just clear playlist and UI
+            if (!midiToggle.checked && !opusToggle.checked) {
+                playlist = [];
+                currentTrackIndex = -1;
+                renderPlaylist();
+                return;
+            }
+
+            // Reload playlist and play
+            loadPlaylist().then(loaded => {
+                if (loaded.length > 0) {
+                    currentTrackIndex = 0;
+                    playTrack(currentTrackIndex);
+                } else {
+                    currentTrackIndex = -1;
+                }
+                renderPlaylist();
+            });
+        };
+
+        midiToggle?.addEventListener('change', handleToggleChange);
+        opusToggle?.addEventListener('change', handleToggleChange);
 
         if (playlistToggle && playlistContainer) {
             playlistToggle.addEventListener('click', () => {
