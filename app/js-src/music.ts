@@ -675,7 +675,19 @@ export function initMusicPlayer() {
         const midiToggle = document.getElementById('music-toggle-midi') as HTMLInputElement;
         const opusToggle = document.getElementById('music-toggle-opus') as HTMLInputElement;
 
+        if (midiToggle) {
+            const savedMidi = localStorage.getItem('music-toggle-midi');
+            if (savedMidi !== null) midiToggle.checked = savedMidi === 'true';
+        }
+        if (opusToggle) {
+            const savedOpus = localStorage.getItem('music-toggle-opus');
+            if (savedOpus !== null) opusToggle.checked = savedOpus === 'true';
+        }
+
         const handleToggleChange = () => {
+            if (midiToggle) localStorage.setItem('music-toggle-midi', midiToggle.checked.toString());
+            if (opusToggle) localStorage.setItem('music-toggle-opus', opusToggle.checked.toString());
+
             // Stop current track
             stopMusic();
             
