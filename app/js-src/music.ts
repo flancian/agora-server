@@ -573,61 +573,19 @@ export function initMusicPlayer() {
                      return playlist;
                  }
 
-                 // Sort MIDIs by size ascending (helper for fallback)
-                 midis.sort((a: any, b: any) => (a.size || 0) - (b.size || 0));
-
-                                  // 1. Pick one "Interesting" track first.
-                                  // Calibration: 399 bytes = ~30 notes (counted). 
-                                  // Formula: (Size - 100) / 10
-                                  // Target: 7 to 17 notes (aiming for 7-17 seconds).
-                                  const interestingCandidates = midis.filter((m: any) => {
-                                      const estimatedNotes = Math.max(0, (m.size - 100) / 10);
-                                      return estimatedNotes >= 7 && estimatedNotes <= 17;
-                                  });                 
-                 let firstTrack = null;
-                 
-                 if (interestingCandidates.length > 0) {
-                     // Pick random from interesting candidates
-                     const idx = Math.floor(Math.random() * interestingCandidates.length);
-                     firstTrack = interestingCandidates[idx];
-                 } else if (midis.length > 0) {
-                     // Fallback: Pick from the middle 50% (avoiding extremes) to avoid tiny files
-                     const start = Math.floor(midis.length * 0.25);
-                     const end = Math.floor(midis.length * 0.75);
-                     const candidates = midis.slice(start, end);
-                     if (candidates.length > 0) {
-                         firstTrack = candidates[Math.floor(Math.random() * candidates.length)];
-                     } else {
-                         firstTrack = midis[0];
-                     }
-                 }
-
-                 if (firstTrack) {
-                      playlist.push(firstTrack);
-                      // Remove it from midis list to avoid dupes
-                      const index = midis.indexOf(firstTrack);
-                      if (index > -1) midis.splice(index, 1);
-                 }
-                 
-                 // 2. Add one Opus track (if available)
+                 // 1. Add Audio (Opus/OGG) tracks first (SHUFFLED)
                  if (opuses.length > 0) {
-                     const idx = Math.floor(Math.random() * opuses.length);
-                     
-                     playlist.push(opuses[idx]);
-                     opuses.splice(idx, 1);
+                     shuffle(opuses);
+                     playlist.push(...opuses);
                  }
 
-                 // 3. Add the rest of the MIDIs (SHUFFLED)
-                 shuffle(midis);
-                 playlist.push(...midis);
-
-                 // 4. Add remaining Opuses at the end (SHUFFLED)
-                 if (opuses.length > 0) {
-                    shuffle(opuses);
-                    playlist.push(...opuses);
+                 // 2. Add MIDI tracks next (SHUFFLED)
+                 if (midis.length > 0) {
+                     shuffle(midis);
+                     playlist.push(...midis);
                  }
                  
-                 console.log("Loaded playlist (Short(10%) -> Opus(Rainbow?) -> Rest-Shuffled):", playlist);
+                 console.log("Loaded playlist (Audio -> MIDI):", playlist);
                  return playlist;
             });
     };
