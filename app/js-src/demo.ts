@@ -224,8 +224,7 @@ export function initDemoMode() {
         // Let the user know it's about to start scrolling.
         const showInitialToast = () => {
             if ((window as any).showToast) {
-                const secondsLeft = isInitialLoad ? 4 : 5;
-                const msg = `🏃‍♀️ Demo mode active! Auto-scroll starting in ${secondsLeft} seconds... <a href="#" id="toast-open-settings" style="font-size: 0.85em; text-decoration: underline;">(disable in settings)</a>`;
+                const msg = `🏃‍♀️ Demo mode active! Auto-scroll starting in 5 seconds... <a href="#" id="toast-open-settings" style="font-size: 0.85em; text-decoration: underline;">(disable in settings)</a>`;
                 (window as any).showToast(`${msg} <a href="#" id="toast-cancel-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a>`);
                 
                 setTimeout(() => {
@@ -251,8 +250,9 @@ export function initDemoMode() {
             }
         };
 
+        const startDelay = isInitialLoad ? 1000 : 0;
         if (isInitialLoad) {
-            setTimeout(showInitialToast, 1000); // 1 second delay on page load
+            setTimeout(showInitialToast, startDelay);
         } else {
             showInitialToast();
         }
@@ -292,7 +292,7 @@ export function initDemoMode() {
                     window.scrollBy(0, 1);
                 }
             }, 33);
-        }, 5000); // 5 second delay
+        }, 5000 + startDelay); // 5 second delay after the initial toast delay
     }
 
     const setDemoMode = (isChecked: boolean, isInitialLoad = false) => {
