@@ -224,18 +224,27 @@ export function initDemoMode() {
         // Let the user know it's about to start scrolling.
         const showInitialToast = () => {
             if ((window as any).showToast) {
-                const msg = isInitialLoad ? "Demo mode active! Scrolling in a moment... 🌿" : "Auto-scroll starting in 5 seconds... 📜";
+                const secondsLeft = isInitialLoad ? 4 : 5;
+                const msg = `🏃‍♀️ Demo mode active! Auto-scroll starting in ${secondsLeft} seconds... <a href="#" id="toast-open-settings" style="font-size: 0.85em; text-decoration: underline;">(disable in settings)</a>`;
                 (window as any).showToast(`${msg} <a href="#" id="toast-cancel-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a>`);
                 
                 setTimeout(() => {
-                    const link = document.getElementById('toast-cancel-scroll');
-                    if (link) {
-                        link.addEventListener('click', (e) => {
+                    const cancelLink = document.getElementById('toast-cancel-scroll');
+                    if (cancelLink) {
+                        cancelLink.addEventListener('click', (e) => {
                             e.preventDefault();
                             if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
                             if ((window as any).showToast) {
                                 (window as any).showToast("Auto-scroll cancelled. 🛑");
                             }
+                        });
+                    }
+                    const settingsLink = document.getElementById('toast-open-settings');
+                    if (settingsLink) {
+                        settingsLink.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const burger = document.getElementById('burger');
+                            if (burger) burger.click();
                         });
                     }
                 }, 50);
@@ -251,18 +260,26 @@ export function initDemoMode() {
         (window as any).gentleScrollTimeout = setTimeout(() => {
             console.log("Demo: Starting gentle scroll.");
             if ((window as any).showToast) {
-                (window as any).showToast(`Scrolling down... <a href="#" id="toast-stop-scroll" style="font-size: 0.85em; text-decoration: underline;">(stop)</a>`);
+                (window as any).showToast(`🏃‍♀️ Scrolling down... <a href="#" id="toast-open-settings-2" style="font-size: 0.85em; text-decoration: underline;">(settings)</a> <a href="#" id="toast-stop-scroll" style="font-size: 0.85em; text-decoration: underline;">(stop)</a>`);
                 
-                // Bind click handler to the newly injected link
+                // Bind click handler to the newly injected links
                 setTimeout(() => {
-                    const link = document.getElementById('toast-stop-scroll');
-                    if (link) {
-                        link.addEventListener('click', (e) => {
+                    const stopLink = document.getElementById('toast-stop-scroll');
+                    if (stopLink) {
+                        stopLink.addEventListener('click', (e) => {
                             e.preventDefault();
                             if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
                             if ((window as any).showToast) {
                                 (window as any).showToast("Auto-scroll stopped. 🛑");
                             }
+                        });
+                    }
+                    const settingsLink = document.getElementById('toast-open-settings-2');
+                    if (settingsLink) {
+                        settingsLink.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const burger = document.getElementById('burger');
+                            if (burger) burger.click();
                         });
                     }
                 }, 50);
