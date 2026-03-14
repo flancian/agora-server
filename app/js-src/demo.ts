@@ -222,22 +222,30 @@ export function initDemoMode() {
         if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
         
         // Let the user know it's about to start scrolling.
-        if ((window as any).showToast) {
-            const msg = isInitialLoad ? "Demo mode active! Scrolling in a moment... 🌿" : "Auto-scroll starting in 5 seconds... 📜";
-            (window as any).showToast(`${msg} <a href="#" id="toast-cancel-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a>`);
-            
-            setTimeout(() => {
-                const link = document.getElementById('toast-cancel-scroll');
-                if (link) {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
-                        if ((window as any).showToast) {
-                            (window as any).showToast("Auto-scroll cancelled. 🛑");
-                        }
-                    });
-                }
-            }, 50);
+        const showInitialToast = () => {
+            if ((window as any).showToast) {
+                const msg = isInitialLoad ? "Demo mode active! Scrolling in a moment... 🌿" : "Auto-scroll starting in 5 seconds... 📜";
+                (window as any).showToast(`${msg} <a href="#" id="toast-cancel-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a>`);
+                
+                setTimeout(() => {
+                    const link = document.getElementById('toast-cancel-scroll');
+                    if (link) {
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
+                            if ((window as any).showToast) {
+                                (window as any).showToast("Auto-scroll cancelled. 🛑");
+                            }
+                        });
+                    }
+                }, 50);
+            }
+        };
+
+        if (isInitialLoad) {
+            setTimeout(showInitialToast, 1000); // 1 second delay on page load
+        } else {
+            showInitialToast();
         }
 
         (window as any).gentleScrollTimeout = setTimeout(() => {
