@@ -247,24 +247,11 @@ export function initDemoMode() {
         demoCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', () => {
                 setDemoMode(checkbox.checked);
-                // Auto-scroll check
-                const isMusic = (document.getElementById('music-checkbox') as HTMLInputElement)?.checked;
-                if (checkbox.checked && isMusic) {
+                if (checkbox.checked) {
                     startGentleScroll();
-                }
-            });
-        });
-
-        // Listen to Music checkboxes as well to trigger auto-scroll
-        const musicCheckboxes = document.querySelectorAll(".music-checkbox-input") as NodeListOf<HTMLInputElement>;
-        musicCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                const isDemo = Array.from(demoCheckboxes).some(cb => cb.checked);
-                if (checkbox.checked && isDemo) {
-                    startGentleScroll();
-                } else if (!checkbox.checked) {
-                    // Stop scrolling if music stops
+                } else {
                     if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
+                    if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
                 }
             });
         });
@@ -294,24 +281,25 @@ export function initDemoMode() {
     });
 
     const startGentleScroll = () => {
-        console.log("Music + Demo: Starting gentle scroll.");
+        console.log("Demo: Preparing gentle scroll.");
         if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
-        (window as any).gentleScrollInterval = setInterval(() => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
-                 console.log("Gentle scroll hit bottom.");
-                 clearInterval((window as any).gentleScrollInterval);
-            } else {
-                window.scrollBy(0, 1);
-            }
-        }, 33);
-    };
-
-    window.addEventListener('agora-track-change', (e: any) => {
-        const isDemo = Array.from(demoCheckboxes).some(cb => cb.checked);
-        const isMusic = (document.getElementById('music-checkbox') as HTMLInputElement)?.checked;
-        console.log(`Track change detected. Demo: ${isDemo}, Music: ${isMusic}`);
-        if (isDemo && isMusic) {
-             startGentleScroll();
+        if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
+        
+        // Let the user know it's about to start scrolling
+        if ((window as any).showToast) {
+            (window as any).showToast("Auto-scroll starting in 5 seconds... 📜");
         }
-    });
+
+        (window as any).gentleScrollTimeout = setTimeout(() => {
+            console.log("Demo: Starting gentle scroll.");
+            (window as any).gentleScrollInterval = setInterval(() => {
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
+                     console.log("Gentle scroll hit bottom.");
+                     clearInterval((window as any).gentleScrollInterval);
+                } else {
+                    window.scrollBy(0, 1);
+                }
+            }, 33);
+        }, 5000); // 5 second delay
+    };
 }
