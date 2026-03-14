@@ -222,23 +222,32 @@ export function initDemoMode() {
         if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
         
         // Let the user know it's about to start scrolling.
-        // We use different messages depending on whether it was manually toggled or just a new page load.
         if ((window as any).showToast) {
-            if (isInitialLoad) {
-                (window as any).showToast("Demo mode active! Scrolling in a moment... 🌿");
-            } else {
-                (window as any).showToast("Auto-scroll starting in 5 seconds... 📜");
-            }
+            const msg = isInitialLoad ? "Demo mode active! Scrolling in a moment... 🌿" : "Auto-scroll starting in 5 seconds... 📜";
+            (window as any).showToast(`${msg} <a href="#" id="toast-cancel-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a>`);
+            
+            setTimeout(() => {
+                const link = document.getElementById('toast-cancel-scroll');
+                if (link) {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
+                        if ((window as any).showToast) {
+                            (window as any).showToast("Auto-scroll cancelled. 🛑");
+                        }
+                    });
+                }
+            }, 50);
         }
 
         (window as any).gentleScrollTimeout = setTimeout(() => {
             console.log("Demo: Starting gentle scroll.");
             if ((window as any).showToast) {
-                (window as any).showToast(`Scrolling down... 🛶 <a href="#" id="toast-disable-scroll" style="font-size: 0.85em; text-decoration: underline;">(disable)</a>`);
+                (window as any).showToast(`Scrolling down... <a href="#" id="toast-stop-scroll" style="font-size: 0.85em; text-decoration: underline;">(stop)</a>`);
                 
                 // Bind click handler to the newly injected link
                 setTimeout(() => {
-                    const link = document.getElementById('toast-disable-scroll');
+                    const link = document.getElementById('toast-stop-scroll');
                     if (link) {
                         link.addEventListener('click', (e) => {
                             e.preventDefault();
@@ -250,7 +259,8 @@ export function initDemoMode() {
                     }
                 }, 50);
             }
-            (window as any).gentleScrollInterval = setInterval(() => {                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
+            (window as any).gentleScrollInterval = setInterval(() => {
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
                      console.log("Gentle scroll hit bottom.");
                      clearInterval((window as any).gentleScrollInterval);
                 } else {
