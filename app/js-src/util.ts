@@ -12,6 +12,7 @@ export const CLIENT_DEFAULTS = {
   showHypothesis: false,
   autoExpandStoas: false,
   demoTimeoutSeconds: '31',
+  autoScrollDemo: true,
   showEditSection: false,
 };
 

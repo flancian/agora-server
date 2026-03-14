@@ -29,6 +29,7 @@ export function initSettings() {
     (document.getElementById("show-hypothesis") as HTMLInputElement).checked = safeJsonParse(localStorage["show-hypothesis"], CLIENT_DEFAULTS.showHypothesis);
     (document.getElementById("auto-expand-stoas") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-stoas"], CLIENT_DEFAULTS.autoExpandStoas);
     (document.getElementById("demo-timeout-seconds") as HTMLInputElement).value = localStorage.getItem("demo-timeout-seconds") || CLIENT_DEFAULTS.demoTimeoutSeconds;
+    (document.getElementById("auto-scroll-demo") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-scroll-demo"], CLIENT_DEFAULTS.autoScrollDemo);
     (document.getElementById("show-edit-section") as HTMLInputElement).checked = safeJsonParse(localStorage["show-edit-section"], CLIENT_DEFAULTS.showEditSection);
 
     // Function to apply the bracket visibility style
@@ -115,6 +116,7 @@ export function initSettings() {
         // Display Settings
         localStorage["showBrackets"] = (document.getElementById("show-brackets") as HTMLInputElement).checked;
         localStorage["show-edit-section"] = (document.getElementById("show-edit-section") as HTMLInputElement).checked;
+        localStorage["auto-scroll-demo"] = (document.getElementById("auto-scroll-demo") as HTMLInputElement).checked;
         
         const showGraphLabels = (document.getElementById("show-graph-labels") as HTMLInputElement).checked;
         localStorage["graph-show-labels"] = showGraphLabels;

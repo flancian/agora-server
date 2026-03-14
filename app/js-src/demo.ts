@@ -2,7 +2,7 @@
 // app/js-src/demo.ts
 
 import { makeDraggable } from './draggable';
-import { CLIENT_DEFAULTS } from './util';
+import { CLIENT_DEFAULTS, safeJsonParse } from './util';
 
 export function initDemoMode() {
     const demoCheckboxes = document.querySelectorAll(".demo-checkbox-input") as NodeListOf<HTMLInputElement>;
@@ -213,16 +213,66 @@ export function initDemoMode() {
         meditationPopupContainer.classList.remove('active');
     };
 
-    const setDemoMode = (isChecked: boolean) => {
+    function startGentleScroll(isInitialLoad = false) {
+        const autoScrollDemo = safeJsonParse(localStorage["auto-scroll-demo"], CLIENT_DEFAULTS.autoScrollDemo);
+        if (!autoScrollDemo) return;
+
+        console.log("Demo: Preparing gentle scroll.");
+        if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
+        if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
+        
+        // Let the user know it's about to start scrolling.
+        // We use different messages depending on whether it was manually toggled or just a new page load.
+        if ((window as any).showToast) {
+            if (isInitialLoad) {
+                (window as any).showToast("Demo mode active! Scrolling in a moment... 🌿");
+            } else {
+                (window as any).showToast("Auto-scroll starting in 5 seconds... 📜");
+            }
+        }
+
+        (window as any).gentleScrollTimeout = setTimeout(() => {
+            console.log("Demo: Starting gentle scroll.");
+            if ((window as any).showToast) {
+                (window as any).showToast(`Scrolling down... 🛶 <a href="#" id="toast-disable-scroll" style="font-size: 0.85em; text-decoration: underline;">(disable)</a>`);
+                
+                // Bind click handler to the newly injected link
+                setTimeout(() => {
+                    const link = document.getElementById('toast-disable-scroll');
+                    if (link) {
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
+                            if ((window as any).showToast) {
+                                (window as any).showToast("Auto-scroll stopped. 🛑");
+                            }
+                        });
+                    }
+                }, 50);
+            }
+            (window as any).gentleScrollInterval = setInterval(() => {                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
+                     console.log("Gentle scroll hit bottom.");
+                     clearInterval((window as any).gentleScrollInterval);
+                } else {
+                    window.scrollBy(0, 1);
+                }
+            }, 33);
+        }, 5000); // 5 second delay
+    }
+
+    const setDemoMode = (isChecked: boolean, isInitialLoad = false) => {
         localStorage.setItem("deep-demo-active", JSON.stringify(isChecked));
         demoCheckboxes.forEach(checkbox => {
             checkbox.checked = isChecked;
         });
         if (isChecked) {
             startDeepDemo();
+            startGentleScroll(isInitialLoad);
         } else {
             cancelDeepDemo();
             hidePopup();
+            if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
+            if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
         }
     };
 
@@ -241,18 +291,12 @@ export function initDemoMode() {
         }
 
         // Set initial state
-        setDemoMode(isDemoActive);
+        setDemoMode(isDemoActive, true);
 
         // Add event listeners to all demo checkboxes
         demoCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', () => {
-                setDemoMode(checkbox.checked);
-                if (checkbox.checked) {
-                    startGentleScroll();
-                } else {
-                    if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
-                    if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
-                }
+                setDemoMode(checkbox.checked, false);
             });
         });
 
@@ -279,27 +323,4 @@ export function initDemoMode() {
         }
         showPopup();
     });
-
-    const startGentleScroll = () => {
-        console.log("Demo: Preparing gentle scroll.");
-        if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
-        if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
-        
-        // Let the user know it's about to start scrolling
-        if ((window as any).showToast) {
-            (window as any).showToast("Auto-scroll starting in 5 seconds... 📜");
-        }
-
-        (window as any).gentleScrollTimeout = setTimeout(() => {
-            console.log("Demo: Starting gentle scroll.");
-            (window as any).gentleScrollInterval = setInterval(() => {
-                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
-                     console.log("Gentle scroll hit bottom.");
-                     clearInterval((window as any).gentleScrollInterval);
-                } else {
-                    window.scrollBy(0, 1);
-                }
-            }, 33);
-        }, 5000); // 5 second delay
-    };
 }
