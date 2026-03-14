@@ -575,8 +575,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  initDemoMode();
-
   // No longer caching toastContainer at the top level to avoid initialization timing issues.
   // const toastContainer = document.getElementById('toast-container');
 
@@ -629,6 +627,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // internal helper for TS usage within this file
     const showToast = (window as any).showToast;
+
+    initDemoMode();
 
   const miniCliRetry = document.querySelector("#mini-cli-retry");
   if (miniCliRetry) {
