@@ -853,7 +853,7 @@ class Node:
             current_app.logger.debug(f"In pushed_subnodes, found virtual subnode ({subnode.uri}.")
             subnodes.append(subnode)
 
-        return subnodes
+        return sorted(subnodes, key=lambda x: x.mtime, reverse=True)
 
     def annotations(self):
         from .storage import feed
@@ -1289,17 +1289,15 @@ class VirtualSubnode(Subnode):
         else:
              self.forward_links = content_to_forward_links(self.content)
 
-        # Virtual subnodes are generated on the fly, so their mtime is now.
-        self.mtime = time.time()
-        self.datetime = datetime.datetime.fromtimestamp(self.mtime).replace(
-            microsecond=0
-        )
-        # Explicitly None so get_display_mtime uses the fresh self.mtime
+        # Virtual subnodes are generated on the fly, but their semantic time is that of the source.
+        self.mtime = source_subnode.mtime
+        self.datetime = source_subnode.datetime
+        # Explicitly None so get_display_mtime uses the source's mtime
         self.node = self.canonical_wikilink
 
     def get_display_mtime(self):
         """
-        Virtual subnodes are generated on the fly, so we always return their instantiation time.
+        Virtual subnodes are generated on the fly, but their semantic time is that of the source.
         """
         return (self.mtime, 'virtual')
 
@@ -1359,7 +1357,13 @@ class ExecutableSubnode(Subnode):
         # LOG(2022-06-05): As of the time of writing we treat VirtualSubnodes as prerendered.
         self.mediatype = 'text/html'
         self.content = f'This should be the output of script {self.uri}.'
-        self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
+        try:
+            self.mtime = os.path.getmtime(path)
+        except FileNotFoundError:
+            self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
+        self.datetime = datetime.datetime.fromtimestamp(self.mtime).replace(
+            microsecond=0
+        )
 
     def render(self, argument=''):
         """
