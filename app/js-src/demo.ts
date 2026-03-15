@@ -312,14 +312,15 @@ export function initDemoMode() {
     };
 
     if (demoCheckboxes.length > 0) {
-        // Check for Back/Forward navigation to prevent history loops
+        // Check for Back/Forward navigation
         let isDemoActive = JSON.parse(localStorage.getItem("deep-demo-active") || 'false');
         
         try {
             const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
             if (navEntry && navEntry.type === 'back_forward' && isDemoActive) {
-                console.log("Detected Back/Forward navigation. Disabling Demo Mode to prevent loops.");
-                isDemoActive = false;
+                console.log("Detected Back/Forward navigation. Keeping Demo Mode active.");
+                // We no longer disable Demo Mode on back/forward because the fetch-then-navigate 
+                // strategy for /random ensures a clean history stack.
             }
         } catch (e) {
             console.warn("Could not check navigation type:", e);
