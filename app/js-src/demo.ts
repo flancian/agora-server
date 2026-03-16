@@ -228,20 +228,7 @@ export function initDemoMode() {
                 if (isRootAutoEnable) {
                     msg = `🏃‍♀️ Demo mode is auto-enabled here! Auto-scroll starting in 3 seconds...`;
                 }
-                (window as any).showToast(`${msg} <span style="font-size: 0.85em; opacity: 0.8;">(<a href="#" id="toast-cancel-scroll" style="text-decoration: underline; color: inherit;">cancel</a> or toggle 🏃‍♀️ up top)</span>`);
-                
-                setTimeout(() => {
-                    const cancelLink = document.getElementById('toast-cancel-scroll');
-                    if (cancelLink) {
-                        cancelLink.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
-                            if ((window as any).showToast) {
-                                (window as any).showToast("Auto-scroll cancelled. 🛑");
-                            }
-                        });
-                    }
-                }, 50);
+                (window as any).showToast(msg);
             }
         };
 
