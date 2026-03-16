@@ -635,11 +635,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     initDemoMode();
 
     if (window.location.pathname === '/' || window.location.pathname === '/index') {
-        setTimeout(() => {
-            if (showToast) {
-                showToast("🌿 Welcome to the Agora! A Free Knowledge Commons where nodes are concepts and subnodes are utterances. Every missing page is an invitation to contribute.");
-            }
-        }, 500);
+        window.addEventListener('load', () => {
+            const loadTime = Math.round(performance.now());
+            setTimeout(() => {
+                if (showToast) {
+                    showToast(`🌿 Welcome to the Agora! A Free Knowledge Commons where nodes are concepts and subnodes are utterances. (Loaded in ${loadTime}ms)`);
+                }
+            }, 1000);
+        });
     }
 
   const miniCliRetry = document.querySelector("#mini-cli-retry");
