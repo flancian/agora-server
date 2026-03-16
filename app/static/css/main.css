@@ -709,14 +709,23 @@ summary {
 }
 
 .subnode {
-    background: var(--subnode-bg);
+    background-color: var(--subnode-bg);
+    background-image: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.03) 100%);
     color: var(--subnode-text-color);
-    padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    padding: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border);
     overflow-x: auto;
     position: relative;
-    transition: background-color 0.8s ease-out;
+    transition: background-color 0.8s ease-out, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.subnode:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
 }
 
 .not-found {
