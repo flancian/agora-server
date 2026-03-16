@@ -224,11 +224,11 @@ export function initDemoMode() {
         // Let the user know it's about to start scrolling.
         const showInitialToast = () => {
             if ((window as any).showToast) {
-                let msg = `🏃‍♀️ Demo mode active! Auto-scroll starting in 5 seconds...`;
+                let msg = `🏃‍♀️ Demo mode active! Auto-scroll starting in 3 seconds...`;
                 if (isRootAutoEnable) {
-                    msg = `🏃‍♀️ Demo mode is auto-enabled here! Auto-scroll starting in 5 seconds...`;
+                    msg = `🏃‍♀️ Demo mode is auto-enabled here! Auto-scroll starting in 3 seconds...`;
                 }
-                (window as any).showToast(`${msg} <a href="#" id="toast-cancel-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a> <span style="font-size: 0.85em; opacity: 0.8;">(or toggle 🏃‍♀️ up top)</span>`);
+                (window as any).showToast(`${msg} <span style="font-size: 0.85em; opacity: 0.8;">(<a href="#" id="toast-cancel-scroll" style="text-decoration: underline; color: inherit;">cancel</a> or toggle 🏃‍♀️ up top)</span>`);
                 
                 setTimeout(() => {
                     const cancelLink = document.getElementById('toast-cancel-scroll');
@@ -255,7 +255,7 @@ export function initDemoMode() {
         (window as any).gentleScrollTimeout = setTimeout(() => {
             console.log("Demo: Starting gentle scroll.");
             if ((window as any).showToast) {
-                (window as any).showToast(`📜 Scrolling... <a href="#" id="toast-stop-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a> <span style="font-size: 0.85em; opacity: 0.8;">(or toggle 🏃‍♀️ up top)</span>`);
+                (window as any).showToast(`📜 Scrolling... <span style="font-size: 0.85em; opacity: 0.8;">(<a href="#" id="toast-stop-scroll" style="text-decoration: underline; color: inherit;">cancel</a> or toggle 🏃‍♀️ up top)</span>`);
                 
                 // Bind click handler to the newly injected links
                 setTimeout(() => {
@@ -279,7 +279,7 @@ export function initDemoMode() {
                     window.scrollBy(0, 1);
                 }
             }, 33);
-        }, 5000 + startDelay); // 5 second delay after the initial toast delay
+        }, 3000 + startDelay); // 3 second delay after the initial toast delay
     }
 
     const setDemoMode = (isChecked: boolean, isInitialLoad = false, isRootAutoEnable = false) => {
