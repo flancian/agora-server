@@ -228,7 +228,7 @@ export function initDemoMode() {
                 if (isRootAutoEnable) {
                     msg = `🏃‍♀️ Demo mode is auto-enabled here! Auto-scroll starting in 5 seconds...`;
                 }
-                (window as any).showToast(`${msg} <a href="#" id="toast-cancel-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a> <a href="#" id="toast-open-settings" style="font-size: 0.85em; text-decoration: none;" title="settings">⚙️</a>`);
+                (window as any).showToast(`${msg} <a href="#" id="toast-cancel-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a> <a href="#" id="toast-open-settings" style="font-size: 0.85em; text-decoration: none;" title="settings">⚙️</a> <span style="font-size: 0.85em; opacity: 0.8;">(or toggle 🏃‍♀️ up top)</span>`);
                 
                 setTimeout(() => {
                     const cancelLink = document.getElementById('toast-cancel-scroll');
@@ -263,7 +263,7 @@ export function initDemoMode() {
         (window as any).gentleScrollTimeout = setTimeout(() => {
             console.log("Demo: Starting gentle scroll.");
             if ((window as any).showToast) {
-                (window as any).showToast(`🏃‍♀️ Scrolling down... <a href="#" id="toast-stop-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a> <a href="#" id="toast-open-settings-2" style="font-size: 0.85em; text-decoration: none;" title="settings">⚙️</a>`);
+                (window as any).showToast(`📜 Scrolling... <a href="#" id="toast-stop-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a> <a href="#" id="toast-open-settings-2" style="font-size: 0.85em; text-decoration: none;" title="settings">⚙️</a> <span style="font-size: 0.85em; opacity: 0.8;">(or toggle 🏃‍♀️ up top)</span>`);
                 
                 // Bind click handler to the newly injected links
                 setTimeout(() => {
