@@ -226,7 +226,7 @@ export function initDemoMode() {
             if ((window as any).showToast) {
                 let msg = `🏃‍♀️ Demo mode active! Auto-scroll starting in 5 seconds...`;
                 if (isRootAutoEnable) {
-                    msg = `🏃‍♀️ Welcome to the Agora! Demo mode is on. Auto-scroll starting in 5 seconds...`;
+                    msg = `🏃‍♀️ Demo mode is auto-enabled here! Auto-scroll starting in 5 seconds...`;
                 }
                 (window as any).showToast(`${msg} <a href="#" id="toast-cancel-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a> <a href="#" id="toast-open-settings" style="font-size: 0.85em; text-decoration: none;" title="settings">⚙️</a>`);
                 

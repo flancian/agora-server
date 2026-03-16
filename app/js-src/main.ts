@@ -579,7 +579,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   // const toastContainer = document.getElementById('toast-container');
 
     // @ts-ignore
-	window.showToast = function(message, duration = 3000) {
+	window.showToast = function(message, duration = null) {
+            if (duration === null) {
+                const configSeconds = parseInt(localStorage.getItem("toast-duration-seconds") || CLIENT_DEFAULTS.toastDurationSeconds, 10);
+                duration = configSeconds * 1000;
+            }
             console.log("Showing toast:", message);
             let container = document.getElementById('toast-container');
             if (!container) {
@@ -629,6 +633,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     const showToast = (window as any).showToast;
 
     initDemoMode();
+
+    if (window.location.pathname === '/' || window.location.pathname === '/index') {
+        setTimeout(() => {
+            if (showToast) {
+                showToast("🌿 Welcome to the Agora! A Free Knowledge Commons where nodes are concepts and subnodes are utterances. Every missing page is an invitation to contribute.");
+            }
+        }, 500);
+    }
 
   const miniCliRetry = document.querySelector("#mini-cli-retry");
   if (miniCliRetry) {
