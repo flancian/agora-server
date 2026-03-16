@@ -242,7 +242,7 @@ export function initDemoMode() {
         (window as any).gentleScrollTimeout = setTimeout(() => {
             console.log("Demo: Starting gentle scroll.");
             if ((window as any).showToast) {
-                (window as any).showToast(`📜 Scrolling... <span style="font-size: 0.85em; opacity: 0.8;">(<a href="#" id="toast-stop-scroll" style="text-decoration: underline; color: inherit;">cancel</a> or toggle 🏃‍♀️ up top)</span>`);
+                (window as any).showToast(`📜 Scrolling... <span style="font-size: 0.85em; opacity: 0.8;">(<a href="#" id="toast-stop-scroll" style="text-decoration: underline; color: inherit;">cancel</a> or toggle in <a href="#" id="toast-open-settings" style="text-decoration: underline; color: inherit;">settings</a>)</span>`);
                 
                 // Bind click handler to the newly injected links
                 setTimeout(() => {
@@ -254,6 +254,14 @@ export function initDemoMode() {
                             if ((window as any).showToast) {
                                 (window as any).showToast("🛑 Auto-scroll stopped.");
                             }
+                        });
+                    }
+                    const settingsLink = document.getElementById('toast-open-settings');
+                    if (settingsLink) {
+                        settingsLink.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const burger = document.getElementById('burger');
+                            if (burger) burger.click();
                         });
                     }
                 }, 50);
