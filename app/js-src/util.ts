@@ -12,7 +12,7 @@ export const CLIENT_DEFAULTS = {
   showHypothesis: false,
   autoExpandStoas: false,
   demoTimeoutSeconds: '31',
-  toastDurationSeconds: '10',
+  toastDurationSeconds: '7',
   autoScrollDemo: true,
   showEditSection: false,
 };
