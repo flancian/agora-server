@@ -720,7 +720,7 @@ summary {
     margin-top: 15px;
     margin-bottom: 15px;
     border-radius: 8px;
-    box-shadow: 4px 4px 10px var(--subnode-shadow);
+    box-shadow: 0 0 10px var(--subnode-shadow);
     border: 1px solid var(--border);
     overflow-x: auto;
     position: relative;
@@ -728,8 +728,8 @@ summary {
 }
 
 .subnode:hover {
-    box-shadow: 8px 8px 16px var(--subnode-shadow-hover);
-    transform: translate(-2px, -2px);
+    box-shadow: 0 0 20px var(--subnode-shadow-hover);
+    transform: translateY(-2px);
 }
 
 .not-found {
