@@ -634,16 +634,23 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     initDemoMode();
 
-    if (window.location.pathname === '/' || window.location.pathname === '/index') {
-        window.addEventListener('load', () => {
-            const loadTime = Math.round(performance.now());
-            setTimeout(() => {
-                if (showToast) {
-                    showToast(`🌿 Welcome to the Agora! A Free Knowledge Commons where nodes are concepts and subnodes are utterances. (Loaded in ${loadTime}ms)`);
+    window.addEventListener('load', () => {
+        const loadTimeMs = performance.now();
+        const loadTimeS = (loadTimeMs / 1000).toFixed(1);
+        
+        setTimeout(() => {
+            if (showToast) {
+                showToast(`Welcome! Agora loaded in ${loadTimeS}s.`);
+                
+                // Add an extra context toast if we are at the root
+                if (window.location.pathname === '/' || window.location.pathname === '/index') {
+                    setTimeout(() => {
+                        showToast(`🌿 The Agora is a Free Knowledge Commons where nodes are concepts and subnodes are utterances. Every missing page is an invitation to contribute.`);
+                    }, 1000);
                 }
-            }, 1000);
-        });
-    }
+            }
+        }, 500);
+    });
 
   const miniCliRetry = document.querySelector("#mini-cli-retry");
   if (miniCliRetry) {

@@ -56,8 +56,8 @@
     --synthesis-bg: rgba(74, 59, 106, 0.4);
     --synthesis-border: #6a5acd;
     --music-overlay-color: #b388ff;
-    --subnode-shadow: rgba(255, 255, 255, 0.05);
-    --subnode-shadow-hover: rgba(255, 255, 255, 0.1);
+    --subnode-shadow: rgba(255, 255, 255, 0.15);
+    --subnode-shadow-hover: rgba(255, 255, 255, 0.3);
 }
 
 [data-theme="light"] {
