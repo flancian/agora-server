@@ -710,13 +710,13 @@ summary {
 
 .subnode {
     background-color: var(--subnode-bg);
-    background-image: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.03) 100%);
+    background-image: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(0,0,0,0.06) 100%);
     color: var(--subnode-text-color);
     padding: 15px;
     margin-top: 15px;
     margin-bottom: 15px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--border);
     overflow-x: auto;
     position: relative;
@@ -724,8 +724,8 @@ summary {
 }
 
 .subnode:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    transform: translateY(-1px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2), 0 6px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
 }
 
 .not-found {
