@@ -213,7 +213,7 @@ export function initDemoMode() {
         meditationPopupContainer.classList.remove('active');
     };
 
-    function startGentleScroll(isInitialLoad = false) {
+    function startGentleScroll(isInitialLoad = false, isRootAutoEnable = false) {
         const autoScrollDemo = safeJsonParse(localStorage["auto-scroll-demo"], CLIENT_DEFAULTS.autoScrollDemo);
         if (!autoScrollDemo) return;
 
@@ -224,8 +224,11 @@ export function initDemoMode() {
         // Let the user know it's about to start scrolling.
         const showInitialToast = () => {
             if ((window as any).showToast) {
-                const msg = `🏃‍♀️ Demo mode active! Auto-scroll starting in 5 seconds... <a href="#" id="toast-open-settings" style="font-size: 0.85em; text-decoration: underline;">(settings)</a>`;
-                (window as any).showToast(`${msg} <a href="#" id="toast-cancel-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a>`);
+                let msg = `🏃‍♀️ Demo mode active! Auto-scroll starting in 5 seconds...`;
+                if (isRootAutoEnable) {
+                    msg = `🏃‍♀️ Welcome to the Agora! Demo mode is on. Auto-scroll starting in 5 seconds...`;
+                }
+                (window as any).showToast(`${msg} <a href="#" id="toast-cancel-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a> <a href="#" id="toast-open-settings" style="font-size: 0.85em; text-decoration: none;" title="settings">⚙️</a>`);
                 
                 setTimeout(() => {
                     const cancelLink = document.getElementById('toast-cancel-scroll');
@@ -260,7 +263,7 @@ export function initDemoMode() {
         (window as any).gentleScrollTimeout = setTimeout(() => {
             console.log("Demo: Starting gentle scroll.");
             if ((window as any).showToast) {
-                (window as any).showToast(`🏃‍♀️ Scrolling down... <a href="#" id="toast-open-settings-2" style="font-size: 0.85em; text-decoration: underline;">(settings)</a> <a href="#" id="toast-stop-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a>`);
+                (window as any).showToast(`🏃‍♀️ Scrolling down... <a href="#" id="toast-stop-scroll" style="font-size: 0.85em; text-decoration: underline;">(cancel)</a> <a href="#" id="toast-open-settings-2" style="font-size: 0.85em; text-decoration: none;" title="settings">⚙️</a>`);
                 
                 // Bind click handler to the newly injected links
                 setTimeout(() => {
@@ -295,14 +298,14 @@ export function initDemoMode() {
         }, 5000 + startDelay); // 5 second delay after the initial toast delay
     }
 
-    const setDemoMode = (isChecked: boolean, isInitialLoad = false) => {
+    const setDemoMode = (isChecked: boolean, isInitialLoad = false, isRootAutoEnable = false) => {
         localStorage.setItem("deep-demo-active", JSON.stringify(isChecked));
         demoCheckboxes.forEach(checkbox => {
             checkbox.checked = isChecked;
         });
         if (isChecked) {
             startDeepDemo();
-            startGentleScroll(isInitialLoad);
+            startGentleScroll(isInitialLoad, isRootAutoEnable);
         } else {
             cancelDeepDemo();
             hidePopup();
@@ -313,7 +316,16 @@ export function initDemoMode() {
 
     if (demoCheckboxes.length > 0) {
         // Check for Back/Forward navigation
-        let isDemoActive = JSON.parse(localStorage.getItem("deep-demo-active") || 'false');
+        const storedDemoActive = localStorage.getItem("deep-demo-active");
+        let isDemoActive = false;
+        let isRootAutoEnable = false;
+        
+        if (storedDemoActive !== null) {
+            isDemoActive = JSON.parse(storedDemoActive);
+        } else if (window.location.pathname === '/' || window.location.pathname === '/index') {
+            isDemoActive = true;
+            isRootAutoEnable = true;
+        }
         
         try {
             const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
@@ -327,12 +339,12 @@ export function initDemoMode() {
         }
 
         // Set initial state
-        setDemoMode(isDemoActive, true);
+        setDemoMode(isDemoActive, true, isRootAutoEnable);
 
         // Add event listeners to all demo checkboxes
         demoCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', () => {
-                setDemoMode(checkbox.checked, false);
+                setDemoMode(checkbox.checked, false, false);
             });
         });
 
