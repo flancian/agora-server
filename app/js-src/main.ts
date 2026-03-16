@@ -2265,9 +2265,6 @@ async function bindEvents() {
 
                         const loadTimeS = (loadTimeMs / 1000).toFixed(1);
 
-                        showToast(`Welcome!`);
-                        showToast(`Agora loaded in ${loadTimeS}s.`);
-
                       }
 
                       // end bindEvents();

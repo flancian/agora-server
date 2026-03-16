@@ -56,6 +56,8 @@
     --synthesis-bg: rgba(74, 59, 106, 0.4);
     --synthesis-border: #6a5acd;
     --music-overlay-color: #b388ff;
+    --subnode-shadow: rgba(255, 255, 255, 0.05);
+    --subnode-shadow-hover: rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="light"] {
@@ -93,6 +95,8 @@
     --synthesis-bg: #e6e6fa;
     --synthesis-border: #9370db;
     --music-overlay-color: #ffe0b2;
+    --subnode-shadow: rgba(0, 0, 0, 0.2);
+    --subnode-shadow-hover: rgba(0, 0, 0, 0.3);
 }
 
 .overlay {
@@ -706,15 +710,6 @@ summary {
     margin-right: auto;
     max-width: 100%;
     max-height: 600px;
-}
-
-    --subnode-shadow: rgba(0, 0, 0, 0.2);
-    --subnode-shadow-hover: rgba(0, 0, 0, 0.3);
-}
-
-:root.dark {
-    --subnode-shadow: rgba(0, 0, 0, 0.6);
-    --subnode-shadow-hover: rgba(0, 0, 0, 0.8);
 }
 
 .subnode {

@@ -122,9 +122,12 @@ def create_app():
         light_css_path = os.path.join(app.static_folder, 'css/screen-light.css')
         if os.path.exists(light_css_path):
             versions['light_css_version'] = int(os.path.getmtime(light_css_path))
-        
-        return {'css_versions': versions}
 
+        js_path = os.path.join(app.static_folder, 'js/index.js')
+        if os.path.exists(js_path):
+            versions['js_version'] = int(os.path.getmtime(js_path))
+
+        return {'css_versions': versions}
     @app.template_filter("linkify")
     def linkify(s):
         return bleach.linkify(s)

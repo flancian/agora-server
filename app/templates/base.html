@@ -76,7 +76,7 @@
 	{% endif %}
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-	<script type="module" src="{{url_for('static', filename='js/index.js')}}"></script>
+	<script type="module" src="{{url_for('static', filename='js/index.js')}}?v={{css_versions.js_version}}"></script>
 
 	<script type="application/json" class="js-hypothesis-config">
     {
