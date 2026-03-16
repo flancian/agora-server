@@ -252,7 +252,7 @@ export function initDemoMode() {
                             e.preventDefault();
                             if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
                             if ((window as any).showToast) {
-                                (window as any).showToast("Auto-scroll stopped. 🛑");
+                                (window as any).showToast("🛑 Auto-scroll stopped.");
                             }
                         });
                     }
