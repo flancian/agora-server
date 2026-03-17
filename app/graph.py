@@ -944,7 +944,8 @@ class Subnode:
     def get_display_mtime(self):
         """
         Returns the most accurate modification time for display.
-        Prioritizes cached git timestamp, then DB, then lazy git lookup, then filesystem.
+        Prioritizes cached git timestamp, then DB, then filesystem.
+        Disables synchronous git fallback to prevent uWSGI harakiris.
         """
         # 1. Already cached in object
         if self.git_mtime:
@@ -957,16 +958,8 @@ class Subnode:
                 self.git_mtime = db_mtime
                 return (db_mtime, 'git')
 
-        # 3. Lazy fallback (if enabled)
-        if current_app.config.get('USE_GIT_MTIME', False):
-            current_app.logger.debug(f"Git Mtime: Cache miss for {self.uri}, performing lazy lookup.")
-            mtime, source = git_utils.get_mtime(self.path)
-            if source == 'git':
-                self.git_mtime = mtime
-            return (mtime, source)
-            
+        # Fallback to filesystem to prevent synchronous subprocess blocking
         return (self.mtime, 'fs')
-
     def __repr__(self):
         return f"<Subnode: {self.uri} ({self.mediatype})>"
 
