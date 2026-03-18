@@ -301,7 +301,7 @@ export function initDemoMode() {
         
         if (storedDemoActive !== null) {
             isDemoActive = JSON.parse(storedDemoActive);
-        } else if (window.location.pathname === '/' || window.location.pathname === '/index') {
+        } else if ((window.location.pathname === '/' || window.location.pathname === '/index') && !window.location.search) {
             isDemoActive = true;
             isRootAutoEnable = true;
         }

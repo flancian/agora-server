@@ -642,10 +642,11 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (showToast) {
                 showToast(`Welcome! Agora loaded in ${loadTimeS}s.`);
                 
-                // Add an extra context toast if we are at the root
-                if (window.location.pathname === '/' || window.location.pathname === '/index') {
+                // Add an extra context toast if we are at the absolute root (no query parameters)
+                const isAbsoluteRoot = (window.location.pathname === '/' || window.location.pathname === '/index') && !window.location.search;
+                if (isAbsoluteRoot) {
                     setTimeout(() => {
-                        showToast(`🌿 The Agora is a Free Knowledge Commons where nodes are concepts and subnodes are utterances. Every missing page is an invitation to contribute.`);
+                        showToast(`🌿 The Agora is a Free Knowledge Commons where nodes are concepts and subnodes are utterances.`);
                     }, 1000);
                 }
             }
