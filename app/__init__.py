@@ -44,7 +44,7 @@ def create_app():
     # there's probably a better way to make this distinction, but this works.
     if config in ["ProductionConfig", "AlphaConfig"]:
         logging.basicConfig(
-            filename="agora.log",
+            filename="/tmp/agora.log",
             level=logging.WARNING,
             format="%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s",
         )
