@@ -646,7 +646,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 const isAbsoluteRoot = (window.location.pathname === '/' || window.location.pathname === '/index') && !window.location.search;
                 if (isAbsoluteRoot) {
                     setTimeout(() => {
-                        showToast(`🌿 The Agora is a Free Knowledge Commons where nodes are concepts and subnodes are utterances.`);
+                        showToast(`🌿 The Agora is a Free Knowledge Commons for the benefit of all beings, where locations contain individual contributions.`);
                     }, 1000);
                 }
             }
