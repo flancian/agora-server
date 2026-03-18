@@ -55,6 +55,8 @@ def analyze(log_file):
     p50 = msec_values[int(total_requests * 0.5)]
     p90 = msec_values[int(total_requests * 0.9)]
     p99 = msec_values[int(total_requests * 0.99)]
+    p999 = msec_values[int(total_requests * 0.999)]
+    p9999 = msec_values[int(total_requests * 0.9999)]
     avg = total_msecs / total_requests
     max_msecs = msec_values[-1]
 
@@ -63,6 +65,8 @@ def analyze(log_file):
     print(f"Median (p50)   : {p50} ms")
     print(f"90th %ile (p90): {p90} ms")
     print(f"99th %ile (p99): {p99} ms")
+    print(f"99.9th %ile    : {p999} ms")
+    print(f"99.99th %ile   : {p9999} ms")
     print(f"Max Latency    : {max_msecs} ms")
     
     print(f"\n--- Latency Histogram ---")
