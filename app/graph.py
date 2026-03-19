@@ -410,15 +410,16 @@ class Graph:
 
         for f in all_files:
             mediatype = "text/plain"
-            if f.endswith((".jpg", ".jpeg")):
+            f_lower = f.lower()
+            if f_lower.endswith((".jpg", ".jpeg")):
                 mediatype = "image/jpg"
-            elif f.endswith(".png"):
+            elif f_lower.endswith(".png"):
                 mediatype = "image/png"
-            elif f.endswith(".gif"):
+            elif f_lower.endswith(".gif"):
                 mediatype = "image/gif"
-            elif f.endswith(".webp"):
+            elif f_lower.endswith(".webp"):
                 mediatype = "image/webp"
-            elif f.endswith(".py"):
+            elif f_lower.endswith(".py"):
                 mediatype = "text/x-python"
 
             uri = path_to_uri(f, base)
@@ -974,23 +975,29 @@ class Subnode:
         except IsADirectoryError:
             self.content = "(A directory).\n"
             self.forward_links = []
+        except UnicodeDecodeError:
+            self.content = "(File could not be decoded as UTF-8. It might be binary).\n"
+            self.forward_links = []
+            current_app.logger.warning(
+                f"Could not decode file {self.path} as UTF-8. Treating as non-text."
+            )
         except FileNotFoundError:
             self.content = "(File not found).\n"
             self.forward_links = []
             current_app.logger.exception(
-                "Could not read file due to FileNotFoundError in Subnode __init__ (Heisenbug)."
+                f"Could not read file {self.path} due to FileNotFoundError in Subnode __init__ (Heisenbug)."
             )
         except OSError:
             self.content = "(File could not be read).\n"
             self.forward_links = []
             current_app.logger.exception(
-                "Could not read file due to OSError in Subnode __init__ (Heisenbug)."
+                f"Could not read file {self.path} due to OSError in Subnode __init__ (Heisenbug)."
             )
         except Exception:
             self.content = "(Unhandled exception when trying to read).\n"
             self.forward_links = []
             current_app.logger.exception(
-                "Could not read file due to unhandled exception in Subnode __init__ (Heisenbug)."
+                f"Could not read file {self.path} due to unhandled exception in Subnode __init__ (Heisenbug)."
             )
 
     def load_image_subnode(self):

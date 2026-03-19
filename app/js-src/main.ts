@@ -640,7 +640,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         
         setTimeout(() => {
             if (showToast) {
-                showToast(`Welcome! Agora loaded in ${loadTimeS}s.`);
+                if (parseFloat(loadTimeS) > 5) {
+                    showToast(`Welcome! Agora loaded in ${loadTimeS}s. Sorry this was slow; I'm working on it!`);
+                } else {
+                    showToast(`Welcome! Agora loaded in ${loadTimeS}s.`);
+                }
                 
                 // Add an extra context toast if we are at the absolute root (no query parameters)
                 const isAbsoluteRoot = (window.location.pathname === '/' || window.location.pathname === '/index') && !window.location.search;
