@@ -1270,6 +1270,43 @@ def asset(user, asset):
     return send_file(path)
 
 
+@bp.route("/raw/node/<node>")
+def raw_node(node):
+    n = api.build_node(node)
+    if not n:
+        abort(404)
+        
+    content = []
+    content.append(f"# Node: {n.qstr}\n")
+    
+    if n.subnodes:
+        content.append("## Subnodes\n")
+        for subnode in n.subnodes:
+            content.append(f"### By @{subnode.user}\n")
+            # Some content might be bytes if it's an image, so check type
+            if isinstance(subnode.content, str):
+                content.append(subnode.content.strip())
+            else:
+                content.append(f"(Binary content: {subnode.mediatype})")
+            content.append("\n")
+            
+    pushed = n.pushed_subnodes()
+    if pushed:
+        content.append("## Pushed Subnodes\n")
+        for subnode in pushed:
+            content.append(f"### Pushed from @{subnode.user}/{subnode.virtual_wikilink}\n")
+            if isinstance(subnode.content, str):
+                content.append(subnode.content.strip())
+            else:
+                content.append(f"(Binary content: {subnode.mediatype})")
+            content.append("\n")
+            
+    if not n.subnodes and not pushed:
+        content.append("*(Empty node)*\n")
+        
+    return Response("\n".join(content), mimetype="text/plain")
+
+
 @bp.route("/raw/<path:subnode>")
 def raw(subnode):
     s = api.subnode_by_uri(subnode)
