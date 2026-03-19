@@ -641,7 +641,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         setTimeout(() => {
             if (showToast) {
                 if (parseFloat(loadTimeS) > 5) {
-                    showToast(`Welcome! Agora loaded in ${loadTimeS}s. Sorry this was slow; I'm working on it!`);
+                    showToast(`Welcome! Agora loaded in ${loadTimeS}s. Sorry this was slow; we're working on it!`);
                 } else {
                     showToast(`Welcome! Agora loaded in ${loadTimeS}s.`);
                 }
