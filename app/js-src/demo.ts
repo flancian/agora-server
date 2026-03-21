@@ -28,9 +28,11 @@ export function initDemoMode() {
         const target = event.target as HTMLElement;
         const demoSwitch = target.closest('.demo-switch');
         const burgerMenu = target.closest('#burger');
+        const musicSwitch = target.closest('.music-switch');
+        const musicPlayer = target.closest('#music-player-container');
 
-        // If the interaction was a click on the toggle itself or the burger menu, do nothing.
-        if (event.type === 'click' && (demoSwitch || burgerMenu)) {
+        // If the interaction was a click on the toggle itself, the burger menu, or the music player/toggles, do nothing.
+        if (event.type === 'click' && (demoSwitch || burgerMenu || musicSwitch || musicPlayer)) {
             return;
         }
 
