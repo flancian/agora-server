@@ -354,13 +354,8 @@ export function initMusicPlayer() {
         
         // Concurrency token
         const playId = ++currentPlayId;
-        
-        // Dispatch event for Demo Mode integration
-        const event = new CustomEvent('agora-track-change', { detail: { trackIndex: currentTrackIndex } });
-        window.dispatchEvent(event);
-        
-        if (!playlist || playlist.length === 0) return;
-        
+
+        if (!playlist || playlist.length === 0) return;        
         const track = playlist[trackIndex];
         if (trackNameSpan) trackNameSpan.textContent = track.name;
         // Link to the Node (wikilink) instead of User profile
