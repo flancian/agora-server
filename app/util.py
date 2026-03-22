@@ -207,12 +207,20 @@ def timeago(date):
         return f"{days} day{'s' if days != 1 else ''} ago"
 
 
+import signal
+
 def run_with_timeout_and_limit(cmd, timeout=1.0, limit=100*1024):
     """
     Runs a command with a timeout and stdout size limit.
+    Uses process groups to ensure all child processes are killed on timeout.
     """
     try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        proc = subprocess.Popen(
+            cmd, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.STDOUT,
+            preexec_fn=os.setsid # Create a new process group
+        )
         output_bytes = bytearray()
         start_time = time.time()
         
@@ -225,21 +233,23 @@ def run_with_timeout_and_limit(cmd, timeout=1.0, limit=100*1024):
                 output_bytes.extend(chunk)
                 if len(output_bytes) > limit:
                     output_bytes = output_bytes[:limit] + b"\n... [Output truncated: exceeded size limit]"
-                    proc.kill()
+                    os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
                     break
             elif proc.poll() is not None:
                 break
         else:
-            proc.kill()
+            os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
             output_bytes += b"\n... [Execution timed out]"
         
         if proc.poll() is None:
-            proc.kill()
+            time.sleep(0.1)
+            if proc.poll() is None:
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
             proc.wait()
             
         return output_bytes.decode("utf-8", errors="replace")
 
     except Exception as e:
         if 'proc' in locals() and proc.poll() is None:
-             proc.kill()
+             os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
         return f"<strong>Execution failed:</strong> {str(e)}"

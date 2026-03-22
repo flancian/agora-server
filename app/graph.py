@@ -199,7 +199,10 @@ class Graph:
                 subnodes.append(s)
 
                 if absolute_path.endswith(".py"):
-                    n.executable_subnodes.append(ExecutableSubnode(absolute_path))
+                    # Only treat .py files as executables if they are explicitly in an 'exec' or 'bin' folder
+                    path_parts = absolute_path.split(os.sep)
+                    if 'exec' in path_parts or 'bin' in path_parts:
+                        n.executable_subnodes.append(ExecutableSubnode(absolute_path))
             
             n.subnodes = subnodes
             return n
@@ -459,9 +462,12 @@ class Graph:
         begin = datetime.datetime.now()
         current_app.logger.debug(f'*** Looking for executable subnodes at {begin}.')
         base = current_app.config['AGORA_PATH']
-        current_app.logger.debug('*** Looking for executable subnodes: Python.')
-        # Scan user gardens
-        subnodes = [ExecutableSubnode(f) for f in glob.glob(os.path.join(base, '**/*.py'), recursive=True)]
+        current_app.logger.debug('*** Looking for executable subnodes: Python in exec/ or bin/ directories.')
+        # Scan user gardens, but ONLY in directories named 'exec' or 'bin'
+        user_exec_scripts = glob.glob(os.path.join(base, '**/exec/*.py'), recursive=True)
+        user_bin_scripts = glob.glob(os.path.join(base, '**/bin/*.py'), recursive=True)
+        subnodes = [ExecutableSubnode(f) for f in user_exec_scripts + user_bin_scripts]
+        
         # Scan built-in executables
         builtin_path = os.path.join(current_app.root_path, 'exec')
         subnodes.extend([ExecutableSubnode(f) for f in glob.glob(os.path.join(builtin_path, '*.py'))])
