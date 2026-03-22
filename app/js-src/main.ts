@@ -33,6 +33,9 @@ import { initMusicPlayer } from './music';
 import { renderGraph } from './graph';
 import { initPullButtons } from './pull';
 
+declare const NODENAME: string | undefined;
+declare const NODEQ: string | undefined;
+
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
   initSettings();
@@ -326,7 +329,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 
     // Re-render graphs if they exist.
-    if (document.getElementById('graph')) {
+    if (document.getElementById('graph') && typeof NODENAME !== 'undefined' && NODENAME) {
         renderGraph('graph', '/graph/json/' + NODENAME);
     }
     const fullGraphContainer = document.getElementById('full-graph');
@@ -815,9 +818,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       node = content.getAttribute('src');
       console.log("loading " + node + " async");
     }
-    else {
+    else if (typeof NODENAME !== 'undefined' && NODENAME) {
       node = NODENAME;
       console.log("loading " + node + " sync");
+    }
+    else {
+      console.log("no node to load, skipping async content");
+      return;
     }
 
     // give some time to Wikipedia to search before trying to pull it (if it's considered relevant here).
@@ -2589,9 +2596,12 @@ async function bindEvents() {
 
           let url = (this as HTMLInputElement).value;
 
-          (this as HTMLElement).innerText = 'going';
-
-          window.location.href = url;
+          if (url) {
+              (this as HTMLElement).innerText = 'going';
+              window.location.href = url;
+          } else {
+              console.warn(".go-url clicked, but it has no value/URL.");
+          }
 
         });
 

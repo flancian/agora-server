@@ -58,7 +58,11 @@ export async function renderGraph(containerId: string, dataUrl: string, forceNoL
                 .backgroundColor(palette.bg)
                 .onNodeClick((node: any) => {
                     let url = node.id;
-                    location.assign(url)
+                    if (url) {
+                        location.assign(url)
+                    } else {
+                        console.warn("Graph node clicked, but it has no ID/URL:", node);
+                    }
                 })
                 .graphData(data)
                 .nodeId('id')
