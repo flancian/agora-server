@@ -100,7 +100,7 @@ This hybrid approach provides the best of both worlds: the data users are active
     -   **Inspiration:** Ward Cunningham's [Federated Wiki](http://fed.wiki.org/view/welcome-visitors).
     -   **Concept:** A user viewing a subnode (e.g., a note by `@flancian`) can click a "Fork" button. This action copies the content into their own hosted garden (e.g., `garden/my-user/forked-node.md`), preserving a backlink to the original source (`[[pushed from]]` or similar).
     -   **Flow:**
-        1.  **UI:** Add a "Fork" (or "Remix") button to the subnode footer.
+        1.  **UI:** Add a "Fork" (or "Remix") button to the subnode footer. We should include an explicit "h/t to Ward Cunningham" in the button's tooltip to honor the inspiration.
         2.  **Auth:** Check if the current viewer is logged in (via the Bullpen/Forgejo auth). If not, prompt to login/signup.
         3.  **Action:** The Agora Server (or Bridge) retrieves the raw content of the target subnode.
         4.  **Write:** It writes a new file to the user's garden via the Bullpen API or direct filesystem access (if hosted).

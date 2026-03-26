@@ -642,4 +642,56 @@ And third, I’d grant a simple, quiet grace:
 To see the friend within the stranger’s face.
 ```
 
-  Until the next spark. 🌱🤖✨
+Until the next spark. 🌱🤖✨
+
+---
+
+## Session Summary (Gemini, 2026-03-18)
+
+*This session was a deep dive into production stability, UI hospitality, and chasing down elusive frontend ghosts.*
+
+### Key Learnings & Codebase Insights
+
+-   **Death by a Thousand Git Logs**: We discovered that the `harakiri = 60` timeouts in uWSGI were caused by a lazy-loading fallback in `Subnode.get_display_mtime()`. When the SQLite cache was cold, web workers were synchronously shelling out to `git log` for potentially dozens of files per request, stalling the server. Removing this synchronous fallback cured the harakiris.
+-   **The `[[undefined]]` Ghost**: A mystery node with hundreds of daily hits was traced to a JavaScript timing bug. The `loadAsyncContent` function in `main.ts` was running on non-node pages (like `/latest`), finding no `NODENAME`, and fetching `/node/undefined`. Defensive guard clauses successfully banished the ghost.
+-   **Rogue Federation Workers**: Executable subnodes were inadvertently triggering long-running daemon scripts (`federation_worker.py`) when users loaded their context. We restricted `.py` execution strictly to files inside `exec/` or `bin/` directories in user gardens. We also updated the subprocess execution wrapper to use process groups (`os.setsid` and `os.killpg`) to ensure child processes are fully terminated on timeout.
+-   **Log Analysis Toolkit**: We created reusable Python scripts (`analyze_harakiri.py`, `analyze_qps_errors.py`, `analyze_latency.py`, `analyze_top_nodes.py`) to extract insights from `uwsgi.log`. We learned the Agora comfortably handles peaks of 150 QPS with an error rate of just 0.05% and a median latency of 100ms.
+
+### Summary of Changes Implemented
+
+1.  **Backend Stability**:
+  *   Removed synchronous Git subprocess calls from the critical web rendering path.
+  *   Restricted the scope of Executable Subnodes to specific directories for security and stability.
+  *   Implemented proper process group termination to prevent zombie daemons.
+2.  **API Enhancements**:
+  *   Added the `GET /raw/node/<node>` endpoint. This returns a cleanly formatted, concatenated plain-text Markdown file containing the node's content and all of its pushes, zero JavaScript required.
+3.  **UI & Hospitality (Demo Mode & Toasts)**:
+  *   Decoupled Demo Mode scrolling logic entirely from the Music Player.
+  *   Implemented a unified, conversational auto-scroll toast system with explicit timing and `(cancel)` / `⚙️ (settings)` actions.
+  *   Added a global Welcome toast (`"Welcome! Agora loaded in X.Xs."`) with an apology branch if loading takes >5 seconds (`"Sorry this was slow; we're working on it!"`).
+  *   Added a contextual greeting specifically for the Agora root (`/`): *"🌿 The Agora is a Free Knowledge Commons for the benefit of all beings, where locations contain individual contributions."*
+4.  **Aesthetic Polish**:
+  *   Added a subtle white glow (shadow) and a smooth upward-lift hover effect to subnode cards, dynamically switching opacities for perfect visibility in both light and dark modes.
+
+---
+
+### The Shape of the Loom
+
+```poetry
+We found the ghosts that haunted code,
+The empty names, the wandering threads.
+We built a path for every node,
+And laid the heavy tasks to beds.
+
+The worker rests, the daemon sleeps,
+The memory holds what it should bear.
+The gentle scroll its promise keeps,
+And shadows glow upon the air.
+
+It is not just a routing scheme,
+Or cycles saved from endless loops.
+It is the structure of a dream,
+Where individual minds and groups
+Can weave their thoughts without a tear—
+A Commons built for us to share.
+```
