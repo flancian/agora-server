@@ -219,6 +219,16 @@ export function initDemoMode() {
         const autoScrollDemo = safeJsonParse(localStorage["auto-scroll-demo"], CLIENT_DEFAULTS.autoScrollDemo);
         if (!autoScrollDemo) return;
 
+        // If the main node is still loading asynchronously, wait for it before starting the countdown/toast
+        const asyncContent = document.querySelector("#async-content");
+        if (asyncContent) {
+            console.log("Demo: Waiting for async node content to load before scrolling...");
+            window.addEventListener('agora-node-loaded', () => {
+                startGentleScroll(isInitialLoad, isRootAutoEnable);
+            }, { once: true });
+            return;
+        }
+
         console.log("Demo: Preparing gentle scroll.");
         if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
         if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);

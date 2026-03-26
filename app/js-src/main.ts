@@ -1144,6 +1144,9 @@ document.addEventListener("DOMContentLoaded", async function () {
           }
 
           content.outerHTML = await response.text();
+          
+          // Notify other scripts (like demo mode) that the DOM has expanded
+          window.dispatchEvent(new CustomEvent('agora-node-loaded'));
 
         }
 
