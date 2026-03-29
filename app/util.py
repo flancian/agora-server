@@ -17,7 +17,6 @@ import os
 import subprocess
 import time
 import select
-from flask import current_app
 from dateparser import DateDataParser
 from functools import lru_cache
 from urllib.parse import urlparse
@@ -35,10 +34,12 @@ def is_valid_url(url):
     try:
         tokens = urlparse(url)
         min_attributes = ("scheme", "netloc")
-        return all(
-            [getattr(tokens, qualifying_attr) for qualifying_attr in min_attributes]
-        )
-    except AttributeError:
+        if not all([getattr(tokens, qualifying_attr) for qualifying_attr in min_attributes]):
+            return False
+        # Accessing port triggers value check (raises ValueError if invalid)
+        _ = tokens.port
+        return True
+    except (AttributeError, ValueError):
         return False
 
 
@@ -73,7 +74,7 @@ def canonical_wikilink(wikilink):
         try:
             wikilink = canonical_date(wikilink)
             return wikilink
-        except:
+        except Exception:
             # TODO: if we add logging, maybe log that we couldn't parse a date here
             pass
 
@@ -91,12 +92,11 @@ def canonical_wikilink(wikilink):
         # - example.tld
         # - filename.ext
         # .replace('.', '-')
-        .replace("'", "-")
         .replace("%", "-")
         .replace(".", "-")
         .replace(",", "-")
         .replace(":", "-")
-        .replace("'", "-")
+        # .replace("'", "-")
         .replace("+", "-")
     )
     wikilink = re.sub("-+", " ", wikilink)
@@ -141,7 +141,6 @@ def get_combined_date_regex():
     return re.compile(f'^({"|".join(date_regexes)})')
 
 
-@lru_cache(maxsize=None)
 def is_journal(wikilink):
     return get_combined_date_regex().match(wikilink)
 
@@ -180,12 +179,48 @@ def path_to_basename(path: str) -> str:
     return os.path.basename(path)
 
 
+def timeago(date):
+    """
+    Returns a string representing how much time has passed since the given date.
+    date can be a timestamp (int/float) or a datetime object.
+    """
+    if date is None:
+        return ""
+    
+    now = datetime.datetime.now()
+    if isinstance(date, (int, float)):
+        date = datetime.datetime.fromtimestamp(date)
+    
+    diff = now - date
+    seconds = diff.total_seconds()
+    
+    if seconds < 60:
+        return "just now"
+    elif seconds < 3600:
+        minutes = int(seconds // 60)
+        return f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+    elif seconds < 86400:
+        hours = int(seconds // 3600)
+        return f"{hours} hour{'s' if hours != 1 else ''} ago"
+    else:
+        days = int(seconds // 86400)
+        return f"{days} day{'s' if days != 1 else ''} ago"
+
+
+import signal
+
 def run_with_timeout_and_limit(cmd, timeout=1.0, limit=100*1024):
     """
     Runs a command with a timeout and stdout size limit.
+    Uses process groups to ensure all child processes are killed on timeout.
     """
     try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        proc = subprocess.Popen(
+            cmd, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.STDOUT,
+            preexec_fn=os.setsid # Create a new process group
+        )
         output_bytes = bytearray()
         start_time = time.time()
         
@@ -198,21 +233,23 @@ def run_with_timeout_and_limit(cmd, timeout=1.0, limit=100*1024):
                 output_bytes.extend(chunk)
                 if len(output_bytes) > limit:
                     output_bytes = output_bytes[:limit] + b"\n... [Output truncated: exceeded size limit]"
-                    proc.kill()
+                    os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
                     break
             elif proc.poll() is not None:
                 break
         else:
-            proc.kill()
+            os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
             output_bytes += b"\n... [Execution timed out]"
         
         if proc.poll() is None:
-            proc.kill()
+            time.sleep(0.1)
+            if proc.poll() is None:
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
             proc.wait()
             
         return output_bytes.decode("utf-8", errors="replace")
 
     except Exception as e:
         if 'proc' in locals() and proc.poll() is None:
-             proc.kill()
+             os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
         return f"<strong>Execution failed:</strong> {str(e)}"

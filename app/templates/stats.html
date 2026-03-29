@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-container">
+    <h1>{{ header }}</h1>
+
+    <div class="stats-section">
+        <h2>Graph Overview</h2>
+        <div class="graph-overview-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.nodes }}</div>
+                <div class="stat-label">Nodes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.edges }}</div>
+                <div class="stat-label">Edges</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.subnodes }}</div>
+                <div class="stat-label">Contributions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ graph_stats.users }}</div>
+                <div class="stat-label">Users</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <h2>System Caches</h2>
+        <p><em>Status of background worker caches.</em></p>
+        
+        <div class="stats-grid">
+            <!-- Memory Status -->
+            <div class="stat-card" style="border-color: var(--link-color);">
+                <div class="stat-value" style="font-size: 1.2rem;">{{ memory_stats.Status }}</div>
+                <div class="stat-label">Memory State</div>
+            </div>
+
+            <!-- SQLite Status -->
+            <div class="stat-card" style="border-color: var(--link-color);">
+                <div class="stat-value" style="font-size: 1.2rem;">{{ sqlite_status }}</div>
+                <div class="stat-label">SQLite State</div>
+            </div>
+
+            <!-- Worker Status -->
+            <div class="stat-card" style="border-color: var(--link-color);">
+                <div class="stat-value" style="font-size: 1.2rem;">{{ worker_status }}</div>
+                <div class="stat-label">Worker Status</div>
+            </div>
+
+            <!-- Graph Rebuild -->
+            <div class="stat-card">
+                {% set timestamp = cache_info.get('last_full_index') or cache_info.get('graph_blob_time') or cache_info.get('db_mtime') %}
+                <div class="stat-value" style="font-size: 1.2rem;" {% if timestamp %}title="{{ timestamp|datetimeformat }}"{% endif %}>
+                    {% if timestamp %}
+                        {{ timestamp|timeago }}
+                    {% else %}
+                        <span style="color: var(--text-muted); font-size: 0.8em;">Pending...</span>
+                    {% endif %}
+                </div>
+                <div class="stat-label">Graph Rebuild</div>
+            </div>
+        </div>
+        
+        {% if memory_stats and not memory_stats.Error %}
+        <div style="margin-top: 1rem; font-size: 0.9rem; text-align: center; color: var(--text-secondary);">
+            In-Memory Details: 
+            {% for k, v in memory_stats.items() if k != 'Status' %}
+                {{ k }}: <strong>{{ v }}</strong>{% if not loop.last %} | {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="cache-actions" style="margin-top: 1rem; text-align: center;">
+             <button class="btn-flush-mem" title="Clear in-memory cache (fast)" style="margin-right: 0.5rem;">🧠 Clear Memory</button>
+             <button class="btn-flush-sqlite" title="Clear SQLite cache (thorough)">💾 Flush SQLite</button>
+        </div>
+    </div>
+
+    <!-- Transcluded content for [[stats]] -->
+    <details class="node pulled">
+        <summary>
+            <span class="node-header" title="An Agora location. It contains resources closely related to your search according to the Agora you're in.">
+                📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/node/stats"><span class="node-name">stats</span></a><span class="wikilink-marker">]]</span> (transcluded)
+            </span>
+        </summary>
+        <div class="node-embed" id="pull/stats"></div>
+    </details>
+
+</div>
+
+{% include "footer.html" %}
+
+<style>
+    .stats-section {
+        margin-bottom: 2rem;
+        background-color: var(--bg-secondary);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .graph-overview-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    @media (min-width: 768px) {
+        .graph-overview-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+    
+    .stat-card {
+        background-color: var(--bg-primary);
+        padding: 1rem;
+        border-radius: 6px;
+        text-align: center;
+        border: 1px solid var(--border-color);
+    }
+    
+    .stat-highlight {
+        font-weight: bold;
+        color: var(--link-color);
+        font-size: 1.4rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--link-color);
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        border-bottom: 1px solid var(--border-color); /* Added bottom border */
+    }
+    
+    th, td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    th {
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+</style>
+
+{% endblock %}

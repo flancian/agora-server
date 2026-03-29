@@ -12,6 +12,7 @@ def getcfg(path):
 
 
 class DefaultConfig(object):
+    # A harmless comment to force reload for development. (2025-12-28-1)
     SECRET_KEY = os.environ.get("SECRET_KEY", "a-default-secret-key-for-development")
     # I wonder how much of this should be in [[agora.yaml]] instead :)
 
@@ -35,7 +36,7 @@ class DefaultConfig(object):
     MENU_SEPARATOR = '•'
     MENU_SEPARATOR = '𑗄'
     MENU_SEPARATOR = '⸱'
-    AI_PROMPT = f"""
+    AI_PROMPT = """
         You are a friendly and helpful assistant whose task is to help people navigate the internet in general and in particular the Knowledge Commons we are in, called the Agora.
 
         When responding, please try to ALWAYS surround a few interesting entities (things, people or concepts) with [[double square brackets]]. The Agora will resolve these [[wikilinks]] to URLs for the convenience of the user. You can use Markdown in your responses.
@@ -57,7 +58,7 @@ class DefaultConfig(object):
     try:
         # try to load settings from a new-style Agora config if present.
         AGORA_CONFIG = getcfg(os.path.join(AGORA_PATH, "agora.yaml"))
-    except:
+    except Exception:
         # we will catch missing settings anyway and use defaults below.
         AGORA_CONFIG = {}
 
@@ -132,7 +133,6 @@ class DefaultConfig(object):
     # EXPERIMENTS
     # experiments can be booleans or probabilities (reals in 0..1).
     # release process: set them initially to False/0 in the DefaultConfig and then override in the right environment.
-    ENABLE_CTZN = False
     ENABLE_STATS = False
     ENABLE_OBSIDIAN_ATTACHMENTS = False
     ENABLE_AUTO_PULL = False
@@ -144,7 +144,18 @@ class DefaultConfig(object):
     # If True, G.node(uri) fetches from DB on demand (low RAM, high latency).
     # If False, G.nodes() loads full graph into RAM at startup (high RAM, zero latency).
     ENABLE_LAZY_LOAD = False
-    USE_GIT_MTIME = False
+    USE_GIT_MTIME = True
+    
+    # SQLite Full-Text Search (FTS5). Requires ENABLE_SQLITE = True.
+    # Adds full content indexing to agora.db for sub-second search.
+    ENABLE_FTS = False
+    
+    # AI Synthesis of node content.
+    ENABLE_SYNTHESIS = False
+    
+    # Enable new AI providers (ChatGPT, Claude) as tabs instead of links.
+    ENABLE_CHATGPT = False
+    ENABLE_CLAUDE = False
 
     # ActivityPub settings
     ACTIVITYPUB_SEND_WELCOME_PACKAGE = True
@@ -162,6 +173,10 @@ class DefaultConfig(object):
     SQLITE_CACHE_TTL = {
         'ai_generation': 3600 * 24 * 7,  # 1 week
     }
+    
+    # TTL for the full index rebuild (FTS + Subnodes).
+    # Default to 24 hours.
+    INDEX_TTL_SECONDS = 86400
 
     QUERY_CACHE_TTL = {
         'all_users': 3600, # 1 hour
@@ -173,12 +188,12 @@ class DefaultConfig(object):
     # Set os env variable MISTRAL_API_KEY when enabled.
     try:
         MISTRAL_API_KEY = os.environ["MISTRAL_API_KEY"]
-    except:
+    except Exception:
         MISTRAL_API_KEY = False
 
     try:
         GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
-    except:
+    except Exception:
         GEMINI_API_KEY = False
 
     # Auto pull rules.
@@ -197,11 +212,13 @@ class DefaultConfig(object):
         }
     ]
 
+    # Feature flags
+    ENABLE_AGORA_NAME_IN_HEADER = False
+
 
 class ProductionConfig(DefaultConfig):
 
     # EXPERIMENTS
-    ENABLE_CTZN = False
     ENABLE_STATS = True
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_PUSH = False
@@ -217,7 +234,6 @@ class ProductionConfig(DefaultConfig):
 
     # EXPERIMENTS 
     # we need to remove as CTZN is no longer a thing? or use to implement something similar in-place?
-    ENABLE_CTZN = False
     ENABLE_STATS = True
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_PUSH = True
@@ -233,14 +249,18 @@ class ProductionConfig(DefaultConfig):
 
     # This seems to work great but I haven't tested it beyond AlphaConfig (which is what we run in anagora.org as of [[2025]]), so leaving it set to False for now.
     # This keeps the Agora completely file-based and able to run in a read-only filesystem. Setting it to True if the Agora can't write should still work but default to file-based.
-    ENABLE_SQLITE = False
+    ENABLE_SQLITE = True
+    ENABLE_FTS = True
+    ENABLE_FLUSH_CACHE_BUTTON = True
+    USE_GIT_MTIME = False
+    ENABLE_CHATGPT = True
+    ENABLE_CLAUDE = True
 
 
 class AlphaConfig(DefaultConfig):
 
     # EXPERIMENTS 
     # we need to remove as CTZN is no longer a thing? or use to implement something similar in-place?
-    ENABLE_CTZN = False
     ENABLE_STATS = True
     ENABLE_AUTO_PULL = True
     ENABLE_AUTO_PUSH = True
@@ -255,7 +275,13 @@ class AlphaConfig(DefaultConfig):
 
     # Finally took place early on 2025-08-29. Requires a writeable filesystem.
     ENABLE_SQLITE = True
+    ENABLE_FTS = True
     ENABLE_DEMO = True
+    USE_GIT_MTIME = False
+    ENABLE_SYNTHESIS = True
+    ENABLE_AGORA_NAME_IN_HEADER = True
+    ENABLE_CHATGPT = True
+    ENABLE_CLAUDE = True
 
 
 class DevelopmentConfig(DefaultConfig):
@@ -267,7 +293,6 @@ class DevelopmentConfig(DefaultConfig):
     FEDERATION_INTERVAL = 60
 
     # EXPERIMENTS
-    ENABLE_CTZN = True
     ENABLE_STATS = True
     ENABLE_OBSIDIAN_ATTACHMENTS = True
     ENABLE_AUTO_PULL = True
@@ -275,6 +300,9 @@ class DevelopmentConfig(DefaultConfig):
     ENABLE_ORGORA = False
     ENABLE_HYPOTHESIS = True
     ENABLE_SQLITE = True
+    ENABLE_FTS = False
+    ENABLE_SYNTHESIS = True
+    ENABLE_AGORA_NAME_IN_HEADER = True
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = True
@@ -292,7 +320,6 @@ class LocalDevelopmentConfig(DefaultConfig):
     AGORA_NAME = "Development Agora"
     FEDERATION_INTERVAL = 60
     # EXPERIMENTS
-    ENABLE_CTZN = True
     ENABLE_STATS = True
     ENABLE_OBSIDIAN_ATTACHMENTS = True
     ENABLE_AUTO_PULL = True
@@ -300,7 +327,13 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_ORGORA = False
     ENABLE_HYPOTHESIS = True
     ENABLE_SQLITE = True
+    ENABLE_FTS = True
+    ENABLE_SYNTHESIS = True
     ENABLE_LAZY_LOAD = False
+    USE_GIT_MTIME = False
+    ENABLE_AGORA_NAME_IN_HEADER = True
+    ENABLE_CHATGPT = True
+    ENABLE_CLAUDE = True
 
     # PLEASE ENABLE CAREFULLY WHEN RUNNING IN A CONTAINER OR IN CHAOS MODE :)
     ENABLE_EXECUTABLE_NODES = True

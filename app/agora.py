@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import base64
-import base64
 import collections
 import datetime
 import json
@@ -24,25 +23,21 @@ import time
 import threading
 import urllib.parse
 import bleach
-from copy import copy
-from urllib.parse import parse_qs, urlparse, quote
+from urllib.parse import urlparse, quote
 from functools import lru_cache
 
 import jsons
 from Crypto.Hash import SHA256
-from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from flask import (Blueprint, Response, abort, current_app, g, jsonify,
                    make_response, redirect, render_template, request,
                    send_file, url_for, flash)
 from flask_cors import CORS
 from markupsafe import escape
-from mistralai.client import MistralClient, MistralException
-from mistralai.models.chat_completion import ChatMessage
 
 from . import federation, forms, providers, render, util, git_utils
-from .providers import gemini_complete, mistral_complete
-from .storage import api, feed, sqlite_engine, file_engine
+from .providers import gemini_complete, mistral_complete, gemini_chat, mistral_chat
+from .storage import api, feed, sqlite_engine
 from . import visualization
 from .graph import G
 
@@ -110,6 +105,11 @@ def root(node, user_list=""):
 
     # Builds a node with the bare minimum/stub metadata, should be quick.
     node = urllib.parse.unquote_plus(node)
+    
+    # Enforce canonical wikilinks (e.g. 2026-01-11 vs 2026 01 11, lowercase).
+    canonical = util.canonical_wikilink(node)
+    if node != canonical:
+        return redirect(url_for('.root', node=canonical), code=301)
 
     # We really need to get rid of this kind of hack :)
     # 2023-12-12: today is the day?
@@ -129,7 +129,7 @@ def root(node, user_list=""):
     # search_subnodes = db.search_subnodes(node)
     n.q = n.qstr
     duration = time.time() - start_time
-    current_app.logger.debug(f"[[{node}]]: Assembled light node in {duration:.2f}s.")
+    current_app.logger.debug(f"[[{node}]]: Assembled SKELETON node in {duration:.2f}s.")
     
 
     return render_template(
@@ -151,23 +151,39 @@ def root(node, user_list=""):
 @bp.route("/node/<node>/uprank/<user_list>")
 @bp.route("/node/<node>")
 def node(node, user_list=""):
+    t0 = time.time()
     n = api.build_node(node)
+    t1 = time.time()
+    
+    # Filter by user if requested via query param
+    req_user = request.args.get("user")
+    if req_user:
+        n.subnodes = util.filter(n.subnodes, req_user)
+        n.subnodes = util.uprank(n.subnodes, req_user)
+    t2 = time.time()
+
     starred_subnodes = sqlite_engine.get_all_starred_subnodes()
     starred_nodes = sqlite_engine.get_all_starred_nodes()
+    t3 = time.time()
 
-    return render_template(
+    ret = render_template(
         "async.html",
         node=n,
+        rendering_user=req_user,
         config=current_app.config,
         starred_subnodes=starred_subnodes,
         starred_nodes=starred_nodes,
-        # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
-        # sorry for the fuzzy thinking but I'm short on time and want to get things done.
-        # (...famous last words).
-        # TODO(2022-06-06): this should now be done in the async path, essentially embedding /annotations/X from node X
-        # annotations=n.annotations(),
-        # annotations_enabled=True,
     )
+    t4 = time.time()
+    
+    slow_node_threshold = 2.0
+    total_time = t4 - t0
+    if total_time > slow_node_threshold:
+        current_app.logger.warning(
+            f"Slow node load for [[{node}]]: Total={total_time:.3f}s | "
+            f"Build={t1-t0:.3f}s | Filter={t2-t1:.3f}s | StarDB={t3-t2:.3f}s | Render={t4-t3:.3f}s"
+        )
+    return ret
 
 @bp.route("/node/<node0>/<node1>")
 @bp.route("/<node0>/<node1>")
@@ -190,8 +206,19 @@ def node_feed(node):
 
 @bp.route("/feed/@<user>")
 def user_feed(user):
+    cache_key = f'feed_user_{user}'
+    cached_val, timestamp = sqlite_engine.get_cached_query(cache_key)
+    now = time.time()
+
+    if cached_val and (now - timestamp < 300):
+        return Response(cached_val, mimetype="application/rss+xml")
+
     subnodes = api.subnodes_by_user(user, mediatype="text/plain")
-    return Response(feed.user_rss(user, subnodes), mimetype="application/rss+xml")
+    rss_content = feed.user_rss(user, subnodes)
+    
+    sqlite_engine.save_cached_query(cache_key, rss_content, int(now))
+
+    return Response(rss_content, mimetype="application/rss+xml")
 
 
 @bp.route("/feed/journals/@<user>")
@@ -211,9 +238,22 @@ def journals_feed():
 
 @bp.route("/feed/latest")
 def latest_feed():
+    # Cache for 5 minutes (300 seconds)
+    cache_key = 'feed_latest'
+    cached_val, timestamp = sqlite_engine.get_cached_query(cache_key)
+    now = time.time()
+
+    if cached_val and (now - timestamp < 300):
+        return Response(cached_val, mimetype="application/rss+xml")
+
     subnodes = api.latest(1000)
     subnodes.reverse()
-    return Response(feed.latest_rss(subnodes), mimetype="application/rss+xml")
+    rss_content = feed.latest_rss(subnodes)
+    
+    # Save to cache
+    sqlite_engine.save_cached_query(cache_key, rss_content, int(now))
+    
+    return Response(rss_content, mimetype="application/rss+xml")
 
 
 @bp.route("/ttl/<node>")  # perhaps deprecated
@@ -285,8 +325,6 @@ def root_subnode(node, user):
 
     n.subnodes = util.filter(n.subnodes, user)
     n.subnodes = util.uprank(n.subnodes, user)
-    search_subnodes = api.search_subnodes_by_user(node, user)
-
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
     n.qstr = request.args.get("q")
@@ -301,7 +339,7 @@ def root_subnode(node, user):
     return render_template(
         "sync.html",
         node=n,
-        subnode=f"@{user}/" + n.wikilink,
+        rendering_user=user,
     )
 
 
@@ -314,7 +352,6 @@ def subnode(node, user):
 
     n.subnodes = util.filter(n.subnodes, user)
     n.subnodes = util.uprank(n.subnodes, user)
-    search_subnodes = api.search_subnodes_by_user(node, user)
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
@@ -343,7 +380,6 @@ def subnode_export(node, user):
 
     n.subnodes = util.filter(n.subnodes, user)
     n.subnodes = util.uprank(n.subnodes, user)
-    search_subnodes = api.search_subnodes_by_user(node, user)
 
     # q will likely be set by search/the CLI if the entity information isn't fully preserved by node mapping.
     # query is meant to be user parsable / readable text, to be used for example in the UI
@@ -423,12 +459,12 @@ def latest():
     n = api.build_node("latest")
     
     # New on-demand logic with caching.
-    cache_key = 'latest_per_user_v1'
+    cache_key = 'latest_per_user'
     ttl = 300 # 5 minutes
     cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
     if cached_value and (time.time() - timestamp < ttl):
-        current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for latest_per_user.")
+        current_app.logger.info("CACHE HIT (sqlite): Using cached data for latest_per_user.")
         latest_changes = json.loads(cached_value)
         # The 'subnodes' variable is a legacy name; we pass the new structure to the template.
         return render_template(
@@ -438,7 +474,7 @@ def latest():
             node=n,
         )
 
-    current_app.logger.info(f"CACHE MISS (sqlite): Recomputing latest_per_user from Git.")
+    current_app.logger.info("CACHE MISS (sqlite): Recomputing latest_per_user from Git.")
     latest_changes = git_utils.get_latest_changes_per_repo(
         agora_path=current_app.config['AGORA_PATH'],
         logger=current_app.logger
@@ -472,23 +508,107 @@ def starred():
     )
 
 
-@bp.route("/annotations/")
-@bp.route("/annotations")
-def annotations():
-    n = api.build_node("annotations")
+@bp.route("/stats")
+def stats_page():
+    n = api.build_node("stats")
+    
+    # Graph stats (high level)
+    graph_stats = api.stats()
+    
+    # DB stats (low level)
+    db_stats = sqlite_engine.get_db_stats()
+    cache_info = sqlite_engine.get_cache_info()
+    
+    # In-memory stats
+    memory_stats = {}
+    is_hot = False
+    try:
+        # Inspect cachetools caches
+        if hasattr(G.subnodes, 'cache'):
+            subnodes_cache = G.subnodes.cache
+            memory_stats['Subnodes Cache Entries'] = len(subnodes_cache)
+            memory_stats['Subnodes Cache Max'] = subnodes_cache.maxsize
+            if len(subnodes_cache) > 0:
+                is_hot = True
+        
+        if hasattr(G.node, 'cache'):
+            node_cache = G.node.cache
+            memory_stats['Node Cache Entries'] = len(node_cache)
+            memory_stats['Node Cache Max'] = node_cache.maxsize
+            
+    except Exception as e:
+        current_app.logger.error(f"Error inspecting memory cache: {e}")
+        memory_stats['Error'] = "Could not inspect caches"
+
+    memory_stats['Status'] = "🔥 Hot (In-Memory)" if is_hot else "❄️ Cold (Disk/SQLite)"
+
+    # Worker status
+    last_index = cache_info.get('last_full_index')
+    worker_status = "❌ Inactive"
+    if last_index:
+        try:
+            # last_index might be a string or int/float
+            age = time.time() - float(last_index)
+            if age < 3600: # 1 hour
+                worker_status = "✅ Active"
+            elif age < 86400: # 24 hours
+                worker_status = "⚠️ Stale"
+            else:
+                worker_status = "❌ Inactive (>24h)"
+        except (ValueError, TypeError):
+            pass
+
+    # SQLite status
+    sqlite_status = "❌ Unavailable"
+    if db_stats:
+        # Try to find file size
+        size_entry = next((item for item in db_stats if item["table"] == "(Database File Size)"), None)
+        if size_entry:
+            sqlite_status = f"✅ Available ({size_entry['rows']})"
+        else:
+            table_count = len([t for t in db_stats if t['table'] != '(Database File Size)'])
+            sqlite_status = f"✅ Available ({table_count} tables)"
+
     return render_template(
-        "annotations.html",
-        header="Recent annotations",
+        "stats.html",
+        header="Agora Status & Statistics",
+        node=n,
+        graph_stats=graph_stats,
+        db_stats=db_stats,
+        cache_info=cache_info,
+        memory_stats=memory_stats,
+        worker_status=worker_status,
+        sqlite_status=sqlite_status,
+    )
+
+
+@bp.route("/federation/")
+@bp.route("/federation")
+@bp.route("/activities")
+@bp.route("/annotations")
+def federation_view():
+    n = api.build_node("federation")
+    recent_reactions = sqlite_engine.get_recent_reactions(limit=50)
+    return render_template(
+        "federation.html",
+        header="Recent federated activity",
         annotations=feed.get_latest(),
+        reactions=recent_reactions,
         node=n,
     )
 
 
 @bp.route("/random")
 def random():
-    today = datetime.date.today()
-    random = api.random_node()
-    return redirect(f"/{urllib.parse.quote_plus(random.description)}")
+    for _ in range(5):
+        random_node = api.random_node()
+        # We avoid nodes that start with 'go/' as they match the /go/ route and trigger
+        # an external redirect, breaking the demo loop.
+        if random_node and not random_node.description.lower().startswith('go/'):
+            return redirect(f"/{urllib.parse.quote_plus(random_node.description)}")
+    
+    # Fallback to a safe known node if we fail to find a random one after retries
+    return redirect("/agora")
 
 
 @bp.route("/now")
@@ -614,7 +734,7 @@ def go(node0, node1=""):
         return redirect(redirect_url)
     else:
         # Fall back to the original behavior: redirecting to the local Agora node.
-        current_app.logger.warning(f"I'm Feeling Lucky failed. Falling back to local node.")
+        current_app.logger.warning("I'm Feeling Lucky failed. Falling back to local node.")
         base = current_app.config["URL_BASE"]
         if node0 != node1:
             return redirect(f"{base}/{node0}/{node1}")
@@ -723,10 +843,24 @@ def pull(node):
 @bp.route("/fullsearch/<qstr>")
 def fullsearch(qstr):
     current_app.logger.debug(f"full text search for [[{qstr}]].")
-    search_subnodes = api.search_subnodes(qstr)
+    
+    # mode: exact, broad, fs
+    mode = request.args.get("mode", "broad")
+    
+    # legacy param support
+    if request.args.get("force_fs") == "True":
+        mode = "fs"
+
+    search_subnodes = api.search_subnodes(qstr, mode=mode)
 
     return render_template(
-        "fullsearch.html", qstr=qstr, q=qstr, node=qstr, search=search_subnodes
+        "fullsearch.html", 
+        qstr=qstr, 
+        q=qstr, 
+        node=qstr, 
+        search=search_subnodes, 
+        mode=mode,
+        ENABLE_FTS=current_app.config.get('ENABLE_FTS', False)
     )
 
 
@@ -782,6 +916,8 @@ def search():
 @bp.route("/subnode/<path:subnode>")
 def old_subnode(subnode):
     sn = api.subnode_by_uri(subnode)
+    if sn is None:
+        abort(404)
     n = api.build_node(sn.wikilink)
     return render_template(
         "subnode.html", node=n, subnode=sn, backlinks=api.subnodes_by_outlink(subnode)
@@ -810,6 +946,53 @@ def user(user):
 def user_json(user):
     subnodes = list(map(lambda x: x.wikilink, api.subnodes_by_user(user)))
     return jsonify(jsons.dump(subnodes))
+
+
+@bp.route("/debug/memory")
+def debug_memory():
+    import objgraph
+    import gc
+    from .graph import G
+    
+    # Force a collection to clean up cyclic trash
+    gc.collect()
+    
+    stats = {
+        'Subnode_count': objgraph.count('Subnode'),
+        'Node_count': objgraph.count('Node'),
+        'Identity_Shared': 'Unknown',
+        'Details': {}
+    }
+
+    try:
+        # Check if we have cached subnodes
+        subnodes = G.subnodes()
+        if subnodes:
+            # Pick a sample
+            s1 = subnodes[0]
+            # Try to find the corresponding node
+            n = G.node(s1.node)
+            if n and n.subnodes:
+                # Find the same subnode in the node's list
+                s2 = next((s for s in n.subnodes if s.uri == s1.uri), None)
+                if s2:
+                    stats['Identity_Shared'] = (s1 is s2)
+                    stats['Details'] = {
+                        'Sample_URI': s1.uri,
+                        'G_subnodes_id': id(s1),
+                        'G_node_subnodes_id': id(s2)
+                    }
+                else:
+                    stats['Identity_Shared'] = "Subnode not found in Node (Graph inconsistency?)"
+            else:
+                 stats['Identity_Shared'] = "Node not found or empty"
+        else:
+            stats['Identity_Shared'] = "No subnodes loaded"
+            
+    except Exception as e:
+        stats['Error'] = str(e)
+
+    return jsonify(stats)
 
 
 @bp.route('/api/join', methods=['POST'])
@@ -845,7 +1028,7 @@ def join_api():
                 'username': username,
                 'email': email,
                 'message': message
-            })
+            }, timeout=10)
             return jsonify(response.json()), response.status_code
         except requests.RequestException as e:
             return jsonify({'error': f"Failed to contact Bridge for provisioning: {str(e)}"}), 502
@@ -871,7 +1054,7 @@ def join_api():
             payload['email'] = email
 
         try:
-            response = requests.post(f"{bridge_url}/sources", json=payload)
+            response = requests.post(f"{bridge_url}/sources", json=payload, timeout=10)
             
             # Pass through the response from Bridge
             return jsonify(response.json()), response.status_code
@@ -890,9 +1073,10 @@ def garden(garden):
 
 
 # Lists
+@bp.route("/top")
 @bp.route("/nodes")
 def nodes():
-    n = api.build_node("nodes")
+    n = api.build_node("top")
     page = request.args.get('page', 1, type=int)
     per_page = 52
     all_nodes = api.top()
@@ -901,10 +1085,17 @@ def nodes():
     end = start + per_page
     nodes_on_page = all_nodes[start:end]
 
-    if current_app.config["ENABLE_STATS"]:
-        return render_template("nodes.html", nodes=nodes_on_page, node=n, stats=api.stats(), graph=True, page=page, per_page=per_page, total_nodes=total_nodes)
-    else:
-        return render_template("nodes.html", nodes=nodes_on_page, node=n, stats=None, graph=True, page=page, per_page=per_page, total_nodes=total_nodes)
+    return render_template(
+        "nodes.html",
+        nodes=nodes_on_page,
+        node=n,
+        stats=None, # Disabled stats on this page as we have /stats
+        graph=True,
+        page=page,
+        per_page=per_page,
+        total_nodes=total_nodes,
+        header="🚀 <strong>Top locations</strong> by number of contributions", 
+    )
 
 
 @bp.route("/nodes.json")
@@ -967,7 +1158,7 @@ def journals(entries):
     if entries:
         n.qstr = f"journals/{entries}"
     if not entries:
-        n.qstr = f"journals"
+        n.qstr = "journals"
         entries = current_app.config["JOURNAL_ENTRIES"]
     elif entries == "all":
         entries = 2000000  # ~ 365 * 5500 ~ 3300 BC
@@ -1038,6 +1229,8 @@ def invalidate_sqlite():
         
         # Define the tables that are safe to clear.
         cache_tables = ['query_cache', 'subnodes', 'links', 'graph_cache']
+        if current_app.config.get('ENABLE_FTS', False):
+            cache_tables.append('subnodes_fts')
         
         if db:
             for table in cache_tables:
@@ -1075,6 +1268,43 @@ def asset(user, asset):
     # Currently unused.
     path = "/".join([current_app.config["AGORA_PATH"], "garden", user, "assets", asset])
     return send_file(path)
+
+
+@bp.route("/raw/node/<node>")
+def raw_node(node):
+    n = api.build_node(node)
+    if not n:
+        abort(404)
+        
+    content = []
+    content.append(f"# Node: {n.qstr}\n")
+    
+    if n.subnodes:
+        content.append("## Subnodes\n")
+        for subnode in n.subnodes:
+            content.append(f"### By @{subnode.user}\n")
+            # Some content might be bytes if it's an image, so check type
+            if isinstance(subnode.content, str):
+                content.append(subnode.content.strip())
+            else:
+                content.append(f"(Binary content: {subnode.mediatype})")
+            content.append("\n")
+            
+    pushed = n.pushed_subnodes()
+    if pushed:
+        content.append("## Pushed Subnodes\n")
+        for subnode in pushed:
+            content.append(f"### Pushed from @{subnode.user}/{subnode.virtual_wikilink}\n")
+            if isinstance(subnode.content, str):
+                content.append(subnode.content.strip())
+            else:
+                content.append(f"(Binary content: {subnode.mediatype})")
+            content.append("\n")
+            
+    if not n.subnodes and not pushed:
+        content.append("*(Empty node)*\n")
+        
+    return Response("\n".join(content), mimetype="text/plain")
 
 
 @bp.route("/raw/<path:subnode>")
@@ -1152,7 +1382,7 @@ def complete(prompt):
         if full_prompt is None and "not properly set up" not in answer:
             # This is likely an old cache entry. Reconstruct a prompt for display.
             full_prompt = "The prompt for this cached response is not available, but the query was:" + prompt
-        return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
+        return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer), 'raw_answer': answer})
     else:
         return jsonify({'answer': "<em>This Agora is not AI-enabled yet</em>."})
 
@@ -1163,7 +1393,107 @@ def gemini_complete_route(prompt):
     if full_prompt is None and "not properly set up" not in answer:
         # This is likely an old cache entry. Reconstruct a prompt for display.
         full_prompt = "The prompt for this cached response is not available, but the query was:" + prompt
+    return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer), 'raw_answer': answer})
+
+@bp.route("/api/chatgpt_complete/<prompt>")
+def chatgpt_complete_route(prompt):
+    # TODO: Implement ChatGPT integration
+    full_prompt = "Prompt not available."
+    answer = "ChatGPT integration is coming soon! Please check back later or contribute to the implementation on GitHub."
     return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
+
+@bp.route("/api/claude_complete/<prompt>")
+def claude_complete_route(prompt):
+    # TODO: Implement Claude integration
+    full_prompt = "Prompt not available."
+    answer = "Claude integration is coming soon! Please check back later or contribute to the implementation on GitHub."
+    return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
+
+@bp.route("/api/synthesize/<path:node_name>")
+def synthesize(node_name):
+    if not current_app.config.get("ENABLE_SYNTHESIS"):
+        return jsonify({'error': 'Synthesis is not enabled in this Agora.'}), 403
+
+    provider = request.args.get('provider', 'mistral') # Default to Mistral
+
+    n = api.build_node(node_name)
+    if not n or not n.subnodes:
+        return jsonify({'error': 'Node not found or has no content to synthesize.'}), 404
+
+    # 1. Gather context from Backlinks (Nodes that link to this one)
+    backlinking_nodes = api.nodes_by_outlink(node_name)
+    backlinks_str = ""
+    if backlinking_nodes:
+        backlinks_list = [f"[[{node.uri}]]" for node in backlinking_nodes[:20]]
+        backlinks_str = "This node is referenced by the following other nodes: " + ", ".join(backlinks_list)
+
+    # 2. Aggregate content from subnodes. 
+    # Increased limit to 50 subnodes to capture more perspectives.
+    max_subnodes = 50
+    max_chars_per_subnode = 2000
+    aggregated_content = []
+
+    for s in n.subnodes[:max_subnodes]:
+        # Ensure content is loaded
+        if not hasattr(s, 'content') or not s.content:
+             if hasattr(s, 'load_text_subnode'):
+                  s.load_text_subnode()
+        
+        if hasattr(s, 'content') and s.content:
+            content_str = s.content.decode('utf-8', 'replace') if isinstance(s.content, bytes) else s.content
+            aggregated_content.append(f"--- Contribution by @{s.user} ---\n{content_str[:max_chars_per_subnode]}")
+
+    if not aggregated_content:
+        return jsonify({'error': 'Could not extract text content from subnodes.'}), 400
+
+    full_content = "\n\n".join(aggregated_content)
+    
+    prompt = (
+        f"Context: {backlinks_str}\n\n"
+        f"The following are various contributions to the topic [[{node_name}]] in a Knowledge Commons called the Agora.\n\n"
+        f"{full_content}\n\n"
+        "Please provide a structured synthesis of this location using the following sections:\n"
+        "1. **Summary**: A brief overview of the topic. Then, use a bulleted list to describe the key points made by specific users (e.g. '- @user argues that...'). Give top billing to distinct perspectives.\n"
+        "2. **Context**: Describe how this node fits into the broader Agora, referencing the provided backlinks if available.\n\n"
+        "**Constraints**:\n"
+        "- Use Markdown headers (###) for sections.\n"
+        "- Keep it concise: the entire synthesis should be under 200 words unless the content is extensive.\n"
+        "- If the content is sparse, keep the summary very short (1-2 sentences).\n"
+        "- Surround interesting concepts with [[double square brackets]] to create wikilinks."
+    )
+
+    if provider == 'gemini':
+        _, answer = gemini_complete(prompt)
+    elif provider == 'chatgpt':
+        answer = "ChatGPT synthesis is coming soon! Check back later."
+    elif provider == 'claude':
+        answer = "Claude synthesis is coming soon! Check back later."
+    else:
+        _, answer = mistral_complete(prompt)
+
+    return jsonify({'synthesis': render.markdown(answer), 'prompt': prompt, 'raw_answer': answer})
+
+@bp.route("/api/chat", methods=["POST"])
+def api_chat():
+    if not current_app.config.get("ENABLE_AI"):
+        return jsonify({'error': 'AI is not enabled.'}), 403
+
+    data = request.get_json()
+    provider = data.get('provider', 'mistral')
+    messages = data.get('messages', [])
+
+    if not messages:
+        return jsonify({'error': 'No messages provided.'}), 400
+
+    reply = ""
+    if provider == 'gemini':
+        reply = gemini_chat(messages)
+    elif provider == 'mistral':
+        reply = mistral_chat(messages)
+    else:
+        return jsonify({'error': f'Provider {provider} not supported for chat.'}), 400
+
+    return jsonify({'reply': render.markdown(reply), 'raw': reply})
 
 @bp.route("/api/meditate_on/<path:node_name>")
 def meditate_on(node_name):
@@ -1213,55 +1543,115 @@ def resolve_inbox(actor_uri):
         print(f"Federation Error resolving inbox for {actor_uri}: {e}")
         return None
 
+@bp.route("/api/music/tracks")
+def music_tracks():
+    """Returns a list of music tracks from static directories."""
+    tracks = []
+    
+    def parse_track_info(filename):
+        # Remove extension
+        base = os.path.splitext(filename)[0]
+        # Replace underscores with spaces
+        clean = base.replace('_', ' ')
+        
+        if ' - ' in clean:
+            artist, title = clean.split(' - ', 1)
+            return artist, title
+        
+        return 'Unknown', clean.title()
+    
+    # MIDI
+    mid_dir = os.path.join(current_app.static_folder, 'mid')
+    if os.path.exists(mid_dir):
+        for f in os.listdir(mid_dir):
+            if f.endswith('.mid'):
+                artist, title = parse_track_info(f)
+                full_path = os.path.join(mid_dir, f)
+                size = os.path.getsize(full_path)
+                if size > 0:
+                    tracks.append({
+                        'name': title,
+                        'path': url_for('static', filename=f'mid/{f}'),
+                        'type': 'mid',
+                        'artist': artist,
+                        'size': size
+                    })
+    
+    # Opus
+    opus_dir = os.path.join(current_app.static_folder, 'opus')
+    if os.path.exists(opus_dir):
+        for f in os.listdir(opus_dir):
+            if f.endswith('.opus') or f.endswith('.ogg'):
+                 artist, title = parse_track_info(f)
+                 full_path = os.path.join(opus_dir, f)
+                 size = os.path.getsize(full_path)
+                 if size > 0:
+                     tracks.append({
+                        'name': title,
+                        'path': url_for('static', filename=f'opus/{f}'),
+                        'type': 'opus',
+                        'artist': artist,
+                        'size': size
+                    })
+                
+    response = jsonify(tracks)
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
+
 def federate_create(subnode_uri, app_context):
     """
     Federates a 'Like' activity when a subnode is starred.
     """
-    with app_context:
-        # Identify the subnode
-        subnode = api.subnode_by_uri(subnode_uri)
-        if not subnode:
-            current_app.logger.warning(f"Federation: Subnode {subnode_uri} not found, skipping.")
-            return
+    # Extract the app from the context to create a request context
+    app = app_context.app
+    base_url = app.config.get('URL_BASE', 'https://anagora.org')
+    
+    with app.app_context():
+        with app.test_request_context(base_url=base_url):
+            # Identify the subnode
+            subnode = api.subnode_by_uri(subnode_uri)
+            if not subnode:
+                current_app.logger.warning(f"Federation: Subnode {subnode_uri} not found, skipping.")
+                return
 
-        object_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
-        
-        # Identify the Actor (System User 'agora')
-        system_user = 'agora'
-        actor_url = url_for('.ap_user', username=system_user, _external=True, _scheme='https')
-        
-        # Construct the Activity
-        activity_id = f"{actor_url}/likes/{subnode.uri}/{int(time.time())}"
-        
-        activity = {
-            "@context": "https://www.w3.org/ns/activitystreams",
-            "id": activity_id,
-            "type": "Like",
-            "actor": actor_url,
-            "object": object_url,
-            "published": datetime.datetime.utcnow().isoformat() + "Z",
-        }
-        
-        # Get Followers
-        followers = sqlite_engine.get_followers(actor_url)
-        
-        if not followers:
-            current_app.logger.info(f"Federation: No followers for {system_user}, skipping broadcast.")
-            return
+            object_url = url_for('.root', node=subnode.wikilink, _external=True, _scheme='https') + f'#/{subnode.uri}'
             
-        current_app.logger.info(f"Federation: Broadcasting Like for {subnode_uri} to {len(followers)} followers.")
+            # Identify the Actor (System User 'agora')
+            system_user = 'agora'
+            actor_url = url_for('.ap_user', username=system_user, _external=True, _scheme='https')
+            
+            # Construct the Activity
+            activity_id = f"{actor_url}/likes/{subnode.uri}/{int(time.time())}"
+            
+            activity = {
+                "@context": "https://www.w3.org/ns/activitystreams",
+                "id": activity_id,
+                "type": "Like",
+                "actor": actor_url,
+                "object": object_url,
+                "published": datetime.datetime.utcnow().isoformat() + "Z",
+            }
+            
+            # Get Followers
+            followers = sqlite_engine.get_followers(actor_url)
+            
+            if not followers:
+                current_app.logger.info(f"Federation: No followers for {system_user}, skipping broadcast.")
+                return
+                
+            current_app.logger.info(f"Federation: Broadcasting Like for {subnode_uri} to {len(followers)} followers.")
 
-        # Prepare Keys
-        ap_key_setup()
-        key_id = f"{actor_url}#main-key"
-        
-        # Broadcast
-        for follower_uri in followers:
-            target_inbox = resolve_inbox(follower_uri)
-            if target_inbox:
-                send_signed_request(target_inbox, key_id, activity, g.private_key)
-            else:
-                current_app.logger.warning(f"Federation: Could not resolve inbox for {follower_uri}")
+            # Prepare Keys
+            private_key, _ = federation.ap_key_setup()
+            key_id = f"{actor_url}#main-key"
+            
+            # Broadcast
+            for follower_uri in followers:
+                target_inbox = resolve_inbox(follower_uri)
+                if target_inbox:
+                    send_signed_request(target_inbox, key_id, activity, private_key)
+                else:
+                    current_app.logger.warning(f"Federation: Could not resolve inbox for {follower_uri}")
 
 
 @bp.route("/api/reactions/<path:subnode_uri>")
@@ -1401,7 +1791,9 @@ def get_starred_external():
 def get_starred_external_urls():
     try:
         starred_urls = sqlite_engine.get_all_starred_external_urls()
-        return jsonify(list(starred_urls))
+        response = jsonify(list(starred_urls))
+        response.headers['Cache-Control'] = 'public, max-age=600'
+        return response
     except Exception as e:
         current_app.logger.error(f"API: Error fetching starred external URLs: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -1460,7 +1852,7 @@ def send_accept(app, follow_activity, actor_url, key_id, base_url):
             username = actor_url.split('/')[-1]
             
             # Fetch recent subnodes from Git/Cache for consistency
-            cache_key = 'latest_per_user_v1'
+            cache_key = 'latest_per_user'
             cached_value, _ = sqlite_engine.get_cached_query(cache_key)
             latest_changes = []
             
@@ -1495,6 +1887,8 @@ def send_accept(app, follow_activity, actor_url, key_id, base_url):
             for subnode in subnodes_to_send:
                 object_id = url_for('.root', node=subnode.wikilink, _external=True) + f'#/{subnode.uri}'
                 content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+                if len(content_str) > 2000:
+                    content_str = content_str[:2000] + '... (truncated)'
                 content_with_link = f"""{content_str}
 <br><br>
 <p>Source: <a href="{object_id}" rel="nofollow noopener noreferrer" target="_blank">{object_id}</a></p>
@@ -1563,7 +1957,7 @@ def send_signed_request(inbox_url, key_id, activity):
     Signs and sends an ActivityPub activity to a remote inbox.
     """
     current_app.logger.info(f"Preparing to send signed request to {inbox_url}")
-    ap_key_setup() # Ensure g.private_key is loaded
+    private_key, _ = federation.ap_key_setup() # Ensure private_key is loaded
     
     inbox_domain = urlparse(inbox_url).netloc
     target_path = urlparse(inbox_url).path
@@ -1580,7 +1974,7 @@ def send_signed_request(inbox_url, key_id, activity):
         f'digest: {digest_header}'
     )
 
-    signer = pkcs1_15.new(g.private_key)
+    signer = pkcs1_15.new(private_key)
     signature = base64.b64encode(signer.sign(SHA256.new(string_to_sign.encode('utf-8'))))
 
     header = (
@@ -1608,23 +2002,6 @@ def send_signed_request(inbox_url, key_id, activity):
         current_app.logger.error(f"Error sending signed request to {inbox_url}: {e}")
         if e.response is not None:
             current_app.logger.error(f"Response body: {e.response.text}")
-
-
-def ap_key_setup():
-	if hasattr(g, 'private_key') and hasattr(g, 'public_key'):
-		return
-	if not os.path.isfile('public.pem') or not os.path.isfile('private.pem'):
-		g.private_key = RSA.generate(2048)
-		g.public_key = g.private_key.public_key()
-		with open('private.pem', 'wb') as fp:
-			fp.write(g.private_key.export_key('PEM'))
-		with open('public.pem', 'wb') as fp:
-			fp.write(g.public_key.export_key('PEM'))
-	else:
-		with open('private.pem', 'rb') as fp:
-			g.private_key = RSA.import_key(fp.read())
-		with open('public.pem', 'rb') as fp:
-			g.public_key = RSA.import_key(fp.read())
 
 @bp.route("/u/<user>/inbox", methods=['POST'])
 def user_inbox(user):
@@ -1714,7 +2091,7 @@ def run_federation_pass():
     Requires an active application context.
     """
     # Get recent subnodes from Git (cached)
-    cache_key = 'latest_per_user_v1'
+    cache_key = 'latest_per_user'
     ttl = 300
     cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
     
@@ -1774,7 +2151,7 @@ def run_federation_pass():
             current_app.logger.info(f"Federation: Constructed Note ID: {note_ap_url}")
 
             # Ensure keys are ready
-            ap_key_setup()
+            private_key, _ = federation.ap_key_setup()
             key_id = f"{actor_url}#main-key"
             
             # Render Content
@@ -1791,6 +2168,8 @@ def run_federation_pass():
                     continue
 
                 content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+                if len(content_str) > 2000:
+                    content_str = content_str[:2000] + '... (truncated)'
                 content_html = render.markdown(content_str)
                 
                 # Add source link
@@ -1829,7 +2208,7 @@ def run_federation_pass():
                 for follower in followers:
                     inbox = resolve_inbox(follower)
                     if inbox:
-                        federation.send_signed_request(inbox, key_id, activity, g.private_key)
+                        federation.send_signed_request(inbox, key_id, activity, private_key)
             
             # Mark as federated
             sqlite_engine.add_federated_subnode(subnode.uri)
@@ -1852,7 +2231,7 @@ def federate_latest_loop(app):
             except Exception as e:
                 try:
                     current_app.logger.error(f"Federation Loop Error: {e}")
-                except:
+                except Exception:
                     print(f"Federation Loop Critical Error: {e}")
                 time.sleep(60)
 
@@ -1876,6 +2255,8 @@ def ap_note(user, note_id):
 
     # Prepare content.
     content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+    if len(content_str) > 2000:
+        content_str = content_str[:2000] + '... (truncated)'
     content_with_link = f"""{content_str}
 <br><br>
 <p>Source: <a href="{html_url}" rel="nofollow noopener noreferrer" target="_blank">{html_url}</a></p>
@@ -1928,6 +2309,8 @@ def user_outbox(user):
         published_time = datetime.datetime.fromtimestamp(subnode.mtime, tz=datetime.timezone.utc).isoformat()
 
         content_str = subnode.content.decode('utf-8', 'replace') if isinstance(subnode.content, bytes) else subnode.content
+        if len(content_str) > 2000:
+            content_str = content_str[:2000] + '... (truncated)'
         content_html = render.markdown(content_str)
         content_with_link = f"""{content_html}
 <br><br>
@@ -1981,7 +2364,7 @@ def inbox():
     # 2. Parse Activity
     try:
         activity = request.get_json()
-    except Exception as e:
+    except Exception:
         return "Invalid JSON", 400
 
     if not activity:
@@ -2055,7 +2438,7 @@ def outbox():
 def ap_user(username):
     """Generates an ActivityPub actor profile for a given user."""
 
-    ap_key_setup()
+    _, public_key = federation.ap_key_setup()
     
     # Try to fetch the user's bio from their garden.
     bio_subnode = api.subnode_by_uri(f'@{username}/bio')
@@ -2093,7 +2476,7 @@ def ap_user(username):
         'publicKey': {
             'id': f'{actor_url}#main-key',
             'owner': actor_url,
-			'publicKeyPem': g.public_key.exportKey(format='PEM').decode('ascii'),
+			'publicKeyPem': public_key.exportKey(format='PEM').decode('ascii'),
         }
     })
 
@@ -2145,8 +2528,60 @@ def webfinger():
 
 @bp.route("/.well-known/nodeinfo")
 def nodeinfo():
-    """Reserved."""
-    pass
+    """Returns a JSON object with a links array, where each link specifies a NodeInfo version and its corresponding URL."""
+    return jsonify({
+        "links": [
+            {
+                "rel": "http://nodeinfo.diaspora.software/ns/schema/2.0",
+                "href": url_for(".nodeinfo_version", version="2.0", _external=True)
+            }
+        ]
+    })
+
+@bp.route("/nodeinfo/2.0")
+def nodeinfo_version(version="2.0"):
+    """Returns NodeInfo 2.0 data."""
+    if version != "2.0":
+        abort(404)
+
+    # For now, return minimal placeholder data to fix the 500 error.
+    # This should be expanded with actual Agora-specific information later.
+    stats = api.stats()
+    return jsonify({
+        "version": "2.0",
+        "software": {
+            "name": current_app.config['AGORA_NAME'],
+            "version": "0.1.0" # Placeholder, update with actual versioning later
+        },
+        "protocols": [
+            "activitypub"
+        ],
+        "services": {
+            "outbound": [],
+            "inbound": []
+        },
+        "usage": {
+            "users": {
+                "total": len(api.all_users()),
+                "activeMonth": sqlite_engine.get_active_users(30),
+                "activeHalfyear": sqlite_engine.get_active_users(180)
+            },
+            "localPosts": stats["subnodes"], 
+            "localComments": 0
+        },
+        "openRegistrations": True,
+        "metadata": {
+            "nodeName": current_app.config['AGORA_NAME'],
+            "nodeDescription": "The Agora is a Free Knowledge Commons.",
+            "maintainer": {"name": "flancian", "email": "flancian@flancia.org"},
+            "nodeCount": stats["nodes"],
+            "linkCount": stats["edges"],
+            "joinUrl": "https://anagora.org/join",
+            "contributeUrl": "https://anagora.org/contribute",
+            "repositoryUrl": "https://github.com/flancian/agora-server",
+            "services": ["mastodon", "twitter", "bluesky"]
+        }
+    })
 
 
 

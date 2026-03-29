@@ -17,29 +17,104 @@
 {% extends "base.html" %}
 
 {% block content %}
+<details id="full-graph-details" class="url node full-graph-details no-border" open>
+    <summary>
+        <span class="agoragraph"><strong>🕸️ Agora graph (experimental)</strong></span>
+        <span class="graph-size-tab active" data-size="250">Top 250</span>
+        <span class="graph-size-tab" data-size="500">Top 500</span>
+        <span class="graph-size-tab" data-size="1000">Top 1000</span>
+        <span class="graph-size-tab" data-size="all">All (might crash browser)</span>
+    </summary>
+    <div id="full-graph-container" class="graph-container" style="min-height: 500px; position: relative;">
+        <div id="graph-loading" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 10; background-color: var(--graph-bg); opacity: 0.9; flex-direction: column; justify-content: center; align-items: center;">
+            <div class="spinner" style="margin-bottom: 1rem;">
+                <img src="/static/img/agora.png" class="logo" width="64" height="64">
+            </div>
+            <div style="font-size: 1.2rem; font-weight: bold; color: var(--text-color);">Loading graph...</div>
+        </div>
+        <div id="full-graph">
+        </div>
+        <button id="full-graph-toggle-labels" title="Toggle graph node labels on/off">🏷️ Toggle Labels</button>
+    </div>
+</details>
+
 <details class="listing node" open>
     
 <summary>
 {% if header %}
-<span class="node-header main-header">📚 {{header}}</span>
+<span class="node-header main-header">{{header|safe}}</span>
 {% else %}
 <span class="node-header main-header">📚 <strong>Nodes</strong> in the <strong>{{config['AGORA_NAME']}}</strong></span>
 {% endif %}
 </summary>
 
 {% if stats %}
-<p>
-This Agora contains <strong>{{stats['subnodes']}} resources</strong> contributed by <a href="/users"><strong>{{stats['users']}} users</a></strong>.</strong>
-</p>
+<details class="subnode" open>
+<summary><strong>📊 Statistics</strong></summary>
+<div class="stats-grid" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats['nodes'] }}</div>
+        <div class="stat-label">Locations</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats['edges'] }}</div>
+        <div class="stat-label">Edges</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats['users'] }}</div>
+        <div class="stat-label">Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats['subnodes'] }}</div>
+        <div class="stat-label">Contributions</div>
+    </div>
+</div>
+</details>
 
-<p>
-There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']}} links</strong>.
-</p>
+<style>
+/* Inline styles for stats grid to match /stats page */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 0 1rem;
+}
 
+.stat-card {
+    background-color: var(--bg-primary);
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--link-color);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+</style>
 {% endif %}
 
 <div class="nodes-grid subnode">
-    <strong>📊 Nodes by cardinality</strong>
+    <div class="nodes-list">
+    {% for node in nodes %}
+        <div class="node-item">
+            <a href="{{node.uri|node_url}}" class="node-link">
+                <span class="node-name">{{node.wikilink}}</span>
+                <span class="node-size">({{node.size()}})</span>
+            </a>
+        </div>
+    {% endfor %}
+    </div>
     <div class="pagination">
         <div class="prev-link">
             {% if page > 1 %}
@@ -52,34 +127,19 @@ There are <strong>{{stats['nodes']}} nodes</strong> and <strong>{{stats['edges']
             {% endif %}
         </div>
     </div>
-    <div class="nodes-list">
-    {% for node in nodes %}
-        <div class="node-item">
-            <a href="{{node.uri|node_url}}" class="node-link">
-                <span class="node-name">{{node.wikilink}}</span>
-                <span class="node-size">({{node.size()}})</span>
-            </a>
-        </div>
-    {% endfor %}
-    </div>
 </div>
 
 </details>
 
-<details id="full-graph-details" class="url node full-graph-details no-border">
-    <summary>
-        <span class="agoragraph"><strong>🕸️ Graph</strong></span>
-        <span class="graph-size-tab active" data-size="100">Top 100</span>
-        <span class="graph-size-tab" data-size="500">Top 500</span>
-        <span class="graph-size-tab" data-size="2500">Top 2500</span>
-        <span class="graph-size-tab" data-size="all">All (experimental)</span>
-    </summary>
-    <div id="full-graph-container" class="graph-container">
-        <div id="full-graph">
-        </div>
-        <button id="full-graph-toggle-labels" title="Toggle graph node labels on/off">🏷️ Toggle Labels</button>
-    </div>
-</details>
+    <!-- Transcluded content for [[{{node.wikilink}}]] -->
+    <details class="node pulled">
+        <summary>
+            <span class="node-header" title="An Agora location. It contains resources closely related to your search according to the Agora you're in.">
+                📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/node/{{node.uri}}"><span class="node-name">{{node.wikilink}}</span></a><span class="wikilink-marker">]]</span> (transcluded)
+            </span>
+        </summary>
+        <div class="node-embed" id="pull/{{node.uri}}"></div>
+    </details>
 
 {% include "footer.html" %}
 

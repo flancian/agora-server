@@ -48,6 +48,7 @@ dependencies = [
     { name = "mdx-truly-sane-lists" },
     { name = "mistralai" },
     { name = "mypy-extensions" },
+    { name = "objgraph" },
     { name = "org-python" },
     { name = "orjson" },
     { name = "packaging" },
@@ -130,6 +131,7 @@ requires-dist = [
     { name = "mdx-truly-sane-lists", specifier = ">=1.3" },
     { name = "mistralai", specifier = "==0.0.8" },
     { name = "mypy-extensions", specifier = ">=1.0.0" },
+    { name = "objgraph", specifier = ">=3.6.2" },
     { name = "org-python", specifier = ">=0.3.2" },
     { name = "orjson" },
     { name = "packaging", specifier = ">=23.1" },
@@ -1804,6 +1806,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/98/a4/1ab47638b92648243faf97a5aeb6ea83059cc3624972ab6b8d2316078d3f/mypy_extensions-1.0.0.tar.gz", hash = "sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782", size = 4433 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2a/e2/5d3f6ada4297caebe1a2add3b126fe800c96f56dbe5d1988a2cbe0b267aa/mypy_extensions-1.0.0-py3-none-any.whl", hash = "sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d", size = 4695 },
+]
+
+[[package]]
+name = "objgraph"
+version = "3.6.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ba/74/60dfb345ca493d69551dd1ba599ceb6fe325527fedabe4217d6e030449e2/objgraph-3.6.2.tar.gz", hash = "sha256:00b9f2f40f7422e3c7f45a61c4dafdaf81f03ff0649d6eaec866f01030e51ad8", size = 759524 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8e/67/7bffbb861cb8a0a62b7df50738d35812bf40dc8bcc1559c04bdf593f1164/objgraph-3.6.2-py3-none-any.whl", hash = "sha256:8114c97712291c3ba30d882406a384d0a7651b307ea9a06e0d83836ccde85e15", size = 17667 },
 ]
 
 [[package]]

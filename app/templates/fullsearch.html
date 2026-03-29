@@ -17,6 +17,14 @@
 <div class="search-flex">
         <div class="search-agora">
 
+            <div class="search-header" style="margin-bottom: 1em; margin-top: 1em;">
+                <span style="margin-right: 10px;"><strong>Search Mode:</strong></span>
+                <span class="search-mode-tab {% if mode == 'broad' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="broad" title="Find any matches using the index (fast, fuzzy)">Fuzzy</span> • 
+                <span class="search-mode-tab {% if mode == 'exact' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="exact" title="Find phrase matches using the index (fast)">Exact</span> • 
+                <span class="search-mode-tab {% if mode == 'fs' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="fs" title="Scan all files directly (slow, literal)">Literal</span>
+            </div>
+
+            {% if search %}
             <table style="width: 100%"">
                 <thead>
                     <th style="width: 30%">📚 Node</th>
@@ -33,8 +41,44 @@
                     {% endfor %}
                 </tbody>
             </table>
+            {% else %}
+            <div class="search-fallback" style="opacity: 0.8;">
+                <p>No results found for "{{qstr}}" in <strong>{{mode}}</strong> mode.</p>
+                {% if ENABLE_FTS and mode != 'fs' %}
+                <small>
+                    Try switching to <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">Filesystem mode</a> if you suspect the index is incomplete.
+                </small>
+                {% endif %}
+            </div>
+            {% endif %}
 
         </div>
 </div>
+
+<style>
+.search-mode-tab {
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.search-mode-tab:hover {
+    background-color: var(--tab-active-bg);
+    opacity: 1;
+}
+
+.search-mode-tab.active {
+    font-weight: bold;
+    background-color: var(--tab-active-bg);
+    color: var(--link-color);
+    opacity: 1;
+    border: 1px solid var(--border);
+    cursor: default;
+}
+</style>
 
 

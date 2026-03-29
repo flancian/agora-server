@@ -12,13 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import glob
-import itertools
-import os
 from feedgen.feed import FeedGenerator
 from flask import current_app
 import feedparser
-import pprint
 import urllib.parse
 from ..graph import G
 
@@ -71,7 +67,7 @@ def get_latest():
     try:
         feed = feedparser.parse(url)
     except (UnicodeEncodeError, urllib.error.URLError):
-        current_app.logger.exception(f"Couldn't get annotations in feed.get_latest().")
+        current_app.logger.exception("Couldn't get annotations in feed.get_latest().")
     return feed
 
 
@@ -89,7 +85,10 @@ def node_rss(node):
         fe = fg.add_entry()
         fe.id(f"{subnode.uri}")
         fe.title(f"{subnode.uri}")
-        fe.content(f"{subnode.content}")
+        content = subnode.content
+        if isinstance(content, bytes):
+            content = "(Binary content)"
+        fe.content(f"{content}")
         fe.description(f"A post by user @{subnode.user} in node [[{subnode.node}]].")
         fe.link(href=f"https://anagora.org/@{subnode.user}/{subnode.node}")
     return fg.rss_str(pretty=True)
@@ -100,7 +99,7 @@ def latest_rss(subnodes):
     URL_BASE = current_app.config.get("URL_BASE", "https://anagora.org")
     # not sure what this field is for
     fg.id(f"{URL_BASE}/feed/latest")
-    fg.title(f"Agora feed for latest updates")
+    fg.title("Agora feed for latest updates")
     fg.author({"name": "anagora.org users", "email": "anagora@flancia.org"})
     fg.logo(f"{URL_BASE}/favicon.ico")
     fg.subtitle("The Agora is a crowdsourced distributed knowledge graph.")
@@ -122,7 +121,10 @@ def latest_rss(subnodes):
         # there is no render function here because we are in storage.
         # probably this means we should move this function to a different place.
         # fe.content(f'{render.markdown(subnode.content)}', type='html')
-        fe.content(f"{subnode.content}")
+        content = subnode.content
+        if isinstance(content, bytes):
+            content = "(Binary content)"
+        fe.content(f"{content}")
         fe.author({"name": subnode.user, "email": "agora@flancia.org"})
         fe.updated(subnode.datetime.isoformat() + "Z")
 
@@ -143,28 +145,11 @@ def user_rss(user, subnodes):
         fe = fg.add_entry()
         fe.id(f"{subnode.uri}")
         fe.title(f"{subnode.uri}")
-        fe.content(f"{subnode.content}")
+        content = subnode.content
+        if isinstance(content, bytes):
+            content = "(Binary content)"
+        fe.content(f"{content}")
         fe.description(f"A post by user @{user} in node [[{subnode.node}]].")
         fe.link(href=f"https://anagora.org/@{user}/{subnode.node}")
     return fg.rss_str(pretty=True)
 
-
-def main():
-    if DEBUG:
-        feeds = get_user_feeds()
-        # for user, feed in feeds.items():
-        #    for item in feed.entries:
-        #        print(f'user: {user}')
-        #        pprint.pprint(item)
-        #        print('***\n')
-
-        feeds = get_tag_feeds()
-        for item in feeds:
-            pprint.pprint(item)
-            print("***\n")
-    else:
-        api.update_status(phrase)
-
-
-if __name__ == "__main__":
-    main()

@@ -2,7 +2,7 @@
 // app/js-src/demo.ts
 
 import { makeDraggable } from './draggable';
-import { CLIENT_DEFAULTS } from './util';
+import { CLIENT_DEFAULTS, safeJsonParse } from './util';
 
 export function initDemoMode() {
     const demoCheckboxes = document.querySelectorAll(".demo-checkbox-input") as NodeListOf<HTMLInputElement>;
@@ -11,11 +11,13 @@ export function initDemoMode() {
     const meditationCloseButton = document.getElementById("meditation-popup-close-btn");
 
     let demoIntervalId: number | null = null;
+    let isDraggableInitialized = false;
 
     // This function is ONLY for implicit cancellation via user interaction.
     const cancelOnInteraction = (event: Event) => {
         // Ignore events that are not triggered by direct user action.
         if (!event.isTrusted) {
+            // console.log('Ignoring untrusted event:', event.type);
             return;
         }
 
@@ -26,16 +28,18 @@ export function initDemoMode() {
         const target = event.target as HTMLElement;
         const demoSwitch = target.closest('.demo-switch');
         const burgerMenu = target.closest('#burger');
+        const musicSwitch = target.closest('.music-switch');
+        const musicPlayer = target.closest('#music-player-container');
 
-        // If the interaction was a click on the toggle itself or the burger menu, do nothing.
-        if (event.type === 'click' && (demoSwitch || burgerMenu)) {
+        // If the interaction was a click on the toggle itself, the burger menu, or the music player/toggles, do nothing.
+        if (event.type === 'click' && (demoSwitch || burgerMenu || musicSwitch || musicPlayer)) {
             return;
         }
 
         // For any other interaction, programmatically uncheck the box.
         const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
         if (anyCheckedDemoBox) {
-            console.log('Deep demo mode cancelled by user interaction.');
+            console.log('Deep demo mode cancelled by user interaction:', event.type);
             // Programmatically uncheck the box and trigger the change event.
             const mainCheckbox = document.getElementById('demo-checkbox') as HTMLInputElement;
             if (mainCheckbox) {
@@ -46,7 +50,13 @@ export function initDemoMode() {
     };
 
     const cancelDeepDemo = () => {
+        if ((window as any).gentleScrollInterval) {
+            console.log('Clearing gentle scroll interval.');
+            clearInterval((window as any).gentleScrollInterval);
+            (window as any).gentleScrollInterval = null;
+        }
         if (demoIntervalId) {
+            console.log('Cancelling deep demo timer.');
             clearInterval(demoIntervalId);
             demoIntervalId = null;
             const timerElement = document.getElementById('demo-timer');
@@ -87,7 +97,15 @@ export function initDemoMode() {
             updateTimer();
             if (countdown <= 0) {
                 clearInterval(demoIntervalId as number);
-                window.location.href = '/random';
+                // Fetch the random node URL first to ensure clean history navigation (avoiding 302 stack confusion)
+                fetch('/random', { method: 'HEAD' })
+                    .then(res => {
+                        window.location.href = res.url;
+                    })
+                    .catch(() => {
+                        // Fallback
+                        window.location.href = '/random';
+                    });
             }
         }, 1000);
 
@@ -158,6 +176,18 @@ export function initDemoMode() {
         
         // Set up the artifact section immediately, so the button is always there.
         setupArtifactSection();
+
+        if (!isDraggableInitialized) {
+            // Wait for layout to update after content injection and class addition
+            requestAnimationFrame(() => {
+                const meditationDragHandle = document.getElementById('meditation-popup-header');
+                if (meditationPopupContainer && meditationDragHandle) {
+                    const { reposition } = makeDraggable(meditationPopupContainer, meditationDragHandle, 'meditation-position', 'top-left');
+                    reposition();
+                    isDraggableInitialized = true;
+                }
+            });
+        }
     };
 
     const fetchRandomArtifact = (container: HTMLElement) => {
@@ -185,28 +215,127 @@ export function initDemoMode() {
         meditationPopupContainer.classList.remove('active');
     };
 
-    const setDemoMode = (isChecked: boolean) => {
+    function startGentleScroll(isInitialLoad = false, isRootAutoEnable = false) {
+        const autoScrollDemo = safeJsonParse(localStorage["auto-scroll-demo"], CLIENT_DEFAULTS.autoScrollDemo);
+        if (!autoScrollDemo) return;
+
+        // If the main node is still loading asynchronously, wait for it before starting the countdown/toast
+        const asyncContent = document.querySelector("#async-content");
+        if (asyncContent) {
+            console.log("Demo: Waiting for async node content to load before scrolling...");
+            window.addEventListener('agora-node-loaded', () => {
+                startGentleScroll(isInitialLoad, isRootAutoEnable);
+            }, { once: true });
+            return;
+        }
+
+        console.log("Demo: Preparing gentle scroll.");
+        if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
+        if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
+        
+        // Let the user know it's about to start scrolling.
+        const showInitialToast = () => {
+            if ((window as any).showToast) {
+                let msg = `🏃‍♀️ Demo mode active! Auto-scroll starting in 3 seconds...`;
+                if (isRootAutoEnable) {
+                    msg = `🏃‍♀️ Demo mode is auto-enabled here! Auto-scroll starting in 3 seconds...`;
+                }
+                (window as any).showToast(msg);
+            }
+        };
+
+        const startDelay = isInitialLoad ? 1000 : 0;
+        if (isInitialLoad) {
+            setTimeout(showInitialToast, startDelay);
+        } else {
+            showInitialToast();
+        }
+
+        (window as any).gentleScrollTimeout = setTimeout(() => {
+            console.log("Demo: Starting gentle scroll.");
+            if ((window as any).showToast) {
+                (window as any).showToast(`📜 Scrolling... <span style="font-size: 0.85em; opacity: 0.8;">(<a href="#" id="toast-stop-scroll" style="text-decoration: underline; color: inherit;">cancel</a> or toggle in <a href="#" id="toast-open-settings" style="text-decoration: underline; color: inherit;">settings</a>)</span>`);
+                
+                // Bind click handler to the newly injected links
+                setTimeout(() => {
+                    const stopLink = document.getElementById('toast-stop-scroll');
+                    if (stopLink) {
+                        stopLink.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
+                            if ((window as any).showToast) {
+                                (window as any).showToast("🛑 Auto-scroll stopped.");
+                            }
+                        });
+                    }
+                    const settingsLink = document.getElementById('toast-open-settings');
+                    if (settingsLink) {
+                        settingsLink.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const burger = document.getElementById('burger');
+                            if (burger) burger.click();
+                        });
+                    }
+                }, 50);
+            }
+            (window as any).gentleScrollInterval = setInterval(() => {
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
+                     console.log("Gentle scroll hit bottom.");
+                     clearInterval((window as any).gentleScrollInterval);
+                } else {
+                    window.scrollBy(0, 1);
+                }
+            }, 33);
+        }, 3000 + startDelay); // 3 second delay after the initial toast delay
+    }
+
+    const setDemoMode = (isChecked: boolean, isInitialLoad = false, isRootAutoEnable = false) => {
         localStorage.setItem("deep-demo-active", JSON.stringify(isChecked));
         demoCheckboxes.forEach(checkbox => {
             checkbox.checked = isChecked;
         });
         if (isChecked) {
             startDeepDemo();
+            startGentleScroll(isInitialLoad, isRootAutoEnable);
         } else {
             cancelDeepDemo();
             hidePopup();
+            if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
+            if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
         }
     };
 
     if (demoCheckboxes.length > 0) {
-        // Set initial state from localStorage
-        const isDemoActive = JSON.parse(localStorage.getItem("deep-demo-active") || 'false');
-        setDemoMode(isDemoActive);
+        // Check for Back/Forward navigation
+        const storedDemoActive = localStorage.getItem("deep-demo-active");
+        let isDemoActive = false;
+        let isRootAutoEnable = false;
+        
+        if (storedDemoActive !== null) {
+            isDemoActive = JSON.parse(storedDemoActive);
+        } else if ((window.location.pathname === '/' || window.location.pathname === '/index') && !window.location.search) {
+            isDemoActive = true;
+            isRootAutoEnable = true;
+        }
+        
+        try {
+            const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+            if (navEntry && navEntry.type === 'back_forward' && isDemoActive) {
+                console.log("Detected Back/Forward navigation. Keeping Demo Mode active.");
+                // We no longer disable Demo Mode on back/forward because the fetch-then-navigate 
+                // strategy for /random ensures a clean history stack.
+            }
+        } catch (e) {
+            console.warn("Could not check navigation type:", e);
+        }
+
+        // Set initial state
+        setDemoMode(isDemoActive, true, isRootAutoEnable);
 
         // Add event listeners to all demo checkboxes
         demoCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', () => {
-                setDemoMode(checkbox.checked);
+                setDemoMode(checkbox.checked, false, false);
             });
         });
 
@@ -233,10 +362,4 @@ export function initDemoMode() {
         }
         showPopup();
     });
-
-    // Make the Meditation popup draggable
-    const meditationDragHandle = document.getElementById('meditation-popup-header');
-    if (meditationPopupContainer && meditationDragHandle) {
-        makeDraggable(meditationPopupContainer, meditationDragHandle, 'meditation-position');
-    }
 }

@@ -15,7 +15,117 @@
 import os
 import sqlite3
 import re
+import time
 from flask import current_app, g
+
+# Module-level schema templates to be shared with maintenance worker.
+# Using {table_name} placeholder to allow creating temporary/swap tables.
+SCHEMA_TEMPLATES = {
+    'subnodes': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            path TEXT PRIMARY KEY,
+            user TEXT NOT NULL,
+            node TEXT NOT NULL,
+            mtime INTEGER NOT NULL,
+            git_mtime INTEGER
+        );
+    """,
+    'links': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            source_path TEXT NOT NULL,
+            target_node TEXT NOT NULL,
+            type TEXT NOT NULL,
+            source_node TEXT,
+            PRIMARY KEY (source_path, target_node, type)
+        );
+    """,
+    'ai_generations': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            prompt TEXT NOT NULL,
+            provider TEXT NOT NULL,
+            content TEXT NOT NULL,
+            timestamp INTEGER NOT NULL,
+            full_prompt TEXT,
+            PRIMARY KEY (prompt, provider)
+        );
+    """,
+    'query_cache': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            key TEXT PRIMARY KEY,
+            value TEXT,
+            timestamp INTEGER
+        );
+    """,
+    'starred_subnodes': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            subnode_uri TEXT PRIMARY KEY
+        );
+    """,
+    'starred_nodes': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            node_uri TEXT PRIMARY KEY
+        );
+    """,
+    'graph_cache': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            timestamp INTEGER NOT NULL
+        );
+    """,
+    'git_repo_state': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            repo_path TEXT PRIMARY KEY,
+            last_commit_hash TEXT NOT NULL
+        );
+    """,
+    'followers': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            user_uri TEXT NOT NULL,
+            follower_uri TEXT NOT NULL,
+            PRIMARY KEY (user_uri, follower_uri)
+        );
+    """,
+    'starred_external': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            url TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            source TEXT NOT NULL,
+            node TEXT,
+            timestamp INTEGER
+        );
+    """,
+    'maintenance_lock': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            worker_id TEXT,
+            timestamp INTEGER
+        );
+    """,
+    'reactions': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            id TEXT PRIMARY KEY,
+            type TEXT NOT NULL,
+            actor TEXT NOT NULL,
+            object TEXT NOT NULL,
+            content TEXT,
+            timestamp INTEGER NOT NULL
+        );
+    """,
+    'federated_subnodes': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            subnode_uri TEXT PRIMARY KEY
+        );
+    """,
+    # FTS table template
+    'subnodes_fts': """
+        CREATE VIRTUAL TABLE IF NOT EXISTS {table_name} USING fts5(
+            path, 
+            content, 
+            tokenize='porter'
+        );
+    """
+}
 
 def regexp(expr, item):
     """
@@ -24,7 +134,7 @@ def regexp(expr, item):
     try:
         reg = re.compile(expr, re.IGNORECASE)
         return reg.search(item) is not None
-    except Exception as e:
+    except Exception:
         # Log invalid regex errors but don't crash the query
         return False
 
@@ -95,104 +205,25 @@ def create_tables(db):
     Also handles simple schema migrations like adding a column.
     """
     with db:
-        SCHEMA = {
-            'subnodes': """
-                CREATE TABLE IF NOT EXISTS subnodes (
-                    path TEXT PRIMARY KEY,
-                    user TEXT NOT NULL,
-                    node TEXT NOT NULL,
-                    mtime INTEGER NOT NULL
-                );
-            """,
-            'links': """
-                CREATE TABLE IF NOT EXISTS links (
-                    source_path TEXT NOT NULL,
-                    target_node TEXT NOT NULL,
-                    type TEXT NOT NULL,
-                    PRIMARY KEY (source_path, target_node, type)
-                );
-            """,
-            'ai_generations': """
-                CREATE TABLE IF NOT EXISTS ai_generations (
-                    prompt TEXT NOT NULL,
-                    provider TEXT NOT NULL,
-                    content TEXT NOT NULL,
-                    timestamp INTEGER NOT NULL,
-                    PRIMARY KEY (prompt, provider)
-                );
-            """,
-            'query_cache': """
-                CREATE TABLE IF NOT EXISTS query_cache (
-                    key TEXT PRIMARY KEY,
-                    value TEXT,
-                    timestamp INTEGER
-                );
-            """,
-            'starred_subnodes': """
-                CREATE TABLE IF NOT EXISTS starred_subnodes (
-                    subnode_uri TEXT PRIMARY KEY
-                );
-            """,
-            'starred_nodes': """
-                CREATE TABLE IF NOT EXISTS starred_nodes (
-                    node_uri TEXT PRIMARY KEY
-                );
-            """,
-            'graph_cache': """
-                CREATE TABLE IF NOT EXISTS graph_cache (
-                    key TEXT PRIMARY KEY,
-                    value TEXT NOT NULL,
-                    timestamp INTEGER NOT NULL
-                );
-            """,
-            'git_repo_state': """
-                CREATE TABLE IF NOT EXISTS git_repo_state (
-                    repo_path TEXT PRIMARY KEY,
-                    last_commit_hash TEXT NOT NULL
-                );
-            """,
-            'followers': """
-                CREATE TABLE IF NOT EXISTS followers (
-                    user_uri TEXT NOT NULL,
-                    follower_uri TEXT NOT NULL,
-                    PRIMARY KEY (user_uri, follower_uri)
-                );
-            """,
-            'starred_external': """
-                CREATE TABLE IF NOT EXISTS starred_external (
-                    url TEXT PRIMARY KEY,
-                    title TEXT NOT NULL,
-                    source TEXT NOT NULL,
-                    node TEXT,
-                    timestamp INTEGER
-                );
-            """,
-            'maintenance_lock': """
-                CREATE TABLE IF NOT EXISTS maintenance_lock (
-                    id INTEGER PRIMARY KEY CHECK (id = 1),
-                    worker_id TEXT,
-                    timestamp INTEGER
-                );
-            """,
-            'reactions': """
-                CREATE TABLE IF NOT EXISTS reactions (
-                    id TEXT PRIMARY KEY,
-                    type TEXT NOT NULL,
-                    actor TEXT NOT NULL,
-                    object TEXT NOT NULL,
-                    content TEXT,
-                    timestamp INTEGER NOT NULL
-                );
-            """,
-            'federated_subnodes': """
-                CREATE TABLE IF NOT EXISTS federated_subnodes (
-                    subnode_uri TEXT PRIMARY KEY
-                );
-            """
-        }
-        # Check all tables in the schema.
-        for table, query in SCHEMA.items():
-            db.execute(query)
+        # Create standard tables using templates
+        for name, template in SCHEMA_TEMPLATES.items():
+            if name == 'subnodes_fts':
+                continue # Handled separately below based on config
+            db.execute(template.format(table_name=name))
+
+        # Add FTS5 table if enabled
+        if current_app.config.get('ENABLE_FTS', False):
+            # Migration: Check if existing table uses old tokenizer (trigram) and drop it if so.
+            try:
+                cursor = db.execute("SELECT sql FROM sqlite_master WHERE name='subnodes_fts'")
+                row = cursor.fetchone()
+                if row and "tokenize='trigram'" in row[0]:
+                    current_app.logger.warning("FTS table uses 'trigram' tokenizer. Dropping to revert to 'porter'.")
+                    db.execute("DROP TABLE subnodes_fts")
+            except Exception as e:
+                current_app.logger.error(f"Error checking FTS schema: {e}")
+
+            db.execute(SCHEMA_TEMPLATES['subnodes_fts'].format(table_name='subnodes_fts'))
 
         # Migration: Add the source_node column to the links table if it doesn't exist.
         try:
@@ -225,6 +256,47 @@ def get_subnode_count():
         return 0
     try:
         cursor = db.execute("SELECT COUNT(*) FROM subnodes")
+        return cursor.fetchone()[0]
+    except sqlite3.OperationalError:
+        return 0
+
+def get_active_users(days=30):
+    """
+    Returns the number of unique users who have modified subnodes in the last X days.
+    """
+    db = get_db()
+    if not db:
+        return 0
+    try:
+        import time
+        cutoff = int(time.time()) - (days * 86400)
+        cursor = db.execute("SELECT COUNT(DISTINCT user) FROM subnodes WHERE mtime > ?", (cutoff,))
+        return cursor.fetchone()[0]
+    except sqlite3.OperationalError:
+        return 0
+
+def get_node_count():
+    """
+    Returns the number of unique nodes in the subnodes table.
+    """
+    db = get_db()
+    if not db:
+        return 0
+    try:
+        cursor = db.execute("SELECT COUNT(DISTINCT node) FROM subnodes")
+        return cursor.fetchone()[0]
+    except sqlite3.OperationalError:
+        return 0
+
+def get_link_count():
+    """
+    Returns the total number of links.
+    """
+    db = get_db()
+    if not db:
+        return 0
+    try:
+        cursor = db.execute("SELECT COUNT(*) FROM links")
         return cursor.fetchone()[0]
     except sqlite3.OperationalError:
         return 0
@@ -283,8 +355,6 @@ def get_recent_reactions(limit=20):
         {'id': row[0], 'type': row[1], 'actor': row[2], 'object': row[3], 'content': row[4], 'timestamp': row[5]}
         for row in cursor.fetchall()
     ]
-
-import time
 
 def try_acquire_lock(worker_id, ttl_seconds=60):
     """
@@ -385,6 +455,22 @@ def get_subnode_mtime(path):
     result = cursor.fetchone()
     return result[0] if result else None
 
+def get_git_mtime(path):
+    """
+    Retrieves the cached git commit time for a given subnode path.
+    """
+    db = get_db()
+    if not db:
+        return None
+    
+    cursor = db.cursor()
+    try:
+        cursor.execute("SELECT git_mtime FROM subnodes WHERE path = ?", (path,))
+        result = cursor.fetchone()
+        return result[0] if result else None
+    except sqlite3.OperationalError:
+        return None
+
 def update_subnode(path, user, node, mtime, links):
     """
     Updates or inserts a subnode and its associated links in the index.
@@ -427,10 +513,15 @@ def update_subnodes_bulk(subnodes_to_update):
         current_app.logger.debug("SQLite: No subnodes to update in bulk.")
         return
 
+    # Deduplicate by path, keeping the last entry (most recent state)
+    unique_updates = {s['path']: s for s in subnodes_to_update}
+    subnodes_to_update = list(unique_updates.values())
+
     current_app.logger.info(f"SQLite: Bulk writing data for {len(subnodes_to_update)} subnodes.")
     
     subnode_data = []
     link_data = []
+    fts_data = []
     paths_to_update = []
 
     for subnode in subnodes_to_update:
@@ -440,6 +531,10 @@ def update_subnodes_bulk(subnodes_to_update):
             unique_links = set(subnode['links'])
             for target in unique_links:
                 link_data.append((subnode['path'], subnode['node'], target, 'wikilink'))
+        
+        # Handle FTS data if present
+        if 'content' in subnode and subnode['content'] is not None:
+            fts_data.append((subnode['path'], subnode['content']))
 
     try:
         with db:
@@ -452,6 +547,16 @@ def update_subnodes_bulk(subnodes_to_update):
             )
             current_app.logger.debug("SQLite: Executed REPLACE INTO subnodes.")
             
+            # Update FTS table if needed
+            if fts_data and current_app.config.get('ENABLE_FTS', False):
+                # We use REPLACE INTO for FTS as well? Or INSERT OR REPLACE?
+                # FTS5 supports REPLACE (which does DELETE + INSERT).
+                db.executemany(
+                    "INSERT OR REPLACE INTO subnodes_fts (path, content) VALUES (?, ?)",
+                    fts_data
+                )
+                current_app.logger.debug(f"SQLite: Updated {len(fts_data)} FTS entries.")
+
             # Update links table
             # Delete old links for all subnodes in the batch
             # Using a temporary table to pass the list of paths is safer and can be faster
@@ -476,6 +581,73 @@ def update_subnodes_bulk(subnodes_to_update):
             current_app.logger.error(f"Database write error during bulk update: {e}")
     except Exception as e:
         current_app.logger.error(f"Unexpected error during bulk update: {e}")
+
+def flush_index_queue(e=None):
+    """
+    Flushes any pending subnode updates to the database.
+    Also closes the connection.
+    To be registered as a teardown_appcontext handler.
+    """
+    try:
+        if 'subnodes_to_index' in g and g.subnodes_to_index:
+            # current_app.logger.debug(f"Flushing {len(g.subnodes_to_index)} subnodes to index.")
+            update_subnodes_bulk(g.subnodes_to_index)
+            g.subnodes_to_index = []
+    except Exception as ex:
+        # Logging here might be risky if logger is also tearing down, but typically ok in Flask.
+        # Use print as fallback if needed, but app.logger is standard.
+        current_app.logger.error(f"Error flushing index queue: {ex}")
+    finally:
+        close_db(e)
+
+
+def search_subnodes_fts(query, mode='exact'):
+    """
+    Searches for subnodes containing the given query using FTS5.
+    Returns a list of paths.
+    mode: 'exact' (phrase match) or 'broad' (stemmed AND match).
+    """
+    db = get_db()
+    if not db:
+        return []
+
+    if not current_app.config.get('ENABLE_FTS', False):
+        return []
+
+    cursor = db.cursor()
+    try:
+        # We use the FTS MATCH operator.
+        # We also need to sanitize the query to prevent syntax errors in FTS5 match expression.
+        # Simple sanitization: remove non-alphanumeric chars except spaces, or just quote it.
+        
+        match_query = query
+        if mode == 'exact':
+            # Enforce phrase match by wrapping in double quotes
+            # Escape existing double quotes to avoid syntax errors
+            safe_query = query.replace('"', '""')
+            match_query = f'"{safe_query}"'
+        elif mode == 'broad':
+            # Prefix match each term to handle typos and stemming better
+            # e.g. "gnossienes" -> "gnossienes*" -> matches "gnossienne" (via stemming)
+            # Remove quotes to avoid syntax errors with *
+            safe_query = query.replace('"', '')
+            # Replace punctuation with spaces to avoid creating tokens like "c.*" which fail to match "c"
+            # We keep alphanumeric chars and spaces/underscores.
+            safe_query = re.sub(r'[^\w\s]', ' ', safe_query)
+            
+            # Filter out empty terms
+            terms = [t for t in safe_query.split() if t]
+            if terms:
+                match_query = ' '.join([f'{t}*' for t in terms])
+            else:
+                match_query = safe_query # Fallback if empty
+        
+        # SEARCH ALL COLUMNS (path + content) by targeting the table name.
+        cursor.execute("SELECT DISTINCT path FROM subnodes_fts WHERE subnodes_fts MATCH ? ORDER BY rank", (match_query,))
+        return [row[0] for row in cursor.fetchall()]
+    except sqlite3.OperationalError as e:
+        current_app.logger.error(f"SQLite FTS search error: {e}")
+        return []
 
 
 def search_nodes_by_regex(regex):
@@ -545,6 +717,22 @@ def get_subnodes_by_node(node_uri):
             'mtime': row[2]
         })
     return results
+
+def get_latest_subnodes(limit=100):
+    """
+    Retrieves the most recently modified subnodes from the index.
+    Returns a list of dicts: {'path': ..., 'user': ..., 'node': ..., 'mtime': ...}
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT path, user, node, mtime FROM subnodes ORDER BY mtime DESC LIMIT ?", (limit,))
+    return [
+        {'path': row[0], 'user': row[1], 'node': row[2], 'mtime': row[3]}
+        for row in cursor.fetchall()
+    ]
 
 def get_ai_generation(prompt, provider):
     """
@@ -644,6 +832,24 @@ def get_random_ai_generation():
     )
     result = cursor.fetchone()
     return (result[0], result[1]) if result else (None, None)
+
+def get_last_index_time():
+    """
+    Returns the timestamp of the last full index rebuild.
+    """
+    val, _ = get_cached_query('last_full_index')
+    try:
+        return float(val) if val else 0.0
+    except ValueError:
+        return 0.0
+
+def update_last_index_time():
+    """
+    Updates the timestamp of the last full index rebuild to now.
+    """
+    import time
+    now = time.time()
+    save_cached_query('last_full_index', str(now), int(now))
 
 #
 # Starred Subnodes
@@ -782,17 +988,6 @@ def get_all_followers():
     cursor.execute("SELECT user_uri, follower_uri FROM followers")
     return cursor.fetchall()
 
-def get_all_starred_nodes():
-    db = get_db()
-    if db is None:
-        return set()
-    try:
-        cursor = db.execute("SELECT node_uri FROM starred_nodes")
-        return {row[0] for row in cursor.fetchall()}
-    except sqlite3.OperationalError as e:
-        current_app.logger.warning(f"Could not fetch starred nodes, table might not exist yet: {e}")
-        return set()
-
 #
 # Federated Subnodes
 #
@@ -865,15 +1060,113 @@ def get_all_starred_external():
         current_app.logger.warning(f"Could not fetch starred external, table might not exist yet: {e}")
         return []
 
+_starred_external_urls_cache = None
+_starred_external_urls_ts = 0
+
 def get_all_starred_external_urls():
     """
     Returns a set of all starred external URLs for quick lookup.
+    Cached for 60 seconds.
     """
+    global _starred_external_urls_cache, _starred_external_urls_ts
+    import time
+    
+    if _starred_external_urls_cache is not None and (time.time() - _starred_external_urls_ts < 60):
+        return _starred_external_urls_cache
+
     db = get_db()
     if db is None:
         return set()
     try:
         cursor = db.execute("SELECT url FROM starred_external")
-        return {row[0] for row in cursor.fetchall()}
-    except sqlite3.OperationalError as e:
+        result = {row[0] for row in cursor.fetchall()}
+        _starred_external_urls_cache = result
+        _starred_external_urls_ts = time.time()
+        return result
+    except sqlite3.OperationalError:
         return set()
+
+def get_db_stats():
+    """
+    Returns statistics about the database tables.
+    Returns a list of dicts: [{'table': 'name', 'rows': count}, ...]
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    stats = []
+    try:
+        cursor = db.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [row[0] for row in cursor.fetchall()]
+        
+        for table in tables:
+            try:
+                # FTS shadow tables usually don't need individual counting and can be noisy
+                if table.startswith('subnodes_fts_'):
+                    continue
+                    
+                count = db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                stats.append({'table': table, 'rows': count})
+            except sqlite3.OperationalError:
+                # Could happen if table is locked or corrupt
+                stats.append({'table': table, 'rows': 'Error'})
+        
+        # Add DB file size
+        try:
+            uri = current_app.config.get('SQLALCHEMY_DATABASE_URI')
+            if uri and uri.startswith('sqlite:///'):
+                db_path = uri.split('?')[0][10:]
+                if os.path.exists(db_path):
+                    size_mb = os.path.getsize(db_path) / (1024 * 1024)
+                    stats.append({'table': '(Database File Size)', 'rows': f"{size_mb:.2f} MB"})
+        except Exception as e:
+            current_app.logger.error(f"Error getting DB size: {e}")
+
+        return sorted(stats, key=lambda x: x['table'])
+    except sqlite3.OperationalError as e:
+        current_app.logger.error(f"Error getting DB stats: {e}")
+        return []
+
+def get_cache_info():
+    """
+    Returns a dict of cache keys and their timestamps.
+    """
+    db = get_db()
+    if not db:
+        return {}
+    
+    keys = ['latest_1000', 'top', 'all_users', 'latest_per_user', 'last_full_index']
+    info = {}
+    try:
+        # sqlite3 doesn't support list binding for IN clause directly
+        placeholders = ','.join(['?'] * len(keys))
+        cursor = db.execute(f"SELECT key, timestamp FROM query_cache WHERE key IN ({placeholders})", keys)
+        for row in cursor.fetchall():
+            info[row[0]] = row[1]
+    except Exception as e:
+        current_app.logger.error(f"Error getting cache info: {e}")
+        pass
+        
+    # Get graph blob timestamp (partial/lazy rebuild)
+    try:
+        cursor = db.execute("SELECT MAX(timestamp) FROM graph_cache WHERE key LIKE 'all_subnodes%'")
+        blob_ts = cursor.fetchone()[0]
+        if blob_ts:
+            info['graph_blob_time'] = blob_ts
+    except Exception:
+        pass
+
+    # Get DB file timestamp (last resort)
+    try:
+        count = db.execute("SELECT COUNT(*) FROM subnodes").fetchone()[0]
+        if count > 0:
+            uri = current_app.config.get('SQLALCHEMY_DATABASE_URI')
+            if uri and uri.startswith('sqlite:///'):
+                db_path = uri.split('?')[0][10:]
+                if os.path.exists(db_path):
+                    info['db_mtime'] = os.path.getmtime(db_path)
+    except Exception:
+        pass
+
+    return info

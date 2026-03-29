@@ -4,14 +4,16 @@ export const CLIENT_DEFAULTS = {
   user: 'agora',
   autoExpandSearch: false,
   autoExpandWikipedia: false,
-  autoExpandExactMatch: true,
+  autoExpandExactMatch: false,
   autoExpandAll: false,
   autoPull: true,
   showBrackets: false,
   showGraphLabels: true,
   showHypothesis: false,
   autoExpandStoas: false,
-  demoTimeoutSeconds: '17',
+  demoTimeoutSeconds: '31',
+  toastDurationSeconds: '7',
+  autoScrollDemo: true,
   showEditSection: false,
 };
 

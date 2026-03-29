@@ -49,7 +49,17 @@ This hybrid approach provides the best of both worlds: the data users are active
 
 *The following tasks belong to the `agora-server` (this) repository and component.*
 
-### Priority 1: Transition to SQLite as Primary Data Source
+**See also: [[7]] (The Seven Priorities for 2026) for the strategic arc.**
+
+### Priority 1: Stability & Performance (The Foundation)
+
+**Goal:** Ensure the server remains lean, fast, and crash-free even as the graph grows.
+
+-   **Tasks:**
+    -   **Protect the Monolith:** Maintain the "Shared Object Identity" architecture in `graph.py`. A regression test (`tests/test_memory_optimization.py`) now enforces that `G.nodes()` and `G.subnodes()` share the same Python objects, keeping RAM usage low (~1.2GB).
+    -   **Search Optimization (FTS5):** Current search operations (like `/fullsearch`) are slow (~900ms) because they scan the filesystem or iterate in Python. We need to implement SQLite FTS5 (Full-Text Search) to make these queries instant.
+
+### Priority 2: Transition to SQLite as Primary Data Source
 
 **Goal:** Refactor the server to leverage the fast, comprehensive index built by the Bridge, making the server faster, more memory-efficient, and simpler.
 
@@ -80,6 +90,46 @@ This hybrid approach provides the best of both worlds: the data users are active
     -   **Logic:** The observer will check if the "Autopull" setting is enabled and if the node is empty (has no `.subnode` elements).
     -   **Logic:** If conditions are met, programmatically "click" the summaries for the Wikipedia section and any un-pulled Mastodon embeds.
     -   **UX Feedback:** Display a toast notification to inform the user that content is being autopulled.
+
+### Priority 4: Collaborative Features (The Read-Write Web)
+
+**Goal:** Close the loop on collaboration by allowing users to not just read, but actively "remix" and evolve content found in the Agora. This draws inspiration from Ward Cunningham's vision of the [Federated Wiki](http://fed.wiki.org/view/welcome-visitors), where copying is the first step of conversation.
+
+-   **Feature: "Fork to Garden" (The Siphon)**
+    -   **Philosophy:** Aligned with the **Open Letter to the Free Software Community**, this feature acts as a "Siphon," allowing users to pull knowledge out of the commons and into their sovereign garden, converting read-only web content into write-enabled thought.
+    -   **Inspiration:** Ward Cunningham's [Federated Wiki](http://fed.wiki.org/view/welcome-visitors).
+    -   **Concept:** A user viewing a subnode (e.g., a note by `@flancian`) can click a "Fork" button. This action copies the content into their own hosted garden (e.g., `garden/my-user/forked-node.md`), preserving a backlink to the original source (`[[pushed from]]` or similar).
+    -   **Flow:**
+        1.  **UI:** Add a "Fork" (or "Remix") button to the subnode footer. We should include an explicit "h/t to Ward Cunningham" in the button's tooltip to honor the inspiration.
+        2.  **Auth:** Check if the current viewer is logged in (via the Bullpen/Forgejo auth). If not, prompt to login/signup.
+        3.  **Action:** The Agora Server (or Bridge) retrieves the raw content of the target subnode.
+        4.  **Write:** It writes a new file to the user's garden via the Bullpen API or direct filesystem access (if hosted).
+        5.  **Edit:** The user is immediately redirected to the **Bullpen** editor with the new file open, ready to annotate or modify.
+    -   **Attribution:** The system automatically prepends/appends metadata citing the original author, maintaining the lineage of ideas.
+
+### Priority 5: Semantic Search (The Compass)
+
+**Goal:** Move beyond exact string matching to connect thoughts that are semantically related but phrased differently (e.g., linking "collaborative cognition" with "group thinking").
+
+-   **Technology: `sqlite-vec`**
+    -   We can integrate [sqlite-vec](https://github.com/asg017/sqlite-vec), a lightweight vector search extension for SQLite.
+    -   **Process:**
+        1.  **Embed:** The Bridge (background worker) uses a local embedding model (e.g., `all-MiniLM-L6-v2` via `sentence-transformers` or `llm` CLI) to generate a vector for each subnode's content.
+        2.  **Store:** These vectors are stored in a virtual table in `agora.db` managed by `sqlite-vec`.
+        3.  **Query:** When a user views a node, the Server queries this table for the "nearest neighbors" in vector space.
+        4.  **Display:** These results are shown in a new "Related (Semantic)" section or merged into the existing "Related" list, creating a powerful discovery mechanism that acts as a compass through the knowledge graph.
+
+### Priority 6: Search Enhancements (FTS5 & Fuzzy Search)
+
+**Goal:** Improve the robustness of search by handling typos and partial matches more gracefully.
+
+-   **Trigram Indexing (SQLite FTS5):**
+    -   Switch the tokenizer from `porter` to `trigram`. This breaks words into 3-letter chunks, allowing the index to find "agora" even if the user types "agra" or "agoura".
+    -   *Trade-off:* Increases index size and build time slightly.
+-   **Spellfix1:**
+    -   Evaluate the `spellfix1` SQLite extension for explicit fuzzy matching and "Did you mean?" suggestions.
+-   **Hybrid Fallback:**
+    -   If an FTS query returns 0 results, fall back to a Python-based Levenshtein distance search (using `thefuzz`) on a candidate set of node titles. This provides a "last resort" match for highly misspelled queries.
 
 ### UI/UX Polish (Ongoing)
 

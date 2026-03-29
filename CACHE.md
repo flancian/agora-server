@@ -33,6 +33,14 @@ The database acts as a **cache and index** to speed up operations that would oth
 
 -   **`cache_events`**: A logging table to track cache performance (hits, misses, errors, timings), which is excellent for diagnostics.
 
+## Database Location
+
+The SQLite database file is located at **`agora.db`** within the configured `AGORA_PATH`.
+-   **Production/Alpha**: Typically `/home/agora/agora/agora.db` (or `/home/flancian/agora/agora.db` depending on the user).
+-   **Local Development**: Typically `~/agora/agora.db` or constructed by the `setup.sh` script.
+
+The server does *not* store the database in the git repository (`agora-server/`) to avoid coupling code and state.
+
 ### Recommendations
 
 1.  **Add Indexes for Faster Lookups**: Queries on non-primary-key columns can be slow. Adding indexes to the following columns would significantly improve performance, especially for nodes with many backlinks and for user pages.
@@ -50,3 +58,23 @@ The database acts as a **cache and index** to speed up operations that would oth
         PRIMARY KEY (subnode_uri, user)
     );
     ```
+
+## In-Memory Graph Architecture (Monolithic Mode)
+
+*Added: Jan 2026*
+
+When running with `ENABLE_LAZY_LOAD = False` (default for Production/Alpha), the Agora loads the **entire graph** into memory on worker startup.
+
+### Memory Optimization: Object Deduplication
+With ~100k+ subnodes, Python object overhead is significant. To prevent OOM (Out of Memory) errors, `app/graph.py` enforces **Object Deduplication**:
+
+1.  **Single Source of Truth**: `_get_all_subnodes_cached` creates the `Subnode` objects.
+2.  **Shared References**: When `_get_all_nodes_cached` builds `Node` objects, it **must not** instantiate new `Subnode` objects. Instead, it looks up the existing instances from the subnode cache.
+3.  **Impact**: This cuts memory usage by ~50% (e.g., from 3.0GB down to 1.2GB per worker).
+
+**Critical Invariant**:
+`id(G.node('foo').subnodes[0])` MUST EQUAL `id(G.subnode('path/to/foo.md'))`.
+*Do not refactor `graph.py` to decouple these caches without understanding this memory impact.*
+
+### Unbounded Caches
+Avoid using `@lru_cache(maxsize=None)` on utility functions (like `is_journal`) that take arbitrary strings/paths as input. In a long-running process, this is a memory leak. Use `cachetools.TTLCache` or bounded LRU.

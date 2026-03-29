@@ -76,7 +76,7 @@
 	{% endif %}
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-	<script type="module" src="{{url_for('static', filename='js/index.js')}}"></script>
+	<script type="module" src="{{url_for('static', filename='js/index.js')}}?v={{css_versions.js_version}}"></script>
 
 	<script type="application/json" class="js-hypothesis-config">
     {
@@ -104,21 +104,41 @@
                         <span>☰</span>
                         <img src="/static/img/agora.png" class="logo" width="36px" height="36px" title="An Agora is a Free Knowledge Commons.">
                     </div>
-                    <a href="/" style="text-decoration: none; display: flex; flex-direction: column; align-items: center; line-height: 1.1; margin-left: 0.2em;" title="You are in the {{config['AGORA_NAME']}}. This Agora is one of many.">
-                        <span class="hide-on-mobile" style="font-size: 0.75em; font-weight: normal; opacity: 0.9;">{{config['AGORA_NAME']}}</span>
-                        <span style="font-weight: bold; font-size: 0.9em;">{{config['URI_BASE']}}</span>
-                    </a>
-                </div>
-                ➜
-                <a href="/nodes" class="navlink" style="text-decoration: none;"><span class="navbar-item"><span>📚</span><span>all</span></span></a>
-                {{config['MENU_SEPARATOR']}} <a href="/random" style="text-decoration: none;"><span class="navbar-item"><span>🎲️</span><span>random</span></span></a>
+                    <div class="navbar-item">
+                        {% if config.ENABLE_AGORA_NAME_IN_HEADER %}
+                                                                                                                                                                                            <a href="/" class="navlink" style="text-decoration: none;" title="Go to the Agora home page.">
+                                                                                                                                                                                                <span style="font-weight: bold;">{{config['AGORA_NAME']}}</span>
+                                                                                                                                                                                            </a>
+                                                                                                                                                                                            <span style="margin: 0 0.1em; color: var(--main-text);">≈</span>
+                                                                                                                                                                                            <a href="/" class="navlink" style="text-decoration: none;" title="Go to the Agora home page.">
+                                                                                                                                                                                                <span style="font-weight: normal;">{{config['URI_BASE']}}</span>
+                                                                                                                                                                                            </a>                                                        {% else %}
+                                                            <a href="/" class="navlink" style="text-decoration: none;" title="Go to the Agora home page.">
+                                                                <span style="font-weight: bold;">{{config['URI_BASE']}}</span>
+                                                            </a>
+                                                                                    {% endif %}
+                                                                                </div>
+                                                                            </div>
+                                                                            <span style="margin-left: 0.1em; margin-right: 0.1em;">➜</span> <a href="/random" style="text-decoration: none;"><span class="navbar-item"><span>🎲️</span><span>random</span></span></a>                {{config['MENU_SEPARATOR']}} <a href="/top" class="navlink" style="text-decoration: none;"><span class="navbar-item"><span>🚀</span><span>top</span></span></a>
                 {{config['MENU_SEPARATOR']}} <a href="/starred" style="text-decoration: none;"><span class="navbar-item"><span>✨</span><span>starred</span></span></a>
                 {{config['MENU_SEPARATOR']}} <a href="/latest" style="text-decoration: none;"><span class="navbar-item"><span>🌱</span><span>latest</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a title="Users" href="/users" style="text-decoration: none;"><span class="navbar-item"><span>👩‍🌾</span><span>users</span></span></a>
                 {{config['MENU_SEPARATOR']}} <a href="/journals/365" style="text-decoration: none;"><span class="navbar-item"><span>📜</span><span>journals</span></span></a>
                 {{config['MENU_SEPARATOR']}} <a href="/today" style="text-decoration: none;"><span class="navbar-item"><span>📆</span><span>today</span></a>
-                {{config['MENU_SEPARATOR']}} <a href="/annotations" style="text-decoration: none;"><span class="navbar-item"><span>🖋️</span><span>annotations</span></span></a>
-                {{config['MENU_SEPARATOR']}} <a title="Commoners" href="/users" style="text-decoration: none;"><span class="navbar-item"><span>🫂</span><span>users</span></span></a>
-                {{config['MENU_SEPARATOR']}} <a href="#" style="text-decoration: none;" id="join"><span class="navbar-item"><span>💪</span><span>join</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/federation" style="text-decoration: none;"><span class="navbar-item"><span>⚡</span><span>federation</span></span></a>
+                                {{config['MENU_SEPARATOR']}} <a href="#" style="text-decoration: none;" id="join"><span class="navbar-item"><span>💪</span><span>join</span></span></a>
+                	        </div>
+                        </div>
+                        {% endif %}
+        <div class="topline-node">
+            <div class="topline-node-wrapper">
+                <div class="search-container">
+                    <div class="topline-cli">
+                        <form action="/" method="get">
+                            <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
+                        </form>
+                    </div>
+                </div>
                 <div class="toggle-container">
                     <label class="theme-switch" for="theme-checkbox" title="Toggle light/dark theme">
                         <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
@@ -138,29 +158,20 @@
                     </label>
                     <button id="scroll-toggle" title="Scroll to bottom / top">▼</button>
                 </div>
-	        </div>
-        </div>
-        {% endif %}
-
-        <div class="topline-node">
+            </div>
             <div class="topline-node-wrapper">
-                <div class="search-container">
-                    <button id="mini-cli-exec" value="exec" title="Search the Agora and the web for the text in the input box.">
-                        ➡️ Go
-                    </button>
-                    <div class="topline-cli">
-                        <form action="/" method="get">
-                            <input id="mini-cli" type="text" value="{{node.qstr}}" name="q">
-                        </form>
-                    </div>
-                    <!-- Toggles will be moved here by JS on mobile -->
-                </div>
                 <div class="action-bar">
+                    <button id="mini-cli-exec" value="exec" title="Search the Agora and the web for the text in the input box.">
+                        🔍 Search
+                    </button>
                     <button id="mini-cli-go" value="go" title="Follow a [[go]] link in the Agora, or try an 'I'm Feeling Lucky' search.">
-                        ➳ Go beyond
+                        ➳ Go
                     </button>
                     <button id="expand-all" value="expand" title="Expand all sections.">
     					⊞ expand
+                    </button>
+                    <button id="collapse-all" value="collapse" title="Collapse all sections.">
+    					⊟ collapse
                     </button>
                     <button id="annotate-button" title="Toggle annotations">🖋️ Annotate</button>
                     <button id="show-meditation-popup" title="Agora Meditation: a moment of calm.">🙏 Meditate</button>
@@ -199,19 +210,33 @@
 
 <div id="music-player-container">
     <div id="music-player-header">
-      <span id="music-player-title">♫ Ambient Music</span>
+      <span id="music-player-title">♫ Agora Music</span>
       <button id="music-player-close-btn" class="header-btn">×</button>
     </div>
     <div class="music-player-body">
         <div id="track-info">
-            <span id="music-player-track-name"></span> <span id="music-player-artist-name"></span>
+            <div id="track-info-content" style="display: inline-block;">
+                <span id="music-player-track-name"></span> <span id="music-player-artist-name"></span>
+            </div>
+        </div>
+        <div id="music-player-time" style="font-size: 0.8em; text-align: center; margin-bottom: 5px; opacity: 0.8;">--:--</div>
+        <div class="visualizer-wrapper" style="position: relative;">
+            <canvas id="music-visualizer" width="300" height="60" style="width: 100%; height: 60px; margin: 5px 0; border-radius: 4px;"></canvas>
+            <div id="music-player-notes-overlay" style="position: absolute; top: 10px; left: 5px; right: 5px; text-align: center; color: var(--music-overlay-color); font-size: 1.35em; font-family: monospace; font-weight: bold; pointer-events: none; text-shadow: 0px 0px 6px black, 0px 0px 3px black;"></div>
         </div>
         <div id="music-player-autoplay-message" style="display: none; cursor: pointer;"></div>
         <div id="music-player-controls">
             <button id="music-player-prev" class="control-btn">⏮</button>
             <button id="music-player-pause" class="control-btn">⏸</button>
             <button id="music-player-next" class="control-btn">⏭</button>
+            <button id="music-player-star-btn" class="control-btn" title="Star this track">☆</button>
+            <button id="music-player-list-toggle" class="control-btn" title="Playlist">☷</button>
         </div>
+        <div id="music-player-type-toggles" style="text-align: center; margin-top: 5px; font-size: 0.8em;">
+            <label><input type="checkbox" id="music-toggle-opus" checked> Audio</label>
+            <label style="margin-left: 10px;"><input type="checkbox" id="music-toggle-midi" checked> MIDI</label>
+        </div>
+        <div id="music-player-playlist" style="display: none; max-height: 200px; overflow-y: auto; margin-top: 10px; font-size: 0.8em; border-top: 1px solid var(--border-color); padding-top: 5px;"></div>
     </div>
     </div>
 

@@ -22,8 +22,7 @@ import re
 import shutil
 import smartypants
 import subprocess
-from . import config, regexes, util
-from flask import current_app
+from . import regexes, util
 from marko import Markdown, inline
 from marko.helpers import MarkoExtension
 
@@ -101,12 +100,18 @@ class HashtagRendererMixin(object):
         )
 
 
+class AgorahrRendererMixin(object):
+    def render_thematic_break(self, element):
+        return '<hr class="agora-hr" />'
+
+
 Wikilinks = MarkoExtension(
     elements=[WikilinkElement, TiddlylinkElement, HashtagElement],
     renderer_mixins=[
         WikilinkRendererMixin,
         TiddlylinkRendererMixin,
         HashtagRendererMixin,
+        AgorahrRendererMixin,
     ],
 )
 
@@ -142,7 +147,7 @@ def mycomarkup(src):
 # Twitter embeds.
 # Now disabled, we prefer to embed client side.
 def add_twitter_embeds(content, subnode):
-    TWITTER_REGEX = "(https://twitter.com/\w+/status/[0-9]+)"
+    TWITTER_REGEX = r"(https://twitter.com/\w+/status/[0-9]+)"
     TWITTER_EMBED = '<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark"><a href="\\1"></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
 
@@ -159,6 +164,18 @@ def add_twitter_pull(content, subnode):
     TWITTER_REGEX = r'(?<!")(https://twitter.com/\w+/status/[0-9]+)'
     TWITTER_EMBED = r'\1 <button class="pull-tweet" value=\1>pull</button>'
     return re.sub(TWITTER_REGEX, TWITTER_EMBED, content)
+
+
+def add_bluesky_pull(content, subnode):
+    if subnode and "subnode/virtual" in subnode.url:
+        return content
+
+    # BLUESKY_REGEX matches bsky.app/profile/{user}/post/{id}
+    # We use negative lookbehind to avoid matching links inside other tags
+    BLUESKY_REGEX = r'(?<!["[])(https://bsky\.app/profile/[^/]+/post/[^/\s]+)'
+    BLUESKY_EMBED = r'\1 <button class="pull-bluesky-status" value="\1">pull</button>'
+    ret = re.sub(BLUESKY_REGEX, BLUESKY_EMBED, content)
+    return ret
 
 
 def add_mastodon_pull(content, subnode):
@@ -193,10 +210,10 @@ def add_pleroma_pull(content, subnode):
     # hack: negative lookbehind tries to only match for anchors not preceded by a span... just because in the agora we have
     # spans just preceding every anchor that is a wikilink.
     if re.search(r"(?<!</span>)<a href", content):
-        # don't apply filters when content has html links that are not result of a wikilink.
-        # this works around a bug in some org mode translated files we have.
+        # don't apply filters when content has html links or rocket links to URLs, as we risk adding a button inside an anchor
+        # and breaking the Agora in interesting ways, see https://anagora.org/2023-05-27 :)
         return content
-    PLEROMA_REGEX = "(https://[a-zA-Z-.]+/notice/\w+)"
+    PLEROMA_REGEX = r"(https://[a-zA-Z-.]+/notice/\w+)"
     PLEROMA_EMBED = '\\1 <button class="pull-pleroma-status" value="\\1">pull</button>'
     ret = re.sub(PLEROMA_REGEX, PLEROMA_EMBED, content)
     return ret
@@ -205,7 +222,7 @@ def add_pleroma_pull(content, subnode):
 def old_add_url_pull(content, subnode):
     # deprecated in favour of arbitrary url pulling.
     # writer side signals like [[pull]] in subnodes should be interpreted as a petition to [[auto pull]].
-    URL_REGEX = "(\[\[pull\]\]) (.+:\/\/.+)"
+    URL_REGEX = r"(\[\[pull\]\]) (.+:\/\/.+)"
     URL_EMBED = '<button class="pull-url" value="\\2">pull</button> \\2'
     ret = re.sub(URL_REGEX, URL_EMBED, content)
     return ret
@@ -233,7 +250,7 @@ def add_url_pull(content, subnode):
     # if you don't understand this *or* think you could do it better at no great cost please reach out to [[flancian]] :)
     # URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|anagora|doc|pad|flancia)\S+[^\s.,:;])'
     URL_REGEX = (
-        "((?<!\()https?:\/\/[^\s/]*(wiki|agora|stoa|flancia)\S+[^\s.,:;])"
+        r"((?<!\()https?:\/\/[^\s/]*(wiki|agora|stoa|flancia|doc|drive|sheet|slide|pad)\S+[^\s.,:;])"
     )
     # URL_REGEX = '((?<!\()https?:\/\/[^\s/]*(wiki|anagora|doc|pad|flancia)\S+[^\s.,:;])'
 
@@ -256,7 +273,7 @@ def add_url_pull(content, subnode):
 
 
 def add_go_button(content, subnode):
-    URL_REGEX = "(\[\[go\]\]) (.+:\/\/.+)"
+    URL_REGEX = r"(\[\[go\]\]) (.+:\/\/.+)"
     URL_EMBED = '<button class="go-url" value="\\2">go</button> \\2'
     ret = re.sub(URL_REGEX, URL_EMBED, content)
     return ret
@@ -264,8 +281,8 @@ def add_go_button(content, subnode):
 
 # Trim front matter until we do something useful with it.
 def trim_front_matter(content, subnode):
-    FRONT_MATTER_REGEX = "---(\n.*)*---"
-    return re.sub(FRONT_MATTER_REGEX, "", content, flags=re.MULTILINE)
+    FRONT_MATTER_REGEX = r"\A---(\n.*?)*?---"
+    return re.sub(FRONT_MATTER_REGEX, "", content, flags=re.MULTILINE | re.DOTALL)
 
 
 # Hack: trim <p> and </p> to try to work around fix mastodon wikilinks.
@@ -275,8 +292,8 @@ def trim_p(content, subnode):
     return re.sub(P_REGEX, '', content, flags=re.MULTILINE)
 
 def add_hr(content, subnode):
-    HR_REGEX = r'^--+'
-    return re.sub(HR_REGEX, '<p><hr /></p>', content, flags=re.MULTILINE)
+    HR_REGEX = r'^\s*--+\s*$'
+    return re.sub(HR_REGEX, '\n---\n', content, flags=re.MULTILINE)
 
 # Trim obsidian block anchors until we do something useful with them.
 def trim_block_anchors(content, subnode):
@@ -361,7 +378,7 @@ def preprocess(content, subnode=""):
     # add_logseq_embeds breaks links everywhere, there's an issue with the regex :)
     # filters = [trim_front_matter, trim_block_anchors, trim_logbook, force_tiddlylink_parsing, trim_liquid, trim_margin_notes, add_logseq_embeds, add_obsidian_embeds, add_url_pull, add_twitter_pull]
     filters = [
-        trim_p,
+        # trim_p,
         trim_front_matter,
         trim_block_anchors,
         trim_logbook,
@@ -374,6 +391,7 @@ def preprocess(content, subnode=""):
         add_url_pull,
         add_twitter_pull,
         add_mastodon_pull,
+        add_bluesky_pull,
         add_pleroma_pull,
         add_hr,
     ]

@@ -74,6 +74,7 @@ dependencies = [
     "uwsgi>=2.0.29",
     "google-generativeai>=0.7.2",
     "pygit2",
+    "objgraph>=3.6.2",
 ]
 
 [project.optional-dependencies]

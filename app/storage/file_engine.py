@@ -14,35 +14,21 @@
 
 # this breaks pull buttons.
 # import bleach
-import cachetools.func
 
 import datetime
-import glob
-import itertools
 import random
 import re
 
 # For executable nodes. Fun -- but caveat emptor, this gives control of the Agora to its gardeners :)
-import subprocess
 
-import time
 import os
 
-from flask import current_app, request
-from . import feed
-from .. import config, regexes, render, util
-from collections import defaultdict
-from thefuzz import fuzz
+from flask import current_app
+from .. import util
 from operator import attrgetter
-from typing import Union
-from pathlib import Path
 
 # For [[push]] parsing, perhaps move elsewhere?
-import lxml.html
-import lxml.etree
 
-import urllib
-from copy import copy
 
 # Import the Graph classes and global instance
 from ..graph import Graph, Node, Subnode, User, VirtualSubnode, ExecutableSubnode, G
@@ -51,6 +37,19 @@ from ..graph import path_to_uri, path_to_garden_relative, path_to_user, path_to_
 from ..graph import subnodes_by_wikilink, subnodes_by_user, subnodes_by_outlink
 from ..graph import build_node, build_multinode, content_to_forward_links, content_to_obsidian_embeds
 from ..graph import subnode_to_actions, subnode_to_taglink, subnode_to_pushes
+
+__all__ = [
+    'Graph', 'Node', 'Subnode', 'User', 'VirtualSubnode', 'ExecutableSubnode', 'G',
+    'FUZZ_FACTOR_EQUIVALENT', 'FUZZ_FACTOR_RELATED', 'CACHE_TTL',
+    'path_to_uri', 'path_to_garden_relative', 'path_to_user', 'path_to_wikilink', 'path_to_basename',
+    'subnodes_by_wikilink', 'subnodes_by_user', 'subnodes_by_outlink',
+    'build_node', 'build_multinode', 'content_to_forward_links', 'content_to_obsidian_embeds',
+    'subnode_to_actions', 'subnode_to_taglink', 'subnode_to_pushes',
+    'latest', 'top', 'stats', 'all_users', 'user_journals', 'all_journals',
+    'consolidate_nodes', 'random_node', 'nodes_by_wikilink', 'wikilink_to_node',
+    'search_subnodes', 'search_subnodes_by_user', 'user_readmes', 'subnode_by_uri',
+    'nodes_by_outlink'
+]
 
 # URIs are ids.
 # - In the case of nodes, their [[wikilink]].
@@ -91,8 +90,8 @@ def all_users():
         # ...maybe yes.
         users += os.listdir(os.path.join(current_app.config["AGORA_PATH"], "stream"))
         users += os.listdir(os.path.join(current_app.config["AGORA_PATH"], "stoa"))
-    except:
-        current_app.logger.info(f"Some of: streams, stoas not found.")
+    except Exception:
+        current_app.logger.info("Some of: streams, stoas not found.")
     return sorted([User(u) for u in users if u not in denylist], key=lambda x: x.uri.lower())
 
 
@@ -175,13 +174,15 @@ def wikilink_to_node(node):
 
 def search_subnodes(query):
     current_app.logger.debug(f"query: {query}, searching subnodes.")
+    all_subs = G.subnodes()
+    current_app.logger.debug(f"DEBUG: Checking {len(all_subs)} subnodes.")
     subnodes = [
         subnode
-        for subnode in G.subnodes()
+        for subnode in all_subs
         if subnode.mediatype == "text/plain"
         and re.search(re.escape(query), subnode.content, re.IGNORECASE)
     ]
-    current_app.logger.debug(f"query: {query}, searched subnodes.")
+    current_app.logger.debug(f"query: {query}, searched subnodes. Found {len(subnodes)}.")
     return subnodes
 
 

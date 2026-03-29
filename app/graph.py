@@ -22,14 +22,12 @@ import re
 import subprocess
 import time
 import urllib
-import json
 import orjson
 from collections import defaultdict
 from copy import copy
 from operator import attrgetter
 from pathlib import Path
-from typing import Union, List, Dict, Optional, Any
-import sys
+from typing import Union, List, Dict, Optional
 
 import lxml.etree
 import lxml.html
@@ -37,8 +35,8 @@ from flask import current_app, request, g
 from thefuzz import fuzz
 from functools import wraps
 
-from . import config, regexes, render, util, git_utils
-from .storage import feed, sqlite_engine
+from . import regexes, render, util, git_utils
+from .storage import sqlite_engine
 from .util import (
     path_to_uri, path_to_garden_relative, path_to_user, 
     path_to_wikilink, path_to_basename
@@ -94,14 +92,14 @@ def log_cache_hits(func):
 
                 if func.__name__ not in g.logged_cache_hits:
                     path = request.path
-                    current_app.logger.info(f"CACHE HIT (in-memory) for request '{path}': Using cached data for {func.__name__}.")
+                    current_app.logger.debug(f"CACHE HIT (in-memory) for request '{path}': Using cached data for {func.__name__}.")
                     # Add the function name to the set to suppress future logs in this request.
                     g.logged_cache_hits.add(func.__name__)
 
             except RuntimeError:
                 # This will happen if we're not in a request context (e.g. startup).
                 # In this case, we log without deduplication.
-                current_app.logger.info(f"CACHE HIT (in-memory): Using cached data for {func.__name__}.")
+                current_app.logger.debug(f"CACHE HIT (in-memory): Using cached data for {func.__name__}.")
         
         return func(*args, **kwargs)
     return wrapper
@@ -117,7 +115,7 @@ def get_cache_ttl(content_type: str = "default") -> int:
     ttls = {
         "graph_json": 7200,      # 2 hours - very expensive graph visualization data
         "graph_rdf": 7200,       # 2 hours - expensive RDF turtle data
-        "node_data": 1800,       # 30 min - moderately expensive node data
+        "node_data": 900,        # 15 min - match subnodes to prevent object duplication drift
         "search": 300,           # 5 min - changes frequently
         "subnodes": 900,         # 15 min - file content changes occasionally
         "default": random.randint(120, 240)  # Keep existing for compatibility
@@ -201,14 +199,20 @@ class Graph:
                 subnodes.append(s)
 
                 if absolute_path.endswith(".py"):
-                    n.executable_subnodes.append(ExecutableSubnode(absolute_path))
+                    # Only treat .py files as executables if they are explicitly in an 'exec' or 'bin' folder
+                    path_parts = absolute_path.split(os.sep)
+                    if 'exec' in path_parts or 'bin' in path_parts:
+                        n.executable_subnodes.append(ExecutableSubnode(absolute_path))
             
             n.subnodes = subnodes
             return n
 
         # Fallback: Load the full graph (slow)
-        current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Fetching node [[{uri}]] from full graph.")
+        # current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Fetching node [[{uri}]] from full graph.")
         try:
+            if 'node_fetch_count' not in g:
+                g.node_fetch_count = 0
+            g.node_fetch_count += 1
             node = self.nodes()[uri.lower()]
             return node
         except (KeyError, IndexError):
@@ -259,7 +263,7 @@ class Graph:
 
     def search(self, regex):
         # returns a list of nodes reasonably freely matching a regex.
-        current_app.logger.debug(f"*** Looking for nodes matching {regex} freely.")
+        # current_app.logger.debug(f"*** Looking for nodes matching {regex} freely.")
         
         if _is_sqlite_enabled() and current_app.config.get('ENABLE_LAZY_LOAD', False):
             # Fast path: use SQLite REGEXP operator
@@ -269,16 +273,18 @@ class Graph:
             return [n for n in nodes if n.subnodes]
 
         # Fallback to full graph load if lazy loading is not enabled or SQLite is not.
+        all_nodes = self.nodes(only_canonical=True)
+        # current_app.logger.debug(f"DEBUG: Searching {len(all_nodes)} nodes for {regex}")
         nodes = [
             node
-            for node in G.nodes(only_canonical=True).values()
+            for node in all_nodes.values()
             if
             # has some content
             node.subnodes and
             # its wikilink matches the regex
             re.search(regex, node.wikilink)
         ]
-        # current_app.logger.debug(f"*** Found related nodes: {nodes}.")
+        # current_app.logger.debug(f"*** Found related nodes: {len(nodes)}.")
         return nodes
 
     # @cache.memoize(timeout=30)
@@ -292,86 +298,42 @@ class Graph:
     @log_cache_hits
     @cachetools.func.ttl_cache(maxsize=1, ttl=get_cache_ttl("node_data"))
     def _get_all_nodes_cached(self):
-        if _is_sqlite_enabled():
-            cache_key = 'all_nodes_v2'
-            ttl = get_cache_ttl('node_data')
-            cached_value, timestamp = sqlite_engine.get_cached_graph(cache_key)
-
-            if cached_value and (time.time() - timestamp < ttl):
-                try:
-                    g.cold_start = True
-                except RuntimeError:
-                    pass
-                current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for nodes.")
-                current_app.logger.info("CACHE WARMING (in-memory): Starting deserialization of nodes from SQLite.")
-                start_time = time.time()
-
-                cached_data = orjson.loads(cached_value)
-                
-                # This is the full map, equivalent to only_canonical=False
-                full_nodes = {}
-                node_to_subnodes = cached_data['node_to_subnodes']
-                node_to_executable_subnodes = cached_data['node_to_executable_subnodes']
-
-                for node_wikilink in node_to_subnodes:
-                    n = Node(node_wikilink)
-                    n.subnodes = [Subnode(s['path'], s['mediatype']) for s in node_to_subnodes[node_wikilink]]
-                    n.executable_subnodes = [ExecutableSubnode(s['path']) for s in node_to_executable_subnodes.get(node_wikilink, [])]
-                    full_nodes[node_wikilink] = n
-                
-                # Create the filtered, canonical-only version
-                canonical_nodes = {
-                    k: v for k, v in full_nodes.items()
-                    if k == util.canonical_wikilink(k)
-                }
-
-                duration = time.time() - start_time
-                current_app.logger.info(f"CACHE WARMING (in-memory): Finished deserialization of {len(full_nodes)} nodes in {duration:.2f}s.")
-                
-                return full_nodes, canonical_nodes
+        # We always start by getting the authoritative list of subnode objects.
+        # This is cached by self.subnodes(), so it is fast (and reuses objects).
+        all_subnodes = self.subnodes()
+        all_executable_subnodes = self.executable_subnodes()
 
         try:
             g.cold_start = True
         except RuntimeError:
             pass
-        current_app.logger.info("CACHE MISS (sqlite): Recomputing all nodes.")
-        current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Building full graph from filesystem.")
-        begin = datetime.datetime.now()
-        current_app.logger.debug("*** Loading nodes at {begin}.")
+
+        # If we have a cache for node METADATA (e.g. descriptions, slugs that are expensive to compute),
+        # we could load it here. But currently Node() __init__ is fast and mostly deterministic from the wikilink.
+        # So we can simply rebuild the Node objects by grouping the subnodes.
+        # This ensures we use the EXACT SAME Subnode objects as G.subnodes(), saving ~50% RAM.
+        
+        current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Grouping {len(all_subnodes)} subnodes to build graph.")
+        start_time = time.time()
 
         node_to_subnodes = defaultdict(list)
         node_to_executable_subnodes = defaultdict(list)
 
-        # Note: the 'not only_canonical' logic is tricky here.
-        # We build the *full* map first, then filter.
-        for subnode in self.subnodes():
+        for subnode in all_subnodes:
             node_to_subnodes[subnode.node].append(subnode)
+            # Handle non-canonical links if needed (though Subnode.node is usually canonical)
             if subnode.canonical_wikilink != subnode.wikilink:
                 node_to_subnodes[subnode.wikilink].append(subnode)
 
-        for executable_subnode in self.executable_subnodes():
+        for executable_subnode in all_executable_subnodes:
             node_to_executable_subnodes[executable_subnode.node].append(executable_subnode)
             if executable_subnode.canonical_wikilink != executable_subnode.wikilink:
                 node_to_executable_subnodes[executable_subnode.wikilink].append(executable_subnode)
 
-        if _is_sqlite_enabled():
-            serializable_node_map = {
-                key: [{'path': s.path, 'mediatype': s.mediatype} for s in value]
-                for key, value in node_to_subnodes.items()
-            }
-            serializable_exec_map = {
-                key: [{'path': s.path, 'mediatype': s.mediatype} for s in value]
-                for key, value in node_to_executable_subnodes.items()
-            }
-            data_to_cache = {
-                'node_to_subnodes': serializable_node_map,
-                'node_to_executable_subnodes': serializable_exec_map
-            }
-            sqlite_engine.save_cached_graph(cache_key, orjson.dumps(data_to_cache), time.time())
-            current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_nodes to persistent cache.")
-
+        # Build the Node map
         full_nodes = {}
         all_node_wikilinks = set(node_to_subnodes.keys()) | set(node_to_executable_subnodes.keys())
+        
         for node_wikilink in all_node_wikilinks:
             n = Node(node_wikilink)
             n.subnodes = node_to_subnodes.get(node_wikilink, [])
@@ -383,8 +345,9 @@ class Graph:
             if k == util.canonical_wikilink(k)
         }
 
-        end = datetime.datetime.now()
-        current_app.logger.debug(f"*** Nodes loaded from {begin} to {end}.")
+        duration = time.time() - start_time
+        current_app.logger.info(f"GRAPH BUILD (in-memory): Linked {len(full_nodes)} nodes from subnodes in {duration:.2f}s.")
+        
         return full_nodes, canonical_nodes
 
     # The following method is unused; it is far too slow given the current control flow.
@@ -404,12 +367,12 @@ class Graph:
     @cachetools.func.ttl_cache(ttl=get_cache_ttl("subnodes"))
     def subnodes(self, sort=_default_subnode_sort) -> List['Subnode']:
         if _is_sqlite_enabled():
-            cache_key = 'all_subnodes_v2_git_mtime' if current_app.config.get('USE_GIT_MTIME') else 'all_subnodes_v2'
+            cache_key = 'all_subnodes_git_mtime' if current_app.config.get('USE_GIT_MTIME') else 'all_subnodes'
             ttl = get_cache_ttl('subnodes')
             cached_value, timestamp = sqlite_engine.get_cached_graph(cache_key)
 
             if cached_value and (time.time() - timestamp < ttl):
-                current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for subnodes.")
+                current_app.logger.info("CACHE HIT (sqlite): Using cached data for subnodes.")
                 start_time = time.time()
 
                 subnode_data = orjson.loads(cached_value)
@@ -450,15 +413,16 @@ class Graph:
 
         for f in all_files:
             mediatype = "text/plain"
-            if f.endswith((".jpg", ".jpeg")):
+            f_lower = f.lower()
+            if f_lower.endswith((".jpg", ".jpeg")):
                 mediatype = "image/jpg"
-            elif f.endswith(".png"):
+            elif f_lower.endswith(".png"):
                 mediatype = "image/png"
-            elif f.endswith(".gif"):
+            elif f_lower.endswith(".gif"):
                 mediatype = "image/gif"
-            elif f.endswith(".webp"):
+            elif f_lower.endswith(".webp"):
                 mediatype = "image/webp"
-            elif f.endswith(".py"):
+            elif f_lower.endswith(".py"):
                 mediatype = "text/x-python"
 
             uri = path_to_uri(f, base)
@@ -469,8 +433,11 @@ class Graph:
             subnode_data_for_cache.append({'path': f, 'mediatype': mediatype, 'mtime': s.mtime})
 
         if _is_sqlite_enabled():
-            sqlite_engine.save_cached_graph(cache_key, orjson.dumps(subnode_data_for_cache), time.time())
-            current_app.logger.info(f"CACHE WRITE (sqlite): Saved all_subnodes to persistent cache.")
+            try:
+                sqlite_engine.save_cached_graph(cache_key, orjson.dumps(subnode_data_for_cache), time.time())
+                current_app.logger.info("CACHE WRITE (sqlite): Saved all_subnodes to persistent cache.")
+            except Exception as e:
+                current_app.logger.warning(f"CACHE WRITE FAILED (sqlite): {e}. Continuing with in-memory graph.")
 
         duration = time.time() - start_time
         current_app.logger.info(f"CACHE MISS (filesystem): Scanned and loaded {len(subnodes)} subnodes in {duration:.2f}s.")
@@ -495,9 +462,12 @@ class Graph:
         begin = datetime.datetime.now()
         current_app.logger.debug(f'*** Looking for executable subnodes at {begin}.')
         base = current_app.config['AGORA_PATH']
-        current_app.logger.debug(f'*** Looking for executable subnodes: Python.')
-        # Scan user gardens
-        subnodes = [ExecutableSubnode(f) for f in glob.glob(os.path.join(base, '**/*.py'), recursive=True)]
+        current_app.logger.debug('*** Looking for executable subnodes: Python in exec/ or bin/ directories.')
+        # Scan user gardens, but ONLY in directories named 'exec' or 'bin'
+        user_exec_scripts = glob.glob(os.path.join(base, '**/exec/*.py'), recursive=True)
+        user_bin_scripts = glob.glob(os.path.join(base, '**/bin/*.py'), recursive=True)
+        subnodes = [ExecutableSubnode(f) for f in user_exec_scripts + user_bin_scripts]
+        
         # Scan built-in executables
         builtin_path = os.path.join(current_app.root_path, 'exec')
         subnodes.extend([ExecutableSubnode(f) for f in glob.glob(os.path.join(builtin_path, '*.py'))])
@@ -795,8 +765,10 @@ class Node:
                                 argument,
                                 re.IGNORECASE,
                             ):
-                                # go one level up to find the <li>
+                                # go one level up to find the <li> (or <p> if loose list)
                                 parent = link[0].getparent()
+                                if parent.tag == 'p' and parent.getparent() is not None and parent.getparent().tag == 'li':
+                                    parent = parent.getparent()
                                 # the block to be pushed is this level and its children.
                                 # TODO: replace [[push]] [[other]] with something like [[pushed from]] [[node]], which makes more sense in the target.
                                 block = lxml.etree.tostring(parent)
@@ -810,7 +782,10 @@ class Node:
                     # New as of 2023-12-04. Try to support [[foo]]! and [[foo]]: syntax for pushes.
                     if other.wikilink in link[2] or other.wikilink.replace('-', ' ') in link[2]:
                         parent = link[0].getparent()
+                        if parent.tag == 'p' and parent.getparent() is not None and parent.getparent().tag == 'li':
+                            parent = parent.getparent()
                         block = lxml.etree.tostring(parent)
+
                         if block not in pushed_blocks:
                             pushed_blocks.add(block)
                             subnodes.append(VirtualSubnode(subnode, other, block))
@@ -828,7 +803,7 @@ class Node:
                 VirtualSubnode(
                     subnode,
                     other,
-                    f"<em>Couldn't parse #push. See source for content</em>.",
+                    "<em>Couldn't parse #push. See source for content</em>.",
                 )
             )
         return subnodes
@@ -841,8 +816,9 @@ class Node:
 
         for subnode in self.executable_subnodes:
             # Note as of 2023-09 we don't support #push (or other actions?) from executable subnodes.
-            if parameters:
-                subnodes.append(VirtualSubnode(subnode, self.wikilink, subnode.exec(parameters)))
+            # if parameters:
+            #    subnodes.append(VirtualSubnode(subnode, self.wikilink, subnode.exec(parameters)))
+            pass
 
         return subnodes
 
@@ -884,9 +860,10 @@ class Node:
             current_app.logger.debug(f"In pushed_subnodes, found virtual subnode ({subnode.uri}.")
             subnodes.append(subnode)
 
-        return subnodes
+        return sorted(subnodes, key=lambda x: x.mtime, reverse=True)
 
     def annotations(self):
+        from .storage import feed
         annotations = feed.get_by_uri(self.actual_uri)
         return annotations
 
@@ -904,6 +881,8 @@ class Subnode:
         self.garden_relative: str = path_to_garden_relative(path, agora_path)
         self.url = "/subnode/" + self.uri
         self.basename: str = path_to_basename(path)
+        
+        self.git_mtime = None
 
         # Subnodes are attached to the node matching their wikilink.
         # i.e. if two users contribute subnodes titled [[foo]], they both show up when querying node [[foo]].
@@ -953,12 +932,18 @@ class Subnode:
                 if 'subnodes_to_index' not in g:
                     g.subnodes_to_index = []
                 
+                content_for_fts = None
+                if current_app.config.get('ENABLE_FTS', False):
+                    # Ensure content is string for FTS
+                    content_for_fts = self.content if isinstance(self.content, str) else ""
+
                 g.subnodes_to_index.append({
                     'path': self.uri,
                     'user': self.user,
                     'node': self.canonical_wikilink,
                     'mtime': self.mtime,
-                    'links': self.forward_links
+                    'links': self.forward_links,
+                    'content': content_for_fts
                 })
 
         self.node = self.canonical_wikilink
@@ -966,13 +951,22 @@ class Subnode:
     def get_display_mtime(self):
         """
         Returns the most accurate modification time for display.
-        If USE_GIT_MTIME is enabled, it fetches the commit time (slow).
-        Otherwise, it returns the cached filesystem mtime (fast).
+        Prioritizes cached git timestamp, then DB, then filesystem.
+        Disables synchronous git fallback to prevent uWSGI harakiris.
         """
-        if current_app.config.get('USE_GIT_MTIME', False):
-            return git_utils.get_mtime(self.path)
-        return (self.mtime, 'fs')
+        # 1. Already cached in object
+        if self.git_mtime:
+            return (self.git_mtime, 'git')
 
+        # 2. Check DB
+        if _is_sqlite_enabled():
+            db_mtime = sqlite_engine.get_git_mtime(self.uri)
+            if db_mtime:
+                self.git_mtime = db_mtime
+                return (db_mtime, 'git')
+
+        # Fallback to filesystem to prevent synchronous subprocess blocking
+        return (self.mtime, 'fs')
     def __repr__(self):
         return f"<Subnode: {self.uri} ({self.mediatype})>"
 
@@ -987,23 +981,29 @@ class Subnode:
         except IsADirectoryError:
             self.content = "(A directory).\n"
             self.forward_links = []
+        except UnicodeDecodeError:
+            self.content = "(File could not be decoded as UTF-8. It might be binary).\n"
+            self.forward_links = []
+            current_app.logger.warning(
+                f"Could not decode file {self.path} as UTF-8. Treating as non-text."
+            )
         except FileNotFoundError:
             self.content = "(File not found).\n"
             self.forward_links = []
             current_app.logger.exception(
-                f"Could not read file due to FileNotFoundError in Subnode __init__ (Heisenbug)."
+                f"Could not read file {self.path} due to FileNotFoundError in Subnode __init__ (Heisenbug)."
             )
         except OSError:
             self.content = "(File could not be read).\n"
             self.forward_links = []
             current_app.logger.exception(
-                f"Could not read file due to OSError in Subnode __init__ (Heisenbug)."
+                f"Could not read file {self.path} due to OSError in Subnode __init__ (Heisenbug)."
             )
-        except:
+        except Exception:
             self.content = "(Unhandled exception when trying to read).\n"
             self.forward_links = []
             current_app.logger.exception(
-                f"Could not read file due to unhandled exception in Subnode __init__ (Heisenbug)."
+                f"Could not read file {self.path} due to unhandled exception in Subnode __init__ (Heisenbug)."
             )
 
     def load_image_subnode(self):
@@ -1076,7 +1076,7 @@ class Subnode:
             try:
                 content = render.preprocess(self.content, subnode=self)
                 content = render.markdown(content)
-            except:
+            except Exception:
                 # which exception exactly? this should be improved.
                 # as of 2022-04-20, this seems to be AttributeError most of the time.
                 # caused by: 'BlankLine' object has no attribute 'children' in html_renderer.py:84 in marko.
@@ -1088,7 +1088,7 @@ class Subnode:
                     self.load_text_subnode()
                     content = render.preprocess(self.content, subnode=self)
                     content = render.markdown(content)
-                except:
+                except Exception:
                     content = "<strong>There was an error loading or rendering this subnode. You can try refreshing, which will retry this operation.</strong>"
                     current_app.logger.exception(
                         f"Subnode {self.uri} could not be rendered even after retrying read (Heisenbug)."
@@ -1104,7 +1104,7 @@ class Subnode:
                     import orgpython
                     content = render.preprocess(self.content, subnode=self)
                     content = orgpython.to_html(content)
-                except:
+                except Exception:
                     pass
         # note we might parse [[mycorrhiza]] as Markdown if the [[mycomarkup]] binary is not found.
         if self.uri.endswith("myco") or self.uri.endswith("MYCO"):
@@ -1289,13 +1289,23 @@ class VirtualSubnode(Subnode):
         except AttributeError:
             # sometimes just a string.
             self.content = block
-        self.forward_links = content_to_forward_links(self.content)
+            
+        if self.mediatype == "text/html":
+             self.forward_links = html_to_forward_links(self.content)
+        else:
+             self.forward_links = content_to_forward_links(self.content)
 
+        # Virtual subnodes are generated on the fly, but their semantic time is that of the source.
         self.mtime = source_subnode.mtime
-        self.datetime = datetime.datetime.fromtimestamp(self.mtime).replace(
-            microsecond=0
-        )
+        self.datetime = source_subnode.datetime
+        # Explicitly None so get_display_mtime uses the source's mtime
         self.node = self.canonical_wikilink
+
+    def get_display_mtime(self):
+        """
+        Virtual subnodes are generated on the fly, but their semantic time is that of the source.
+        """
+        return (self.mtime, 'virtual')
 
     # We special case go for Virtual Subnodes as they're 'precooked', that is, content is html.
     # We could fix the special casing / at least use media types?
@@ -1353,7 +1363,13 @@ class ExecutableSubnode(Subnode):
         # LOG(2022-06-05): As of the time of writing we treat VirtualSubnodes as prerendered.
         self.mediatype = 'text/html'
         self.content = f'This should be the output of script {self.uri}.'
-        self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
+        try:
+            self.mtime = os.path.getmtime(path)
+        except FileNotFoundError:
+            self.mtime = datetime.datetime.timestamp(datetime.datetime.now())
+        self.datetime = datetime.datetime.fromtimestamp(self.mtime).replace(
+            microsecond=0
+        )
 
     def render(self, argument=''):
         """
@@ -1418,6 +1434,60 @@ class User:
 
     def size(self) -> int:
         return len(self.subnodes())
+
+
+def html_to_forward_links(content: str) -> List[str]:
+    """
+    Extracts wikilinks from HTML content by parsing href attributes.
+    Assumes links to internal nodes are relative paths like '/node'.
+    """
+    links = []
+    try:
+        # lxml needs a root element, wrap content in div if fragment
+        if not content.strip().startswith("<html"):
+             content = f"<div>{content}</div>"
+        
+        tree = lxml.html.fromstring(content)
+        for element, attribute, link, pos in tree.iterlinks():
+            if attribute == "href":
+                # Decode URL encoded links
+                link = urllib.parse.unquote(link)
+                # Check for internal node links
+                # format: /<node> or /node/<node> or /@user/<node>
+                # We want to extract <node>.
+                
+                # Strip leading slash
+                if link.startswith("/"):
+                    clean_link = link[1:]
+                    
+                    # Ignore special paths
+                    if clean_link.startswith(("static/", "raw/", "exec/", "api/")):
+                        continue
+                    
+                    # Handle /node/ prefix
+                    if clean_link.startswith("node/"):
+                        clean_link = clean_link[5:]
+                    
+                    # Handle /@user/ prefix?
+                    # If /@user/node, we extract node? Or ignore?
+                    # Let's assume we want the node being linked to.
+                    if clean_link.startswith("@"):
+                         # @user/node -> split
+                         parts = clean_link.split("/", 1)
+                         if len(parts) == 2:
+                             clean_link = parts[1]
+                         else:
+                             # User profile link, ignore?
+                             continue
+                             
+                    if clean_link:
+                        links.append(util.canonical_wikilink(clean_link))
+
+    except Exception:
+        # current_app.logger.warning(f"Error parsing HTML links: {e}")
+        pass
+        
+    return links
 
 
 def content_to_forward_links(content: str) -> List[str]:
@@ -1625,7 +1695,8 @@ def build_node(node: str, extension: str = "", user_list: str = "", qstr: str = 
     n.q = n.qstr
 
     duration = time.time() - start_time
-    current_app.logger.info(f"[[{node}]]: Assembled in {duration:.2f}s ({', '.join(timings)}).")
+    fetch_count = getattr(g, 'node_fetch_count', 0)
+    current_app.logger.info(f"[[{node}]]: Assembled FULL node in {duration:.2f}s ({', '.join(timings)}). Fetched {fetch_count} nodes from graph.")
     return n
 
 

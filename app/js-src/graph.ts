@@ -5,7 +5,7 @@ import { safeJsonParse, darkenColor } from './util';
 
 declare const NODENAME: string;
 
-export async function renderGraph(containerId: string, dataUrl: string) {
+export async function renderGraph(containerId: string, dataUrl: string, forceNoLabels: boolean = false) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -36,10 +36,14 @@ export async function renderGraph(containerId: string, dataUrl: string) {
     // Default to labels for per-node graph, no labels for full graph.
     const defaultShowLabels = containerId === 'graph';
     const storageKey = containerId === 'full-graph' ? 'graph-show-labels-full' : 'graph-show-labels';
-    const showLabels = safeJsonParse(localStorage.getItem(storageKey), defaultShowLabels);
+    let showLabels = safeJsonParse(localStorage.getItem(storageKey), defaultShowLabels);
+    
+    if (forceNoLabels) {
+        showLabels = false;
+    }
 
     console.log("loading graph...")
-    fetch(dataUrl)
+    return fetch(dataUrl)
     .then(res => res.json())
     .then(data => {
         setTimeout(() => {
@@ -54,7 +58,11 @@ export async function renderGraph(containerId: string, dataUrl: string) {
                 .backgroundColor(palette.bg)
                 .onNodeClick((node: any) => {
                     let url = node.id;
-                    location.assign(url)
+                    if (url) {
+                        location.assign(url)
+                    } else {
+                        console.warn("Graph node clicked, but it has no ID/URL:", node);
+                    }
                 })
                 .graphData(data)
                 .nodeId('id')
@@ -102,7 +110,20 @@ export async function renderGraph(containerId: string, dataUrl: string) {
                 .linkDirectionalParticleColor(() => palette.particle)
                 .linkColor(() => palette.edge);
 
-            Graph.zoom(3);
+            // Dynamic zoom based on graph density
+            const nodeCount = data.nodes.length;
+            let zoomLevel = 3;
+            
+            if (nodeCount > 1500) {
+                zoomLevel = 0.2; // Galaxy scale (All)
+            } else if (nodeCount > 800) {
+                zoomLevel = 0.8; // Birds-eye (Top 1000)
+            } else if (nodeCount > 400) {
+                zoomLevel = 1.5; // Mid-range (Top 500)
+            }
+            
+            Graph.zoom(zoomLevel);
+
             Graph.cooldownTime(cooldownTime);
             Graph.onEngineStop(() => Graph.zoomToFit(100));
         }, 0);

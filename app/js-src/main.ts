@@ -26,16 +26,20 @@ const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
 import { initializeStars, initializeNodeStars, initializeExternalStars } from './starring';
 import { initSettings } from './settings';
-import { safeJsonParse, darkenColor } from './util';
+import { safeJsonParse, darkenColor, CLIENT_DEFAULTS } from './util';
 import { makeDraggable } from './draggable';
 import { initDemoMode } from './demo';
 import { initMusicPlayer } from './music';
 import { renderGraph } from './graph';
 import { initPullButtons } from './pull';
 
+declare const NODENAME: string | undefined;
+declare const NODEQ: string | undefined;
+
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
   initSettings();
+  initMusicPlayer();
 
   // This function reads localStorage and hides any info-boxes that have been previously dismissed.
   // It's safe to call multiple times.
@@ -45,7 +49,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (key && key.startsWith('dismissed-')) {
             if (localStorage.getItem(key) === 'true') {
                 const infoBoxId = key.substring('dismissed-'.length);
-                const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
+                // Look for any div with this ID, not just .info-box
+                const infoBox = document.querySelector(`div[info-box-id="${infoBoxId}"]`);
                 if (infoBox) {
                     infoBox.classList.add("hidden");
                     infoBox.style.display = "none";
@@ -63,16 +68,101 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.body.addEventListener('click', function(event) {
     const target = event.target as HTMLElement;
     if (target.classList.contains('dismiss-button')) {
+      // Prevent default action (important if inside <summary>)
+      event.preventDefault();
+      event.stopPropagation();
+
       const infoBoxId = target.getAttribute("info-box-id");
-      const parentDiv = target.parentElement;
-      if (parentDiv) {
+      // Find the container. We exclude the button itself.
+      // We look for elements with the matching info-box-id that are NOT the dismiss button.
+      // Since info-box-id is used on both, we need to be specific.
+      // Usually the container is a div.
+      let container = document.querySelector(`div[info-box-id="${infoBoxId}"]`);
+      
+      // Fallback: use parentElement if no specific container found (legacy behavior)
+      if (!container) {
+          container = target.parentElement;
+      }
+
+      if (container) {
         console.log("Dismissing info box: " + infoBoxId);
-        parentDiv.classList.add("hidden");
+        container.classList.add("hidden");
         localStorage.setItem(`dismissed-${infoBoxId}`, "true");
 
-        parentDiv.addEventListener("transitionend", function () {
-          parentDiv.style.display = "none";
+        container.addEventListener("transitionend", function () {
+          container.style.display = "none";
         }, { once: true });
+        
+        // Immediate hide fallback if no transition
+        setTimeout(() => {
+            if (container.style.display !== "none") {
+                container.style.display = "none";
+            }
+        }, 300);
+      }
+    }
+  });
+
+  // Event delegation for search mode toggle (exact vs broad vs fs).
+  document.body.addEventListener('click', async function(event) {
+    const target = event.target as HTMLElement;
+    // Handle both tabs and fallback links
+    if (target.classList.contains('search-mode-tab') || target.classList.contains('search-mode-trigger')) {
+      // Don't reload if clicking active tab
+      if (target.classList.contains('active')) return;
+
+      event.preventDefault();
+      const qstr = target.getAttribute('data-qstr');
+      const mode = target.getAttribute('data-mode');
+      const container = target.closest('.search-flex');
+      
+      if (!qstr || !mode || !container) return;
+
+      console.log(`Toggling search mode for: ${qstr} (mode=${mode})`);
+      
+      // Show loading state
+      let loadingText = 'Searching...';
+      if (mode === 'exact') loadingText = 'Searching index (exact)...';
+      if (mode === 'broad') loadingText = 'Searching index (fuzzy)...';
+      if (mode === 'fs') loadingText = 'Searching filesystem (literal)...';
+
+      // We preserve the header but replace the content below it with a spinner
+      // Actually, easier to replace the whole thing and let the server re-render the tabs with the new active state
+      container.innerHTML = `
+        <div class="search-agora">
+          <div class="search-header" style="margin-bottom: 1em; margin-top: 1em;">
+                <span style="margin-right: 10px;"><strong>Search Mode:</strong></span>
+                <span class="search-mode-tab ${mode === 'exact' ? 'active' : ''}">Exact</span> • 
+                <span class="search-mode-tab ${mode === 'broad' ? 'active' : ''}">Fuzzy</span> • 
+                <span class="search-mode-tab ${mode === 'fs' ? 'active' : ''}">Literal</span>
+          </div>
+          <center>
+            <p>
+              <div class="spinner">
+                <img src="/static/img/agora.png" class="logo"></img>
+              </div>
+            </p>
+            <p><em>${loadingText}</em></p>
+          </center>
+        </div>`;
+
+      try {
+        const url = `${AGORAURL}/fullsearch/${encodeURIComponent(qstr)}?mode=${mode}`;
+        const response = await fetch(url);
+        const html = await response.text();
+        
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        const newContent = temp.querySelector('.search-flex');
+        
+        if (newContent) {
+          container.replaceWith(newContent);
+        } else {
+          container.innerHTML = html;
+        }
+      } catch (error) {
+        console.error('Error during search mode toggle:', error);
+        container.innerHTML = `<div class="info-box error"><p>Error toggling search mode: ${error}</p></div>`;
       }
     }
   });
@@ -135,9 +225,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Make the Hypothesis frame draggable
   const hypothesisFrame = document.getElementById('hypothesis-frame');
   const dragHandle = document.getElementById('hypothesis-drag-handle');
+  let hypothesisDraggable: { reposition: () => void } | null = null;
 
   if (hypothesisFrame && dragHandle) {
-    makeDraggable(hypothesisFrame, dragHandle, 'hypothesis-position');
+    hypothesisDraggable = makeDraggable(hypothesisFrame, dragHandle, 'hypothesis-position', 'bottom-right');
+    // If initialized as visible (e.g. via initSettings), position it now so it stacks correctly
+    if (hypothesisFrame.classList.contains('visible')) {
+        hypothesisDraggable.reposition();
+    }
   }
 
   // Event listener for the close button on the Hypothesis frame
@@ -155,6 +250,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const syncHypothesisState = (isVisible: boolean) => {
     if (hypothesisFrame) {
       hypothesisFrame.classList.toggle('visible', isVisible);
+      if (isVisible && hypothesisDraggable) hypothesisDraggable.reposition();
     }
     if (showHypothesisCheckbox) {
       showHypothesisCheckbox.checked = isVisible;
@@ -206,7 +302,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (showHypothesisCheckbox) {
               showHypothesisCheckbox.checked = true;
             }
-            localStorage.setItem('show-hypothesis', 'true');
+            // We do NOT save this to localStorage, as it overrides the user's preference.
+            // localStorage.setItem('show-hypothesis', 'true');
           }
           // No need to continue observing if we've found what we're looking for in this batch.
           break;
@@ -232,7 +329,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 
     // Re-render graphs if they exist.
-    if (document.getElementById('graph')) {
+    if (document.getElementById('graph') && typeof NODENAME !== 'undefined' && NODENAME) {
         renderGraph('graph', '/graph/json/' + NODENAME);
     }
     const fullGraphContainer = document.getElementById('full-graph');
@@ -399,7 +496,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Watch for new iframes being added
   const observer = new MutationObserver((mutations) => {
     mutations.forEach(mutation => {
-      console.log('Mutation detected:', mutation.type);
+      // console.log('Mutation detected:', mutation.type);
 
       mutation.addedNodes.forEach(node => {
         // console.log('Added node type: ', node.nodeName);
@@ -420,58 +517,32 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log('Observer started');
   // end code from Claude Sonnet 3.5.
 
-  // Responsive navbar rearrangement
-  const setupNavbarLayoutEngine = () => {
-    const toggleContainer = document.querySelector('.toggle-container');
-    const searchButton = document.getElementById('mini-cli-exec');
-
-    const wideToggleContainer = document.querySelector('.navigation-content');
-    const searchContainer = document.querySelector('.search-container');
-    const actionBar = document.querySelector('.action-bar');
-
-    if (!toggleContainer || !searchButton || !wideToggleContainer || !searchContainer || !actionBar) {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia('(max-width: 60em)');
-
-    const handleLayoutChange = (e: MediaQueryListEvent | MediaQueryList) => {
-        if (e.matches) {
-            // Mobile layout
-            searchContainer.appendChild(toggleContainer);
-            actionBar.insertBefore(searchButton, actionBar.firstChild);
-        } else {
-            // Desktop layout
-            wideToggleContainer.appendChild(toggleContainer);
-            searchContainer.insertBefore(searchButton, searchContainer.firstChild);
-        }
-    };
-
-    mediaQuery.addEventListener('change', handleLayoutChange);
-    handleLayoutChange(mediaQuery); // Initial check
-  };
-
-  setupNavbarLayoutEngine();
-
   // Scroll hints for horizontally scrollable elements
   const handleScrollHints = () => {
-    document.querySelectorAll('.navigation-content, .action-bar, #footer').forEach(element => {
+    // These elements have the overflow: auto
+    const elementsToCheck = document.querySelectorAll('.navigation-content, .topline-node-wrapper, #footer');
+    
+    elementsToCheck.forEach(element => {
       const el = element as HTMLElement;
-      const parent = el.parentElement;
-      if (!parent) return;
+      // Shadow target: the wrapper that has the ::after pseudo-element
+      const target = el.classList.contains('navigation-content') ? el.parentElement : el;
+      if (!target) return;
+
+      // Debug scroll values to diagnose shading issues
+      // console.log(`ScrollCheck for ${el.className || el.id}: scrollWidth=${el.scrollWidth}, clientWidth=${el.clientWidth}, diff=${el.scrollWidth - el.clientWidth}`);
 
       const isScrollable = el.scrollWidth > el.clientWidth;
       if (isScrollable) {
         const isAtEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
-        parent.classList.toggle('scrolled-to-end', isAtEnd);
+        target.classList.toggle('scrolled-to-end', isAtEnd);
       } else {
-        parent.classList.add('scrolled-to-end');
+        target.classList.add('scrolled-to-end');
       }
     });
   };
 
   // Add scroll event listeners
-  document.querySelectorAll('.navigation-content, .action-bar, #footer').forEach(element => {
+  document.querySelectorAll('.navigation-content, .topline-node-wrapper, #footer').forEach(element => {
     element.addEventListener('scroll', handleScrollHints);
   });
 
@@ -507,13 +578,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  initDemoMode();
-
   // No longer caching toastContainer at the top level to avoid initialization timing issues.
   // const toastContainer = document.getElementById('toast-container');
 
     // @ts-ignore
-	window.showToast = function(message, duration = 3000) {
+	window.showToast = function(message, duration = null) {
+            if (duration === null) {
+                const configSeconds = parseInt(localStorage.getItem("toast-duration-seconds") || CLIENT_DEFAULTS.toastDurationSeconds, 10);
+                duration = configSeconds * 1000;
+            }
             console.log("Showing toast:", message);
             let container = document.getElementById('toast-container');
             if (!container) {
@@ -562,6 +635,31 @@ document.addEventListener("DOMContentLoaded", async function () {
     // internal helper for TS usage within this file
     const showToast = (window as any).showToast;
 
+    initDemoMode();
+
+    window.addEventListener('load', () => {
+        const loadTimeMs = performance.now();
+        const loadTimeS = (loadTimeMs / 1000).toFixed(1);
+        
+        setTimeout(() => {
+            if (showToast) {
+                if (parseFloat(loadTimeS) > 5) {
+                    showToast(`Welcome! Agora loaded in ${loadTimeS}s. Sorry this was slow; we're working on it!`);
+                } else {
+                    showToast(`Welcome! Agora loaded in ${loadTimeS}s.`);
+                }
+                
+                // Add an extra context toast if we are at the absolute root (no query parameters)
+                const isAbsoluteRoot = (window.location.pathname === '/' || window.location.pathname === '/index') && !window.location.search;
+                if (isAbsoluteRoot) {
+                    setTimeout(() => {
+                        showToast(`🌿 The Agora is a Free Knowledge Commons for the benefit of all beings, where locations contain individual contributions.`);
+                    }, 1000);
+                }
+            }
+        }, 500);
+    });
+
   const miniCliRetry = document.querySelector("#mini-cli-retry");
   if (miniCliRetry) {
     miniCliRetry.addEventListener("click", () => {
@@ -575,23 +673,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   const expandAllButton = document.querySelector("#expand-all");
   if (expandAllButton) {
     expandAllButton.addEventListener("click", (e) => {
-      const button = e.currentTarget as HTMLElement;
-      const isExpanded = button.dataset.state === 'expanded';
-
-      if (isExpanded) {
-        console.log("collapse all executes: collapsing top-level details");
-        document.querySelectorAll("details[open]").forEach(detail => {
-          if (!detail.parentElement.closest('details')) {
-              const summary = detail.querySelector(':scope > summary');
-              if (summary) {
-                  (summary as HTMLElement).click();
-              }
-          }
-        });
-        button.innerHTML = '⊞ expand';
-        button.title = 'Expand all sections';
-        button.dataset.state = 'collapsed';
-      } else {
         console.log("expand all executes: expanding top-level details");
         document.querySelectorAll("details:not([open]):not(.edit-section-container)").forEach(detail => {
           if (!detail.parentElement.closest('details')) {
@@ -601,10 +682,24 @@ document.addEventListener("DOMContentLoaded", async function () {
               }
           }
         });
-        button.innerHTML = '⊟ collapse';
-        button.title = 'Collapse all sections';
-        button.dataset.state = 'expanded';
-      }
+    });
+  }
+
+  const collapseAllButton = document.querySelector("#collapse-all");
+  if (collapseAllButton) {
+    collapseAllButton.addEventListener("click", (e) => {
+        console.log("collapse all executes: collapsing top-level details");
+        document.querySelectorAll("details[open]").forEach(detail => {
+          // Don't collapse the main node itself? 
+          // Assuming main node doesn't have parent details?
+          // Actually, we usually want to collapse sections (context, stoa, etc).
+          if (!detail.parentElement.closest('details')) {
+              const summary = detail.querySelector(':scope > summary');
+              if (summary) {
+                  (summary as HTMLElement).click();
+              }
+          }
+        });
     });
   }
 
@@ -641,6 +736,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const iframe = document.createElement('iframe');
         iframe.className = 'stoa2-iframe';
         iframe.setAttribute('allow', 'camera; microphone; fullscreen; display-capture; autoplay');
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms allow-presentation');
         iframe.src = url;
         this.after(iframe);
         this.innerText = 'fold';
@@ -722,30 +818,20 @@ document.addEventListener("DOMContentLoaded", async function () {
       node = content.getAttribute('src');
       console.log("loading " + node + " async");
     }
-    else {
+    else if (typeof NODENAME !== 'undefined' && NODENAME) {
       node = NODENAME;
       console.log("loading " + node + " sync");
+    }
+    else {
+      console.log("no node to load, skipping async content");
+      return;
     }
 
     // give some time to Wikipedia to search before trying to pull it (if it's considered relevant here).
     setTimeout(autoPullAsync, 1000)
 
     // New, safe info box dismissal logic.
-    // First, apply dismissals from localStorage.
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('dismissed-')) {
-            if (localStorage.getItem(key) === 'true') {
-                const infoBoxId = key.substring('dismissed-'.length);
-                const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
-                if (infoBox) {
-                    infoBox.classList.add("hidden");
-                    infoBox.style.display = "none";
-                }
-            }
-        }
-    }
-
+    applyDismissals();
     // end infobox dismiss code.
 
     // bind stoas, search and genai early.
@@ -832,6 +918,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                     endpoint = '/api/gemini_complete/';
 
+                } else if (provider === 'chatgpt') {
+
+                    endpoint = '/api/chatgpt_complete/';
+
+                } else if (provider === 'claude') {
+
+                    endpoint = '/api/claude_complete/';
+
                 }
 
                 if (endpoint) {
@@ -869,6 +963,11 @@ document.addEventListener("DOMContentLoaded", async function () {
                         answerDiv.innerHTML = data.answer;
 
                         embedDiv.appendChild(answerDiv);
+
+                        if (data.prompt) {
+                            // @ts-ignore
+                            embedDiv.appendChild(createAiFooter(data.prompt, provider, data.raw_answer));
+                        }
 
                         embedDiv.classList.add('visible');
 
@@ -970,6 +1069,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
+
+
         if (safeJsonParse(localStorage["auto-expand-stoas"], false)) {
 
             document.querySelectorAll("details.stoa").forEach(function (element) {
@@ -1043,6 +1144,9 @@ document.addEventListener("DOMContentLoaded", async function () {
           }
 
           content.outerHTML = await response.text();
+          
+          // Notify other scripts (like demo mode) that the DOM has expanded
+          window.dispatchEvent(new CustomEvent('agora-node-loaded'));
 
         }
 
@@ -1060,10 +1164,278 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       }
 
-                                                      async function bindEvents() {
+function createAiFooter(prompt: string, provider: string, initialAnswer: string = "") {
+    const footer = document.createElement('div');
+    footer.className = 'synthesis-footer';
+    // @ts-ignore
+    const nodeQ = (typeof NODEQ !== 'undefined' && NODEQ) ? NODEQ : NODENAME;
+    const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
+    
+    // We use a simple prompt for the external links to avoid URL length limits.
+    const encodedShortPrompt = encodeURIComponent(nodeQ);
+    
+    const chatgptUrl = `https://chatgpt.com/?q=${encodedShortPrompt}`;
+    const claudeUrl = `https://claude.ai/new?q=${encodedShortPrompt}`;
+    const geminiUrl = `https://gemini.google.com/app?q=${encodedShortPrompt}`; 
+    const mistralUrl = `https://chat.mistral.ai/chat?q=${encodedShortPrompt}`;
 
-                                                        if (document.querySelector('.not-found') && autoPull) {
+    const chatHtml = `
+        <div class="ai-chat-interface" style="display: none; margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 10px;">
+            <div class="ai-chat-history" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px; font-size: 0.95em;"></div>
+            <textarea class="ai-chat-input" placeholder="Ask a follow-up question..." style="width: 100%; height: 60px; margin-bottom: 5px; background: var(--bg-secondary); color: var(--text-main); border: 1px solid var(--border-color); padding: 5px;"></textarea>
+            <div style="text-align: right;">
+                <button class="ai-chat-send" style="cursor: pointer;">Send</button>
+            </div>
+        </div>
+    `;
 
+    footer.innerHTML = `
+        <hr>
+        <em>✨ Generated by ${providerName}.</em>
+        <br><br>
+        <div class="ai-links-row" style="font-size: 0.9em;">
+            <strong>Continue with:</strong>
+            <a href="${mistralUrl}" target="_blank" title="Start a new chat with Mistral about this topic">Mistral</a> • 
+            <a href="${geminiUrl}" target="_blank" style="color: #888;" title="Open Gemini (prefilling prompt not yet supported by Google)">Gemini</a> • 
+            <a href="${chatgptUrl}" target="_blank" title="Start a new chat with ChatGPT about this topic">ChatGPT</a> • 
+            <a href="${claudeUrl}" target="_blank" title="Start a new chat with Claude about this topic">Claude</a>
+            <span style="margin-left: 10px;">
+                    <button class="copy-prompt-btn" style="font-size: 0.9em; padding: 2px 6px; cursor: pointer;" title="Copy the full context to clipboard.">📋 Copy Context</button>
+                    <button class="reply-btn" style="font-size: 0.9em; padding: 2px 6px; cursor: pointer;" title="Reply to this synthesis within the Agora.">💬 Reply</button>
+            </span>
+        </div>
+        ${chatHtml}
+    `;
+    
+    // Copy Logic
+    const copyBtn = footer.querySelector('.copy-prompt-btn');
+    if (copyBtn && prompt) {
+        copyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            navigator.clipboard.writeText(prompt).then(() => {
+                // @ts-ignore
+                showToast("Full context copied to clipboard!");
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        });
+    }
+
+    // Chat Logic
+    const replyBtn = footer.querySelector('.reply-btn');
+    const chatInterface = footer.querySelector('.ai-chat-interface') as HTMLElement;
+    const chatInput = footer.querySelector('.ai-chat-input') as HTMLTextAreaElement;
+    const chatSend = footer.querySelector('.ai-chat-send');
+    const chatHistoryDiv = footer.querySelector('.ai-chat-history');
+    
+    let chatTurns: {role: string, content: string}[] = [];
+    if (initialAnswer) {
+        chatTurns.push({role: 'assistant', content: initialAnswer});
+    }
+
+    if (replyBtn) {
+        replyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (chatInterface.style.display === 'none') {
+                chatInterface.style.display = 'block';
+                chatInput.focus();
+            } else {
+                chatInterface.style.display = 'none';
+            }
+        });
+    }
+
+    if (chatSend) {
+        chatSend.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            chatInput.value = '';
+            chatInput.disabled = true;
+            (chatSend as HTMLButtonElement).disabled = true;
+            
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.style.marginBottom = '10px';
+            userMsgDiv.innerHTML = `<strong>You:</strong> ${message}`;
+            chatHistoryDiv.appendChild(userMsgDiv);
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+
+            chatTurns.push({role: 'user', content: message});
+            
+            // Construct conversation history for the API.
+            // We append the chat history to the original prompt.
+            let fullConversation = prompt + "\n\n--- Conversation Started ---\n";
+            chatTurns.forEach(turn => {
+                fullConversation += `\n${turn.role === 'user' ? 'User' : 'Assistant'}: ${turn.content}`;
+            });
+            
+            const messagesPayload = [{role: 'user', content: fullConversation}];
+
+            const spinnerDiv = document.createElement('div');
+            spinnerDiv.innerHTML = '<em>Thinking...</em>';
+            chatHistoryDiv.appendChild(spinnerDiv);
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        provider: provider,
+                        messages: messagesPayload
+                    })
+                });
+                const data = await res.json();
+                
+                spinnerDiv.remove();
+                
+                if (data.reply) {
+                    const replyMsgDiv = document.createElement('div');
+                    replyMsgDiv.style.marginBottom = '10px';
+                    replyMsgDiv.innerHTML = `<strong>${providerName}:</strong> ${data.reply}`;
+                    chatHistoryDiv.appendChild(replyMsgDiv);
+                    
+                    if (data.raw) {
+                        chatTurns.push({role: 'assistant', content: data.raw});
+                    }
+                } else {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.color = 'red';
+                    errorDiv.innerText = data.error || 'Unknown error';
+                    chatHistoryDiv.appendChild(errorDiv);
+                }
+            } catch (err) {
+                if (spinnerDiv.parentNode) spinnerDiv.remove();
+                console.error(err);
+                // @ts-ignore
+                showToast("Error sending message.");
+            } finally {
+                chatInput.disabled = false;
+                (chatSend as HTMLButtonElement).disabled = false;
+                chatInput.focus();
+                chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+            }
+        });
+        
+        // Enter to send
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                (chatSend as HTMLElement).click();
+            }
+        });
+    }
+
+    return footer;
+}
+
+                                                      function initSynthesis() {
+    console.log("Initializing AI Synthesis...");
+    const synthesisContent = document.getElementById('synthesis-content');
+    const synthesisDetails = document.getElementById('synthesis-details') as HTMLDetailsElement;
+    const synthesisContainer = document.getElementById('synthesis-container');
+
+    if (!synthesisContent || !synthesisDetails || !synthesisContainer) {
+        console.warn("Synthesis elements not found.");
+        return;
+    }
+
+    const runSynthesis = async (provider: string) => {
+        // @ts-ignore
+        const nodeUri = NODENAME; 
+        if (!nodeUri) return;
+
+        console.log(`Running synthesis with ${provider} for node ${nodeUri}`);
+
+        // Open details if not already
+        if (!synthesisDetails.open) {
+            synthesisDetails.open = true;
+        }
+
+        // Show spinner
+        const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
+        synthesisContent.innerHTML = `
+            <div class="spinner-container">
+                <div class="spinner">
+                    <img src="/static/img/agora.png" class="logo"></img>
+                </div>
+            </div>
+            <p><em>Synthesizing perspectives with ${providerName}...</em></p>
+        `;
+
+        try {
+            const response = await fetch(`/api/synthesize/${encodeURIComponent(nodeUri)}?provider=${provider}`);
+            const data = await response.json();
+
+            if (data.error) {
+                synthesisContent.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+            } else {
+                synthesisContent.innerHTML = data.synthesis;
+                if (data.prompt) {
+                    // @ts-ignore
+                    synthesisContent.appendChild(createAiFooter(data.prompt, provider, data.raw_answer));
+                }
+
+                // Mark as synthesized
+                synthesisContainer.dataset.synthesized = 'true';
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+            synthesisContent.innerHTML = `<p class="error">Failed to fetch synthesis: ${error}</p>`;
+        }
+    };
+
+
+    // Tab switching logic
+    const tabs = synthesisContainer.querySelectorAll('.synthesis-provider-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            console.log("Tab clicked:", tab.getAttribute('data-provider'));
+            e.preventDefault();
+            e.stopPropagation(); // Prevent detail toggle
+            
+            // If clicking the already active tab, just re-run if we have synthesized
+            if (tab.classList.contains('active')) {
+                 if (synthesisContainer.dataset.synthesized === 'true') {
+                     const provider = tab.getAttribute('data-provider') || 'mistral';
+                     runSynthesis(provider);
+                 } else {
+                     // If not synthesized but active (weird state?), just run it.
+                     const provider = tab.getAttribute('data-provider') || 'mistral';
+                     runSynthesis(provider);
+                 }
+                 return;
+            }
+
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            // Always trigger synthesis on tab switch (runSynthesis will open details)
+            const provider = tab.getAttribute('data-provider') || 'mistral';
+            runSynthesis(provider);
+        });
+    });
+
+    synthesisDetails.addEventListener('toggle', (event) => {
+        // Auto-trigger if opening and not yet synthesized
+        if (synthesisDetails.open && synthesisContainer.dataset.synthesized !== 'true') {
+            console.log("Details expanded, auto-triggering synthesis.");
+            const activeTab = synthesisContainer.querySelector('.synthesis-provider-tab.active');
+            const provider = activeTab ? activeTab.getAttribute('data-provider') : 'mistral';
+            runSynthesis(provider as string);
+        }
+    });
+}
+
+async function bindEvents() {
+
+    initSynthesis();
+
+    if (document.querySelector('.not-found') && autoPull) {
                                                             const wikiDetails = document.querySelector('#wp-wt-container .wiki') as HTMLDetailsElement;
 
                                                             if (wikiDetails && !wikiDetails.hasAttribute('open')) {
@@ -1072,6 +1444,16 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                                                                 wikiDetails.setAttribute('open', '');
 
+                                                            }
+                                                            
+                                                            // Also expand search for empty nodes, as a fallback.
+                                                            const searchDetails = document.querySelector('details.search') as HTMLDetailsElement;
+                                                            if (searchDetails && !searchDetails.hasAttribute('open')) {
+                                                                setTimeout(() => {
+                                                                    showToast("Empty node: auto-expanding Search");
+                                                                    const summary = searchDetails.querySelector('summary');
+                                                                    if (summary) summary.click();
+                                                                }, 750);
                                                             }
 
                                                         }
@@ -1094,7 +1476,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                         // These are the selectors the "Pull All" button interacts with.
 
-                        const pullableSelectors = ".pull-node, .pull-mastodon-status, .pull-tweet, .pull-search, .pull-url";
+                        const pullableSelectors = ".pull-node, .pull-mastodon-status, .pull-bluesky-status, .pull-tweet, .pull-search, .pull-url";
 
                         const pullableElements = document.querySelectorAll(pullableSelectors);
 
@@ -1197,37 +1579,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         sortSubnodes();
 
         // New, safe info box dismissal logic.
-
-        // This is duplicated from loadAsyncContent to handle elements that might be added after the initial load.
-
-        // First, apply dismissals from localStorage.
-
-        for (let i = 0; i < localStorage.length; i++) {
-
-            const key = localStorage.key(i);
-
-            if (key && key.startsWith('dismissed-')) {
-
-                if (localStorage.getItem(key) === 'true') {
-
-                    const infoBoxId = key.substring('dismissed-'.length);
-
-                    const infoBox = document.querySelector(`.info-box[info-box-id="${infoBoxId}"]`);
-
-                    if (infoBox) {
-
-                        infoBox.classList.add("hidden");
-
-                        infoBox.style.display = "none";
-
-                    }
-
-                }
-
-            }
-
-        }
-
+        applyDismissals();
         // end infobox dismiss code.
 
         // this works and has already replaced most pull buttons for Agora sections.
@@ -1240,7 +1592,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           item.addEventListener("toggle", (event) => {
 
-            if (item.open) {
+            if ((item as HTMLDetailsElement).open) {
 
               console.log("Details have been shown");
 
@@ -1422,6 +1774,18 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           });
 
+          document.querySelectorAll(".pull-bluesky-status").forEach(element => {
+
+          if (!element.classList.contains('pulled')) {
+
+            console.log('auto pulling bluesky');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
           document.querySelectorAll(".pull-tweet").forEach(element => {
 
           if (!element.classList.contains('pulled')) {
@@ -1495,6 +1859,18 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (element.classList.contains('pulled')) {
 
             console.log('auto folding activity');
+
+            (element as HTMLElement).click();
+
+          }
+
+          });
+
+          document.querySelectorAll(".pull-bluesky-status").forEach(element => {
+
+          if (element.classList.contains('pulled')) {
+
+            console.log('auto folding bluesky');
 
             (element as HTMLElement).click();
 
@@ -1588,10 +1964,18 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                     // Fold all pulled content within this node.
 
-                    nodeElement.querySelectorAll(".pull-node.pulled, .pull-mastodon-status.pulled, .pull-tweet.pulled, .pull-search.pulled, .pull-url.pulled").forEach(element => {
+                    nodeElement.querySelectorAll(".pull-node.pulled, .pull-mastodon-status.pulled, .pull-bluesky-status.pulled, .pull-tweet.pulled, .pull-search.pulled, .pull-url.pulled").forEach(element => {
 
                         (element as HTMLElement).click();
 
+                    });
+
+                    // Also collapse all open details (subnodes, synthesis, etc.)
+                    nodeElement.querySelectorAll("details[open]").forEach(element => {
+                        // Don't close the node itself or the synthesis section!
+                        if (element !== nodeElement && element.id !== 'synthesis-details') {
+                            (element as HTMLDetailsElement).open = false;
+                        }
                     });
 
                     button.innerHTML = '🧲 Pull All';
@@ -1602,10 +1986,17 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                     // Pull all unpulled content within this node.
 
-                    nodeElement.querySelectorAll(".pull-node:not(.pulled), .pull-mastodon-status:not(.pulled), .pull-tweet:not(.pulled), .pull-search:not(.pulled), .pull-url:not(.pulled)").forEach(element => {
+                    nodeElement.querySelectorAll(".pull-node:not(.pulled), .pull-mastodon-status:not(.pulled), .pull-bluesky-status:not(.pulled), .pull-tweet:not(.pulled), .pull-search:not(.pulled), .pull-url:not(.pulled)").forEach(element => {
 
                         (element as HTMLElement).click();
 
+                    });
+
+                    // Also expand all closed details (subnodes, synthesis, etc.)
+                    nodeElement.querySelectorAll("details:not([open])").forEach(element => {
+                        if (element.id !== 'synthesis-details') {
+                            (element as HTMLDetailsElement).open = true;
+                        }
                     });
 
                     button.innerHTML = '✕ Fold All';
@@ -1671,11 +2062,18 @@ document.addEventListener("DOMContentLoaded", async function () {
             let labelsVisible = true;
 
             const loadGraph = (size) => {
-
-                const url = size === 'all' ? '/graph./json/all' : `/graph/json/top/${size}`;
-
-                renderGraph('full-graph', url);
-
+                const url = size === 'all' ? '/graph/json/all' : `/graph/json/top/${size}`;
+                const spinner = document.getElementById('graph-loading');
+                if (spinner) spinner.style.display = 'flex';
+                
+                // Auto-disable labels for large graphs to improve performance without saving to localStorage
+                const forceNoLabels = (size === 'all' || parseInt(size) >= 500);
+                
+                renderGraph('full-graph', url, forceNoLabels).then(() => {
+                    if (spinner) spinner.style.display = 'none';
+                }).catch(() => {
+                    if (spinner) spinner.style.display = 'none';
+                });
             };
 
             fullGraphDetails.addEventListener('toggle', () => {
@@ -1695,6 +2093,14 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
 
             });
+
+            // Initial load check since we now default to open
+            if ((fullGraphDetails as HTMLDetailsElement).open) {
+                const activeTab = fullGraphDetails.querySelector(".graph-size-tab.active");
+                if (activeTab) {
+                    loadGraph(activeTab.getAttribute('data-size'));
+                }
+            }
 
             tabs.forEach(tab => {
 
@@ -1742,118 +2148,61 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         }
 
-        // Cache clearing buttons in footer.
+        // Cache clearing buttons (class-based for footer/stats)
+        document.querySelectorAll('.btn-flush-mem').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const button = e.currentTarget as HTMLButtonElement;
+                const originalText = button.innerHTML;
+                button.innerHTML = '🧠...';
+                button.disabled = true;
 
-        document.getElementById('mini-cli-cachez')?.addEventListener('click', (e) => {
-
-            const button = e.currentTarget as HTMLButtonElement;
-
-            const originalText = button.innerHTML;
-
-            button.innerHTML = '🧠 Flushing...';
-
-            button.disabled = true;
-
-            fetch('/api/clear-in-memory-cache', {
-
-                method: 'POST',
-
-            })
-
-            .then(response => {
-
-                if (response.ok) {
-
-                    button.innerHTML = '🧠 Flushed!';
-
-                } else {
-
-                    button.innerHTML = '🧠 Error!';
-
-                }
-
-                setTimeout(() => {
-
-                    button.innerHTML = originalText;
-
-                    button.disabled = false;
-
-                }, 2000);
-
-            })
-
-            .catch(error => {
-
-                console.error('Error flushing in-memory cache:', error);
-
-                button.innerHTML = '🧠 Error!';
-
-                setTimeout(() => {
-
-                    button.innerHTML = originalText;
-
-                    button.disabled = false;
-
-                }, 2000);
-
+                fetch('/api/clear-in-memory-cache', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) button.innerHTML = '🧠!';
+                    else button.innerHTML = '🧠❌';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Error flushing in-memory cache:', error);
+                    button.innerHTML = '🧠❌';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                });
             });
-
         });
 
-        document.getElementById('mini-cli-invalidate-sqlite')?.addEventListener('click', (e) => {
+        document.querySelectorAll('.btn-flush-sqlite').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const button = e.currentTarget as HTMLButtonElement;
+                const originalText = button.innerHTML;
+                button.innerHTML = '💾...';
+                button.disabled = true;
 
-            const button = e.currentTarget as HTMLButtonElement;
-
-            const originalText = button.innerHTML;
-
-            button.innerHTML = '💾 Flushing...';
-
-            button.disabled = true;
-
-            fetch('/invalidate-sqlite', {
-
-                method: 'POST',
-
-            })
-
-            .then(response => {
-
-                if (response.ok) {
-
-                    button.innerHTML = '💾 Flushed!';
-
-                } else {
-
-                    button.innerHTML = '💾 Error!';
-
-                }
-
-                setTimeout(() => {
-
-                    button.innerHTML = originalText;
-
-                    button.disabled = false;
-
-                }, 2000);
-
-            })
-
-            .catch(error => {
-
-                console.error('Error invalidating SQLite:', error);
-
-                button.innerHTML = '💾 Error!';
-
-                setTimeout(() => {
-
-                    button.innerHTML = originalText;
-
-                    button.disabled = false;
-
-                }, 2000);
-
+                fetch('/invalidate-sqlite', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) button.innerHTML = '💾!';
+                    else button.innerHTML = '💾❌';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Error invalidating SQLite:', error);
+                    button.innerHTML = '💾❌';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                });
             });
-
         });
 
         // Collapsible content handler
@@ -1934,14 +2283,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         });
 
-                        initMusicPlayer();
-
                         const loadTimeMs = performance.now();
 
                         const loadTimeS = (loadTimeMs / 1000).toFixed(1);
-
-                        showToast(`Welcome!`);
-                        showToast(`Agora loaded in ${loadTimeS}s.`);
 
                       }
 
@@ -2145,7 +2489,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                             // Re-attach event listeners for the new content
                             const autoExpandWikipedia = localStorage.getItem('auto-expand-wikipedia') === 'true';
-                            const autoExpandExactMatch = localStorage.getItem('auto-expand-exact-match') !== 'false';
+                            const autoExpandExactMatch = safeJsonParse(localStorage.getItem('auto-expand-exact-match'), CLIENT_DEFAULTS.autoExpandExactMatch);
                             const isEmptyNode = document.querySelector('.not-found') !== null;
                             
                             // Check for exact match
@@ -2255,9 +2599,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           let url = (this as HTMLInputElement).value;
 
-          (this as HTMLElement).innerText = 'going';
-
-          window.location.href = url;
+          if (url) {
+              (this as HTMLElement).innerText = 'going';
+              window.location.href = url;
+          } else {
+              console.warn(".go-url clicked, but it has no value/URL.");
+          }
 
         });
 

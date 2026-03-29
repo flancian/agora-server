@@ -2,5 +2,7 @@
 
 {% include "pulled.html" %}
 
+{% if not rendering_user %}
 {% include "related.html" %}
+{% endif %}
 

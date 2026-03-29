@@ -14,8 +14,7 @@
 
 from . import bp, Response
 import requests
-import pprint
-from thefuzz import fuzz
+from flask import current_app
 
 
 @bp.route("/exec/wt/<node>")
@@ -23,7 +22,8 @@ def wt(node):
     try:
         search = requests.get(
             f"https://en.wiktionary.org/w/api.php?action=query&list=search&srsearch={node}&format=json",
-            headers={"User-Agent": "The Agora of Flancia (https://anagora.org/)"}
+            headers={"User-Agent": "The Agora of Flancia (https://anagora.org/)"},
+            timeout=5
         )
         search.raise_for_status()  # Raise an exception for bad status codes
         search_data = search.json()
@@ -40,7 +40,8 @@ def wt(node):
     try:
         result_response = requests.get(
             f"https://en.wiktionary.org/w/api.php?action=query&pageids={pageid}&prop=extlinks|info|pageprops&inprop=url&format=json",
-            headers={"User-Agent": "The Agora of Flancia (https://anagora.org/)"}
+            headers={"User-Agent": "The Agora of Flancia (https://anagora.org/)"},
+            timeout=5
         )
         result_response.raise_for_status()
         result = result_response.json()

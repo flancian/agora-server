@@ -97,6 +97,8 @@ function handleStarClick(event) {
     const subnodeUri = button.dataset.subnodeUri;
     const isStarred = button.classList.contains('starred');
 
+    button.classList.add('star-pending');
+
     const endpoint = isStarred ? `/api/unstar/${subnodeUri}` : `/api/star/${subnodeUri}`;
 
     fetch(endpoint, {
@@ -107,14 +109,20 @@ function handleStarClick(event) {
     })
     .then(response => response.json())
     .then(data => {
+        button.classList.remove('star-pending');
         if (data.status === 'success') {
             button.classList.toggle('starred');
             button.innerHTML = isStarred ? '☆' : '★';
+            
+            // Success animation
+            button.classList.add('star-popping');
+            setTimeout(() => button.classList.remove('star-popping'), 300);
         } else {
             console.error('Failed to update star status:', data.message);
         }
     })
     .catch(error => {
+        button.classList.remove('star-pending');
         console.error('Error:', error);
     });
 }
@@ -175,18 +183,26 @@ function handleExternalStarClick(event) {
     const source = button.dataset.externalSource;
     const isStarred = button.classList.contains('starred');
 
+    button.classList.add('star-pending');
+
     const action = isStarred ? unstarExternal(url) : starExternal(url, title, source);
 
     action.then(data => {
+        button.classList.remove('star-pending');
         if (data.status === 'success') {
             button.classList.toggle('starred');
             button.innerHTML = isStarred ? '☆' : '★';
             button.title = isStarred ? "Star this resource" : "Unstar this resource";
+            
+            // Success animation
+            button.classList.add('star-popping');
+            setTimeout(() => button.classList.remove('star-popping'), 300);
         } else {
             console.error('Failed to update external star status:', data.message);
         }
     })
     .catch(error => {
+        button.classList.remove('star-pending');
         console.error('Error:', error);
     });
 }
@@ -205,6 +221,8 @@ function handleNodeStarClick(event) {
     const nodeUri = button.dataset.nodeUri;
     const isStarred = button.classList.contains('starred');
 
+    button.classList.add('star-pending');
+
     const endpoint = isStarred ? `/api/unstar_node/${nodeUri}` : `/api/star_node/${nodeUri}`;
 
     fetch(endpoint, {
@@ -215,14 +233,20 @@ function handleNodeStarClick(event) {
     })
     .then(response => response.json())
     .then(data => {
+        button.classList.remove('star-pending');
         if (data.status === 'success') {
             button.classList.toggle('starred');
             button.innerHTML = isStarred ? '☆' : '★';
+            
+            // Success animation
+            button.classList.add('star-popping');
+            setTimeout(() => button.classList.remove('star-popping'), 300);
         } else {
             console.error('Failed to update node star status:', data.message);
         }
     })
     .catch(error => {
+        button.classList.remove('star-pending');
         console.error('Error:', error);
     });
 }

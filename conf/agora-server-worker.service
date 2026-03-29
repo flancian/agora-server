@@ -1,0 +1,12 @@
+[Unit]
+Description=Agora Server Cache Worker
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/agora-server/run-worker-prod.sh
+WorkingDirectory=%h/agora-server
+Nice=10
+
+[Install]
+WantedBy=default.target

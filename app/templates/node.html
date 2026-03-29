@@ -15,12 +15,13 @@
 -->
 
 {% if node.subnodes or node.pushed_subnodes() %}
-    <details class="node" id="{{node.uri}}" open>
+    <details class="node" id="{{node.uri}}" {% if not collapsed %}open{% endif %}>
 
-        {% if subnode %}
+        {% if rendering_user or subnode %}
             <summary class="node-header main-header">
                 <span class="flex-grow">
-                  <strong>Subnode</strong> by user <a href="/@{{node.subnodes[0].user}}">@{{ node.subnodes[0].user }}</a> in node <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>
+                  {% set u = rendering_user if rendering_user else (subnode.user if subnode.user is defined else (node.subnodes[0].user if node.subnodes else '')) %}
+                  <strong>👩‍🌾 Contributions</strong> by <a href="/@{{u}}">@{{ u }}</a> at <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>
                 </span>
            </summary>
         {% else %}
@@ -30,7 +31,7 @@
                         📚 <strong>Agora location</strong> 
                         <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
                     </span>
-                    <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="Star this node">
+                    <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="{% if not node.subnodes %}A star on an empty node is a wish. Click to add this node to this Agora's wishlist.{% else %}Star this node to add it to this Agora's starred topics (visible on /starred).{% endif %}">
                         {% if node.uri in starred_nodes %}★{% else %}☆{% endif %}
                     </span>
                     <button id="pull-all-in-node" value="pull-all" title='Pull all embeddable content in this node.' style="display: none;">🧲 Pull All</button>
@@ -48,7 +49,7 @@
         <!-- yolo -- dedup with stoa.html when time is available :) -->
         <div info-box-id="node" class="info-box with-spacing">
 
-          <em>Agora locations contain community contributions whose titles or topics match your search.</em>
+          <em>Agora locations contain community contributions with titles or topics that match your search.</em>
             <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="node" id="dismissbutton" class="dismiss-button">x</span>
     
         </div>
@@ -59,13 +60,16 @@
             <details class="pushed-subnode" open>
                 <summary class="subnode-header main-header">
                     <span class="subnode-id flex-grow">
-                        <span title="This was written elsewhere but is believed to be relevant in the current context."> 🫸 push from </span>
+                        <span title="This was written elsewhere but is believed to be relevant in the current context."> 🫸 pushed from </span>
                         <span class="subnode-links">
-                            <a href="/raw/{{subnode.uri}}">📄</a> 
+                            <a href="/@{{subnode.user}}/{{subnode.virtual_wikilink}}">📄</a> 
                             <a href="/@{{subnode.user}}/{{subnode.virtual_wikilink}}">{{subnode.garden_relative}}</a>
                         </span>
                         by
                         <a class="user" href="/@{{subnode.user}}">@{{subnode.user}}</a>
+                         <span class="subnode-contrib">
+                            <a href="/raw/{{subnode.uri}}" title="view raw" style="text-decoration: none;">raw</a>
+                         </span>
                     </span>
                 </summary>
                 <div id="virtual-subnode-content-{{ loop.index }}" class="collapsible-content">
@@ -84,7 +88,7 @@
                 <summary class="subnode-header">
                     <span class="subnode-id">
                                                     <span class="subnode-links">
-                                                      <a href="/raw/{{subnode.uri}}" title="Click to see the raw resource.">📓</a> 
+                                                      <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see contributions by this user.">📄</a> 
                                                         <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see only this subnode.">{{subnode.garden_relative}}</a>
                                                         <span title="This resource was contributed to this Agora and seems relevant to the current topic."> by </span>                            <a class="user" href="/@{{subnode.user}}"" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>
                             <span class="star-toggle {% if subnode.uri in starred_subnodes %}starred{% endif %}" data-subnode-uri="{{ subnode.uri }}" title="Star this subnode">
@@ -94,6 +98,7 @@
                     </span>
 
                     <span class="subnode-contrib">
+                        <a href="/raw/{{subnode.uri}}" title="view raw" style="text-decoration: none;">raw</a>
                         <!-- 
                         <a href="/raw/{{subnode.uri}}" style="text-decoration: none;" title="view original (source)"></a>
                         <a href="/export/@{{subnode.user}}/{{node.uri}}" style="text-decoration: none;" title="export (html)">⤓</a>
@@ -116,7 +121,9 @@
                             </span>
                 </summary>
 
-                <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+                <div>
+                    <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+                </div>
 
                 <div class="subnode-footer">
                     {% set display_mtime, mtime_source = subnode.get_display_mtime() %}
@@ -149,6 +156,30 @@
             </center>
         </div>
 
+        {% if config.ENABLE_SYNTHESIS and not rendering_user and node.subnodes %}
+        <div id="synthesis-container" info-box-id="ai-synthesis" class="synthesis-container with-spacing info-box-container">
+            <details id="synthesis-details">
+                <summary class="synthesis-header">
+                    <span>
+                        ✨ AI Synthesis
+                        <span class="synthesis-provider-tab active" data-provider="mistral" style="font-weight: normal; font-size: 0.8em; margin-left: 10px; padding: 2px 5px; border-radius: 4px;">Mistral</span>
+                        <span class="synthesis-provider-tab" data-provider="gemini" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Gemini</span>
+                        {% if config.ENABLE_CHATGPT %}
+                        <span class="synthesis-provider-tab" data-provider="chatgpt" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">ChatGPT</span>
+                        {% endif %}
+                        {% if config.ENABLE_CLAUDE %}
+                        <span class="synthesis-provider-tab" data-provider="claude" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Claude</span>
+                        {% endif %}
+                    </span>
+                    <span info-box-id="ai-synthesis" class="dismiss-button" title="Dismiss this section. To recall, clear local storage or settings.">x</span>
+                </summary>
+                <div id="synthesis-content" class="synthesis-content">
+                    <p><em>Expanding this section will automatically generate an AI synthesis of the contributions in this node.</em></p>
+                </div>
+            </details>
+        </div>
+        {% endif %}
+
     </details> <!-- closes node div-->
 
 {% endif %} <!-- ends node with subnodes -->
@@ -161,7 +192,7 @@
 
  
 {% if not subnode %}
-<details class="context node" open>
+<details class="context node" {% if not collapsed %}open{% endif %}>
 
     <center>
         <p>
