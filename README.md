@@ -147,7 +147,7 @@ This process is designed to be robust and prevent performance degradation during
 
 # API
 
-The Agora Server provides a simple JSON API for accessing graph data.
+The Agora Server provides a simple API for accessing graph data and raw content.
 
 ## Getting the Full Graph
 
@@ -157,3 +157,9 @@ The canonical way to get a full definition of the knowledge graph is through the
 -   `"links"`: A list of all edges, defining the connections between those nodes.
 
 While the filesystem is the ultimate source of truth (the graph is built by parsing all subnode files in the `garden/` directory), this API endpoint is the recommended method for retrieving that truth in a clean, usable format.
+
+## Extracting Raw Content
+
+If you need to extract the combined plain-text content of a specific location without any HTML formatting or JavaScript:
+
+-   `GET /raw/node/<node>`: Returns a concatenated Markdown document containing the text of all subnodes and pushed context for the specified node. It handles binary content gracefully by substituting placeholders. This is the recommended endpoint for feeding Agora data to LLMs or CLI tools.
