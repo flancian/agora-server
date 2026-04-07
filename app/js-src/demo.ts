@@ -100,11 +100,24 @@ export function initDemoMode() {
                 // Fetch the random node URL first to ensure clean history navigation (avoiding 302 stack confusion)
                 fetch('/random', { method: 'HEAD' })
                     .then(res => {
-                        window.location.href = res.url;
+                        try {
+                            const destUrl = new URL(res.url);
+                            // Safety check: only allow navigation if the destination is on the same origin.
+                            // This prevents Demo Mode from being hijacked to external domains (like doc.anagora.org).
+                            if (destUrl.origin === window.location.origin) {
+                                window.location.href = res.url;
+                            } else {
+                                console.warn("Demo Mode blocked an external redirect to:", res.url);
+                                window.location.href = '/agora';
+                            }
+                        } catch (e) {
+                            console.error("Error parsing redirect URL:", e, res.url);
+                            window.location.href = '/agora';
+                        }
                     })
                     .catch(() => {
                         // Fallback
-                        window.location.href = '/random';
+                        window.location.href = '/agora';
                     });
             }
         }, 1000);
