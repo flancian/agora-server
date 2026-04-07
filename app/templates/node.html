@@ -73,7 +73,7 @@
                     </span>
                 </summary>
                 <div id="virtual-subnode-content-{{ loop.index }}" class="collapsible-content">
-                    <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+                    <div class="subnode-content">{{ subnode.render()|linkify|safe }}</div>
                 </div>
                 <div class="show-more-button" data-target="virtual-subnode-content-{{ loop.index }}" style="display: none;">Show more...</div>
                 <div class="subnode-footer">
@@ -122,7 +122,7 @@
                 </summary>
 
                 <div>
-                    <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
+                    <div class="subnode-content">{{ subnode.render()|linkify|safe }}</div>
                 </div>
 
                 <div class="subnode-footer">

@@ -184,6 +184,8 @@ body {
 .content {
     max-width: 80em;
     min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
     margin-left: auto;
     margin-right: auto;
     flex-direction: column;
@@ -193,15 +195,16 @@ body {
     margin-top: 5px;
 }
 
-.async-content {
+#async-content {
     max-width: 80em;
     min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
     margin-left: auto;
     margin-right: auto;
     flex-direction: column;
     display: flex;
     justify-content: center;
-    border: 2px solid red !important;
 }
 
 
@@ -499,6 +502,7 @@ summary::-webkit-scrollbar {
 }
 
 summary, #footer {
+    display: flex;
     gap: 5px;
     vertical-align: middle;
     align-items: center;
@@ -519,7 +523,6 @@ summary, #footer {
     display: flex;
     align-items: center;
 }
-
 .navigation-content {
     display: flex;
     gap: 1em;
@@ -686,14 +689,16 @@ summary {
 .user {
     font-weight: bold;
 }
-
 .node, .web, .stoa, .search, .genai {
     border-color: gray;
     background: var(--node-bg);
     border-width: 0px;
     border-style: dotted;
     padding: 10px;
-    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 
@@ -737,6 +742,13 @@ summary {
     box-sizing: border-box;
     position: relative;
     transition: background-color 0.8s ease-out, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.subnode-content {
+    display: block;
+    overflow-x: auto;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .subnode:hover {
