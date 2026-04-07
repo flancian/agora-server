@@ -511,13 +511,6 @@ summary, #footer {
     justify-content: space-between;
     -ms-overflow-style: none;
     scrollbar-width: none;
-    max-width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-}
-
-summary > *, .subnode-header > * {
-    min-width: 0;
 }
 
 .navigation::-webkit-scrollbar {
@@ -1009,27 +1002,6 @@ details[open] > .subnode-header {
 
 .subnode-id {
     flex-grow: 1;
-    overflow-x: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    white-space: nowrap;
-}
-
-.subnode-id::-webkit-scrollbar {
-    display: none;
-}
-
-.subnode-contrib {
-    overflow-x: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    white-space: nowrap;
-    display: flex;
-    gap: 0.25em;
-    align-items: center;
-    text-align: right;
-    text-decoration: none;
-    margin-left: auto;
 }
 
 .subnode-footer, .node-footer {
@@ -1040,6 +1012,13 @@ details[open] > .subnode-header {
     padding-top: 6px;
     border-top: 1px solid #ccc;
     text-align: left;
+}
+
+.subnode-contrib {
+    text-align: right;
+    text-decoration: none;
+    max-width: 19%;
+    margin-left: auto;
 }
 
 .star-toggle, .node-star-toggle, .external-star-toggle {
