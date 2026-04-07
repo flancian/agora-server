@@ -745,6 +745,11 @@ summary {
 .subnode video,
 .subnode .node-embed {
     max-width: 100%;
+}
+
+.subnode pre,
+.subnode table,
+.subnode img {
     height: auto;
 }
 
