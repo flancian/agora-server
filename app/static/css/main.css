@@ -173,6 +173,9 @@ body {
     width: 100%;
     font-size: var(--base-fontsize);
     margin: 0;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 .content {

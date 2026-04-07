@@ -144,12 +144,43 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
                 currentY = (e as MouseEvent).clientY - initialY;
             }
 
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+
+            // Clamp coordinates to keep container within viewport
+            currentX = Math.max(0, Math.min(currentX, viewportWidth - containerWidth));
+            currentY = Math.max(0, Math.min(currentY, viewportHeight - containerHeight));
+
             xOffset = currentX;
             yOffset = currentY;
 
             setTranslate(currentX, currentY, container);
         }
     }
+
+    const checkBounds = () => {
+        if (!hasBeenPositionedByJs || container.style.display === 'none') return;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        
+        if (containerWidth === 0 || containerHeight === 0) return;
+        
+        let newX = Math.max(0, Math.min(xOffset, viewportWidth - containerWidth));
+        let newY = Math.max(0, Math.min(yOffset, viewportHeight - containerHeight));
+        
+        if (newX !== xOffset || newY !== yOffset) {
+            xOffset = newX;
+            yOffset = newY;
+            setTranslate(xOffset, yOffset, container);
+            localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
+        }
+    };
+
+    window.addEventListener('resize', checkBounds);
 
     handle.addEventListener('mousedown', dragStart, false);
     handle.addEventListener('touchstart', dragStart, false);
