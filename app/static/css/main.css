@@ -180,6 +180,7 @@ body {
 
 .content {
     max-width: 80em;
+    min-width: 0;
     margin-left: auto;
     margin-right: auto;
     flex-direction: column;
@@ -189,9 +190,9 @@ body {
     margin-top: 5px;
 }
 
-
 .async-content {
     max-width: 80em;
+    min-width: 0;
     margin-left: auto;
     margin-right: auto;
     flex-direction: column;
@@ -729,6 +730,7 @@ summary {
     border: 1px solid var(--border);
     overflow-x: auto;
     max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
     position: relative;
     transition: background-color 0.8s ease-out, box-shadow 0.3s ease, transform 0.3s ease;
