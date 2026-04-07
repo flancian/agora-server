@@ -20,19 +20,19 @@
     <summary> 
         <span class="genai-header" title="AI generation for the node as prompt.">
             <strong>🤖 AI generations</strong> by 
+        </span>
             <span class="ai-provider-tab active" data-provider="mistral">Mistral</span> • 
             <span class="ai-provider-tab" data-provider="gemini">Gemini</span> • 
             {% if config.ENABLE_CHATGPT %}
             <span class="ai-provider-tab" data-provider="chatgpt">ChatGPT</span> •
             {% else %}
-            <a href="https://chatgpt.com/?q={{node.q}}" target="_blank">ChatGPT ⬈</a> •
+            <a href="https://chatgpt.com/?q={{node.q}}" target="_blank" style="white-space: nowrap;">ChatGPT ⬈</a> •
             {% endif %}
             {% if config.ENABLE_CLAUDE %}
             <span class="ai-provider-tab" data-provider="claude">Claude</span>
             {% else %}
-            <a href="https://claude.ai/new?q={{node.q}}" target="_blank">Claude ⬈</a>
+            <a href="https://claude.ai/new?q={{node.q}}" target="_blank" style="white-space: nowrap;">Claude ⬈</a>
             {% endif %}
-        </span>
     </summary>
 
     <div class="info-box with-spacing" info-box-id="ai">
