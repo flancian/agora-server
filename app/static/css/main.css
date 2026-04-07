@@ -2036,6 +2036,9 @@ input:checked + .slider:before {
     html {
         font-size: 80%;
     }
+    .agora-name-container, .agora-separator {
+        display: none !important;
+    }
 }
 
 .collapsible-content {
