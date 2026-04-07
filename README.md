@@ -145,9 +145,17 @@ This process is designed to be robust and prevent performance degradation during
 
 5.  **The Rolling Restart**: The master process kills an old worker, spawns a new one, waits for it to finish its multi-second cache warmup, and only *then* does it proceed to kill the next old worker. This ensures that the Agora's full serving capacity is maintained throughout the reload process and that no user is ever served a slow response from a "cold" worker.
 
-# API
+# API & Core Routes
 
-The Agora Server provides a simple API for accessing graph data and raw content.
+The Agora Server provides a variety of endpoints for navigating the graph, extracting data, and reading content. Here is a TL;DR of the most important routes handled by `app/agora.py`.
+
+## Core Navigation
+-   `GET /`: The Agora homepage.
+-   `GET /<node>`: The primary view. Renders the composite HTML view for a given topic, combining all user contributions (subnodes) and contextual panels (Stoas, Wikipedia, etc.).
+-   `GET /@<user>`: The user profile view. Renders all nodes contributed to by a specific user.
+-   `GET /random`: Safely redirects to a random node in the Agora.
+-   `GET /latest`: A feed of the most recently modified contributions across all users.
+-   `GET /go/<node>`: The "Go-Link" resolver. Parses the node for `[[go]]` links and automatically redirects the user (e.g., `/go/music`).
 
 ## Getting the Full Graph
 
@@ -158,8 +166,15 @@ The canonical way to get a full definition of the knowledge graph is through the
 
 While the filesystem is the ultimate source of truth (the graph is built by parsing all subnode files in the `garden/` directory), this API endpoint is the recommended method for retrieving that truth in a clean, usable format.
 
+*Note: You can also get the localized graph neighborhood for a single concept via `GET /graph/json/<node>`.*
+
 ## Extracting Raw Content
 
 If you need to extract the combined plain-text content of a specific location without any HTML formatting or JavaScript:
 
 -   `GET /raw/node/<node>`: Returns a concatenated Markdown document containing the text of all subnodes and pushed context for the specified node. It handles binary content gracefully by substituting placeholders. This is the recommended endpoint for feeding Agora data to LLMs or CLI tools.
+-   `GET /raw/<path:subnode>`: Returns the exact raw file content (Markdown, Org-mode, Image) for a specific user's contribution (e.g., `/raw/garden/flancian/readme.md`).
+
+## Feeds
+-   `GET /feed/<node>`: Returns an RSS feed of changes to a specific node.
+-   `GET /feed/@<user>`: Returns an RSS feed of all changes made by a specific user.
