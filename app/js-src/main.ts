@@ -578,6 +578,67 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  const miniCliGoBeyond = document.querySelector("#mini-cli-go-beyond") as HTMLButtonElement;
+  if (miniCliGoBeyond) {
+    miniCliGoBeyond.addEventListener("click", () => {
+      console.log("go beyond mini-cli executes");
+      miniCliGoBeyond.textContent = "🚀 Launching...";
+      miniCliGoBeyond.disabled = true;
+      let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
+      window.location.href = '/lucky/' + val;
+    });
+  }
+
+  const miniCliWander = document.querySelector("#mini-cli-wander") as HTMLButtonElement;
+  if (miniCliWander) {
+    miniCliWander.addEventListener("click", () => {
+      miniCliWander.textContent = "🧭 Wandering...";
+      miniCliWander.disabled = true;
+      let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
+      if (!node && typeof NODENAME !== 'undefined') {
+          node = NODENAME;
+      }
+      if (node) {
+          window.location.href = '/wander/' + node;
+      } else {
+          window.location.href = '/random';
+      }
+    });
+  }
+
+  const miniCliLookAround = document.querySelector("#mini-cli-look-around") as HTMLButtonElement;
+  if (miniCliLookAround) {
+    miniCliLookAround.addEventListener("click", () => {
+      const graphElement = document.getElementById('agoragraph') || document.getElementById('graph');
+      if (graphElement) {
+          graphElement.scrollIntoView({ behavior: 'smooth' });
+      } else {
+          let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
+          if (!node && typeof NODENAME !== 'undefined') {
+              node = NODENAME;
+          }
+          if (node) {
+              window.location.href = '/context/' + node;
+          }
+      }
+    });
+  }
+
+  const miniCliWrite = document.querySelector("#mini-cli-write") as HTMLButtonElement;
+  if (miniCliWrite) {
+    miniCliWrite.addEventListener("click", () => {
+      const user = localStorage.getItem('user') || 'flancian';
+      let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
+      if (!node && typeof NODENAME !== 'undefined') {
+          node = NODENAME;
+      }
+      if (node && !node.includes('.')) {
+          node += '.md';
+      }
+      window.location.href = `https://edit.anagora.org/@${user}/${node}`;
+    });
+  }
+
   // No longer caching toastContainer at the top level to avoid initialization timing issues.
   // const toastContainer = document.getElementById('toast-container');
 

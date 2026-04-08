@@ -723,12 +723,25 @@ def go(node0, node1=""):
             current_app.logger.info(f"Detected go link was not a valid URL: {link}.")
 
     # No matching viable links found after all tries.
-    # Fallback to a server-side "I'm Feeling Lucky" request.
+    # Fallback to a standard Google search.
     if node0 != node1:
         query = f"{node0} {node1}"
     else:
         query = node0
     
+    current_app.logger.info("Go link failed. Falling back to Google search.")
+    return redirect(f"https://www.google.com/search?q={urllib.parse.quote_plus(query)}")
+
+@bp.route("/lucky/<node0>/<node1>")
+@bp.route("/lucky/<node0>/")
+@bp.route("/lucky/<node0>")
+def lucky(node0, node1=""):
+    """Performs an 'I'm Feeling Lucky' search for the node."""
+    if node0 != node1 and node1:
+        query = f"{node0} {node1}"
+    else:
+        query = node0
+
     redirect_url = providers.feeling_lucky(query)
     if redirect_url:
         return redirect(redirect_url)
@@ -736,10 +749,38 @@ def go(node0, node1=""):
         # Fall back to the original behavior: redirecting to the local Agora node.
         current_app.logger.warning("I'm Feeling Lucky failed. Falling back to local node.")
         base = current_app.config["URL_BASE"]
-        if node0 != node1:
+        if node0 != node1 and node1:
             return redirect(f"{base}/{node0}/{node1}")
         else:
             return redirect(f"{base}/{node0}")
+
+
+@bp.route("/wander/", defaults={"node": None})
+@bp.route("/wander/<path:node>")
+def wander(node):
+    """Wander to a random connected node (outlink or backlink)."""
+    if not node:
+        return redirect(url_for("agora.random"))
+
+    n = api.build_node(node)
+    outlinks = n.forward_links()
+    
+    # We need to make sure we have a list of strings
+    backlinks = []
+    if current_app.config.get('ENABLE_SQLITE'):
+        backlinks = sqlite_engine.get_backlinking_nodes(n.uri)
+    
+    targets = sorted(set(outlinks + backlinks))
+    # Filter out current node if it's there
+    targets = [t for t in targets if t != n.wikilink]
+
+    if targets:
+        import random
+        target = random.choice(targets)
+        return redirect(f"/{urllib.parse.quote_plus(target)}")
+    
+    # If no links, just go to a truly random node
+    return redirect(url_for("agora.random"))
 
 
 @bp.route("/meet/<node>")
