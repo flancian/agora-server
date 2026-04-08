@@ -36,7 +36,7 @@
         <ul>
             <li><strong>Repository URL:</strong> <a href="{{user.repo_url}}">{{user.repo_url}}</a></li>
             <li><strong>Repository type:</strong> {{user.repo_type}}</li>
-            <li><strong># Resources:</strong> {{subnodes|length}}</li>
+            <li><strong># Contributions:</strong> {{subnodes|length}}</li>
             {% if user.web %}
             <li><strong>Website:</strong> <a href="{{user.web}}">{{user.web}}</a></li>
             {% endif %}
@@ -67,10 +67,10 @@
     </div>
 
     <div class="subnodes">
-        <h3>All Nodes ({{subnodes|length}})</h3>
+        <h3>All Contributions ({{subnodes|length}})</h3>
         <div class="nodes-list">
             {% if not subnodes %}
-            No subnodes found.
+            No contributions found.
             {% endif %}
 
             {% for subnode in subnodes %}

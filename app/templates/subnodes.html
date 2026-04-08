@@ -20,18 +20,18 @@
 {% if header %}
 <h1> {{header}} </h1>
 {% else %}
-<h1> Subnodes </h1>
+<h1> Contributions </h1>
 {% endif %}
 
 {% if not subnodes %}
-No subnodes found for the given term or path.
+No contributions found for the given term or path.
 Go back to <a href="/nodes">/nodes</a>?
 {% endif %}
 
 {% for subnode in subnodes %}
 <div class="subnode">
      <div class="subnode-header">
-         <span class="subnode-id">↳ subnode <a
+         <span class="subnode-id">↳ contribution <a
                  href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
          <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
                  href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a></span>
