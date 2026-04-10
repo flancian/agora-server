@@ -967,6 +967,12 @@ details > summary {
     margin-top: 10px;
 }
 
+/* Ensure targets scrolled into view aren't hidden by the sticky navbar */
+.synthesis-container, .graph-container, .info-box-container, 
+#synthesis-details, #graph, #agoragraph {
+    scroll-margin-top: 8em;
+}
+
 .node-name {
     text-transform: capitalize;
 }
