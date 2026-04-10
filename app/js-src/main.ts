@@ -651,31 +651,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  const miniCliSynthesize = document.querySelector("#mini-cli-synthesize") as HTMLButtonElement;
-  if (miniCliSynthesize) {
-      // Check if synthesis details is actually on the page
-      const synthesisDetails = document.getElementById("synthesis-details") as HTMLDetailsElement;
-      if (synthesisDetails) {
-          // Fade it in
-          miniCliSynthesize.style.display = "inline-block";
-          setTimeout(() => {
-              miniCliSynthesize.style.opacity = "1";
-          }, 100); // small delay to ensure display: block has taken effect
-
-          miniCliSynthesize.addEventListener("click", () => {
-              // Open it if not open
-              synthesisDetails.open = true;
-              
-              // Scroll to it
-              synthesisDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-              // Note: If you want it to explicitly synthesize on click, 
-              // the synthesis feature usually triggers upon opening the details anyway,
-              // or clicking the tabs. The scrolling should be enough.
-          });
-      }
-  }
-
   // No longer caching toastContainer at the top level to avoid initialization timing issues.
   // const toastContainer = document.getElementById('toast-container');
 
@@ -1440,6 +1415,24 @@ function createAiFooter(prompt: string, provider: string, initialAnswer: string 
     if (!synthesisContent || !synthesisDetails || !synthesisContainer) {
         console.warn("Synthesis elements not found.");
         return;
+    }
+
+    const miniCliSynthesize = document.querySelector("#mini-cli-synthesize") as HTMLButtonElement;
+    if (miniCliSynthesize) {
+        // Replace any existing listeners by cloning (if initSynthesis is called multiple times)
+        const newBtn = miniCliSynthesize.cloneNode(true) as HTMLButtonElement;
+        miniCliSynthesize.parentNode?.replaceChild(newBtn, miniCliSynthesize);
+
+        // Fade it in since synthesis is available
+        newBtn.style.display = "inline-block";
+        setTimeout(() => {
+            newBtn.style.opacity = "1";
+        }, 100); // small delay to ensure display: block has taken effect
+
+        newBtn.addEventListener("click", () => {
+            synthesisDetails.open = true;
+            synthesisDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
     }
 
     const runSynthesis = async (provider: string) => {
