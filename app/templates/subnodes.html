@@ -31,10 +31,13 @@ Go back to <a href="/nodes">/nodes</a>?
 {% for subnode in subnodes %}
 <div class="subnode">
      <div class="subnode-header">
-         <span class="subnode-id">↳ contribution <a
-                 href="/@{{subnode.user}}/{{node.uri}}">[[@{{subnode.user}}/{{node.uri}}]]</a></span><br />
-         <span class="subnode-links">from <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
-                 href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a></span>
+         <span class="subnode-id">
+             <span class="subnode-links">
+                 <a href="/@{{subnode.user}}/{{node.uri}}">👩‍🌾</a>
+                 <strong>Contribution</strong> <a href="/raw/{{subnode.uri}}">{{subnode.uri}}</a> by <a
+                 href="/@{{subnode.user}}">@<span class="subnode-user">{{subnode.user}}</span></a>
+             </span>
+         </span>
      </div>
      <span class="subnode-content">{{ subnode.render()|linkify|safe }}</span>
  </div>
