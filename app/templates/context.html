@@ -1,12 +1,11 @@
 <!-- <div class="context"> now meant to be loaded async through /context/x -->
 
-<summary class="node-header main-header" title="Context is assembled by the Agora from the rest of the graph.">
+<summary class="node-header main-header" title="Dynamically assembled context from this and other locations.">
     <span style="flex: auto; flex-grow: 1;">
-        🌌 <strong>Agora context</strong> for 
+        🌌 <strong>Agora context</strong> for
         <span class="wikilink-marker">[[</span><a href="/context/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
     </span>
 </summary>
-
 <div class="context-flex">
 {% if node.back_nodes() or node.push_nodes() or node.pull_nodes() or node.forward_nodes() %}
 
