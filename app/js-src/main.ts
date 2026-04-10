@@ -627,7 +627,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const miniCliWrite = document.querySelector("#mini-cli-write") as HTMLButtonElement;
   if (miniCliWrite) {
     miniCliWrite.addEventListener("click", () => {
-      const user = localStorage.getItem('user') || 'flancian';
+      const user = localStorage.getItem('user');
       let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
       if (!node && typeof NODENAME !== 'undefined') {
           node = NODENAME;
@@ -635,8 +635,45 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (node && !node.includes('.')) {
           node += '.md';
       }
-      window.location.href = `https://edit.anagora.org/@${user}/${node}`;
+      
+      if (user) {
+          window.location.href = `https://edit.anagora.org/@${user}/${node}`;
+      } else {
+          const joinOverlay = document.getElementById("join-overlay");
+          if (joinOverlay) {
+              joinOverlay.classList.add("active");
+              document.body.classList.add("overlay-open");
+          } else {
+              // Fallback if overlay is not present
+              window.location.href = '/join';
+          }
+      }
     });
+  }
+
+  const miniCliSynthesize = document.querySelector("#mini-cli-synthesize") as HTMLButtonElement;
+  if (miniCliSynthesize) {
+      // Check if synthesis details is actually on the page
+      const synthesisDetails = document.getElementById("synthesis-details") as HTMLDetailsElement;
+      if (synthesisDetails) {
+          // Fade it in
+          miniCliSynthesize.style.display = "inline-block";
+          setTimeout(() => {
+              miniCliSynthesize.style.opacity = "1";
+          }, 100); // small delay to ensure display: block has taken effect
+
+          miniCliSynthesize.addEventListener("click", () => {
+              // Open it if not open
+              synthesisDetails.open = true;
+              
+              // Scroll to it
+              synthesisDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+              // Note: If you want it to explicitly synthesize on click, 
+              // the synthesis feature usually triggers upon opening the details anyway,
+              // or clicking the tabs. The scrolling should be enough.
+          });
+      }
   }
 
   // No longer caching toastContainer at the top level to avoid initialization timing issues.
