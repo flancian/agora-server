@@ -609,7 +609,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const miniCliLookAround = document.querySelector("#mini-cli-look-around") as HTMLButtonElement;
   if (miniCliLookAround) {
     miniCliLookAround.addEventListener("click", () => {
-      const graphElement = document.getElementById('agoragraph') || document.getElementById('graph');
+      const graphElement = document.getElementById('agoragraph') || document.getElementById('graph') || document.querySelector('.context');
       if (graphElement) {
           graphElement.scrollIntoView({ behavior: 'smooth' });
       } else {

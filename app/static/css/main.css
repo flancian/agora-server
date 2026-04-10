@@ -968,7 +968,7 @@ details > summary {
 }
 
 /* Ensure targets scrolled into view aren't hidden by the sticky navbar */
-.synthesis-container, .graph-container, .info-box-container, 
+.synthesis-container, .graph-container, .info-box-container, .context,
 #synthesis-details, #graph, #agoragraph {
     scroll-margin-top: 8em;
 }
