@@ -175,7 +175,7 @@ def feeling_lucky(query):
     Performs a server-side "I'm Feeling Lucky" request to Google.
     Returns a URL if successful, otherwise None.
     """
-    lucky_url = f"http://www.google.com/search?q={urllib.parse.quote_plus(query)}&btnI"
+    lucky_url = f"http://www.google.com/search?q={urllib.parse.quote_plus(query)}&btnI&hl=en"
     current_app.logger.info(f"Trying server-side I'm Feeling Lucky for query: '{query}'")
 
     try:
