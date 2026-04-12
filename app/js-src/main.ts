@@ -611,7 +611,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     miniCliLookAround.addEventListener("click", () => {
       const graphElement = document.getElementById('agoragraph') || document.getElementById('graph') || document.querySelector('.context');
       if (graphElement) {
-          graphElement.scrollIntoView({ behavior: 'smooth' });
+          graphElement.scrollIntoView({ block: 'start' });
       } else {
           let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
           if (!node && typeof NODENAME !== 'undefined') {
@@ -1432,7 +1432,7 @@ function createAiFooter(prompt: string, provider: string, initialAnswer: string 
         newBtn.addEventListener("click", () => {
             synthesisDetails.open = true;
             setTimeout(() => {
-                synthesisContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                synthesisContainer.scrollIntoView({ block: 'start' });
             }, 50);
         });
     }
