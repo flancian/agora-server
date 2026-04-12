@@ -1431,7 +1431,9 @@ function createAiFooter(prompt: string, provider: string, initialAnswer: string 
 
         newBtn.addEventListener("click", () => {
             synthesisDetails.open = true;
-            synthesisDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                synthesisContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
         });
     }
 
