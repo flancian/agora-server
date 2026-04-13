@@ -606,6 +606,50 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  const miniCliPull = document.querySelector("#mini-cli-pull") as HTMLButtonElement;
+  if (miniCliPull) {
+    miniCliPull.addEventListener("click", () => {
+      let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
+      if (!node) {
+          node = prompt("Enter an Agora location to pull (transclude) into this page:", "") || "";
+      }
+      if (node) {
+          let container = document.getElementById('manual-pulls-container');
+          if (!container) {
+              container = document.createElement('div');
+              container.id = 'manual-pulls-container';
+              container.className = 'with-spacing';
+              const contextSection = document.querySelector('.context.node');
+              if (contextSection && contextSection.parentNode) {
+                  contextSection.parentNode.insertBefore(container, contextSection);
+              } else {
+                  document.querySelector('.content')?.appendChild(container);
+              }
+          }
+          
+          // Generate a safe ID for the DOM
+          const safeId = 'manual-pull-' + Date.now();
+          
+          const html = `
+          <details class="node pulled" open>
+              <summary><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens. Click to explore all related contributions.">
+                  📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${encodeURIComponent(node)}"><span class="node-name">${node}</span></a><span class="wikilink-marker">]]</span> (pulled manually)</span>
+              </summary>
+              <div class="node-embed" id="${safeId}" style="margin-top: 10px;">
+                  <iframe src="/embed/${encodeURIComponent(node)}" style="width: 100%; border: none; height: 600px;" allowfullscreen="allowfullscreen"></iframe>
+              </div>
+          </details>`;
+          
+          container.insertAdjacentHTML('beforeend', html);
+          
+          const newEmbed = document.getElementById(safeId);
+          if (newEmbed) {
+              newEmbed.scrollIntoView({ block: 'start' });
+          }
+      }
+    });
+  }
+
   const miniCliLookAround = document.querySelector("#mini-cli-look-around") as HTMLButtonElement;
   if (miniCliLookAround) {
     miniCliLookAround.addEventListener("click", () => {
@@ -1524,9 +1568,56 @@ function createAiFooter(prompt: string, provider: string, initialAnswer: string 
     });
 }
 
+async function initInteractiveEmptyState() {
+    const container = document.getElementById("interactive-empty-state");
+    if (!container) return;
+
+    const options = ["hexgame", "conway", "random_pull"];
+    const choice = options[Math.floor(Math.random() * options.length)];
+
+    if (choice === "hexgame") {
+        container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px;"><em>While you wait, a hexgame...</em></p><canvas id="myCanvas" width="600" height="600"></canvas></center>';
+        const { initHexgame } = await import('./games/hexgame');
+        initHexgame('myCanvas');
+    } else if (choice === "conway") {
+        container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px;"><em>While you wait, Conway\'s Game of Life... (click to draw)</em></p><canvas id="conwayCanvas" width="600" height="400"></canvas></center>';
+        const { initConway } = await import('./games/conway');
+        initConway('conwayCanvas');
+    } else {
+        container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px;"><em>While you wait, discovering a random location...</em></p><div id="random-pull-embed"></div></center>';
+        fetch('/random')
+            .then(response => {
+                const embed = document.getElementById("random-pull-embed");
+                if (embed && response.url) {
+                     try {
+                         const urlObj = new URL(response.url);
+                         let pathParts = urlObj.pathname.split('/').filter(p => p);
+                         if (pathParts.length > 0) {
+                             let nodeName = pathParts[pathParts.length - 1];
+                             if (nodeName.toLowerCase().startsWith('go/')) {
+                                  nodeName = 'agora';
+                             }
+                             const finalEmbedUrl = '/embed/' + nodeName;
+                             embed.innerHTML = `
+                                <details class="node pulled" open>
+                                    <summary><span class="node-header">📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${nodeName}"><span class="node-name">${decodeURIComponent(nodeName)}</span></a><span class="wikilink-marker">]]</span> (pulled randomly)</span></summary>
+                                    <div class="node-embed" style="margin-top: 10px;">
+                                        <iframe src="${finalEmbedUrl}" style="max-width: 100%; width: 100%; height: 600px; border: none;" allowfullscreen="allowfullscreen"></iframe>
+                                    </div>
+                                </details>`;
+                         }
+                     } catch (e) {
+                         console.error("Failed to parse random node redirect:", e);
+                     }
+                }
+            });
+    }
+}
+
 async function bindEvents() {
 
     initSynthesis();
+    initInteractiveEmptyState();
 
     if (document.querySelector('.not-found') && autoPull) {
                                                             const wikiDetails = document.querySelector('#wp-wt-container .wiki') as HTMLDetailsElement;
