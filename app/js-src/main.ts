@@ -607,9 +607,31 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   const miniCliPull = document.querySelector("#mini-cli-pull") as HTMLButtonElement;
-  if (miniCliPull) {
+  const miniCliInput = document.querySelector("#mini-cli") as HTMLInputElement;
+  
+  if (miniCliPull && miniCliInput) {
+      miniCliInput.addEventListener("input", () => {
+          const currentVal = miniCliInput.value.trim().toLowerCase();
+          // @ts-ignore
+          const currentNode = (typeof NODENAME !== 'undefined' ? NODENAME : "").toLowerCase();
+          
+          if (currentVal && currentVal !== currentNode) {
+              miniCliPull.style.display = "inline-block";
+              setTimeout(() => {
+                  miniCliPull.style.opacity = "1";
+              }, 10);
+          } else {
+              miniCliPull.style.opacity = "0";
+              setTimeout(() => {
+                  if (miniCliPull.style.opacity === "0") {
+                      miniCliPull.style.display = "none";
+                  }
+              }, 500); // match transition duration
+          }
+      });
+
     miniCliPull.addEventListener("click", () => {
-      let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
+      let node = miniCliInput.value;
       if (!node) {
           node = prompt("Enter an Agora location to pull (transclude) into this page:", "") || "";
       }
