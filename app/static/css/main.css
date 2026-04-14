@@ -973,6 +973,10 @@ details > summary {
     scroll-margin-top: 8em;
 }
 
+#manual-pulls-container .node {
+    margin-bottom: 2em;
+}
+
 .node-name {
     text-transform: capitalize;
 }

@@ -610,25 +610,32 @@ document.addEventListener("DOMContentLoaded", async function () {
   const miniCliInput = document.querySelector("#mini-cli") as HTMLInputElement;
   
   if (miniCliPull && miniCliInput) {
-      miniCliInput.addEventListener("input", () => {
-          const currentVal = miniCliInput.value.trim().toLowerCase();
+      const updatePullVisibility = () => {
+          const currentVal = miniCliInput.value.trim().toLowerCase().replace(/[\s_]+/g, '-');
           // @ts-ignore
-          const currentNode = (typeof NODENAME !== 'undefined' ? NODENAME : "").toLowerCase();
+          const currentNode = (typeof NODENAME !== 'undefined' ? NODENAME : "").toLowerCase().replace(/[\s_]+/g, '-');
           
           if (currentVal && currentVal !== currentNode) {
               miniCliPull.style.display = "inline-block";
-              setTimeout(() => {
-                  miniCliPull.style.opacity = "1";
-              }, 10);
+              // Force reflow for transition
+              miniCliPull.offsetHeight;
+              miniCliPull.style.opacity = "1";
           } else {
               miniCliPull.style.opacity = "0";
-              setTimeout(() => {
+              // Hide after transition
+              const handleTransitionEnd = () => {
                   if (miniCliPull.style.opacity === "0") {
                       miniCliPull.style.display = "none";
                   }
-              }, 500); // match transition duration
+                  miniCliPull.removeEventListener('transitionend', handleTransitionEnd);
+              };
+              miniCliPull.addEventListener('transitionend', handleTransitionEnd);
           }
-      });
+      };
+
+      miniCliInput.addEventListener("input", updatePullVisibility);
+      // Also check on load/focus
+      miniCliInput.addEventListener("focus", updatePullVisibility);
 
     miniCliPull.addEventListener("click", () => {
       let node = miniCliInput.value;
