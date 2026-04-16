@@ -613,28 +613,29 @@ document.addEventListener("DOMContentLoaded", async function () {
       const updatePullVisibility = () => {
           const currentVal = miniCliInput.value.trim().toLowerCase().replace(/[\s_]+/g, '-');
           // @ts-ignore
-          const currentNode = (typeof NODENAME !== 'undefined' ? NODENAME : "").toLowerCase().replace(/[\s_]+/g, '-');
+          const currentNodeName = (typeof NODENAME !== 'undefined' ? NODENAME : "").toLowerCase().replace(/[\s_]+/g, '-');
+          // @ts-ignore
+          const currentWikilink = (typeof WIKILINK !== 'undefined' ? WIKILINK : "").toLowerCase().replace(/[\s_]+/g, '-');
           
-          if (currentVal && currentVal !== currentNode) {
+          const isCurrentLocation = currentVal === currentNodeName || currentVal === currentWikilink;
+
+          if (currentVal && !isCurrentLocation) {
               miniCliPull.style.display = "inline-block";
-              // Force reflow for transition
-              miniCliPull.offsetHeight;
+              // Force reflow
+              void miniCliPull.offsetHeight;
               miniCliPull.style.opacity = "1";
           } else {
               miniCliPull.style.opacity = "0";
-              // Hide after transition
-              const handleTransitionEnd = () => {
+              // We'll hide it via a single timeout that checks if it's still supposed to be hidden
+              setTimeout(() => {
                   if (miniCliPull.style.opacity === "0") {
                       miniCliPull.style.display = "none";
                   }
-                  miniCliPull.removeEventListener('transitionend', handleTransitionEnd);
-              };
-              miniCliPull.addEventListener('transitionend', handleTransitionEnd);
+              }, 500); 
           }
       };
 
       miniCliInput.addEventListener("input", updatePullVisibility);
-      // Also check on load/focus
       miniCliInput.addEventListener("focus", updatePullVisibility);
 
     miniCliPull.addEventListener("click", () => {
@@ -660,14 +661,16 @@ document.addEventListener("DOMContentLoaded", async function () {
           const safeId = 'manual-pull-' + Date.now();
           
           const html = `
-          <details class="node pulled" open>
-              <summary><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens. Click to explore all related contributions.">
-                  📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${encodeURIComponent(node)}"><span class="node-name">${node}</span></a><span class="wikilink-marker">]]</span> (pulled manually)</span>
-              </summary>
-              <div class="node-embed" id="${safeId}" style="margin-top: 10px;">
-                  <iframe src="/embed/${encodeURIComponent(node)}" style="width: 100%; border: none; height: 600px;" allowfullscreen="allowfullscreen"></iframe>
-              </div>
-          </details>`;
+          <div class="manual-pull-item">
+              <details class="node pulled" open>
+                  <summary><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens.">
+                      📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${encodeURIComponent(node)}"><span class="node-name">${node}</span></a><span class="wikilink-marker">]]</span> (pulled manually)</span>
+                  </summary>
+                  <div class="node-embed" id="${safeId}" style="margin-top: 10px;">
+                      <iframe src="/embed/${encodeURIComponent(node)}" style="width: 100%; border: none; height: 600px;" allowfullscreen="allowfullscreen"></iframe>
+                  </div>
+              </details>
+          </div>`;
           
           container.insertAdjacentHTML('beforeend', html);
           
@@ -1628,12 +1631,16 @@ async function initInteractiveEmptyState() {
                              }
                              const finalEmbedUrl = '/embed/' + nodeName;
                              embed.innerHTML = `
-                                <details class="node pulled" open>
-                                    <summary><span class="node-header">📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${nodeName}"><span class="node-name">${decodeURIComponent(nodeName)}</span></a><span class="wikilink-marker">]]</span> (pulled randomly)</span></summary>
-                                    <div class="node-embed" style="margin-top: 10px;">
-                                        <iframe src="${finalEmbedUrl}" style="max-width: 100%; width: 100%; height: 600px; border: none;" allowfullscreen="allowfullscreen"></iframe>
-                                    </div>
-                                </details>`;
+                                <div class="manual-pull-item">
+                                    <details class="node pulled" open>
+                                        <summary><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens.">
+                                            📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${nodeName}"><span class="node-name">${decodeURIComponent(nodeName)}</span></a><span class="wikilink-marker">]]</span> (pulled randomly)</span>
+                                        </summary>
+                                        <div class="node-embed" style="margin-top: 10px;">
+                                            <iframe src="${finalEmbedUrl}" style="max-width: 100%; width: 100%; height: 600px; border: none;" allowfullscreen="allowfullscreen"></iframe>
+                                        </div>
+                                    </details>
+                                </div>`;
                          }
                      } catch (e) {
                          console.error("Failed to parse random node redirect:", e);
