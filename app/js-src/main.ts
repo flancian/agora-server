@@ -67,6 +67,17 @@ document.addEventListener("DOMContentLoaded", async function () {
   // This handles buttons present on initial load AND those added dynamically.
   document.body.addEventListener('click', function(event) {
     const target = event.target as HTMLElement;
+
+    if (target.classList.contains('manual-pull-dismiss')) {
+        event.preventDefault();
+        event.stopPropagation();
+        const item = target.closest('.manual-pull-item');
+        if (item) {
+            item.remove();
+        }
+        return;
+    }
+
     if (target.classList.contains('dismiss-button')) {
       // Prevent default action (important if inside <summary>)
       event.preventDefault();
@@ -665,6 +676,7 @@ document.addEventListener("DOMContentLoaded", async function () {
               <details class="node pulled" open>
                   <summary><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens.">
                       📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${encodeURIComponent(node)}"><span class="node-name">${node}</span></a><span class="wikilink-marker">]]</span> (pulled manually)</span>
+                      <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
                   </summary>
                   <div class="node-embed" id="${safeId}" style="margin-top: 10px;">
                       <iframe src="/embed/${encodeURIComponent(node)}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="width: 100%; border: none; min-height: 200px;" allowfullscreen="allowfullscreen"></iframe>
@@ -1641,6 +1653,7 @@ async function initInteractiveEmptyState() {
                                     <details class="node pulled" open>
                                         <summary><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens.">
                                             📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${nodeName}"><span class="node-name">${decodeURIComponent(nodeName)}</span></a><span class="wikilink-marker">]]</span> (pulled randomly)</span>
+                                            <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
                                         </summary>
                                         <div class="node-embed" style="margin-top: 10px;">
                                             <iframe src="${finalEmbedUrl}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="max-width: 100%; width: 100%; min-height: 200px; border: none;" allowfullscreen="allowfullscreen"></iframe>
