@@ -659,7 +659,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (!container) {
               container = document.createElement('div');
               container.id = 'manual-pulls-container';
-              container.className = 'with-spacing';
               const agoraIntro = document.querySelector('[info-box-id="agora-intro"]');
               const contentSection = document.querySelector('.content');
               
@@ -676,14 +675,14 @@ document.addEventListener("DOMContentLoaded", async function () {
           const safeId = 'manual-pull-' + Date.now();
           
           const html = `
-          <div class="manual-pull-item">
-              <details class="node pulled" open>
-                  <summary><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens.">
+          <div class="manual-pull-item" style="margin-top: 0px; margin-bottom: 0px; padding: 0px;">
+              <details class="node pulled" open style="padding: 0px; border: none;">
+                  <summary style="padding: 5px 10px; border-bottom: 1px solid var(--blockquote-border);"><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens.">
                       📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${encodeURIComponent(node)}"><span class="node-name">${node}</span></a><span class="wikilink-marker">]]</span> (pulled manually)</span>
                       <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
                   </summary>
-                  <div class="node-embed" id="${safeId}" style="margin-top: 10px;">
-                      <iframe src="/embed/${encodeURIComponent(node)}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="width: 100%; border: none; min-height: 200px;" allowfullscreen="allowfullscreen"></iframe>
+                  <div class="node-embed" id="${safeId}" style="margin-top: 0px; padding: 0px;">
+                      <iframe src="/embed/${encodeURIComponent(node)}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="width: 100%; border: none !important; min-height: 200px; display: block;" allowfullscreen="allowfullscreen"></iframe>
                   </div>
               </details>
           </div>`;
@@ -1653,14 +1652,14 @@ async function initInteractiveEmptyState() {
                              }
                              const finalEmbedUrl = '/embed/' + nodeName;
                              embed.innerHTML = `
-                                <div class="manual-pull-item">
-                                    <details class="node pulled" open>
-                                        <summary><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens.">
+                                <div class="manual-pull-item" style="margin-top: 0px; margin-bottom: 0px; padding: 0px;">
+                                    <details class="node pulled" open style="padding: 0px; border: none;">
+                                        <summary style="padding: 5px 10px; border-bottom: 1px solid var(--blockquote-border);"><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens.">
                                             📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${nodeName}"><span class="node-name">${decodeURIComponent(nodeName)}</span></a><span class="wikilink-marker">]]</span> (pulled randomly)</span>
                                             <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
                                         </summary>
-                                        <div class="node-embed" style="margin-top: 10px;">
-                                            <iframe src="${finalEmbedUrl}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="max-width: 100%; width: 100%; min-height: 200px; border: none;" allowfullscreen="allowfullscreen"></iframe>
+                                        <div class="node-embed" style="margin-top: 0px; padding: 0px;">
+                                            <iframe src="${finalEmbedUrl}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="max-width: 100%; width: 100%; min-height: 200px; border: none !important; display: block;" allowfullscreen="allowfullscreen"></iframe>
                                         </div>
                                     </details>
                                 </div>`;
