@@ -692,6 +692,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                             document.getElementById('index');
       
       if (targetElement) {
+          const parentDetails = targetElement.closest('details');
+          if (parentDetails && !parentDetails.open) {
+              parentDetails.open = true;
+          }
           targetElement.scrollIntoView({ block: 'start' });
       } else {
           // @ts-ignore
