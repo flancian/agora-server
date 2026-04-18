@@ -649,11 +649,11 @@ document.addEventListener("DOMContentLoaded", async function () {
               container = document.createElement('div');
               container.id = 'manual-pulls-container';
               container.className = 'with-spacing';
-              const contextSection = document.querySelector('.context.node');
-              if (contextSection && contextSection.parentNode) {
-                  contextSection.parentNode.insertBefore(container, contextSection);
+              const contentSection = document.querySelector('.content');
+              if (contentSection) {
+                  contentSection.insertBefore(container, contentSection.firstChild);
               } else {
-                  document.querySelector('.content')?.appendChild(container);
+                  document.body.appendChild(container);
               }
           }
           
@@ -672,7 +672,7 @@ document.addEventListener("DOMContentLoaded", async function () {
               </details>
           </div>`;
           
-          container.insertAdjacentHTML('beforeend', html);
+          container.insertAdjacentHTML('afterbegin', html);
           
           const newEmbed = document.getElementById(safeId);
           if (newEmbed) {
