@@ -685,8 +685,20 @@ document.addEventListener("DOMContentLoaded", async function () {
   const miniCliLookAround = document.querySelector("#mini-cli-look-around") as HTMLButtonElement;
   if (miniCliLookAround) {
     miniCliLookAround.addEventListener("click", () => {
-      // Find a suitable target to scroll to: a graph, the context section, or the index block on the home page.
-      const targetElement = document.getElementById('agoragraph') || document.getElementById('graph') || document.querySelector('.context') || document.getElementById('index');
+      // Find a suitable target to scroll to. 
+      // We check for a graph, a populated context section, or the index block.
+      const graphElement = document.getElementById('agoragraph') || document.getElementById('graph');
+      const contextElement = document.querySelector('.context') as HTMLElement;
+      const indexElement = document.getElementById('index');
+
+      // Check if the context element actually has meaningful connections (not just "No context found")
+      const hasMeaningfulContext = contextElement && 
+          (contextElement.querySelector('.graph-container') || 
+           contextElement.querySelector('.links-list') || 
+           contextElement.querySelector('ul') ||
+           contextElement.querySelector('.nodes-list'));
+
+      const targetElement = graphElement || (hasMeaningfulContext ? contextElement : null) || indexElement;
       
       if (targetElement) {
           targetElement.scrollIntoView({ block: 'start' });
