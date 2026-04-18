@@ -975,8 +975,8 @@ details > summary {
 
 #manual-pulls-container .manual-pull-item, 
 #random-pull-embed .manual-pull-item {
-    margin-top: 1.5em;
-    margin-bottom: 2em;
+    margin-top: 10px;
+    margin-bottom: 10px;
     border: 1px solid var(--blockquote-border);
     border-radius: 8px;
     padding: 4px;

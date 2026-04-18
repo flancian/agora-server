@@ -667,7 +667,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                       📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${encodeURIComponent(node)}"><span class="node-name">${node}</span></a><span class="wikilink-marker">]]</span> (pulled manually)</span>
                   </summary>
                   <div class="node-embed" id="${safeId}" style="margin-top: 10px;">
-                      <iframe src="/embed/${encodeURIComponent(node)}" style="width: 100%; border: none; height: 600px;" allowfullscreen="allowfullscreen"></iframe>
+                      <iframe src="/embed/${encodeURIComponent(node)}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="width: 100%; border: none; min-height: 200px;" allowfullscreen="allowfullscreen"></iframe>
                   </div>
               </details>
           </div>`;
@@ -1637,7 +1637,7 @@ async function initInteractiveEmptyState() {
                                             📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${nodeName}"><span class="node-name">${decodeURIComponent(nodeName)}</span></a><span class="wikilink-marker">]]</span> (pulled randomly)</span>
                                         </summary>
                                         <div class="node-embed" style="margin-top: 10px;">
-                                            <iframe src="${finalEmbedUrl}" style="max-width: 100%; width: 100%; height: 600px; border: none;" allowfullscreen="allowfullscreen"></iframe>
+                                            <iframe src="${finalEmbedUrl}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="max-width: 100%; width: 100%; min-height: 200px; border: none;" allowfullscreen="allowfullscreen"></iframe>
                                         </div>
                                     </details>
                                 </div>`;
