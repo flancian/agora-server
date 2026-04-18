@@ -73,7 +73,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         event.stopPropagation();
         const item = target.closest('.manual-pull-item');
         if (item) {
+            const container = item.closest('#manual-pulls-container');
             item.remove();
+            if (container && container.children.length === 0) {
+                container.remove();
+            }
         }
         return;
     }
