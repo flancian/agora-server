@@ -682,7 +682,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                       <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
                   </summary>
                   <div class="node-embed" id="${safeId}" style="margin-top: 0px; padding: 0px;">
-                      <iframe src="/embed/${encodeURIComponent(node)}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="width: 100%; border: none !important; min-height: 200px; display: block;" allowfullscreen="allowfullscreen"></iframe>
+                      <iframe src="/embed/${encodeURIComponent(node)}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="width: 100%; border: none !important; min-height: 200px; display: block; margin-bottom: 0px;" allowfullscreen="allowfullscreen"></iframe>
                   </div>
               </details>
           </div>`;
@@ -1659,7 +1659,7 @@ async function initInteractiveEmptyState() {
                                             <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
                                         </summary>
                                         <div class="node-embed" style="margin-top: 0px; padding: 0px;">
-                                            <iframe src="${finalEmbedUrl}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="max-width: 100%; width: 100%; min-height: 200px; border: none !important; display: block;" allowfullscreen="allowfullscreen"></iframe>
+                                            <iframe src="${finalEmbedUrl}" onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';" style="max-width: 100%; width: 100%; min-height: 200px; border: none !important; display: block; margin-bottom: 0px;" allowfullscreen="allowfullscreen"></iframe>
                                         </div>
                                     </details>
                                 </div>`;
