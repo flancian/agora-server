@@ -660,8 +660,12 @@ document.addEventListener("DOMContentLoaded", async function () {
               container = document.createElement('div');
               container.id = 'manual-pulls-container';
               container.className = 'with-spacing';
+              const agoraIntro = document.querySelector('[info-box-id="agora-intro"]');
               const contentSection = document.querySelector('.content');
-              if (contentSection) {
+              
+              if (agoraIntro && agoraIntro.nextSibling) {
+                  agoraIntro.parentNode?.insertBefore(container, agoraIntro.nextSibling);
+              } else if (contentSection) {
                   contentSection.insertBefore(container, contentSection.firstChild);
               } else {
                   document.body.appendChild(container);
