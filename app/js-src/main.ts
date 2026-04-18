@@ -685,11 +685,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   const miniCliLookAround = document.querySelector("#mini-cli-look-around") as HTMLButtonElement;
   if (miniCliLookAround) {
     miniCliLookAround.addEventListener("click", () => {
-      // Find a suitable target to scroll to. 
+      // Find a suitable target to scroll to. We exclusively target the current node's context.
       const targetElement = document.getElementById('agoragraph') || 
                             document.getElementById('graph') || 
-                            document.querySelector('.context') || 
-                            document.getElementById('index');
+                            document.querySelector('.context');
       
       if (targetElement) {
           const parentDetails = targetElement.closest('details');
