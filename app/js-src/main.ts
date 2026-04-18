@@ -686,19 +686,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (miniCliLookAround) {
     miniCliLookAround.addEventListener("click", () => {
       // Find a suitable target to scroll to. 
-      // We check for a graph, a populated context section, or the index block.
-      const graphElement = document.getElementById('agoragraph') || document.getElementById('graph');
-      const contextElement = document.querySelector('.context') as HTMLElement;
-      const indexElement = document.getElementById('index');
-
-      // Check if the context element actually has meaningful connections (not just "No context found")
-      const hasMeaningfulContext = contextElement && 
-          (contextElement.querySelector('.graph-container') || 
-           contextElement.querySelector('.links-list') || 
-           contextElement.querySelector('ul') ||
-           contextElement.querySelector('.nodes-list'));
-
-      const targetElement = graphElement || (hasMeaningfulContext ? contextElement : null) || indexElement;
+      const targetElement = document.getElementById('agoragraph') || 
+                            document.getElementById('graph') || 
+                            document.querySelector('.context') || 
+                            document.getElementById('index');
       
       if (targetElement) {
           targetElement.scrollIntoView({ block: 'start' });
@@ -707,8 +698,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (typeof window.showToast === 'function') {
               // @ts-ignore
               window.showToast("No context to look around here.");
-          } else {
-              console.log("No context found to look around.");
           }
       }
     });
