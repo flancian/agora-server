@@ -691,22 +691,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (targetElement) {
           targetElement.scrollIntoView({ block: 'start' });
       } else {
-          let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
-          if (!node && typeof NODENAME !== 'undefined') {
-              node = NODENAME;
-          }
-          
-          // If we are on a system/list page and no specific node was typed, don't awkwardly redirect to pseudo-node contexts.
-          const currentPath = window.location.pathname;
-          const isSystemPage = currentPath === '/' || currentPath.startsWith('/latest') || currentPath.startsWith('/users') || currentPath.startsWith('/nodes');
-          const cliValue = (document.querySelector("#mini-cli") as HTMLInputElement).value;
-          
-          if (isSystemPage && !cliValue) {
-              return; // Do nothing if there's no clear context to jump to
-          }
-
-          if (node) {
-              window.location.href = '/context/' + node;
+          // @ts-ignore
+          if (typeof window.showToast === 'function') {
+              // @ts-ignore
+              window.showToast("No context to look around here.");
+          } else {
+              console.log("No context found to look around.");
           }
       }
     });
