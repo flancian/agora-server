@@ -36,6 +36,40 @@ import { initPullButtons } from './pull';
 declare const NODENAME: string | undefined;
 declare const NODEQ: string | undefined;
 
+// @ts-ignore
+window.setupSmartIframeResizer = function(iframe: HTMLIFrameElement) {
+    try {
+        const doc = iframe.contentWindow?.document;
+        if (!doc) return;
+        const container = iframe.parentElement;
+        if (!container) return;
+
+        const resizeContainer = () => {
+            const h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+            // Only auto-resize if it's larger than the initial min-height to prevent shrinking too much during load
+            if (h > 200) {
+                container.style.height = (h + 20) + 'px';
+            }
+        };
+
+        const asyncContent = doc.getElementById('async-content');
+        if (asyncContent) {
+            const observer = new MutationObserver(() => {
+                resizeContainer();
+                // We keep observing in case content changes multiple times (e.g. images load)
+                // The user can still manually resize because CSS resize sets the inline height
+                // which overrides standard height, though they might fight if content dynamically changes again.
+            });
+            observer.observe(asyncContent, { childList: true, subtree: true });
+        }
+        
+        // Always try an initial resize
+        resizeContainer();
+    } catch (e) {
+        console.error("Iframe resize error:", e);
+    }
+};
+
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
   initSettings();
@@ -686,7 +720,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                       <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
                   </summary>
                   <div class="node-embed" id="${safeId}" style="margin-top: 0px; padding: 0px; resize: vertical; overflow: hidden; height: 600px; min-height: 200px;">
-                      <iframe src="/embed/${encodeURIComponent(node)}" onload="const h = Math.max(this.contentWindow.document.body.scrollHeight, this.contentWindow.document.documentElement.scrollHeight); this.parentElement.style.height=(h+20)+'px';" style="width: 100%; height: 100%; border: none !important; display: block; margin-bottom: 0px;" allowfullscreen="allowfullscreen"></iframe>
+                      <iframe src="/embed/${encodeURIComponent(node)}" onload="window.setupSmartIframeResizer(this);" style="width: 100%; height: 100%; border: none !important; display: block; margin-bottom: 0px; max-height: none !important;" allowfullscreen="allowfullscreen"></iframe>
                   </div>
               </details>
           </div>`;
@@ -1663,7 +1697,7 @@ async function initInteractiveEmptyState() {
                                             <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
                                         </summary>
                                         <div class="node-embed" style="margin-top: 0px; padding: 0px; resize: vertical; overflow: hidden; height: 600px; min-height: 200px;">
-                                            <iframe src="${finalEmbedUrl}" onload="const h = Math.max(this.contentWindow.document.body.scrollHeight, this.contentWindow.document.documentElement.scrollHeight); this.parentElement.style.height=(h+20)+'px';" style="width: 100%; height: 100%; border: none !important; display: block; margin-bottom: 0px;" allowfullscreen="allowfullscreen"></iframe>
+                                            <iframe src="${finalEmbedUrl}" onload="window.setupSmartIframeResizer(this);" style="width: 100%; height: 100%; border: none !important; display: block; margin-bottom: 0px; max-height: none !important;" allowfullscreen="allowfullscreen"></iframe>
                                         </div>
                                     </details>
                                 </div>`;
