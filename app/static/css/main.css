@@ -1640,6 +1640,7 @@ input:checked + .slider:before {
     order: 2; /* Links come second */
     background-color: var(--links-bg);
     padding: 10px;
+    margin: 0; /* Override legacy margin from line 1150 */
     border-radius: 8px;
     display: flex;
     flex-direction: column; /* Stack children vertically */
