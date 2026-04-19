@@ -102,13 +102,13 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.body.addEventListener('click', function(event) {
     const target = event.target as HTMLElement;
 
-    if (target.classList.contains('manual-pull-dismiss')) {
+    if (target.classList.contains('pull-dismiss') || target.classList.contains('manual-pull-dismiss')) {
         event.preventDefault();
         event.stopPropagation();
-        const item = target.closest('.manual-pull-item');
-        if (item) {
-            const container = item.closest('#manual-pulls-container');
-            item.remove();
+        const itemToRemove = target.closest('.manual-pull-item') || target.closest('.pulled');
+        if (itemToRemove) {
+            const container = itemToRemove.closest('#manual-pulls-container');
+            itemToRemove.remove();
             if (container && container.children.length === 0) {
                 container.remove();
             }
