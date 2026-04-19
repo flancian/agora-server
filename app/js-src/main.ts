@@ -1663,50 +1663,17 @@ async function initInteractiveEmptyState() {
     const container = document.getElementById("interactive-empty-state");
     if (!container) return;
 
-    const options = ["hexgame", "conway", "random_pull"];
+    const options = ["hexgame", "conway"];
     const choice = options[Math.floor(Math.random() * options.length)];
 
     if (choice === "hexgame") {
-        container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px;"><em>While you wait, a hexgame...</em></p><canvas id="myCanvas" width="600" height="600"></canvas></center>';
+        container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px;"><em>In this otherwise empty place you find... a game (the Agora Hexgame). Use left/right arrows to rotate!</em></p><canvas id="myCanvas" width="600" height="600" tabindex="0" style="outline: none;"></canvas></center>';
         const { initHexgame } = await import('./games/hexgame');
         initHexgame('myCanvas');
     } else if (choice === "conway") {
-        container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px;"><em>While you wait, Conway\'s Game of Life... (click to draw)</em></p><canvas id="conwayCanvas" width="600" height="400"></canvas></center>';
+        container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px;"><em>In this otherwise empty place you find... a game (Conway\'s Game of Life). Click to draw!</em></p><canvas id="conwayCanvas" width="600" height="400"></canvas></center>';
         const { initConway } = await import('./games/conway');
         initConway('conwayCanvas');
-    } else {
-        container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px;"><em>While you wait, discovering a random location...</em></p><div id="random-pull-embed"></div></center>';
-        fetch('/random')
-            .then(response => {
-                const embed = document.getElementById("random-pull-embed");
-                if (embed && response.url) {
-                     try {
-                         const urlObj = new URL(response.url);
-                         let pathParts = urlObj.pathname.split('/').filter(p => p);
-                         if (pathParts.length > 0) {
-                             let nodeName = pathParts[pathParts.length - 1];
-                             if (nodeName.toLowerCase().startsWith('go/')) {
-                                  nodeName = 'agora';
-                             }
-                             const finalEmbedUrl = '/embed/' + nodeName;
-                             embed.innerHTML = `
-                                <div class="manual-pull-item" style="margin-top: 0px; margin-bottom: 0px; padding: 0px;">
-                                    <details class="node pulled" open style="padding: 0px; border: none;">
-                                        <summary style="padding: 5px 10px; border-bottom: 1px solid var(--blockquote-border);"><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens.">
-                                            📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${nodeName}"><span class="node-name">${decodeURIComponent(nodeName)}</span></a><span class="wikilink-marker">]]</span> (pulled randomly)</span>
-                                            <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
-                                        </summary>
-                                        <div class="node-embed" style="margin-top: 0px; padding: 0px; resize: vertical; overflow: hidden; height: 600px; min-height: 200px;">
-                                            <iframe src="${finalEmbedUrl}" onload="window.setupSmartIframeResizer(this);" style="width: 100%; height: 100%; border: none !important; display: block; margin-bottom: 0px; max-height: none !important;" allowfullscreen="allowfullscreen"></iframe>
-                                        </div>
-                                    </details>
-                                </div>`;
-                         }
-                     } catch (e) {
-                         console.error("Failed to parse random node redirect:", e);
-                     }
-                }
-            });
     }
 }
 

@@ -7,6 +7,8 @@ export function initHexgame(canvasId: string) {
     if (!ctx) return;
 
     let angle = 0;
+    let targetSpeed = 0.005;
+    let currentSpeed = 0.005;
     let animationFrameId: number;
     
     function resize() {
@@ -21,6 +23,27 @@ export function initHexgame(canvasId: string) {
     
     window.addEventListener('resize', resize);
     resize();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+        if (e.key === 'ArrowLeft') {
+            targetSpeed = -0.05;
+            e.preventDefault(); // prevent scrolling if applicable
+        } else if (e.key === 'ArrowRight') {
+            targetSpeed = 0.05;
+            e.preventDefault();
+        }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            targetSpeed = 0.005;
+        }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
 
     function drawHexagon(x: number, y: number, radius: number) {
         if (!ctx) return;
@@ -56,7 +79,8 @@ export function initHexgame(canvasId: string) {
             drawHexagon(cx, cy, r);
         }
         
-        angle += 0.005;
+        currentSpeed += (targetSpeed - currentSpeed) * 0.1;
+        angle += currentSpeed;
         animationFrameId = requestAnimationFrame(animate);
     }
     
@@ -65,6 +89,8 @@ export function initHexgame(canvasId: string) {
     // Return a cleanup function
     return () => {
         window.removeEventListener('resize', resize);
+        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keyup', handleKeyUp);
         cancelAnimationFrame(animationFrameId);
     };
 }
