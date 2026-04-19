@@ -324,6 +324,22 @@ def trim_margin_notes(content, subnode):
     return re.sub(MARGIN_NOTES_REGEX, "", content, flags=re.MULTILINE)
 
 
+# Trim common HTML envelope tags that might be present if an HTML page
+# was accidentally saved as a subnode (e.g. a 404 from a mirror).
+# Most importantly, it removes the <base> tag which can hijack the whole Agora.
+def trim_html_envelope(content, subnode):
+    content = re.sub(r"<!DOCTYPE html>", "", content, flags=re.IGNORECASE)
+    content = re.sub(r"<html.*?>", "", content, flags=re.IGNORECASE)
+    content = re.sub(r"</html>", "", content, flags=re.IGNORECASE)
+    content = re.sub(r"<head.*?>.*?</head>", "", content, flags=re.IGNORECASE | re.DOTALL)
+    content = re.sub(r"<body.*?>", "", content, flags=re.IGNORECASE)
+    content = re.sub(r"</body>", "", content, flags=re.IGNORECASE)
+    content = re.sub(r"<title.*?>.*?</title>", "", content, flags=re.IGNORECASE | re.DOTALL)
+    # Just in case <base> is not in <head>
+    content = re.sub(r"<base.*?>", "", content, flags=re.IGNORECASE)
+    return content
+
+
 # Make it so that Tiddlylinks (links of the form [foo](#bar), wish octothorpe) aren't handled by
 # [foo](bar) standard Markdown link parsing in Marko.
 def force_tiddlylink_parsing(content, subnode):
@@ -385,6 +401,7 @@ def preprocess(content, subnode=""):
         force_tiddlylink_parsing,
         trim_liquid,
         trim_margin_notes,
+        trim_html_envelope,
         add_obsidian_embeds,
         add_logseq_embeds,
         add_silverbullet_embeds,
