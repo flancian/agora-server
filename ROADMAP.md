@@ -133,5 +133,9 @@ This hybrid approach provides the best of both worlds: the data users are active
 
 ### UI/UX Polish (Ongoing)
 
+-   **Wide Layout / Triptych View:** Explore an optional multi-column layout for wide viewports (e.g., >100em). This "Triptych" would transition the single-column narrative into a spatial dashboard:
+    -   *Left Pane:* Origins (Local Graph, Backlinks).
+    -   *Center Pane:* The Utterance (Main node contributions).
+    -   *Right Pane:* Destinations & Meta (Outlinks, Hypothesis Marginalia, AI Synthesis).
 -   **Musical Side Quests:** Continue development of the ambient music player and other atmospheric features.
 -   **Tooltip and UI Consistency:** Continue refining tooltips, button labels, and other UI elements for clarity and consistency.
