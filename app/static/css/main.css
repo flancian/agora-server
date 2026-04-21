@@ -235,7 +235,7 @@ nav {
 
 .navbar-item {
     display: flex;
-    gap: 3px;
+    gap: 0.3em;
     align-items: center;
     flex-direction: row;
 }
