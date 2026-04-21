@@ -2034,16 +2034,23 @@ input:checked + .slider:before {
     }
 
     .navigation::after, .topline-node-wrapper::after, .footer-wrapper::after {
-        content: '';
+        content: '›';
         position: absolute;
         right: 0;
         top: 0;
         bottom: 0;
-        width: 20px;
+        width: 30px;
         pointer-events: none;
         background: linear-gradient(to right, transparent, var(--main-bg));
         opacity: 1;
         transition: opacity 0.2s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        font-size: 1.5em;
+        color: var(--link-color);
+        padding-right: 2px;
+        font-weight: bold;
     }
 
     /* When the wrapper has this class, the shadow fades out. */
