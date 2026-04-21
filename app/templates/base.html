@@ -97,7 +97,7 @@
     <nav>
         {% if not embed %}
         <!-- navigation chrome is simplified if embed=True -->
-        <div class="navigation">
+        <div class="navigation scrolled-to-start scrolled-to-end">
             <div class="navigation-content">
                 <div style="display: flex; align-items: center; gap: 0.5em;">
                     <div class="burger" id="burger" style="display: flex; align-items: center; gap: 0.25em; cursor: pointer;">
@@ -130,7 +130,7 @@
                         </div>
                         {% endif %}
         <div class="topline-node">
-            <div class="topline-node-wrapper">
+            <div class="topline-node-wrapper scrolled-to-start scrolled-to-end">
                 <div class="search-container">
                     <div class="topline-cli">
                         <form action="/" method="get">
@@ -157,7 +157,7 @@
                     </label>
                 </div>
             </div>
-            <div class="topline-node-wrapper">
+            <div class="topline-node-wrapper scrolled-to-start scrolled-to-end">
                 <div class="action-bar">
                     <button id="mini-cli-exec" value="exec" title="Search the Agora and the web for the text in the input box.">
                         🔍 Search
