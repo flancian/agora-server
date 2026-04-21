@@ -2040,7 +2040,8 @@ input:checked + .slider:before {
         top: 0;
         bottom: 0;
         width: 30px;
-        pointer-events: none;
+        pointer-events: auto;
+        cursor: pointer;
         background: linear-gradient(to right, transparent, var(--main-bg));
         opacity: 1;
         transition: opacity 0.2s ease-in-out;
@@ -2053,11 +2054,42 @@ input:checked + .slider:before {
         font-weight: bold;
     }
 
-    /* When the wrapper has this class, the shadow fades out. */
+    .navigation::before, .topline-node-wrapper::before, .footer-wrapper::before {
+        content: '‹';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 30px;
+        pointer-events: auto;
+        cursor: pointer;
+        background: linear-gradient(to left, transparent, var(--main-bg));
+        opacity: 1;
+        transition: opacity 0.2s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        font-size: 1.5em;
+        color: var(--link-color);
+        padding-left: 2px;
+        font-weight: bold;
+        z-index: 1;
+    }
+
+    /* When the wrapper has this class, the right shadow fades out. */
     .navigation.scrolled-to-end::after, 
     .topline-node-wrapper.scrolled-to-end::after, 
     .footer-wrapper.scrolled-to-end::after {
         opacity: 0;
+        pointer-events: none;
+    }
+
+    /* When the wrapper has this class, the left shadow fades out. */
+    .navigation.scrolled-to-start::before, 
+    .topline-node-wrapper.scrolled-to-start::before, 
+    .footer-wrapper.scrolled-to-start::before {
+        opacity: 0;
+        pointer-events: none;
     }
 
 @media screen and (max-width: 60em) {

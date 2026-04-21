@@ -584,9 +584,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (isScrollable) {
         // Use Math.ceil and a small tolerance to handle fractional pixel zoom issues
         const isAtEnd = Math.ceil(el.scrollLeft + el.clientWidth) >= el.scrollWidth - 5;
+        const isAtStart = el.scrollLeft <= 5;
         target.classList.toggle('scrolled-to-end', isAtEnd);
+        target.classList.toggle('scrolled-to-start', isAtStart);
       } else {
         target.classList.add('scrolled-to-end');
+        target.classList.add('scrolled-to-start');
       }
     });
   };
@@ -604,13 +607,19 @@ document.addEventListener("DOMContentLoaded", async function () {
   document.querySelectorAll('.navigation, .topline-node-wrapper, .footer-wrapper').forEach(wrapper => {
       wrapper.addEventListener('click', (e) => {
           const rect = wrapper.getBoundingClientRect();
+          
+          const scrollableEl = wrapper.classList.contains('navigation') ? wrapper.querySelector('.navigation-content') : 
+                               wrapper.classList.contains('footer-wrapper') ? wrapper.querySelector('#footer') : wrapper;
+                               
+          if (!scrollableEl) return;
+
           // If click is within the rightmost 30px
           if (e.clientX >= rect.right - 30) {
-              const scrollableEl = wrapper.classList.contains('navigation') ? wrapper.querySelector('.navigation-content') : 
-                                   wrapper.classList.contains('footer-wrapper') ? wrapper.querySelector('#footer') : wrapper;
-              if (scrollableEl) {
-                  scrollableEl.scrollBy({ left: Math.max(150, scrollableEl.clientWidth / 2), behavior: 'smooth' });
-              }
+              scrollableEl.scrollBy({ left: Math.max(150, scrollableEl.clientWidth / 2), behavior: 'smooth' });
+          } 
+          // If click is within the leftmost 30px
+          else if (e.clientX <= rect.left + 30) {
+              scrollableEl.scrollBy({ left: -Math.max(150, scrollableEl.clientWidth / 2), behavior: 'smooth' });
           }
       });
   });
