@@ -574,7 +574,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     elementsToCheck.forEach(element => {
       const el = element as HTMLElement;
       // Shadow target: the wrapper that has the ::after pseudo-element
-      const target = el.classList.contains('navigation-content') ? el.parentElement : el;
+      const target = (el.classList.contains('navigation-content') || el.id === 'footer') ? el.parentElement : el;
       if (!target) return;
 
       // Debug scroll values to diagnose shading issues
@@ -599,6 +599,21 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Initial check on load and resize
   window.addEventListener('resize', handleScrollHints);
   handleScrollHints(); // Initial check
+
+  // Make the chevron indicators clickable
+  document.querySelectorAll('.navigation, .topline-node-wrapper, .footer-wrapper').forEach(wrapper => {
+      wrapper.addEventListener('click', (e) => {
+          const rect = wrapper.getBoundingClientRect();
+          // If click is within the rightmost 30px
+          if (e.clientX >= rect.right - 30) {
+              const scrollableEl = wrapper.classList.contains('navigation') ? wrapper.querySelector('.navigation-content') : 
+                                   wrapper.classList.contains('footer-wrapper') ? wrapper.querySelector('#footer') : wrapper;
+              if (scrollableEl) {
+                  scrollableEl.scrollBy({ left: Math.max(150, scrollableEl.clientWidth / 2), behavior: 'smooth' });
+              }
+          }
+      });
+  });
 
   // clear mini cli on clicking clear button
   /*
@@ -754,7 +769,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           // @ts-ignore
           if (typeof window.showToast === 'function') {
               // @ts-ignore
-              window.showToast("No context to look around here.");
+              window.showToast("No context to look here.");
           }
       }
     });
