@@ -582,7 +582,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       const isScrollable = el.scrollWidth > el.clientWidth;
       if (isScrollable) {
-        const isAtEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
+        // Use Math.ceil and a small tolerance to handle fractional pixel zoom issues
+        const isAtEnd = Math.ceil(el.scrollLeft + el.clientWidth) >= el.scrollWidth - 5;
         target.classList.toggle('scrolled-to-end', isAtEnd);
       } else {
         target.classList.add('scrolled-to-end');
