@@ -1116,6 +1116,7 @@ def garden(garden):
 # Lists
 @bp.route("/top")
 @bp.route("/nodes")
+@bp.route("/locations")
 def nodes():
     n = api.build_node("top")
     page = request.args.get('page', 1, type=int)
