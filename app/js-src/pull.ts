@@ -9,7 +9,7 @@ function pullNode(button: HTMLButtonElement) {
     if (!embedContainer) return;
 
     if (pullRecursive) {
-        embedContainer.innerHTML = `<iframe src="/embed/${node}" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>`;
+        embedContainer.innerHTML = `<iframe loading="lazy" src="/embed/${node}" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>`;
     } else {
         fetch(`/pull/${node}`)
             .then(response => response.text())
@@ -22,6 +22,7 @@ function pullNode(button: HTMLButtonElement) {
 function pullUrl(button: HTMLButtonElement) {
     const url = button.value;
     const iframe = document.createElement('iframe');
+    iframe.loading = 'lazy';
     iframe.className = 'stoa2-iframe';
     iframe.setAttribute('allow', 'camera; microphone; fullscreen; display-capture; autoplay');
     iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms allow-presentation');

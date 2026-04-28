@@ -33,7 +33,7 @@ function showBox(url) {
         popup.style.top = `${mouseY}px`;
         popup.style.left = `${mouseX}px`;
         popup.style.backgroundColor = 'var(--main-bg)';
-        popup.innerHTML = `<div><button onclick='closePopup()'>Close X</button></div><iframe src="${AGORAURL}${url}" width="960" height="500" frameborder="0"></iframe>`;
+        popup.innerHTML = `<div><button onclick='closePopup()'>Close X</button></div><iframe loading="lazy" src="${AGORAURL}${url}" width="960" height="500" frameborder="0"></iframe>`;
         popup.style.display = 'block';
       }
     });

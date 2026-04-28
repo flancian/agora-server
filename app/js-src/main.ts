@@ -745,7 +745,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                       <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
                   </summary>
                   <div class="node-embed" id="${safeId}" style="margin-top: 0px; padding: 0px; resize: vertical; overflow: hidden; height: 600px; min-height: 200px;">
-                      <iframe src="/embed/${encodeURIComponent(node)}" onload="window.setupSmartIframeResizer(this);" style="width: 100%; height: 100%; border: none !important; display: block; margin-bottom: 0px; max-height: none !important;" allowfullscreen="allowfullscreen"></iframe>
+                      <iframe loading="lazy" src="/embed/${encodeURIComponent(node)}" onload="window.setupSmartIframeResizer(this);" style="width: 100%; height: 100%; border: none !important; display: block; margin-bottom: 0px; max-height: none !important;" allowfullscreen="allowfullscreen"></iframe>
                   </div>
               </details>
           </div>`;
@@ -967,6 +967,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         let url = this.value;
         console.log('pull url : ' + url);
         const iframe = document.createElement('iframe');
+        iframe.loading = 'lazy';
         iframe.className = 'stoa2-iframe';
         iframe.setAttribute('allow', 'camera; microphone; fullscreen; display-capture; autoplay');
         iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms allow-presentation');
@@ -990,7 +991,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     } else {
       this.innerText = 'pulling';
       let node = this.value;
-      document.querySelector("#stoa-iframe").innerHTML = '<iframe id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit"></iframe>';
+      document.querySelector("#stoa-iframe").innerHTML = '<iframe loading="lazy" id="stoa-iframe" name="embed_readwrite" src="https://doc.anagora.org/' + node + '?edit"></iframe>';
       this.innerText = 'fold';
       this.classList.add('pulled');
     }
@@ -1084,7 +1085,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
                 url = `https://edit.anagora.org/@${user}/${nodeUri}`;
             }
-            const iframeHTML = `<iframe allow="camera; microphone; fullscreen; display-capture; autoplay" src="${url}" style="width: 100%;" height="700px"></iframe>`;
+            const iframeHTML = `<iframe loading="lazy" allow="camera; microphone; fullscreen; display-capture; autoplay" src="${url}" style="width: 100%;" height="700px"></iframe>`;
             const overlayHTML = `<a href="${url}" target="_blank" class="iframe-url-overlay" title="Open in new tab">${url}</a>`;
             embed.innerHTML = `<div class="iframe-container">${iframeHTML}${overlayHTML}</div>`;
           }
@@ -1876,7 +1877,7 @@ async function bindEvents() {
 
                 console.log("Node embed found, here we would pull.");
 
-                nodeEmbed.innerHTML = '<iframe src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>';
+                nodeEmbed.innerHTML = '<iframe loading="lazy" src="' + AGORAURL + '/' + node + '" style="max-width: 100%;" allowfullscreen="allowfullscreen"></iframe>';
 
               }
 
@@ -1987,6 +1988,7 @@ async function bindEvents() {
           let toot = this.value;
 
           const iframe = document.createElement('iframe');
+        iframe.loading = 'lazy';
 
           iframe.src = toot;
 
@@ -2614,7 +2616,7 @@ async function bindEvents() {
 
                       if (data.embeddable) {
 
-                          const iframeHTML = `<iframe src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
+                          const iframeHTML = `<iframe loading="lazy" src="${url}" style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>`;
 
                           const overlayHTML = `<a href="${url}" target="_blank" class="iframe-url-overlay" title="Open in new tab">${url}</a>`;
 

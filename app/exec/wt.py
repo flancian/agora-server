@@ -89,7 +89,7 @@ def wt(node):
         <button class='pull-exec ag' value='/{inferred_node}'>pull</button>-->
         <!--{result}-->
 
-        <iframe id="exec-wt" src={url} style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>
+        <iframe loading="lazy" id="exec-wt" src={url} style="max-width: 99.5%;" width="99.5%" height="700em" allowfullscreen="allowfullscreen"></iframe>
         </details>
         """,
         mimetype="text/html",
