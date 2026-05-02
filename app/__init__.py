@@ -68,6 +68,12 @@ def create_app():
     app.register_blueprint(web.bp)
     app.add_url_rule("/", endpoint="index")
 
+    from flask import render_template
+    @app.errorhandler(500)
+    def internal_error(error):
+        app.logger.error(f"Server Error: {error}")
+        return render_template('500.html'), 500
+
     # Register the teardown function for the database
     from .storage import sqlite_engine
     

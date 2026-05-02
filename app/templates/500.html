@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="info-box with-spacing" style="text-align: center; margin-top: 2em; padding: 2em;">
+    <h1>500 - Internal Server Error</h1>
+    <p>The Agora is currently resting or updating. Please try again in a moment.</p>
+    
+    <div id="demo-retry-message" style="display: none; margin-top: 1em; color: var(--link-color);">
+        <em>Demo mode is active. Automatically retrying in <span id="retry-countdown">10</span> seconds...</em>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const isDemoActive = localStorage.getItem("deep-demo-active") === "true";
+        if (isDemoActive) {
+            const messageDiv = document.getElementById("demo-retry-message");
+            const countdownSpan = document.getElementById("retry-countdown");
+            if (messageDiv && countdownSpan) {
+                messageDiv.style.display = "block";
+                let seconds = 10;
+                const interval = setInterval(() => {
+                    seconds--;
+                    countdownSpan.innerText = seconds;
+                    if (seconds <= 0) {
+                        clearInterval(interval);
+                        window.location.reload();
+                    }
+                }, 1000);
+            }
+        }
+    });
+</script>
+{% endblock %}
