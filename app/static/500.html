@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agora - 500 Server Resting</title>
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #e9e9e9;
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        /* Basic dark mode support for the static page */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a1a;
+                color: #e8e6e3;
+            }
+        }
+        .container {
+            background-color: rgba(128, 128, 128, 0.05);
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 2em;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        @media (prefers-color-scheme: dark) {
+            .container {
+                border-color: #444;
+            }
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 2em;
+        }
+        p {
+            line-height: 1.5;
+        }
+        button {
+            margin-top: 1.5em;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: transparent;
+            color: inherit;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: rgba(128, 128, 128, 0.2);
+        }
+        @media (prefers-color-scheme: dark) {
+            button { border-color: #666; }
+        }
+        .timer {
+            margin-top: 1.5em;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>500 - Server Resting</h1>
+        <p>The Agora is currently processing a heavy thought or undergoing maintenance. Please check back shortly.</p>
+        
+        <button onclick="window.location.reload()">🔄 Try again now</button>
+        
+        <div class="timer">
+            Automatically retrying in <span id="countdown">60</span> seconds...
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let seconds = 60;
+            const countdownSpan = document.getElementById("countdown");
+            
+            // Check if demo mode is active via localStorage to speed up retries
+            try {
+                const isDemoActive = localStorage.getItem("deep-demo-active") === "true";
+                if (isDemoActive) {
+                    seconds = 10;
+                    countdownSpan.innerText = seconds;
+                }
+            } catch (e) {
+                // Ignore localStorage errors (e.g. strict privacy settings)
+            }
+
+            const interval = setInterval(() => {
+                seconds--;
+                if (countdownSpan) countdownSpan.innerText = seconds.toString();
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    window.location.reload();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

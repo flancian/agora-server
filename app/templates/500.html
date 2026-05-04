@@ -2,32 +2,40 @@
 
 {% block content %}
 <div class="info-box with-spacing" style="text-align: center; margin-top: 2em; padding: 2em;">
-    <h1>500 - Internal Server Error</h1>
-    <p>The Agora is currently resting or updating. Please try again in a moment.</p>
+    <h1>500 - Server Resting</h1>
+    <p>The Agora is currently processing a heavy thought or undergoing maintenance.</p>
     
-    <div id="demo-retry-message" style="display: none; margin-top: 1em; color: var(--link-color);">
-        <em>Demo mode is active. Automatically retrying in <span id="retry-countdown">10</span> seconds...</em>
+    <button onclick="window.location.reload()" style="margin-top: 1em; padding: 0.5em 1em; cursor: pointer;">🔄 Try again now</button>
+
+    <div style="margin-top: 1.5em; color: var(--link-color); opacity: 0.8;">
+        <em>Automatically retrying in <span id="retry-countdown">60</span> seconds...</em>
     </div>
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const isDemoActive = localStorage.getItem("deep-demo-active") === "true";
-        if (isDemoActive) {
-            const messageDiv = document.getElementById("demo-retry-message");
-            const countdownSpan = document.getElementById("retry-countdown");
-            if (messageDiv && countdownSpan) {
-                messageDiv.style.display = "block";
-                let seconds = 10;
-                const interval = setInterval(() => {
-                    seconds--;
-                    countdownSpan.innerText = seconds;
-                    if (seconds <= 0) {
-                        clearInterval(interval);
-                        window.location.reload();
-                    }
-                }, 1000);
+        let seconds = 60;
+        const countdownSpan = document.getElementById("retry-countdown");
+        
+        try {
+            const isDemoActive = localStorage.getItem("deep-demo-active") === "true";
+            if (isDemoActive) {
+                seconds = 10;
             }
+        } catch (e) {
+            // Ignore localStorage errors
+        }
+
+        if (countdownSpan) {
+            countdownSpan.innerText = seconds;
+            const interval = setInterval(() => {
+                seconds--;
+                countdownSpan.innerText = seconds;
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    window.location.reload();
+                }
+            }, 1000);
         }
     });
 </script>
