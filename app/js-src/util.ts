@@ -2,6 +2,7 @@
 
 export const CLIENT_DEFAULTS = {
   user: 'agora',
+  editorUrl: 'https://edit.anagora.org',
   autoExpandSearch: false,
   autoExpandWikipedia: false,
   autoExpandExactMatch: false,

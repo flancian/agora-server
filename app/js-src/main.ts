@@ -73,6 +73,24 @@ window.setupSmartIframeResizer = function(iframe: HTMLIFrameElement) {
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("DomContentLoaded");
   initSettings();
+  
+  function rewriteEditLinks() {
+    const user = localStorage.getItem('user') || 'flancian';
+    const editorUrl = localStorage.getItem('editor-url') || 'https://edit.anagora.org';
+    const editLinks = document.querySelectorAll('a[href^="https://edit.anagora.org"]');
+    editLinks.forEach((link) => {
+      let href = link.getAttribute('href');
+      if (href) {
+        let newHref = href.replace('https://edit.anagora.org', editorUrl);
+        if (user !== 'flancian') {
+          newHref = newHref.replace('/@flancian/', `/@${user}/`);
+        }
+        link.setAttribute('href', newHref);
+      }
+    });
+  }
+  
+  rewriteEditLinks();
   initMusicPlayer();
 
   // This function reads localStorage and hides any info-boxes that have been previously dismissed.
@@ -796,8 +814,9 @@ document.addEventListener("DOMContentLoaded", async function () {
           node += '.md';
       }
       
+      const editorUrl = localStorage.getItem('editor-url') || 'https://edit.anagora.org';
       if (user) {
-          window.location.href = `https://edit.anagora.org/@${user}/${node}`;
+          window.location.href = `${editorUrl}/@${user}/${node}`;
       } else {
           const joinOverlay = document.getElementById("join-overlay");
           if (joinOverlay) {
@@ -1079,11 +1098,12 @@ document.addEventListener("DOMContentLoaded", async function () {
             let url = embed.getAttribute('src');
             if (embed.classList.contains('edit-iframe')) {
                 const user = localStorage.getItem('user') || 'flancian';
+                const editorUrl = localStorage.getItem('editor-url') || 'https://edit.anagora.org';
                 let nodeUri = url.split('/').pop();
                 if (nodeUri && !nodeUri.includes('.')) {
                     nodeUri += '.md';
                 }
-                url = `https://edit.anagora.org/@${user}/${nodeUri}`;
+                url = `${editorUrl}/@${user}/${nodeUri}`;
             }
             const iframeHTML = `<iframe loading="lazy" allow="camera; microphone; fullscreen; display-capture; autoplay" src="${url}" style="width: 100%;" height="700px"></iframe>`;
             const overlayHTML = `<a href="${url}" target="_blank" class="iframe-url-overlay" title="Open in new tab">${url}</a>`;

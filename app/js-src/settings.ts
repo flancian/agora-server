@@ -9,6 +9,10 @@ declare const NODENAME: string;
 export function initSettings() {
     // set values from storage
     (document.getElementById("user") as HTMLInputElement).value = localStorage["user"] || CLIENT_DEFAULTS.user;
+    const editorUrlInput = document.getElementById("editor-url") as HTMLInputElement;
+    if (editorUrlInput) {
+        editorUrlInput.value = localStorage["editor-url"] || CLIENT_DEFAULTS.editorUrl;
+    }
     (document.getElementById("auto-expand-all") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-all"], CLIENT_DEFAULTS.autoExpandAll);
     (document.getElementById("auto-expand-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-search"], CLIENT_DEFAULTS.autoExpandSearch);
     (document.getElementById("auto-expand-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-wikipedia"], CLIENT_DEFAULTS.autoExpandWikipedia);
@@ -86,6 +90,9 @@ export function initSettings() {
     document.getElementById("user")?.addEventListener('change', (e) => {
         localStorage["user"] = (e.target as HTMLInputElement).value;
     });
+    document.getElementById("editor-url")?.addEventListener('change', (e) => {
+        localStorage["editor-url"] = (e.target as HTMLInputElement).value;
+    });
 
     const applyUser = () => {
         const user = (document.getElementById("user") as HTMLInputElement).value;
@@ -126,6 +133,11 @@ export function initSettings() {
 
         const showHypothesis = (document.getElementById("show-hypothesis") as HTMLInputElement).checked;
         localStorage["show-hypothesis"] = showHypothesis;
+
+        const editorUrlElement = document.getElementById("editor-url") as HTMLInputElement;
+        if (editorUrlElement) {
+            localStorage["editor-url"] = editorUrlElement.value;
+        }
 
         location.reload();
     });

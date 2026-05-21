@@ -8,23 +8,14 @@
     <button onclick="window.location.reload()" style="margin-top: 1em; padding: 0.5em 1em; cursor: pointer;">🔄 Try again now</button>
 
     <div style="margin-top: 1.5em; color: var(--link-color); opacity: 0.8;">
-        <em>Automatically retrying in <span id="retry-countdown">60</span> seconds...</em>
+        <em>Automatically retrying in <span id="retry-countdown">30</span> seconds...</em>
     </div>
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        let seconds = 60;
+        let seconds = 30;
         const countdownSpan = document.getElementById("retry-countdown");
-        
-        try {
-            const isDemoActive = localStorage.getItem("deep-demo-active") === "true";
-            if (isDemoActive) {
-                seconds = 10;
-            }
-        } catch (e) {
-            // Ignore localStorage errors
-        }
 
         if (countdownSpan) {
             countdownSpan.innerText = seconds;

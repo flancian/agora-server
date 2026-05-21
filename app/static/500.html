@@ -75,25 +75,14 @@
         <button onclick="window.location.reload()">🔄 Try again now</button>
         
         <div class="timer">
-            Automatically retrying in <span id="countdown">60</span> seconds...
+            Automatically retrying in <span id="countdown">30</span> seconds...
         </div>
     </div>
     
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            let seconds = 60;
+            let seconds = 30;
             const countdownSpan = document.getElementById("countdown");
-            
-            // Check if demo mode is active via localStorage to speed up retries
-            try {
-                const isDemoActive = localStorage.getItem("deep-demo-active") === "true";
-                if (isDemoActive) {
-                    seconds = 10;
-                    countdownSpan.innerText = seconds;
-                }
-            } catch (e) {
-                // Ignore localStorage errors (e.g. strict privacy settings)
-            }
 
             const interval = setInterval(() => {
                 seconds--;

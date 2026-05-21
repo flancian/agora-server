@@ -30,36 +30,18 @@
 
 		        
 
-		                    <div class="settings-group">
 
-		                        <h3 class="settings-group-header">Identity</h3>
-
-		                        
-
-		                        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
-		
-		                                            <label for="user" style="white-space: nowrap;">Browse as</label>
-		
-		                                            <div style="display: flex; gap: 10px; flex-grow: 1;">
-		
-		                                                <input id="user" type="text" placeholder="flancian" style="flex-grow: 1; padding: 5px;" />
-		
-		                                                <button id="apply-user" style="padding: 5px 10px;">Apply</button>
-		
-		                                            </div>
-		
-		                                        </div>		            </div>
 		
 		            <div class="settings-group">
 		                <h3 class="settings-group-header">Content</h3>
 		                <div class="settings-grid">
 		                    <div class="settings-item">
 		                        <input id="auto-expand-all" type="checkbox" />
-		                        <label for="auto-expand-all">Auto-expand all sections</label>
+		                        <label for="auto-expand-all">Always expand all sections</label>
 		                    </div>
 		                    <div class="settings-item">
 		                        <input id="auto-pull" type="checkbox" />
-		                        <label for="auto-pull">Auto-pull content in node</label>
+		                        <label for="auto-pull">Always pull content in node</label>
 		                    </div>
 		                    <div class="settings-item">
 		                        <input id="auto-expand-wikipedia" type="checkbox" />
@@ -67,15 +49,15 @@
 		                    </div>
 		                    <div class="settings-item">
 		                        <input id="auto-expand-exact-match" type="checkbox" />
-		                        <label for="auto-expand-exact-match">Expand Wikipedia for exact matches</label>
+		                        <label for="auto-expand-exact-match">Always expand Wikipedia for exact matches</label>
 		                    </div>
 		                    <div class="settings-item">
 		                        <input id="auto-expand-search" type="checkbox" />
-		                        <label for="auto-expand-search">Auto-expand Search</label>
+		                        <label for="auto-expand-search">Always expand Search</label>
 		                    </div>
 		                    <div class="settings-item">
 		                        <input id="auto-expand-stoas" type="checkbox" />
-		                        <label for="auto-expand-stoas">Auto-expand Stoas</label>
+		                        <label for="auto-expand-stoas">Always expand Stoas</label>
 		                    </div>
 		                </div>
 		            </div>
@@ -113,6 +95,23 @@
                             </label>
 		                </div>
 		                			</div>
+		
+		                    <div class="settings-group">
+		                        <h3 class="settings-group-header">Identity</h3>
+		                        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+		                            <label for="user" style="white-space: nowrap;">Browse as</label>
+		                            <div style="display: flex; gap: 10px; flex-grow: 1;">
+		                                <input id="user" type="text" placeholder="flancian" style="flex-grow: 1; padding: 5px;" />
+		                                <button id="apply-user" style="padding: 5px 10px;">Apply</button>
+		                            </div>
+		                        </div>
+		                        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+		                            <label for="editor-url" style="white-space: nowrap;">Editor URL</label>
+		                            <div style="display: flex; gap: 10px; flex-grow: 1;">
+		                                <input id="editor-url" type="text" placeholder="https://edit.anagora.org" style="flex-grow: 1; padding: 5px;" />
+		                            </div>
+		                        </div>
+		                    </div>
 		                
 		                			<p>
 		                
