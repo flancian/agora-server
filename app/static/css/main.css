@@ -811,7 +811,7 @@ summary {
     display: none; /* Hide default arrow in Chrome/Safari */
 }
 
-.synthesis-provider-tab {
+.synthesis-provider-tab, .game-tab {
     cursor: pointer;
     color: var(--text-color);
     opacity: 0.7;
@@ -819,12 +819,12 @@ summary {
     border: 1px solid transparent; /* Reserve space for border */
 }
 
-.synthesis-provider-tab:hover {
+.synthesis-provider-tab:hover, .game-tab:hover {
     background-color: var(--tab-active-bg);
     opacity: 1;
 }
 
-.synthesis-provider-tab.active {
+.synthesis-provider-tab.active, .game-tab.active {
     font-weight: bold;
     background-color: var(--tab-active-bg);
     color: var(--link-color);

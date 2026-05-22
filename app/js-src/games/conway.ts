@@ -11,13 +11,17 @@ export function initConway(canvasId: string) {
     let rows = 0;
     let grid: number[][] = [];
     let animationFrameId: number;
+    let isPaused = false;
+    let isDrawing = false;
+    let drawMode = 1;
 
     function resize() {
         if (!canvas) return;
         const container = canvas.parentElement;
         if (container) {
-            canvas.width = Math.min(600, container.clientWidth);
-            canvas.height = Math.min(400, window.innerHeight * 0.5);
+            const size = Math.min(600, container.clientWidth);
+            canvas.width = size;
+            canvas.height = size;
             cols = Math.floor(canvas.width / cellSize);
             rows = Math.floor(canvas.height / cellSize);
             initGrid();
@@ -82,33 +86,99 @@ export function initConway(canvasId: string) {
 
     let lastTime = 0;
     function animate(timestamp: number) {
-        if (!lastTime) lastTime = timestamp;
-        const deltaTime = timestamp - lastTime;
-        
-        if (deltaTime > 100) { // roughly 10fps
-            updateGrid();
-            drawGrid();
-            lastTime = timestamp;
+        if (!isPaused) {
+            if (!lastTime) lastTime = timestamp;
+            const deltaTime = timestamp - lastTime;
+            
+            if (deltaTime > 100) { // roughly 10fps
+                updateGrid();
+                drawGrid();
+                lastTime = timestamp;
+            }
         }
         animationFrameId = requestAnimationFrame(animate);
     }
+
+    const updatePlayPauseButton = () => {
+        const btn = document.getElementById('conwayPlayPause');
+        if (btn) {
+            btn.innerText = isPaused ? '▶ Play' : '⏸ Pause';
+        }
+    };
+
+    const drawAtCoords = (clientX: number, clientY: number) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((clientX - rect.left) / cellSize);
+        const y = Math.floor((clientY - rect.top) / cellSize);
+        if(x >= 0 && x < cols && y >= 0 && y < rows) {
+            grid[x][y] = drawMode;
+            drawGrid();
+        }
+    };
 
     const handleMouseDown = (e: MouseEvent) => {
         const rect = canvas.getBoundingClientRect();
         const x = Math.floor((e.clientX - rect.left) / cellSize);
         const y = Math.floor((e.clientY - rect.top) / cellSize);
         if(x >= 0 && x < cols && y >= 0 && y < rows) {
-            grid[x][y] = 1;
-            drawGrid();
+            drawMode = grid[x][y] === 1 ? 0 : 1;
+        }
+
+        isPaused = true;
+        updatePlayPauseButton();
+        isDrawing = true;
+        drawAtCoords(e.clientX, e.clientY);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+        if (isDrawing) {
+            drawAtCoords(e.clientX, e.clientY);
         }
     };
 
+    const handleMouseUp = () => {
+        isDrawing = false;
+    };
+
+    const handlePlayPauseClick = () => {
+        isPaused = !isPaused;
+        updatePlayPauseButton();
+        if (!isPaused) {
+            lastTime = 0;
+        }
+    };
+
+    const handleClearClick = () => {
+        grid = new Array(cols).fill(null).map(() => new Array(rows).fill(0));
+        isPaused = true;
+        updatePlayPauseButton();
+        drawGrid();
+    };
+
     canvas.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    
+    const btn = document.getElementById('conwayPlayPause');
+    if (btn) {
+        btn.addEventListener('click', handlePlayPauseClick);
+    }
+    const clearBtn = document.getElementById('conwayClear');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', handleClearClick);
+    }
+
     animationFrameId = requestAnimationFrame(animate);
 
     return () => {
         window.removeEventListener('resize', resize);
         canvas.removeEventListener('mousedown', handleMouseDown);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+        const btn = document.getElementById('conwayPlayPause');
+        if (btn) btn.removeEventListener('click', handlePlayPauseClick);
+        const clearBtn = document.getElementById('conwayClear');
+        if (clearBtn) clearBtn.removeEventListener('click', handleClearClick);
         cancelAnimationFrame(animationFrameId);
     };
 }

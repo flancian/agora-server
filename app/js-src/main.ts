@@ -1709,18 +1709,49 @@ async function initInteractiveEmptyState() {
     const container = document.getElementById("interactive-empty-state");
     if (!container) return;
 
+    let cleanupCurrentGame: Function | void | null = null;
+    
     const options = ["hexgame", "conway"];
-    const choice = options[Math.floor(Math.random() * options.length)];
+    let currentGame = options[Math.floor(Math.random() * options.length)];
 
-    if (choice === "hexgame") {
-        container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px;"><em>In this otherwise empty place you find... a game (the Agora Hexgame). Use left/right arrows to rotate!</em></p><canvas id="myCanvas" width="600" height="600" tabindex="0" style="outline: none;"></canvas></center>';
-        const { initHexgame } = await import('./games/hexgame');
-        initHexgame('myCanvas');
-    } else if (choice === "conway") {
-        container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px;"><em>In this otherwise empty place you find... a game (Conway\'s Game of Life). Click to draw!</em></p><canvas id="conwayCanvas" width="600" height="400"></canvas></center>';
-        const { initConway } = await import('./games/conway');
-        initConway('conwayCanvas');
-    }
+    const render = async () => {
+        if (typeof cleanupCurrentGame === 'function') {
+            cleanupCurrentGame();
+        }
+        cleanupCurrentGame = null;
+
+        const tabsHtml = `
+            <span id="tab-hexgame" class="game-tab ${currentGame === 'hexgame' ? 'active' : ''}" style="padding: 2px 8px; border-radius: 4px;">Agora Hexgame</span>
+            <span id="tab-conway" class="game-tab ${currentGame === 'conway' ? 'active' : ''}" style="padding: 2px 8px; border-radius: 4px;">Conway's Game of Life</span>
+        `;
+
+        if (currentGame === "hexgame") {
+            container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px; line-height: 2;"><em>In this otherwise empty place you find...</em> ' + tabsHtml + '<br><em>Use left/right arrows to rotate, spacebar to cut top balls, reach the target!</em></p><canvas id="myCanvas" width="600" height="600" tabindex="0" style="outline: none;"></canvas></center>';
+            const { initHexgame } = await import('./games/hexgame');
+            cleanupCurrentGame = initHexgame('myCanvas');
+        } else if (currentGame === "conway") {
+            container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px; line-height: 2;"><em>In this otherwise empty place you find...</em> ' + tabsHtml + '<br><em>Click and drag to draw!</em></p><canvas id="conwayCanvas" width="600" height="600" style="cursor: crosshair; display: block; margin-bottom: 10px;"></canvas><div style="display: flex; gap: 10px; justify-content: center;"><button id="conwayPlayPause" style="padding: 5px 15px; background: transparent; border: 1px solid var(--text-color); color: var(--text-color); border-radius: 4px; cursor: pointer;">⏸ Pause</button> <button id="conwayClear" style="padding: 5px 15px; background: transparent; border: 1px solid var(--text-color); color: var(--text-color); border-radius: 4px; cursor: pointer;">🧹 Clear</button></div></center>';
+            const { initConway } = await import('./games/conway');
+            cleanupCurrentGame = initConway('conwayCanvas');
+        }
+
+        const btnHexgame = document.getElementById("tab-hexgame");
+        const btnConway = document.getElementById("tab-conway");
+        if (btnHexgame) btnHexgame.addEventListener("click", () => {
+            if (currentGame !== "hexgame") {
+                currentGame = "hexgame";
+                render();
+            }
+        });
+        if (btnConway) btnConway.addEventListener("click", () => {
+            if (currentGame !== "conway") {
+                currentGame = "conway";
+                render();
+            }
+        });
+    };
+
+    render();
 }
 
 async function bindEvents() {
