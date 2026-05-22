@@ -148,11 +148,15 @@ def subnodes_by_user(username, sort_by="mtime", mediatype=None, reverse=True):
 def search_subnodes(query, mode='exact'):
     # mode: 'exact' (FTS phrase), 'broad' (FTS stemmed), 'fs' (filesystem)
     
-    if mode != 'fs' and _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
+    if _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
         start_time = time.time()
-        paths = sqlite_engine.search_subnodes_fts(query, mode=mode)
+        if mode == 'fs':
+            paths = sqlite_engine.search_subnodes_literal(query)
+        else:
+            paths = sqlite_engine.search_subnodes_fts(query, mode=mode)
+
         if paths:
-            current_app.logger.info(f"FTS search ({mode}) for '{query}' found {len(paths)} results in {time.time() - start_time:.4f}s.")
+            current_app.logger.info(f"SQLite search ({mode}) for '{query}' found {len(paths)} results in {time.time() - start_time:.4f}s.")
             # Convert paths to Subnode objects.
             # The paths in DB are relative to AGORA_PATH (e.g. garden/user/node.md).
             agora_path = current_app.config['AGORA_PATH']
@@ -164,7 +168,7 @@ def search_subnodes(query, mode='exact'):
                 subnodes.append(SubnodeClass(absolute_path))
             return subnodes
         else:
-            current_app.logger.info(f"FTS search ({mode}) for '{query}' found 0 results.")
+            current_app.logger.info(f"SQLite search ({mode}) for '{query}' found 0 results.")
             # If broad search found nothing, return empty.
             # If exact search found nothing, maybe we could auto-fallback? 
             # For now let the UI handle fallbacks.

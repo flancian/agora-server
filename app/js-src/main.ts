@@ -189,9 +189,9 @@ document.addEventListener("DOMContentLoaded", async function () {
       
       // Show loading state
       let loadingText = 'Searching...';
-      if (mode === 'exact') loadingText = 'Searching index (exact)...';
+      if (mode === 'exact') loadingText = 'Searching index (phrase)...';
       if (mode === 'broad') loadingText = 'Searching index (fuzzy)...';
-      if (mode === 'fs') loadingText = 'Searching filesystem (literal)...';
+      if (mode === 'fs') loadingText = 'Searching index (literal)...';
 
       // We preserve the header but replace the content below it with a spinner
       // Actually, easier to replace the whole thing and let the server re-render the tabs with the new active state
@@ -199,8 +199,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         <div class="search-agora">
           <div class="search-header" style="margin-bottom: 1em; margin-top: 1em;">
                 <span style="margin-right: 10px;"><strong>Search Mode:</strong></span>
-                <span class="search-mode-tab ${mode === 'exact' ? 'active' : ''}">Exact</span> • 
                 <span class="search-mode-tab ${mode === 'broad' ? 'active' : ''}">Fuzzy</span> • 
+                <span class="search-mode-tab ${mode === 'exact' ? 'active' : ''}">Phrase</span> • 
                 <span class="search-mode-tab ${mode === 'fs' ? 'active' : ''}">Literal</span>
           </div>
           <center>

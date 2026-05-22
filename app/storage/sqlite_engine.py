@@ -638,7 +638,8 @@ def search_subnodes_fts(query, mode='exact'):
             # Filter out empty terms
             terms = [t for t in safe_query.split() if t]
             if terms:
-                match_query = ' '.join([f'{t}*' for t in terms])
+                # Use explicit AND operator in FTS5 so that terms match in any order.
+                match_query = ' AND '.join([f'{t}*' for t in terms])
             else:
                 match_query = safe_query # Fallback if empty
         
@@ -648,6 +649,29 @@ def search_subnodes_fts(query, mode='exact'):
     except sqlite3.OperationalError as e:
         current_app.logger.error(f"SQLite FTS search error: {e}")
         return []
+
+
+def search_subnodes_literal(query):
+    """
+    Searches for subnodes containing the given query literally using SQLite LIKE.
+    Returns a list of paths.
+    """
+    db = get_db()
+    if not db:
+        return []
+
+    cursor = db.cursor()
+    like_pattern = f'%{query}%'
+    try:
+        cursor.execute(
+            "SELECT DISTINCT path FROM subnodes_fts WHERE path LIKE ? OR content LIKE ? ORDER BY path",
+            (like_pattern, like_pattern)
+        )
+        return [row[0] for row in cursor.fetchall()]
+    except sqlite3.OperationalError as e:
+        current_app.logger.error(f"SQLite literal search error: {e}")
+        return []
+
 
 
 def search_nodes_by_regex(regex):
