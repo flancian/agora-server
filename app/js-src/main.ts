@@ -601,8 +601,15 @@ document.addEventListener("DOMContentLoaded", async function () {
       const isScrollable = el.scrollWidth > el.clientWidth;
       if (isScrollable) {
         // Use Math.ceil and a small tolerance to handle fractional pixel zoom issues
-        const isAtEnd = Math.ceil(el.scrollLeft + el.clientWidth) >= el.scrollWidth - 5;
+        let isAtEnd = Math.ceil(el.scrollLeft + el.clientWidth) >= el.scrollWidth - 5;
         const isAtStart = el.scrollLeft <= 5;
+        
+        // Hide the right chevron immediately on any scroll for the topline-node-wrapper 
+        // to prevent it from awkwardly moving left with the scrolled content
+        if (el.classList.contains('topline-node-wrapper') && el.scrollLeft > 0) {
+            isAtEnd = true;
+        }
+
         target.classList.toggle('scrolled-to-end', isAtEnd);
         target.classList.toggle('scrolled-to-start', isAtStart);
       } else {
