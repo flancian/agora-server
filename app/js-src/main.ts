@@ -954,36 +954,37 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  const expandAllButton = document.querySelector("#expand-all");
+  const expandAllButton = document.querySelector("#expand-all") as HTMLButtonElement;
   if (expandAllButton) {
+    let isExpanded = false;
     expandAllButton.addEventListener("click", (e) => {
-        console.log("expand all executes: expanding top-level details");
-        document.querySelectorAll("details:not([open]):not(.edit-section-container)").forEach(detail => {
-          if (!detail.parentElement.closest('details')) {
-              const summary = detail.querySelector(':scope > summary');
-              if (summary) {
-                  (summary as HTMLElement).click();
+        isExpanded = !isExpanded;
+        
+        if (isExpanded) {
+            console.log("expand all executes: expanding top-level details");
+            expandAllButton.innerHTML = "⊟ collapse all";
+            expandAllButton.title = "Collapse all sections.";
+            document.querySelectorAll("details:not([open]):not(.edit-section-container)").forEach(detail => {
+              if (!detail.parentElement || !detail.parentElement.closest('details')) {
+                  const summary = detail.querySelector(':scope > summary');
+                  if (summary) {
+                      (summary as HTMLElement).click();
+                  }
               }
-          }
-        });
-    });
-  }
-
-  const collapseAllButton = document.querySelector("#collapse-all");
-  if (collapseAllButton) {
-    collapseAllButton.addEventListener("click", (e) => {
-        console.log("collapse all executes: collapsing top-level details");
-        document.querySelectorAll("details[open]").forEach(detail => {
-          // Don't collapse the main node itself? 
-          // Assuming main node doesn't have parent details?
-          // Actually, we usually want to collapse sections (context, stoa, etc).
-          if (!detail.parentElement.closest('details')) {
-              const summary = detail.querySelector(':scope > summary');
-              if (summary) {
-                  (summary as HTMLElement).click();
+            });
+        } else {
+            console.log("collapse all executes: collapsing top-level details");
+            expandAllButton.innerHTML = "⊞ expand all";
+            expandAllButton.title = "Expand all sections.";
+            document.querySelectorAll("details[open]:not(.edit-section-container)").forEach(detail => {
+              if (!detail.parentElement || !detail.parentElement.closest('details')) {
+                  const summary = detail.querySelector(':scope > summary');
+                  if (summary) {
+                      (summary as HTMLElement).click();
+                  }
               }
-          }
-        });
+            });
+        }
     });
   }
 
