@@ -681,7 +681,7 @@ summary {
     font-weight: bold;
 }
 
-.node, .web, .stoa, .search, .genai {
+.node, .web, .stoa, .search, .genai, .minigame-wrapper {
     border-color: gray;
     background: var(--node-bg);
     border-width: 0px;
@@ -948,7 +948,7 @@ summary {
 }
 
 
-.node-header, .context-header, .stoa-header, .ctzn-header {
+.node-header, .context-header, .stoa-header, .ctzn-header, .minigame-header {
     justify-content: space-between;
     text-align: left;
     padding-bottom: 2px;

@@ -241,7 +241,7 @@ export function initHexgame(canvasId: string) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         const cx = canvas.width / 2;
-        const cy = canvas.height / 2 + 20;
+        const cy = canvas.height / 2 - 30;
         
         const maxRings = Math.max(7, remainderRing + 2);
         const spacing = (canvas.width / 2) / (maxRings * Math.sqrt(3) / 2);
@@ -351,7 +351,7 @@ export function initHexgame(canvasId: string) {
                 ctx.fillText(`x ${inventory.length}`, invX + invRadius + 10, invDrawY);
             }
         } else {
-            const startY = canvas.height - 30; // bottom-most ball
+            const startY = canvas.height - 40; // bottom-most ball
 
             for (let i = 0; i < inventory.length; i++) {
                 const drawY = startY - i * invSpacing;
@@ -386,15 +386,9 @@ export function initHexgame(canvasId: string) {
 
         ctx.fillStyle = textColor;
         ctx.font = '16px monospace';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'alphabetic'; // reset from inventory loop
-        ctx.fillText(`Balls: ${numBalls} / Target: ${target}`, 20, 30);
-        
-        ctx.textAlign = 'right';
+        ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = '14px monospace';
-        ctx.fillStyle = 'var(--text-color-faint, #888)';
-        ctx.fillText(`[C] Colors: ${useColors ? 'ON' : 'OFF'}`, canvas.width - 20, canvas.height - 30);
+        ctx.fillText(`Balls: ${numBalls} / Target: ${target}`, canvas.width / 2, canvas.height - 30);
         
         if (hasWon) {
             ctx.textAlign = 'center';

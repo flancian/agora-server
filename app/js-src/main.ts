@@ -700,26 +700,33 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const miniCliPlay = document.querySelector("#mini-cli-play") as HTMLButtonElement;
   if (miniCliPlay) {
-      miniCliPlay.addEventListener("click", () => {
+      miniCliPlay.addEventListener("click", async () => {
           let container = document.getElementById("interactive-empty-state");
           if (!container) {
               container = document.createElement("div");
               container.id = "interactive-empty-state";
-              container.className = "subnode";
-              container.style.marginTop = "1em";
-              container.style.marginBottom = "1em";
-              container.style.padding = "1.5em";
-              container.style.borderRadius = "8px";
+              container.className = "minigame-container";
               
-              const subnodesContainer = document.querySelector('.subnodes-container');
-              if (subnodesContainer) {
-                  subnodesContainer.appendChild(container);
+              const footerWrapper = document.querySelector('.footer-wrapper');
+              if (footerWrapper && footerWrapper.parentNode) {
+                  footerWrapper.parentNode.insertBefore(container, footerWrapper);
               } else {
-                  document.querySelector('.node-main')?.appendChild(container) || document.body.appendChild(container);
+                  // Fallback: append to main content
+                  const contentContainer = document.querySelector('.content') || document.body;
+                  contentContainer.appendChild(container);
               }
-              initInteractiveEmptyState();
+              
+              try {
+                  await initInteractiveEmptyState();
+              } catch (e) {
+                  console.error("Error initializing game:", e);
+              }
           }
-          container.scrollIntoView({ behavior: "smooth", block: "center" });
+          setTimeout(() => {
+              if (container) {
+                  container.scrollIntoView({ behavior: "smooth", block: "center" });
+              }
+          }, 100);
       });
   }
 
@@ -1745,17 +1752,46 @@ async function initInteractiveEmptyState() {
         }
         cleanupCurrentGame = null;
 
+        let gameHelpText = "";
+        if (currentGame === "hexgame") {
+            gameHelpText = "Hexgame: Use left/right arrows to rotate, Spacebar to cut top row, Shift to re-insert, C to toggle colors.";
+        } else if (currentGame === "conway") {
+            gameHelpText = "Conway's: Click to spawn cells. Spacebar to pause/play. C to clear.";
+        }
+
         const tabsHtml = `
-            <span id="tab-hexgame" class="game-tab ${currentGame === 'hexgame' ? 'active' : ''}" style="padding: 2px 8px; border-radius: 4px;">Agora Hexgame</span>
-            <span id="tab-conway" class="game-tab ${currentGame === 'conway' ? 'active' : ''}" style="padding: 2px 8px; border-radius: 4px;">Conway's Game of Life</span>
+            <span id="tab-hexgame" class="ai-provider-tab game-tab ${currentGame === 'hexgame' ? 'active' : ''}" style="margin-left: 10px;">Hexgame</span> • 
+            <span id="tab-conway" class="ai-provider-tab game-tab ${currentGame === 'conway' ? 'active' : ''}">Conway's</span>
+        `;
+        const wrapperTop = `
+            <details class="minigame-wrapper" open>
+                <summary>
+                    <span class="minigame-header">
+                        <strong>🎮 Agora minigames</strong>
+                        ${tabsHtml}
+                    </span>
+                </summary>
+                <div class="info-box with-spacing" info-box-id="minigames">
+                    <span><em>${gameHelpText}</em></span>
+                    <span info-box-id="minigames" class="dismiss-button" title="Dismiss this tooltip.">x</span>
+                </div>
+                <div style="padding: 1em;">
+        `;
+        const wrapperBottom = `
+                </div>
+            </details>
         `;
 
         if (currentGame === "hexgame") {
-            container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px; line-height: 2;"><em>In this otherwise empty place you find...</em> ' + tabsHtml + '<br><em>Use left/right arrows to rotate, Spacebar to cut top row, Shift to re-insert, C to toggle colors, reach the target!</em></p><canvas id="myCanvas" width="600" height="600" tabindex="0" style="outline: none;"></canvas></center>';
+            container.innerHTML = wrapperTop + `
+                <center><canvas id="myCanvas" width="600" height="600" tabindex="0" style="outline: none;"></canvas></center>
+            ` + wrapperBottom;
             const { initHexgame } = await import('./games/hexgame');
             cleanupCurrentGame = initHexgame('myCanvas');
         } else if (currentGame === "conway") {
-            container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px; line-height: 2;"><em>In this otherwise empty place you find...</em> ' + tabsHtml + '<br><em>Click and drag to draw!</em></p><canvas id="conwayCanvas" width="600" height="600" style="cursor: crosshair; display: block; margin-bottom: 10px;"></canvas><div style="display: flex; gap: 10px; justify-content: center;"><button id="conwayPlayPause" style="padding: 5px 15px; background: transparent; border: 1px solid var(--text-color); color: var(--text-color); border-radius: 4px; cursor: pointer;">⏸ Pause</button> <button id="conwayClear" style="padding: 5px 15px; background: transparent; border: 1px solid var(--text-color); color: var(--text-color); border-radius: 4px; cursor: pointer;">🧹 Clear</button></div></center>';
+            container.innerHTML = wrapperTop + `
+                <center><canvas id="conwayCanvas" width="600" height="600" style="cursor: crosshair; display: block; margin-bottom: 10px;"></canvas><div style="display: flex; gap: 10px; justify-content: center;"><button id="conwayPlayPause" style="padding: 5px 15px; background: transparent; border: 1px solid var(--text-color); color: var(--text-color); border-radius: 4px; cursor: pointer;">⏸ Pause</button> <button id="conwayClear" style="padding: 5px 15px; background: transparent; border: 1px solid var(--text-color); color: var(--text-color); border-radius: 4px; cursor: pointer;">🧹 Clear</button></div></center>
+            ` + wrapperBottom;
             const { initConway } = await import('./games/conway');
             cleanupCurrentGame = initConway('conwayCanvas');
         }
