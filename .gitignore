@@ -20,3 +20,6 @@ agora-server.log
 instance/
 app/static/js
 app/static/opus
+*.log
+*.db
+ps.txt

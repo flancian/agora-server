@@ -9,7 +9,7 @@ For essays and poems on the project's philosophy, see [[PHILOSOPHY.md]].
 ## Memories & Mandates
 
 -   **Feature Flag Protocol:** Always enable new feature flags in `LocalDevelopmentConfig` first. Never enable in `AlphaConfig` or `ProductionConfig` without explicit user instruction and prior local verification.
--   **Git Operations:** The user prefers to handle commits themselves, or explicitly approve them. Always `git status` and `git diff` before asking.
+-   **Git Operations:** The user prefers to handle commits themselves, or explicitly approve them. Always `git status` and `git diff` before asking. **NEVER use `git add .` or `git add -A` under any circumstances, as other agents might be operating concurrently. Always explicitly list the exact files to add: `git add <file1> <file2>`.**
 -   **Development:** Run `npm run build` after TypeScript changes. Do not use `./run-dev.sh`; the user manages the server.
 -   **Tone:** Be direct and technical. Use metaphors sparingly (e.g., for "Federation").
 
