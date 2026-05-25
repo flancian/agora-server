@@ -7,6 +7,17 @@ interface Hex {
 
 const HEX_NUMBERS = [1, 7, 19, 37, 61, 91, 127];
 
+const BALL_COLORS = [
+    { inner: '#666', outer: '#111' },       // Obsidian
+    { inner: '#fff', outer: '#aaa' },       // Electrum/Silver
+    { inner: '#ff9999', outer: '#cc0000' }, // Ruby
+    { inner: '#88cc88', outer: '#228b22' }, // Emerald
+    { inner: '#8888ff', outer: '#0000cc' }, // Sapphire
+    { inner: '#d088ff', outer: '#6a0dad' }, // Amethyst
+    { inner: '#ffbd88', outer: '#cc5500' }, // Topaz
+    { inner: '#88ffff', outer: '#00cccc' }, // Diamond
+];
+
 function getTargetHex(n: number): { target: number, ring: number } {
     for (let i = HEX_NUMBERS.length - 1; i >= 0; i--) {
         if (n > HEX_NUMBERS[i]) {
@@ -82,19 +93,22 @@ export function initHexgame(canvasId: string) {
     let { target, ring } = getTargetHex(numBalls);
     let remainderRing = ring + 1;
 
-    let balls: { q: number, r: number, startQ: number, startR: number, t: number, removing: boolean, opacity: number }[] = [];
+    let balls: { q: number, r: number, startQ: number, startR: number, t: number, removing: boolean, opacity: number, colorIndex: number }[] = [];
+    let inventory: number[] = [];
     
     const spiral = getSpiralPositions(numBalls);
     
     const initialRotations = Math.floor(Math.random() * 5) + 1;
     for (let pos of spiral) {
         const rotated = rotatePointCW(pos, initialRotations);
-        balls.push({ q: rotated.q, r: rotated.r, startQ: rotated.q, startR: rotated.r, t: 1, removing: false, opacity: 1 });
+        const colorIndex = Math.floor(Math.random() * BALL_COLORS.length);
+        balls.push({ q: rotated.q, r: rotated.r, startQ: rotated.q, startR: rotated.r, t: 1, removing: false, opacity: 1, colorIndex });
     }
 
     let isAnimatingRotation = false;
     let rotationStartTime = 0;
     const rotationDuration = 200;
+    let useColors = false;
     
     let hasWon = false;
 
@@ -107,11 +121,13 @@ export function initHexgame(canvasId: string) {
         remainderRing = targetObj.ring + 1;
 
         balls = [];
+        inventory = [];
         const spiral = getSpiralPositions(numBalls);
         const initialRotations = Math.floor(Math.random() * 5) + 1;
         for (let pos of spiral) {
             const rotated = rotatePointCW(pos, initialRotations);
-            balls.push({ q: rotated.q, r: rotated.r, startQ: rotated.q, startR: rotated.r, t: 1, removing: false, opacity: 1 });
+            const colorIndex = Math.floor(Math.random() * BALL_COLORS.length);
+            balls.push({ q: rotated.q, r: rotated.r, startQ: rotated.q, startR: rotated.r, t: 1, removing: false, opacity: 1, colorIndex });
         }
         hasWon = false;
         isAnimatingRotation = false;
@@ -163,6 +179,7 @@ export function initHexgame(canvasId: string) {
                     const dist = Math.max(Math.abs(b.q), Math.abs(b.r), Math.abs(b.q + b.r));
                     if (dist === remainderRing) {
                         b.removing = true;
+                        inventory.push(b.colorIndex);
                         removedCount++;
                     }
                 }
@@ -173,6 +190,33 @@ export function initHexgame(canvasId: string) {
                     hasWon = true;
                 }
             }
+        } else if (e.key === 'Shift') {
+            e.preventDefault();
+            if (isAnimatingRotation || inventory.length === 0) return;
+            
+            // Find an empty slot on the current cutting edge
+            // For the top edge r = -remainderRing, valid q is from 0 to remainderRing
+            let inserted = false;
+            for (let q = 0; q <= remainderRing; q++) {
+                const r = -remainderRing;
+                const isOccupied = balls.some(b => b.q === q && b.r === r && !b.removing);
+                
+                if (!isOccupied) {
+                    const colorIndex = inventory.pop()!;
+                    balls.push({
+                        q, r, 
+                        startQ: q, startR: r, 
+                        t: 1, removing: false, opacity: 1, 
+                        colorIndex
+                    });
+                    numBalls++;
+                    inserted = true;
+                    break; // Only insert one ball per keypress
+                }
+            }
+        } else if (e.key.toLowerCase() === 'c') {
+            e.preventDefault();
+            useColors = !useColors;
         }
     };
 
@@ -253,17 +297,87 @@ export function initHexgame(canvasId: string) {
             }
 
             const gradient = ctx.createRadialGradient(x - ballRadius*0.3, y - ballRadius*0.3, ballRadius*0.1, x, y, ballRadius);
+            
+            const renderInner = useColors ? BALL_COLORS[b.colorIndex].inner : '#88cc88';
+            const renderOuter = useColors ? BALL_COLORS[b.colorIndex].outer : '#228b22';
+
             if (isSelected) {
-                gradient.addColorStop(0, '#ff9999');
-                gradient.addColorStop(1, '#cc0000');
+                gradient.addColorStop(0, '#ffffff'); // bright glow
+                gradient.addColorStop(1, renderOuter);
             } else {
-                gradient.addColorStop(0, '#88cc88');
-                gradient.addColorStop(1, '#228b22'); 
+                gradient.addColorStop(0, renderInner);
+                gradient.addColorStop(1, renderOuter); 
             }
             
             ctx.fillStyle = gradient;
             ctx.fill();
             ctx.restore();
+        }
+
+        // Draw vertical inventory on bottom left
+        const invRadius = ballRadius * 0.8;
+        const invSpacing = invRadius * 2.2;
+        const invX = 30;
+
+        if (!useColors) {
+            if (inventory.length > 0) {
+                const renderInner = '#88cc88';
+                const renderOuter = '#228b22';
+                const invDrawY = canvas.height - 30;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(invX, invDrawY, invRadius, 0, Math.PI * 2);
+                
+                const gradient = ctx.createRadialGradient(
+                    invX - invRadius * 0.3, 
+                    invDrawY - invRadius * 0.3, 
+                    invRadius * 0.1, 
+                    invX, 
+                    invDrawY, 
+                    invRadius
+                );
+                gradient.addColorStop(0, renderInner);
+                gradient.addColorStop(1, renderOuter);
+                
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                ctx.restore();
+
+                ctx.fillStyle = textColor;
+                ctx.font = '16px monospace';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`x ${inventory.length}`, invX + invRadius + 10, invDrawY);
+            }
+        } else {
+            const startY = canvas.height - 30; // bottom-most ball
+
+            for (let i = 0; i < inventory.length; i++) {
+                const drawY = startY - i * invSpacing;
+                const colorIdx = inventory[i];
+                const renderInner = BALL_COLORS[colorIdx].inner;
+                const renderOuter = BALL_COLORS[colorIdx].outer;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(invX, drawY, invRadius, 0, Math.PI * 2);
+                
+                const gradient = ctx.createRadialGradient(
+                    invX - invRadius * 0.3, 
+                    drawY - invRadius * 0.3, 
+                    invRadius * 0.1, 
+                    invX, 
+                    drawY, 
+                    invRadius
+                );
+                gradient.addColorStop(0, renderInner);
+                gradient.addColorStop(1, renderOuter);
+                
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                ctx.restore();
+            }
         }
 
         if (allAnimationsDone) {
@@ -273,7 +387,14 @@ export function initHexgame(canvasId: string) {
         ctx.fillStyle = textColor;
         ctx.font = '16px monospace';
         ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic'; // reset from inventory loop
         ctx.fillText(`Balls: ${numBalls} / Target: ${target}`, 20, 30);
+        
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.font = '14px monospace';
+        ctx.fillStyle = 'var(--text-color-faint, #888)';
+        ctx.fillText(`[C] Colors: ${useColors ? 'ON' : 'OFF'}`, canvas.width - 20, canvas.height - 30);
         
         if (hasWon) {
             ctx.textAlign = 'center';

@@ -674,7 +674,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (miniCliGoBeyond) {
     miniCliGoBeyond.addEventListener("click", () => {
       console.log("go beyond mini-cli executes");
-      miniCliGoBeyond.textContent = "🚀 Launching...";
+      miniCliGoBeyond.textContent = "🌠 Gone Beyond";
       miniCliGoBeyond.disabled = true;
       let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
       window.location.href = '/lucky/' + val;
@@ -696,6 +696,31 @@ document.addEventListener("DOMContentLoaded", async function () {
           window.location.href = '/random';
       }
     });
+  }
+
+  const miniCliPlay = document.querySelector("#mini-cli-play") as HTMLButtonElement;
+  if (miniCliPlay) {
+      miniCliPlay.addEventListener("click", () => {
+          let container = document.getElementById("interactive-empty-state");
+          if (!container) {
+              container = document.createElement("div");
+              container.id = "interactive-empty-state";
+              container.className = "subnode";
+              container.style.marginTop = "1em";
+              container.style.marginBottom = "1em";
+              container.style.padding = "1.5em";
+              container.style.borderRadius = "8px";
+              
+              const subnodesContainer = document.querySelector('.subnodes-container');
+              if (subnodesContainer) {
+                  subnodesContainer.appendChild(container);
+              } else {
+                  document.querySelector('.node-main')?.appendChild(container) || document.body.appendChild(container);
+              }
+              initInteractiveEmptyState();
+          }
+          container.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
   }
 
   const miniCliPull = document.querySelector("#mini-cli-pull") as HTMLButtonElement;
@@ -1726,7 +1751,7 @@ async function initInteractiveEmptyState() {
         `;
 
         if (currentGame === "hexgame") {
-            container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px; line-height: 2;"><em>In this otherwise empty place you find...</em> ' + tabsHtml + '<br><em>Use left/right arrows to rotate, spacebar to cut top balls, reach the target!</em></p><canvas id="myCanvas" width="600" height="600" tabindex="0" style="outline: none;"></canvas></center>';
+            container.innerHTML = '<center><p style="color: var(--text-color-faint); margin-bottom: 10px; line-height: 2;"><em>In this otherwise empty place you find...</em> ' + tabsHtml + '<br><em>Use left/right arrows to rotate, Spacebar to cut top row, Shift to re-insert, C to toggle colors, reach the target!</em></p><canvas id="myCanvas" width="600" height="600" tabindex="0" style="outline: none;"></canvas></center>';
             const { initHexgame } = await import('./games/hexgame');
             cleanupCurrentGame = initHexgame('myCanvas');
         } else if (currentGame === "conway") {

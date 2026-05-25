@@ -30,3 +30,10 @@
 *   **Tasks**:
     *   [x] Review `DONE.md` and consolidate session logs.
     *   [x] Ensure all new env vars (`AGORA_FORGEJO_*`) are documented in `agora-bridge/README.md`.
+
+## 5. The N-Fold Exploration (High Priority)
+*   **Context**: A strategic philosophical pivot to make the Agora more playful, resilient, and "alive".
+*   **Goal**: Weave these three pillars into the Agora experience:
+    1.  **AI Mode (Ambient Agora)**: Implement a mode where the Agora navigates itself, synthesizes thoughts, and leaves "glowing notes" for users to discover.
+    2.  **Playful Interactions / Adventure UI**: Introduce MUD-like mechanics (inventory, quests, map traversal) to turn knowledge exploration into play.
+    3.  **True P2P / agor.ai**: Deepen the structural commitment to the Agora Protocol by supporting decentralized `*.agor.ai` instances and prioritizing client-side, peer-to-peer federation (ATProto/IPFS) so the graph doesn't rely solely on a central server.
