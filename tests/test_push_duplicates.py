@@ -91,16 +91,10 @@ def test_push_counts(test_agora_push_duplicates):
     
     from app.graph import G
     # Clear caches to force reload
-    # G.nodes() calls _get_all_nodes_cached
-    if hasattr(G._get_all_nodes_cached, 'cache_clear'):
-        G._get_all_nodes_cached.cache_clear()
-    
-    # G.node(uri) is also cached
-    if hasattr(G.node, 'cache_clear'):
-        G.node.cache_clear()
-
-    # We also need to clear G.subnodes() cache if it exists, or internal caches
-    # But usually _get_all_nodes_cached is the source of truth for monolithic load.
+    for func_name in ['_get_all_nodes_cached', 'node', 'subnodes', 'executable_subnodes']:
+        func = getattr(G, func_name, None)
+        if func and hasattr(func, 'cache_clear'):
+            func.cache_clear()
     
     target_one = G.node("target_one")
     assert len(target_one.pushed_subnodes()) == 1, "Single push should result in 1 pushed subnode"

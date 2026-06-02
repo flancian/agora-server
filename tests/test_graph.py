@@ -30,3 +30,18 @@ def test_node_creation_and_links(test_agora):
     assert len(bar_node.subnodes) == 1
     assert "This is bar" in bar_node.subnodes[0].content
     assert len(bar_node.forward_links()) == 0 # bar.md has no links
+
+    # 6. Test edges count (should have 1 edge: foo -> bar)
+    assert G.n_edges() == 1
+
+    # 7. Test backlinks (bar should have a backlink from foo)
+    assert len(bar_node.back_links()) == 1
+    assert "foo" in bar_node.back_links()
+
+    # 8. Test node size
+    assert foo_node.size() > 0
+
+    # 9. Test subnode render behavior
+    rendered = subnode.render()
+    assert "href" in rendered  # Wikilink [[bar]] should render as a hyperlink
+
