@@ -46,7 +46,7 @@
                 <p>No results found for "{{qstr}}" in <strong>{{mode}}</strong> mode.</p>
                 {% if ENABLE_FTS and mode != 'fs' %}
                 <small>
-                    Try switching to <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">Filesystem mode</a> if you suspect the index is incomplete.
+                    Try switching to <a href="#" class="search-mode-trigger" data-qstr="{{qstr}}" data-mode="fs">Literal mode</a> if you are searching for exact punctuation or code snippets.
                 </small>
                 {% endif %}
             </div>

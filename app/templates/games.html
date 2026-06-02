@@ -1,0 +1,36 @@
+<!--
+ Copyright 2026 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+{% if not subnode %}
+<details class="minigame-wrapper node" id="interactive-empty-state-details">
+    <summary class="minigame-header">
+        <span class="minigame-header-title">
+            <strong>🎮 Agora games</strong>
+        </span>
+        <span id="tab-hexgame" class="ai-provider-tab game-tab" style="margin-left: 10px;">Hexgame</span> •
+        <span id="tab-conway" class="ai-provider-tab game-tab">Conway's</span>
+    </summary>
+    
+    <div class="info-box with-spacing" info-box-id="minigames">
+        <span id="game-help-text"><em>Agora games: choose one above!</em></span>
+        <span info-box-id="minigames" class="dismiss-button" title="Dismiss this tooltip.">x</span>
+    </div>
+    
+    <div style="padding: 1em;" id="interactive-empty-state-content">
+        <!-- Canvas/Game elements will be dynamically loaded here by main.ts -->
+    </div>
+</details>
+{% endif %}

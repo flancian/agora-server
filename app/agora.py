@@ -2615,13 +2615,16 @@ def nodeinfo_version(version="2.0"):
         "metadata": {
             "nodeName": current_app.config['AGORA_NAME'],
             "nodeDescription": "The Agora is a Free Knowledge Commons.",
-            "maintainer": {"name": "flancian", "email": "flancian@flancia.org"},
+            "maintainer": {
+                "name": current_app.config.get("MAINTAINER_NAME", "flancian"),
+                "email": current_app.config.get("MAINTAINER_EMAIL", "flancian@flancia.org")
+            },
             "nodeCount": stats["nodes"],
             "linkCount": stats["edges"],
-            "joinUrl": "https://anagora.org/join",
-            "contributeUrl": "https://anagora.org/contribute",
-            "repositoryUrl": "https://github.com/flancian/agora-server",
-            "services": ["mastodon", "twitter", "bluesky"]
+            "joinUrl": f"{current_app.config['URL_BASE']}/join",
+            "contributeUrl": f"{current_app.config['URL_BASE']}/contribute",
+            "repositoryUrl": current_app.config.get("SOURCE", "https://github.com/flancian/agora-server"),
+            "services": ["mastodon", "bluesky"]
         }
     })
 

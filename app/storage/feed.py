@@ -73,13 +73,15 @@ def get_latest():
 
 def node_rss(node):
     fg = FeedGenerator()
+    URL_BASE = current_app.config.get("URL_BASE", "https://anagora.org")
+    MAINTAINER_EMAIL = current_app.config.get("MAINTAINER_EMAIL", "anagora@flancia.org")
     # not sure what this field is for
-    fg.id(f"https://anagora.org/{node.wikilink}.rss")
+    fg.id(f"{URL_BASE}/{node.wikilink}.rss")
     fg.title(f"Agora feed for node [[{node.wikilink}]]")
-    fg.author({"name": "anagora.org users", "email": "anagora@flancia.org"})
-    fg.logo("https://anagora.org/favicon.ico")
+    fg.author({"name": f"{current_app.config.get('AGORA_NAME_SHORT', 'Agora')} users", "email": MAINTAINER_EMAIL})
+    fg.logo(f"{URL_BASE}/favicon.ico")
     fg.subtitle("The Agora is a crowdsourced distributed knowledge graph.")
-    fg.link(href=f"https://anagora.org/{node.wikilink}", rel="self")
+    fg.link(href=f"{URL_BASE}/{node.wikilink}", rel="self")
     fg.language("en")
     for subnode in node.subnodes:
         fe = fg.add_entry()
@@ -90,17 +92,18 @@ def node_rss(node):
             content = "(Binary content)"
         fe.content(f"{content}")
         fe.description(f"A post by user @{subnode.user} in node [[{subnode.node}]].")
-        fe.link(href=f"https://anagora.org/@{subnode.user}/{subnode.node}")
+        fe.link(href=f"{URL_BASE}/@{subnode.user}/{subnode.node}")
     return fg.rss_str(pretty=True)
 
 
 def latest_rss(subnodes):
     fg = FeedGenerator()
     URL_BASE = current_app.config.get("URL_BASE", "https://anagora.org")
+    MAINTAINER_EMAIL = current_app.config.get("MAINTAINER_EMAIL", "anagora@flancia.org")
     # not sure what this field is for
     fg.id(f"{URL_BASE}/feed/latest")
     fg.title("Agora feed for latest updates")
-    fg.author({"name": "anagora.org users", "email": "anagora@flancia.org"})
+    fg.author({"name": f"{current_app.config.get('AGORA_NAME_SHORT', 'Agora')} users", "email": MAINTAINER_EMAIL})
     fg.logo(f"{URL_BASE}/favicon.ico")
     fg.subtitle("The Agora is a crowdsourced distributed knowledge graph.")
     fg.link(href=f"{URL_BASE}/feed/latest", rel="self")
@@ -125,7 +128,7 @@ def latest_rss(subnodes):
         if isinstance(content, bytes):
             content = "(Binary content)"
         fe.content(f"{content}")
-        fe.author({"name": subnode.user, "email": "agora@flancia.org"})
+        fe.author({"name": subnode.user, "email": MAINTAINER_EMAIL})
         fe.updated(subnode.datetime.isoformat() + "Z")
 
     return fg.rss_str(pretty=True)
@@ -133,13 +136,15 @@ def latest_rss(subnodes):
 
 def user_rss(user, subnodes):
     fg = FeedGenerator()
+    URL_BASE = current_app.config.get("URL_BASE", "https://anagora.org")
+    MAINTAINER_EMAIL = current_app.config.get("MAINTAINER_EMAIL", "anagora@flancia.org")
     # not sure what this field is for
-    fg.id(f"https://anagora.org/feed/@{user}.rss")
+    fg.id(f"{URL_BASE}/feed/@{user}.rss")
     fg.title(f"Agora feed for user @{user}")
-    fg.author({"name": "anagora.org/@{user}", "email": "anagora@flancia.org"})
-    fg.logo("https://anagora.org/favicon.ico")
+    fg.author({"name": f"{current_app.config.get('AGORA_NAME_SHORT', 'Agora')}/@{user}", "email": MAINTAINER_EMAIL})
+    fg.logo(f"{URL_BASE}/favicon.ico")
     fg.subtitle("The Agora is a crowdsourced distributed knowledge graph.")
-    fg.link(href=f"https://anagora.org/feed/@{user}", rel="self")
+    fg.link(href=f"{URL_BASE}/feed/@{user}", rel="self")
     fg.language("en")
     for subnode in subnodes:
         fe = fg.add_entry()
@@ -150,6 +155,6 @@ def user_rss(user, subnodes):
             content = "(Binary content)"
         fe.content(f"{content}")
         fe.description(f"A post by user @{user} in node [[{subnode.node}]].")
-        fe.link(href=f"https://anagora.org/@{user}/{subnode.node}")
+        fe.link(href=f"{URL_BASE}/@{user}/{subnode.node}")
     return fg.rss_str(pretty=True)
 

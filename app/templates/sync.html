@@ -81,6 +81,10 @@
 {% endif %}
 
 {% if not subnode and not rendering_user %}
+{% include "games.html" %}
+{% endif %}
+
+{% if not subnode and not rendering_user %}
 {% include "search.html" %}
 {% endif %}
 

@@ -1,8 +1,8 @@
 // app/js-src/util.ts
 
 export const CLIENT_DEFAULTS = {
-  user: 'agora',
-  editorUrl: 'https://edit.anagora.org',
+  user: (window as any).DEFAULT_MAINTAINER || 'flancian',
+  editorUrl: (window as any).AGORA_EDITOR_URL || 'https://edit.anagora.org',
   autoExpandSearch: false,
   autoExpandWikipedia: false,
   autoExpandExactMatch: false,

@@ -35,6 +35,9 @@ import { initPullButtons } from './pull';
 
 declare const NODENAME: string | undefined;
 declare const NODEQ: string | undefined;
+declare const DEFAULT_MAINTAINER: string | undefined;
+declare const AGORA_EDITOR_URL: string | undefined;
+
 
 // @ts-ignore
 window.setupSmartIframeResizer = function(iframe: HTMLIFrameElement) {
@@ -75,15 +78,17 @@ document.addEventListener("DOMContentLoaded", async function () {
   initSettings();
   
   function rewriteEditLinks() {
-    const user = localStorage.getItem('user') || 'flancian';
-    const editorUrl = localStorage.getItem('editor-url') || 'https://edit.anagora.org';
-    const editLinks = document.querySelectorAll('a[href^="https://edit.anagora.org"]');
+    const baseUser = (typeof DEFAULT_MAINTAINER !== 'undefined' && DEFAULT_MAINTAINER) ? DEFAULT_MAINTAINER : 'flancian';
+    const baseEditorUrl = (typeof AGORA_EDITOR_URL !== 'undefined' && AGORA_EDITOR_URL) ? AGORA_EDITOR_URL : 'https://edit.anagora.org';
+    const user = localStorage.getItem('user') || baseUser;
+    const editorUrl = localStorage.getItem('editor-url') || baseEditorUrl;
+    const editLinks = document.querySelectorAll(`a[href^="${baseEditorUrl}"]`);
     editLinks.forEach((link) => {
       let href = link.getAttribute('href');
       if (href) {
-        let newHref = href.replace('https://edit.anagora.org', editorUrl);
-        if (user !== 'flancian') {
-          newHref = newHref.replace('/@flancian/', `/@${user}/`);
+        let newHref = href.replace(baseEditorUrl, editorUrl);
+        if (user !== baseUser) {
+          newHref = newHref.replace(`/@${baseUser}/`, `/@${user}/`);
         }
         link.setAttribute('href', newHref);
       }
@@ -707,33 +712,32 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const miniCliPlay = document.querySelector("#mini-cli-play") as HTMLButtonElement;
   if (miniCliPlay) {
-      miniCliPlay.addEventListener("click", async () => {
-          let container = document.getElementById("interactive-empty-state");
-          if (!container) {
-              container = document.createElement("div");
-              container.id = "interactive-empty-state";
-              container.className = "minigame-container";
-              
-              const footerWrapper = document.querySelector('.footer-wrapper');
-              if (footerWrapper && footerWrapper.parentNode) {
-                  footerWrapper.parentNode.insertBefore(container, footerWrapper);
-              } else {
-                  // Fallback: append to main content
-                  const contentContainer = document.querySelector('.content') || document.body;
-                  contentContainer.appendChild(container);
-              }
-              
-              try {
-                  await initInteractiveEmptyState();
-              } catch (e) {
-                  console.error("Error initializing game:", e);
-              }
+      miniCliPlay.addEventListener("click", () => {
+          const details = document.getElementById("interactive-empty-state-details") as HTMLDetailsElement | null;
+          if (details) {
+              details.open = true;
+              setTimeout(() => {
+                  details.scrollIntoView({ behavior: "smooth", block: "center" });
+                  const canvas = details.querySelector("canvas");
+                  if (canvas) canvas.focus();
+              }, 100);
           }
-          setTimeout(() => {
-              if (container) {
-                  container.scrollIntoView({ behavior: "smooth", block: "center" });
-              }
-          }, 100);
+      });
+  }
+
+  const emptyPlayLink = document.querySelector("#empty-play-link");
+  if (emptyPlayLink) {
+      emptyPlayLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          const details = document.getElementById("interactive-empty-state-details") as HTMLDetailsElement | null;
+          if (details) {
+              details.open = true;
+              setTimeout(() => {
+                  details.scrollIntoView({ behavior: "smooth", block: "center" });
+                  const canvas = details.querySelector("canvas");
+                  if (canvas) canvas.focus();
+              }, 100);
+          }
       });
   }
 
@@ -853,7 +857,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           node += '.md';
       }
       
-      const editorUrl = localStorage.getItem('editor-url') || 'https://edit.anagora.org';
+      const editorUrl = localStorage.getItem('editor-url') || (typeof AGORA_EDITOR_URL !== 'undefined' ? AGORA_EDITOR_URL : 'https://edit.anagora.org');
       if (user) {
           window.location.href = `${editorUrl}/@${user}/${node}`;
       } else {
@@ -1137,8 +1141,8 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (embed) {
             let url = embed.getAttribute('src');
             if (embed.classList.contains('edit-iframe')) {
-                const user = localStorage.getItem('user') || 'flancian';
-                const editorUrl = localStorage.getItem('editor-url') || 'https://edit.anagora.org';
+                const user = localStorage.getItem('user') || (typeof DEFAULT_MAINTAINER !== 'undefined' ? DEFAULT_MAINTAINER : 'flancian');
+                const editorUrl = localStorage.getItem('editor-url') || (typeof AGORA_EDITOR_URL !== 'undefined' ? AGORA_EDITOR_URL : 'https://edit.anagora.org');
                 let nodeUri = url.split('/').pop();
                 if (nodeUri && !nodeUri.includes('.')) {
                     nodeUri += '.md';
@@ -1746,13 +1750,13 @@ function createAiFooter(prompt: string, provider: string, initialAnswer: string 
 }
 
 async function initInteractiveEmptyState() {
-    const container = document.getElementById("interactive-empty-state");
-    if (!container) return;
+    const details = document.getElementById("interactive-empty-state-details") as HTMLDetailsElement | null;
+    const content = document.getElementById("interactive-empty-state-content");
+    if (!details || !content) return;
 
     let cleanupCurrentGame: Function | void | null = null;
-    
-    const options = ["hexgame", "conway"];
-    let currentGame = options[Math.floor(Math.random() * options.length)];
+    let currentGame: string | null = null;
+    let isInitialized = false;
 
     const render = async () => {
         if (typeof cleanupCurrentGame === 'function') {
@@ -1760,67 +1764,81 @@ async function initInteractiveEmptyState() {
         }
         cleanupCurrentGame = null;
 
+        // Update tab states
+        const btnHexgame = document.getElementById("tab-hexgame");
+        const btnConway = document.getElementById("tab-conway");
+        if (btnHexgame) {
+            btnHexgame.classList.toggle("active", currentGame === "hexgame");
+        }
+        if (btnConway) {
+            btnConway.classList.toggle("active", currentGame === "conway");
+        }
+
         let gameHelpText = "";
         if (currentGame === "hexgame") {
             gameHelpText = "Hexgame: Use left/right arrows to rotate, Spacebar to cut top row, Shift to re-insert, C to toggle colors.";
-        } else if (currentGame === "conway") {
-            gameHelpText = "Conway's: Click to spawn cells. Spacebar to pause/play. C to clear.";
-        }
-
-        const tabsHtml = `
-            <span id="tab-hexgame" class="ai-provider-tab game-tab ${currentGame === 'hexgame' ? 'active' : ''}" style="margin-left: 10px;">Hexgame</span> • 
-            <span id="tab-conway" class="ai-provider-tab game-tab ${currentGame === 'conway' ? 'active' : ''}">Conway's</span>
-        `;
-        const wrapperTop = `
-            <details class="minigame-wrapper" open>
-                <summary>
-                    <span class="minigame-header">
-                        <strong>🎮 Agora minigames</strong>
-                        ${tabsHtml}
-                    </span>
-                </summary>
-                <div class="info-box with-spacing" info-box-id="minigames">
-                    <span><em>${gameHelpText}</em></span>
-                    <span info-box-id="minigames" class="dismiss-button" title="Dismiss this tooltip.">x</span>
-                </div>
-                <div style="padding: 1em;">
-        `;
-        const wrapperBottom = `
-                </div>
-            </details>
-        `;
-
-        if (currentGame === "hexgame") {
-            container.innerHTML = wrapperTop + `
-                <center><canvas id="myCanvas" width="600" height="600" tabindex="0" style="outline: none;"></canvas></center>
-            ` + wrapperBottom;
+            content.innerHTML = '<center><canvas id="myCanvas" width="600" height="600" tabindex="0" style="outline: none;"></canvas></center>';
             const { initHexgame } = await import('./games/hexgame');
             cleanupCurrentGame = initHexgame('myCanvas');
         } else if (currentGame === "conway") {
-            container.innerHTML = wrapperTop + `
-                <center><canvas id="conwayCanvas" width="600" height="600" style="cursor: crosshair; display: block; margin-bottom: 10px;"></canvas><div style="display: flex; gap: 10px; justify-content: center;"><button id="conwayPlayPause" style="padding: 5px 15px; background: transparent; border: 1px solid var(--text-color); color: var(--text-color); border-radius: 4px; cursor: pointer;">⏸ Pause</button> <button id="conwayClear" style="padding: 5px 15px; background: transparent; border: 1px solid var(--text-color); color: var(--text-color); border-radius: 4px; cursor: pointer;">🧹 Clear</button></div></center>
-            ` + wrapperBottom;
+            gameHelpText = "Conway's: Click to spawn cells. Spacebar to pause/play. C to clear.";
+            content.innerHTML = '<center><canvas id="conwayCanvas" width="600" height="600" style="cursor: crosshair; display: block; margin-bottom: 10px;"></canvas><div style="display: flex; gap: 10px; justify-content: center;"><button id="conwayPlayPause" style="padding: 5px 15px; background: transparent; border: 1px solid var(--text-color); color: var(--text-color); border-radius: 4px; cursor: pointer;">⏸ Pause</button> <button id="conwayClear" style="padding: 5px 15px; background: transparent; border: 1px solid var(--text-color); color: var(--text-color); border-radius: 4px; cursor: pointer;">🧹 Clear</button></div></center>';
             const { initConway } = await import('./games/conway');
             cleanupCurrentGame = initConway('conwayCanvas');
         }
 
-        const btnHexgame = document.getElementById("tab-hexgame");
-        const btnConway = document.getElementById("tab-conway");
-        if (btnHexgame) btnHexgame.addEventListener("click", () => {
-            if (currentGame !== "hexgame") {
-                currentGame = "hexgame";
-                render();
-            }
-        });
-        if (btnConway) btnConway.addEventListener("click", () => {
-            if (currentGame !== "conway") {
-                currentGame = "conway";
-                render();
-            }
-        });
+        // Update help text
+        const helpTextEl = document.getElementById("game-help-text");
+        if (helpTextEl) {
+            helpTextEl.innerHTML = `<em>${gameHelpText}</em>`;
+        }
     };
 
-    render();
+    const start = () => {
+        if (isInitialized) return;
+        isInitialized = true;
+        const options = ["hexgame", "conway"];
+        currentGame = options[Math.floor(Math.random() * options.length)];
+        render();
+    };
+
+    // Bind tab clicks (stop propagation so summary doesn't collapse details)
+    const btnHexgame = document.getElementById("tab-hexgame");
+    const btnConway = document.getElementById("tab-conway");
+    if (btnHexgame) btnHexgame.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        details.open = true;
+        if (!isInitialized) start();
+        if (currentGame !== "hexgame") {
+            currentGame = "hexgame";
+            render();
+        }
+    });
+    if (btnConway) btnConway.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        details.open = true;
+        if (!isInitialized) start();
+        if (currentGame !== "conway") {
+            currentGame = "conway";
+            render();
+        }
+    });
+
+    // Auto-trigger if opened (either on manual toggle or programmatically)
+    details.addEventListener('toggle', () => {
+        if (details.open && !isInitialized) {
+            start();
+        }
+    });
+
+    // Check if empty node (auto-open and start)
+    const isPageEmpty = !!document.querySelector('.not-found');
+    if (isPageEmpty) {
+        details.open = true;
+        start();
+    }
 }
 
 async function bindEvents() {
@@ -1889,7 +1907,7 @@ async function bindEvents() {
 
                     updatePullAllButtonVisibility();
 
-                    const user = localStorage.getItem('user') || 'flancian';
+                    const user = localStorage.getItem('user') || (typeof DEFAULT_MAINTAINER !== 'undefined' ? DEFAULT_MAINTAINER : 'flancian');
 
         // Debounce function to limit how often a function can run.
 

@@ -101,14 +101,14 @@
 		                        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
 		                            <label for="user" style="white-space: nowrap;">Browse as</label>
 		                            <div style="display: flex; gap: 10px; flex-grow: 1;">
-		                                <input id="user" type="text" placeholder="flancian" style="flex-grow: 1; padding: 5px;" />
+		                                <input id="user" type="text" placeholder="{{config['MAINTAINER_NAME']}}" style="flex-grow: 1; padding: 5px;" />
 		                                <button id="apply-user" style="padding: 5px 10px;">Apply</button>
 		                            </div>
 		                        </div>
 		                        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
 		                            <label for="editor-url" style="white-space: nowrap;">Editor URL</label>
 		                            <div style="display: flex; gap: 10px; flex-grow: 1;">
-		                                <input id="editor-url" type="text" placeholder="https://edit.anagora.org" style="flex-grow: 1; padding: 5px;" />
+		                                <input id="editor-url" type="text" placeholder="{{config['AGORA_EDITOR_URL']}}" style="flex-grow: 1; padding: 5px;" />
 		                            </div>
 		                        </div>
 		                    </div>
@@ -122,7 +122,7 @@
 		                
 		                			<p>
 		                
-		                            If you notice any strangeness, try clearing your local storage or reach out for support at <em>agora@flancia.org</em>.
+		                            If you notice any strangeness, try clearing your local storage or reach out for support at <em>{{config['MAINTAINER_EMAIL']}}</em>.
 			<p>
 
 

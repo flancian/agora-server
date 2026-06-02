@@ -24,12 +24,12 @@
 
     <div class="subnode">
         <details class="url">
-            <summary>📖 Shared document at <a href="https://doc.anagora.org/{{node.slug}}?edit">https://doc.anagora.org/{{node.slug}}</a></summary>
+            <summary>📖 Shared document at <a href="{{config['AGORA_STOA_URL']}}/{{node.slug}}?edit">{{config['AGORA_STOA_URL']}}/{{node.slug}}</a></summary>
             <div info-box-id="stoa-doc-help" class="info-box with-spacing">
               <em>This is a shared document for <a href="/{{node.qstr}}" class="wikilink">[[{{node.qstr}}]]</a> where you can collaborate with others.</em>
               <span title="Dismiss this tip." info-box-id="stoa-doc-help" class="dismiss-button">x</span>
             </div>
-            <div class="stoa-iframe" src="https://doc.anagora.org/{{node.slug}}">
+            <div class="stoa-iframe" src="{{config['AGORA_STOA_URL']}}/{{node.slug}}">
             </div>
         </details>
     </div>

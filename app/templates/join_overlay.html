@@ -25,7 +25,7 @@
             <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid var(--link-color); background: var(--bg-color-faint);">
                 <strong>Already have an account?</strong><br>
                 You can simply use the <span style="font-weight: bold; font-family: monospace;">Browse as</span> box in the top-right settings menu (⚙️) and enter your username. A password is not needed to browse, only to push/edit your actual garden!
-                Or you can <a href="https://edit.anagora.org" target="_blank">log in to edit</a> directly in the Agora editor.
+                Or you can <a href="{{config['AGORA_EDITOR_URL']}}" target="_blank">log in to edit</a> directly in the Agora editor.
             </div>
 
             For now, some work is required 😇 
@@ -42,7 +42,7 @@
                 <div style="margin-bottom: 15px; display: flex; align-items: start; gap: 8px; background-color: var(--accent-bg); padding: 10px; border-radius: 4px;">
                     <input type="checkbox" id="join-host-me" style="margin-top: 4px;">
                     <label for="join-host-me" style="font-size: 0.9em; line-height: 1.4; cursor: pointer;">
-                        <strong>I don't have a garden yet.</strong> Please host one for me on <code>git.anagora.org</code>!
+                        <strong>I don't have a garden yet.</strong> Please host one for me on <code>{{config['AGORA_FORGE_DOMAIN']}}</code>!
                     </label>
                 </div>
 
@@ -92,7 +92,7 @@
                 <div id="join-status" style="margin-top: 10px; font-weight: bold;"></div>
             </div>
 
-            <p>Or, if you need assistance or the above form doesn't work for you, please <strong>send email</strong> to <em>signup@anagora.org</em> with the following information:</p>
+            <p>Or, if you need assistance or the above form doesn't work for you, please <strong>send email</strong> to <em>{{config['SIGNUP_EMAIL']}}</em> with the following information:</p>
 
             <ul>
                 <li>A link to your <strong>digital garden</strong>, wiki, blog, or a description of the content you would like to contribute.</li>

@@ -215,6 +215,15 @@ class DefaultConfig(object):
     # Feature flags
     ENABLE_AGORA_NAME_IN_HEADER = False
 
+    # Configurable defaults to replace hardcoded reference instance values
+    MAINTAINER_NAME = os.environ.get('MAINTAINER_NAME', 'flancian')
+    MAINTAINER_EMAIL = os.environ.get('MAINTAINER_EMAIL', 'flancian@flancia.org')
+    AGORA_EDITOR_URL = os.environ.get('AGORA_EDITOR_URL', 'https://edit.anagora.org')
+    AGORA_FORGE_DOMAIN = os.environ.get('AGORA_FORGE_DOMAIN', 'git.anagora.org')
+    SIGNUP_EMAIL = os.environ.get('SIGNUP_EMAIL', 'signup@anagora.org')
+    AGORA_STOA_URL = os.environ.get('AGORA_STOA_URL', 'https://doc.anagora.org')
+
+
 
 class ProductionConfig(DefaultConfig):
 
