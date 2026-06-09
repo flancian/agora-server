@@ -9,6 +9,8 @@ For an example Agora, and for more information on the Agora design, please refer
 To see the Agora Server in action with the example Agora, please visit
 <https://anagora.org>.
 
+For a deep dive into the ethos of our AI development and the project's core values, please read the [Philosophy of AI Applications](Philosophy%20of%20AI%20Applications.md).
+
 ## The Agora Protocol
 
 The Agora Protocol is not a formal network protocol, but rather a set of core principles that guide the project's design:
