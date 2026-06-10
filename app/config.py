@@ -152,6 +152,10 @@ class DefaultConfig(object):
     
     # AI Synthesis of node content.
     ENABLE_SYNTHESIS = False
+
+    # Related nodes display limits and fuzzy scoring thresholds
+    MAX_RELATED_DISPLAY = 10
+    MIN_RELATED_FUZZ_SCORE = 50
     
     # Enable new AI providers (ChatGPT, Claude) as tabs instead of links.
     ENABLE_CHATGPT = False
