@@ -15,9 +15,10 @@
 -->
 
 {% if not subnode %}
-    <details class="web node">
+    <details class="web node sortable-section" id="agora-web" data-section="web">
     <summary>
         <span class="web-header" title="Web search results.">
+            <span class="drag-handle" title="Drag to reorder this section">≡</span>
             <strong>🔍 Web results</strong> by
         </span>
             <span class="web-provider-tab active" data-provider="marginalia" data-url="https://marginalia-search.com/search?query={{node.q}}">Marginalia</span> •

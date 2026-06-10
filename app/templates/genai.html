@@ -16,9 +16,10 @@
 -->
 
 {% if not subnode and config['ENABLE_AI'] %}
-<details class="genai"> 
+<details class="genai sortable-section" id="agora-genai" data-section="genai"> 
     <summary> 
         <span class="genai-header" title="AI generation for the node as prompt.">
+            <span class="drag-handle" title="Drag to reorder this section">≡</span>
             <strong>🤖 AI generations</strong> by 
             <span class="ai-provider-tab active" data-provider="mistral">Mistral</span> • 
             <span class="ai-provider-tab" data-provider="gemini">Gemini</span> • 
