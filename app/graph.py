@@ -635,16 +635,9 @@ class Node:
     def equivalent(self):
         # nodes that are really pretty much "the same as" this one, e.g. different representations for the same date/time or edit distance (within a useful window)
         nodes = []
-        # too aggressive
-        # regex = '.*' + re.escape(uri.replace('-', '.*')) + '.*'
-
-        # the slug/uri assumption here is a hack, points in the direction of cleanup.
-        # this should probably work based on tokens, which are available... somewhere?
-        # hmm, probably providers.py.
-        # too much for 'equivalence'? probably somewhere in 'related': prefix match.
-        # regex = re.escape(uri.replace('-', '.*')) + '.*'
-        # should cover different date formats :)
-        regex = re.sub(r"[-_ ]", ".?", self.uri) + "$"
+        # Escape special regex characters in the URI to prevent regex injection/bombs
+        escaped_uri = re.escape(self.uri)
+        regex = re.sub(r"\\?[-_ ]", ".?", escaped_uri) + "$"
         try:
             nodes.extend([node for node in G.match(regex) if node.uri != self.uri])
         except re.error:
@@ -661,33 +654,71 @@ class Node:
         # same caveats as for equivalent() :)
         #
         l = []
-        regex = re.sub(r"[-_ ]", ".*", self.uri)
+        # Escape special regex characters in the URI to prevent regex injection/bombs
+        escaped_uri = re.escape(self.uri)
+        regex = re.sub(r"\\?[-_ ]", ".*", escaped_uri)
         try:
-            l.extend(
-                [
-                    node
-                    for node in G.search(regex)
-                    if node.uri != self.uri
-                    and node.uri not in [x.uri for x in self.pull_nodes()]
+            # Get matching wikilinks as raw strings first to avoid instantiating Node objects
+            if _is_sqlite_enabled():
+                matching_wikilinks = sqlite_engine.search_nodes_by_regex(regex)
+            else:
+                all_nodes = G.nodes(only_canonical=True)
+                matching_wikilinks = [
+                    wikilink for wikilink in all_nodes.keys()
+                    if re.search(regex, wikilink)
                 ]
-            )
+            
+            # Filter out self
+            matching_wikilinks = [w for w in matching_wikilinks if w != self.uri]
+            
+            # Calculate similarity scores on strings directly
+            scored_wikilinks = []
+            for w in matching_wikilinks:
+                score = fuzz.ratio(w, self.uri)
+                scored_wikilinks.append((w, score))
+                
+            # Filter by a minimum threshold (e.g., 50) to ensure meaningful similarity
+            min_threshold = current_app.config.get("MIN_RELATED_FUZZ_SCORE", 50)
+            scored_wikilinks = [item for item in scored_wikilinks if item[1] >= min_threshold]
+            
+            # Sort descending by score, then alphabetically for determinism
+            scored_wikilinks.sort(key=lambda x: (-x[1], x[0]))
+            
+            # Take the top N (e.g., 10)
+            limit = current_app.config.get("MAX_RELATED_DISPLAY", 10)
+            top_wikilinks = [item[0] for item in scored_wikilinks[:limit]]
+            
+            # Pull nodes (to exclude them from related list)
+            pull_node_uris = [x.uri for x in self.pull_nodes()]
+            
+            # Instantiate Node objects ONLY for the top candidates that aren't already pulled
+            for w in top_wikilinks:
+                if w not in pull_node_uris:
+                    l.append(G.node(w))
         except re.error:
             # sometimes node names might contain invalid regexes.
             pass
 
-        # The following fuzzy search is too expensive if it loads the full graph for every comparison.
-        # Re-enable or re-implement with an efficient, SQL-native fuzzy matching (if possible) or a pre-cached URI list.
-        # For now, we disable it when SQLite is enabled to avoid loading the full graph.
+        # Also run the legacy fuzzy search on the whole graph if not lazy loading,
+        # but apply the same limit and string-first optimization to be safe.
         if not current_app.config.get('ENABLE_LAZY_LOAD', False):
-            l.extend(
-                [
-                    node for node in G.search('.*') 
-                    if fuzz.ratio(node.uri, self.uri) > FUZZ_FACTOR_RELATED 
-                    and node.uri != self.uri
-                ]
-            )
-
-        return sorted(set(l), key=lambda x: x.uri)
+            pull_node_uris = [x.uri for x in self.pull_nodes()]
+            all_canonical = list(G.nodes(only_canonical=True).keys())
+            extra_scored = []
+            for w in all_canonical:
+                if w != self.uri and w not in pull_node_uris:
+                    score = fuzz.ratio(w, self.uri)
+                    if score > FUZZ_FACTOR_RELATED:
+                        extra_scored.append((w, score))
+            # Sort and merge
+            extra_scored.sort(key=lambda x: (-x[1], x[0]))
+            limit = current_app.config.get("MAX_RELATED_DISPLAY", 10)
+            for w, score in extra_scored[:limit]:
+                if w not in [n.uri for n in l]:
+                    l.append(G.node(w))
+                    
+        limit = current_app.config.get("MAX_RELATED_DISPLAY", 10)
+        return sorted(l[:limit], key=lambda x: x.uri)
 
     def push_nodes(self) -> List['Node']:
         # nodes pushed to from this node.
