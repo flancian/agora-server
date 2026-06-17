@@ -1626,6 +1626,14 @@ input:checked + .slider:before {
     content: "🖋️";
 }
 
+/* Custom icons for Meditation toggle */
+.settings-switch input#meditation-checkbox + .slider:before {
+    content: "🙏";
+}
+.settings-switch input#meditation-checkbox:checked + .slider:before {
+    content: "🙏";
+}
+
 /* Shaded window state */
 .agora-draggable-container {
     opacity: 0.9;

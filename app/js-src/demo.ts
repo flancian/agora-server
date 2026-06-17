@@ -238,6 +238,10 @@ export function initDemoMode() {
 
     const hidePopup = () => {
         meditationPopupContainer.classList.remove('active');
+        const meditationCheckbox = document.getElementById("meditation-checkbox") as HTMLInputElement;
+        if (meditationCheckbox) {
+            meditationCheckbox.checked = false;
+        }
     };
 
     function startGentleScroll(isInitialLoad = false, isRootAutoEnable = false) {
@@ -369,22 +373,26 @@ export function initDemoMode() {
         });
     }
 
-    document.getElementById('show-meditation-popup')?.addEventListener('click', () => {
-        const meditationPopupContainer = document.getElementById("meditation-popup-container");
-        if (meditationPopupContainer.classList.contains('active')) {
-            hidePopup();
-            return;
-        }
-
-        // If the demo is running, cancel it before showing the popup.
-        const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
-        if (anyCheckedDemoBox) {
-            const mainCheckbox = document.getElementById('demo-checkbox') as HTMLInputElement;
-            if (mainCheckbox) {
-                mainCheckbox.checked = false;
-                mainCheckbox.dispatchEvent(new Event('change'));
+    const meditationCheckbox = document.getElementById('meditation-checkbox') as HTMLInputElement;
+    if (meditationCheckbox) {
+        meditationCheckbox.addEventListener('change', () => {
+            if (meditationCheckbox.checked) {
+                const meditationPopupContainer = document.getElementById("meditation-popup-container");
+                if (meditationPopupContainer && !meditationPopupContainer.classList.contains('active')) {
+                    // If the demo is running, cancel it before showing the popup.
+                    const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
+                    if (anyCheckedDemoBox) {
+                        const mainCheckbox = document.getElementById('demo-checkbox') as HTMLInputElement;
+                        if (mainCheckbox) {
+                            mainCheckbox.checked = false;
+                            mainCheckbox.dispatchEvent(new Event('change'));
+                        }
+                    }
+                    showPopup();
+                }
+            } else {
+                hidePopup();
             }
-        }
-        showPopup();
-    });
+        });
+    }
 }
