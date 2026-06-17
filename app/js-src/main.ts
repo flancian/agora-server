@@ -1136,9 +1136,14 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (showToast) {
                 showToast(`Welcome to the Agora!`);
                 
-                // Show haptic/long-press help tip
+                // Show mobile/desktop context help tip
+                const isMobileDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+                const helpMsg = isMobileDevice 
+                    ? "💡 Press and hold on buttons and toggles to see help."
+                    : "💡 Hover over buttons and toggles to see help.";
+
                 setTimeout(() => {
-                    showToast(`💡 Press and hold on buttons and toggles to see help.`);
+                    showToast(helpMsg);
                 }, 1000);
                 
                 // Add an extra context toast if we are at the absolute root (no query parameters)
