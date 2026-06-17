@@ -155,6 +155,12 @@
                         <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
+                    {% if config.ENABLE_HYPOTHESIS %}
+                    <label class="settings-switch" for="show-hypothesis-navbar" title="Toggle Hypothes.is Annotations">
+                        <input type="checkbox" id="show-hypothesis-navbar" class="annotate-toggle-input" />
+                        <div class="slider round"></div>
+                    </label>
+                    {% endif %}
                     <button id="scroll-toggle" title="Scroll to bottom / top">▼</button>
                 </div>
             </div>
@@ -179,7 +185,6 @@
                     <button id="mini-cli-write" value="write" title="Write a subnode for this location.">
                         ✍️ Write
                     </button>
-                    <button id="annotate-button" title="Toggle annotations">🖋️ Annotate</button>
                     <button id="show-meditation-popup" title="Agora Meditation: a moment of calm.">🙏 Meditate</button>
                     <button id="mini-cli-synthesize" value="synthesize" title="Trigger an AI synthesis for this location." style="display: none; opacity: 0; transition: opacity 1s ease-in;">
                         ✨ Synthesize

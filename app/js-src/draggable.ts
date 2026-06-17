@@ -46,6 +46,7 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         xOffset = pos.x;
         yOffset = pos.y;
         // Switch to transform-based positioning immediately
+        container.style.position = 'fixed';
         container.style.top = '0';
         container.style.left = '0';
         container.style.right = 'auto';
