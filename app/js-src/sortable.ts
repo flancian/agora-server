@@ -8,27 +8,45 @@ export function initSortable() {
     // Attach drag events to all sortable sections
     const sortables = container.querySelectorAll('.sortable-section');
     sortables.forEach(section => {
-        const handle = section.querySelector('.drag-handle') as HTMLElement;
-        if (!handle) return;
+        const summary = section.querySelector('summary') as HTMLElement;
+        const trigger = summary || section;
 
         // Prevent duplicate listener binding
         const sec = section as HTMLElement;
         if (sec.dataset.sortableInitialized === 'true') return;
         sec.dataset.sortableInitialized = 'true';
 
-        // When pressing the handle, make the parent section draggable
-        handle.addEventListener('mousedown', () => {
+        // Helper to check if interactive elements are clicked
+        const isInteractive = (target: HTMLElement): boolean => {
+            return (
+                target.tagName === 'A' || 
+                target.tagName === 'BUTTON' || 
+                target.closest('.wiki-provider-tab') !== null || 
+                target.closest('.web-provider-tab') !== null || 
+                target.closest('.ai-provider-tab') !== null || 
+                target.closest('.synthesis-provider-tab') !== null ||
+                target.closest('.external-star-toggle') !== null || 
+                target.closest('.node-star-toggle') !== null || 
+                target.closest('.star-toggle') !== null || 
+                target.closest('.dismiss-button') !== null
+            );
+        };
+
+        // When pressing the summary header, make the parent section draggable
+        trigger.addEventListener('mousedown', (e: Event) => {
+            if (isInteractive(e.target as HTMLElement)) return;
             (section as HTMLElement).setAttribute('draggable', 'true');
         });
-        handle.addEventListener('mouseup', () => {
+        trigger.addEventListener('mouseup', () => {
             (section as HTMLElement).setAttribute('draggable', 'false');
         });
 
         // Touch support (mobile)
-        handle.addEventListener('touchstart', () => {
+        trigger.addEventListener('touchstart', (e: Event) => {
+            if (isInteractive(e.target as HTMLElement)) return;
             (section as HTMLElement).setAttribute('draggable', 'true');
         }, { passive: true });
-        handle.addEventListener('touchend', () => {
+        trigger.addEventListener('touchend', () => {
             (section as HTMLElement).setAttribute('draggable', 'false');
         });
 
