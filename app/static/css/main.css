@@ -1791,32 +1791,36 @@ input:checked + .slider:before {
 
 .context-layout {
     display: flex;
-    flex-direction: column; /* Mobile-first: stack columns vertically */
-    gap: 20px;
+    flex-flow: row wrap; /* Mobile-first: wrap rows to allow side-by-side + full width graph */
+    gap: 20px 10px;
     width: 100%;
     margin-top: 15px;
 }
 
 .context-column {
-    flex: 1;
     min-width: 0;
     box-sizing: border-box;
 }
 
 .context-column.left-column {
-    text-align: left; /* Mobile: left-aligned */
+    flex: 1 1 calc(50% - 10px);
+    order: 1; /* Backlinks first */
+    text-align: left;
 }
 
 .context-column.right-column {
-    text-align: left; /* Mobile: left-aligned */
+    flex: 1 1 calc(50% - 10px);
+    order: 2; /* Outlinks second (side-by-side with Backlinks) */
+    text-align: left;
 }
 
 .context-column.center-column {
+    flex: 1 1 100%;
+    order: 3; /* Graph third (occupies full row below) */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
 }
 
 .context-column .graph-container {
@@ -1836,20 +1840,26 @@ input:checked + .slider:before {
 
 @media screen and (min-width: 60em) {
     .context-layout {
-        flex-direction: row; /* Desktop: side-by-side */
-        align-items: stretch;
+        flex-direction: row; /* Desktop: side-by-side nowrap */
+        flex-wrap: nowrap;
+        gap: 20px;
     }
 
     .context-column.left-column {
-        text-align: right; /* Desktop: right-aligned backlinks pointing towards graph */
-    }
-
-    .context-column.right-column {
-        text-align: left; /* Desktop: left-aligned outlinks pointing away from graph */
+        flex: 1;
+        order: 1; /* Backlinks on Left */
+        text-align: right; /* Desktop: right-aligned pointing towards graph */
     }
 
     .context-column.center-column {
-        flex: 2.2; /* Give the center graph column more visual breathing room */
+        flex: 2.2;
+        order: 2; /* Graph in Center */
+    }
+
+    .context-column.right-column {
+        flex: 1;
+        order: 3; /* Outlinks on Right */
+        text-align: left; /* Desktop: left-aligned pointing away from graph */
     }
 }
 
