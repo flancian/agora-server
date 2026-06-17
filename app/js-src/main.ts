@@ -2449,18 +2449,6 @@ async function bindEvents() {
 
           });
 
-          // experiment: make pull button expand all details.
-
-          var details = document.querySelectorAll("details.related summary, details.pulled summary, details:not([open]):is(.node) summary, details.stoa > summary, details.search > summary");
-
-          details.forEach(item => {
-
-          console.log('trying to click details');
-
-          (item as HTMLElement).click();
-
-          });
-
         });
 
         // fold all button in intro banner.
@@ -2538,18 +2526,6 @@ async function bindEvents() {
             (element as HTMLElement).click();
 
           }
-
-          });
-
-          // experiment: make fold button fold all details which are open.
-
-          var details = document.querySelectorAll("details[open] > summary");
-
-          details.forEach(item => {
-
-          console.log('trying to click details');
-
-          (item as HTMLElement).click();
 
           });
 
