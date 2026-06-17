@@ -14,6 +14,7 @@
 //
 
 import { initializeStars } from './starring';
+import { initSortable, restoreOrder, initSortableSubnodes } from './sortable';
 
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
@@ -74,6 +75,61 @@ window.setupSmartIframeResizer = function(iframe: HTMLIFrameElement) {
 };
 
 document.addEventListener("DOMContentLoaded", async function () {
+  
+  const showButtonWithFade = (btn: HTMLButtonElement) => {
+      if (btn.style.display !== "inline-block") {
+          btn.style.display = "inline-block";
+          void btn.offsetHeight; // force reflow
+      }
+      btn.style.opacity = "1";
+  };
+
+  const hideButtonWithFade = (btn: HTMLButtonElement) => {
+      btn.style.opacity = "0";
+      setTimeout(() => {
+          if (btn.style.opacity === "0") {
+              btn.style.display = "none";
+          }
+      }, 500);
+  };
+
+  const updateCliButtonsVisibility = () => {
+      const miniCliLookAround = document.querySelector("#mini-cli-look-around") as HTMLButtonElement;
+      const miniCliWander = document.querySelector("#mini-cli-wander") as HTMLButtonElement;
+      const hasContext = !!(document.getElementById('agoragraph') || 
+                          document.getElementById('graph') || 
+                          document.querySelector('.context'));
+
+      if (miniCliLookAround) {
+          if (hasContext) {
+              showButtonWithFade(miniCliLookAround);
+          } else {
+              hideButtonWithFade(miniCliLookAround);
+          }
+      }
+
+      if (miniCliWander) {
+          if (hasContext) {
+              showButtonWithFade(miniCliWander);
+          } else {
+              hideButtonWithFade(miniCliWander);
+          }
+      }
+  };
+
+  // Try to restore order and initialize sortables if content is mostly synchronous
+  restoreOrder();
+  initSortable();
+  initSortableSubnodes();
+  updateCliButtonsVisibility();
+  
+  window.addEventListener('agora-node-loaded', () => {
+      // Re-run sortable setup and restore after async content finishes loading
+      restoreOrder();
+      initSortable();
+      initSortableSubnodes();
+      updateCliButtonsVisibility();
+  });
   console.log("DomContentLoaded");
   initSettings();
   
@@ -415,10 +471,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   };
 
   // Set the theme on initial load
-  if (currentTheme === "light") {
-    setTheme('light');
-  } else {
+  if (currentTheme === "dark") {
     setTheme('dark');
+  } else {
+    setTheme('light');
   }
 
   // Add event listeners to both checkboxes
@@ -675,7 +731,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (miniCliGo) {
     miniCliGo.addEventListener("click", () => {
       console.log("go mini-cli executes");
-      miniCliGo.textContent = "🏹 Going...";
+      miniCliGo.textContent = "🏹 Gone gone";
       miniCliGo.disabled = true;
       let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
       window.location.href = '/go/' + val;
@@ -686,7 +742,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (miniCliGoBeyond) {
     miniCliGoBeyond.addEventListener("click", () => {
       console.log("go beyond mini-cli executes");
-      miniCliGoBeyond.textContent = "🌠 Gone Beyond";
+      miniCliGoBeyond.textContent = "🌠 Gone beyond";
       miniCliGoBeyond.disabled = true;
       let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
       window.location.href = '/lucky/' + val;
@@ -710,20 +766,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  const miniCliPlay = document.querySelector("#mini-cli-play") as HTMLButtonElement;
-  if (miniCliPlay) {
-      miniCliPlay.addEventListener("click", () => {
-          const details = document.getElementById("interactive-empty-state-details") as HTMLDetailsElement | null;
-          if (details) {
-              details.open = true;
-              setTimeout(() => {
-                  details.scrollIntoView({ behavior: "smooth", block: "center" });
-                  const canvas = details.querySelector("canvas");
-                  if (canvas) canvas.focus();
-              }, 100);
-          }
-      });
-  }
 
   const emptyPlayLink = document.querySelector("#empty-play-link");
   if (emptyPlayLink) {
@@ -1847,7 +1889,7 @@ async function bindEvents() {
     initInteractiveEmptyState();
 
     if (document.querySelector('.not-found') && autoPull) {
-                                                            const wikiDetails = document.querySelector('#wp-wt-container .wiki') as HTMLDetailsElement;
+                                                            const wikiDetails = document.querySelector('#agora-wiki') as HTMLDetailsElement;
 
                                                             if (wikiDetails && !wikiDetails.hasAttribute('open')) {
 
@@ -2866,141 +2908,96 @@ async function bindEvents() {
 
       }
 
-      const wpWtContainer = document.getElementById('wp-wt-container');
+      const placeholder = document.getElementById('agora-wiki-loading');
 
-      if (wpWtContainer) {
+      if (placeholder) {
+          fetch('/exec/wp/' + NODENAME)
+              .then(response => response.text())
+              .then(html => {
+                  if (html.trim()) {
+                      placeholder.classList.add('fade-out');
+                      placeholder.addEventListener('animationend', () => {
+                          const temp = document.createElement('div');
+                          temp.innerHTML = html;
+                          const newContent = temp.firstElementChild as HTMLElement;
 
-        fetch('/exec/wp/' + NODENAME)
+                          if (newContent) {
+                              newContent.classList.add('fade-in');
+                              placeholder.replaceWith(newContent);
 
-            .then(response => response.text())
+                              // Initialize stars for the newly added content
+                              initializeExternalStars();
 
-            .then(html => {
+                              // Re-attach event listeners for the new content
+                              const autoExpandWikipedia = localStorage.getItem('auto-expand-wikipedia') === 'true';
+                              const autoExpandExactMatch = safeJsonParse(localStorage.getItem('auto-expand-exact-match'), CLIENT_DEFAULTS.autoExpandExactMatch);
+                              const isEmptyNode = document.querySelector('.not-found') !== null;
+                              
+                              // Check for exact match
+                              const wikiTitleElement = newContent.querySelector('.external-star-toggle[data-external-source="wikipedia"]');
+                              const wikiTitle = wikiTitleElement ? wikiTitleElement.getAttribute('data-external-title') : null;
+                              const isExactMatch = wikiTitle && (wikiTitle.toLowerCase() === NODENAME.toLowerCase());
 
-                if (html.trim()) {
+                              const shouldAutoPull = autoExpandWikipedia || (isEmptyNode && autoPull) || (isExactMatch && autoExpandExactMatch);
 
-                    const placeholder = wpWtContainer.querySelector('.node');
+                              if (shouldAutoPull) {
+                                  const details = (newContent.classList.contains('wiki') ? newContent : newContent.querySelector('.wiki')) as HTMLDetailsElement;
+                                  if (details) {
+                                       // Show toast explaining why we are expanding.
+                                       console.log('Checking toast conditions:', { isEmptyNode, autoPull, autoExpandWikipedia, isExactMatch, autoExpandExactMatch });
+                                       if (isEmptyNode && autoPull) {
+                                            showToast("Empty node: auto-expanding Wikipedia");
+                                       } else if (isExactMatch && autoExpandExactMatch) {
+                                            showToast("Exact match: auto-expanding Wikipedia");
+                                       } else if (autoExpandWikipedia) {
+                                            showToast("Auto-expanding Wikipedia (per setting)");
+                                       }
+                                       details.setAttribute('open', '');
+                                  }
+                              }
 
-                    if (placeholder) {
+                              newContent.querySelectorAll('.wiki-provider-tab').forEach(tab => {
+                                  tab.addEventListener('click', e => {
+                                      e.preventDefault();
 
-                        placeholder.classList.add('fade-out');
+                                      const details = (newContent.classList.contains('wiki') ? newContent : newContent.querySelector('.wiki')) as HTMLDetailsElement;
 
-                        placeholder.addEventListener('animationend', () => {
+                                      if (details && details.hasAttribute('open') && tab.classList.contains('active')) {
+                                          // If the details are open and the tab is already active, open link in a new window.
+                                          const linkElement = tab.nextElementSibling?.querySelector('a');
+                                          if (linkElement && linkElement.href) {
+                                              window.open(linkElement.href, '_blank');
+                                          }
+                                          return;
+                                      }
 
-                            wpWtContainer.innerHTML = html;
+                                      // Otherwise, ensure the details are open and switch to the clicked tab.
+                                      if (details && !details.hasAttribute('open')) {
+                                          details.setAttribute('open', '');
+                                      }
 
-                            const newContent = wpWtContainer.querySelector('.node');
+                                      newContent.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
+                                      tab.classList.add('active');
 
-                            if (newContent) {
+                                      const provider = (tab as HTMLElement).dataset.provider;
+                                      newContent.querySelectorAll('.wiki-embed').forEach(embed => {
+                                          if ((embed as HTMLElement).dataset.provider === provider) {
+                                              (embed as HTMLElement).style.display = 'block';
+                                          } else {
+                                              (embed as HTMLElement).style.display = 'none';
+                                          }
+                                      });
+                                  });
+                              });
 
-                                newContent.classList.add('fade-in');
+                              applyDismissals(); // Run again, as the wp info-box is now in the DOM.
 
-                            }
-                            
-                            // Initialize stars for the newly added content
-                            initializeExternalStars();
-
-                            // Re-attach event listeners for the new content
-                            const autoExpandWikipedia = localStorage.getItem('auto-expand-wikipedia') === 'true';
-                            const autoExpandExactMatch = safeJsonParse(localStorage.getItem('auto-expand-exact-match'), CLIENT_DEFAULTS.autoExpandExactMatch);
-                            const isEmptyNode = document.querySelector('.not-found') !== null;
-                            
-                            // Check for exact match
-                            const wikiTitleElement = wpWtContainer.querySelector('.external-star-toggle[data-external-source="wikipedia"]');
-                            const wikiTitle = wikiTitleElement ? wikiTitleElement.getAttribute('data-external-title') : null;
-                            const isExactMatch = wikiTitle && (wikiTitle.toLowerCase() === NODENAME.toLowerCase());
-
-                            const shouldAutoPull = autoExpandWikipedia || (isEmptyNode && autoPull) || (isExactMatch && autoExpandExactMatch);
-
-                            if (shouldAutoPull) {
-                                const details = wpWtContainer.querySelector('.wiki') as HTMLDetailsElement;
-                                if (details) {
-                                     // Show toast explaining why we are expanding.
-                                     console.log('Checking toast conditions:', { isEmptyNode, autoPull, autoExpandWikipedia, isExactMatch, autoExpandExactMatch });
-                                     if (isEmptyNode && autoPull) {
-                                          showToast("Empty node: auto-expanding Wikipedia");
-                                     } else if (isExactMatch && autoExpandExactMatch) {
-                                          showToast("Exact match: auto-expanding Wikipedia");
-                                     } else if (autoExpandWikipedia) {
-                                          showToast("Auto-expanding Wikipedia (per setting)");
-                                     }
-                                     details.setAttribute('open', '');
-                                }
-                            }
-
-                            wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(tab => {
-
-                                tab.addEventListener('click', e => {
-
-                                    e.preventDefault();
-
-                                    const details = wpWtContainer.querySelector('.wiki') as HTMLDetailsElement;
-
-                                    if (details && details.hasAttribute('open') && tab.classList.contains('active')) {
-
-                                        // If the details are open and the tab is already active, open link in a new window.
-
-                                        const linkElement = tab.nextElementSibling?.querySelector('a');
-
-                                        if (linkElement && linkElement.href) {
-
-                                            window.open(linkElement.href, '_blank');
-
-                                        }
-
-                                        return;
-
-                                    }
-
-                                    // Otherwise, ensure the details are open and switch to the clicked tab.
-
-                                    if (details && !details.hasAttribute('open')) {
-
-                                        details.setAttribute('open', '');
-
-                                    }
-
-                                    wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
-
-                                    tab.classList.add('active');
-
-                                    const provider = (tab as HTMLElement).dataset.provider;
-
-                                    wpWtContainer.querySelectorAll('.wiki-embed').forEach(embed => {
-
-                                        if ((embed as HTMLElement).dataset.provider === provider) {
-
-                                            (embed as HTMLElement).style.display = 'block';
-
-                                        } else {
-
-                                            (embed as HTMLElement).style.display = 'none';
-
-                                        }
-
-                                    });
-
-                                });
-
-                            });
-
-                            applyDismissals(); // Run again, as the wp info-box is now in the DOM.
-
-                        }, { once: true });
-
-                    } else {
-
-                        // Fallback for safety
-
-                        wpWtContainer.innerHTML = html;
-
-                        applyDismissals(); // Also run here in the fallback case.
-
-                    }
-
-                }
-
-            });
-
+                              // Re-init sortable and restore order, ensuring the new content is registered
+                              window.dispatchEvent(new CustomEvent('agora-node-loaded'));
+                          }
+                      }, { once: true });
+                  }
+              });
       }
 
       // go to the specified URL

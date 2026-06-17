@@ -15,11 +15,13 @@
 -->
 
 {% if not subnode %}
-    <details class="web node">
+    <details class="web node sortable-section" id="agora-web" data-section="web">
     <summary>
         <span class="web-header" title="Web search results.">
+            <span class="drag-handle" title="Drag to reorder this section">≡</span>
             <strong>🔍 Web results</strong> by
         </span>
+        <span class="summary-scroll-content">
             <span class="web-provider-tab active" data-provider="marginalia" data-url="https://marginalia-search.com/search?query={{node.q}}">Marginalia</span> •
             <span class="web-provider-tab" data-provider="google" data-url="https://www.google.com/search?igu=1&q={{node.q}}">Google</span> •
             <span class="web-provider-tab" data-provider="bing" data-url="https://www.bing.com/search?q={{node.q}}">Bing</span> •
@@ -29,6 +31,7 @@
             <span class="web-provider-tab" data-provider="github" data-url="https://github.com/search?q={{node.q}}">GitHub</span> •
             <span class="web-provider-tab" data-provider="bsky" data-url="https://bsky.app/search?q={{node.q}}">Bluesky</span> •
             <span class="web-provider-tab" data-provider="tootfinder" data-url="https://tootfinder.ch/index.php?query={{node.q}}">Fediverse</span>
+        </span>
     </summary>
 
     <div class="info-box with-spacing mb-10" info-box-id="web">

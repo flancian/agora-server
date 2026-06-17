@@ -18,12 +18,12 @@
 {% if node and related and not embed %}
     {% for n in related %}
         {% if n.subnodes %}
-        <details class="node related pulled">
+        <details class="node related pulled sortable-section" id="related-{{n.uri}}" data-section="related-{{n.uri}}">
             <summary>
                 <span class="node-header" title="An Agora location contains community contributions on a topic.">
+                    <span class="drag-handle" title="Drag to reorder this section">≡</span>
                     📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/{{n.uri}}"><span class="node-name">{{n.description}}</span></a><span class="wikilink-marker">]]</span> (perhaps related)
                 </span>
-                <span class="pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
             </summary>
         <div class="node-embed" id="{{n.uri}}"></div>
         </details>

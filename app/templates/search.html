@@ -16,9 +16,9 @@
 -->
 
 {% if not subnode %}
-<details class="search">
+<details class="search sortable-section" id="agora-search" data-section="search">
 
-    <summary> <span class="search-agora-header" title="Full text search for the terms you entered."><strong>🔎 Full search</strong> for '<a href="/{{node}}">{{node.qstr}}</a>'</span>
+    <summary> <span class="search-agora-header" title="Full text search for the terms you entered."><span class="drag-handle" title="Drag to reorder this section">≡</span> <strong>🔎 Full search</strong> for '<a href="/{{node}}">{{node.qstr}}</a>'</span>
     </summary>
 
     <div info-box-id="search" class="info-box with-spacing">

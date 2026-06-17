@@ -14,31 +14,31 @@
 -->
 
 <!-- yolo :) -->
+    <!-- Temporarily disabled
         {% if not subnode and not rendering_user %}
-        <div info-box-id="internet-intro" class="intro">
-
+        <div info-box-id="internet-intro" class="intro" id="internet-intro">
             <span>You {{config['AGORA_ACTION_0']}} for '{{node.qstr}}' on the <strong>Internet</strong>…</span>
             <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="internet-intro" id="dismissbutton" class="dismiss-button">x</span>
-    
         </div>
         {% endif %}
+    -->
+
+    <div info-box-id="agora-intro" class="intro" id="agora-intro">
+      <span>This you find in the <strong>{{config['AGORA_NAME']}}</strong>…</span>
+      <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="agora-intro" id="dismissbutton" class="dismiss-button">x</span>
+    </div>
 
     {% if not subnode and not rendering_user %}
     {% include "web.html" %}
 
     {% include "genai.html" %}
     {% endif %}
-
-    <div info-box-id="agora-intro" class="intro">
-    <span>This you find in the <strong>{{config['AGORA_NAME']}}</strong>…</span>
-      <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="agora-intro" id="dismissbutton" class="dismiss-button">x</span>
-    </div>
                       
     {% if not subnode and not rendering_user %}
-    <div id="wp-wt-container">
-        <details class="node fade-in">
+        <details class="node fade-in sortable-section" id="agora-wiki-loading" data-section="wiki">
             <summary>
                 <span class="node-header">
+                    <span class="drag-handle" title="Drag to reorder this section">≡</span>
                     <em>Loading Wikimedia Commons...</em>
                 </span>
             </summary>
@@ -55,7 +55,6 @@
                 </center>
             </div>
         </details>
-    </div>
     {% endif %}
 
 {% if subnode %}
@@ -81,11 +80,11 @@
 {% endif %}
 
 {% if not subnode and not rendering_user %}
-{% include "games.html" %}
+{% include "search.html" %}
 {% endif %}
 
 {% if not subnode and not rendering_user %}
-{% include "search.html" %}
+{% include "games.html" %}
 {% endif %}
 
 <div class="edit-section-container">

@@ -15,19 +15,21 @@
 -->
 
 {% if node.subnodes or node.pushed_subnodes() %}
-    <details class="node" id="{{node.uri}}" {% if not collapsed %}open{% endif %}>
+    <details class="node sortable-section" id="main-node-{{node.uri}}" data-section="main" {% if not collapsed %}open{% endif %}>
 
         {% if rendering_user or subnode %}
             <summary class="node-header main-header">
                 <span class="flex-grow">
+                  <span class="drag-handle" title="Drag to reorder this section">≡</span>
                   {% set u = rendering_user if rendering_user else (subnode.user if subnode.user is defined else (node.subnodes[0].user if node.subnodes else '')) %}
-                  <strong>👩‍🌾 Contributions</strong> by <a href="/@{{u}}">@{{ u }}</a> at <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>
+                  <strong>📜 Contributions</strong> by <a href="/@{{u}}">@{{ u }}</a> at <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>
                 </span>
            </summary>
         {% else %}
             <summary class="node-header main-header">
                 <!-- <div class="inline-flex"> -->
                     <span style="flex: auto; flex-grow: 1;" title="An Agora location contains community contributions on a topic.">
+                        <span class="drag-handle" title="Drag to reorder this section">≡</span>
                         📚 <strong>Agora location</strong> 
                         <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
                     </span>
@@ -48,10 +50,8 @@
     
         <!-- yolo -- dedup with stoa.html when time is available :) -->
         <div info-box-id="node" class="info-box with-spacing">
-
-          <em>Agora locations contain community contributions with titles or topics that match your search.</em>
-            <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="node" id="dismissbutton" class="dismiss-button">x</span>
-    
+          Agora locations contain community contributions with titles or topics that match your search.
+          <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="node" id="dismissbutton" class="dismiss-button">x</span>
         </div>
 
        {% for subnode in node.subnodes %}
@@ -83,25 +83,19 @@
                 </div>
             </details>
             {% else %}
-            <details class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}" open>
+            <details class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}" data-subnode-uri="{{ subnode.uri }}" open>
                 <summary class="subnode-header">
                     <span class="subnode-id">
-                                                    <span class="subnode-links">
-                                                      <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see contributions by this user.">👩‍🌾</a> 
-                                                        <strong>Contribution</strong> <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see only this contribution.">{{subnode.garden_relative}}</a>
-                                                        <span title="This resource was contributed to this Agora and seems relevant to the current topic."> by </span>                            <a class="user" href="/@{{subnode.user}}"" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>
-                            <span class="star-toggle {% if subnode.uri in starred_subnodes %}starred{% endif %}" data-subnode-uri="{{ subnode.uri }}" title="Star this contribution">
-    {% if subnode.uri in starred_subnodes %}★{% else %}☆{% endif %}
-</span>
+                        <span class="subnode-links">
+                            <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see only this contribution.">📜 <strong>{{subnode.garden_relative}}</strong></a> <span style="font-weight: normal; opacity: 0.8; font-size: 0.9em;">(contribution by <a class="user" href="/@{{subnode.user}}" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>)</span>
                         </span>
                     </span>
 
                     <span class="subnode-contrib">
+                        <span class="star-toggle {% if subnode.uri in starred_subnodes %}starred{% endif %}" data-subnode-uri="{{ subnode.uri }}" title="Star this contribution">
+                            {% if subnode.uri in starred_subnodes %}★{% else %}☆{% endif %}
+                        </span>
                         <a href="/raw/{{subnode.uri}}" title="view raw" style="text-decoration: none;">raw</a>
-                        <!-- 
-                        <a href="/raw/{{subnode.uri}}" style="text-decoration: none;" title="view original (source)"></a>
-                        <a href="/export/@{{subnode.user}}/{{node.uri}}" style="text-decoration: none;" title="export (html)">⤓</a>
-                    -->
                         {% if subnode.web %}
                             <a href="{{subnode.web}}" title="view original (website)" style="text-decoration: none;">️🔗</a> 
                         {% endif %}
@@ -111,13 +105,8 @@
                         {% if subnode.support %}
                             <a href="{{subnode.support}}" title="support (user specified)">🤗</a>
                         {% endif %}
-                        <!-- disabled 2023-10 as we never made these persist, and ranking code was seeding the console with exceptions.
-                        <button onClick="downvote('{{loop.index}}')" title="Downrank this contribution">⇣</button>
-                        <button onClick="upvote('{{loop.index}}')" title="Uprank this contribution">⇡</button> 
-                        -->
-                        </span>
-
-                            </span>
+                        <span class="subnode-drag-handle" title="Drag to reorder this contribution">≡</span>
+                    </span>
                 </summary>
 
                 <div>
@@ -161,6 +150,8 @@
                 <summary class="synthesis-header">
                     <span>
                         ✨ AI Synthesis
+                    </span>
+                    <span class="summary-scroll-content">
                         <span class="synthesis-provider-tab active" data-provider="mistral" style="font-weight: normal; font-size: 0.8em; margin-left: 10px; padding: 2px 5px; border-radius: 4px;">Mistral</span>
                         <span class="synthesis-provider-tab" data-provider="gemini" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Gemini</span>
                         {% if config.ENABLE_CHATGPT %}
@@ -191,7 +182,15 @@
 
  
 {% if not subnode %}
-<details class="context node" {% if not collapsed %}open{% endif %}>
+<details class="context node sortable-section" id="agora-context" data-section="context" {% if not collapsed %}open{% endif %}>
+
+    <summary class="node-header main-header" title="Dynamically assembled context from this and other locations.">
+        <span style="flex: auto; flex-grow: 1;">
+            <span class="drag-handle" title="Drag to reorder this section">≡</span>
+            🌌 <strong>Agora context</strong> for
+            <span class="wikilink-marker">[[</span><a href="/context/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
+        </span>
+    </summary>
 
     <center>
         <p>
