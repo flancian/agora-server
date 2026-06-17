@@ -739,14 +739,16 @@ document.addEventListener("DOMContentLoaded", async function () {
       tooltipDiv.style.boxShadow = '0 4px 10px rgba(0,0,0,0.3)';
       tooltipDiv.style.pointerEvents = 'none';
       tooltipDiv.style.opacity = '0';
-      tooltipDiv.style.transition = 'opacity 0.2s ease-in-out';
+      tooltipDiv.style.transition = 'opacity 0.4s ease-in-out'; // slower, softer fade transition
       tooltipDiv.style.maxWidth = '280px';
       tooltipDiv.style.textAlign = 'center';
       tooltipDiv.style.lineHeight = '1.3';
-      tooltipDiv.style.top = '145px'; // centered below the 3-line navbar
+      tooltipDiv.style.top = '190px'; // pushed 30% further down from 145px to stay clear of fingers
       tooltipDiv.style.left = '50%';
       tooltipDiv.style.transform = 'translateX(-50%)';
       document.body.appendChild(tooltipDiv);
+
+      let fadeOutTimeout: any = null;
 
       const interactiveElements = document.querySelectorAll('.topline-node button, .topline-node label');
       interactiveElements.forEach(el => {
@@ -762,6 +764,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           touchTarget.addEventListener('touchstart', (e) => {
               isLongPress = false;
+              clearTimeout(fadeOutTimeout); // instantly cancel any pending dismiss/fade-out
+              tooltipDiv.style.opacity = '0'; // hide previous instantly if any
+
               const touch = (e as TouchEvent).touches[0];
               touchStartX = touch.clientX;
               touchStartY = touch.clientY;
@@ -788,9 +793,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           touchTarget.addEventListener('touchend', (e) => {
               clearTimeout(touchTimeout);
-              tooltipDiv.style.opacity = '0';
               if (isLongPress) {
+                  // Keep the tooltip visible for 500ms after release before starting the slow fade-out
+                  fadeOutTimeout = setTimeout(() => {
+                      tooltipDiv.style.opacity = '0';
+                  }, 500);
                   e.preventDefault(); // Prevent triggering the default tap click
+              } else {
+                  tooltipDiv.style.opacity = '0'; // instant hide for short taps
               }
           });
 
