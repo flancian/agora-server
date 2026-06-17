@@ -1143,7 +1143,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 const isMobileDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
                 const helpMsg = isMobileDevice 
                     ? "💡 Press and hold on buttons and toggles to see help."
-                    : "💡 Hover over buttons and toggles to see help.";
+                    : "💡 Please hover over buttons and toggles to see help.";
 
                 setTimeout(() => {
                     showToast(helpMsg);
