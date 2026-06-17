@@ -1571,7 +1571,8 @@ table caption {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-left: -2px;
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .theme-switch input, .demo-switch input {

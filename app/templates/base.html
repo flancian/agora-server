@@ -138,24 +138,6 @@
                         </form>
                     </div>
                 </div>
-                <div class="toggle-container">
-                    <label class="theme-switch" for="theme-checkbox" title="Toggle light/dark theme">
-                        <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
-                        <div class="slider round"></div>
-                    </label>
-                    {% if config.ENABLE_DEMO %}
-                    <label class="demo-switch" for="demo-checkbox" title="Toggle Demo Mode">
-                        <input type="checkbox" id="demo-checkbox" class="demo-checkbox-input" />
-                        <div class="slider round">
-                            <span id="demo-timer"></span>
-                        </div>
-                    </label>
-                    {% endif %}
-                    <label class="music-switch" for="music-checkbox" title="Toggle Ambient Music">
-                        <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
-                        <div class="slider round"></div>
-                    </label>
-                </div>
             </div>
             <div class="topline-node-wrapper scrolled-to-start scrolled-to-end">
                 <div class="action-bar">
@@ -189,6 +171,24 @@
                     </button>
                     <button id="show-meditation-popup" title="Agora Meditation: a moment of calm.">🙏 Meditate</button>
                     <button id="scroll-toggle" title="Scroll to bottom / top">▼</button>
+                </div>
+                <div class="toggle-container">
+                    <label class="theme-switch" for="theme-checkbox" title="Toggle light/dark theme">
+                        <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
+                        <div class="slider round"></div>
+                    </label>
+                    {% if config.ENABLE_DEMO %}
+                    <label class="demo-switch" for="demo-checkbox" title="Toggle Demo Mode">
+                        <input type="checkbox" id="demo-checkbox" class="demo-checkbox-input" />
+                        <div class="slider round">
+                            <span id="demo-timer"></span>
+                        </div>
+                    </label>
+                    {% endif %}
+                    <label class="music-switch" for="music-checkbox" title="Toggle Ambient Music">
+                        <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
+                        <div class="slider round"></div>
+                    </label>
                 </div>
             </div>
         </div>
