@@ -714,16 +714,96 @@ document.addEventListener("DOMContentLoaded", async function () {
                                
           if (!scrollableEl) return;
 
-          // If click is within the rightmost 30px
+          // If click is within the rightmost 30px (right chevron), scroll to the very end
           if (e.clientX >= rect.right - 30) {
-              scrollableEl.scrollBy({ left: Math.max(150, scrollableEl.clientWidth / 2), behavior: 'smooth' });
+              scrollableEl.scrollTo({ left: scrollableEl.scrollWidth, behavior: 'smooth' });
           } 
-          // If click is within the leftmost 30px
+          // If click is within the leftmost 30px (left chevron), scroll to the very start
           else if (e.clientX <= rect.left + 30) {
-              scrollableEl.scrollBy({ left: -Math.max(150, scrollableEl.clientWidth / 2), behavior: 'smooth' });
+              scrollableEl.scrollTo({ left: 0, behavior: 'smooth' });
           }
       });
   });
+
+  // Mobile long-press tooltips for navbar toggles and buttons
+  const initMobileTooltips = () => {
+      const tooltipDiv = document.createElement('div');
+      tooltipDiv.id = 'agora-mobile-tooltip';
+      tooltipDiv.style.position = 'fixed';
+      tooltipDiv.style.zIndex = '10000';
+      tooltipDiv.style.backgroundColor = 'var(--text-color)';
+      tooltipDiv.style.color = 'var(--bg-color)';
+      tooltipDiv.style.padding = '8px 12px';
+      tooltipDiv.style.borderRadius = '6px';
+      tooltipDiv.style.fontSize = '0.85em';
+      tooltipDiv.style.boxShadow = '0 4px 10px rgba(0,0,0,0.3)';
+      tooltipDiv.style.pointerEvents = 'none';
+      tooltipDiv.style.opacity = '0';
+      tooltipDiv.style.transition = 'opacity 0.2s ease-in-out';
+      tooltipDiv.style.maxWidth = '280px';
+      tooltipDiv.style.textAlign = 'center';
+      tooltipDiv.style.lineHeight = '1.3';
+      tooltipDiv.style.top = '145px'; // centered below the 3-line navbar
+      tooltipDiv.style.left = '50%';
+      tooltipDiv.style.transform = 'translateX(-50%)';
+      document.body.appendChild(tooltipDiv);
+
+      const interactiveElements = document.querySelectorAll('.topline-node button, .topline-node label');
+      interactiveElements.forEach(el => {
+          const title = el.getAttribute('title');
+          if (!title) return;
+
+          let touchTimeout: any = null;
+          let touchStartX = 0;
+          let touchStartY = 0;
+          let isLongPress = false;
+
+          // Target input if inside label, so we can preventDefault cleanly
+          const touchTarget = el.tagName.toLowerCase() === 'label' ? (el.querySelector('input') || el) : el;
+
+          touchTarget.addEventListener('touchstart', (e) => {
+              isLongPress = false;
+              const touch = (e as TouchEvent).touches[0];
+              touchStartX = touch.clientX;
+              touchStartY = touch.clientY;
+
+              touchTimeout = setTimeout(() => {
+                  isLongPress = true;
+                  tooltipDiv.innerText = title;
+                  tooltipDiv.style.opacity = '0.95';
+                  // Vibrate briefly if device supports it (very cool tactile feedback)
+                  if ('vibrate' in navigator) {
+                      navigator.vibrate(50);
+                  }
+              }, 500); // 500ms threshold for long-press
+          }, { passive: true });
+
+          touchTarget.addEventListener('touchmove', (e) => {
+              const touch = (e as TouchEvent).touches[0];
+              // If finger moves more than 10px, cancel the long press
+              if (Math.abs(touch.clientX - touchStartX) > 10 || Math.abs(touch.clientY - touchStartY) > 10) {
+                  clearTimeout(touchTimeout);
+                  tooltipDiv.style.opacity = '0';
+              }
+          }, { passive: true });
+
+          touchTarget.addEventListener('touchend', (e) => {
+              clearTimeout(touchTimeout);
+              tooltipDiv.style.opacity = '0';
+              if (isLongPress) {
+                  e.preventDefault(); // Prevent triggering the default tap click
+              }
+          });
+
+          touchTarget.addEventListener('touchcancel', () => {
+              clearTimeout(touchTimeout);
+              tooltipDiv.style.opacity = '0';
+          });
+      });
+  };
+
+  // Run mobile tooltips initializer
+  initMobileTooltips();
 
   // clear mini cli on clicking clear button
   /*
