@@ -35,7 +35,6 @@
     {% endif %}
                       
     {% if not subnode and not rendering_user %}
-    <div id="wp-wt-container">
         <details class="node fade-in sortable-section" id="agora-wiki-loading" data-section="wiki">
             <summary>
                 <span class="node-header">
@@ -56,7 +55,6 @@
                 </center>
             </div>
         </details>
-    </div>
     {% endif %}
 
 {% if subnode %}
@@ -82,11 +80,11 @@
 {% endif %}
 
 {% if not subnode and not rendering_user %}
-{% include "games.html" %}
+{% include "search.html" %}
 {% endif %}
 
 {% if not subnode and not rendering_user %}
-{% include "search.html" %}
+{% include "games.html" %}
 {% endif %}
 
 <div class="edit-section-container">

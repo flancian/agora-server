@@ -723,36 +723,24 @@ def go(node0, node1=""):
             current_app.logger.info(f"Detected go link was not a valid URL: {link}.")
 
     # No matching viable links found after all tries.
-    # Fallback to a standard Google search.
-    if node0 != node1:
-        query = f"{node0} {node1}"
+    # Fallback to the local Agora node.
+    if node0 != node1 and node1:
+        return redirect(f"{base}/{node0}/{node1}")
     else:
-        query = node0
-    
-    current_app.logger.info("Go link failed. Falling back to Google search.")
-    return redirect(f"https://www.google.com/search?q={urllib.parse.quote_plus(query)}")
+        return redirect(f"{base}/{node0}")
 
 @bp.route("/lucky/<node0>/<node1>")
 @bp.route("/lucky/<node0>/")
 @bp.route("/lucky/<node0>")
 def lucky(node0, node1=""):
-    """Performs an 'I'm Feeling Lucky' search for the node."""
+    """Redirects to a Google search for the node (Go Beyond)."""
     if node0 != node1 and node1:
         query = f"{node0} {node1}"
     else:
         query = node0
 
-    redirect_url = providers.feeling_lucky(query)
-    if redirect_url:
-        return redirect(redirect_url)
-    else:
-        # Fall back to the original behavior: redirecting to the local Agora node.
-        current_app.logger.warning("I'm Feeling Lucky failed. Falling back to local node.")
-        base = current_app.config["URL_BASE"]
-        if node0 != node1 and node1:
-            return redirect(f"{base}/{node0}/{node1}")
-        else:
-            return redirect(f"{base}/{node0}")
+    current_app.logger.info("Redirecting to Google search (Go Beyond).")
+    return redirect(f"https://www.google.com/search?q={urllib.parse.quote_plus(query)}")
 
 
 @bp.route("/wander/", defaults={"node": None})

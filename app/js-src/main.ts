@@ -688,7 +688,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (miniCliGo) {
     miniCliGo.addEventListener("click", () => {
       console.log("go mini-cli executes");
-      miniCliGo.textContent = "🏹 Going...";
+      miniCliGo.textContent = "🏹 Gone gone";
       miniCliGo.disabled = true;
       let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
       window.location.href = '/go/' + val;
@@ -699,7 +699,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (miniCliGoBeyond) {
     miniCliGoBeyond.addEventListener("click", () => {
       console.log("go beyond mini-cli executes");
-      miniCliGoBeyond.textContent = "🌠 Gone Beyond";
+      miniCliGoBeyond.textContent = "🌠 Gone beyond";
       miniCliGoBeyond.disabled = true;
       let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
       window.location.href = '/lucky/' + val;
@@ -1860,7 +1860,7 @@ async function bindEvents() {
     initInteractiveEmptyState();
 
     if (document.querySelector('.not-found') && autoPull) {
-                                                            const wikiDetails = document.querySelector('#wp-wt-container .wiki') as HTMLDetailsElement;
+                                                            const wikiDetails = document.querySelector('#agora-wiki') as HTMLDetailsElement;
 
                                                             if (wikiDetails && !wikiDetails.hasAttribute('open')) {
 
@@ -2879,160 +2879,96 @@ async function bindEvents() {
 
       }
 
-      let wpWtContainer = document.getElementById('wp-wt-container');
+      const placeholder = document.getElementById('agora-wiki-loading');
 
-      if (wpWtContainer) {
+      if (placeholder) {
+          fetch('/exec/wp/' + NODENAME)
+              .then(response => response.text())
+              .then(html => {
+                  if (html.trim()) {
+                      placeholder.classList.add('fade-out');
+                      placeholder.addEventListener('animationend', () => {
+                          const temp = document.createElement('div');
+                          temp.innerHTML = html;
+                          const newContent = temp.firstElementChild as HTMLElement;
 
-        // Defensive: If the container itself was rendered as a <details> (due to old server-side caching),
-        // replace it with a <div> to avoid any double details/nesting behavior!
-        if (wpWtContainer.tagName === 'DETAILS') {
-            const div = document.createElement('div');
-            div.id = 'wp-wt-container';
-            while (wpWtContainer.firstChild) {
-                div.appendChild(wpWtContainer.firstChild);
-            }
-            wpWtContainer.replaceWith(div);
-            wpWtContainer = div;
-        }
+                          if (newContent) {
+                              newContent.classList.add('fade-in');
+                              placeholder.replaceWith(newContent);
 
-        fetch('/exec/wp/' + NODENAME)
+                              // Initialize stars for the newly added content
+                              initializeExternalStars();
 
-            .then(response => response.text())
+                              // Re-attach event listeners for the new content
+                              const autoExpandWikipedia = localStorage.getItem('auto-expand-wikipedia') === 'true';
+                              const autoExpandExactMatch = safeJsonParse(localStorage.getItem('auto-expand-exact-match'), CLIENT_DEFAULTS.autoExpandExactMatch);
+                              const isEmptyNode = document.querySelector('.not-found') !== null;
+                              
+                              // Check for exact match
+                              const wikiTitleElement = newContent.querySelector('.external-star-toggle[data-external-source="wikipedia"]');
+                              const wikiTitle = wikiTitleElement ? wikiTitleElement.getAttribute('data-external-title') : null;
+                              const isExactMatch = wikiTitle && (wikiTitle.toLowerCase() === NODENAME.toLowerCase());
 
-            .then(html => {
+                              const shouldAutoPull = autoExpandWikipedia || (isEmptyNode && autoPull) || (isExactMatch && autoExpandExactMatch);
 
-                if (html.trim()) {
+                              if (shouldAutoPull) {
+                                  const details = (newContent.classList.contains('wiki') ? newContent : newContent.querySelector('.wiki')) as HTMLDetailsElement;
+                                  if (details) {
+                                       // Show toast explaining why we are expanding.
+                                       console.log('Checking toast conditions:', { isEmptyNode, autoPull, autoExpandWikipedia, isExactMatch, autoExpandExactMatch });
+                                       if (isEmptyNode && autoPull) {
+                                            showToast("Empty node: auto-expanding Wikipedia");
+                                       } else if (isExactMatch && autoExpandExactMatch) {
+                                            showToast("Exact match: auto-expanding Wikipedia");
+                                       } else if (autoExpandWikipedia) {
+                                            showToast("Auto-expanding Wikipedia (per setting)");
+                                       }
+                                       details.setAttribute('open', '');
+                                  }
+                              }
 
-                    // Query globally by ID to find the placeholder even if it has been moved by sortable order restoration
-                    const placeholder = document.getElementById('agora-wiki-loading');
+                              newContent.querySelectorAll('.wiki-provider-tab').forEach(tab => {
+                                  tab.addEventListener('click', e => {
+                                      e.preventDefault();
 
-                    if (placeholder) {
+                                      const details = (newContent.classList.contains('wiki') ? newContent : newContent.querySelector('.wiki')) as HTMLDetailsElement;
 
-                        placeholder.classList.add('fade-out');
+                                      if (details && details.hasAttribute('open') && tab.classList.contains('active')) {
+                                          // If the details are open and the tab is already active, open link in a new window.
+                                          const linkElement = tab.nextElementSibling?.querySelector('a');
+                                          if (linkElement && linkElement.href) {
+                                              window.open(linkElement.href, '_blank');
+                                          }
+                                          return;
+                                      }
 
-                        placeholder.addEventListener('animationend', () => {
+                                      // Otherwise, ensure the details are open and switch to the clicked tab.
+                                      if (details && !details.hasAttribute('open')) {
+                                          details.setAttribute('open', '');
+                                      }
 
-                            const temp = document.createElement('div');
-                            temp.innerHTML = html;
-                            const newContent = temp.firstElementChild as HTMLElement;
+                                      newContent.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
+                                      tab.classList.add('active');
 
-                            if (newContent) {
-                                newContent.classList.add('fade-in');
-                                placeholder.replaceWith(newContent);
-                            } else {
-                                wpWtContainer.innerHTML = html;
-                            }
-                            
-                            // Initialize stars for the newly added content
-                            initializeExternalStars();
+                                      const provider = (tab as HTMLElement).dataset.provider;
+                                      newContent.querySelectorAll('.wiki-embed').forEach(embed => {
+                                          if ((embed as HTMLElement).dataset.provider === provider) {
+                                              (embed as HTMLElement).style.display = 'block';
+                                          } else {
+                                              (embed as HTMLElement).style.display = 'none';
+                                          }
+                                      });
+                                  });
+                              });
 
-                            // Re-attach event listeners for the new content
-                            const autoExpandWikipedia = localStorage.getItem('auto-expand-wikipedia') === 'true';
-                            const autoExpandExactMatch = safeJsonParse(localStorage.getItem('auto-expand-exact-match'), CLIENT_DEFAULTS.autoExpandExactMatch);
-                            const isEmptyNode = document.querySelector('.not-found') !== null;
-                            
-                            // Check for exact match
-                            const wikiTitleElement = wpWtContainer.querySelector('.external-star-toggle[data-external-source="wikipedia"]');
-                            const wikiTitle = wikiTitleElement ? wikiTitleElement.getAttribute('data-external-title') : null;
-                            const isExactMatch = wikiTitle && (wikiTitle.toLowerCase() === NODENAME.toLowerCase());
+                              applyDismissals(); // Run again, as the wp info-box is now in the DOM.
 
-                            const shouldAutoPull = autoExpandWikipedia || (isEmptyNode && autoPull) || (isExactMatch && autoExpandExactMatch);
-
-                            if (shouldAutoPull) {
-                                const details = wpWtContainer.querySelector('.wiki') as HTMLDetailsElement;
-                                if (details) {
-                                     // Show toast explaining why we are expanding.
-                                     console.log('Checking toast conditions:', { isEmptyNode, autoPull, autoExpandWikipedia, isExactMatch, autoExpandExactMatch });
-                                     if (isEmptyNode && autoPull) {
-                                          showToast("Empty node: auto-expanding Wikipedia");
-                                     } else if (isExactMatch && autoExpandExactMatch) {
-                                          showToast("Exact match: auto-expanding Wikipedia");
-                                     } else if (autoExpandWikipedia) {
-                                          showToast("Auto-expanding Wikipedia (per setting)");
-                                     }
-                                     details.setAttribute('open', '');
-                                }
-                            }
-
-                            wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(tab => {
-
-                                tab.addEventListener('click', e => {
-
-                                    e.preventDefault();
-
-                                    const details = wpWtContainer.querySelector('.wiki') as HTMLDetailsElement;
-
-                                    if (details && details.hasAttribute('open') && tab.classList.contains('active')) {
-
-                                        // If the details are open and the tab is already active, open link in a new window.
-
-                                        const linkElement = tab.nextElementSibling?.querySelector('a');
-
-                                        if (linkElement && linkElement.href) {
-
-                                            window.open(linkElement.href, '_blank');
-
-                                        }
-
-                                        return;
-
-                                    }
-
-                                    // Otherwise, ensure the details are open and switch to the clicked tab.
-
-                                    if (details && !details.hasAttribute('open')) {
-
-                                        details.setAttribute('open', '');
-
-                                    }
-
-                                    wpWtContainer.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
-
-                                    tab.classList.add('active');
-
-                                    const provider = (tab as HTMLElement).dataset.provider;
-
-                                    wpWtContainer.querySelectorAll('.wiki-embed').forEach(embed => {
-
-                                        if ((embed as HTMLElement).dataset.provider === provider) {
-
-                                            (embed as HTMLElement).style.display = 'block';
-
-                                        } else {
-
-                                            (embed as HTMLElement).style.display = 'none';
-
-                                        }
-
-                                    });
-
-                                });
-
-                            });
-
-                            applyDismissals(); // Run again, as the wp info-box is now in the DOM.
-
-                            // Re-init sortable and restore order, ensuring the new content is registered
-                            window.dispatchEvent(new CustomEvent('agora-node-loaded'));
-
-                        }, { once: true });
-
-                    } else {
-
-                        // Fallback for safety
-
-                        wpWtContainer.innerHTML = html;
-
-                        applyDismissals(); // Also run here in the fallback case.
-
-                        window.dispatchEvent(new CustomEvent('agora-node-loaded'));
-
-                    }
-
-                }
-
-            });
-
+                              // Re-init sortable and restore order, ensuring the new content is registered
+                              window.dispatchEvent(new CustomEvent('agora-node-loaded'));
+                          }
+                      }, { once: true });
+                  }
+              });
       }
 
       // go to the specified URL

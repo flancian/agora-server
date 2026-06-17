@@ -124,57 +124,56 @@ export function restoreOrder() {
 
     try {
         const orderStr = localStorage.getItem('agora-section-order');
-        if (!orderStr) return;
+        if (orderStr) {
+            const order: string[] = JSON.parse(orderStr);
+            if (Array.isArray(order) && order.length > 0) {
+                console.log("Restoring section order:", order);
 
-        const order: string[] = JSON.parse(orderStr);
-        if (!Array.isArray(order) || order.length === 0) return;
+                // Any elements that weren't in the saved order array will remain at the top 
+                // (because appendChild moves elements to the bottom). 
+                // If we want unsaved elements to remain at the bottom, we should append them too.
+                // Actually, elements not in `order` stay where they were unless they were moved.
+                // The ones we append get moved to the end. That means elements NOT in the order
+                // list will end up BEFORE the ordered elements.
+                // Let's fix that by collecting the new/untracked elements and appending them at the end.
+                
+                const allSortables = Array.from(container.querySelectorAll('.sortable-section'));
+                const orderedElements: HTMLElement[] = [];
+                const untrackedElements: HTMLElement[] = [];
 
-        console.log("Restoring section order:", order);
+                allSortables.forEach(el => {
+                    const id = (el as HTMLElement).dataset.section;
+                    if (id && order.includes(id)) {
+                        // Will be appended via order iteration
+                    } else {
+                        untrackedElements.push(el as HTMLElement);
+                    }
+                });
 
-        // Any elements that weren't in the saved order array will remain at the top 
-        // (because appendChild moves elements to the bottom). 
-        // If we want unsaved elements to remain at the bottom, we should append them too.
-        // Actually, elements not in `order` stay where they were unless they were moved.
-        // The ones we append get moved to the end. That means elements NOT in the order
-        // list will end up BEFORE the ordered elements.
-        // Let's fix that by collecting the new/untracked elements and appending them at the end.
-        
-        const allSortables = Array.from(container.querySelectorAll('.sortable-section'));
-        const orderedElements: HTMLElement[] = [];
-        const untrackedElements: HTMLElement[] = [];
+                const anchor = document.querySelector('.edit-section-container') || null;
 
-        allSortables.forEach(el => {
-            const id = (el as HTMLElement).dataset.section;
-            if (id && order.includes(id)) {
-                // Will be appended via order iteration
-            } else {
-                untrackedElements.push(el as HTMLElement);
-            }
-        });
+                order.forEach(sectionId => {
+                    allSortables.forEach(el => {
+                        if ((el as HTMLElement).dataset.section === sectionId) {
+                            if (anchor) {
+                                container.insertBefore(el, anchor);
+                            } else {
+                                container.appendChild(el);
+                            }
+                        }
+                    });
+                });
 
-        const anchor = document.querySelector('.edit-section-container') || null;
-
-        order.forEach(sectionId => {
-            allSortables.forEach(el => {
-                if ((el as HTMLElement).dataset.section === sectionId) {
+                // Finally, put any newly discovered sections at the very bottom of the sortables
+                untrackedElements.forEach(el => {
                     if (anchor) {
                         container.insertBefore(el, anchor);
                     } else {
                         container.appendChild(el);
                     }
-                }
-            });
-        });
-
-        // Finally, put any newly discovered sections at the very bottom of the sortables
-        untrackedElements.forEach(el => {
-            if (anchor) {
-                container.insertBefore(el, anchor);
-            } else {
-                container.appendChild(el);
+                });
             }
-        });
-
+        }
     } catch (e) {
         console.error("Failed to restore section order", e);
     }
