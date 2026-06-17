@@ -1589,6 +1589,10 @@ document.addEventListener("DOMContentLoaded", async function () {
               setTimeout(() => {
                   showToast(`🙏 Apologies for the delay (${durationS}s); ${reason}.`);
               }, 1000);
+          } else {
+              setTimeout(() => {
+                  showToast(`⚡ Location assembled in ${durationS}s.`);
+              }, 500); // show sooner since it loaded fast
           }
 
           content.outerHTML = await response.text();
