@@ -1812,7 +1812,7 @@ input:checked + .slider:before {
 .context-column.right-column {
     flex: 1 1 calc(50% - 10px);
     order: 3; /* Outlinks below graph (side-by-side with Backlinks) */
-    text-align: left;
+    text-align: right; /* Aligns Outlinks to the right screen edge on mobile */
     font-size: 0.8em; /* 20% smaller font on mobile */
 }
 
