@@ -749,65 +749,68 @@ document.addEventListener("DOMContentLoaded", async function () {
       document.body.appendChild(tooltipDiv);
 
       let fadeOutTimeout: any = null;
+      let touchTimeout: any = null;
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let isLongPress = false;
+      let currentElementWithTitle: HTMLElement | null = null;
 
-      const interactiveElements = document.querySelectorAll('.topline-node button, .topline-node label');
-      interactiveElements.forEach(el => {
-          const title = el.getAttribute('title');
+      document.body.addEventListener('touchstart', (e) => {
+          const target = e.target as HTMLElement;
+          const elementWithTitle = target.closest('[title]') as HTMLElement;
+          if (!elementWithTitle) return;
+
+          currentElementWithTitle = elementWithTitle;
+          isLongPress = false;
+          clearTimeout(fadeOutTimeout);
+          tooltipDiv.style.opacity = '0';
+
+          const touch = e.touches[0];
+          touchStartX = touch.clientX;
+          touchStartY = touch.clientY;
+
+          const title = elementWithTitle.getAttribute('title');
           if (!title) return;
 
-          let touchTimeout: any = null;
-          let touchStartX = 0;
-          let touchStartY = 0;
-          let isLongPress = false;
-
-          const touchTarget = el as HTMLElement;
-
-          touchTarget.addEventListener('touchstart', (e) => {
-              isLongPress = false;
-              clearTimeout(fadeOutTimeout); // instantly cancel any pending dismiss/fade-out
-              tooltipDiv.style.opacity = '0'; // hide previous instantly if any
-
-              const touch = (e as TouchEvent).touches[0];
-              touchStartX = touch.clientX;
-              touchStartY = touch.clientY;
-
-              touchTimeout = setTimeout(() => {
-                  isLongPress = true;
-                  tooltipDiv.innerText = title;
-                  tooltipDiv.style.opacity = '0.95';
-                  // Vibrate briefly if device supports it (very cool tactile feedback)
-                  if ('vibrate' in navigator) {
-                      navigator.vibrate(50);
-                  }
-              }, 500); // 500ms threshold for long-press
-          }, { passive: true });
-
-          touchTarget.addEventListener('touchmove', (e) => {
-              const touch = (e as TouchEvent).touches[0];
-              // If finger moves more than 10px, cancel the long press
-              if (Math.abs(touch.clientX - touchStartX) > 10 || Math.abs(touch.clientY - touchStartY) > 10) {
-                  clearTimeout(touchTimeout);
-                  tooltipDiv.style.opacity = '0';
+          touchTimeout = setTimeout(() => {
+              isLongPress = true;
+              tooltipDiv.innerText = title;
+              tooltipDiv.style.opacity = '0.95';
+              // Vibrate briefly if device supports it (very cool tactile feedback)
+              if ('vibrate' in navigator) {
+                  navigator.vibrate(50);
               }
-          }, { passive: true });
+          }, 500); // 500ms threshold for long-press
+      }, { passive: true });
 
-          touchTarget.addEventListener('touchend', (e) => {
-              clearTimeout(touchTimeout);
-              if (isLongPress) {
-                  // Keep the tooltip visible for 500ms after release before starting the slow fade-out
-                  fadeOutTimeout = setTimeout(() => {
-                      tooltipDiv.style.opacity = '0';
-                  }, 500);
-                  e.preventDefault(); // Prevent triggering the default tap click
-              } else {
-                  tooltipDiv.style.opacity = '0'; // instant hide for short taps
-              }
-          });
-
-          touchTarget.addEventListener('touchcancel', () => {
+      document.body.addEventListener('touchmove', (e) => {
+          if (!currentElementWithTitle) return;
+          const touch = e.touches[0];
+          // If finger moves more than 10px, cancel the long press
+          if (Math.abs(touch.clientX - touchStartX) > 10 || Math.abs(touch.clientY - touchStartY) > 10) {
               clearTimeout(touchTimeout);
               tooltipDiv.style.opacity = '0';
-          });
+          }
+      }, { passive: true });
+
+      document.body.addEventListener('touchend', (e) => {
+          clearTimeout(touchTimeout);
+          if (isLongPress) {
+              // Keep the tooltip visible for 500ms after release before starting the slow fade-out
+              fadeOutTimeout = setTimeout(() => {
+                  tooltipDiv.style.opacity = '0';
+              }, 500);
+              e.preventDefault(); // Prevent triggering the default tap click / navigation
+          } else {
+              tooltipDiv.style.opacity = '0'; // instant hide for short taps
+          }
+          currentElementWithTitle = null;
+      });
+
+      document.body.addEventListener('touchcancel', () => {
+          clearTimeout(touchTimeout);
+          tooltipDiv.style.opacity = '0';
+          currentElementWithTitle = null;
       });
   };
 
