@@ -76,16 +76,32 @@ window.setupSmartIframeResizer = function(iframe: HTMLIFrameElement) {
 
 document.addEventListener("DOMContentLoaded", async function () {
   
+  const updateLookAroundVisibility = () => {
+      const miniCliLookAround = document.querySelector("#mini-cli-look-around") as HTMLButtonElement;
+      if (miniCliLookAround) {
+          const hasContext = !!(document.getElementById('agoragraph') || 
+                              document.getElementById('graph') || 
+                              document.querySelector('.context'));
+          if (hasContext) {
+              miniCliLookAround.style.display = "inline-block";
+          } else {
+              miniCliLookAround.style.display = "none";
+          }
+      }
+  };
+
   // Try to restore order and initialize sortables if content is mostly synchronous
   restoreOrder();
   initSortable();
   initSortableSubnodes();
+  updateLookAroundVisibility();
   
   window.addEventListener('agora-node-loaded', () => {
       // Re-run sortable setup and restore after async content finishes loading
       restoreOrder();
       initSortable();
       initSortableSubnodes();
+      updateLookAroundVisibility();
   });
   console.log("DomContentLoaded");
   initSettings();
