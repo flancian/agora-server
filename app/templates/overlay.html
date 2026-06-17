@@ -37,27 +37,27 @@
 		                <div class="settings-grid">
 		                    <div class="settings-item">
 		                        <input id="auto-expand-all" type="checkbox" />
-		                        <label for="auto-expand-all">Always expand all sections</label>
+		                        <label for="auto-expand-all" title="Always expand all sections: If checked, all subnode accordions and sections on node pages will load expanded by default.">Always expand all sections</label>
 		                    </div>
 		                    <div class="settings-item">
 		                        <input id="auto-pull" type="checkbox" />
-		                        <label for="auto-pull">Always pull content in node</label>
+		                        <label for="auto-pull" title="Always pull content: If checked, the Agora will automatically pull in and inline external linked resources.">Always pull content in node</label>
 		                    </div>
 		                    <div class="settings-item">
 		                        <input id="auto-expand-wikipedia" type="checkbox" />
-		                        <label for="auto-expand-wikipedia">Always expand Wikipedia</label>
+		                        <label for="auto-expand-wikipedia" title="Always expand Wikipedia: If checked, the Wikipedia summary panel will automatically expand on load.">Always expand Wikipedia</label>
 		                    </div>
 		                    <div class="settings-item">
 		                        <input id="auto-expand-exact-match" type="checkbox" />
-		                        <label for="auto-expand-exact-match">Always expand Wikipedia for exact matches</label>
+		                        <label for="auto-expand-exact-match" title="Always expand Wikipedia for exact matches: If checked, Wikipedia details only expand if the search term is an exact match.">Always expand Wikipedia for exact matches</label>
 		                    </div>
 		                    <div class="settings-item">
 		                        <input id="auto-expand-search" type="checkbox" />
-		                        <label for="auto-expand-search">Always expand Search</label>
+		                        <label for="auto-expand-search" title="Always expand Search: If checked, the fallback search panel will load expanded if a node is empty.">Always expand Search</label>
 		                    </div>
 		                    <div class="settings-item">
 		                        <input id="auto-expand-stoas" type="checkbox" />
-		                        <label for="auto-expand-stoas">Always expand Stoas</label>
+		                        <label for="auto-expand-stoas" title="Always expand Stoas: If checked, collaborative Stoas and workspaces will load expanded by default.">Always expand Stoas</label>
 		                    </div>
 		                </div>
 		            </div>
@@ -67,29 +67,29 @@
 						<div class="settings-grid">
 							<div class="settings-item">
 								<input id="show-brackets" type="checkbox" />
-								<label for="show-brackets">Show [[wikilink]] markers</label>
+								<label for="show-brackets" title="Show [[wikilink]] markers: If checked, the double bracket markers surrounding [[wikilinks]] will be visible.">Show [[wikilink]] markers</label>
 							</div>
 							<div class="settings-item">
 								<input id="show-graph-labels" type="checkbox" />
-								<label for="show-graph-labels">Show graph labels</label>
+								<label for="show-graph-labels" title="Show graph labels: If checked, text labels for locations on the 2D local context graph will be visible.">Show graph labels</label>
 							</div>
 							<div class="settings-item">
 								<input id="show-hypothesis" type="checkbox" class="annotate-toggle-input" />
-								<label for="show-hypothesis">Show annotations sidebar</label>
+								<label for="show-hypothesis" title="Show annotations sidebar: If checked, the public Hypothes.is web annotation sidebar will be loaded.">Show annotations sidebar</label>
 							</div>
 							<div class="settings-item">
 								<input id="show-edit-section" type="checkbox" />
-								<label for="show-edit-section">Show edit section</label>
+								<label for="show-edit-section" title="Show edit section: If checked, the inline editor box for digital gardens will be displayed.">Show edit section</label>
 							</div>
 						</div>
 		                <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-		                    <label for="demo-timeout-seconds">Demo mode delay (s)</label>
+		                    <label for="demo-timeout-seconds" title="Demo mode delay (s): Configure the delay in seconds before Demo Mode automatically wanders to the next random location.">Demo mode delay (s)</label>
 		                    <input id="demo-timeout-seconds" type="number" min="1" value="15" style="width: 60px; padding: 5px;" />
                             
-                            <label for="toast-duration-seconds" style="margin-left: 10px;">Toast duration (s)</label>
+                            <label for="toast-duration-seconds" style="margin-left: 10px;" title="Toast duration (s): Configure the number of seconds that on-screen status toasts remain visible.">Toast duration (s)</label>
 		                    <input id="toast-duration-seconds" type="number" min="1" value="7" style="width: 60px; padding: 5px;" />
 
-                            <label style="margin-left: 10px;">
+                            <label style="margin-left: 10px;" title="Auto scroll in demo mode: If checked, the page will gently auto-scroll when in Demo Mode.">
                                 <input id="auto-scroll-demo" type="checkbox" />
                                 Auto scroll in demo mode
                             </label>
@@ -99,14 +99,14 @@
 		                    <div class="settings-group">
 		                        <h3 class="settings-group-header">Identity</h3>
 		                        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
-		                            <label for="user" style="white-space: nowrap;">Browse as</label>
+		                            <label for="user" style="white-space: nowrap;" title="Browse as: Enter a username to browse the Agora as a specific contributor (filters contributions & sets garden context).">Browse as</label>
 		                            <div style="display: flex; gap: 10px; flex-grow: 1;">
 		                                <input id="user" type="text" placeholder="{{config['MAINTAINER_NAME']}}" style="flex-grow: 1; padding: 5px;" />
-		                                <button id="apply-user" style="padding: 5px 10px;">Apply</button>
+		                                <button id="apply-user" style="padding: 5px 10px;" title="Apply: Set your active contributor session.">Apply</button>
 		                            </div>
 		                        </div>
 		                        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
-		                            <label for="editor-url" style="white-space: nowrap;">Editor URL</label>
+		                            <label for="editor-url" style="white-space: nowrap;" title="Editor URL: Configure the endpoint of your Hosted Garden editor (defaults to edit.anagora.org).">Editor URL</label>
 		                            <div style="display: flex; gap: 10px; flex-grow: 1;">
 		                                <input id="editor-url" type="text" placeholder="{{config['AGORA_EDITOR_URL']}}" style="flex-grow: 1; padding: 5px;" />
 		                            </div>
@@ -116,8 +116,8 @@
 		                			<p>
 		                
 		                            <div style="display: flex; gap: 10px;">
-		                                <button id="apply-settings" style="flex: 1;">Apply & Reload</button>
-		                                <button id="clear-settings" style="flex: 1;">Clear local storage</button>
+		                                <button id="apply-settings" style="flex: 1;" title="Apply & Reload: Save all changes to local storage and reload the page to apply.">Apply & Reload</button>
+		                                <button id="clear-settings" style="flex: 1;" title="Clear local storage: Wipe out all settings, saved panel positions, and browse-as states from local storage.">Clear local storage</button>
 		                            </div>
 		                
 		                			<p>

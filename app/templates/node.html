@@ -18,7 +18,7 @@
     <details class="node sortable-section" id="main-node-{{node.uri}}" data-section="main" {% if not collapsed %}open{% endif %}>
 
         {% if rendering_user or subnode %}
-            <summary class="node-header main-header">
+            <summary class="node-header main-header" title="These are individual contributions by @{{ u }} specifically at this location.">
                 <span class="flex-grow">
                   <span class="drag-handle" title="Drag to reorder this section">≡</span>
                   {% set u = rendering_user if rendering_user else (subnode.user if subnode.user is defined else (node.subnodes[0].user if node.subnodes else '')) %}
@@ -58,7 +58,7 @@
 
             {% if subnode.virtual %}
             <details class="pushed-subnode" open>
-                <summary class="subnode-header main-header">
+                <summary class="subnode-header main-header" title="This contribution was pushed or contextually linked from another location in the Agora.">
                     <span class="subnode-id flex-grow">
                         <span title="This was written elsewhere but is believed to be relevant in the current context."> 🫸 pushed from </span>
                         <span class="subnode-links">
@@ -84,7 +84,7 @@
             </details>
             {% else %}
             <details class="subnode" data-author="{{subnode.user}}" id="subnode-{{loop.index}}" data-subnode-uri="{{ subnode.uri }}" open>
-                <summary class="subnode-header">
+                <summary class="subnode-header" title="This is an individual contribution on this topic. Tap to collapse or expand.">
                     <span class="subnode-id">
                         <span class="subnode-links">
                             <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see only this contribution.">📜 <strong>{{subnode.garden_relative}}</strong></a> <span style="font-weight: normal; opacity: 0.8; font-size: 0.9em;">(contribution by <a class="user" href="/@{{subnode.user}}" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>)</span>
@@ -147,18 +147,18 @@
         {% if config.ENABLE_SYNTHESIS and not rendering_user and node.subnodes %}
         <div id="synthesis-container" info-box-id="ai-synthesis" class="synthesis-container with-spacing info-box-container">
             <details id="synthesis-details">
-                <summary class="synthesis-header">
+                <summary class="synthesis-header" title="✨ AI Synthesis: conceptual overview and context compiled from community contributions on this topic.">
                     <span>
                         ✨ AI Synthesis
                     </span>
                     <span class="summary-scroll-content">
-                        <span class="synthesis-provider-tab active" data-provider="mistral" style="font-weight: normal; font-size: 0.8em; margin-left: 10px; padding: 2px 5px; border-radius: 4px;">Mistral</span>
-                        <span class="synthesis-provider-tab" data-provider="gemini" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Gemini</span>
+                        <span class="synthesis-provider-tab active" data-provider="mistral" title="Switch synthesis provider to Mistral Large." style="font-weight: normal; font-size: 0.8em; margin-left: 10px; padding: 2px 5px; border-radius: 4px;">Mistral</span>
+                        <span class="synthesis-provider-tab" data-provider="gemini" title="Switch synthesis provider to Google Gemini." style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Gemini</span>
                         {% if config.ENABLE_CHATGPT %}
-                        <span class="synthesis-provider-tab" data-provider="chatgpt" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">ChatGPT</span>
+                        <span class="synthesis-provider-tab" data-provider="chatgpt" title="Switch synthesis provider to OpenAI ChatGPT." style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">ChatGPT</span>
                         {% endif %}
                         {% if config.ENABLE_CLAUDE %}
-                        <span class="synthesis-provider-tab" data-provider="claude" style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Claude</span>
+                        <span class="synthesis-provider-tab" data-provider="claude" title="Switch synthesis provider to Anthropic Claude." style="font-weight: normal; font-size: 0.8em; padding: 2px 5px; border-radius: 4px;">Claude</span>
                         {% endif %}
                     </span>
                     <span info-box-id="ai-synthesis" class="dismiss-button" title="Dismiss this section. To recall, clear local storage or settings.">x</span>

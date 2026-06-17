@@ -118,13 +118,13 @@
                                                                                                                                                                                             {% endif %}
                                                                                                                                                                                             </div>
                                                                                                                                                                                             </div>
-                                                                                                                                                                                            <span style="margin-left: 0.1em; margin-right: 0.1em;">➜</span> <a href="/nodes" class="navlink" style="text-decoration: none;"><span class="navbar-item"><span>📚</span><span>all</span></span></a>                {{config['MENU_SEPARATOR']}} <a href="/random" style="text-decoration: none;"><span class="navbar-item"><span>🎲️</span><span>random</span></span></a>                {{config['MENU_SEPARATOR']}} <a href="/starred" style="text-decoration: none;"><span class="navbar-item"><span>✨</span><span>starred</span></span></a>
-                {{config['MENU_SEPARATOR']}} <a href="/latest" style="text-decoration: none;"><span class="navbar-item"><span>🌱</span><span>latest</span></span></a>
-                {{config['MENU_SEPARATOR']}} <a title="Users" href="/users" style="text-decoration: none;"><span class="navbar-item"><span>👩‍🌾</span><span>users</span></span></a>
-                {{config['MENU_SEPARATOR']}} <a href="/journals/365" style="text-decoration: none;"><span class="navbar-item"><span>📜</span><span>journals</span></span></a>
-                {{config['MENU_SEPARATOR']}} <a href="/today" style="text-decoration: none;"><span class="navbar-item"><span>📆</span><span>today</span></a>
-                {{config['MENU_SEPARATOR']}} <a href="/federation" style="text-decoration: none;"><span class="navbar-item"><span>⚡</span><span>federation</span></span></a>
-                {{config['MENU_SEPARATOR']}} <a href="/stats" title="View Agora system statistics and health." style="text-decoration: none;"><span class="navbar-item"><span>📊</span><span>stats</span></span></a>
+                                                                                                                                                                                            <span style="margin-left: 0.1em; margin-right: 0.1em;">➜</span> <a href="/nodes" class="navlink" style="text-decoration: none;" title="📚 View a list of all active concepts and locations in this Agora."><span class="navbar-item"><span>📚</span><span>all</span></span></a>                {{config['MENU_SEPARATOR']}} <a href="/random" style="text-decoration: none;" title="🎲 Wander to a random conceptual location."><span class="navbar-item"><span>🎲️</span><span>random</span></span></a>                {{config['MENU_SEPARATOR']}} <a href="/starred" style="text-decoration: none;" title="✨ View starred locations and contributions."><span class="navbar-item"><span>✨</span><span>starred</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/latest" style="text-decoration: none;" title="🌱 Check out the most recently updated community contributions."><span class="navbar-item"><span>🌱</span><span>latest</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/users" style="text-decoration: none;" title="👩‍🌾 View profiles of active contributors and commoners."><span class="navbar-item"><span>👩‍🌾</span><span>users</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/journals/365" style="text-decoration: none;" title="📜 Browse chronological and diary-style entries."><span class="navbar-item"><span>📜</span><span>journals</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/today" style="text-decoration: none;" title="📆 Jump directly to today's journal node."><span class="navbar-item"><span>📆</span><span>today</span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/federation" style="text-decoration: none;" title="⚡ View Fediverse and ActivityPub activity inside this Agora."><span class="navbar-item"><span>⚡</span><span>federation</span></span></a>
+                {{config['MENU_SEPARATOR']}} <a href="/stats" title="📊 View Agora system statistics and health." style="text-decoration: none;"><span class="navbar-item"><span>📊</span><span>stats</span></span></a>
                 	        </div>
                         </div>
                         {% endif %}
@@ -138,33 +138,33 @@
                     </div>
                 </div>
                 <div class="toggle-container">
-                    <label class="theme-switch" for="theme-checkbox" title="Toggle light/dark theme">
+                    <label class="theme-switch" for="theme-checkbox" title="🌙/🌞 Switch the theme: checked for Light, unchecked for Dark.">
                         <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
                     {% if config.ENABLE_DEMO %}
-                    <label class="demo-switch" for="demo-checkbox" title="Toggle Demo Mode">
+                    <label class="demo-switch" for="demo-checkbox" title="🧘/🏃‍♀️ Demo Mode: check to start contemplative auto-browsing and scrolling.">
                         <input type="checkbox" id="demo-checkbox" class="demo-checkbox-input" />
                         <div class="slider round">
                             <span id="demo-timer"></span>
                         </div>
                     </label>
                     {% endif %}
-                    <label class="music-switch" for="music-checkbox" title="Toggle Ambient Music">
+                    <label class="music-switch" for="music-checkbox" title="🔇/🎵 Ambient Music: check to auto-play background lo-fi or MIDI tracks.">
                         <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
                     {% if config.ENABLE_HYPOTHESIS %}
-                    <label class="settings-switch" for="show-hypothesis-navbar" title="Toggle Hypothes.is Annotations">
+                    <label class="settings-switch" for="show-hypothesis-navbar" title="🖋️ Annotations: check to toggle the public Hypothes.is web annotations sidebar.">
                         <input type="checkbox" id="show-hypothesis-navbar" class="annotate-toggle-input" />
                         <div class="slider round"></div>
                     </label>
                     {% endif %}
-                    <label class="settings-switch" for="meditation-checkbox" title="Toggle Agora Meditation">
+                    <label class="settings-switch" for="meditation-checkbox" title="🙏 Meditate: check to open a moment of calm and contemplation for this location.">
                         <input type="checkbox" id="meditation-checkbox" class="meditation-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
-                    <button id="scroll-toggle" title="Scroll to bottom / top">▼</button>
+                    <button id="scroll-toggle" title="▼/▲ Scroll: Tap to instantly leap to the page bottom or top.">▼</button>
                 </div>
             </div>
             <div class="topline-node-wrapper scrolled-to-start scrolled-to-end">
