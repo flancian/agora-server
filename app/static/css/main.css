@@ -1407,7 +1407,7 @@ table caption {
 
 #toast-container {
     position: fixed;
-    bottom: 10px;
+    bottom: 55px;
     right: 20px;
     display: flex;
     flex-direction: column;
@@ -1427,7 +1427,7 @@ table caption {
     max-height: 0;
     margin-top: 0;
     overflow: hidden;
-    transition: all 0.4s ease-in-out;
+    transition: all 0.8s ease-in-out;
 }
 
 .toast-visible {
@@ -2014,7 +2014,7 @@ input:checked + .slider:before {
 #agora-console-btn {
     position: fixed;
     bottom: 15px;
-    left: 20px;
+    right: 20px;
     z-index: 9998;
     background-color: var(--accent-bg);
     color: var(--text-color);

@@ -1067,7 +1067,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // @ts-ignore
 	window.showToast = function(message, duration = null) {
             if (duration === null) {
-                const configSeconds = parseInt(localStorage.getItem("toast-duration-seconds") || CLIENT_DEFAULTS.toastDurationSeconds, 10);
+                const configSeconds = parseFloat(localStorage.getItem("toast-duration-seconds") || CLIENT_DEFAULTS.toastDurationSeconds);
                 duration = configSeconds * 1000;
             }
             console.log("Showing toast:", message);
