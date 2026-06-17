@@ -1789,57 +1789,67 @@ input:checked + .slider:before {
     margin-top: 1rem;
 }
 
-.context-flex {
+.context-layout {
     display: flex;
-    flex-direction: row; /* Mobile-first: stack them by default */
-    gap: 10px;
-    position: relative; /* For positioning the toggle button */
+    flex-direction: column; /* Mobile-first: stack columns vertically */
+    gap: 20px;
+    width: 100%;
+    margin-top: 15px;
 }
 
-.context-flex .graph-container {
-    width: 70%;
-    order: 1; /* Graph comes first */
+.context-column {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
-.links {
-    width: 30%;
-    order: 2; /* Links come second */
-    background-color: var(--links-bg);
-    padding: 10px;
-    margin: 0; /* Override legacy margin from line 1150 */
-    border-radius: 8px;
+.context-column.left-column {
+    text-align: left; /* Mobile: left-aligned */
+}
+
+.context-column.right-column {
+    text-align: left; /* Mobile: left-aligned */
+}
+
+.context-column.center-column {
     display: flex;
-    flex-direction: column; /* Stack children vertically */
-    justify-content: flex-start; /* Align to the top */
-    align-items: stretch; /* Stretch children horizontally */
-    gap: 20px; /* Add some space between the link lists */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.context-column .graph-container {
+    width: 100%;
+}
+
+.backlinks-header, .forwardlinks-header {
+    display: block;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 4px;
+    color: var(--text-color);
+    cursor: pointer;
 }
 
 @media screen and (min-width: 60em) {
-    .context-flex {
-        flex-direction: row; /* Side-by-side on desktop */
-        align-items: stretch; /* Make boxes the same height */
-    }
-
-    .context-flex .graph-container {
-        width: 70%;
-    }
-
-    .links {
-        width: 30%;
-    }
-}
-
-@media screen and (max-width: 60em) {
-    .context-flex {
-        flex-direction: column;
+    .context-layout {
+        flex-direction: row; /* Desktop: side-by-side */
         align-items: stretch;
     }
 
-    .context-flex .graph-container,
-    .context-flex .links {
-        width: 100%;
-        box-sizing: border-box; /* Ensure padding doesn't cause overflow */
+    .context-column.left-column {
+        text-align: right; /* Desktop: right-aligned backlinks pointing towards graph */
+    }
+
+    .context-column.right-column {
+        text-align: left; /* Desktop: left-aligned outlinks pointing away from graph */
+    }
+
+    .context-column.center-column {
+        flex: 2.2; /* Give the center graph column more visual breathing room */
     }
 }
 

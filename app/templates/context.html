@@ -6,16 +6,45 @@
         <span class="wikilink-marker">[[</span><a href="/context/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
     </span>
 </summary>
-<div class="context-flex">
+<div class="context-layout">
 {% if node.back_nodes() or node.push_nodes() or node.pull_nodes() or node.forward_nodes() %}
 
-{% include "graph.html" %}
+    <!-- Left: Backlinks -->
+    <div class="context-column left-column backlinks">
+        <span class="backlinks-header" title="← Backlinks: other locations in the Agora that link back to this topic.">← Backlinks</span>
+        <div class="link-list">
+        {% if node.back_nodes() %}
+            {% for n in node.back_nodes() %}
+            <span class="node-name"><a href="/{{n.uri}}">{{n.description}}</a></span><br />
+            {% endfor %}
+        {% else %}
+            <span class="none-text">(none)</span>
+        {% endif %}
+        </div>
+    </div>
 
-{% include "links.html" %}
+    <!-- Center: Interactive Graph -->
+    <div class="context-column center-column graph">
+        {% include "graph.html" %}
+    </div>
+
+    <!-- Right: Outlinks -->
+    <div class="context-column right-column outlinks">
+        <span class="forwardlinks-header" title="Outlinks →: other concepts and topics mentioned inside this location's contributions.">Outlinks →</span>
+        <div class="link-list">
+        {% if node.forward_nodes() %}
+            {% for n in node.forward_nodes() %}
+            <span class="node-name"><a href="/{{n.uri}}">{{n.description}}</a></span><br />
+            {% endfor %}
+        {% else %}
+            <span class="none-text">(none)</span>
+        {% endif %}
+        </div>
+    </div>
 
 {% else %}
 
-<p>
+<p style="text-align: center; width: 100%;">
 <em>No context found.</em>
 </p>
 
