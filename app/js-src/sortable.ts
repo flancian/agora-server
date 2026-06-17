@@ -1,5 +1,6 @@
 let draggedEl: HTMLElement | null = null;
 let placeholder: HTMLElement | null = null;
+let draggedSubnode: HTMLElement | null = null;
 
 export function initSortable() {
     const container = document.querySelector('.content') as HTMLElement;
@@ -176,5 +177,145 @@ export function restoreOrder() {
 
     } catch (e) {
         console.error("Failed to restore section order", e);
+    }
+}
+
+export function initSortableSubnodes() {
+    const parents = document.querySelectorAll('details.node');
+    parents.forEach(parent => {
+        const subnodes = parent.querySelectorAll('details.subnode');
+        if (subnodes.length <= 1) return; // No need to sort if 0 or 1 subnode
+
+        subnodes.forEach(subnode => {
+            const sec = subnode as HTMLElement;
+            sec.classList.add('sortable-subnode');
+            
+            if (sec.dataset.sortableSubnodeInitialized === 'true') return;
+            sec.dataset.sortableSubnodeInitialized = 'true';
+
+            const summary = sec.querySelector('summary.subnode-header') as HTMLElement;
+            const trigger = summary || sec;
+
+            trigger.addEventListener('mousedown', (e: Event) => {
+                const target = e.target as HTMLElement;
+                if (
+                    target.tagName === 'A' || 
+                    target.tagName === 'BUTTON' || 
+                    target.closest('.star-toggle') !== null
+                ) return;
+                sec.setAttribute('draggable', 'true');
+            });
+            trigger.addEventListener('mouseup', () => {
+                sec.setAttribute('draggable', 'false');
+            });
+
+            // Touch support (mobile)
+            trigger.addEventListener('touchstart', (e: Event) => {
+                const target = e.target as HTMLElement;
+                if (
+                    target.tagName === 'A' || 
+                    target.tagName === 'BUTTON' || 
+                    target.closest('.star-toggle') !== null
+                ) return;
+                sec.setAttribute('draggable', 'true');
+            }, { passive: true });
+            trigger.addEventListener('touchend', () => {
+                sec.setAttribute('draggable', 'false');
+            });
+
+            sec.addEventListener('dragstart', (e: Event) => {
+                const dragEvent = e as DragEvent;
+                draggedSubnode = sec;
+                draggedSubnode.classList.add('dragging');
+                if (dragEvent.dataTransfer) {
+                    dragEvent.dataTransfer.effectAllowed = 'move';
+                    dragEvent.dataTransfer.setData('text/plain', 'subnode');
+                }
+            });
+
+            sec.addEventListener('dragend', () => {
+                if (draggedSubnode) {
+                    draggedSubnode.classList.remove('dragging');
+                    draggedSubnode.setAttribute('draggable', 'false');
+                    draggedSubnode = null;
+                }
+                saveSubnodeOrder(parent as HTMLElement);
+            });
+
+            sec.addEventListener('dragover', (e: Event) => {
+                e.preventDefault();
+                const dragEvent = e as DragEvent;
+                if (dragEvent.dataTransfer) {
+                    dragEvent.dataTransfer.dropEffect = 'move';
+                }
+
+                if (!draggedSubnode || draggedSubnode === sec) return;
+                if (draggedSubnode.parentElement !== sec.parentElement) return;
+
+                const bounding = sec.getBoundingClientRect();
+                const offset = bounding.y + (bounding.height / 2);
+                
+                if (dragEvent.clientY - offset > 0) {
+                    sec.after(draggedSubnode);
+                } else {
+                    sec.before(draggedSubnode);
+                }
+            });
+
+            sec.addEventListener('dragenter', (e: Event) => {
+                e.preventDefault();
+            });
+        });
+
+        restoreSubnodeOrder(parent as HTMLElement);
+    });
+}
+
+function saveSubnodeOrder(parent: HTMLElement) {
+    const parentId = parent.id;
+    if (!parentId) return;
+
+    const order: string[] = [];
+    const subnodes = parent.querySelectorAll('details.subnode');
+    subnodes.forEach(el => {
+        const uri = (el as HTMLElement).dataset.subnodeUri;
+        if (uri) {
+            order.push(uri);
+        }
+    });
+
+    localStorage.setItem(`agora-subnode-order-${parentId}`, JSON.stringify(order));
+    console.log(`Saved subnode order for ${parentId}:`, order);
+}
+
+function restoreSubnodeOrder(parent: HTMLElement) {
+    const parentId = parent.id;
+    if (!parentId) return;
+
+    try {
+        const orderStr = localStorage.getItem(`agora-subnode-order-${parentId}`);
+        if (!orderStr) return;
+
+        const order: string[] = JSON.parse(orderStr);
+        if (!Array.isArray(order) || order.length === 0) return;
+
+        console.log(`Restoring subnode order for ${parentId}:`, order);
+
+        const subnodes = Array.from(parent.querySelectorAll('details.subnode'));
+        const anchor = parent.querySelector('.pushed-subnodes-embed') || null;
+
+        order.forEach(uri => {
+            subnodes.forEach(el => {
+                if ((el as HTMLElement).dataset.subnodeUri === uri) {
+                    if (anchor) {
+                        parent.insertBefore(el, anchor);
+                    } else {
+                        parent.appendChild(el);
+                    }
+                }
+            });
+        });
+    } catch (e) {
+        console.error(`Failed to restore subnode order for ${parentId}`, e);
     }
 }

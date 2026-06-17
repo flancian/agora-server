@@ -14,7 +14,7 @@
 //
 
 import { initializeStars } from './starring';
-import { initSortable, restoreOrder } from './sortable';
+import { initSortable, restoreOrder, initSortableSubnodes } from './sortable';
 
 // these define default dynamic behaviour client-side, based on local storage preferences.
 // these come from toggles in settings.ts.
@@ -79,11 +79,13 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Try to restore order and initialize sortables if content is mostly synchronous
   restoreOrder();
   initSortable();
+  initSortableSubnodes();
   
   window.addEventListener('agora-node-loaded', () => {
       // Re-run sortable setup and restore after async content finishes loading
       restoreOrder();
       initSortable();
+      initSortableSubnodes();
   });
   console.log("DomContentLoaded");
   initSettings();
