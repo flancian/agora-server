@@ -1335,11 +1335,12 @@ details[open] > .subnode-header {
     width: 380px;
     height: 50vh;
     z-index: 1000;
-    background-color: transparent;
-    border: none;
+    background-color: var(--node-bg);
+    border: 1px solid var(--link-color);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     flex-direction: column;
     overflow: hidden; /* Frame shouldn't scroll, inner container should */
-    border-radius: 5px; 
+    border-radius: 8px; 
 }
 
 #hypothesis-frame.visible {
@@ -1618,12 +1619,15 @@ input:checked + .slider:before {
 }
 
 /* Shaded window state */
+.agora-draggable-container {
+    opacity: 0.9;
+}
+
 .agora-draggable-container.shaded > *:not(.agora-drag-handle):not(.agora-header-container) {
     display: none !important;
 }
 
 .agora-draggable-container.shaded {
-    opacity: 0.9;
     height: auto !important;
     min-height: 0 !important;
 }
@@ -1650,6 +1654,38 @@ input:checked + .slider:before {
     color: var(--text-color);
     font-size: 1.2em;
     cursor: pointer;
+}
+
+.agora-popup-title {
+    flex-grow: 1;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    color: var(--text-color);
+}
+
+.agora-popup-close-btn {
+    cursor: pointer !important;
+    color: #fff !important;
+    background-color: #555 !important;
+    border: 1px solid #777 !important;
+    border-radius: 50% !important;
+    width: 20px !important;
+    height: 20px !important;
+    font-family: sans-serif !important;
+    font-weight: bold !important;
+    font-size: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+}
+
+.agora-popup-close-btn:hover {
+    background-color: #777 !important;
 }
 
 
@@ -1888,12 +1924,7 @@ input:checked + .slider:before {
 
 /* Meditation Popup Styles */
 #meditation-popup-container {
-    position: fixed;
-    top: 10%;
-    left: 10%;
-    z-index: 1001; /* one above hypothesis */
     display: none; /* Hidden by default */
-    animation: fadeIn 0.3s ease-in-out;
 }
 
 #meditation-popup-container.active {
@@ -1903,38 +1934,15 @@ input:checked + .slider:before {
 #meditation-popup {
     background-color: var(--node-bg);
     border-radius: 8px;
-    width: 72%;
-    min-width: 400px;
-    max-width: 864px;
+    width: 475px;
+    max-width: 90vw;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     border: 1px solid var(--link-color);
+    z-index: 1001; /* one above hypothesis */
+    animation: fadeIn 0.3s ease-in-out;
 }
 
-#meditation-popup-title {
-    font-weight: bold;
-    font-size: 0.9em;
-    font-family: sans-serif;
-    color: #ccc;
-    flex-grow: 1;
-    text-align: center;
-}
-
-#meditation-popup-close-btn {
-    cursor: pointer;
-    color: #fff;
-    background-color: #555;
-    border: 1px solid #777;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    line-height: 18px;
-    font-family: sans-serif;
-    font-weight: bold;
-    font-size: 16px; /* To make the 'x' look right */
-}
-
-#meditation-popup-content {
+#meditation-popup-body {
     padding: 1rem;
     line-height: 1.6;
     max-height: 70vh;
@@ -2102,7 +2110,7 @@ input:checked + .slider:before {
         flex-direction: column;
     }
 
-    #meditation-popup-content {
+    #meditation-popup-body {
         overflow-y: auto;
     }
 }

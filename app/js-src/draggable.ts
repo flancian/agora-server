@@ -1,7 +1,22 @@
-
 // app/js-src/draggable.ts
 
 export type PositionType = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center';
+
+function isElementVisible(el: HTMLElement): boolean {
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return false;
+    
+    let parent: HTMLElement | null = el;
+    while (parent) {
+        const style = window.getComputedStyle(parent);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+            return false;
+        }
+        parent = parent.parentElement;
+    }
+    return true;
+}
 
 export function makeDraggable(container: HTMLElement, handle: HTMLElement, storageKey: string, positionType: PositionType = 'top-right') {
     let active = false;
@@ -23,13 +38,14 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
     }
 
-    // Restore position from local storage
+    // Restore position from local storage ONLY if it has been explicitly dragged by the user
     const savedPosition = localStorage.getItem(storageKey);
-    if (savedPosition) {
+    const wasDragged = localStorage.getItem(storageKey + '-dragged') === 'true';
+    if (wasDragged && savedPosition) {
         const pos = JSON.parse(savedPosition);
         xOffset = pos.x;
         yOffset = pos.y;
-        // If we have a saved position, we must switch to transform-based positioning immediately.
+        // Switch to transform-based positioning immediately
         container.style.top = '0';
         container.style.left = '0';
         container.style.right = 'auto';
@@ -43,7 +59,10 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         container.classList.add('shaded');
     }
 
-    const reposition = () => {
+    const reposition = (force = false) => {
+        if (force) {
+            hasBeenPositionedByJs = false;
+        }
         if (hasBeenPositionedByJs) return;
 
         // Calculate default position based on requested type
@@ -89,7 +108,7 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         } else {
             // Smart Top-Right Stacking
             const popups = Array.from(document.querySelectorAll('.agora-draggable-container')).filter(el => {
-                return el !== container && (el as HTMLElement).style.display !== 'none' && (el as HTMLElement).style.visibility !== 'hidden' && (el.getBoundingClientRect().width > 0);
+                return el !== container && isElementVisible(el as HTMLElement);
             });
 
             let foundOverlap = true;
@@ -124,7 +143,11 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         container.style.bottom = 'auto';
 
         setTranslate(xOffset, yOffset, container);
-        localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
+        // Only save position in localStorage if user has explicitly dragged it in the past.
+        // Otherwise, keep it as dynamic automatic stacking!
+        if (localStorage.getItem(storageKey + '-dragged') === 'true') {
+            localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
+        }
         hasBeenPositionedByJs = true;
     };
 
@@ -157,7 +180,10 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         initialX = currentX;
         initialY = currentY;
         active = false;
-        localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
+        if (isDragging) {
+            localStorage.setItem(storageKey + '-dragged', 'true');
+            localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
+        }
     }
 
     const drag = (e: MouseEvent | TouchEvent) => {
@@ -206,7 +232,9 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
             xOffset = newX;
             yOffset = newY;
             setTranslate(xOffset, yOffset, container);
-            localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
+            if (localStorage.getItem(storageKey + '-dragged') === 'true') {
+                localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
+            }
         }
     };
 

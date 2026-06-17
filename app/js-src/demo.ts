@@ -12,6 +12,7 @@ export function initDemoMode() {
 
     let demoIntervalId: number | null = null;
     let isDraggableInitialized = false;
+    let meditationDraggable: { reposition: (force?: boolean) => void } | null = null;
 
     // This function is ONLY for implicit cancellation via user interaction.
     const cancelOnInteraction = (event: Event) => {
@@ -196,18 +197,15 @@ export function initDemoMode() {
                 const meditationPopup = document.getElementById('meditation-popup');
                 const meditationDragHandle = document.getElementById('meditation-popup-header');
                 if (meditationPopup && meditationDragHandle) {
-                    const { reposition } = makeDraggable(meditationPopup, meditationDragHandle, 'meditation-position', 'top-right');
-                    reposition();
+                    meditationDraggable = makeDraggable(meditationPopup, meditationDragHandle, 'meditation-position', 'top-right');
+                    meditationDraggable.reposition();
                     isDraggableInitialized = true;
                 }
             });
         } else {
             // Force repositioning to re-calculate top-right stacking
-            const meditationPopup = document.getElementById('meditation-popup');
-            if (meditationPopup) {
-                // Clear the saved position flag temporarily to allow re-stacking if it wasn't dragged by user
-                meditationPopup.style.top = '';
-                meditationPopup.style.left = '';
+            if (meditationDraggable) {
+                meditationDraggable.reposition(true);
             }
         }
     };
