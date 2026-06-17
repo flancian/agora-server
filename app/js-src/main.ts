@@ -993,6 +993,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const miniCliWrite = document.querySelector("#mini-cli-write") as HTMLButtonElement;
   if (miniCliWrite) {
+    const userOnLoad = localStorage.getItem('user');
+    if (!userOnLoad) {
+        miniCliWrite.innerHTML = "👩‍🌾 Join";
+        miniCliWrite.setAttribute('title', "Join the Agora to contribute digital gardens or write notes!");
+    } else {
+        miniCliWrite.innerHTML = "✍️ Write";
+        miniCliWrite.setAttribute('title', "Write or edit a subnode for this location.");
+    }
+
     miniCliWrite.addEventListener("click", () => {
       const user = localStorage.getItem('user');
       let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
@@ -1019,6 +1028,39 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  // Initialize the Agora Console
+  const agoraConsole = document.getElementById('agora-console');
+  const agoraConsoleHeader = document.getElementById('agora-console-header');
+  const agoraConsoleBtn = document.getElementById('agora-console-btn');
+  const agoraConsoleCloseBtn = document.getElementById('agora-console-close-btn');
+  let consoleDraggable: any = null;
+
+  if (agoraConsole && agoraConsoleHeader) {
+      consoleDraggable = makeDraggable(agoraConsole, agoraConsoleHeader, 'agora-console-position', 'bottom-left');
+  }
+
+  if (agoraConsoleBtn && agoraConsole) {
+      agoraConsoleBtn.addEventListener('click', () => {
+          if (agoraConsole.style.display === 'none' || !agoraConsole.classList.contains('active')) {
+              agoraConsole.style.display = 'flex';
+              agoraConsole.classList.add('active');
+              if (consoleDraggable) {
+                  consoleDraggable.reposition();
+              }
+          } else {
+              agoraConsole.style.display = 'none';
+              agoraConsole.classList.remove('active');
+          }
+      });
+  }
+
+  if (agoraConsoleCloseBtn && agoraConsole) {
+      agoraConsoleCloseBtn.addEventListener('click', () => {
+          agoraConsole.style.display = 'none';
+          agoraConsole.classList.remove('active');
+      });
+  }
+
   // No longer caching toastContainer at the top level to avoid initialization timing issues.
   // const toastContainer = document.getElementById('toast-container');
 
@@ -1029,6 +1071,17 @@ document.addEventListener("DOMContentLoaded", async function () {
                 duration = configSeconds * 1000;
             }
             console.log("Showing toast:", message);
+
+            // Log to the Agora Console
+            const consoleBody = document.getElementById('agora-console-body');
+            if (consoleBody) {
+                const line = document.createElement('div');
+                line.className = 'console-line';
+                line.innerHTML = message;
+                consoleBody.appendChild(line);
+                consoleBody.scrollTop = consoleBody.scrollHeight; // Auto-scroll to bottom
+            }
+
             let container = document.getElementById('toast-container');
             if (!container) {
                 console.warn("Toast container missing, creating one.");
@@ -1591,7 +1644,7 @@ document.addEventListener("DOMContentLoaded", async function () {
               }, 1000);
           } else {
               setTimeout(() => {
-                  showToast(`⚡ Location assembled in ${durationS}s.`);
+                  showToast(`⚡ Agora location assembled in ${durationS}s.`);
               }, 500); // show sooner since it loaded fast
           }
 

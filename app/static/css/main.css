@@ -2010,6 +2010,66 @@ input:checked + .slider:before {
     animation: fadeOut 0.3s ease-in-out forwards;
 }
 
+/* Agora Console Styles */
+#agora-console-btn {
+    position: fixed;
+    bottom: 15px;
+    left: 20px;
+    z-index: 9998;
+    background-color: var(--accent-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    opacity: 0.6;
+    transition: opacity 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+#agora-console-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+#agora-console {
+    position: fixed;
+    background-color: var(--node-bg);
+    border-radius: 8px;
+    width: 320px;
+    height: 250px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 1px solid var(--link-color);
+    z-index: 1001;
+    animation: fadeIn 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#agora-console-body {
+    padding: 10px;
+    font-family: monospace;
+    font-size: 0.85em;
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.console-line {
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 4px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
 #music-player-container {
     position: fixed;
     top: 70px; /* Below navbar */
