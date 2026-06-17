@@ -9,7 +9,12 @@
 <div class="context-layout">
 {% if node.back_nodes() or node.push_nodes() or node.pull_nodes() or node.forward_nodes() %}
 
-    <!-- Left: Backlinks -->
+    <!-- Center/Top: Interactive Graph -->
+    <div class="context-column center-column graph">
+        {% include "graph.html" %}
+    </div>
+
+    <!-- Left/Bottom: Backlinks -->
     <div class="context-column left-column backlinks">
         <span class="backlinks-header" title="← Backlinks: other locations in the Agora that link back to this topic.">← Backlinks</span>
         <div class="link-list">
@@ -23,12 +28,7 @@
         </div>
     </div>
 
-    <!-- Center: Interactive Graph -->
-    <div class="context-column center-column graph">
-        {% include "graph.html" %}
-    </div>
-
-    <!-- Right: Outlinks -->
+    <!-- Right/Bottom: Outlinks -->
     <div class="context-column right-column outlinks">
         <span class="forwardlinks-header" title="Outlinks →: other concepts and topics mentioned inside this location's contributions.">Outlinks →</span>
         <div class="link-list">

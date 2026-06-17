@@ -1791,7 +1791,7 @@ input:checked + .slider:before {
 
 .context-layout {
     display: flex;
-    flex-flow: row wrap; /* Mobile-first: wrap rows to allow side-by-side + full width graph */
+    flex-flow: row wrap; /* Unified wrap row for both desktop and mobile */
     gap: 20px 10px;
     width: 100%;
     margin-top: 15px;
@@ -1804,21 +1804,18 @@ input:checked + .slider:before {
 
 .context-column.left-column {
     flex: 1 1 calc(50% - 10px);
-    order: 2; /* Backlinks below graph */
     text-align: left;
     font-size: 0.8em; /* 20% smaller font on mobile */
 }
 
 .context-column.right-column {
     flex: 1 1 calc(50% - 10px);
-    order: 3; /* Outlinks below graph (side-by-side with Backlinks) */
-    text-align: right; /* Aligns Outlinks to the right screen edge on mobile */
+    text-align: right; /* right-aligned bookend */
     font-size: 0.8em; /* 20% smaller font on mobile */
 }
 
 .context-column.center-column {
-    flex: 1 1 100%;
-    order: 1; /* Graph on top on mobile */
+    flex: 1 1 100%; /* Graph takes full width on top */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1842,27 +1839,10 @@ input:checked + .slider:before {
 
 @media screen and (min-width: 60em) {
     .context-layout {
-        flex-direction: row; /* Desktop: side-by-side nowrap */
-        flex-wrap: nowrap;
         gap: 20px;
     }
 
-    .context-column.left-column {
-        flex: 1;
-        order: 1; /* Backlinks on Left */
-        text-align: right; /* Desktop: right-aligned pointing towards graph */
-        font-size: 1em; /* Reset to normal on desktop */
-    }
-
-    .context-column.center-column {
-        flex: 2.2;
-        order: 2; /* Graph in Center */
-    }
-
-    .context-column.right-column {
-        flex: 1;
-        order: 3; /* Outlinks on Right */
-        text-align: left; /* Desktop: left-aligned pointing away from graph */
+    .context-column.left-column, .context-column.right-column {
         font-size: 1em; /* Reset to normal on desktop */
     }
 }
