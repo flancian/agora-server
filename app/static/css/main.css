@@ -898,10 +898,18 @@ summary {
     border: 1px dashed var(--border);
 }
 
+details.sortable-section > summary {
+    position: relative;
+    padding-right: 35px; /* Leave room for drag-handle on the right */
+}
+
 .drag-handle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
     cursor: grab;
     padding: 0 5px;
-    margin-right: 5px;
     font-weight: bold;
     color: var(--text-color);
     opacity: 0.5;

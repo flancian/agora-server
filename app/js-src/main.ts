@@ -2877,9 +2877,21 @@ async function bindEvents() {
 
       }
 
-      const wpWtContainer = document.getElementById('wp-wt-container');
+      let wpWtContainer = document.getElementById('wp-wt-container');
 
       if (wpWtContainer) {
+
+        // Defensive: If the container itself was rendered as a <details> (due to old server-side caching),
+        // replace it with a <div> to avoid any double details/nesting behavior!
+        if (wpWtContainer.tagName === 'DETAILS') {
+            const div = document.createElement('div');
+            div.id = 'wp-wt-container';
+            while (wpWtContainer.firstChild) {
+                div.appendChild(wpWtContainer.firstChild);
+            }
+            wpWtContainer.replaceWith(div);
+            wpWtContainer = div;
+        }
 
         fetch('/exec/wp/' + NODENAME)
 
@@ -2889,7 +2901,8 @@ async function bindEvents() {
 
                 if (html.trim()) {
 
-                    const placeholder = wpWtContainer.querySelector('.node');
+                    // Query globally by ID to find the placeholder even if it has been moved by sortable order restoration
+                    const placeholder = document.getElementById('agora-wiki-loading');
 
                     if (placeholder) {
 
@@ -2897,14 +2910,15 @@ async function bindEvents() {
 
                         placeholder.addEventListener('animationend', () => {
 
-                            wpWtContainer.innerHTML = html;
-
-                            const newContent = wpWtContainer.querySelector('.node');
+                            const temp = document.createElement('div');
+                            temp.innerHTML = html;
+                            const newContent = temp.firstElementChild as HTMLElement;
 
                             if (newContent) {
-
                                 newContent.classList.add('fade-in');
-
+                                placeholder.replaceWith(newContent);
+                            } else {
+                                wpWtContainer.innerHTML = html;
                             }
                             
                             // Initialize stars for the newly added content
@@ -2996,6 +3010,9 @@ async function bindEvents() {
 
                             applyDismissals(); // Run again, as the wp info-box is now in the DOM.
 
+                            // Re-init sortable and restore order, ensuring the new content is registered
+                            window.dispatchEvent(new CustomEvent('agora-node-loaded'));
+
                         }, { once: true });
 
                     } else {
@@ -3005,6 +3022,8 @@ async function bindEvents() {
                         wpWtContainer.innerHTML = html;
 
                         applyDismissals(); // Also run here in the fallback case.
+
+                        window.dispatchEvent(new CustomEvent('agora-node-loaded'));
 
                     }
 
