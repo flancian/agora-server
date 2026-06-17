@@ -1804,19 +1804,21 @@ input:checked + .slider:before {
 
 .context-column.left-column {
     flex: 1 1 calc(50% - 10px);
-    order: 1; /* Backlinks first */
+    order: 2; /* Backlinks below graph */
     text-align: left;
+    font-size: 0.8em; /* 20% smaller font on mobile */
 }
 
 .context-column.right-column {
     flex: 1 1 calc(50% - 10px);
-    order: 2; /* Outlinks second (side-by-side with Backlinks) */
+    order: 3; /* Outlinks below graph (side-by-side with Backlinks) */
     text-align: left;
+    font-size: 0.8em; /* 20% smaller font on mobile */
 }
 
 .context-column.center-column {
     flex: 1 1 100%;
-    order: 3; /* Graph third (occupies full row below) */
+    order: 1; /* Graph on top on mobile */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1849,6 +1851,7 @@ input:checked + .slider:before {
         flex: 1;
         order: 1; /* Backlinks on Left */
         text-align: right; /* Desktop: right-aligned pointing towards graph */
+        font-size: 1em; /* Reset to normal on desktop */
     }
 
     .context-column.center-column {
@@ -1860,6 +1863,7 @@ input:checked + .slider:before {
         flex: 1;
         order: 3; /* Outlinks on Right */
         text-align: left; /* Desktop: left-aligned pointing away from graph */
+        font-size: 1em; /* Reset to normal on desktop */
     }
 }
 
