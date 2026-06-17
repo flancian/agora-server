@@ -1,9 +1,9 @@
+let draggedEl: HTMLElement | null = null;
+let placeholder: HTMLElement | null = null;
+
 export function initSortable() {
     const container = document.querySelector('.content') as HTMLElement;
     if (!container) return;
-
-    let draggedEl: HTMLElement | null = null;
-    let placeholder: HTMLElement | null = null;
 
     // Attach drag events to all sortable sections
     const sortables = container.querySelectorAll('.sortable-section');
