@@ -22,7 +22,7 @@
                 <span class="flex-grow">
                   <span class="drag-handle" title="Drag to reorder this section">≡</span>
                   {% set u = rendering_user if rendering_user else (subnode.user if subnode.user is defined else (node.subnodes[0].user if node.subnodes else '')) %}
-                  <strong>👩‍🌾 Contributions</strong> by <a href="/@{{u}}">@{{ u }}</a> at <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>
+                  <strong>📜 Contributions</strong> by <a href="/@{{u}}">@{{ u }}</a> at <span class="wikilink-marker">[[</span><a href="/{{node.uri}}"><span class="node-name">{{node.uri}}</span></a><span class="wikilink-marker">]]</span>
                 </span>
            </summary>
         {% else %}
@@ -50,10 +50,8 @@
     
         <!-- yolo -- dedup with stoa.html when time is available :) -->
         <div info-box-id="node" class="info-box with-spacing">
-
-          <em>Agora locations contain community contributions with titles or topics that match your search.</em>
-            <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="node" id="dismissbutton" class="dismiss-button">x</span>
-    
+          Agora locations contain community contributions with titles or topics that match your search.
+          <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="node" id="dismissbutton" class="dismiss-button">x</span>
         </div>
 
        {% for subnode in node.subnodes %}
@@ -89,7 +87,7 @@
                 <summary class="subnode-header">
                     <span class="subnode-id">
                                                     <span class="subnode-links">
-                                                      <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see contributions by this user.">👩‍🌾</a> 
+                                                      <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see contributions by this user.">📜</a> 
                                                         <strong>Contribution</strong> <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see only this contribution.">{{subnode.garden_relative}}</a>
                                                         <span title="This resource was contributed to this Agora and seems relevant to the current topic."> by </span>                            <a class="user" href="/@{{subnode.user}}"" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>
                             <span class="star-toggle {% if subnode.uri in starred_subnodes %}starred{% endif %}" data-subnode-uri="{{ subnode.uri }}" title="Star this contribution">

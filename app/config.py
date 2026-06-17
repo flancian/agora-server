@@ -330,7 +330,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     URI_BASE = "localhost:5017"
     API_BASE = "http://localhost:3000"
 
-    AGORA_NAME = "Development Agora"
+    AGORA_NAME = "Development Agora of Flancia"
     FEDERATION_INTERVAL = 60
     # EXPERIMENTS
     ENABLE_STATS = True

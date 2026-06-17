@@ -536,8 +536,14 @@ summary, #footer {
 }
 
 
-.navigation, .intro {
+.navigation {
     overflow-x: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    display: flex;
+}
+
+.intro {
     -ms-overflow-style: none;
     scrollbar-width: none;
     display: flex;
@@ -774,9 +780,10 @@ summary {
     background: var(--info-box-bg);
     filter: brightness(100%);
     padding: 7px;
-    font-style: italic;
+    font-style: normal;
     color: var(--info-box-text-color);
     border: 1px dashed var(--border);
+    position: relative;
 }
 
 /* Synthesis Styles */
@@ -851,9 +858,15 @@ summary {
     margin: 10px 0;
 }
 
-.intro, #footer {
+#footer {
     background: var(--intro-footer-bg);
     padding: 7px;
+    color: var(--intro-footer-text-color);
+}
+
+.intro {
+    background: var(--intro-footer-bg);
+    padding: 10px;
     color: var(--intro-footer-text-color);
 }
 
@@ -889,14 +902,7 @@ summary {
     background-color: var(--intro-footer-bg);
 }
 
-.info-box {
-    background: var(--info-box-bg);
-    filter: brightness(100%);
-    padding: 7px;
-    font-style: italic;
-    color: var(--info-box-text-color);
-    border: 1px dashed var(--border);
-}
+/* Duplicate .info-box selector removed */
 
 details.sortable-section > summary {
     position: relative;
@@ -956,6 +962,8 @@ details.sortable-section > summary {
 .dismiss-button {
     position: absolute;
     right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
     cursor: pointer;
     font-weight: bold;
     color: var(--dismiss-button-color);
@@ -976,9 +984,14 @@ details.sortable-section > summary {
 }
 
 .intro {
-    line-height: var(--line-height);
+    line-height: 1.7;
     font-style: normal;
+    position: relative;
+    box-sizing: border-box;
+    align-items: center;
+    overflow-x: hidden;
 }
+
 
 .intro::before, #footer::before {
   content: '➼';

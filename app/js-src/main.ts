@@ -426,10 +426,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   };
 
   // Set the theme on initial load
-  if (currentTheme === "light") {
-    setTheme('light');
-  } else {
+  if (currentTheme === "dark") {
     setTheme('dark');
+  } else {
+    setTheme('light');
   }
 
   // Add event listeners to both checkboxes
