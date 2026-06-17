@@ -571,7 +571,7 @@ summary, #footer {
 .topline-node-wrapper {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     margin-bottom: 5px;
     overflow-x: auto;
     -ms-overflow-style: none;
@@ -591,7 +591,7 @@ summary, #footer {
     display: flex;
     align-items: center;
     flex-grow: 1;
-    gap: 4px;
+    gap: 3px;
 }
 
 .action-bar-wrapper {
@@ -1550,7 +1550,7 @@ table caption {
 .toggle-container {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     margin-left: auto;
     flex-shrink: 0;
 }
