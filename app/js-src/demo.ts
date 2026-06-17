@@ -200,12 +200,17 @@ export function initDemoMode() {
                     meditationDraggable = makeDraggable(meditationPopup, meditationDragHandle, 'meditation-position', 'top-right');
                     meditationDraggable.reposition();
                     isDraggableInitialized = true;
+                    meditationPopup.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         } else {
             // Force repositioning to re-calculate top-right stacking
             if (meditationDraggable) {
                 meditationDraggable.reposition(true);
+            }
+            const meditationPopup = document.getElementById('meditation-popup');
+            if (meditationPopup) {
+                meditationPopup.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
     };
