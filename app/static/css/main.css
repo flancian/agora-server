@@ -594,10 +594,23 @@ summary, #footer {
     gap: 4px;
 }
 
+.action-bar-wrapper {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+}
+
 .action-bar {
     display: flex;
     align-items: center;
     gap: 0.2em;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.action-bar::-webkit-scrollbar {
+    display: none;
 }
 
 #scroll-toggle {
@@ -608,6 +621,7 @@ input[type="text"] {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    width: 100%;
 }
 
 button, input {
@@ -1515,7 +1529,7 @@ table caption {
     display: inline-block;
     height: 24px;
     position: relative;
-    width: 50px;
+    width: 44px;
     flex-shrink: 0;
 }
 
@@ -1523,7 +1537,7 @@ table caption {
     display: inline-block;
     height: 24px;
     position: relative;
-    width: 50px;
+    width: 44px;
     flex-shrink: 0;
 }
 
@@ -1531,7 +1545,7 @@ table caption {
     display: inline-block;
     height: 24px;
     position: relative;
-    width: 50px;
+    width: 44px;
     flex-shrink: 0;
 }
 
@@ -1539,7 +1553,7 @@ table caption {
     display: inline-block;
     height: 24px;
     position: relative;
-    width: 50px;
+    width: 44px;
     flex-shrink: 0;
 }
 
@@ -1570,7 +1584,7 @@ table caption {
 .toggle-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     margin-left: auto;
     flex-shrink: 0;
 }
@@ -1622,7 +1636,7 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-    transform: translateX(26px);
+    transform: translateX(20px);
     content: "🌙";
 }
 
@@ -2128,11 +2142,11 @@ input:checked + .slider:before {
 /* Removed strict wrapping to allow unified 3-line layout */
 
     /* Wrapper elements get the relative positioning and the pseudo-element for the shadow. */
-    .navigation, .topline-node-wrapper, .footer-wrapper {
+    .navigation, .topline-node-wrapper, .footer-wrapper, .action-bar-wrapper {
         position: relative;
     }
 
-    .navigation::after, .topline-node-wrapper::after, .footer-wrapper::after {
+    .navigation::after, .topline-node-wrapper::after, .footer-wrapper::after, .action-bar-wrapper::after {
         content: '›';
         position: absolute;
         right: 0;
@@ -2153,7 +2167,7 @@ input:checked + .slider:before {
         font-weight: bold;
     }
 
-    .navigation::before, .topline-node-wrapper::before, .footer-wrapper::before {
+    .navigation::before, .topline-node-wrapper::before, .footer-wrapper::before, .action-bar-wrapper::before {
         content: '‹';
         position: absolute;
         left: 0;
@@ -2178,7 +2192,8 @@ input:checked + .slider:before {
     /* When the wrapper has this class, the right shadow fades out. */
     .navigation.scrolled-to-end::after, 
     .topline-node-wrapper.scrolled-to-end::after, 
-    .footer-wrapper.scrolled-to-end::after {
+    .footer-wrapper.scrolled-to-end::after,
+    .action-bar-wrapper.scrolled-to-end::after {
         opacity: 0;
         pointer-events: none;
     }
@@ -2186,7 +2201,8 @@ input:checked + .slider:before {
     /* When the wrapper has this class, the left shadow fades out. */
     .navigation.scrolled-to-start::before, 
     .topline-node-wrapper.scrolled-to-start::before, 
-    .footer-wrapper.scrolled-to-start::before {
+    .footer-wrapper.scrolled-to-start::before,
+    .action-bar-wrapper.scrolled-to-start::before {
         opacity: 0;
         pointer-events: none;
     }

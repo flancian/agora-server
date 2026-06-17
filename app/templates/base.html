@@ -138,40 +138,6 @@
                         </form>
                     </div>
                 </div>
-            </div>
-            <div class="topline-node-wrapper scrolled-to-start scrolled-to-end">
-                <div class="action-bar">
-                    <button id="mini-cli-exec" value="exec" title="Search the Agora and the web for the text in the input box.">
-                        🔍 Search
-                    </button>
-                    <button id="mini-cli-pull" value="pull" title="Pull (transclude) another node into this location." style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
-                        📥 Pull
-                    </button>
-                    <button id="mini-cli-go" value="go" title="Follow a [[go]] link in the Agora, or fall back to the node page.">
-                        ➳ Go
-                    </button>
-                    <button id="mini-cli-go-beyond" value="go" title="Search the web for this query.">
-                        ⏩ Go Beyond
-                    </button>
-                    <button id="expand-all" value="expand" title="Expand all sections.">
-    					⊞ expand all
-                    </button>
-                    <button id="mini-cli-write" value="write" title="Write a subnode for this location.">
-                        ✍️ Write
-                    </button>
-                    <button id="annotate-button" title="Toggle annotations">🖋️ Annotate</button>
-                    <button id="mini-cli-synthesize" value="synthesize" title="Trigger an AI synthesis for this location." style="display: none; opacity: 0; transition: opacity 1s ease-in;">
-                        ✨ Synthesize
-                    </button>
-                    <button id="mini-cli-look-around" value="look" title="Look at the local graph." style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
-                        👀 Look Around
-                    </button>
-                    <button id="mini-cli-wander" value="wander" title="Wander to a random connected node." style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
-                        🧭 Wander
-                    </button>
-                    <button id="show-meditation-popup" title="Agora Meditation: a moment of calm.">🙏 Meditate</button>
-                    <button id="scroll-toggle" title="Scroll to bottom / top">▼</button>
-                </div>
                 <div class="toggle-container">
                     <label class="theme-switch" for="theme-checkbox" title="Toggle light/dark theme">
                         <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
@@ -189,7 +155,41 @@
                         <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
+                    <button id="scroll-toggle" title="Scroll to bottom / top">▼</button>
                 </div>
+            </div>
+            <div class="topline-node-wrapper scrolled-to-start scrolled-to-end">
+                <div class="action-bar-wrapper scrolled-to-start scrolled-to-end">
+                    <div class="action-bar scrolled-to-start scrolled-to-end">
+                        <button id="mini-cli-exec" value="exec" title="Search the Agora and the web for the text in the input box.">
+                            🔍 Search
+                        </button>
+                        <button id="mini-cli-pull" value="pull" title="Pull (transclude) another node into this location." style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
+                            📥 Pull
+                        </button>
+                    <button id="mini-cli-go" value="go" title="Follow a [[go]] link in the Agora, or fall back to the node page.">
+                        ➳ Go
+                    </button>
+                    <button id="mini-cli-go-beyond" value="go" title="Search the web for this query.">
+                        ⏩ Go Beyond
+                    </button>
+                    <button id="expand-all" value="expand" title="Expand all sections.">
+    					⊞ expand all
+                    </button>
+                    <button id="mini-cli-write" value="write" title="Write a subnode for this location.">
+                        ✍️ Write
+                    </button>
+                    <button id="annotate-button" title="Toggle annotations">🖋️ Annotate</button>
+                    <button id="show-meditation-popup" title="Agora Meditation: a moment of calm.">🙏 Meditate</button>
+                    <button id="mini-cli-synthesize" value="synthesize" title="Trigger an AI synthesis for this location." style="display: none; opacity: 0; transition: opacity 1s ease-in;">
+                        ✨ Synthesize
+                    </button>
+                    <button id="mini-cli-look-around" value="look" title="Look at the local graph." style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
+                        👀 Look Around
+                    </button>
+                    <button id="mini-cli-wander" value="wander" title="Wander to a random connected node." style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
+                        🧭 Wander
+                    </button>                </div>
             </div>
         </div>
     </nav>

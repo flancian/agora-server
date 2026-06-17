@@ -648,13 +648,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Scroll hints for horizontally scrollable elements
   const handleScrollHints = () => {
     // These elements have the overflow: auto
-    const elementsToCheck = document.querySelectorAll('.navigation-content, .topline-node-wrapper, #footer');
+    const elementsToCheck = document.querySelectorAll('.navigation-content, .topline-node-wrapper, .action-bar, #footer');
     
     elementsToCheck.forEach(element => {
       const el = element as HTMLElement;
       // Shadow target: the wrapper that has the ::after pseudo-element
-      const target = (el.classList.contains('navigation-content') || el.id === 'footer') ? el.parentElement : el;
-      if (!target) return;
+      const target = (el.classList.contains('navigation-content') || el.classList.contains('action-bar') || el.id === 'footer') ? el.parentElement : el;      if (!target) return;
 
       // Debug scroll values to diagnose shading issues
       // console.log(`ScrollCheck for ${el.className || el.id}: scrollWidth=${el.scrollWidth}, clientWidth=${el.clientWidth}, diff=${el.scrollWidth - el.clientWidth}`);
@@ -681,7 +680,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   };
 
   // Add scroll event listeners
-  document.querySelectorAll('.navigation-content, .topline-node-wrapper, #footer').forEach(element => {
+  document.querySelectorAll('.navigation-content, .topline-node-wrapper, .action-bar, #footer').forEach(element => {
     element.addEventListener('scroll', handleScrollHints);
   });
 
@@ -690,12 +689,13 @@ document.addEventListener("DOMContentLoaded", async function () {
   handleScrollHints(); // Initial check
 
   // Make the chevron indicators clickable
-  document.querySelectorAll('.navigation, .topline-node-wrapper, .footer-wrapper').forEach(wrapper => {
+  document.querySelectorAll('.navigation, .topline-node-wrapper, .footer-wrapper, .action-bar-wrapper').forEach(wrapper => {
       wrapper.addEventListener('click', (e) => {
           const rect = wrapper.getBoundingClientRect();
           
           const scrollableEl = wrapper.classList.contains('navigation') ? wrapper.querySelector('.navigation-content') : 
-                               wrapper.classList.contains('footer-wrapper') ? wrapper.querySelector('#footer') : wrapper;
+                               wrapper.classList.contains('footer-wrapper') ? wrapper.querySelector('#footer') :
+                               wrapper.classList.contains('action-bar-wrapper') ? wrapper.querySelector('.action-bar') : wrapper;
                                
           if (!scrollableEl) return;
 

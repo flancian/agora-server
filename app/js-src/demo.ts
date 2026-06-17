@@ -86,7 +86,7 @@ export function initDemoMode() {
 
         const updateTimer = () => {
             if (timerElement) {
-                timerElement.innerHTML = `<span>${countdown}s</span>`;
+                timerElement.innerHTML = `<span>${countdown}</span>`;
             }
         };
 
