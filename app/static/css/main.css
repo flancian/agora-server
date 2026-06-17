@@ -1353,18 +1353,6 @@ details[open] > .subnode-header {
     overflow-y: auto; /* Allow scrolling inside the container */
 }
 
-#hypothesis-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #333;
-    padding: 2px 8px;
-    border: 1px solid #444;
-    border-radius: 5px 5px 0 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    flex-shrink: 0;
-}
-
 #hypothesis-drag-handle {
     cursor: move;
     font-size: 0.9em;
@@ -1667,6 +1655,25 @@ input:checked + .slider:before {
     cursor: pointer !important;
 }
 
+.agora-popup-header {
+    background-color: var(--link-color);
+    color: #fff;
+    padding: 5px 10px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 10px;
+}
+.agora-popup-header button {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
 
 #demo-timer {
     position: absolute;
@@ -1925,19 +1932,6 @@ input:checked + .slider:before {
     border: 1px solid var(--link-color);
 }
 
-#meditation-popup-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #333;
-    color: #ccc;
-    padding: 2px 8px;
-    border: 1px solid #444;
-    border-radius: 5px 5px 0 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    cursor: move; /* Draggable cue */
-}
-
 #meditation-popup-title {
     font-weight: bold;
     font-size: 0.9em;
@@ -2026,19 +2020,6 @@ input:checked + .slider:before {
 #music-player-container.active {
     display: block;
 }
-
-#music-player-header {
-    cursor: move;
-    padding: 5px;
-    background-color: var(--accent-bg); /* A slightly different color for the header */
-    color: var(--text-color);
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 8px 8px 0 0; /* Rounded top corners */
-}
-
 
 #music-player-container #track-info {
   margin-top: 0.8em;

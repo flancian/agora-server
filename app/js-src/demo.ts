@@ -201,6 +201,14 @@ export function initDemoMode() {
                     isDraggableInitialized = true;
                 }
             });
+        } else {
+            // Force repositioning to re-calculate top-right stacking
+            const meditationPopup = document.getElementById('meditation-popup');
+            if (meditationPopup) {
+                // Clear the saved position flag temporarily to allow re-stacking if it wasn't dragged by user
+                meditationPopup.style.top = '';
+                meditationPopup.style.left = '';
+            }
         }
     };
 

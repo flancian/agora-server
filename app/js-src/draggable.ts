@@ -49,7 +49,7 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         // Calculate default position based on requested type
         const rightMargin = 25;
         const bottomMargin = 5; 
-        const baseTopMargin = 70;
+        const baseTopMargin = 125; // Push below the new 3-line header (approx 40+40+30=110)
 
         // The container needs to be visible for offsetWidth/offsetHeight to be accurate
         let containerWidth = container.offsetWidth;
