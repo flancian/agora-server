@@ -650,7 +650,7 @@ button, input {
     flex: auto;
     vertical-align: middle;
     width: 100%;
-    margin-right: 4px;
+    margin-right: 0;
 }
 
 #mini-cli {
@@ -1573,7 +1573,7 @@ table caption {
 .slider:before {
     background-color: #fff;
     bottom: 4px;
-    content: "🌞";
+    content: "🌙";
     height: 16px;
     left: 4px;
     position: absolute;
@@ -1603,7 +1603,7 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(20px);
-    content: "🌙";
+    content: "🌞";
 }
 
 .demo-switch input:checked + .slider:before {

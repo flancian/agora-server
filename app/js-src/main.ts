@@ -453,7 +453,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem("theme", theme);
     themeCheckboxes.forEach(checkbox => {
-        checkbox.checked = theme === 'dark';
+        checkbox.checked = theme === 'light';
     });
 
     // Re-render graphs if they exist.
@@ -480,7 +480,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Add event listeners to both checkboxes
   themeCheckboxes.forEach(checkbox => {
     checkbox.addEventListener('change', () => {
-        setTheme(checkbox.checked ? 'dark' : 'light');
+        setTheme(checkbox.checked ? 'light' : 'dark');
     });
   });
 
