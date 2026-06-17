@@ -766,20 +766,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  const miniCliPlay = document.querySelector("#mini-cli-play") as HTMLButtonElement;
-  if (miniCliPlay) {
-      miniCliPlay.addEventListener("click", () => {
-          const details = document.getElementById("interactive-empty-state-details") as HTMLDetailsElement | null;
-          if (details) {
-              details.open = true;
-              setTimeout(() => {
-                  details.scrollIntoView({ behavior: "smooth", block: "center" });
-                  const canvas = details.querySelector("canvas");
-                  if (canvas) canvas.focus();
-              }, 100);
-          }
-      });
-  }
 
   const emptyPlayLink = document.querySelector("#empty-play-link");
   if (emptyPlayLink) {
