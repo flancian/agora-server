@@ -7,7 +7,7 @@ import { CLIENT_DEFAULTS, safeJsonParse } from './util';
 export function initDemoMode() {
     const demoCheckboxes = document.querySelectorAll(".demo-checkbox-input") as NodeListOf<HTMLInputElement>;
     const meditationPopupContainer = document.getElementById("meditation-popup-container");
-    const meditationPopupContent = document.getElementById("meditation-popup-content");
+    const meditationPopupContent = document.getElementById("meditation-popup-body");
     const meditationCloseButton = document.getElementById("meditation-popup-close-btn");
 
     let demoIntervalId: number | null = null;

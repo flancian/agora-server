@@ -1353,32 +1353,9 @@ details[open] > .subnode-header {
     overflow-y: auto; /* Allow scrolling inside the container */
 }
 
-#hypothesis-drag-handle {
-    cursor: move;
-    font-size: 0.9em;
-    font-family: sans-serif;
-    color: #ccc;
-    flex-grow: 1;
-    text-align: center;
-}
-
 #hypothesis-client-container {
     flex-grow: 1;
     position: relative;
-}
-
-#hypothesis-close-btn {
-    cursor: pointer;
-    color: #fff;
-    background-color: #555;
-    border: 1px solid #777;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    line-height: 18px;
-    font-family: sans-serif;
-    font-weight: bold;
 }
 
 .microblog_timeline {
@@ -1656,8 +1633,8 @@ input:checked + .slider:before {
 }
 
 .agora-popup-header {
-    background-color: var(--link-color);
-    color: #fff;
+    background-color: var(--accent-bg);
+    color: var(--text-color);
     padding: 5px 10px;
     font-weight: bold;
     display: flex;
@@ -1665,11 +1642,12 @@ input:checked + .slider:before {
     align-items: center;
     border-radius: 8px 8px 0 0;
     margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
 }
 .agora-popup-header button {
     background: transparent;
     border: none;
-    color: #fff;
+    color: var(--text-color);
     font-size: 1.2em;
     cursor: pointer;
 }
