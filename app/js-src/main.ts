@@ -76,16 +76,43 @@ window.setupSmartIframeResizer = function(iframe: HTMLIFrameElement) {
 
 document.addEventListener("DOMContentLoaded", async function () {
   
-  const updateLookAroundVisibility = () => {
+  const showButtonWithFade = (btn: HTMLButtonElement) => {
+      if (btn.style.display !== "inline-block") {
+          btn.style.display = "inline-block";
+          void btn.offsetHeight; // force reflow
+      }
+      btn.style.opacity = "1";
+  };
+
+  const hideButtonWithFade = (btn: HTMLButtonElement) => {
+      btn.style.opacity = "0";
+      setTimeout(() => {
+          if (btn.style.opacity === "0") {
+              btn.style.display = "none";
+          }
+      }, 500);
+  };
+
+  const updateCliButtonsVisibility = () => {
       const miniCliLookAround = document.querySelector("#mini-cli-look-around") as HTMLButtonElement;
+      const miniCliWander = document.querySelector("#mini-cli-wander") as HTMLButtonElement;
+      const hasContext = !!(document.getElementById('agoragraph') || 
+                          document.getElementById('graph') || 
+                          document.querySelector('.context'));
+
       if (miniCliLookAround) {
-          const hasContext = !!(document.getElementById('agoragraph') || 
-                              document.getElementById('graph') || 
-                              document.querySelector('.context'));
           if (hasContext) {
-              miniCliLookAround.style.display = "inline-block";
+              showButtonWithFade(miniCliLookAround);
           } else {
-              miniCliLookAround.style.display = "none";
+              hideButtonWithFade(miniCliLookAround);
+          }
+      }
+
+      if (miniCliWander) {
+          if (hasContext) {
+              showButtonWithFade(miniCliWander);
+          } else {
+              hideButtonWithFade(miniCliWander);
           }
       }
   };
@@ -94,14 +121,14 @@ document.addEventListener("DOMContentLoaded", async function () {
   restoreOrder();
   initSortable();
   initSortableSubnodes();
-  updateLookAroundVisibility();
+  updateCliButtonsVisibility();
   
   window.addEventListener('agora-node-loaded', () => {
       // Re-run sortable setup and restore after async content finishes loading
       restoreOrder();
       initSortable();
       initSortableSubnodes();
-      updateLookAroundVisibility();
+      updateCliButtonsVisibility();
   });
   console.log("DomContentLoaded");
   initSettings();
