@@ -2373,7 +2373,10 @@ async function bindEvents() {
 
         // pull all/fold all button in main node
 
-        document.querySelector("#pull-all")?.addEventListener("click", function (e) {
+        const pullAll = document.querySelector("#pull-all") as HTMLElement;
+        if (pullAll && !pullAll.dataset.bound) {
+            pullAll.dataset.bound = 'true';
+            pullAll.addEventListener("click", function (e) {
 
           console.log('auto pulling all!');
 
@@ -2450,10 +2453,14 @@ async function bindEvents() {
           });
 
         });
+        }
 
         // fold all button in intro banner.
 
-        document.querySelector("#fold-all")?.addEventListener("click", function (e) {
+        const foldAll = document.querySelector("#fold-all") as HTMLElement;
+        if (foldAll && !foldAll.dataset.bound) {
+            foldAll.dataset.bound = 'true';
+            foldAll.addEventListener("click", function (e) {
 
           // Already pulled -> fold.
 
@@ -2530,6 +2537,7 @@ async function bindEvents() {
           });
 
         });
+        }
 
         // For late rendered 'join' actions... YOLO :)
 
@@ -2549,9 +2557,10 @@ async function bindEvents() {
 
         // Node-specific pull button logic.
 
-        const nodePullButton = document.querySelector("#pull-all-in-node");
+        const nodePullButton = document.querySelector("#pull-all-in-node") as HTMLElement;
 
-        if (nodePullButton) {
+        if (nodePullButton && !nodePullButton.dataset.bound) {
+            nodePullButton.dataset.bound = 'true';
 
             nodePullButton.addEventListener("click", (e) => {
 

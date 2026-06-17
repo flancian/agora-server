@@ -175,6 +175,8 @@ export function initPullButtons() {
     ];
 
     document.querySelectorAll(selectors.join(', ')).forEach((element: HTMLButtonElement) => {
+        if (element.dataset.pullBound === 'true') return;
+        element.dataset.pullBound = 'true';
         element.addEventListener("click", function (e) {
             e.preventDefault();
             e.stopPropagation();
