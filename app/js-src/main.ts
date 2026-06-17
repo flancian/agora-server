@@ -731,8 +731,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       tooltipDiv.id = 'agora-mobile-tooltip';
       tooltipDiv.style.position = 'fixed';
       tooltipDiv.style.zIndex = '10000';
-      tooltipDiv.style.backgroundColor = 'var(--text-color)';
-      tooltipDiv.style.color = 'var(--bg-color)';
+      tooltipDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.9)'; // solid high-contrast dark background
+      tooltipDiv.style.color = '#ffffff'; // crisp white text
       tooltipDiv.style.padding = '8px 12px';
       tooltipDiv.style.borderRadius = '6px';
       tooltipDiv.style.fontSize = '0.85em';
@@ -758,8 +758,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           let touchStartY = 0;
           let isLongPress = false;
 
-          // Target input if inside label, so we can preventDefault cleanly
-          const touchTarget = el.tagName.toLowerCase() === 'label' ? (el.querySelector('input') || el) : el;
+          const touchTarget = el as HTMLElement;
 
           touchTarget.addEventListener('touchstart', (e) => {
               isLongPress = false;
