@@ -1652,9 +1652,19 @@ input:checked + .slider:before {
     content: "✔️"; /* On */
 }
 
-/* Custom icons for Annotate toggle */
-.settings-switch input.annotate-toggle-input + .slider:before {
-    content: "🖋️"; /* Fountain Pen for both On and Off */
+/* Shaded window state */
+.agora-draggable-container.shaded > *:not(.agora-drag-handle):not(.agora-header-container) {
+    display: none !important;
+}
+
+.agora-draggable-container.shaded {
+    opacity: 0.9;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+.agora-drag-handle, .agora-header-container {
+    cursor: pointer !important;
 }
 
 

@@ -193,9 +193,10 @@ export function initDemoMode() {
         if (!isDraggableInitialized) {
             // Wait for layout to update after content injection and class addition
             requestAnimationFrame(() => {
+                const meditationPopup = document.getElementById('meditation-popup');
                 const meditationDragHandle = document.getElementById('meditation-popup-header');
-                if (meditationPopupContainer && meditationDragHandle) {
-                    const { reposition } = makeDraggable(meditationPopupContainer, meditationDragHandle, 'meditation-position', 'top-left');
+                if (meditationPopup && meditationDragHandle) {
+                    const { reposition } = makeDraggable(meditationPopup, meditationDragHandle, 'meditation-position', 'top-right');
                     reposition();
                     isDraggableInitialized = true;
                 }

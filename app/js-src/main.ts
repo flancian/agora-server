@@ -352,11 +352,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Make the Hypothesis frame draggable
   const hypothesisFrame = document.getElementById('hypothesis-frame');
-  const dragHandle = document.getElementById('hypothesis-drag-handle');
+  const dragHandle = document.getElementById('hypothesis-controls');
   let hypothesisDraggable: { reposition: () => void } | null = null;
 
   if (hypothesisFrame && dragHandle) {
-    hypothesisDraggable = makeDraggable(hypothesisFrame, dragHandle, 'hypothesis-position', 'bottom-right');
+    hypothesisDraggable = makeDraggable(hypothesisFrame, dragHandle, 'hypothesis-position', 'top-right');
     // If initialized as visible (e.g. via initSettings), position it now so it stacks correctly
     if (hypothesisFrame.classList.contains('visible')) {
         hypothesisDraggable.reposition();

@@ -5,13 +5,19 @@ export type PositionType = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-ri
 
 export function makeDraggable(container: HTMLElement, handle: HTMLElement, storageKey: string, positionType: PositionType = 'top-right') {
     let active = false;
+    let isDragging = false;
     let currentX: number;
     let currentY: number;
     let initialX: number;
     let initialY: number;
+    let mouseDownX = 0;
+    let mouseDownY = 0;
     let xOffset = 0;
     let yOffset = 0;
     let hasBeenPositionedByJs = false;
+
+    container.classList.add('agora-draggable-container');
+    handle.classList.add('agora-drag-handle');
 
     const setTranslate = (xPos: number, yPos: number, el: HTMLElement) => {
         el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
@@ -32,21 +38,23 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         hasBeenPositionedByJs = true;
     }
 
+    const savedShaded = localStorage.getItem(storageKey + '-shaded');
+    if (savedShaded === 'true') {
+        container.classList.add('shaded');
+    }
+
     const reposition = () => {
         if (hasBeenPositionedByJs) return;
 
         // Calculate default position based on requested type
         const rightMargin = 25;
-        const bottomMargin = 5; // Reduced from 40 to 5
-        const topMargin = 70;
+        const bottomMargin = 5; 
+        const baseTopMargin = 70;
 
         // The container needs to be visible for offsetWidth/offsetHeight to be accurate
         let containerWidth = container.offsetWidth;
         let containerHeight = container.offsetHeight;
 
-        // If the container is hidden, we need to briefly show it to measure it.
-        // NOTE: The caller should ensure the container is effectively visible or renderable before calling reposition()
-        // But we keep the safety check here.
         if (containerWidth === 0 || containerHeight === 0) {
             const originalDisplay = container.style.display;
             const originalVisibility = container.style.visibility;
@@ -57,14 +65,12 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
             containerWidth = container.offsetWidth;
             containerHeight = container.offsetHeight;
             
-            // Restore original styles
             container.style.display = originalDisplay;
             container.style.visibility = originalVisibility;
         }
         
         console.log(`[Draggable] Measured ${storageKey}: ${containerWidth}x${containerHeight}`);
 
-        // Fallback if measurement still fails
         if (containerWidth === 0) containerWidth = 200; 
         if (containerHeight === 0) containerHeight = 300; 
 
@@ -74,22 +80,43 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         if (positionType === 'center') {
             xOffset = (viewportWidth - containerWidth) / 2;
             yOffset = (viewportHeight - containerHeight) / 2;
-        } else if (positionType === 'bottom-right') {
-            xOffset = viewportWidth - containerWidth - rightMargin;
-            yOffset = viewportHeight - containerHeight - bottomMargin;
         } else if (positionType === 'bottom-left') {
-            xOffset = 25; // Left margin
+            xOffset = 25;
             yOffset = viewportHeight - containerHeight - bottomMargin;
         } else if (positionType === 'top-left') {
-            xOffset = 2; // Left margin (Reduced from 25)
-            yOffset = topMargin;
+            xOffset = 2;
+            yOffset = baseTopMargin;
         } else {
-            // Default: Top-Right (No cascading)
-            xOffset = viewportWidth - containerWidth - rightMargin;
-            yOffset = topMargin;
+            // Smart Top-Right Stacking
+            const popups = Array.from(document.querySelectorAll('.agora-draggable-container')).filter(el => {
+                return el !== container && (el as HTMLElement).style.display !== 'none' && (el as HTMLElement).style.visibility !== 'hidden' && (el.getBoundingClientRect().width > 0);
+            });
+
+            let foundOverlap = true;
+            let testY = baseTopMargin;
+            const testX = viewportWidth - containerWidth - rightMargin;
+            let attempts = 0;
+            
+            while (foundOverlap && attempts < 10) {
+                foundOverlap = false;
+                for (const p of popups) {
+                    const rect = (p as HTMLElement).getBoundingClientRect();
+                    // If the popup is in the top-right zone and overlaps vertically
+                    if (rect.right > viewportWidth - rightMargin - containerWidth - 20) {
+                        if (Math.abs(rect.top - testY) < 10 || (testY >= rect.top && testY < rect.bottom)) {
+                            foundOverlap = true;
+                            testY = rect.bottom + 10;
+                            break;
+                        }
+                    }
+                }
+                attempts++;
+            }
+            
+            xOffset = testX;
+            yOffset = testY;
         }
 
-        // Ensure the container is absolutely positioned for transform to work relative to viewport
         container.style.position = 'fixed';
         container.style.top = '0px';
         container.style.left = '0px';
@@ -104,7 +131,6 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
     const dragStart = (e: MouseEvent | TouchEvent) => {
         if (!hasBeenPositionedByJs) {
             const rect = container.getBoundingClientRect();
-            // Switch from CSS-based positioning (e.g., top: 10%) to transform-based positioning.
             container.style.top = '0px';
             container.style.left = '0px';
             xOffset = rect.left;
@@ -121,15 +147,16 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
             initialY = (e as MouseEvent).clientY - yOffset;
         }
 
-        // The listener is on the header, so any mousedown should activate dragging.
+        mouseDownX = initialX;
+        mouseDownY = initialY;
         active = true;
+        isDragging = false;
     }
 
     const dragEnd = (e: MouseEvent | TouchEvent) => {
         initialX = currentX;
         initialY = currentY;
         active = false;
-        // Save position to local storage
         localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
     }
 
@@ -144,12 +171,15 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
                 currentY = (e as MouseEvent).clientY - initialY;
             }
 
+            if (Math.abs(currentX - mouseDownX) > 3 || Math.abs(currentY - mouseDownY) > 3) {
+                isDragging = true;
+            }
+
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
             const containerWidth = container.offsetWidth;
             const containerHeight = container.offsetHeight;
 
-            // Clamp coordinates to keep container within viewport
             currentX = Math.max(0, Math.min(currentX, viewportWidth - containerWidth));
             currentY = Math.max(0, Math.min(currentY, viewportHeight - containerHeight));
 
@@ -179,6 +209,27 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
             localStorage.setItem(storageKey, JSON.stringify({ x: xOffset, y: yOffset }));
         }
     };
+
+    handle.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const isCloseButton = target.tagName.toLowerCase() === 'button' || 
+                              target.closest('button') || 
+                              target.id.includes('close') || 
+                              target.className.includes('close') ||
+                              target.closest('[id*="close"]') ||
+                              target.closest('[class*="close"]');
+
+        if (isCloseButton) {
+            return;
+        }
+
+        if (!isDragging) {
+            container.classList.toggle('shaded');
+            const isShaded = container.classList.contains('shaded');
+            localStorage.setItem(storageKey + '-shaded', isShaded ? 'true' : 'false');
+            checkBounds(); // Ensure it doesn't jump off-screen when resizing
+        }
+    });
 
     window.addEventListener('resize', checkBounds);
 
