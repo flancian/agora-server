@@ -1632,6 +1632,12 @@ input:checked + .slider:before {
     min-height: 0 !important;
 }
 
+.agora-draggable-container.shaded .agora-popup-header {
+    margin-bottom: 0 !important;
+    border-bottom: none !important;
+    border-radius: 8px !important; /* beautifully round all corners in pill-mode when shaded */
+}
+
 .agora-drag-handle, .agora-header-container {
     cursor: pointer !important;
 }

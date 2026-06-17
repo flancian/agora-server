@@ -68,7 +68,7 @@ export function makeDraggable(container: HTMLElement, handle: HTMLElement, stora
         // Calculate default position based on requested type
         const rightMargin = 25;
         const bottomMargin = 5; 
-        const baseTopMargin = 125; // Push below the new 3-line header (approx 40+40+30=110)
+        const baseTopMargin = 110; // Reduced to 110px to position closer to the top navbar (clears the 3-line header perfectly)
 
         // The container needs to be visible for offsetWidth/offsetHeight to be accurate
         let containerWidth = container.offsetWidth;
