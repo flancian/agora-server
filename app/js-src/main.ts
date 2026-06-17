@@ -1079,23 +1079,21 @@ document.addEventListener("DOMContentLoaded", async function () {
     initDemoMode();
 
     window.addEventListener('load', () => {
-        const loadTimeMs = performance.now();
-        const loadTimeS = (loadTimeMs / 1000).toFixed(1);
-        
         setTimeout(() => {
             if (showToast) {
-                if (parseFloat(loadTimeS) > 5) {
-                    showToast(`Welcome! Agora loaded in ${loadTimeS}s. Sorry this was slow; we're working on it!`);
-                } else {
-                    showToast(`Welcome! Agora loaded in ${loadTimeS}s.`);
-                }
+                showToast(`Welcome to the Agora!`);
+                
+                // Show haptic/long-press help tip
+                setTimeout(() => {
+                    showToast(`💡 Press and hold on buttons and toggles to see help.`);
+                }, 1000);
                 
                 // Add an extra context toast if we are at the absolute root (no query parameters)
                 const isAbsoluteRoot = (window.location.pathname === '/' || window.location.pathname === '/index') && !window.location.search;
                 if (isAbsoluteRoot) {
                     setTimeout(() => {
                         showToast(`🌿 The Agora is a Free Knowledge Commons. Locations are assembled from individual contributions.`);
-                    }, 1000);
+                    }, 2500);
                 }
             }
         }, 500);
@@ -1568,22 +1566,28 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (content != null) {
 
           // block on node loading (expensive if the task is freshly up)
-          
+
           // Set a timer to show a "warming up" toast if the fetch takes too long.
           const slowLoadDelay = 3000; // configurable delay in ms
           const slowLoadTimer = setTimeout(() => {
               showToast(`🌱 Warming up the Agora... (this might take a moment)`);
           }, slowLoadDelay);
 
+          const startTime = performance.now();
           try {
               response = await fetch(AGORAURL + '/node/' + node);
           } finally {
               clearTimeout(slowLoadTimer);
           }
+          const durationS = ((performance.now() - startTime) / 1000).toFixed(1);
 
-          if (response.headers.get('X-Agora-Cold-Start') === 'true') {
+          const isCold = response.headers.get('X-Agora-Cold-Start') === 'true';
+          const isSlow = parseFloat(durationS) > 3.0;
+
+          if (isCold || isSlow) {
+              const reason = isCold ? 'that was a cold start' : 'it took a moment to assemble';
               setTimeout(() => {
-                  showToast(`🙏 Apologies for the delay; that was a cold start.`);
+                  showToast(`🙏 Apologies for the delay (${durationS}s); ${reason}.`);
               }, 1000);
           }
 
