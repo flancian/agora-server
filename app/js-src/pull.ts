@@ -21,27 +21,38 @@ function pullNode(button: HTMLButtonElement) {
 
 function pullUrl(button: HTMLButtonElement) {
     const url = button.value;
+    const embedContainer = document.createElement('div');
+    embedContainer.className = 'agora-pull-embed';
+
     const iframe = document.createElement('iframe');
     iframe.loading = 'lazy';
     iframe.className = 'stoa2-iframe';
     iframe.setAttribute('allow', 'camera; microphone; fullscreen; display-capture; autoplay');
     iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms allow-presentation');
     iframe.src = url;
-    button.after(iframe);
+    embedContainer.appendChild(iframe);
+    
+    button.after(embedContainer);
 }
 
 function pullTweet(button: HTMLButtonElement) {
     const tweet = button.value;
+    const embedContainer = document.createElement('div');
+    embedContainer.className = 'agora-pull-embed';
+
     const blockquote = document.createElement('blockquote');
     blockquote.className = 'twitter-tweet';
     blockquote.setAttribute('data-theme', 'dark');
     blockquote.innerHTML = `<a href="${tweet}"></a>`;
-    button.after(blockquote);
+    embedContainer.appendChild(blockquote);
+    
     const script = document.createElement('script');
     script.async = true;
     script.src = "https://platform.twitter.com/widgets.js";
     script.charset = "utf-8";
-    button.after(script);
+    embedContainer.appendChild(script);
+    
+    button.after(embedContainer);
 }
 
 function renderMastodonPost(post: any): string {
@@ -100,18 +111,16 @@ async function pullMastodonStatus(button: HTMLButtonElement) {
         const req = `${domain}/api/v1/statuses/${post}`;
         const response = await fetch(req);
         const data = await response.json();
-        const embedHTML = renderMastodonPost(data);
+        const embedHTML = `<div class="agora-pull-embed">${renderMastodonPost(data)}</div>`;
         button.insertAdjacentHTML('afterend', embedHTML);
     } catch (error) {
         console.error('Error fetching Mastodon status:', error);
-        button.insertAdjacentHTML('afterend', '<div class="error">Could not load Mastodon post.</div>');
+        button.insertAdjacentHTML('afterend', '<div class="agora-pull-embed error">Could not load Mastodon post.</div>');
     }
 }
 
 async function pullBlueskyStatus(button: HTMLButtonElement) {
     const url = button.value;
-    // Regex to parse handle and post ID
-    // https://bsky.app/profile/{handle}/post/{id}
     const match = url.match(/https:\/\/bsky\.app\/profile\/([^\/]+)\/post\/([^\/]+)/);
     
     if (!match) {
@@ -124,7 +133,6 @@ async function pullBlueskyStatus(button: HTMLButtonElement) {
 
     try {
         let did = handle;
-        // If handle is not already a DID (did:plc:...), resolve it.
         if (!handle.startsWith("did:")) {
             const resolveReq = `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`;
             const response = await fetch(resolveReq);
@@ -135,32 +143,29 @@ async function pullBlueskyStatus(button: HTMLButtonElement) {
 
         const atUri = `at://${did}/app.bsky.feed.post/${postId}`;
         
-        // Construct the widget HTML manually
-        // We use a blockquote with the specific data attributes that embed.js looks for.
         const widgetHtml = `
-            <blockquote class="bluesky-embed" data-bluesky-uri="${atUri}" data-bluesky-cid="">
-              <p lang="en">
-                <a href="${url}">View on Bluesky</a>
-              </p>
-            </blockquote>
-            <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+            <div class="agora-pull-embed">
+                <blockquote class="bluesky-embed" data-bluesky-uri="${atUri}" data-bluesky-cid="">
+                  <p lang="en">
+                    <a href="${url}">View on Bluesky</a>
+                  </p>
+                </blockquote>
+            </div>
         `;
 
         button.insertAdjacentHTML('afterend', widgetHtml);
 
-        // Re-inject script to ensure execution (browsers block scripts in innerHTML/insertAdjacentHTML sometimes)
-        // Actually, for the widget to work, the script needs to run. 
-        // The standard widget snippet relies on the script tag being executed.
-        // Let's create the script element manually.
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = "https://embed.bsky.app/static/embed.js";
-        script.charset = "utf-8";
-        button.parentNode?.insertBefore(script, button.nextSibling.nextSibling);
+        if (!document.querySelector('script[src="https://embed.bsky.app/static/embed.js"]')) {
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = "https://embed.bsky.app/static/embed.js";
+            script.charset = "utf-8";
+            document.body.appendChild(script);
+        }
 
     } catch (error) {
         console.error('Error fetching Bluesky status (client-side):', error);
-        button.insertAdjacentHTML('afterend', `<div class="error">Could not load Bluesky post: ${error}</div>`);
+        button.insertAdjacentHTML('afterend', `<div class="agora-pull-embed error">Could not load Bluesky post: ${error}</div>`);
     }
 }
 
@@ -185,15 +190,8 @@ export function initPullButtons() {
             if (button.classList.contains('pulled')) {
                 // Already pulled, so we fold.
                 const nextElement = button.nextElementSibling;
-                if (nextElement) {
+                if (nextElement && (nextElement.classList.contains('agora-pull-embed') || nextElement.classList.contains('mastodon-embed-container') || nextElement.classList.contains('twitter-tweet') || nextElement.tagName === 'IFRAME' || nextElement.tagName === 'BLOCKQUOTE')) {
                     nextElement.remove();
-                }
-                // Special handling for tweet's script tag.
-                if (button.classList.contains('pull-tweet')) {
-                    const script = button.nextElementSibling;
-                    if (script && script.tagName === 'SCRIPT') {
-                        script.remove();
-                    }
                 }
                 // Special handling for the node embed container.
                 if (button.classList.contains('pull-node')) {
