@@ -688,6 +688,21 @@ document.addEventListener("DOMContentLoaded", async function () {
   window.addEventListener('resize', handleScrollHints);
   handleScrollHints(); // Initial check
 
+  // Automatically monitor changes to the action bar contents (showing/hiding buttons like Synthesize)
+  // to dynamically update scroll hints and chevrons.
+  const actionBarElement = document.querySelector('.action-bar');
+  if (actionBarElement) {
+      const barObserver = new MutationObserver(() => {
+          handleScrollHints();
+      });
+      barObserver.observe(actionBarElement, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['style', 'class']
+      });
+  }
+
   // Make the chevron indicators clickable
   document.querySelectorAll('.navigation, .topline-node-wrapper, .footer-wrapper, .action-bar-wrapper').forEach(wrapper => {
       wrapper.addEventListener('click', (e) => {
