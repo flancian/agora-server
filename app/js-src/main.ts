@@ -2573,14 +2573,6 @@ async function bindEvents() {
 
                     });
 
-                    // Also collapse all open details (subnodes, synthesis, etc.)
-                    nodeElement.querySelectorAll("details[open]").forEach(element => {
-                        // Don't close the node itself or the synthesis section!
-                        if (element !== nodeElement && element.id !== 'synthesis-details') {
-                            (element as HTMLDetailsElement).open = false;
-                        }
-                    });
-
                     button.innerHTML = '🧲 Pull All';
 
                     button.dataset.state = 'folded';
@@ -2593,13 +2585,6 @@ async function bindEvents() {
 
                         (element as HTMLElement).click();
 
-                    });
-
-                    // Also expand all closed details (subnodes, synthesis, etc.)
-                    nodeElement.querySelectorAll("details:not([open])").forEach(element => {
-                        if (element.id !== 'synthesis-details') {
-                            (element as HTMLDetailsElement).open = true;
-                        }
                     });
 
                     button.innerHTML = '✕ Fold All';
