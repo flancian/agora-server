@@ -11,6 +11,11 @@ export function initSortable() {
         const handle = section.querySelector('.drag-handle') as HTMLElement;
         if (!handle) return;
 
+        // Prevent duplicate listener binding
+        const sec = section as HTMLElement;
+        if (sec.dataset.sortableInitialized === 'true') return;
+        sec.dataset.sortableInitialized = 'true';
+
         // When pressing the handle, make the parent section draggable
         handle.addEventListener('mousedown', () => {
             (section as HTMLElement).setAttribute('draggable', 'true');

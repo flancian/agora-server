@@ -901,6 +901,26 @@ summary {
 details.sortable-section > summary {
     position: relative;
     padding-right: 35px; /* Leave room for drag-handle on the right */
+    overflow-x: hidden; /* Disable scrolling on the summary itself */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.summary-scroll-content {
+    display: inline-flex;
+    align-items: center;
+    overflow-x: auto;
+    white-space: nowrap;
+    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none; /* Firefox */
+    flex-grow: 1;
+    min-width: 0;
+    gap: 5px;
+}
+
+.summary-scroll-content::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
 }
 
 .drag-handle {
