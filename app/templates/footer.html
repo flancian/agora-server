@@ -12,8 +12,8 @@
     {% if 'Flan' in config['AGORA_NAME'] %} for the benefit of all beings{% else %} {% endif %}
     {% if config.ENABLE_FLUSH_CACHE_BUTTON %}
     &nbsp;
-    <button class="btn-flush-mem" title="Clear in-memory cache" style="margin-right: 0.2em;">🧠 flush memory</button>
-    <button class="btn-flush-sqlite" title="Flush SQLite cache">💾 flush sqlite</button>
+    <button class="btn-flush-mem" title="🧠 Flush memory: Clear server in-memory caches to reload nodes from storage." style="margin-right: 0.2em;">🧠 flush memory</button>
+    <button class="btn-flush-sqlite" title="💾 Flush SQLite: Drop and rebuild SQL database caches.">💾 flush sqlite</button>
     {% endif %}
 </div>
 </div>

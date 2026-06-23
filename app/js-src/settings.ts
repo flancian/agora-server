@@ -97,6 +97,7 @@ export function initSettings() {
     const applyUser = () => {
         const user = (document.getElementById("user") as HTMLInputElement).value;
         localStorage["user"] = user;
+        localStorage.setItem('user-changed', 'true');
         location.reload();
     };
 
@@ -198,6 +199,7 @@ export function initSettings() {
             const user = target.dataset.user;
             if (user) {
                 localStorage.setItem('user', user);
+                localStorage.setItem('user-changed', 'true');
                 const userInput = document.getElementById("user") as HTMLInputElement;
                 if (userInput) userInput.value = user;
                 // @ts-ignore

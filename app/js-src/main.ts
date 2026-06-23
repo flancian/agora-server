@@ -1067,12 +1067,64 @@ document.addEventListener("DOMContentLoaded", async function () {
   // No longer caching toastContainer at the top level to avoid initialization timing issues.
   // const toastContainer = document.getElementById('toast-container');
 
+    // Toast Queue State
+    const toastQueue: { message: string, duration: number | null }[] = [];
+    let isProcessingQueue = false;
+
+    function processToastQueue() {
+        if (isProcessingQueue) return;
+        if (toastQueue.length === 0) return;
+
+        isProcessingQueue = true;
+        const current = toastQueue.shift()!;
+        
+        let duration = current.duration;
+        if (duration === null) {
+            const configSeconds = parseFloat(localStorage.getItem("toast-duration-seconds") || CLIENT_DEFAULTS.toastDurationSeconds);
+            duration = configSeconds * 1000;
+        }
+
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            console.warn("Toast container missing, creating one.");
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+        }
+
+        // 1. Create a new toast element
+        const toastElement = document.createElement('div');
+        toastElement.className = 'toast'; // Start with base styles (hidden)
+        toastElement.innerHTML = current.message;
+
+        // 2. Add it to the container
+        container.appendChild(toastElement);
+
+        // 3. Force layout recalculation (reflow) to ensure transition plays smoothly
+        void toastElement.offsetHeight;
+        toastElement.classList.add('toast-visible');
+
+        // 4. Set a timer to remove the toast
+        setTimeout(() => {
+            // First, trigger the exit animation
+            toastElement.classList.remove('toast-visible');
+
+            // 5. Wait for the exit animation to finish before removing the element from the DOM
+            toastElement.addEventListener('transitionend', () => {
+                toastElement.remove();
+            }, { once: true });
+
+        }, duration);
+
+        // Space the next toast's appearance by 250ms (staggered onset)
+        setTimeout(() => {
+            isProcessingQueue = false;
+            processToastQueue();
+        }, 250);
+    }
+
     // @ts-ignore
-	window.showToast = function(message, duration = null) {
-            if (duration === null) {
-                const configSeconds = parseFloat(localStorage.getItem("toast-duration-seconds") || CLIENT_DEFAULTS.toastDurationSeconds);
-                duration = configSeconds * 1000;
-            }
+	window.showToast = function(message, duration = null, showAsToast = true) {
             console.log("Showing toast:", message);
 
             // Log to the Agora Console
@@ -1085,39 +1137,12 @@ document.addEventListener("DOMContentLoaded", async function () {
                 consoleBody.scrollTop = consoleBody.scrollHeight; // Auto-scroll to bottom
             }
 
-            let container = document.getElementById('toast-container');
-            if (!container) {
-                console.warn("Toast container missing, creating one.");
-                container = document.createElement('div');
-                container.id = 'toast-container';
-                document.body.appendChild(container);
+            if (!showAsToast) {
+                return;
             }
 
-			// 1. Create a new toast element
-			const toastElement = document.createElement('div');
-			toastElement.className = 'toast'; // Start with base styles (hidden)
-			toastElement.innerHTML = message;
-
-			// 2. Add it to the container
-			container.appendChild(toastElement);
-
-			// 3. Force a browser repaint, then add the 'visible' class to trigger the transition
-			// A tiny timeout is a reliable way to do this.
-			setTimeout(() => {
-					toastElement.classList.add('toast-visible');
-			}, 10);
-
-			// 4. Set a timer to remove the toast
-			setTimeout(() => {
-					// First, trigger the exit animation
-					toastElement.classList.remove('toast-visible');
-
-					// 5. Wait for the exit animation to finish before removing the element from the DOM
-					toastElement.addEventListener('transitionend', () => {
-							toastElement.remove();
-					}, { once: true }); // Use 'once' so the listener cleans itself up
-
-			}, duration);
+            toastQueue.push({ message, duration });
+            processToastQueue();
 	}
 
     // Test toast on startup
@@ -1137,27 +1162,92 @@ document.addEventListener("DOMContentLoaded", async function () {
     window.addEventListener('load', () => {
         setTimeout(() => {
             if (showToast) {
-                showToast(`Welcome to the Agora!`);
+                const helpSeen = localStorage.getItem('agora-help-seen') === 'true';
+                const currentUser = localStorage.getItem('user');
+                const isAbsoluteRoot = (window.location.pathname === '/' || window.location.pathname === '/index') && !window.location.search;
+
+                // Log all messages silently to the Agora Console first
+                showToast(`Welcome to the Agora!`, null, false);
                 
-                // Show mobile/desktop context help tip
                 const isMobileDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
                 const helpMsg = isMobileDevice 
                     ? "💡 Press and hold on buttons and toggles to see help."
                     : "💡 Please hover over buttons and toggles to see help.";
+                showToast(helpMsg, null, false);
 
-                setTimeout(() => {
-                    showToast(helpMsg);
-                }, 1000);
-                
-                // Add an extra context toast if we are at the absolute root (no query parameters)
-                const isAbsoluteRoot = (window.location.pathname === '/' || window.location.pathname === '/index') && !window.location.search;
                 if (isAbsoluteRoot) {
-                    setTimeout(() => {
-                        showToast(`🌿 The Agora is a Free Knowledge Commons. Locations are assembled from individual contributions.`);
-                    }, 2500);
+                    showToast(`🌿 The Agora is a Free Knowledge Commons. Locations are assembled from individual contributions.`, null, false);
                 }
+                
+                if (currentUser && currentUser !== 'agora') {
+                    const safeUser = currentUser.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    showToast(`Browsing as <strong>@${safeUser}</strong>`, null, false);
+                }
+
+                // Now select the single "most interesting" toast to display to the user on load!
+                if (!helpSeen) {
+                    // First-time user gets the classic Welcome toast, and we set help-seen.
+                    showToast(`Welcome to the Agora! 🏛️`, null, true);
+                    
+                    // Also show the help hint after 1.5 seconds, as it's their very first time.
+                    setTimeout(() => {
+                        showToast(helpMsg, null, true);
+                    }, 1500);
+
+                    if (isAbsoluteRoot) {
+                        setTimeout(() => {
+                            showToast(`🌿 The Agora is a Free Knowledge Commons. Locations are assembled from individual contributions.`, null, true);
+                        }, 3000);
+                    }
+
+                    localStorage.setItem('agora-help-seen', 'true');
+                } else {
+                    // For returning users (helpSeen === true), let's show exactly ONE interesting toast:
+                    const userChanged = localStorage.getItem('user-changed') === 'true';
+                    if (userChanged) {
+                        const safeUser = currentUser ? currentUser.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
+                        showToast(`Now browsing as <strong>@${safeUser}</strong> <a href="#" id="toast-change-user" style="font-size: 0.85em; text-decoration: underline;">(change)</a>`, null, true);
+                        localStorage.removeItem('user-changed');
+                    } else if (isAbsoluteRoot) {
+                        // At root page, remind them about the commons
+                        showToast(`🌿 Welcome back to the Agora, a Free Knowledge Commons.`, null, true);
+                    } else if (currentUser && currentUser !== 'agora') {
+                        // Greeting for returning users
+                        const safeUser = currentUser.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        showToast(`Welcome back! Browsing as <strong>@${safeUser}</strong> <a href="#" id="toast-change-user" style="font-size: 0.85em; text-decoration: underline;">(change)</a>.`, null, true);
+                    } else {
+                        // Rotate between a few short, interesting feature/concept tips!
+                        const tips = [
+                            "💡 Tip: Write double brackets like [[Concept]] in your notes to link concepts in the Agora.",
+                            "🎹 Tip: Turn on the Ambient Music toggle (🔇 in the header) to hear electronic or MIDI tracks.",
+                            "🧘 Tip: Enable Demo Mode (the 🧘 toggle in the header) for contemplative auto-browsing.",
+                            "📟 Tip: Click the console icon (📟 in the bottom-right) to see system messages.",
+                            "⚡ Tip: Check the /federation page to see Fediverse and ActivityPub activity.",
+                            isMobileDevice
+                                ? "💡 Tip: Press and hold on buttons and toggles to see help."
+                                : "💡 Tip: Hover over buttons and toggles to see help."
+                        ];
+                        const randomTip = tips[Math.floor(Math.random() * tips.length)];
+                        showToast(randomTip, null, true);
+                    }
+                }
+
+                // Bind user-change click handler if the link exists
+                setTimeout(() => {
+                    const link = document.getElementById('toast-change-user');
+                    if (link) {
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const overlay = document.getElementById('overlay');
+                            if (overlay) {
+                                overlay.classList.add('active');
+                                document.body.classList.add('overlay-open');
+                            }
+                        });
+                    }
+                }, 100);
             }
-        }, 500);
+        }, 1000);
     });
 
   const miniCliRetry = document.querySelector("#mini-cli-retry");
@@ -3162,29 +3252,7 @@ async function bindEvents() {
 
       });
 
-      // Show toast on load if user is not 'agora'
-      const currentUser = localStorage.getItem('user');
-      if (currentUser && currentUser !== 'agora') {
-          setTimeout(() => {
-              const safeUser = currentUser.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-              showToast(`Browsing as <strong>@${safeUser}</strong> <a href="#" id="toast-change-user" style="font-size: 0.85em; text-decoration: underline;">(change)</a>`);
-              
-              // Bind the click handler
-              setTimeout(() => {
-                  const link = document.getElementById('toast-change-user');
-                  if (link) {
-                      link.addEventListener('click', (e) => {
-                          e.preventDefault();
-                          const overlay = document.getElementById('overlay');
-                          if (overlay) {
-                              overlay.classList.add('active');
-                              document.body.classList.add('overlay-open');
-                          }
-                      });
-                  }
-              }, 50);
-          }, 1000);
-      }
+
 
       if (autoExec) {
 
