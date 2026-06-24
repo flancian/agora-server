@@ -17,6 +17,28 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+{% if graph_stats %}
+<div class="graph-overview-grid" style="margin-top: 1rem; margin-bottom: 2rem;">
+    <div class="stat-card">
+        <div class="stat-value">{{ graph_stats.nodes }}</div>
+        <div class="stat-label">Nodes</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ graph_stats.edges }}</div>
+        <div class="stat-label">Edges</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ graph_stats.subnodes }}</div>
+        <div class="stat-label">Contributions</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ graph_stats.users }}</div>
+        <div class="stat-label">Users</div>
+    </div>
+</div>
+{% endif %}
+
 <details id="full-graph-details" class="url node full-graph-details no-border" open>
     <summary>
         <span class="agoragraph"><strong>🕸️ Agora graph (experimental)</strong></span>
@@ -48,61 +70,7 @@
 {% endif %}
 </summary>
 
-{% if stats %}
-<details class="subnode" open>
-<summary><strong>📊 Statistics</strong></summary>
-<div class="stats-grid" style="margin-bottom: 2rem;">
-    <div class="stat-card">
-        <div class="stat-value">{{ stats['nodes'] }}</div>
-        <div class="stat-label">Locations</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ stats['edges'] }}</div>
-        <div class="stat-label">Edges</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ stats['users'] }}</div>
-        <div class="stat-label">Users</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ stats['subnodes'] }}</div>
-        <div class="stat-label">Contributions</div>
-    </div>
-</div>
-</details>
 
-<style>
-/* Inline styles for stats grid to match /stats page */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-    padding: 0 1rem;
-}
-
-.stat-card {
-    background-color: var(--bg-primary);
-    padding: 1rem;
-    border-radius: 6px;
-    text-align: center;
-    border: 1px solid var(--border-color);
-}
-
-.stat-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--link-color);
-}
-
-.stat-label {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-</style>
-{% endif %}
 
 <div class="nodes-grid subnode">
     <div class="nodes-list">
@@ -141,6 +109,103 @@
         </summary>
         <div class="node-embed" id="pull/{{node.uri}}"></div>
     </details>
+
+{% if graph_stats %}
+<details class="subnode" style="margin-top: 2rem; margin-bottom: 2rem;">
+    <summary><strong>📟 System Caches & Health</strong></summary>
+    <div class="stats-grid" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
+        <!-- Memory Status -->
+        <div class="stat-card" style="border-color: var(--link-color);">
+            <div class="stat-value" style="font-size: 1.2rem;">{{ memory_stats.Status }}</div>
+            <div class="stat-label">Memory State</div>
+        </div>
+
+        <!-- SQLite Status -->
+        <div class="stat-card" style="border-color: var(--link-color);">
+            <div class="stat-value" style="font-size: 1.2rem;">{{ sqlite_status }}</div>
+            <div class="stat-label">SQLite State</div>
+        </div>
+
+        <!-- Worker Status -->
+        <div class="stat-card" style="border-color: var(--link-color);">
+            <div class="stat-value" style="font-size: 1.2rem;">{{ worker_status }}</div>
+            <div class="stat-label">Worker Status</div>
+        </div>
+
+        <!-- Graph Rebuild -->
+        <div class="stat-card">
+            {% set timestamp = cache_info.get('last_full_index') or cache_info.get('graph_blob_time') or cache_info.get('db_mtime') %}
+            <div class="stat-value" style="font-size: 1.2rem;" {% if timestamp %}title="{{ timestamp|datetimeformat }}"{% endif %}>
+                {% if timestamp %}
+                    {{ timestamp|timeago }}
+                {% else %}
+                    <span style="color: var(--text-muted); font-size: 0.8em;">Pending...</span>
+                {% endif %}
+            </div>
+            <div class="stat-label">Graph Rebuild</div>
+        </div>
+    </div>
+
+    {% if memory_stats and not memory_stats.Error %}
+    <div class="cache-info-details" style="margin-top: 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center; color: var(--text-secondary);">
+        In-Memory Details: 
+        {% for k, v in memory_stats.items() if k != 'Status' %}
+            {{ k }}: <strong>{{ v }}</strong>{% if not loop.last %} | {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="cache-actions" style="margin-top: 1rem; margin-bottom: 1.5rem; text-align: center;">
+         <button class="btn-flush-mem" title="Clear in-memory cache (fast)" style="margin-right: 0.5rem; padding: 0.5em 1em; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-color); cursor: pointer;">🧠 Clear Memory</button>
+         <button class="btn-flush-sqlite" title="Clear SQLite cache (thorough)" style="padding: 0.5em 1em; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-color); cursor: pointer;">💾 Flush SQLite</button>
+    </div>
+</details>
+
+<style>
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 0 1rem;
+}
+
+.graph-overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+    .graph-overview-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.stat-card {
+    background-color: var(--bg-primary);
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--link-color);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+</style>
+{% endif %}
 
 {% include "footer.html" %}
 

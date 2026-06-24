@@ -510,76 +510,7 @@ def starred():
 
 @bp.route("/stats")
 def stats_page():
-    n = api.build_node("stats")
-    
-    # Graph stats (high level)
-    graph_stats = api.stats()
-    
-    # DB stats (low level)
-    db_stats = sqlite_engine.get_db_stats()
-    cache_info = sqlite_engine.get_cache_info()
-    
-    # In-memory stats
-    memory_stats = {}
-    is_hot = False
-    try:
-        # Inspect cachetools caches
-        if hasattr(G.subnodes, 'cache'):
-            subnodes_cache = G.subnodes.cache
-            memory_stats['Subnodes Cache Entries'] = len(subnodes_cache)
-            memory_stats['Subnodes Cache Max'] = subnodes_cache.maxsize
-            if len(subnodes_cache) > 0:
-                is_hot = True
-        
-        if hasattr(G.node, 'cache'):
-            node_cache = G.node.cache
-            memory_stats['Node Cache Entries'] = len(node_cache)
-            memory_stats['Node Cache Max'] = node_cache.maxsize
-            
-    except Exception as e:
-        current_app.logger.error(f"Error inspecting memory cache: {e}")
-        memory_stats['Error'] = "Could not inspect caches"
-
-    memory_stats['Status'] = "🔥 Hot (In-Memory)" if is_hot else "❄️ Cold (Disk/SQLite)"
-
-    # Worker status
-    last_index = cache_info.get('last_full_index')
-    worker_status = "❌ Inactive"
-    if last_index:
-        try:
-            # last_index might be a string or int/float
-            age = time.time() - float(last_index)
-            if age < 3600: # 1 hour
-                worker_status = "✅ Active"
-            elif age < 86400: # 24 hours
-                worker_status = "⚠️ Stale"
-            else:
-                worker_status = "❌ Inactive (>24h)"
-        except (ValueError, TypeError):
-            pass
-
-    # SQLite status
-    sqlite_status = "❌ Unavailable"
-    if db_stats:
-        # Try to find file size
-        size_entry = next((item for item in db_stats if item["table"] == "(Database File Size)"), None)
-        if size_entry:
-            sqlite_status = f"✅ Available ({size_entry['rows']})"
-        else:
-            table_count = len([t for t in db_stats if t['table'] != '(Database File Size)'])
-            sqlite_status = f"✅ Available ({table_count} tables)"
-
-    return render_template(
-        "stats.html",
-        header="Agora Status & Statistics",
-        node=n,
-        graph_stats=graph_stats,
-        db_stats=db_stats,
-        cache_info=cache_info,
-        memory_stats=memory_stats,
-        worker_status=worker_status,
-        sqlite_status=sqlite_status,
-    )
+    return redirect(url_for("agora.nodes"))
 
 
 @bp.route("/federation/")
@@ -1115,11 +1046,70 @@ def nodes():
     end = start + per_page
     nodes_on_page = all_nodes[start:end]
 
+    # Graph stats (high level)
+    graph_stats = api.stats()
+    
+    # DB stats (low level)
+    db_stats = sqlite_engine.get_db_stats()
+    cache_info = sqlite_engine.get_cache_info()
+    
+    # In-memory stats
+    memory_stats = {}
+    is_hot = False
+    try:
+        if hasattr(G.subnodes, 'cache'):
+            subnodes_cache = G.subnodes.cache
+            memory_stats['Subnodes Cache Entries'] = len(subnodes_cache)
+            memory_stats['Subnodes Cache Max'] = subnodes_cache.maxsize
+            if len(subnodes_cache) > 0:
+                is_hot = True
+        
+        if hasattr(G.node, 'cache'):
+            node_cache = G.node.cache
+            memory_stats['Node Cache Entries'] = len(node_cache)
+            memory_stats['Node Cache Max'] = node_cache.maxsize
+            
+    except Exception as e:
+        current_app.logger.error(f"Error inspecting memory cache: {e}")
+        memory_stats['Error'] = "Could not inspect caches"
+
+    memory_stats['Status'] = "🔥 Hot (In-Memory)" if is_hot else "❄️ Cold (Disk/SQLite)"
+
+    # Worker status
+    last_index = cache_info.get('last_full_index')
+    worker_status = "❌ Inactive"
+    if last_index:
+        try:
+            age = time.time() - float(last_index)
+            if age < 3600:
+                worker_status = "✅ Active"
+            elif age < 86400:
+                worker_status = "⚠️ Stale"
+            else:
+                worker_status = "❌ Inactive (>24h)"
+        except (ValueError, TypeError):
+            pass
+
+    # SQLite status
+    sqlite_status = "❌ Unavailable"
+    if db_stats:
+        size_entry = next((item for item in db_stats if item["table"] == "(Database File Size)"), None)
+        if size_entry:
+            sqlite_status = f"✅ Available ({size_entry['rows']})"
+        else:
+            table_count = len([t for t in db_stats if t['table'] != '(Database File Size)'])
+            sqlite_status = f"✅ Available ({table_count} tables)"
+
     return render_template(
         "nodes.html",
         nodes=nodes_on_page,
         node=n,
-        stats=None, # Disabled stats on this page as we have /stats
+        graph_stats=graph_stats,
+        db_stats=db_stats,
+        cache_info=cache_info,
+        memory_stats=memory_stats,
+        worker_status=worker_status,
+        sqlite_status=sqlite_status,
         graph=True,
         page=page,
         per_page=per_page,
