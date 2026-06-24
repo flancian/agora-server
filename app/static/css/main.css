@@ -299,20 +299,11 @@ li {
     display: inline-block;
     padding-right: 1em;
     padding-top: 5px;
-    padding-bottom: 2em;
+    padding-bottom: 5px;
     background-color: var(--agora-protocol-bg);
     position: relative;
     min-height: 2.5em;
     min-width: 10em;
-}
-
-.subnode-content > ul::after {
-    content: '(Agora Protocol inferred.)';
-    position: absolute;
-    bottom: 5px;
-    font-size: smaller;
-    font-style: italic;
-    color: var(--agora-protocol-text);
 }
 
 .subnode-content {
