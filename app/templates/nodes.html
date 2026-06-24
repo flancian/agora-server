@@ -19,8 +19,8 @@
 {% block content %}
 
 {% if graph_stats %}
-<details class="subnode" style="margin-top: 0; margin-bottom: 5px;" open>
-    <summary><strong>📊 Graph Overview</strong></summary>
+<details class="node no-border" style="margin-top: 0; margin-bottom: 5px;" open>
+    <summary><strong>📊 Agora overview</strong></summary>
     <div class="graph-overview-grid" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
         <div class="stat-card">
             <div class="stat-value">{{ graph_stats.nodes }}</div>
@@ -114,7 +114,7 @@
     </details>
 
 {% if graph_stats %}
-<details class="subnode" style="margin-top: 5px; margin-bottom: 0;">
+<details class="node no-border" style="margin-top: 5px; margin-bottom: 0;">
     <summary><strong>📟 System Information</strong></summary>
     <div class="stats-grid" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
         <!-- Memory Status -->
