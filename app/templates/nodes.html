@@ -19,24 +19,27 @@
 {% block content %}
 
 {% if graph_stats %}
-<div class="graph-overview-grid" style="margin-top: 1rem; margin-bottom: 2rem;">
-    <div class="stat-card">
-        <div class="stat-value">{{ graph_stats.nodes }}</div>
-        <div class="stat-label">Nodes</div>
+<details class="subnode" style="margin-top: 0; margin-bottom: 5px;" open>
+    <summary><strong>📊 Graph Overview</strong></summary>
+    <div class="graph-overview-grid" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
+        <div class="stat-card">
+            <div class="stat-value">{{ graph_stats.nodes }}</div>
+            <div class="stat-label">Nodes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ graph_stats.edges }}</div>
+            <div class="stat-label">Edges</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ graph_stats.subnodes }}</div>
+            <div class="stat-label">Contributions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ graph_stats.users }}</div>
+            <div class="stat-label">Users</div>
+        </div>
     </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ graph_stats.edges }}</div>
-        <div class="stat-label">Edges</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ graph_stats.subnodes }}</div>
-        <div class="stat-label">Contributions</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ graph_stats.users }}</div>
-        <div class="stat-label">Users</div>
-    </div>
-</div>
+</details>
 {% endif %}
 
 <details id="full-graph-details" class="url node full-graph-details no-border" open>
@@ -111,8 +114,8 @@
     </details>
 
 {% if graph_stats %}
-<details class="subnode" style="margin-top: 2rem; margin-bottom: 2rem;">
-    <summary><strong>📟 System Caches & Health</strong></summary>
+<details class="subnode" style="margin-top: 5px; margin-bottom: 0;">
+    <summary><strong>📟 System Information</strong></summary>
     <div class="stats-grid" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
         <!-- Memory Status -->
         <div class="stat-card" style="border-color: var(--link-color);">
