@@ -1165,6 +1165,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 const helpSeen = localStorage.getItem('agora-help-seen') === 'true';
                 const currentUser = localStorage.getItem('user');
                 const isAbsoluteRoot = (window.location.pathname === '/' || window.location.pathname === '/index') && !window.location.search;
+                const storedDemoActive = localStorage.getItem("deep-demo-active");
+                const isDemoActive = storedDemoActive !== null ? (storedDemoActive === 'true') : isAbsoluteRoot;
 
                 // Log all messages silently to the Agora Console first
                 showToast(`Welcome to the Agora!`, null, false);
@@ -1201,7 +1203,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     }
 
                     localStorage.setItem('agora-help-seen', 'true');
-                } else {
+                } else if (!isDemoActive) {
                     // For returning users (helpSeen === true), let's show exactly ONE interesting toast:
                     const userChanged = localStorage.getItem('user-changed') === 'true';
                     if (userChanged) {
