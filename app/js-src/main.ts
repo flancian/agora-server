@@ -367,6 +367,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   const hypothesisCloseBtn = document.getElementById('hypothesis-close-btn');
   const showHypothesisCheckbox = document.getElementById("show-hypothesis") as HTMLInputElement;
   const showHypothesisNavbar = document.getElementById("show-hypothesis-navbar") as HTMLInputElement;
+  const showHypothesisNavbarLabel = document.getElementById("show-hypothesis-navbar-label");
+
+  // Show navbar toggle if it has ever been activated
+  if (showHypothesisNavbarLabel && localStorage.getItem('hypothesis-activated') === 'true') {
+    showHypothesisNavbarLabel.classList.add('visible');
+  }
 
   if (hypothesisCloseBtn) {
     hypothesisCloseBtn.addEventListener('click', () => {
@@ -387,6 +393,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       showHypothesisNavbar.checked = isVisible;
     }
     localStorage.setItem('show-hypothesis', isVisible.toString());
+    if (isVisible) {
+      localStorage.setItem('hypothesis-activated', 'true');
+      if (showHypothesisNavbarLabel) {
+        showHypothesisNavbarLabel.classList.add('visible');
+      }
+    }
   };
 
   // Event listener for the "Show annotations" toggle in settings

@@ -2479,4 +2479,33 @@ pre:has(code.language-verse) {
     border-radius: 8px;
 }
 
+#scroll-toggle {
+    height: 25px !important;
+    width: 25px !important;
+    min-width: 25px !important;
+    padding: 0 !important;
+    margin-left: 4px !important;
+    margin-right: 4px !important;
+    flex-shrink: 0 !important;
+    border-radius: 4px !important;
+    border: 1px solid var(--button-border-color) !important;
+    background: var(--button-bg) !important;
+    color: var(--button-text-color) !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    font-size: 0.9em !important;
+}
+
+#show-hypothesis-navbar-label {
+    display: none;
+}
+#show-hypothesis-navbar-label.visible {
+    display: inline-block;
+}
+
+
+
 
