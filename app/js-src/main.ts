@@ -96,6 +96,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   const updateCliButtonsVisibility = () => {
       const miniCliLookAround = document.querySelector("#mini-cli-look-around") as HTMLButtonElement;
       const miniCliWander = document.querySelector("#mini-cli-wander") as HTMLButtonElement;
+      const miniCliJoin = document.querySelector("#mini-cli-join") as HTMLButtonElement;
+      const miniCliWrite = document.querySelector("#mini-cli-write") as HTMLButtonElement;
+      const user = localStorage.getItem('user');
+
       const hasContext = !!(document.getElementById('agoragraph') || 
                           document.getElementById('graph') || 
                           document.querySelector('.context'));
@@ -113,6 +117,26 @@ document.addEventListener("DOMContentLoaded", async function () {
               showButtonWithFade(miniCliWander);
           } else {
               hideButtonWithFade(miniCliWander);
+          }
+      }
+
+      if (miniCliJoin) {
+          if (!user) {
+              if (miniCliJoin.style.display !== "inline-block") {
+                  setTimeout(() => {
+                      if (!localStorage.getItem('user')) {
+                          showButtonWithFade(miniCliJoin);
+                      }
+                  }, 400);
+              }
+              if (miniCliWrite) {
+                  miniCliWrite.style.display = "none";
+              }
+          } else {
+              hideButtonWithFade(miniCliJoin);
+              if (miniCliWrite) {
+                  miniCliWrite.style.display = "inline-block";
+              }
           }
       }
   };
@@ -1006,41 +1030,57 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  const miniCliJoin = document.querySelector("#mini-cli-join") as HTMLButtonElement;
   const miniCliWrite = document.querySelector("#mini-cli-write") as HTMLButtonElement;
-  if (miniCliWrite) {
-    const userOnLoad = localStorage.getItem('user');
-    if (!userOnLoad) {
-        miniCliWrite.innerHTML = "👩‍🌾 Join";
-        miniCliWrite.setAttribute('title', "Join the Agora to contribute digital gardens or write notes!");
-    } else {
-        miniCliWrite.innerHTML = "✍️ Write";
-        miniCliWrite.setAttribute('title', "Write or edit a subnode for this location.");
-    }
+  const user = localStorage.getItem('user');
 
-    miniCliWrite.addEventListener("click", () => {
-      const user = localStorage.getItem('user');
-      let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
-      if (!node && typeof NODENAME !== 'undefined') {
-          node = NODENAME;
-      }
-      if (node && !node.includes('.')) {
-          node += '.md';
-      }
-      
-      const editorUrl = localStorage.getItem('editor-url') || (typeof AGORA_EDITOR_URL !== 'undefined' ? AGORA_EDITOR_URL : 'https://edit.anagora.org');
-      if (user) {
-          window.location.href = `${editorUrl}/@${user}/${node}`;
-      } else {
+  if (miniCliJoin) {
+      miniCliJoin.addEventListener("click", () => {
           const joinOverlay = document.getElementById("join-overlay");
           if (joinOverlay) {
-              joinOverlay.classList.add("active");
-              document.body.classList.add("overlay-open");
+              joinOverlay.classList.toggle("active");
+              if (joinOverlay.classList.contains("active")) {
+                  document.body.classList.add("overlay-open");
+              } else {
+                  document.body.classList.remove("overlay-open");
+              }
           } else {
-              // Fallback if overlay is not present
               window.location.href = '/join';
           }
-      }
-    });
+      });
+  }
+
+  if (miniCliWrite) {
+      miniCliWrite.innerHTML = "✍️ Write";
+      miniCliWrite.setAttribute('title', "Write or edit a subnode for this location.");
+
+      miniCliWrite.addEventListener("click", () => {
+          const user = localStorage.getItem('user');
+          let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
+          if (!node && typeof NODENAME !== 'undefined') {
+              node = NODENAME;
+          }
+          if (node && !node.includes('.')) {
+              node += '.md';
+          }
+          
+          const editorUrl = localStorage.getItem('editor-url') || (typeof AGORA_EDITOR_URL !== 'undefined' ? AGORA_EDITOR_URL : 'https://edit.anagora.org');
+          if (user) {
+              window.location.href = `${editorUrl}/@${user}/${node}`;
+          } else {
+              const joinOverlay = document.getElementById("join-overlay");
+              if (joinOverlay) {
+                  joinOverlay.classList.toggle("active");
+                  if (joinOverlay.classList.contains("active")) {
+                      document.body.classList.add("overlay-open");
+                  } else {
+                      document.body.classList.remove("overlay-open");
+                  }
+              } else {
+                  window.location.href = '/join';
+              }
+          }
+      });
   }
 
   // Initialize the Agora Console
@@ -1102,6 +1142,18 @@ document.addEventListener("DOMContentLoaded", async function () {
             container = document.createElement('div');
             container.id = 'toast-container';
             document.body.appendChild(container);
+        }
+
+        // Limit active toasts on screen: if we already have 2 on screen,
+        // skip rendering this new toast visually (it has already logged to the console).
+        const activeToasts = container.querySelectorAll('.toast');
+        if (activeToasts.length >= 2) {
+            isProcessingQueue = false;
+            // Check the queue again after a short delay
+            setTimeout(() => {
+                processToastQueue();
+            }, 250);
+            return;
         }
 
         // 1. Create a new toast element
@@ -1756,8 +1808,8 @@ document.addEventListener("DOMContentLoaded", async function () {
               }, 1000);
           } else {
               setTimeout(() => {
-                  showToast(`⚡ Agora location assembled in ${durationS}s.`);
-              }, 500); // show sooner since it loaded fast
+                  showToast(`⚡ Agora location assembled in ${durationS}s.`, null, false);
+              }, 500); // log to console sooner since it loaded fast
           }
 
           content.outerHTML = await response.text();
