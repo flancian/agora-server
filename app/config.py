@@ -210,6 +210,7 @@ class DefaultConfig(object):
             'templates': [
                 'prime/{node}',
                 'hex/{node}',
+                'hz/{node}',
                 'factor/{node}',
                 'calc/{node}',
             ]
