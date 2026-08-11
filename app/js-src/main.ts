@@ -266,17 +266,18 @@ document.addEventListener("DOMContentLoaded", async function () {
       event.preventDefault();
       const qstr = target.getAttribute('data-qstr');
       const mode = target.getAttribute('data-mode');
+      const page = target.getAttribute('data-page') || '1';
       const container = target.closest('.search-flex');
       
       if (!qstr || !mode || !container) return;
 
-      console.log(`Toggling search mode for: ${qstr} (mode=${mode})`);
+      console.log(`Toggling search mode for: ${qstr} (mode=${mode}, page=${page})`);
       
       // Show loading state
       let loadingText = 'Searching...';
-      if (mode === 'exact') loadingText = 'Searching index (phrase)...';
-      if (mode === 'broad') loadingText = 'Searching index (fuzzy)...';
-      if (mode === 'fs') loadingText = 'Searching index (literal)...';
+      if (mode === 'exact') loadingText = 'Searching FTS5 index (exact phrase)...';
+      if (mode === 'broad') loadingText = 'Searching FTS5 index (any order)...';
+      if (mode === 'fs' || mode === 'fuzzy') loadingText = 'Searching FTS5 Trigram index (fuzzy)...';
 
       // We preserve the header but replace the content below it with a spinner
       // Actually, easier to replace the whole thing and let the server re-render the tabs with the new active state
@@ -284,9 +285,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         <div class="search-agora">
           <div class="search-header" style="margin-bottom: 1em; margin-top: 1em;">
                 <span style="margin-right: 10px;"><strong>Search Mode:</strong></span>
-                <span class="search-mode-tab ${mode === 'broad' ? 'active' : ''}">Fuzzy</span> • 
-                <span class="search-mode-tab ${mode === 'exact' ? 'active' : ''}">Phrase</span> • 
-                <span class="search-mode-tab ${mode === 'fs' ? 'active' : ''}">Literal</span>
+                <span class="search-mode-tab ${mode === 'exact' ? 'active' : ''}" title="Exact Phrase: Matches your consecutive search phrase in sequence order using SQLite FTS5 phrase indexing.">Exact Phrase</span> • 
+                <span class="search-mode-tab ${mode === 'broad' ? 'active' : ''}" title="Any Order: Matches documents containing all of your search words in any order using SQLite FTS5 stemmed indexing.">Any Order</span> • 
+                <span class="search-mode-tab ${(mode === 'fs' || mode === 'fuzzy') ? 'active' : ''}" title="Fuzzy Match: Finds misspellings, partial character sequences, and code symbols using SQLite FTS5 Trigram indexing.">Fuzzy</span>
           </div>
           <center>
             <p>
@@ -299,7 +300,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         </div>`;
 
       try {
-        const url = `${AGORAURL}/fullsearch/${encodeURIComponent(qstr)}?mode=${mode}`;
+        const url = `${AGORAURL}/fullsearch/${encodeURIComponent(qstr)}?mode=${mode}&page=${page}`;
         const response = await fetch(url);
         const html = await response.text();
         
@@ -2147,7 +2148,7 @@ async function initInteractiveEmptyState() {
 
         let gameHelpText = "";
         if (currentGame === "hexgame") {
-            gameHelpText = "Hexgame: Use left/right arrows to rotate, Spacebar to cut top row, Shift to re-insert, C to toggle colors.";
+            gameHelpText = "Hex: Use left/right arrows to rotate, Spacebar to cut top row, Shift to re-insert, C to toggle colors.";
             content.innerHTML = '<center><canvas id="myCanvas" width="600" height="600" tabindex="0" style="outline: none;"></canvas></center>';
             const { initHexgame } = await import('./games/hexgame');
             cleanupCurrentGame = initHexgame('myCanvas');
@@ -2168,8 +2169,7 @@ async function initInteractiveEmptyState() {
     const start = () => {
         if (isInitialized) return;
         isInitialized = true;
-        const options = ["hexgame", "conway"];
-        currentGame = options[Math.floor(Math.random() * options.length)];
+        currentGame = "conway";
         render();
     };
 

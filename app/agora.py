@@ -805,13 +805,21 @@ def fullsearch(qstr):
     current_app.logger.debug(f"full text search for [[{qstr}]].")
     
     # mode: exact, broad, fs
-    mode = request.args.get("mode", "broad")
+    mode = request.args.get("mode", "exact")
+    page = int(request.args.get("page", 1))
+    per_page = int(request.args.get("per_page", 50))
     
     # legacy param support
     if request.args.get("force_fs") == "True":
         mode = "fs"
 
-    search_subnodes = api.search_subnodes(qstr, mode=mode)
+    raw_results = api.search_subnodes(qstr, mode=mode, page=page, per_page=per_page)
+    has_more = len(raw_results) > per_page
+    search_subnodes = raw_results[:per_page]
+    total_count = api.count_search_subnodes(qstr, mode=mode)
+    if total_count == 0 and search_subnodes:
+        total_count = len(search_subnodes)
+    total_pages = (total_count + per_page - 1) // per_page if total_count > 0 else 1
 
     return render_template(
         "fullsearch.html", 
@@ -820,6 +828,11 @@ def fullsearch(qstr):
         node=qstr, 
         search=search_subnodes, 
         mode=mode,
+        page=page,
+        per_page=per_page,
+        has_more=has_more,
+        total_count=total_count,
+        total_pages=total_pages,
         ENABLE_FTS=current_app.config.get('ENABLE_FTS', False)
     )
 

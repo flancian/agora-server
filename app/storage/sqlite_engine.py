@@ -124,6 +124,13 @@ SCHEMA_TEMPLATES = {
             content, 
             tokenize='porter'
         );
+    """,
+    'subnodes_trigram': """
+        CREATE VIRTUAL TABLE IF NOT EXISTS {table_name} USING fts5(
+            path, 
+            content, 
+            tokenize='trigram'
+        );
     """
 }
 
@@ -207,11 +214,11 @@ def create_tables(db):
     with db:
         # Create standard tables using templates
         for name, template in SCHEMA_TEMPLATES.items():
-            if name == 'subnodes_fts':
+            if name in ('subnodes_fts', 'subnodes_trigram'):
                 continue # Handled separately below based on config
             db.execute(template.format(table_name=name))
 
-        # Add FTS5 table if enabled
+        # Add FTS5 tables if enabled
         if current_app.config.get('ENABLE_FTS', False):
             # Migration: Check if existing table uses old tokenizer (trigram) and drop it if so.
             try:
@@ -224,6 +231,7 @@ def create_tables(db):
                 current_app.logger.error(f"Error checking FTS schema: {e}")
 
             db.execute(SCHEMA_TEMPLATES['subnodes_fts'].format(table_name='subnodes_fts'))
+            db.execute(SCHEMA_TEMPLATES['subnodes_trigram'].format(table_name='subnodes_trigram'))
 
         # Migration: Add the source_node column to the links table if it doesn't exist.
         try:
@@ -601,7 +609,7 @@ def flush_index_queue(e=None):
         close_db(e)
 
 
-def search_subnodes_fts(query, mode='exact'):
+def search_subnodes_fts(query, mode='exact', limit=50, offset=0):
     """
     Searches for subnodes containing the given query using FTS5.
     Returns a list of paths.
@@ -616,42 +624,59 @@ def search_subnodes_fts(query, mode='exact'):
 
     cursor = db.cursor()
     try:
-        # We use the FTS MATCH operator.
-        # We also need to sanitize the query to prevent syntax errors in FTS5 match expression.
-        # Simple sanitization: remove non-alphanumeric chars except spaces, or just quote it.
-        
         match_query = query
         if mode == 'exact':
-            # Enforce phrase match by wrapping in double quotes
-            # Escape existing double quotes to avoid syntax errors
             safe_query = query.replace('"', '""')
             match_query = f'"{safe_query}"'
         elif mode == 'broad':
-            # Prefix match each term to handle typos and stemming better
-            # e.g. "gnossienes" -> "gnossienes*" -> matches "gnossienne" (via stemming)
-            # Remove quotes to avoid syntax errors with *
-            safe_query = query.replace('"', '')
-            # Replace punctuation with spaces to avoid creating tokens like "c.*" which fail to match "c"
-            # We keep alphanumeric chars and spaces/underscores.
-            safe_query = re.sub(r'[^\w\s]', ' ', safe_query)
-            
-            # Filter out empty terms
+            safe_query = re.sub(r'[^\w\s]', ' ', query.replace('"', ''))
             terms = [t for t in safe_query.split() if t]
             if terms:
-                # Use explicit AND operator in FTS5 so that terms match in any order.
                 match_query = ' AND '.join([f'{t}*' for t in terms])
             else:
-                match_query = safe_query # Fallback if empty
+                match_query = safe_query
         
-        # SEARCH ALL COLUMNS (path + content) by targeting the table name.
-        cursor.execute("SELECT DISTINCT path FROM subnodes_fts WHERE subnodes_fts MATCH ? ORDER BY rank", (match_query,))
+        cursor.execute("SELECT DISTINCT path FROM subnodes_fts WHERE subnodes_fts MATCH ? ORDER BY rank LIMIT ? OFFSET ?", (match_query, limit, offset))
         return [row[0] for row in cursor.fetchall()]
     except sqlite3.OperationalError as e:
         current_app.logger.error(f"SQLite FTS search error: {e}")
         return []
 
 
-def search_subnodes_literal(query):
+def search_subnodes_trigram(query, limit=50, offset=0):
+    """
+    Searches for subnodes containing the given query using FTS5 Trigram index.
+    Provides fast, typo-tolerant fuzzy substring and symbol matching with BM25 relevance ranking.
+    """
+    db = get_db()
+    if not db or not current_app.config.get('ENABLE_FTS', False):
+        return []
+
+    cursor = db.cursor()
+    safe_query = query.replace('"', '""')
+    match_expr = f'"{safe_query}"' if '"' not in query else safe_query
+
+    try:
+        cursor.execute(
+            "SELECT DISTINCT path FROM subnodes_trigram WHERE subnodes_trigram MATCH ? ORDER BY rank LIMIT ? OFFSET ?",
+            (match_expr, limit, offset)
+        )
+        results = [row[0] for row in cursor.fetchall()]
+        if results:
+            return results
+
+        # Fallback to plain query if quoted match returned 0
+        cursor.execute(
+            "SELECT DISTINCT path FROM subnodes_trigram WHERE subnodes_trigram MATCH ? ORDER BY rank LIMIT ? OFFSET ?",
+            (safe_query, limit, offset)
+        )
+        return [row[0] for row in cursor.fetchall()]
+    except sqlite3.OperationalError as e:
+        current_app.logger.error(f"SQLite Trigram search error: {e}")
+        return []
+
+
+def search_subnodes_literal(query, limit=50, offset=0):
     """
     Searches for subnodes containing the given query literally using SQLite LIKE.
     Returns a list of paths.
@@ -664,13 +689,71 @@ def search_subnodes_literal(query):
     like_pattern = f'%{query}%'
     try:
         cursor.execute(
-            "SELECT DISTINCT path FROM subnodes_fts WHERE path LIKE ? OR content LIKE ? ORDER BY path",
-            (like_pattern, like_pattern)
+            "SELECT DISTINCT path FROM subnodes_fts WHERE path LIKE ? OR content LIKE ? ORDER BY path LIMIT ? OFFSET ?",
+            (like_pattern, like_pattern, limit, offset)
         )
         return [row[0] for row in cursor.fetchall()]
     except sqlite3.OperationalError as e:
         current_app.logger.error(f"SQLite literal search error: {e}")
         return []
+
+
+def count_subnodes_fts(query, mode='exact'):
+    db = get_db()
+    if not db or not current_app.config.get('ENABLE_FTS', False):
+        return 0
+    cursor = db.cursor()
+    match_query = query
+    if mode == 'exact':
+        safe_query = query.replace('"', '""')
+        match_query = f'"{safe_query}"'
+    elif mode == 'broad':
+        safe_query = re.sub(r'[^\w\s]', ' ', query.replace('"', ''))
+        terms = [t for t in safe_query.split() if t]
+        if terms:
+            match_query = ' AND '.join([f'{t}*' for t in terms])
+        else:
+            match_query = safe_query
+    try:
+        cursor.execute("SELECT COUNT(DISTINCT path) FROM subnodes_fts WHERE subnodes_fts MATCH ?", (match_query,))
+        row = cursor.fetchone()
+        return row[0] if row else 0
+    except sqlite3.OperationalError:
+        return 0
+
+
+def count_subnodes_trigram(query):
+    db = get_db()
+    if not db or not current_app.config.get('ENABLE_FTS', False):
+        return 0
+    cursor = db.cursor()
+    safe_query = query.replace('"', '""')
+    match_expr = f'"{safe_query}"' if '"' not in query else safe_query
+    try:
+        cursor.execute("SELECT COUNT(DISTINCT path) FROM subnodes_trigram WHERE subnodes_trigram MATCH ?", (match_expr,))
+        row = cursor.fetchone()
+        count = row[0] if row else 0
+        if count > 0:
+            return count
+        cursor.execute("SELECT COUNT(DISTINCT path) FROM subnodes_trigram WHERE subnodes_trigram MATCH ?", (safe_query,))
+        row = cursor.fetchone()
+        return row[0] if row else 0
+    except sqlite3.OperationalError:
+        return 0
+
+
+def count_subnodes_literal(query):
+    db = get_db()
+    if not db:
+        return 0
+    cursor = db.cursor()
+    like_pattern = f'%{query}%'
+    try:
+        cursor.execute("SELECT COUNT(DISTINCT path) FROM subnodes_fts WHERE path LIKE ? OR content LIKE ?", (like_pattern, like_pattern))
+        row = cursor.fetchone()
+        return row[0] if row else 0
+    except sqlite3.OperationalError:
+        return 0
 
 
 

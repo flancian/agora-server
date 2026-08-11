@@ -57,6 +57,7 @@ def build_cache(app):
     subnodes_table = "subnodes_new"
     links_table = "links_new"
     subnodes_fts_table = "subnodes_fts_new"
+    subnodes_trigram_table = "subnodes_trigram_new"
 
     with closing(sqlite3.connect(db_path)) as db:
         with db:  # This ensures the whole block is a single transaction.
@@ -67,6 +68,8 @@ def build_cache(app):
             if app.config.get('ENABLE_FTS', False):
                 db.execute(f"DROP TABLE IF EXISTS {subnodes_fts_table}")
                 db.execute(SCHEMA_TEMPLATES['subnodes_fts'].format(table_name=subnodes_fts_table))
+                db.execute(f"DROP TABLE IF EXISTS {subnodes_trigram_table}")
+                db.execute(SCHEMA_TEMPLATES['subnodes_trigram'].format(table_name=subnodes_trigram_table))
 
             # Schema must match sqlite_engine.py
             db.execute(SCHEMA_TEMPLATES['subnodes'].format(table_name=subnodes_table))
@@ -96,12 +99,16 @@ def build_cache(app):
             app.logger.info(f"Inserted {len(subnodes_to_insert)} subnodes.")
 
             if app.config.get('ENABLE_FTS', False) and fts_to_insert:
-                app.logger.info(f"Populating {subnodes_fts_table}...")
+                app.logger.info(f"Populating {subnodes_fts_table} & {subnodes_trigram_table}...")
                 db.executemany(
                     f"INSERT INTO {subnodes_fts_table} (path, content) VALUES (?, ?)",
                     fts_to_insert
                 )
-                app.logger.info(f"Inserted {len(fts_to_insert)} FTS entries.")
+                db.executemany(
+                    f"INSERT INTO {subnodes_trigram_table} (path, content) VALUES (?, ?)",
+                    fts_to_insert
+                )
+                app.logger.info(f"Inserted {len(fts_to_insert)} FTS & Trigram entries.")
 
             app.logger.info(f"Populating {links_table}...")
             links_to_insert = []
@@ -154,12 +161,15 @@ def deploy_cache(app):
                          raise RuntimeError(f"Failed to drop {links_table}")
                     db.execute(f"ALTER TABLE {links_new_table} RENAME TO {links_table}")
                     
-                    # FTS
+                    # FTS & Trigram
                     if app.config.get('ENABLE_FTS', False):
                         db.execute(f"DROP TABLE IF EXISTS {subnodes_fts_table}")
                         if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{subnodes_fts_table}'").fetchone():
                              raise RuntimeError(f"Failed to drop {subnodes_fts_table}")
                         db.execute(f"ALTER TABLE {subnodes_fts_new_table} RENAME TO {subnodes_fts_table}")
+
+                        db.execute("DROP TABLE IF EXISTS subnodes_trigram")
+                        db.execute("ALTER TABLE subnodes_trigram_new RENAME TO subnodes_trigram")
             
             # If we get here, success
             break

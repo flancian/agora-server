@@ -19,13 +19,29 @@
 
             <div class="search-header" style="margin-bottom: 1em; margin-top: 1em;">
                 <span style="margin-right: 10px;"><strong>Search Mode:</strong></span>
-                <span class="search-mode-tab {% if mode == 'broad' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="broad" title="Find all terms in any order (fast)">Fuzzy</span> • 
-                <span class="search-mode-tab {% if mode == 'exact' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="exact" title="Find consecutive terms in order (fast)">Phrase</span> • 
-                <span class="search-mode-tab {% if mode == 'fs' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="fs" title="Find exact text including punctuation (fast)">Literal</span>
+                <span class="search-mode-tab {% if mode == 'exact' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="exact" title="Exact Phrase: Matches your consecutive search phrase in sequence order using SQLite FTS5 phrase indexing.">Exact Phrase</span> • 
+                <span class="search-mode-tab {% if mode == 'broad' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="broad" title="Any Order: Matches documents containing all of your search words in any order using SQLite FTS5 stemmed indexing.">Any Order</span> • 
+                <span class="search-mode-tab {% if mode == 'fs' %}active{% endif %}" data-qstr="{{qstr}}" data-mode="fs" title="Fuzzy Match: Finds misspellings, partial character sequences, and code symbols using SQLite FTS5 Trigram indexing.">Fuzzy</span>
             </div>
 
             {% if search %}
-            <table style="width: 100%"">
+            <div class="search-summary-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8em; font-size: 0.9em;">
+                <div style="opacity: 0.9;">
+                    Found <strong>{{ total_count }}</strong> result{% if total_count != 1 %}s{% endif %} for "<strong>{{ qstr }}</strong>"{% if total_pages > 1 %} (Page {{ page | default(1) }} of {{ total_pages }}){% endif %}.
+                </div>
+                {% if (page | default(1)) > 1 or has_more %}
+                <div class="search-pagination-top" style="display: flex; gap: 8px; align-items: center;">
+                    {% if (page | default(1)) > 1 %}
+                    <span class="search-mode-tab search-page-trigger" data-qstr="{{qstr}}" data-mode="{{mode}}" data-page="{{(page | default(1)) - 1}}" title="Previous Page">⬅️ Prev</span>
+                    {% endif %}
+                    <span style="opacity: 0.8; font-size: 0.9em;">{{ page | default(1) }}/{{ total_pages }}</span>
+                    {% if has_more %}
+                    <span class="search-mode-tab search-page-trigger" data-qstr="{{qstr}}" data-mode="{{mode}}" data-page="{{(page | default(1)) + 1}}" title="Next Page">Next ➡️</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            <table style="width: 100%">
                 <thead>
                     <th style="width: 30%">📚 Node</th>
                     <th style="width: 30%">📕 Resource</th>
@@ -41,6 +57,22 @@
                     {% endfor %}
                 </tbody>
             </table>
+
+            {% if (page | default(1)) > 1 or has_more %}
+            <div class="search-pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1em; padding-top: 0.5em; border-top: 1px dashed rgba(255,255,255,0.1);">
+                {% if (page | default(1)) > 1 %}
+                <span class="search-mode-tab search-page-trigger" data-qstr="{{qstr}}" data-mode="{{mode}}" data-page="{{(page | default(1)) - 1}}">⬅️ Previous Page</span>
+                {% else %}
+                <span></span>
+                {% endif %}
+                <span style="opacity: 0.8; font-size: 0.9em;">Page {{ page | default(1) }} of {{ total_pages }}</span>
+                {% if has_more %}
+                <span class="search-mode-tab search-page-trigger" data-qstr="{{qstr}}" data-mode="{{mode}}" data-page="{{(page | default(1)) + 1}}">Next Page ➡️</span>
+                {% else %}
+                <span></span>
+                {% endif %}
+            </div>
+            {% endif %}
             {% else %}
             <div class="search-fallback" style="opacity: 0.8;">
                 <p>No results found for "{{qstr}}" in <strong>{{mode}}</strong> mode.</p>

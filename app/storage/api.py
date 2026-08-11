@@ -145,15 +145,19 @@ def subnodes_by_user(username, sort_by="mtime", mediatype=None, reverse=True):
     # For now, it remains file-based.
     return file_engine.subnodes_by_user(username, sort_by, mediatype, reverse)
 
-def search_subnodes(query, mode='exact'):
-    # mode: 'exact' (FTS phrase), 'broad' (FTS stemmed), 'fs' (filesystem)
+def search_subnodes(query, mode='exact', page=1, per_page=50):
+    # mode: 'exact' (FTS phrase), 'broad' (FTS stemmed), 'fuzzy' / 'fs' (FTS trigram)
     
     if _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
         start_time = time.time()
-        if mode == 'fs':
-            paths = sqlite_engine.search_subnodes_literal(query)
+        offset = (page - 1) * per_page
+        if mode in ('fs', 'fuzzy'):
+            paths = sqlite_engine.search_subnodes_trigram(query, limit=per_page + 1, offset=offset)
+            if not paths:
+                # Fallback to literal search if trigram returns empty (e.g. short queries)
+                paths = sqlite_engine.search_subnodes_literal(query, limit=per_page + 1, offset=offset)
         else:
-            paths = sqlite_engine.search_subnodes_fts(query, mode=mode)
+            paths = sqlite_engine.search_subnodes_fts(query, mode=mode, limit=per_page + 1, offset=offset)
 
         if paths:
             current_app.logger.info(f"SQLite search ({mode}) for '{query}' found {len(paths)} results in {time.time() - start_time:.4f}s.")
@@ -169,10 +173,19 @@ def search_subnodes(query, mode='exact'):
             return subnodes
         else:
             current_app.logger.info(f"SQLite search ({mode}) for '{query}' found 0 results.")
-            # If broad search found nothing, return empty.
-            # If exact search found nothing, maybe we could auto-fallback? 
-            # For now let the UI handle fallbacks.
             return []
+
+
+def count_search_subnodes(query, mode='exact'):
+    if _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
+        if mode in ('fs', 'fuzzy'):
+            count = sqlite_engine.count_subnodes_trigram(query)
+            if count == 0:
+                count = sqlite_engine.count_subnodes_literal(query)
+            return count
+        else:
+            return sqlite_engine.count_subnodes_fts(query, mode=mode)
+    return 0
 
     return file_engine.search_subnodes(query)
 
