@@ -398,7 +398,11 @@ class Graph:
         base = current_app.config["AGORA_PATH"]
         
         # Glob all potential subnode files.
-        patterns = ["**/*.md", "garden/**/*.org", "garden/**/*.myco", "**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.gif", "**/*.webp", "**/*.py"]
+        patterns = [
+            "**/*.md", "garden/**/*.org", "garden/**/*.myco",
+            "**/*.tex", "**/*.latex", "**/*.rst", "**/*.adoc", "**/*.bib",
+            "**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.gif", "**/*.webp", "**/*.py"
+        ]
         all_files = []
         for pattern in patterns:
             all_files.extend(glob.glob(os.path.join(base, pattern), recursive=True))
@@ -424,6 +428,14 @@ class Graph:
                 mediatype = "image/webp"
             elif f_lower.endswith(".py"):
                 mediatype = "text/x-python"
+            elif f_lower.endswith((".tex", ".latex")):
+                mediatype = "text/x-tex"
+            elif f_lower.endswith(".rst"):
+                mediatype = "text/x-rst"
+            elif f_lower.endswith(".adoc"):
+                mediatype = "text/x-asciidoc"
+            elif f_lower.endswith(".bib"):
+                mediatype = "text/x-bibtex"
 
             uri = path_to_uri(f, base)
             mtime_override = mtimes.get(uri)
@@ -928,15 +940,12 @@ class Subnode:
 
         self.mediatype = mediatype
 
-        if self.mediatype == "text/plain":
+        if self.mediatype.startswith("text"):
             self.load_text_subnode()
             self.type = "text"
         elif self.mediatype.startswith("image"):
             self.load_image_subnode()
             self.type = "image"
-        elif self.mediatype.startswith("text/x-python"):
-            self.load_text_subnode()
-            self.type = "text"
         else:
             raise ValueError
 
