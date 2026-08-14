@@ -695,3 +695,32 @@ Where individual minds and groups
 Can weave their thoughts without a tear—
 A Commons built for us to share.
 ```
+
+---
+
+## Session Summary (Gemini, 2026-08-15)
+
+*This session focused on database forensics, FTS deduplication, expanding text format indexing (LaTeX, RST, AsciiDoc, BibTeX), diagnosing and resolving production DOM layout corruption bugs, and benchmarking the Three-Tier Caching Architecture.*
+
+### Key Learnings & Codebase Insights
+
+-   **FTS5 Duplication & Database Bloat**: Diagnostics revealed `subnodes_fts` on local `agora.db` contained 500,014 rows for 48,858 subnodes due to historic `REPLACE INTO` vs `INSERT` behavior. Deduplicating and executing `VACUUM;` reclaimed **2.45 GB** of disk space (shrinking `agora.db` from 2.59 GB down to 136 MB). Vacuuming `agora.prod.db` reclaimed **513 MB** (702 MB down to 189 MB).
+-   **Seamless Table Swaps & The "Nested iFrame" Bug**: Production log analysis (`/tmp/agora.log` on `thecla`) uncovered tracebacks: `sqlite3.OperationalError: no such table: subnodes`. When `deploy_cache` ran un-gated `DROP TABLE subnodes` followed by `RENAME`, concurrent uWSGI readers caused SQLite lock collisions. Web requests during the micro-window raised 500 errors. Because `500.html` extended `base.html`, Jinja2 rendered full `<html><body>` documents inside inner subnode containers, causing the browser's DOM parser to break and visually display the page **as if it were a broken nested iframe**.
+-   **Atomic Swap Fix**: Refactored `deploy_cache()` in `app/storage/maintenance.py` to wrap all table drops and renames inside a **single atomic `BEGIN EXCLUSIVE TRANSACTION;`** with a **30-second `PRAGMA busy_timeout = 30000;`**. SQLite readers in WAL mode now seamlessly transition from old tables to new tables **without ever seeing a missing table or database lock error**.
+
+### Three-Tier Caching Architecture Benchmarks
+
+1.  **Tier 1 (In-Memory Graph Cache)**: `~0.02s – 0.5s` response times on warmed uWSGI web workers.
+2.  **Tier 2 (SQLite `graph_cache` Warm Start)**: `8.18s` cold worker startup (deserializing 45k subnodes from SQLite `graph_cache` in **6.8s**, saving 41% latency compared to disk scan).
+3.  **Tier 3 (Filesystem Plain-Text Scan)**: `13.78s` raw cold scan over 49,000 files on disk.
+
+### Summary of Changes Implemented
+
+1.  **Seamless Database Maintenance (`app/storage/maintenance.py`)**:
+    *   Refactored `deploy_cache()` with `BEGIN EXCLUSIVE TRANSACTION;` and `PRAGMA busy_timeout = 30000;`.
+    *   Added pre-swap verification to ensure `subnodes_new` exists before touching live tables.
+2.  **LaTeX & Extended Markup Support (`app/graph.py`)**:
+    *   Added glob pattern indexing for `.tex`, `.latex`, `.rst`, `.adoc`, and `.bib` files.
+    *   Updated `Subnode` MIME type validation to accept all text-based formats (`self.mediatype.startswith("text")`).
+3.  **Documentation**:
+    *   Recorded Three-Tier caching performance benchmarks and architectural invariants in `GEMINI.md`.
