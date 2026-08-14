@@ -129,58 +129,49 @@ def build_cache(app):
 def deploy_cache(app):
     """
     Atomically swaps the newly built cache tables into place.
+    Uses an exclusive transaction and 30s busy timeout so web readers never see missing tables.
     """
     app.logger.info("Deploying cache...")
     db_path = get_db_path(app)
-    subnodes_table = "subnodes"
-    links_table = "links"
-    subnodes_fts_table = "subnodes_fts"
     
-    subnodes_new_table = "subnodes_new"
-    links_new_table = "links_new"
-    subnodes_fts_new_table = "subnodes_fts_new"
-
-    max_retries = 5
+    max_retries = 10
     for attempt in range(max_retries):
         try:
             with closing(sqlite3.connect(db_path)) as db:
-                # Set a busy timeout to wait for locks
-                db.execute("PRAGMA busy_timeout = 5000")
-                with db: # Transaction
-                    app.logger.info(f"Swapping tables (attempt {attempt+1})...")
-                    
-                    # Subnodes
-                    db.execute(f"DROP TABLE IF EXISTS {subnodes_table}")
-                    if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{subnodes_table}'").fetchone():
-                         raise RuntimeError(f"Failed to drop {subnodes_table}")
-                    db.execute(f"ALTER TABLE {subnodes_new_table} RENAME TO {subnodes_table}")
-                    
-                    # Links
-                    db.execute(f"DROP TABLE IF EXISTS {links_table}")
-                    if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{links_table}'").fetchone():
-                         raise RuntimeError(f"Failed to drop {links_table}")
-                    db.execute(f"ALTER TABLE {links_new_table} RENAME TO {links_table}")
-                    
-                    # FTS & Trigram
-                    if app.config.get('ENABLE_FTS', False):
-                        db.execute(f"DROP TABLE IF EXISTS {subnodes_fts_table}")
-                        if db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{subnodes_fts_table}'").fetchone():
-                             raise RuntimeError(f"Failed to drop {subnodes_fts_table}")
-                        db.execute(f"ALTER TABLE {subnodes_fts_new_table} RENAME TO {subnodes_fts_table}")
+                db.execute("PRAGMA busy_timeout = 30000;")
+                db.execute("BEGIN EXCLUSIVE TRANSACTION;")
+                app.logger.info(f"Swapping tables (attempt {attempt+1})...")
+                
+                # Verify that temporary tables exist before touching live tables
+                cursor = db.cursor()
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='subnodes_new'")
+                if not cursor.fetchone():
+                    raise RuntimeError("subnodes_new temporary table missing. Aborting swap.")
 
-                        db.execute("DROP TABLE IF EXISTS subnodes_trigram")
-                        db.execute("ALTER TABLE subnodes_trigram_new RENAME TO subnodes_trigram")
-            
-            # If we get here, success
-            break
+                # Atomic swap sequence inside single exclusive transaction
+                db.execute("DROP TABLE IF EXISTS subnodes;")
+                db.execute("ALTER TABLE subnodes_new RENAME TO subnodes;")
+                
+                db.execute("DROP TABLE IF EXISTS links;")
+                db.execute("ALTER TABLE links_new RENAME TO links;")
+                
+                if app.config.get('ENABLE_FTS', False):
+                    db.execute("DROP TABLE IF EXISTS subnodes_fts;")
+                    db.execute("ALTER TABLE subnodes_fts_new RENAME TO subnodes_fts;")
+                    db.execute("DROP TABLE IF EXISTS subnodes_trigram;")
+                    db.execute("ALTER TABLE subnodes_trigram_new RENAME TO subnodes_trigram;")
+
+                db.commit()
+                app.logger.info("Cache tables swapped successfully.")
+                return True
             
         except (RuntimeError, sqlite3.OperationalError) as e:
             if attempt < max_retries - 1:
-                app.logger.warning(f"Swap failed due to lock/error: {e}. Retrying in 1s...")
-                time.sleep(1)
+                app.logger.warning(f"Swap failed due to lock/error ({e}). Retrying in 2s...")
+                time.sleep(2)
             else:
-                app.logger.error(f"Swap failed after {max_retries} attempts.")
-                raise e
+                app.logger.error(f"Swap failed after {max_retries} attempts: {e}")
+                return False
 
     app.logger.info("Cache deployed.")
 

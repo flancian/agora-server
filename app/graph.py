@@ -17,9 +17,9 @@ import datetime
 import glob
 import itertools
 import os
+import mimetypes
 import random
 import re
-import subprocess
 import time
 import urllib
 import orjson
@@ -44,27 +44,28 @@ from .util import (
 
 GRAPH_INSTANCE_COUNTER = 0
 
-def get_git_mtime(path):
-    try:
-        # Check if the path is within a git repository.
-        # We do this by running git rev-parse --is-inside-work-tree from the file's directory.
-        if subprocess.run(
-            ['git', 'rev-parse', '--is-inside-work-tree'],
-            cwd=os.path.dirname(path),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        ).stdout.strip().decode('utf-8') != 'true':
-            return None
 
-        # Get the last commit timestamp for the file.
-        timestamp = subprocess.check_output(
-            ['git', 'log', '-1', '--pretty=%ct', '--', path],
-            cwd=os.path.dirname(path)
-        ).strip().decode('utf-8')
-        return int(timestamp)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        # This can happen if the file is not in a git repo, or git is not installed.
-        return None
+def guess_mediatype(path):
+    path_lower = path.lower()
+    if path_lower.endswith(".md"):
+        return "text/markdown"
+    elif path_lower.endswith(".org"):
+        return "text/plain"
+    elif path_lower.endswith((".myco", ".mycorrhiza")):
+        return "text/x-mycomarkup"
+    elif path_lower.endswith(".py"):
+        return "text/x-python"
+    elif path_lower.endswith((".tex", ".latex")):
+        return "text/x-tex"
+    elif path_lower.endswith(".rst"):
+        return "text/x-rst"
+    elif path_lower.endswith((".adoc", ".asciidoc")):
+        return "text/x-asciidoc"
+    elif path_lower.endswith(".bib"):
+        return "text/x-bibtex"
+    
+    mime, _ = mimetypes.guess_type(path)
+    return mime or "application/octet-stream"
 
 
 def _is_sqlite_enabled():
@@ -179,20 +180,7 @@ class Graph:
                 # Reconstruct the absolute path from the stored URI (relative path)
                 absolute_path = os.path.join(agora_path, s_data['path'])
 
-                # We need to determine mediatype. For now, let's default to text/plain
-                # as the Subnode constructor will handle image extensions if passed the path.
-                # Ideally, we should store mediatype in the DB to avoid re-guessing.
-                mediatype = "text/plain" # Default
-                if absolute_path.endswith((".jpg", ".jpeg")):
-                    mediatype = "image/jpg"
-                elif absolute_path.endswith(".png"):
-                    mediatype = "image/png"
-                elif absolute_path.endswith(".gif"):
-                    mediatype = "image/gif"
-                elif absolute_path.endswith(".webp"):
-                    mediatype = "image/webp"
-                elif absolute_path.endswith(".py"):
-                    mediatype = "text/x-python"
+                mediatype = guess_mediatype(absolute_path)
 
                 # Pass the absolute path to the Subnode constructor
                 s = Subnode(absolute_path, mediatype, mtime_override=s_data['mtime'])
@@ -401,7 +389,9 @@ class Graph:
         patterns = [
             "**/*.md", "garden/**/*.org", "garden/**/*.myco",
             "**/*.tex", "**/*.latex", "**/*.rst", "**/*.adoc", "**/*.bib",
-            "**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.gif", "**/*.webp", "**/*.py"
+            "**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.gif", "**/*.webp", "**/*.py",
+            "**/*.mp4", "**/*.webm", "**/*.ogv", "**/*.mov", "**/*.mkv",
+            "**/*.mp3", "**/*.wav", "**/*.m4a", "**/*.flac"
         ]
         all_files = []
         for pattern in patterns:
@@ -416,27 +406,7 @@ class Graph:
         subnode_data_for_cache = []
 
         for f in all_files:
-            mediatype = "text/plain"
-            f_lower = f.lower()
-            if f_lower.endswith((".jpg", ".jpeg")):
-                mediatype = "image/jpg"
-            elif f_lower.endswith(".png"):
-                mediatype = "image/png"
-            elif f_lower.endswith(".gif"):
-                mediatype = "image/gif"
-            elif f_lower.endswith(".webp"):
-                mediatype = "image/webp"
-            elif f_lower.endswith(".py"):
-                mediatype = "text/x-python"
-            elif f_lower.endswith((".tex", ".latex")):
-                mediatype = "text/x-tex"
-            elif f_lower.endswith(".rst"):
-                mediatype = "text/x-rst"
-            elif f_lower.endswith(".adoc"):
-                mediatype = "text/x-asciidoc"
-            elif f_lower.endswith(".bib"):
-                mediatype = "text/x-bibtex"
-
+            mediatype = guess_mediatype(f)
             uri = path_to_uri(f, base)
             mtime_override = mtimes.get(uri)
             
@@ -774,7 +744,7 @@ class Node:
         pushed_blocks = set()
         if other.wikilink in [n.wikilink for n in self.push_nodes()]:
             for subnode in self.subnodes:
-                if subnode.mediatype != "text/plain":
+                if not subnode.mediatype.startswith("text"):
                     continue
                 try:
                     # I tried parsing the marko tree but honestly this seemed easier/simpler.
@@ -946,8 +916,18 @@ class Subnode:
         elif self.mediatype.startswith("image"):
             self.load_image_subnode()
             self.type = "image"
+        elif self.mediatype.startswith("video"):
+            self.content = b""
+            self.forward_links = []
+            self.type = "video"
+        elif self.mediatype.startswith("audio"):
+            self.content = b""
+            self.forward_links = []
+            self.type = "audio"
         else:
-            raise ValueError
+            self.content = b""
+            self.forward_links = []
+            self.type = "binary"
 
         if mtime_override:
             self.mtime = mtime_override
@@ -1047,14 +1027,8 @@ class Subnode:
             )
 
     def load_image_subnode(self):
-        try:
-            with open(self.path, "rb") as f:
-                self.content = f.read()
-                self.forward_links = []
-        except (FileNotFoundError, OSError):
-            current_app.logger.warning(f"Could not read image file: {self.path}")
-            self.content = b""
-            self.forward_links = []
+        self.content = b""
+        self.forward_links = []
 
     def load_user_config(self):
         self.edit_path = ""
@@ -1101,11 +1075,23 @@ class Subnode:
         return 100 - fuzz.ratio(self.wikilink, other.wikilink)
 
     def render(self, argument=''):
-        if self.mediatype not in ["text/plain", "text/html", 'text/x-python']:
-            # hack hack
-            return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /> <br />'.format(
-                self.uri
-            )
+        if not self.mediatype.startswith("text"):
+            if self.mediatype.startswith("video"):
+                return '<br /><video controls style="display: block; margin-left: auto; margin-right: auto; max-width: 100%"><source src="/raw/{}" type="{}">Your browser does not support the video tag.</video><br />'.format(
+                    self.uri, self.mediatype
+                )
+            elif self.mediatype.startswith("audio"):
+                return '<br /><audio controls style="display: block; margin-left: auto; margin-right: auto;"><source src="/raw/{}" type="{}">Your browser does not support the audio element.</audio><br />'.format(
+                    self.uri, self.mediatype
+                )
+            elif self.mediatype.startswith("image"):
+                return '<br /><img src="/raw/{}" style="display: block; margin-left: auto; margin-right: auto; max-width: 100%" /><br />'.format(
+                    self.uri
+                )
+            else:
+                return '<br /><div style="text-align: center;"><a href="/raw/{}" class="agora-button">📎 Download File ({})</a></div><br />'.format(
+                    self.uri, os.path.basename(self.path)
+                )
         if "subnode/virtual" in self.url:
             # virtual subnodes should come pre-rendered (as they were extracted post-rendering from other subnodes)
             return self.content
@@ -1150,6 +1136,9 @@ class Subnode:
         if self.uri.endswith("myco") or self.uri.endswith("MYCO"):
             content = render.preprocess(self.content, subnode=self)
             content = render.mycomarkup(content)
+        if self.uri.endswith(("tex", "latex")) or self.uri.endswith(("TEX", "LATEX")):
+            content = render.preprocess(self.content, subnode=self)
+            content = render.latex(content)
         if self.uri.endswith("py") or self.uri.endswith("PY"):
             content = '<br /><em>(Python code, output might appear as a push if this Agora supports it.)</em><br /><br />'
         ret = render.postprocess(content)
@@ -1559,7 +1548,7 @@ def content_to_obsidian_embeds(content):
 
 def subnode_to_actions(subnode, action, blocks_only=False):
     # hack hack.
-    if subnode.mediatype != "text/plain":
+    if not subnode.mediatype.startswith("text"):
         return []
     if blocks_only:
         wikilink_regex = r"- \[\[" + action + r"\]\] (.*?)$"
@@ -1575,7 +1564,7 @@ def subnode_to_actions(subnode, action, blocks_only=False):
 
 
 def subnode_to_taglink(subnode, tag, blocks_only=False):
-    if subnode.mediatype != "text/plain":
+    if not subnode.mediatype.startswith("text"):
         return []
     if blocks_only:
         tag_regex = f"- #{tag} (.*?)$"
@@ -1593,7 +1582,7 @@ def subnode_to_taglink(subnode, tag, blocks_only=False):
 def subnode_to_pushes(subnode):
     # This is actually only for pushes of the form [[foo]]! or [[foo]]:, meaning link-then-exclamation mark or colon.
     # For #push or [[push]] prefixes, see above.
-    if subnode.mediatype != "text/plain":
+    if not subnode.mediatype.startswith("text"):
         return []
     push_regex = r"(\[\[.*?\]\])[!:]"
     content = subnode.content
