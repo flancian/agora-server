@@ -1793,11 +1793,18 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           const startTime = performance.now();
           try {
-              response = await fetch(AGORAURL + '/node/' + node);
+              response = await fetch(AGORAURL + '/node/' + node, { credentials: 'same-origin' });
           } finally {
               clearTimeout(slowLoadTimer);
           }
           const durationS = ((performance.now() - startTime) / 1000).toFixed(1);
+
+          if (!response.ok) {
+              console.error(`Failed to load node ${node}: HTTP ${response.status}`);
+              showToast(`⚠️ Could not load node (HTTP ${response.status})`);
+              content.outerHTML = `<div class="subnode-error" style="padding: 1em; margin: 1em 0; border: 1px solid var(--border-color, #ccc); border-radius: 8px; background: var(--bg-secondary, #f9f9f9);"><p>⚠️ Could not load node <strong>[[${node}]]</strong> (HTTP ${response.status}).</p><p>If this site requires authentication, please refresh the page to re-authenticate.</p></div>`;
+              return;
+          }
 
           const isCold = response.headers.get('X-Agora-Cold-Start') === 'true';
           const isSlow = parseFloat(durationS) > 3.0;
@@ -2430,14 +2437,15 @@ async function bindEvents() {
 
           if (arg != '') {
 
-          response = await fetch(AGORAURL + '/push/' + node + '/' + arg);
+          response = await fetch(AGORAURL + '/push/' + node + '/' + arg, { credentials: 'same-origin' });
 
           } else {
 
-          response = await fetch(AGORAURL + '/push/' + node);
+          response = await fetch(AGORAURL + '/push/' + node, { credentials: 'same-origin' });
 
           }
 
+          if (!response.ok) return;
           const data = await response.text();
 
           document.querySelector(id).innerHTML = data;
@@ -2458,7 +2466,8 @@ async function bindEvents() {
 
           console.log('auto pulling context, will write to id: ' + id);
 
-          const response = await fetch(AGORAURL + '/context/' + node);
+          const response = await fetch(AGORAURL + '/context/' + node, { credentials: 'same-origin' });
+          if (!response.ok) return;
 
           const data = await response.text();
 
