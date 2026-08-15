@@ -460,13 +460,11 @@ def latest():
     
     # New on-demand logic with caching.
     cache_key = 'latest_per_user'
-    ttl = 300 # 5 minutes
     cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
 
-    if cached_value and (time.time() - timestamp < ttl):
-        current_app.logger.info("CACHE HIT (sqlite): Using cached data for latest_per_user.")
+    if cached_value:
+        current_app.logger.info("CACHE HIT (sqlite): Serving cached data for latest_per_user.")
         latest_changes = json.loads(cached_value)
-        # The 'subnodes' variable is a legacy name; we pass the new structure to the template.
         return render_template(
             "recent.html", 
             header="Latest Deltas (by user, from Git)", 

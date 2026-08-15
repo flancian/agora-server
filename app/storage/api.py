@@ -114,19 +114,13 @@ def all_journals():
 def all_users():
     if _is_sqlite_enabled():
         cache_key = 'all_users'
-        ttl = current_app.config['QUERY_CACHE_TTL'].get(cache_key, 3600)
         cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
         
-        if cached_value and (time.time() - timestamp < ttl):
-            current_app.logger.info("CACHE HIT (sqlite): Using cached data for all_users.")
-            # The result is a list of User objects, which can't be directly JSON serialized.
-            # We cache the usernames and reconstruct the objects. The User constructor is cheap.
+        if cached_value:
             usernames = json.loads(cached_value)
             return [UserClass(u) for u in usernames]
 
-        current_app.logger.info("CACHE MISS (sqlite): Recomputing all_users.")
         users = file_engine.all_users()
-        # Extract usernames for serialization.
         usernames = [u.uri for u in users]
         sqlite_engine.save_cached_query(cache_key, json.dumps(usernames), time.time())
         return users
@@ -264,6 +258,15 @@ def top():
         return file_engine.top()
 
 def stats():
+    if _is_sqlite_enabled():
+        cache_key = 'graph_stats'
+        cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
+        if cached_value:
+            return json.loads(cached_value)
+        
+        res = file_engine.stats()
+        sqlite_engine.save_cached_query(cache_key, json.dumps(res), time.time())
+        return res
     return file_engine.stats()
 
 def subnodes_by_outlink(node):
