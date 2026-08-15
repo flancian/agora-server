@@ -99,7 +99,7 @@ def user_journals(user):
     subnodes = [
         subnode
         for subnode in subnodes_by_user(user)
-        if util.is_journal(subnode.wikilink) and subnode.mediatype == "text/plain"
+        if util.is_journal(subnode.wikilink) and (subnode.type == "text" or subnode.mediatype.startswith("text"))
     ]
     return sorted(subnodes, key=attrgetter("wikilink"))
 
@@ -112,7 +112,7 @@ def all_journals(skip_future=True):
     subnodes = [
         subnode
         for subnode in G.subnodes()
-        if util.is_journal(subnode.wikilink) and subnode.mediatype == "text/plain"
+        if util.is_journal(subnode.wikilink) and (subnode.type == "text" or subnode.mediatype.startswith("text"))
     ]
 
     def datekey(x):
@@ -179,7 +179,7 @@ def search_subnodes(query):
     subnodes = [
         subnode
         for subnode in all_subs
-        if subnode.mediatype == "text/plain"
+        if (subnode.type == "text" or subnode.mediatype.startswith("text"))
         and re.search(re.escape(query), subnode.content, re.IGNORECASE)
     ]
     current_app.logger.debug(f"query: {query}, searched subnodes. Found {len(subnodes)}.")
@@ -191,7 +191,7 @@ def search_subnodes_by_user(query, user):
         subnode
         for subnode in G.subnodes()
         if subnode.user == user
-        and subnode.mediatype == "text/plain"
+        and (subnode.type == "text" or subnode.mediatype.startswith("text"))
         and re.search(re.escape(query), subnode.content, re.IGNORECASE)
     ]
     return subnodes
@@ -205,7 +205,7 @@ def user_readmes(user):
     subnodes = [
         subnode
         for subnode in G.subnodes()
-        if subnode.mediatype == "text/plain"
+        if (subnode.type == "text" or subnode.mediatype.startswith("text"))
         and subnode.user == user
         and re.search("readme", subnode.wikilink, re.IGNORECASE)
     ]

@@ -51,7 +51,7 @@ def uprank(l, users):
         if n.user in users:
             # the earlier in the list a user comes, the more highly ranked it is.
             score = users.index(n.user) - len(users) - 1
-        if n.mediatype != "text/plain":
+        if n.type != "text" and not n.mediatype.startswith("text"):
             # try *downranking* images again; it makes nodes more readable as the text subnodes usually contain the title of the node in a leading position.
             score += 0.01
         return score
