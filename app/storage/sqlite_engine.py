@@ -655,9 +655,16 @@ def search_subnodes_trigram(query, limit=50, offset=0):
 
     cursor = db.cursor()
     safe_query = query.replace('"', '""')
-    match_expr = f'"{safe_query}"' if '"' not in query else safe_query
     like_pattern = f'%{query}%'
     exact_node = query.lower()
+
+    tokens = [t.strip() for t in query.split() if t.strip()]
+    if len(tokens) > 1:
+        # Enforce conjunction (AND): every token must be present in matched subnode
+        clean_tokens = [t.replace('"', '""') for t in tokens]
+        fts_and_expr = ' '.join(f'"{t}"' for t in clean_tokens)
+    else:
+        fts_and_expr = f'"{safe_query}"' if '"' not in query else safe_query
 
     sql = """
         SELECT DISTINCT s.path
@@ -675,14 +682,19 @@ def search_subnodes_trigram(query, limit=50, offset=0):
     """
 
     try:
-        cursor.execute(sql, (match_expr, exact_node, f'{exact_node}%', like_pattern, limit, offset))
+        # 1. Try exact phrase or token conjunction match first
+        cursor.execute(sql, (fts_and_expr, exact_node, f'{exact_node}%', like_pattern, limit, offset))
         results = [row[0] for row in cursor.fetchall()]
         if results:
             return results
 
-        # Fallback to plain query if quoted match returned 0
-        cursor.execute(sql, (safe_query, exact_node, f'{exact_node}%', like_pattern, limit, offset))
-        return [row[0] for row in cursor.fetchall()]
+        # 2. Fallback to exact phrase match if multi-word
+        if len(tokens) > 1:
+            match_expr = f'"{safe_query}"' if '"' not in query else safe_query
+            cursor.execute(sql, (match_expr, exact_node, f'{exact_node}%', like_pattern, limit, offset))
+            return [row[0] for row in cursor.fetchall()]
+
+        return []
     except sqlite3.OperationalError as e:
         current_app.logger.error(f"SQLite Trigram search error: {e}")
         return []
