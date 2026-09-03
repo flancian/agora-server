@@ -647,6 +647,7 @@ def search_subnodes_trigram(query, limit=50, offset=0):
     """
     Searches for subnodes containing the given query using FTS5 Trigram index.
     Provides fast, typo-tolerant fuzzy substring and symbol matching with BM25 relevance ranking.
+    Matches are prioritized by exact node title match -> prefix node match -> content match -> BM25 rank -> mtime DESC.
     """
     db = get_db()
     if not db or not current_app.config.get('ENABLE_FTS', False):
@@ -655,21 +656,32 @@ def search_subnodes_trigram(query, limit=50, offset=0):
     cursor = db.cursor()
     safe_query = query.replace('"', '""')
     match_expr = f'"{safe_query}"' if '"' not in query else safe_query
+    like_pattern = f'%{query}%'
+    exact_node = query.lower()
+
+    sql = """
+        SELECT DISTINCT s.path
+        FROM subnodes_trigram t
+        JOIN subnodes s ON t.path = s.path
+        WHERE subnodes_trigram MATCH ?
+        ORDER BY 
+            (CASE WHEN LOWER(s.node) = ? THEN 0
+                  WHEN LOWER(s.node) LIKE ? THEN 1
+                  WHEN t.content LIKE ? THEN 2
+                  ELSE 3 END),
+            t.rank,
+            s.mtime DESC
+        LIMIT ? OFFSET ?
+    """
 
     try:
-        cursor.execute(
-            "SELECT DISTINCT path FROM subnodes_trigram WHERE subnodes_trigram MATCH ? ORDER BY rank LIMIT ? OFFSET ?",
-            (match_expr, limit, offset)
-        )
+        cursor.execute(sql, (match_expr, exact_node, f'{exact_node}%', like_pattern, limit, offset))
         results = [row[0] for row in cursor.fetchall()]
         if results:
             return results
 
         # Fallback to plain query if quoted match returned 0
-        cursor.execute(
-            "SELECT DISTINCT path FROM subnodes_trigram WHERE subnodes_trigram MATCH ? ORDER BY rank LIMIT ? OFFSET ?",
-            (safe_query, limit, offset)
-        )
+        cursor.execute(sql, (safe_query, exact_node, f'{exact_node}%', like_pattern, limit, offset))
         return [row[0] for row in cursor.fetchall()]
     except sqlite3.OperationalError as e:
         current_app.logger.error(f"SQLite Trigram search error: {e}")
