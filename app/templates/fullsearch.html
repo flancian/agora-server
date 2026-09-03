@@ -43,16 +43,18 @@
             </div>
             <table style="width: 100%">
                 <thead>
-                    <th style="width: 30%">📚 Node</th>
-                    <th style="width: 30%">📕 Resource</th>
-                    <th style="width: 30%">🧍 User</th>
+                    <th style="width: 40%">📚 Node</th>
+                    <th style="width: 60%">👩‍🌾 Contributors / Resources</th>
                 </thead>
                 <tbody>
-                    {% for subnode in search %}
+                    {% for item in search_groups %}
                     <tr>
-                    <td><a href="/{{subnode.wikilink}}">{{subnode.wikilink}}</a></td>
-                    <td><a href="/@{{subnode.user}}/{{subnode.wikilink}}">{{subnode.uri}}</a></td> 
-                    <td><a href="/@{{subnode.user}}">@{{subnode.user}}</a></td>
+                    <td><a href="/{{item.wikilink}}"><strong>[[{{item.wikilink}}]]</strong></a></td>
+                    <td>
+                        {% for u in item.users %}
+                        <a class="subnode-user-badge" href="/@{{u}}/{{item.wikilink}}" style="display: inline-block; padding: 2px 8px; margin: 2px 4px 2px 0; border-radius: 12px; background: rgba(125,125,125,0.15); border: 1px solid rgba(125,125,125,0.2); font-size: 0.85em; text-decoration: none;" title="View subnode by @{{u}}">@{{u}}</a>
+                        {% endfor %}
+                    </td>
                     </tr>
                     {% endfor %}
                 </tbody>

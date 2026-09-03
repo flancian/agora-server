@@ -819,12 +819,32 @@ def fullsearch(qstr):
         total_count = len(search_subnodes)
     total_pages = (total_count + per_page - 1) // per_page if total_count > 0 else 1
 
+    # Group search subnodes by Node (wikilink) to eliminate duplicate rows
+    search_groups = []
+    seen_nodes = {}
+    for subnode in search_subnodes:
+        wikilink = subnode.wikilink
+        if wikilink not in seen_nodes:
+            group = {
+                'wikilink': wikilink,
+                'subnodes': [subnode],
+                'users': [subnode.user]
+            }
+            seen_nodes[wikilink] = group
+            search_groups.append(group)
+        else:
+            group = seen_nodes[wikilink]
+            group['subnodes'].append(subnode)
+            if subnode.user not in group['users']:
+                group['users'].append(subnode.user)
+
     return render_template(
         "fullsearch.html", 
         qstr=qstr, 
         q=qstr, 
         node=qstr, 
-        search=search_subnodes, 
+        search=search_subnodes,
+        search_groups=search_groups,
         mode=mode,
         page=page,
         per_page=per_page,
