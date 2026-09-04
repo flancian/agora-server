@@ -41,20 +41,26 @@
                 </div>
                 {% endif %}
             </div>
-            <table style="width: 100%">
+            <table class="search-results-table" style="width: 100%; border-collapse: collapse; margin-top: 0.5em;">
                 <thead>
-                    <th style="width: 40%">📚 Node</th>
-                    <th style="width: 60%">👩‍🌾 Contributors / Resources</th>
+                    <tr style="border-bottom: 1px solid var(--border-color, rgba(125,125,125,0.3)); font-size: 0.85em; opacity: 0.8;">
+                        <th style="width: 45%; text-align: left; padding: 4px 6px;">📚 Node</th>
+                        <th style="width: 55%; text-align: left; padding: 4px 6px;">👩‍🌾 Contributors</th>
+                    </tr>
                 </thead>
                 <tbody>
                     {% for item in search_groups %}
-                    <tr>
-                    <td><a href="/{{item.wikilink}}"><strong>[[{{item.wikilink}}]]</strong></a></td>
-                    <td>
-                        {% for u in item.users %}
-                        <a class="subnode-user-badge" href="/@{{u}}/{{item.wikilink}}" style="display: inline-block; padding: 2px 8px; margin: 2px 4px 2px 0; border-radius: 12px; background: rgba(125,125,125,0.15); border: 1px solid rgba(125,125,125,0.2); font-size: 0.85em; text-decoration: none;" title="View subnode by @{{u}}">@{{u}}</a>
-                        {% endfor %}
-                    </td>
+                    <tr style="border-bottom: 1px solid rgba(125,125,125,0.1);">
+                        <td style="padding: 4px 6px; vertical-align: middle;">
+                            <a href="/{{item.wikilink}}" style="text-decoration: none;"><strong>[[{{item.wikilink}}]]</strong></a>
+                        </td>
+                        <td style="padding: 4px 6px; vertical-align: middle;">
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center;">
+                                {% for u in item.users %}
+                                <a class="subnode-user-badge" href="/@{{u}}/{{item.wikilink}}" style="display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 10px; background: rgba(125,125,125,0.12); border: 1px solid rgba(125,125,125,0.25); font-size: 0.8em; line-height: 1.2; text-decoration: none; white-space: nowrap;" title="View subnode by @{{u}}">@{{u}}</a>
+                                {% endfor %}
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
