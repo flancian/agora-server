@@ -636,7 +636,22 @@ def search_subnodes_fts(query, mode='exact', limit=50, offset=0):
             else:
                 match_query = safe_query
         
-        cursor.execute("SELECT DISTINCT path FROM subnodes_fts WHERE subnodes_fts MATCH ? ORDER BY rank LIMIT ? OFFSET ?", (match_query, limit, offset))
+        exact_node = query.lower()
+        sql = """
+            SELECT DISTINCT s.path
+            FROM subnodes_fts f
+            JOIN subnodes s ON f.path = s.path
+            WHERE subnodes_fts MATCH ?
+            ORDER BY 
+                (CASE WHEN LOWER(s.node) = ? THEN 0
+                      WHEN LOWER(s.node) LIKE ? THEN 1
+                      WHEN LOWER(s.node) LIKE ? THEN 2
+                      ELSE 3 END),
+                f.rank,
+                s.mtime DESC
+            LIMIT ? OFFSET ?
+        """
+        cursor.execute(sql, (match_query, exact_node, f'{exact_node}%', f'%{exact_node}%', limit, offset))
         return [row[0] for row in cursor.fetchall()]
     except sqlite3.OperationalError as e:
         current_app.logger.error(f"SQLite FTS search error: {e}")

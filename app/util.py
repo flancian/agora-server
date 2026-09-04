@@ -98,6 +98,7 @@ def canonical_wikilink(wikilink):
         .replace(":", "-")
         # .replace("'", "-")
         .replace("+", "-")
+        .replace("_", "-")
     )
     wikilink = re.sub("-+", " ", wikilink)
     return wikilink

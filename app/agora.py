@@ -819,21 +819,21 @@ def fullsearch(qstr):
         total_count = len(search_subnodes)
     total_pages = (total_count + per_page - 1) // per_page if total_count > 0 else 1
 
-    # Group search subnodes by Node (wikilink) to eliminate duplicate rows
+    # Group search subnodes by canonical Node (wikilink) to eliminate duplicate rows across hyphens, spaces, and underscores
     search_groups = []
     seen_nodes = {}
     for subnode in search_subnodes:
-        wikilink = subnode.wikilink
-        if wikilink not in seen_nodes:
+        canonical_key = util.canonical_wikilink(subnode.wikilink)
+        if canonical_key not in seen_nodes:
             group = {
-                'wikilink': wikilink,
+                'wikilink': canonical_key,
                 'subnodes': [subnode],
                 'users': [subnode.user]
             }
-            seen_nodes[wikilink] = group
+            seen_nodes[canonical_key] = group
             search_groups.append(group)
         else:
-            group = seen_nodes[wikilink]
+            group = seen_nodes[canonical_key]
             group['subnodes'].append(subnode)
             if subnode.user not in group['users']:
                 group['users'].append(subnode.user)
