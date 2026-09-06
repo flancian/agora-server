@@ -43,12 +43,12 @@
             </div>
             <ul class="search-results-list" style="list-style: none; padding: 0; margin: 0.8em 0; display: flex; flex-direction: column; gap: 4px;">
                 {% for item in search_groups %}
-                <li class="search-result-row" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; background: var(--bg-secondary, rgba(125,125,125,0.06)); border: 1px solid var(--border-color, rgba(125,125,125,0.15)); min-height: 34px; box-sizing: border-box;">
-                    <div class="search-result-node" style="display: flex; align-items: center; gap: 6px; font-size: 0.92em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left;">
+                <li class="search-result-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 10px; border-radius: 6px; background: var(--bg-secondary, rgba(125,125,125,0.06)); border: 1px solid var(--border-color, rgba(125,125,125,0.15)); min-height: 34px; box-sizing: border-box;">
+                    <div class="search-result-node" style="display: flex; align-items: center; gap: 6px; font-size: 0.92em; white-space: nowrap; flex-shrink: 0; text-align: left;">
                         <span style="opacity: 0.6; font-size: 0.9em;">📚</span>
                         <a href="/{{item.wikilink}}" style="font-weight: 600; text-decoration: none;">[[{{item.wikilink}}]]</a>
                     </div>
-                    <div class="search-result-contributors" style="display: flex; align-items: center; flex-wrap: wrap; gap: 4px; justify-content: flex-end; white-space: nowrap;">
+                    <div class="search-result-contributors" style="display: flex; align-items: center; flex-wrap: wrap; gap: 4px; justify-content: flex-end; flex-shrink: 1; flex-grow: 1;">
                         {% for u in item.users %}<a class="subnode-user-badge" href="/@{{u}}/{{item.wikilink}}" style="display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 10px; background: rgba(125,125,125,0.12); border: 1px solid rgba(125,125,125,0.22); font-size: 0.78em; line-height: 1; text-decoration: none; white-space: nowrap;" title="View subnode by @{{u}}">@{{u}}</a>{% endfor %}
                     </div>
                 </li>
