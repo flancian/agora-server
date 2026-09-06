@@ -285,6 +285,60 @@ function highlightTarget(el: HTMLElement): void {
 }
 
 /**
+ * Locates the currently active or in-view element.
+ */
+export function getCurrentTarget(): HTMLElement | null {
+  const headerOffset = getHeaderOffset();
+  if (lastTargetElement && document.contains(lastTargetElement)) {
+    const rect = lastTargetElement.getBoundingClientRect();
+    if (rect.bottom > headerOffset && rect.top < window.innerHeight) {
+      return lastTargetElement;
+    }
+  }
+
+  const targets = getVisibleTargets();
+  if (targets.length === 0) return null;
+
+  for (const el of targets) {
+    const rect = el.getBoundingClientRect();
+    if (rect.bottom > headerOffset + 10 && rect.top <= window.innerHeight) {
+      return el;
+    }
+  }
+
+  return targets[0];
+}
+
+/**
+ * Toggles expand/collapse on the currently focused or in-view section or subnode.
+ */
+export function toggleActiveSection(): void {
+  const target = getCurrentTarget();
+  if (!target) return;
+
+  let detailsEl: HTMLDetailsElement | null = null;
+  if (target instanceof HTMLDetailsElement || target.tagName.toLowerCase() === 'details') {
+    detailsEl = target as HTMLDetailsElement;
+  } else {
+    detailsEl = target.closest('details') || target.querySelector('details');
+  }
+
+  if (detailsEl) {
+    const wasOpen = detailsEl.open;
+    const summary = detailsEl.querySelector('summary');
+    if (summary) {
+      summary.click();
+    }
+    if (detailsEl.open === wasOpen) {
+      detailsEl.open = !wasOpen;
+      detailsEl.dispatchEvent(new Event('toggle'));
+    }
+    lastTargetElement = detailsEl;
+    highlightTarget(detailsEl);
+  }
+}
+
+/**
  * Triggers Wander navigation (navigates to /wander/<current-node> or /random).
  */
 export function triggerWander(): void {
@@ -380,6 +434,10 @@ function getOrCreateShortcutsModal(): HTMLElement {
             <tr>
               <td class="key-col"><kbd>k</kbd></td>
               <td class="desc-col">Scroll to previous contribution or section</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>Enter</kbd> / <kbd>o</kbd></td>
+              <td class="desc-col">Expand or collapse highlighted section / subnode</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>w</kbd></td>
@@ -503,6 +561,21 @@ export function initKeyNavigation(): void {
       case 'k':
         e.preventDefault();
         scrollToPrevious();
+        break;
+
+      case 'Enter': {
+        const active = document.activeElement;
+        if (active && (active.tagName === 'A' || active.tagName === 'BUTTON')) {
+          return;
+        }
+        e.preventDefault();
+        toggleActiveSection();
+        break;
+      }
+
+      case 'o':
+        e.preventDefault();
+        toggleActiveSection();
         break;
 
       case 'w':

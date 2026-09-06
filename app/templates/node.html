@@ -30,12 +30,12 @@
                     <span style="flex: auto; flex-grow: 1;" title="Agora locations are assembled from community contributions with titles that match your search.">
                         📚 <strong>Agora location</strong> 
                         <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
-                    </span>
-                    <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="{% if not node.subnodes %}A star on an empty node is a wish. Click to add this node to this Agora's wishlist.{% else %}Star this node to add it to this Agora's starred topics (visible on /starred).{% endif %}">
-                        {% if node.uri in starred_nodes %}★{% else %}☆{% endif %}
+                        <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="{% if not node.subnodes %}A star on an empty node is a wish. Click to add this node to this Agora's wishlist.{% else %}Star this node to add it to this Agora's starred topics (visible on /starred).{% endif %}" style="margin-left: 6px;">
+                            {% if node.uri in starred_nodes %}★{% else %}☆{% endif %}
+                        </span>
                     </span>
                     <button id="pull-all-in-node" value="pull-all" title='Pull all embeddable content in this node.' style="display: none;">🧲 Pull All</button>
-                   <!-- <div style="flex: auto; margin-left: auto; text-align: right;"> <button id="pull-all" value="pull-all" title='Tries to retrieve most resources that can be pulled below'>pull all</button> -->
+                    <!-- <div style="flex: auto; margin-left: auto; text-align: right;"> <button id="pull-all" value="pull-all" title='Tries to retrieve most resources that can be pulled below'>pull all</button> -->
                     <!-- </div> -->
             </summary>
             <!--
@@ -86,13 +86,13 @@
                     <span class="subnode-id">
                         <span class="subnode-links">
                             <a href="/@{{subnode.user}}/{{subnode.wikilink}}" title="Click to see only this contribution.">📜 <strong>{{subnode.garden_relative}}</strong></a> <span style="font-weight: normal; opacity: 0.8; font-size: 0.9em;">(contribution by <a class="user" href="/@{{subnode.user}}" title="User @{{subnode.user}} contributed this.">@<span class="subnode-user">{{subnode.user}}</span></a>)</span>
+                            <span class="star-toggle {% if subnode.uri in starred_subnodes %}starred{% endif %}" data-subnode-uri="{{ subnode.uri }}" title="Star this contribution" style="margin-left: 6px;">
+                                {% if subnode.uri in starred_subnodes %}★{% else %}☆{% endif %}
+                            </span>
                         </span>
                     </span>
 
                     <span class="subnode-contrib">
-                        <span class="star-toggle {% if subnode.uri in starred_subnodes %}starred{% endif %}" data-subnode-uri="{{ subnode.uri }}" title="Star this contribution">
-                            {% if subnode.uri in starred_subnodes %}★{% else %}☆{% endif %}
-                        </span>
                         <a href="/raw/{{subnode.uri}}" title="view raw" style="text-decoration: none;">📎</a>
                         {% if subnode.web %}
                             <a href="{{subnode.web}}" title="view original (website)" style="text-decoration: none;">️🔗</a> 

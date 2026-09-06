@@ -907,10 +907,37 @@ summary {
 
 details.sortable-section > summary {
     position: relative;
+    padding-right: 35px; /* Leave room for drag-handle on the right */
     overflow-x: hidden; /* Disable scrolling on the summary itself */
     display: flex;
     align-items: center;
     justify-content: flex-start;
+}
+
+details.sortable-section > summary::after {
+    content: '≡';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: grab;
+    padding: 0 5px;
+    font-weight: bold;
+    font-size: 1.15em;
+    color: var(--text-color);
+    opacity: 0.45;
+    transition: opacity 0.2s, color 0.2s;
+    user-select: none;
+    touch-action: none;
+}
+
+details.sortable-section > summary:hover::after {
+    opacity: 0.95;
+    color: var(--link-color);
+}
+
+details.sortable-section.dragging > summary::after {
+    cursor: grabbing;
 }
 
 .summary-scroll-content {
@@ -1064,6 +1091,33 @@ details[open] > .subnode-header {
     justify-content: flex-end;
     align-items: center;
     gap: 8px;
+}
+
+.sortable-subnode > summary .subnode-contrib::after {
+    content: '≡';
+    cursor: grab;
+    padding: 0 5px;
+    font-weight: bold;
+    font-size: 1.15em;
+    color: var(--text-color);
+    opacity: 0.45;
+    transition: opacity 0.2s, color 0.2s;
+    user-select: none;
+    touch-action: none;
+    display: inline-block;
+}
+
+.sortable-subnode > summary .subnode-contrib:hover::after {
+    opacity: 0.95;
+    color: var(--link-color);
+}
+
+.sortable-subnode.dragging > summary .subnode-contrib::after {
+    cursor: grabbing;
+}
+
+.pull-dismiss {
+    right: 35px !important;
 }
 
 
