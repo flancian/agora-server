@@ -16,6 +16,7 @@ export const CLIENT_DEFAULTS = {
   toastDurationSeconds: '3.5',
   autoScrollDemo: true,
   showEditSection: false,
+  enableShortcuts: true,
 };
 
 export function safeJsonParse(value: string, defaultValue: any) {

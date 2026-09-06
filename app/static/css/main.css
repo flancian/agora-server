@@ -2463,6 +2463,148 @@ pre:has(code.language-verse) {
     display: inline-block;
 }
 
+/* Keyboard Navigation (N-Agora Phase 1) */
+.agora-kb-active {
+    outline: 2px solid var(--wikilink-color, #1e53a6) !important;
+    outline-offset: 3px;
+    border-radius: 4px;
+    transition: outline 0.2s ease-in-out;
+}
 
+.agora-shortcuts-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+}
 
+.agora-shortcuts-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
 
+.agora-shortcuts-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--overlay-bg, rgba(0, 0, 0, 0.75));
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.agora-shortcuts-card {
+    position: relative;
+    z-index: 2501;
+    background-color: var(--node-bg, #1a1a1a);
+    color: var(--text-color, #e0e0e0);
+    border: 1px solid var(--border, #444);
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+    max-width: 480px;
+    width: 90%;
+    padding: 1.25rem 1.5rem;
+    transform: scale(0.95);
+    transition: transform 0.2s ease-out;
+}
+
+.agora-shortcuts-overlay.active .agora-shortcuts-card {
+    transform: scale(1);
+}
+
+.agora-shortcuts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border, #444);
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.agora-shortcuts-title {
+    font-size: 1.15rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.agora-shortcuts-close {
+    background: none;
+    border: none;
+    color: var(--text-color, #e0e0e0);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.agora-shortcuts-close:hover {
+    opacity: 1;
+}
+
+.agora-shortcuts-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.5rem 0;
+}
+
+.agora-shortcuts-table tr {
+    border-bottom: 1px solid rgba(125, 125, 125, 0.15);
+}
+
+.agora-shortcuts-table tr:last-child {
+    border-bottom: none;
+}
+
+.agora-shortcuts-table td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+
+.agora-shortcuts-table .key-col {
+    width: 60px;
+    text-align: center;
+}
+
+.agora-shortcuts-table .desc-col {
+    padding-left: 0.75rem;
+}
+
+.agora-shortcuts-table kbd {
+    display: inline-block;
+    min-width: 26px;
+    padding: 3px 7px;
+    font-family: monospace;
+    font-size: 0.9em;
+    font-weight: bold;
+    color: var(--button-text-color, #eee);
+    background-color: var(--button-bg, #2d2d2d);
+    border: 1px solid var(--button-border-color, #777);
+    border-bottom: 2px solid var(--button-border-color, #555);
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.agora-shortcuts-footer {
+    border-top: 1px solid var(--border, #444);
+    padding-top: 0.75rem;
+    margin-top: 0.5rem;
+    text-align: center;
+    font-size: 0.82rem;
+    opacity: 0.7;
+}

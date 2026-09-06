@@ -36,6 +36,10 @@ export function initSettings() {
     (document.getElementById("toast-duration-seconds") as HTMLInputElement).value = localStorage.getItem("toast-duration-seconds") || CLIENT_DEFAULTS.toastDurationSeconds;
     (document.getElementById("auto-scroll-demo") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-scroll-demo"], CLIENT_DEFAULTS.autoScrollDemo);
     (document.getElementById("show-edit-section") as HTMLInputElement).checked = safeJsonParse(localStorage["show-edit-section"], CLIENT_DEFAULTS.showEditSection);
+    const enableShortcutsInput = document.getElementById("enable-shortcuts") as HTMLInputElement;
+    if (enableShortcutsInput) {
+        enableShortcutsInput.checked = safeJsonParse(localStorage["enable-shortcuts"], CLIENT_DEFAULTS.enableShortcuts);
+    }
 
     // Function to apply the bracket visibility style
     const applyBracketVisibility = () => {
@@ -125,6 +129,10 @@ export function initSettings() {
         // Display Settings
         localStorage["showBrackets"] = (document.getElementById("show-brackets") as HTMLInputElement).checked;
         localStorage["show-edit-section"] = (document.getElementById("show-edit-section") as HTMLInputElement).checked;
+        const enableShortcutsEl = document.getElementById("enable-shortcuts") as HTMLInputElement;
+        if (enableShortcutsEl) {
+            localStorage["enable-shortcuts"] = enableShortcutsEl.checked;
+        }
         localStorage["auto-scroll-demo"] = (document.getElementById("auto-scroll-demo") as HTMLInputElement).checked;
         localStorage.setItem("toast-duration-seconds", (document.getElementById("toast-duration-seconds") as HTMLInputElement).value);
         

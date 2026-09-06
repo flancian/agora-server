@@ -33,6 +33,7 @@ import { initDemoMode } from './demo';
 import { initMusicPlayer } from './music';
 import { renderGraph } from './graph';
 import { initPullButtons } from './pull';
+import { initKeyNavigation } from './keys';
 
 declare const NODENAME: string | undefined;
 declare const NODEQ: string | undefined;
@@ -178,6 +179,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   
   rewriteEditLinks();
   initMusicPlayer();
+  initKeyNavigation();
 
   // This function reads localStorage and hides any info-boxes that have been previously dismissed.
   // It's safe to call multiple times.
