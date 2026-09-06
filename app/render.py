@@ -18,10 +18,12 @@
 # - markdown
 # - orgmode
 
+import html
 import re
 import shutil
 import smartypants
 import subprocess
+from flask import current_app
 from . import regexes, util
 from marko import Markdown, inline
 from marko.helpers import MarkoExtension
@@ -130,13 +132,66 @@ markdown.use(Wikilinks)
 # If we can, use mycomarkup parser; if not, fall back to markdown which gets us something half readable.
 def mycomarkup(src):
     if shutil.which("mycomarkup"):
-        ret = subprocess.check_output("mycomarkup", input=bytes(src, "utf-8"))
-        ret = ret.decode("utf-8")
+        try:
+            timeout = current_app.config.get("SUBPROCESS_TIMEOUT", 5.0)
+            ret = subprocess.check_output("mycomarkup", input=bytes(src, "utf-8"), timeout=timeout)
+            ret = ret.decode("utf-8")
+        except subprocess.TimeoutExpired:
+            ret = "<mark>Mycomarkup parsing timed out.</mark><br/>"
+            ret += markdown(src)
+        except Exception as e:
+            ret = f"<mark>Mycomarkup parsing failed: {e}</mark><br/>"
+            ret += markdown(src)
     else:
         ret = "<mark>Mycomarkup binary not found, the following was rendered in Markdown compatibility mode.</mark>"
         ret += markdown(src)
 
     return ret
+
+
+# LaTeX
+# If we can, use pandoc to convert LaTeX to HTML; if not, fall back to syntax highlighted code block.
+def latex(src):
+    # Try to find pandoc binary via pypandoc-binary or system path
+    pandoc_bin = None
+    try:
+        import pypandoc
+        pandoc_bin = pypandoc.get_pandoc_path()
+    except Exception:
+        pass
+
+    if not pandoc_bin or not shutil.which(pandoc_bin):
+        pandoc_bin = shutil.which("pandoc")
+
+    if pandoc_bin:
+        try:
+            preamble = (
+                r"\providecommand{\widepoetry}[1]{\begin{quote}#1\end{quote}}" + "\n" +
+                r"\providecommand{\dexteremph}[1]{\textit{#1}}" + "\n" +
+                r"\providecommand{\fleurona}{\begin{center}❦\end{center}}" + "\n" +
+                r"\providecommand{\fleuronb}{\begin{center}❊\end{center}}" + "\n"
+            )
+            src_with_preamble = preamble + src
+            timeout = current_app.config.get("SUBPROCESS_TIMEOUT", 5.0)
+            ret = subprocess.check_output(
+                [pandoc_bin, "--from", "latex", "--to", "html"],
+                input=bytes(src_with_preamble, "utf-8"),
+                timeout=timeout
+            )
+            return ret.decode("utf-8")
+        except subprocess.TimeoutExpired:
+            fallback = "<mark>LaTeX compiling to HTML timed out. Showing raw TeX code.</mark><br/><br/>"
+            fallback += f'<pre><code class="language-latex">{html.escape(src)}</code></pre>'
+            return fallback
+        except Exception as e:
+            fallback = f"<mark>LaTeX compiling failed: {e}. Showing raw TeX code.</mark><br/><br/>"
+            fallback += f'<pre><code class="language-latex">{html.escape(src)}</code></pre>'
+            return fallback
+    else:
+        # Fallback to syntax highlighting (via Prism/Highlight.js)
+        fallback = '<mark>Pandoc binary not found. Showing raw TeX code.</mark><br/><br/>'
+        fallback += f'<pre><code class="language-latex">{html.escape(src)}</code></pre>'
+        return fallback
 
 
 # Embeds.

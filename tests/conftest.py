@@ -46,11 +46,20 @@ def test_agora():
 
     # 5. Yield the app context and client
     with app.app_context():
-        from app.graph import G
-        for func_name in ['_get_all_nodes_cached', 'node', 'subnodes', 'executable_subnodes']:
-            func = getattr(G, func_name, None)
-            if func and hasattr(func, 'cache_clear'):
-                func.cache_clear()
+        from app.graph import Graph, G, Subnode
+        from app import git_utils
+        for cls in [Graph, G, Subnode, git_utils]:
+            for name in dir(cls):
+                try:
+                    attr = getattr(cls, name, None)
+                    if hasattr(attr, 'cache'):
+                        attr.cache.clear()
+                    if hasattr(attr, 'cache_clear'):
+                        attr.cache_clear()
+                    if hasattr(attr, '__func__') and hasattr(attr.__func__, 'cache'):
+                        attr.__func__.cache.clear()
+                except Exception:
+                    pass
         yield app.test_client()
 
     # 6. Teardown: clean up the temporary directory

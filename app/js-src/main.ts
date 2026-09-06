@@ -149,6 +149,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   
   window.addEventListener('agora-node-loaded', () => {
       // Re-run sortable setup and restore after async content finishes loading
+      initInteractiveEmptyState();
       restoreOrder();
       initSortable();
       initSortableSubnodes();
@@ -2249,8 +2250,11 @@ async function initInteractiveEmptyState() {
     // Check if empty node (auto-open and start)
     const isPageEmpty = !!document.querySelector('.not-found');
     if (isPageEmpty) {
+        details.style.display = "block";
         details.open = true;
         start();
+    } else if (!details.open) {
+        details.style.display = "none";
     }
 }
 
@@ -3267,6 +3271,7 @@ async function bindEvents() {
                           if (newContent) {
                               newContent.classList.add('fade-in');
                               placeholder.replaceWith(newContent);
+                              restoreOrder();
 
                               // Initialize stars for the newly added content
                               initializeExternalStars();

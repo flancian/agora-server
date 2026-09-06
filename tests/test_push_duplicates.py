@@ -32,7 +32,21 @@ def test_push_duplicates(test_agora):
     # If I add files *during* the test, G might not see them if it pre-loaded.
     # I should add files to the fixture or force a reload.
     
-    pass
+def clear_g_caches():
+    from app.graph import Graph, G, Subnode
+    from app import git_utils
+    for cls in [Graph, G, Subnode, git_utils]:
+        for name in dir(cls):
+            try:
+                attr = getattr(cls, name, None)
+                if hasattr(attr, 'cache'):
+                    attr.cache.clear()
+                if hasattr(attr, 'cache_clear'):
+                    attr.cache_clear()
+                if hasattr(attr, '__func__') and hasattr(attr.__func__, 'cache'):
+                    attr.__func__.cache.clear()
+            except Exception:
+                pass
 
 @pytest.fixture
 def test_agora_push_duplicates(request):
@@ -78,9 +92,7 @@ def test_agora_push_duplicates(request):
     })
 
     with app.app_context():
-        # Force reload if G needs it?
-        # In monolithic mode, G.nodes() loads everything.
-        # But we access G.node(uri) or similar.
+        clear_g_caches()
         yield app
 
     shutil.rmtree(temp_dir)
@@ -89,22 +101,14 @@ def test_push_counts(test_agora_push_duplicates):
     # This test function uses the custom fixture
     app = test_agora_push_duplicates
     
-    from app.graph import G
-    # Clear caches to force reload
-    for func_name in ['_get_all_nodes_cached', 'node', 'subnodes', 'executable_subnodes']:
-        func = getattr(G, func_name, None)
-        if func and hasattr(func, 'cache_clear'):
-            func.cache_clear()
-    
-    target_one = G.node("target_one")
-    assert len(target_one.pushed_subnodes()) == 1, "Single push should result in 1 pushed subnode"
+    with app.app_context():
+        clear_g_caches()
+        
+        target_one = G.node("target_one")
+        assert len(target_one.pushed_subnodes()) == 1, "Single push should result in 1 pushed subnode"
 
-    target_two = G.node("target_two")
-    # 2 lines, each pushing. 
-    # Since the content of the lines is IDENTICAL, the serialized HTML block is identical.
-    # Therefore, they are deduplicated.
-    # If the user wants 2 blocks, they should differ in content.
-    assert len(target_two.pushed_subnodes()) == 1, "Two identical lines pushing should result in 1 deduplicated pushed subnode"
+        target_two = G.node("target_two")
+        assert len(target_two.pushed_subnodes()) == 1, "Two identical lines pushing should result in 1 deduplicated pushed subnode"
 
     target_three = G.node("target_three")
     # 1 line, two pushes. Should be 1?

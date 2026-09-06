@@ -108,9 +108,13 @@ export function saveOrder() {
     const order: string[] = [];
     const elements = container.querySelectorAll('.sortable-section');
     elements.forEach(el => {
-        const sectionId = (el as HTMLElement).dataset.section;
-        if (sectionId && !order.includes(sectionId)) {
-            order.push(sectionId);
+        let sectionId = (el as HTMLElement).dataset.section;
+        if (sectionId) {
+            if (sectionId.startsWith('pulled')) sectionId = 'pulled';
+            if (sectionId.startsWith('related')) sectionId = 'related';
+            if (!order.includes(sectionId)) {
+                order.push(sectionId);
+            }
         }
     });
 
@@ -130,7 +134,8 @@ export function saveOrder() {
     }
 }
 
-const DEFAULT_ORDER = ["main", "wiki", "web", "genai", "context", "stoa", "pulled", "related", "search", "games"];
+const SECTION_ORDER_VERSION_KEY = 'agora-section-order-v3';
+const DEFAULT_ORDER = ["web", "wiki", "genai", "main", "context", "stoa", "pulled", "related", "search", "games"];
 
 export function restoreOrder() {
     const container = document.querySelector('.content') as HTMLElement;
@@ -138,11 +143,17 @@ export function restoreOrder() {
 
     try {
         let order: string[] = DEFAULT_ORDER;
-        const orderStr = localStorage.getItem('agora-section-order');
-        if (orderStr) {
-            const parsed = JSON.parse(orderStr);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                order = parsed;
+        const currentVersion = localStorage.getItem('agora-section-order-version');
+        if (currentVersion !== SECTION_ORDER_VERSION_KEY) {
+            localStorage.setItem('agora-section-order-version', SECTION_ORDER_VERSION_KEY);
+            localStorage.setItem('agora-section-order', JSON.stringify(DEFAULT_ORDER));
+        } else {
+            const orderStr = localStorage.getItem('agora-section-order');
+            if (orderStr) {
+                const parsed = JSON.parse(orderStr);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    order = parsed;
+                }
             }
         }
 

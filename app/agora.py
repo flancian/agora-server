@@ -1248,11 +1248,20 @@ def journals(entries):
 @bp.route("/api/clear-in-memory-cache", methods=["POST"])
 def clear_in_memory_cache():
     try:
-        G._get_all_nodes_cached.cache_clear()
-        G.subnodes.cache_clear()
-        G.executable_subnodes.cache_clear()
-        G.edges.cache_clear()
-        G.n_edges.cache_clear()
+        from .graph import Graph, G, Node, Subnode
+        from . import git_utils
+        for target in [Graph, G, Node, Subnode, git_utils]:
+            for name in dir(target):
+                try:
+                    attr = getattr(target, name, None)
+                    if hasattr(attr, 'cache_clear'):
+                        attr.cache_clear()
+                    if hasattr(attr, 'cache'):
+                        attr.cache.clear()
+                    if hasattr(attr, '__func__') and hasattr(attr.__func__, 'cache'):
+                        attr.__func__.cache.clear()
+                except Exception:
+                    pass
         current_app.logger.info("Cleared in-memory caches via API.")
         return jsonify({"status": "success"})
     except Exception as e:

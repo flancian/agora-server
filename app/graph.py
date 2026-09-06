@@ -713,13 +713,14 @@ class Node:
         # the nodes pushing to *this* node.
         # compare with: push_nodes.
         nodes = []
+        canonical = util.canonical_wikilink(self.wikilink)
         for n in self.back_nodes():
             if self.wikilink == n.wikilink:
                 # ignore nodes pushing to themselves.
                 continue
-            if self.wikilink != n.wikilink and self.wikilink in [
-                n.wikilink for n in n.push_nodes()
-            ]:
+            pushed_wikilinks = [x.wikilink for x in n.push_nodes()]
+            pushed_canonicals = [util.canonical_wikilink(x.wikilink) for x in n.push_nodes()]
+            if self.wikilink in pushed_wikilinks or canonical in pushed_canonicals:
                 nodes.append(n)
         return nodes
 
@@ -742,7 +743,10 @@ class Node:
         # ...as of the time of writing :)
         subnodes = []
         pushed_blocks = set()
-        if other.wikilink in [n.wikilink for n in self.push_nodes()]:
+        other_canonical = util.canonical_wikilink(other.wikilink)
+        pushed_wikilinks = [n.wikilink for n in self.push_nodes()]
+        pushed_canonicals = [util.canonical_wikilink(n.wikilink) for n in self.push_nodes()]
+        if other.wikilink in pushed_wikilinks or other_canonical in pushed_canonicals:
             for subnode in self.subnodes:
                 if not subnode.mediatype.startswith("text"):
                     continue
@@ -1749,9 +1753,10 @@ def build_multinode(node0: str, node1: str, extension: str = "", user_list: str 
 
 # Additional support function needed by back_nodes method - will be resolved by the full import later
 def nodes_by_outlink(wikilink: str) -> List['Node']:
+    canonical = util.canonical_wikilink(wikilink)
     nodes = [
         node
         for node in G.nodes(only_canonical=True).values()
-        if wikilink in node.forward_links()
+        if canonical in node.forward_links() or wikilink in node.forward_links()
     ]
     return sorted(nodes, key=attrgetter("wikilink"))
