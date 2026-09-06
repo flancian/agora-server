@@ -130,7 +130,7 @@ export function saveOrder() {
     }
 }
 
-const DEFAULT_ORDER = ["web", "wiki", "genai", "main", "context", "stoa", "pulled", "related", "search", "games"];
+const DEFAULT_ORDER = ["main", "wiki", "web", "genai", "context", "stoa", "pulled", "related", "search", "games"];
 
 export function restoreOrder() {
     const container = document.querySelector('.content') as HTMLElement;
@@ -152,14 +152,16 @@ export function restoreOrder() {
         const untrackedElements: HTMLElement[] = [];
 
         allSortables.forEach(el => {
-            const id = (el as HTMLElement).dataset.section;
+            const htmlEl = el as HTMLElement;
+            if (htmlEl.style.display === 'none') return;
+            const id = htmlEl.dataset.section;
             const matchesOrder = id && order.some(sec => {
                 if (sec === 'pulled') return id.startsWith('pulled-') || id === 'pulled';
                 if (sec === 'related') return id.startsWith('related-') || id === 'related';
                 return sec === id;
             });
             if (!matchesOrder) {
-                untrackedElements.push(el as HTMLElement);
+                untrackedElements.push(htmlEl);
             }
         });
 
@@ -170,6 +172,7 @@ export function restoreOrder() {
             // Insert untracked elements before search or games if reached
             if ((sectionId === 'search' || sectionId === 'games') && !untrackedInserted) {
                 untrackedElements.forEach(el => {
+                    if (el.style.display === 'none') return;
                     if (anchor) {
                         container.insertBefore(el, anchor);
                     } else {
@@ -180,16 +183,18 @@ export function restoreOrder() {
             }
 
             allSortables.forEach(el => {
-                const id = (el as HTMLElement).dataset.section;
+                const htmlEl = el as HTMLElement;
+                if (htmlEl.style.display === 'none') return;
+                const id = htmlEl.dataset.section;
                 let isMatch = id === sectionId;
                 if (sectionId === 'pulled' && id && id.startsWith('pulled-')) isMatch = true;
                 if (sectionId === 'related' && id && id.startsWith('related-')) isMatch = true;
 
                 if (isMatch) {
                     if (anchor) {
-                        container.insertBefore(el, anchor);
+                        container.insertBefore(htmlEl, anchor);
                     } else {
-                        container.appendChild(el);
+                        container.appendChild(htmlEl);
                     }
                 }
             });
