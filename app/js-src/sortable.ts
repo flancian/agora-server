@@ -130,7 +130,7 @@ export function saveOrder() {
     }
 }
 
-const DEFAULT_ORDER = ["main", "context", "genai", "web", "stoa", "search", "games"];
+const DEFAULT_ORDER = ["web", "wiki", "genai", "main", "context", "stoa", "pulled", "related", "search", "games"];
 
 export function restoreOrder() {
     const container = document.querySelector('.content') as HTMLElement;
@@ -153,7 +153,12 @@ export function restoreOrder() {
 
         allSortables.forEach(el => {
             const id = (el as HTMLElement).dataset.section;
-            if (!id || !order.includes(id)) {
+            const matchesOrder = id && order.some(sec => {
+                if (sec === 'pulled') return id.startsWith('pulled-') || id === 'pulled';
+                if (sec === 'related') return id.startsWith('related-') || id === 'related';
+                return sec === id;
+            });
+            if (!matchesOrder) {
                 untrackedElements.push(el as HTMLElement);
             }
         });
@@ -162,8 +167,7 @@ export function restoreOrder() {
         let untrackedInserted = false;
 
         order.forEach(sectionId => {
-            // When reaching 'search' (or 'games' if 'search' isn't in order), 
-            // insert untracked elements (such as pulled locations) right before it.
+            // Insert untracked elements before search or games if reached
             if ((sectionId === 'search' || sectionId === 'games') && !untrackedInserted) {
                 untrackedElements.forEach(el => {
                     if (anchor) {
@@ -176,7 +180,12 @@ export function restoreOrder() {
             }
 
             allSortables.forEach(el => {
-                if ((el as HTMLElement).dataset.section === sectionId) {
+                const id = (el as HTMLElement).dataset.section;
+                let isMatch = id === sectionId;
+                if (sectionId === 'pulled' && id && id.startsWith('pulled-')) isMatch = true;
+                if (sectionId === 'related' && id && id.startsWith('related-')) isMatch = true;
+
+                if (isMatch) {
                     if (anchor) {
                         container.insertBefore(el, anchor);
                     } else {
