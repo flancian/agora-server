@@ -21,5 +21,11 @@ export FLASK_APP=app
 export FLASK_ENV="development"
 export AGORA_CONFIG="${1}DevelopmentConfig"
 # This shouldn't be needed but it is when running as a systemd service for some reason.
-export PATH=$HOME/.local/bin:${PATH}
+# Clean up any stale orphaned Flask process on port 5017
+if lsof -ti:5017 >/dev/null 2>&1; then
+    echo "Cleaning up stale process on port 5017..."
+    kill -9 $(lsof -ti:5017) 2>/dev/null || true
+    sleep 1
+fi
+
 uv run flask --debug run -h 0.0.0.0 -p 5017 2>&1 | tee -a agora.log

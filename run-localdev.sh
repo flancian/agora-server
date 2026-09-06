@@ -16,6 +16,9 @@
 export MISTRAL_API_KEY=$(cat ~/flancia/secret/api/mistral.txt)
 export GEMINI_API_KEY=$(cat ~/flancia/secret/api/gemini.txt)
 while true; do
-    timeout 3600 ./run-dev.sh Local
+    timeout --kill-after=5s 3600 ./run-dev.sh Local
+    if lsof -ti:5017 >/dev/null 2>&1; then
+        kill -9 $(lsof -ti:5017) 2>/dev/null || true
+    fi
     sleep 2
 done
