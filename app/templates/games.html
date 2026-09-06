@@ -15,10 +15,9 @@
 -->
 
 {% if not subnode %}
-<details class="minigame-wrapper node sortable-section" id="interactive-empty-state-details" data-section="games">
+<details class="minigame-wrapper node sortable-section" id="interactive-empty-state-details" data-section="games" {% if node and node.subnodes %}style="display: none;"{% endif %}>
     <summary class="minigame-header">
         <span class="minigame-header-title">
-            <span class="drag-handle" title="Drag to reorder this section">≡</span>
             <strong>🎮 Agora games</strong>
         </span>
         <span class="summary-scroll-content">

@@ -164,7 +164,6 @@
                         <input type="checkbox" id="meditation-checkbox" class="meditation-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
-                    <button id="scroll-toggle" title="▼/▲ Scroll: Tap to instantly leap to the page bottom or top.">▼</button>
                 </div>
             </div>
             <div class="topline-node-wrapper scrolled-to-start scrolled-to-end">
@@ -196,6 +195,9 @@
                     </button>
                     <button id="mini-cli-wander" value="wander" title="Wander to a random connected node." style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
                         🧭 Wander
+                    </button>
+                    <button id="mini-cli-play" value="play" title="Play interactive Agora minigames!">
+                        🎮 Play
                     </button>
                     <button id="mini-cli-join" value="join" title="Join the Agora to contribute digital gardens or write notes!" style="display: none; opacity: 0; transition: opacity 1s ease-in;">
                         👩‍🌾 Join
@@ -235,12 +237,19 @@
 
     <button id="agora-mobile-tooltip-trigger" style="display: none;"></button>
     <button id="agora-console-btn" title="Agora Console: view message history">📟</button>
+    <button id="scroll-toggle" title="▼/▲ Scroll: Tap to instantly leap to the page bottom or top.">▼</button>
 
     <div id="agora-console" style="display: none;">
         <div id="agora-console-header" class="agora-popup-header">
             <span class="agora-popup-title">📟 Agora Console</span>
             <button id="agora-console-close-btn" class="header-btn agora-popup-close-btn">×</button>
         </div>
+        {% if config.ENABLE_FLUSH_CACHE_BUTTON %}
+        <div id="agora-console-toolbar">
+            <button class="btn-flush-mem" title="🧠 Flush memory: Clear server in-memory caches to reload nodes from storage.">🧠 flush memory</button>
+            <button class="btn-flush-sqlite" title="💾 Flush SQLite: Drop and rebuild SQL database caches.">💾 flush sqlite</button>
+        </div>
+        {% endif %}
         <div id="agora-console-body">
             <div class="console-line">📟 Console initialized. Welcome to the Agora!</div>
         </div>

@@ -597,6 +597,27 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  // Delegated click listener to open settings overlay from any link (toasts, console, etc.)
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target && target.closest('.open-settings-trigger, #toast-open-settings, #toast-open-settings-section-order, #toast-change-user')) {
+      e.preventDefault();
+      const overlay = document.getElementById('overlay');
+      const joinOverlay = document.getElementById('join-overlay');
+      if (overlay) {
+        if (joinOverlay && joinOverlay.classList.contains('active')) {
+            joinOverlay.classList.remove('active');
+        }
+        overlay.classList.add('active');
+        document.body.classList.add('overlay-open');
+        const overlayContent = overlay.querySelector('.overlay-content');
+        if (overlayContent) {
+          overlayContent.scrollTop = 0;
+        }
+      }
+    }
+  });
+
   // Iframe navigation watcher.
   // We can't see *where* an iframe navigates due to Same-Origin Policy,
   // but we can detect *that* it has navigated and hide the (now incorrect) initial URL overlay.
@@ -1047,6 +1068,20 @@ document.addEventListener("DOMContentLoaded", async function () {
               }
           } else {
               window.location.href = '/join';
+          }
+      });
+  }
+
+  const miniCliPlay = document.querySelector("#mini-cli-play") as HTMLButtonElement | null;
+  if (miniCliPlay) {
+      miniCliPlay.addEventListener("click", () => {
+          const gamesDetails = document.getElementById("interactive-empty-state-details") as HTMLDetailsElement | null;
+          if (gamesDetails) {
+              gamesDetails.style.display = "block";
+              gamesDetails.open = true;
+              gamesDetails.scrollIntoView({ behavior: "smooth" });
+          } else {
+              showToast("🎮 Scroll down or visit /games to play Agora minigames!");
           }
       });
   }

@@ -116,55 +116,55 @@ export function saveOrder() {
 
     localStorage.setItem('agora-section-order', JSON.stringify(order));
     console.log("Saved section order:", order);
+
+    const hasNotified = localStorage.getItem('agora-has-reordered-sections');
+    if (!hasNotified) {
+        localStorage.setItem('agora-has-reordered-sections', 'true');
+        const showToast = (window as any).showToast;
+        if (typeof showToast === 'function') {
+            showToast(
+                `📦 Section order saved! You can reset section order anytime by clearing local storage in <a href="#" class="open-settings-trigger" style="text-decoration: underline; color: inherit;">settings</a>.`,
+                7000
+            );
+        }
+    }
 }
+
+const DEFAULT_ORDER = ["main", "context", "genai", "web", "stoa", "search", "games"];
 
 export function restoreOrder() {
     const container = document.querySelector('.content') as HTMLElement;
     if (!container) return;
 
     try {
+        let order: string[] = DEFAULT_ORDER;
         const orderStr = localStorage.getItem('agora-section-order');
         if (orderStr) {
-            const order: string[] = JSON.parse(orderStr);
-            if (Array.isArray(order) && order.length > 0) {
-                console.log("Restoring section order:", order);
+            const parsed = JSON.parse(orderStr);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                order = parsed;
+            }
+        }
 
-                // Any elements that weren't in the saved order array will remain at the top 
-                // (because appendChild moves elements to the bottom). 
-                // If we want unsaved elements to remain at the bottom, we should append them too.
-                // Actually, elements not in `order` stay where they were unless they were moved.
-                // The ones we append get moved to the end. That means elements NOT in the order
-                // list will end up BEFORE the ordered elements.
-                // Let's fix that by collecting the new/untracked elements and appending them at the end.
-                
-                const allSortables = Array.from(container.querySelectorAll('.sortable-section'));
-                const orderedElements: HTMLElement[] = [];
-                const untrackedElements: HTMLElement[] = [];
+        console.log("Restoring section order:", order);
 
-                allSortables.forEach(el => {
-                    const id = (el as HTMLElement).dataset.section;
-                    if (id && order.includes(id)) {
-                        // Will be appended via order iteration
-                    } else {
-                        untrackedElements.push(el as HTMLElement);
-                    }
-                });
+        const allSortables = Array.from(container.querySelectorAll('.sortable-section'));
+        const untrackedElements: HTMLElement[] = [];
 
-                const anchor = document.querySelector('.edit-section-container') || null;
+        allSortables.forEach(el => {
+            const id = (el as HTMLElement).dataset.section;
+            if (!id || !order.includes(id)) {
+                untrackedElements.push(el as HTMLElement);
+            }
+        });
 
-                order.forEach(sectionId => {
-                    allSortables.forEach(el => {
-                        if ((el as HTMLElement).dataset.section === sectionId) {
-                            if (anchor) {
-                                container.insertBefore(el, anchor);
-                            } else {
-                                container.appendChild(el);
-                            }
-                        }
-                    });
-                });
+        const anchor = document.querySelector('.edit-section-container') || null;
+        let untrackedInserted = false;
 
-                // Finally, put any newly discovered sections at the very bottom of the sortables
+        order.forEach(sectionId => {
+            // When reaching 'search' (or 'games' if 'search' isn't in order), 
+            // insert untracked elements (such as pulled locations) right before it.
+            if ((sectionId === 'search' || sectionId === 'games') && !untrackedInserted) {
                 untrackedElements.forEach(el => {
                     if (anchor) {
                         container.insertBefore(el, anchor);
@@ -172,7 +172,29 @@ export function restoreOrder() {
                         container.appendChild(el);
                     }
                 });
+                untrackedInserted = true;
             }
+
+            allSortables.forEach(el => {
+                if ((el as HTMLElement).dataset.section === sectionId) {
+                    if (anchor) {
+                        container.insertBefore(el, anchor);
+                    } else {
+                        container.appendChild(el);
+                    }
+                }
+            });
+        });
+
+        // Finally, if search/games were not present in order, append any remaining untracked sections
+        if (!untrackedInserted) {
+            untrackedElements.forEach(el => {
+                if (anchor) {
+                    container.insertBefore(el, anchor);
+                } else {
+                    container.appendChild(el);
+                }
+            });
         }
     } catch (e) {
         console.error("Failed to restore section order", e);
