@@ -55,11 +55,11 @@
     {% endif %}
 
 {% if subnode %}
-<div id="async-content" src="{{subnode}}">
+<div id="async-content" class="sortable-section" data-section="main" src="{{subnode}}">
 {% elif rendering_user %}
-<div id="async-content" src="{{node.uri}}?user={{rendering_user}}">
+<div id="async-content" class="sortable-section" data-section="main" src="{{node.uri}}?user={{rendering_user}}">
 {% else %}
-<div id="async-content" src="{{node}}">
+<div id="async-content" class="sortable-section" data-section="main" src="{{node}}">
 {% endif %}
     <center>
         <p>

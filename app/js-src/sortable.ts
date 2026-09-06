@@ -167,6 +167,7 @@ export function restoreOrder() {
             if (htmlEl.style.display === 'none') return;
             const id = htmlEl.dataset.section;
             const matchesOrder = id && order.some(sec => {
+                if (sec === 'main') return id === 'main' || htmlEl.id === 'async-content';
                 if (sec === 'pulled') return id.startsWith('pulled-') || id === 'pulled';
                 if (sec === 'related') return id.startsWith('related-') || id === 'related';
                 return sec === id;
@@ -198,6 +199,7 @@ export function restoreOrder() {
                 if (htmlEl.style.display === 'none') return;
                 const id = htmlEl.dataset.section;
                 let isMatch = id === sectionId;
+                if (sectionId === 'main' && (id === 'main' || htmlEl.id === 'async-content')) isMatch = true;
                 if (sectionId === 'pulled' && id && id.startsWith('pulled-')) isMatch = true;
                 if (sectionId === 'related' && id && id.startsWith('related-')) isMatch = true;
 
