@@ -17,6 +17,7 @@ export const CLIENT_DEFAULTS = {
   autoScrollDemo: true,
   showEditSection: false,
   enableShortcuts: true,
+  enableNagora: true,
 };
 
 export function safeJsonParse(value: string, defaultValue: any) {

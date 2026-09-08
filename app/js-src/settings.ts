@@ -40,6 +40,10 @@ export function initSettings() {
     if (enableShortcutsInput) {
         enableShortcutsInput.checked = safeJsonParse(localStorage["enable-shortcuts"], CLIENT_DEFAULTS.enableShortcuts);
     }
+    const enableNagoraInput = document.getElementById("enable-nagora") as HTMLInputElement;
+    if (enableNagoraInput) {
+        enableNagoraInput.checked = safeJsonParse(localStorage["enable-nagora"], CLIENT_DEFAULTS.enableNagora);
+    }
 
     // Function to apply the bracket visibility style
     const applyBracketVisibility = () => {
@@ -132,6 +136,10 @@ export function initSettings() {
         const enableShortcutsEl = document.getElementById("enable-shortcuts") as HTMLInputElement;
         if (enableShortcutsEl) {
             localStorage["enable-shortcuts"] = enableShortcutsEl.checked;
+        }
+        const enableNagoraEl = document.getElementById("enable-nagora") as HTMLInputElement;
+        if (enableNagoraEl) {
+            localStorage["enable-nagora"] = enableNagoraEl.checked;
         }
         localStorage["auto-scroll-demo"] = (document.getElementById("auto-scroll-demo") as HTMLInputElement).checked;
         localStorage.setItem("toast-duration-seconds", (document.getElementById("toast-duration-seconds") as HTMLInputElement).value);

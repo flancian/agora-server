@@ -16,6 +16,13 @@
 // "For the benefit of all beings" 🌿
 
 import { CLIENT_DEFAULTS, safeJsonParse } from './util';
+import {
+  getActiveColumn,
+  setActiveColumn,
+  hasVisiblePane,
+  scrollActivePane,
+  promoteActivePane,
+} from './nagora';
 
 declare const NODENAME: string | undefined;
 
@@ -284,6 +291,17 @@ function highlightTarget(el: HTMLElement): void {
   }, 1200);
 }
 
+function clearHighlight(): void {
+  if (currentHighlightedEl) {
+    currentHighlightedEl.classList.remove('agora-kb-active');
+    currentHighlightedEl = null;
+  }
+  if (currentHighlightTimeout) {
+    window.clearTimeout(currentHighlightTimeout);
+    currentHighlightTimeout = null;
+  }
+}
+
 /**
  * Locates the currently active or in-view element.
  */
@@ -404,6 +422,11 @@ export function handleEscape(): void {
   // 5. Close any other open overlays
   document.querySelectorAll('.overlay.active').forEach(el => el.classList.remove('active'));
   document.body.classList.remove('overlay-open');
+
+  // 6. Reset spatial column focus to center if a side pane was focused
+  if (getActiveColumn() !== 'center') {
+    setActiveColumn('center');
+  }
 }
 
 function getOrCreateShortcutsModal(): HTMLElement {
@@ -429,15 +452,19 @@ function getOrCreateShortcutsModal(): HTMLElement {
           <tbody>
             <tr>
               <td class="key-col"><kbd>j</kbd></td>
-              <td class="desc-col">Scroll to next contribution or section</td>
+              <td class="desc-col">Scroll down within active column or section</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>k</kbd></td>
-              <td class="desc-col">Scroll to previous contribution or section</td>
+              <td class="desc-col">Scroll up within active column or section</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>h</kbd> / <kbd>l</kbd></td>
+              <td class="desc-col">Switch spatial column focus (Left / Center / Right)</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>Enter</kbd> / <kbd>o</kbd></td>
-              <td class="desc-col">Expand or collapse highlighted section / subnode</td>
+              <td class="desc-col">Expand/collapse section, or promote focused column to main view</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>w</kbd></td>
@@ -508,6 +535,7 @@ export function toggleShortcutsModal(): void {
  */
 export function initKeyNavigation(): void {
   if (isInitialized) return;
+  if (window.self !== window.top) return;
   isInitialized = true;
 
   window.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -553,19 +581,58 @@ export function initKeyNavigation(): void {
     }
 
     switch (e.key) {
+      case 'h': {
+        const col = getActiveColumn();
+        if (col === 'right') {
+          e.preventDefault();
+          setActiveColumn('center');
+        } else if (col === 'center' && hasVisiblePane('left')) {
+          e.preventDefault();
+          clearHighlight();
+          setActiveColumn('left');
+        }
+        break;
+      }
+
+      case 'l': {
+        const col = getActiveColumn();
+        if (col === 'left') {
+          e.preventDefault();
+          setActiveColumn('center');
+        } else if (col === 'center' && hasVisiblePane('right')) {
+          e.preventDefault();
+          clearHighlight();
+          setActiveColumn('right');
+        }
+        break;
+      }
+
       case 'j':
         e.preventDefault();
-        scrollToNext();
+        if (getActiveColumn() !== 'center') {
+          scrollActivePane('down');
+        } else {
+          scrollToNext();
+        }
         break;
 
       case 'k':
         e.preventDefault();
-        scrollToPrevious();
+        if (getActiveColumn() !== 'center') {
+          scrollActivePane('up');
+        } else {
+          scrollToPrevious();
+        }
         break;
 
       case 'Enter': {
         const active = document.activeElement;
         if (active && (active.tagName === 'A' || active.tagName === 'BUTTON')) {
+          return;
+        }
+        if (getActiveColumn() !== 'center') {
+          e.preventDefault();
+          promoteActivePane();
           return;
         }
         e.preventDefault();

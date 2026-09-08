@@ -34,6 +34,7 @@ import { initMusicPlayer } from './music';
 import { renderGraph } from './graph';
 import { initPullButtons } from './pull';
 import { initKeyNavigation } from './keys';
+import { initNagora, syncTheme } from './nagora';
 
 declare const NODENAME: string | undefined;
 declare const NODEQ: string | undefined;
@@ -180,6 +181,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   rewriteEditLinks();
   initMusicPlayer();
   initKeyNavigation();
+  initNagora();
 
   // This function reads localStorage and hides any info-boxes that have been previously dismissed.
   // It's safe to call multiple times.
@@ -508,6 +510,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             renderGraph('full-graph', `/graph/json/top/${size}`);
         }
     }
+
+    syncTheme(theme);
   };
 
   // Set the theme on initial load
@@ -2515,6 +2519,7 @@ async function bindEvents() {
           document.querySelector(id).innerHTML = data;
 
           console.log('auto pulled context');
+          window.dispatchEvent(new CustomEvent('agora-context-loaded', { detail: { node } }));
 
           // Finally!
 
