@@ -83,13 +83,16 @@
       "externalContainerSelector": "#hypothesis-client-container"
     }
 	</script>
-    {% if config.ENABLE_HYPOTHESIS %}
+	{% if embed %}
+	<base target="_top" />
+	{% endif %}
+    {% if config.ENABLE_HYPOTHESIS and not embed %}
 	<script async src="https://hypothes.is/embed.js"></script>
     {% endif %}
 
 </head>
 
-<body>
+<body class="{% if embed %}is-embed{% endif %}">
 
     {% include "overlay.html" %}
     {% include "join_overlay.html" %}
@@ -207,12 +210,20 @@
         </div>
     </nav>
 
-    <div class="content">
-    {% block content %}
-    {% endblock %}
+    <div id="nagora-root">
+        {% if not embed %}
+        <aside id="nagora-left-pane" class="nagora-pane" style="display: none;"></aside>
+        {% endif %}
+        <div class="content">
+        {% block content %}
+        {% endblock %}
+        </div> <!-- end content -->
+        {% if not embed %}
+        <aside id="nagora-right-pane" class="nagora-pane" style="display: none;"></aside>
+        {% endif %}
+    </div> <!-- end nagora-root -->
 
-    </div> <!-- end content -->
-
+    {% if not embed %}
     {% if config.ENABLE_HYPOTHESIS %}
     <div id='hypothesis-frame'>
         <div id="hypothesis-controls" class="agora-popup-header">
@@ -288,6 +299,7 @@
     </div>
 
     <div id="toast-container"></div>
+    {% endif %}
 </body>
 
 </html>

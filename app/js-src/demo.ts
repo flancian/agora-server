@@ -5,6 +5,7 @@ import { makeDraggable } from './draggable';
 import { CLIENT_DEFAULTS, safeJsonParse } from './util';
 
 export function initDemoMode() {
+    if (window.self !== window.top) return;
     const demoCheckboxes = document.querySelectorAll(".demo-checkbox-input") as NodeListOf<HTMLInputElement>;
     const meditationPopupContainer = document.getElementById("meditation-popup-container");
     const meditationPopupContent = document.getElementById("meditation-popup-body");

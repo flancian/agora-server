@@ -3,6 +3,7 @@
 import { makeDraggable } from './draggable';
 
 export function initMusicPlayer() {
+    if (window.self !== window.top) return;
     const musicPlayerContainer = document.getElementById('music-player-container');
     const musicCheckboxes = document.querySelectorAll(".music-checkbox-input") as NodeListOf<HTMLInputElement>;
     const musicCloseButton = document.getElementById('music-player-close-btn');
