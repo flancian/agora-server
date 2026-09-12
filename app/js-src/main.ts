@@ -745,7 +745,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   };
 
   // Add scroll event listeners
-  document.querySelectorAll('.navigation-content, .topline-node-wrapper, .action-bar, #footer').forEach(element => {
+  document.querySelectorAll('.navigation-content, .topline-node-wrapper, .action-bar, #footer, #nagora-root-wrapper').forEach(element => {
     element.addEventListener('scroll', handleScrollHints);
   });
 
@@ -769,15 +769,25 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // Make the chevron indicators clickable
-  document.querySelectorAll('.navigation, .topline-node-wrapper, .footer-wrapper, .action-bar-wrapper').forEach(wrapper => {
+  document.querySelectorAll('.navigation, .topline-node-wrapper, .footer-wrapper, .action-bar-wrapper, #nagora-root-wrapper').forEach(wrapper => {
       wrapper.addEventListener('click', (e) => {
           const rect = wrapper.getBoundingClientRect();
           
-          const scrollableEl = wrapper.classList.contains('navigation') ? wrapper.querySelector('.navigation-content') : 
+          const scrollableEl = wrapper.id === 'nagora-root-wrapper' ? wrapper :
+                               wrapper.classList.contains('navigation') ? wrapper.querySelector('.navigation-content') : 
                                wrapper.classList.contains('footer-wrapper') ? wrapper.querySelector('#footer') :
                                wrapper.classList.contains('action-bar-wrapper') ? wrapper.querySelector('.action-bar') : wrapper;
                                
           if (!scrollableEl) return;
+
+          if (wrapper.id === 'nagora-root-wrapper') {
+              if (e.clientX >= rect.right - 35) {
+                  scrollableEl.scrollBy({ left: 400, behavior: 'smooth' });
+              } else if (e.clientX <= rect.left + 35) {
+                  scrollableEl.scrollBy({ left: -400, behavior: 'smooth' });
+              }
+              return;
+          }
 
           // If click is within the rightmost 30px (right chevron), scroll to the very end
           if (e.clientX >= rect.right - 30) {

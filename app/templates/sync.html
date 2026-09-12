@@ -29,6 +29,38 @@
     </div>
 
     {% if not subnode and not rendering_user %}
+    {% if embed %}
+    <details class="embed-ancillary-zippy node sortable-section" data-section="ancillary">
+        <summary class="node-header">
+            <span>🌐 <em>Context (Web, Wikipedia, AI) — click to expand</em></span>
+        </summary>
+        <div class="embed-ancillary-content">
+            {% include "web.html" %}
+
+            <details class="node fade-in sortable-section" id="agora-wiki-loading" data-section="wiki">
+                <summary>
+                    <span class="node-header">
+                        <em>Loading Wikimedia Commons...</em>
+                    </span>
+                </summary>
+                <div class="subnode">
+                    <center>
+                        <p>
+                        <div class="spinner-container">
+                        <div class="spinner">
+                            <img src="/static/img/agora.png" class="logo"></img>
+                        </div>
+                        </div>
+                        </p>
+                        <p><em>Loading Wikimedia content...</em></p>
+                    </center>
+                </div>
+            </details>
+
+            {% include "genai.html" %}
+        </div>
+    </details>
+    {% else %}
     {% include "web.html" %}
 
     <details class="node fade-in sortable-section" id="agora-wiki-loading" data-section="wiki">
@@ -52,6 +84,7 @@
     </details>
 
     {% include "genai.html" %}
+    {% endif %}
     {% endif %}
 
 {% if subnode %}
