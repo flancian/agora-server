@@ -700,7 +700,8 @@ def wander(node):
     return redirect(url_for("agora.random"))
 
 
-@bp.route("/meet/<node>")
+@bp.route("/meet/", defaults={"node": "agora"})
+@bp.route("/meet/<path:node>")
 def meet(node):
     """Redirects to a video stoa for the given node."""
     n = api.build_node(node)
