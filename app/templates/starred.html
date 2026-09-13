@@ -27,7 +27,7 @@
         <!-- Left Column: Agora Content -->
         <div class="column">
             <div class="starred-nodes starred-section-card">
-                <h2>Starred Locations</h2>
+                <h2>Starred Nodes</h2>
                 {% if starred_nodes %}
                     <ul>
                         {% for node_uri in starred_nodes|sort %}
@@ -35,7 +35,7 @@
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p>No starred locations yet.</p>
+                    <p>No starred nodes yet.</p>
                 {% endif %}
             </div>
 

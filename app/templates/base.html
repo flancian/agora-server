@@ -121,7 +121,7 @@
                                                                                                                                                                                             {% endif %}
                                                                                                                                                                                             </div>
                                                                                                                                                                                             </div>
-                                                                                                                                                                                            <span style="margin-left: 0.1em; margin-right: 0.1em;">›</span> <a href="/nodes" class="navlink" style="text-decoration: none;" title="📚 View a list of all active concepts and locations in this Agora."><span class="navbar-item"><span>📚</span><span>top</span></span></a>                {{config['MENU_SEPARATOR']}} <a href="/random" style="text-decoration: none;" title="🎲 Wander to a random conceptual location."><span class="navbar-item"><span>🎲️</span><span>random</span></span></a>                {{config['MENU_SEPARATOR']}} <a href="/starred" style="text-decoration: none;" title="✨ View starred locations and contributions."><span class="navbar-item"><span>✨</span><span>starred</span></span></a>
+                                                                                                                                                                                            <span style="margin-left: 0.1em; margin-right: 0.1em;">›</span> <a href="/nodes" class="navlink" style="text-decoration: none;" title="📚 View top nodes: a list of active concepts in this Agora."><span class="navbar-item"><span>📚</span><span>top</span></span></a>                {{config['MENU_SEPARATOR']}} <a href="/random" style="text-decoration: none;" title="🎲 Wander to a random node. [w]"><span class="navbar-item"><span>🎲️</span><span>random</span></span></a>                {{config['MENU_SEPARATOR']}} <a href="/starred" style="text-decoration: none;" title="✨ View starred nodes and contributions."><span class="navbar-item"><span>✨</span><span>starred</span></span></a>
                 {{config['MENU_SEPARATOR']}} <a href="/latest" style="text-decoration: none;" title="🌱 Check out the most recently updated community contributions."><span class="navbar-item"><span>🌱</span><span>latest</span></span></a>
                 {{config['MENU_SEPARATOR']}} <a href="/users" style="text-decoration: none;" title="👩‍🌾 View profiles of active contributors and commoners."><span class="navbar-item"><span>👩‍🌾</span><span>users</span></span></a>
                 {{config['MENU_SEPARATOR']}} <a href="/journals/365" style="text-decoration: none;" title="📜 Browse chronological and diary-style entries."><span class="navbar-item"><span>📜</span><span>journals</span></span></a>
@@ -136,38 +136,38 @@
                 <div class="search-container">
                     <div class="topline-cli">
                         <form action="/" method="get">
-                            <input id="mini-cli" type="text" value="{{node.qstr}}" name="q" title="🔍 Mini-CLI: Enter a topic, concept, search query, or URL to browse/search.">
+                            <input id="mini-cli" type="text" value="{{node.qstr}}" name="q" title="🔍 Mini-CLI [/]: Enter a topic, concept, search query, or URL to browse/search.">
                         </form>
                     </div>
                 </div>
                 <div class="toggle-container">
-                    <label class="theme-switch" for="theme-checkbox" title="🌙/🌞 Switch the theme: checked for Light, unchecked for Dark.">
+                    <label class="theme-switch" for="theme-checkbox" title="🌙/🌞 Toggle theme [t]: light or dark mode.">
                         <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
                     {% if config.ENABLE_DEMO %}
-                    <label class="demo-switch" for="demo-checkbox" title="🧘/🏃‍♀️ Demo Mode: check to start contemplative auto-browsing and scrolling.">
+                    <label class="demo-switch" for="demo-checkbox" title="🧘/🏃‍♀️ Demo Mode: contemplative auto-browsing and scrolling.">
                         <input type="checkbox" id="demo-checkbox" class="demo-checkbox-input" />
                         <div class="slider round">
                             <span id="demo-timer"></span>
                         </div>
                     </label>
                     {% endif %}
-                    <label class="music-switch" for="music-checkbox" title="🔇/🎵 Ambient Music: check to auto-play background lo-fi or MIDI tracks.">
+                    <label class="music-switch" for="music-checkbox" title="🔇/🎵 Ambient Music: auto-play background lo-fi or MIDI tracks.">
                         <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
                     {% if config.ENABLE_HYPOTHESIS %}
-                    <label class="settings-switch" id="show-hypothesis-navbar-label" for="show-hypothesis-navbar" title="🖋️ Annotations: check to toggle the public Hypothes.is web annotations sidebar.">
+                    <label class="settings-switch" id="show-hypothesis-navbar-label" for="show-hypothesis-navbar" title="🖋️ Annotations: toggle the public Hypothes.is web annotations sidebar.">
                         <input type="checkbox" id="show-hypothesis-navbar" class="annotate-toggle-input" />
                         <div class="slider round"></div>
                     </label>
                     {% endif %}
-                    <label class="settings-switch" for="meditation-checkbox" title="🙏 Meditate: check to open a moment of calm and contemplation for this location.">
+                    <label class="settings-switch" for="meditation-checkbox" title="🙏 Meditate: open a moment of calm and contemplation for this node.">
                         <input type="checkbox" id="meditation-checkbox" class="meditation-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
-                    <label class="experimental-switch" for="experimental-checkbox" title="🔭/✨ Experimental Mode: toggle cutting-edge experiments (N-Agora spatial tiling workbench, dynamic columns).">
+                    <label class="experimental-switch" for="experimental-checkbox" title="🔭/✨ Experimental Mode: toggle cutting-edge Agora experiments (N-Agora spatial tiling workbench, dynamic columns).">
                         <input type="checkbox" id="experimental-checkbox" class="experimental-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
@@ -176,31 +176,31 @@
             <div class="topline-node-wrapper scrolled-to-start scrolled-to-end">
                 <div class="action-bar-wrapper scrolled-to-start scrolled-to-end">
                     <div class="action-bar scrolled-to-start scrolled-to-end">
-                        <button id="mini-cli-exec" value="exec" title="Search the Agora and the web for the text in the input box.">
+                        <button id="mini-cli-exec" value="exec" title="Search the Agora and the web for the text in the input box. [/]">
                             🔍 Search
                         </button>
-                        <button id="mini-cli-pull" value="pull" title="Pull (transclude) another node into this location." style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
+                        <button id="mini-cli-pull" value="pull" title="Pull (transclude) another node into this node." style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
                             📥 Pull
                         </button>
-                    <button id="mini-cli-go" value="go" title="Follow a [[go]] link in the Agora, or fall back to the node page.">
+                    <button id="mini-cli-go" value="go" title="Follow a [[go]] link in the Agora, or jump directly to the target node.">
                         ➳ Go
                     </button>
                     <button id="mini-cli-go-beyond" value="go" title="Search the web for this query.">
                         ⏩ Go Beyond
                     </button>
-                    <button id="expand-all" value="expand" title="Expand all sections.">
+                    <button id="expand-all" value="expand" title="Expand all sections. [e]">
     					⊞ expand all
                     </button>
-                    <button id="mini-cli-write" value="write" title="Write a subnode for this location.">
+                    <button id="mini-cli-write" value="write" title="Write a subnode for this node.">
                         ✍️ Write
                     </button>
-                    <button id="mini-cli-synthesize" value="synthesize" title="Trigger an AI synthesis for this location." style="display: none; opacity: 0; transition: opacity 1s ease-in;">
+                    <button id="mini-cli-synthesize" value="synthesize" title="Trigger an AI synthesis for this node." style="display: none; opacity: 0; transition: opacity 1s ease-in;">
                         ✨ Synthesize
                     </button>
-                    <button id="mini-cli-look-around" value="look" title="Look at the local graph." style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
+                    <button id="mini-cli-look-around" value="look" title="Look at the local graph. [g]" style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
                         👀 Look Around
                     </button>
-                    <button id="mini-cli-wander" value="wander" title="Wander to a random connected node." style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
+                    <button id="mini-cli-wander" value="wander" title="Wander to a random connected node. [w]" style="display: none; opacity: 0; transition: opacity 0.5s ease-in;">
                         🧭 Wander
                     </button>
                     <button id="mini-cli-play" value="play" title="Play interactive Agora minigames!">

@@ -1,6 +1,6 @@
 <!-- <div class="context"> now meant to be loaded async through /context/x -->
 
-<summary class="node-header main-header" title="Dynamically assembled context from this and other locations.">
+<summary class="node-header main-header" title="Dynamically assembled context from this and other nodes.">
     <span style="flex: auto; flex-grow: 1;">
         🌌 <strong>Agora context</strong> for
         <span class="wikilink-marker">[[</span><a href="/context/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
@@ -16,7 +16,7 @@
 
     <!-- Left/Bottom: Backlinks -->
     <div class="context-column left-column backlinks">
-        <span class="backlinks-header" title="← Backlinks: other locations in the Agora that link back to this topic.">← Backlinks</span>
+        <span class="backlinks-header" title="← Backlinks: other nodes in the Agora that link back to this topic.">← Backlinks</span>
         <div class="link-list">
         {% if node.back_nodes() %}
             {% for n in node.back_nodes() %}
@@ -30,7 +30,7 @@
 
     <!-- Right/Bottom: Outlinks -->
     <div class="context-column right-column outlinks">
-        <span class="forwardlinks-header" title="Outlinks →: other concepts and topics mentioned inside this location's contributions.">Outlinks →</span>
+        <span class="forwardlinks-header" title="Outlinks →: other concepts and topics mentioned inside this node's contributions.">Outlinks →</span>
         <div class="link-list">
         {% if node.forward_nodes() %}
             {% for n in node.forward_nodes() %}
