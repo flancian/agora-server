@@ -2,9 +2,112 @@
 
 {% block content %}
 <div class="node vote-node">
+
+    {% if is_dashboard %}
+    <!-- Agora Deliberation & Voting Dashboard -->
     <div class="node-header main-header">
-        <h1>🗳️ Deliberation & Voting on <span class="wikilink-marker">[[</span><a href="/{{ node.qstr }}">{{ node.qstr }}</a><span class="wikilink-marker">]]</span></h1>
+        <h1>🗳️ Agora Deliberation &amp; Voting Dashboard</h1>
         <p class="lead"><em>An Agora informed heterarchy view: aggregating stances and liquid democracy delegations across the commons.</em></p>
+    </div>
+
+    <!-- Quick Jump to Topic Ballot -->
+    <div class="subnode" style="padding: 14px 18px; margin: 15px 0 25px 0; border: 1px solid var(--border-color, #ccc); border-radius: 8px; background: rgba(0,0,0,0.02);">
+        <form onsubmit="event.preventDefault(); const t = document.getElementById('vote-topic-input').value.trim(); if(t) window.location.href = '/vote/' + encodeURIComponent(t);" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <label for="vote-topic-input" style="font-weight: bold;">🔎 Deliberate on topic:</label>
+            <input type="text" id="vote-topic-input" placeholder="e.g. moloch, peace, protopia..." style="flex: 1; min-width: 180px; padding: 6px 12px; border: 1px solid var(--border-color, #ccc); border-radius: 4px;" />
+            <button type="submit" class="button" style="padding: 6px 14px; cursor: pointer;">Go to Ballot &rarr;</button>
+        </form>
+    </div>
+
+    <!-- Dashboard Summary Cards -->
+    <div class="vote-tally" style="display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0;">
+        <div class="tally-card" style="flex: 1; min-width: 140px; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color, #ccc); background: rgba(52, 152, 219, 0.08);">
+            <div style="font-size: 2rem; font-weight: bold; color: #2980b9;">{{ total_topics }}</div>
+            <div style="font-weight: bold;">📚 Active Ballots</div>
+        </div>
+        <div class="tally-card" style="flex: 1; min-width: 140px; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color, #ccc); background: rgba(46, 204, 113, 0.08);">
+            <div style="font-size: 2rem; font-weight: bold; color: #27ae60;">{{ total_stances }}</div>
+            <div style="font-weight: bold;">✍️ Stances Recorded</div>
+        </div>
+        <div class="tally-card" style="flex: 1; min-width: 140px; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color, #ccc); background: rgba(155, 89, 182, 0.08);">
+            <div style="font-size: 2rem; font-weight: bold; color: #8e44ad;">{{ total_delegations }}</div>
+            <div style="font-weight: bold;">🌊 Delegations</div>
+        </div>
+    </div>
+
+    <!-- Active Topics Table -->
+    <div class="subnode vote-section" style="margin-bottom: 24px;">
+        <h2>📊 Active Ballots Across the Agora</h2>
+        {% if topics %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border-color, #ccc); text-align: left;">
+                        <th style="padding: 8px;">Topic</th>
+                        <th style="padding: 8px; color: #27ae60;">🟢 For</th>
+                        <th style="padding: 8px; color: #c0392b;">🔴 Against</th>
+                        <th style="padding: 8px; color: #f39c12;">🟡 Abstain</th>
+                        <th style="padding: 8px;">Total</th>
+                        <th style="padding: 8px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in topics %}
+                    <tr style="border-bottom: 1px solid var(--border-color, #eee);">
+                        <td style="padding: 8px;"><strong><a href="/vote/{{ t.slug }}">[[{{ t.name }}]]</a></strong></td>
+                        <td style="padding: 8px; color: #27ae60; font-weight: bold;">{{ t.for }}</td>
+                        <td style="padding: 8px; color: #c0392b; font-weight: bold;">{{ t.against }}</td>
+                        <td style="padding: 8px; color: #f39c12; font-weight: bold;">{{ t.abstain }}</td>
+                        <td style="padding: 8px; font-weight: bold;">{{ t.total }}</td>
+                        <td style="padding: 8px;"><a href="/vote/{{ t.slug }}">Deliberate &rarr;</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No active ballots found across the Agora yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Recent Stances Activity Feed -->
+    {% if recent_votes %}
+    <div class="subnode vote-section" style="margin-bottom: 24px;">
+        <h2>🕒 Recent Deliberation Stances</h2>
+        <ul style="list-style: none; padding-left: 0;">
+            {% for v in recent_votes %}
+            <li style="margin-bottom: 12px; padding: 10px; border-left: 4px solid {% if v.stance == 'for' %}#27ae60{% elif v.stance == 'against' %}#c0392b{% else %}#f39c12{% endif %}; background: rgba(0,0,0,0.02);">
+                <strong><a href="/@{{ v.user }}">@{{ v.user }}</a></strong> on <strong><a href="/vote/{{ v.target }}">[[{{ v.target }}]]</a></strong>
+                ({% if v.stance == 'for' %}🟢 For{% elif v.stance == 'against' %}🔴 Against{% else %}🟡 Abstain{% endif %})
+                in <a href="{{ v.url }}"><code>{{ v.uri }}</code></a>:
+                <div style="margin-top: 4px;"><em>"{{ v.line }}"</em></div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Delegations Feed -->
+    {% if delegations %}
+    <div class="subnode vote-section" style="margin-bottom: 24px;">
+        <h2>🌊 Liquid Democracy Delegations</h2>
+        <ul style="list-style: none; padding-left: 0;">
+            {% for d in delegations %}
+            <li style="margin-bottom: 12px; padding: 10px; border-left: 4px solid #8e44ad; background: rgba(0,0,0,0.02);">
+                <strong><a href="/@{{ d.user }}">@{{ d.user }}</a></strong> delegates to <strong><a href="/{{ d.delegate }}">{{ d.delegate }}</a></strong> in <a href="{{ d.url }}"><code>{{ d.uri }}</code></a>:
+                <div style="margin-top: 4px;"><em>"{{ d.line }}"</em></div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Topic Deliberation View -->
+    <div class="node-header main-header">
+        <h1>🗳️ Deliberation &amp; Voting on <span class="wikilink-marker">[[</span><a href="/{{ node.qstr }}">{{ node.qstr }}</a><span class="wikilink-marker">]]</span></h1>
+        <p class="lead"><em>An Agora informed heterarchy view: aggregating stances and liquid democracy delegations across the commons.</em></p>
+        <p><a href="/vote">&larr; Back to Agora Vote Dashboard</a></p>
     </div>
 
     <!-- Tally Summary Cards -->
@@ -101,7 +204,21 @@
             <li><strong>Liquid delegation:</strong> <code>#delegate [[person]]</code></li>
         </ul>
         <p>Your stance will federate into this tally on the next Agora sync.</p>
-        <p><a href="/{{ node.qstr }}">← Return to [[{{ node.qstr }}]]</a></p>
+        <p><a href="/{{ node.qstr }}">&larr; Return to [[{{ node.qstr }}]]</a></p>
     </div>
+    {% endif %}
+
+    <!-- Transcluded content for [[{{node.wikilink}}]] -->
+    <details class="node pulled" style="margin-top: 30px;" open>
+        <summary>
+            <span class="node-header" title="An Agora location contains community contributions on a topic.">
+                📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/node/{{node.uri}}"><span class="node-name">{{node.wikilink}}</span></a><span class="wikilink-marker">]]</span> (transcluded)
+            </span>
+            <span class="pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
+        </summary>
+        <div class="node-embed" id="pull/{{node.uri}}"></div>
+    </details>
+
 </div>
+{% include "footer.html" %}
 {% endblock %}

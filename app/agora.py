@@ -714,19 +714,151 @@ def meet(node):
     return redirect(f"https://jitsi.meet.coop/{n.slug}")
 
 
-@bp.route("/vote/", defaults={"node": "agora"})
-@bp.route("/vote/<path:node>")
+def _compute_vote_dashboard():
+    subnodes = G.subnodes()
+    topics = {}
+    recent_votes = []
+    delegations = []
+    seen_signatures = set()
+
+    for sn in subnodes:
+        if not getattr(sn, 'content', None) or not sn.mediatype.startswith("text"):
+            continue
+
+        subnode_url = getattr(sn, 'url', f"/@{sn.user}/{getattr(sn, 'wikilink', '')}")
+
+        for line in sn.content.splitlines():
+            line_str = line.strip()
+            # Strip URLs and markdown links to prevent false positives on anchor fragments like #block-...
+            clean_line = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', line_str)
+            clean_line = re.sub(r'https?://\S+', '', clean_line)
+
+            # Check delegation: #delegate [[Person]] or #delegate @user
+            m_del = re.search(r'#delegate\s+(\[\[([^\]]+)\]\]|@?([\w-]+))', clean_line, re.IGNORECASE)
+            if m_del:
+                target = m_del.group(2) or m_del.group(3)
+                sig = (sn.user, "DELEGATE", target)
+                if sig not in seen_signatures:
+                    seen_signatures.add(sig)
+                    delegations.append({
+                        "user": sn.user,
+                        "delegate": target,
+                        "line": line_str,
+                        "uri": sn.uri,
+                        "url": subnode_url,
+                        "mtime": getattr(sn, 'mtime', 0)
+                    })
+
+            has_for = bool(re.search(r'#(vote\s+)?(for|assent|yes|in-favor)\b', clean_line, re.IGNORECASE))
+            has_against = bool(re.search(r'#(vote\s+)?(against|block|no|dissent)\b', clean_line, re.IGNORECASE))
+            has_abstain = bool(re.search(r'#(vote\s+)?(abstain|stand-aside|neutral)\b', clean_line, re.IGNORECASE))
+
+            if not (has_for or has_against or has_abstain):
+                continue
+
+            targets = re.findall(r'\[\[([^\]]+)\]\]', line_str)
+            if not targets:
+                targets = [sn.node]
+
+            stance = "for" if has_for else ("against" if has_against else "abstain")
+
+            for target in targets:
+                target_slug = target.lower().strip()
+                if target_slug not in topics:
+                    topics[target_slug] = {
+                        "name": target,
+                        "for": set(),
+                        "against": set(),
+                        "abstain": set(),
+                        "delegate": set()
+                    }
+                if has_for:
+                    topics[target_slug]["for"].add(sn.user)
+                if has_against:
+                    topics[target_slug]["against"].add(sn.user)
+                if has_abstain:
+                    topics[target_slug]["abstain"].add(sn.user)
+
+            sig = (sn.user, stance, targets[0].lower().strip())
+            if sig not in seen_signatures:
+                seen_signatures.add(sig)
+                recent_votes.append({
+                    "user": sn.user,
+                    "target": targets[0],
+                    "stance": stance,
+                    "line": line_str,
+                    "uri": sn.uri,
+                    "url": subnode_url,
+                    "mtime": getattr(sn, 'mtime', 0)
+                })
+
+    topic_list = []
+    for slug, t in topics.items():
+        count_for = len(t["for"])
+        count_against = len(t["against"])
+        count_abstain = len(t["abstain"])
+        count_total = count_for + count_against + count_abstain
+        if count_total > 0:
+            topic_list.append({
+                "slug": slug,
+                "name": t["name"],
+                "for": count_for,
+                "against": count_against,
+                "abstain": count_abstain,
+                "total": count_total
+            })
+
+    topic_list.sort(key=lambda x: x["total"], reverse=True)
+    recent_votes.sort(key=lambda x: x.get("mtime", 0), reverse=True)
+    delegations.sort(key=lambda x: x.get("mtime", 0), reverse=True)
+
+    return {
+        "topics": topic_list,
+        "recent_votes": recent_votes[:50],
+        "delegations": delegations[:50],
+        "total_topics": len(topic_list),
+        "total_stances": len(recent_votes),
+        "total_delegations": len(delegations)
+    }
+
+
+@bp.route("/vote", defaults={"node": None}, strict_slashes=False)
+@bp.route("/vote/<path:node>", strict_slashes=False)
 def vote_view(node):
     """
-    Renders an Agora-wide deliberation and voting view for the given topic.
-    Scans subnodes (direct contributions and backlinking mentions) across all federated gardens.
+    Renders either:
+    1. The Agora-Wide Vote Dashboard (when node is None or empty)
+    2. A deliberation & voting view for a specific topic (when node is provided)
     """
+    if not node:
+        n = api.build_node("vote")
+        cache_key = 'agora_vote_dashboard'
+        cached_val, timestamp = sqlite_engine.get_cached_query(cache_key)
+        now = time.time()
+        if cached_val and (now - timestamp < 300):
+            data = json.loads(cached_val)
+        else:
+            data = _compute_vote_dashboard()
+            sqlite_engine.save_cached_query(cache_key, json.dumps(data), now)
+
+        if request.headers.get("Accept") == "application/json":
+            return jsonify(data)
+
+        return render_template(
+            "vote.html",
+            node=n,
+            is_dashboard=True,
+            topics=data.get("topics", []),
+            recent_votes=data.get("recent_votes", []),
+            delegations=data.get("delegations", []),
+            total_topics=data.get("total_topics", 0),
+            total_stances=data.get("total_stances", 0),
+            total_delegations=data.get("total_delegations", 0),
+        )
+
+    # Deliberation on specific node
     n = api.build_node(node)
-
-    # Collect all relevant subnodes: direct subnodes + backlinking subnodes
     subnodes_to_scan = list(n.subnodes)
-
-    # Check backlinking nodes if available
     try:
         backlink_nodes = n.back_nodes()
         for b_node in backlink_nodes:
@@ -739,20 +871,21 @@ def vote_view(node):
     votes_against = []
     votes_abstain = []
     delegations = []
-
     seen_signatures = set()
 
     for subnode in subnodes_to_scan:
         if not getattr(subnode, 'content', None) or not subnode.mediatype.startswith("text"):
             continue
 
+        subnode_url = getattr(subnode, 'url', f"/@{subnode.user}/{getattr(subnode, 'wikilink', '')}")
+
         for line in subnode.content.splitlines():
             line_str = line.strip()
+            clean_line = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', line_str)
+            clean_line = re.sub(r'https?://\S+', '', clean_line)
 
-            subnode_url = getattr(subnode, 'url', f"/@{subnode.user}/{getattr(subnode, 'wikilink', '')}")
-
-            # Check delegation: #delegate [[Person]] or #delegate @user
-            m_del = re.search(r'#delegate\s+(\[\[([^\]]+)\]\]|@?([\w-]+))', line_str, re.IGNORECASE)
+            # Check delegation
+            m_del = re.search(r'#delegate\s+(\[\[([^\]]+)\]\]|@?([\w-]+))', clean_line, re.IGNORECASE)
             if m_del:
                 target = m_del.group(2) or m_del.group(3)
                 sig = (subnode.user, "DELEGATE", target)
@@ -767,8 +900,7 @@ def vote_view(node):
                     })
                 continue
 
-            # Check For / Assent
-            if re.search(r'#(vote\s+)?(for|assent|yes|in-favor)\b', line_str, re.IGNORECASE):
+            if re.search(r'#(vote\s+)?(for|assent|yes|in-favor)\b', clean_line, re.IGNORECASE):
                 sig = (subnode.user, "FOR")
                 if sig not in seen_signatures:
                     seen_signatures.add(sig)
@@ -780,8 +912,7 @@ def vote_view(node):
                     })
                 continue
 
-            # Check Against / Block
-            if re.search(r'#(vote\s+)?(against|block|no|dissent)\b', line_str, re.IGNORECASE):
+            if re.search(r'#(vote\s+)?(against|block|no|dissent)\b', clean_line, re.IGNORECASE):
                 sig = (subnode.user, "AGAINST")
                 if sig not in seen_signatures:
                     seen_signatures.add(sig)
@@ -793,8 +924,7 @@ def vote_view(node):
                     })
                 continue
 
-            # Check Abstain / Stand Aside
-            if re.search(r'#(vote\s+)?(abstain|stand-aside|neutral)\b', line_str, re.IGNORECASE):
+            if re.search(r'#(vote\s+)?(abstain|stand-aside|neutral)\b', clean_line, re.IGNORECASE):
                 sig = (subnode.user, "ABSTAIN")
                 if sig not in seen_signatures:
                     seen_signatures.add(sig)
@@ -829,6 +959,7 @@ def vote_view(node):
     return render_template(
         "vote.html",
         node=n,
+        is_dashboard=False,
         votes_for=votes_for,
         votes_against=votes_against,
         votes_abstain=votes_abstain,

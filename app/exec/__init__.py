@@ -18,4 +18,4 @@ bp = Blueprint("exec", __name__)
 
 __all__ = ['bp', 'Response']
 
-__all__ = ["default", "wp", "wt"]
+__all__ = ["default", "wp", "wt", "vote"]

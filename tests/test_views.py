@@ -87,16 +87,30 @@ def test_rss_feeds(test_agora):
 
 def test_vote_route(test_agora):
     """
-    Tests that /vote/<node> renders the deliberation and voting view.
+    Tests that /vote and /vote/<node> render the dashboard and deliberation views.
     """
-    # 1. HTML view test
+    # 1. Bare /vote renders the Agora Deliberation & Voting Dashboard
+    res_dash = test_agora.get("/vote")
+    assert res_dash.status_code == 200
+    assert b"Agora Deliberation" in res_dash.data
+    assert b"Active Ballots" in res_dash.data
+
+    # 2. Bare /vote JSON API
+    res_dash_json = test_agora.get("/vote", headers={"Accept": "application/json"})
+    assert res_dash_json.status_code == 200
+    dash_data = json.loads(res_dash_json.data)
+    assert "topics" in dash_data
+    assert "total_topics" in dash_data
+
+    # 3. Topic HTML view test
     res = test_agora.get("/vote/foo")
     assert res.status_code == 200
     assert b"Deliberation &amp; Voting on" in res.data or b"Deliberation & Voting on" in res.data
     assert b"For / Assent" in res.data
     assert b"Against / Block" in res.data
+    assert b"Agora location" in res.data  # Transcluded matching node
 
-    # 2. JSON API view test
+    # 4. Topic JSON API view test
     res_json = test_agora.get("/vote/foo", headers={"Accept": "application/json"})
     assert res_json.status_code == 200
     data = json.loads(res_json.data)
@@ -104,4 +118,9 @@ def test_vote_route(test_agora):
     assert "counts" in data
     assert "for" in data["counts"]
     assert "against" in data["counts"]
+
+    # 5. Executable subnode route /exec/vote
+    res_exec = test_agora.get("/exec/vote/foo")
+    assert res_exec.status_code == 200
+    assert b"Deliberation on" in res_exec.data
 
