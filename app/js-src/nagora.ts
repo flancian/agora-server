@@ -54,15 +54,20 @@ let rightPaneVisible = false;
  */
 export function isNagoraEnabled(): boolean {
   const setting = safeJsonParse(localStorage.getItem('enable-nagora') ?? '', CLIENT_DEFAULTS.enableNagora);
+  const cols = localStorage.getItem('nagora-columns');
+  if (cols === '1') return false;
   return Boolean(setting) && window.innerWidth >= 1280;
 }
 
 /**
- * Returns configured column count ('1' | '2' | '3'). Defaults to '3'.
+ * Returns configured column count ('1' | '2' | '3'). Defaults to '1' when disabled.
  */
 export function getNagoraColumns(): NagoraColumns {
+  if (!isNagoraEnabled()) {
+    return '1';
+  }
   const stored = localStorage.getItem('nagora-columns');
-  if (stored === '1' || stored === '2' || stored === '3') {
+  if (stored === '2' || stored === '3') {
     return stored;
   }
   return '3';
@@ -73,6 +78,11 @@ export function getNagoraColumns(): NagoraColumns {
  */
 export function setNagoraColumns(cols: NagoraColumns): void {
   localStorage.setItem('nagora-columns', cols);
+  if (cols === '1') {
+    localStorage.setItem('enable-nagora', 'false');
+  } else {
+    localStorage.setItem('enable-nagora', 'true');
+  }
   updateLayoutSwitcherUI();
   updateNagoraPanes();
 }
@@ -485,6 +495,7 @@ export function updateNagoraPanes(): void {
   if (!isNagoraEnabled()) {
     closePane('left');
     closePane('right');
+    document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3');
     return;
   }
 

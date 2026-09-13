@@ -3,6 +3,7 @@ let placeholder: HTMLElement | null = null;
 let draggedSubnode: HTMLElement | null = null;
 
 export function initSortable() {
+    if (document.body.classList.contains('is-embed')) return;
     const container = document.querySelector('.content') as HTMLElement;
     if (!container) return;
 
@@ -138,6 +139,7 @@ const SECTION_ORDER_VERSION_KEY = 'agora-section-order-v4';
 const DEFAULT_ORDER = ["web", "wiki", "genai", "main", "context", "pulled", "related", "stoa", "search", "games"];
 
 export function restoreOrder() {
+    if (document.body.classList.contains('is-embed')) return;
     const container = document.querySelector('.content') as HTMLElement;
     if (!container) return;
 
@@ -229,6 +231,7 @@ export function restoreOrder() {
 }
 
 export function initSortableSubnodes() {
+    if (document.body.classList.contains('is-embed')) return;
     const parents = document.querySelectorAll('details.node');
     parents.forEach(parent => {
         const subnodes = parent.querySelectorAll('details.subnode');

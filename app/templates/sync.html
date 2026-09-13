@@ -30,14 +30,14 @@
 
     {% if not subnode and not rendering_user %}
     {% if embed %}
-    <details class="embed-ancillary-zippy node sortable-section" data-section="ancillary">
+    <details class="embed-ancillary-zippy node" data-section="ancillary">
         <summary class="node-header">
             <span>🌐 <em>Context (Web, Wikipedia, AI) — click to expand</em></span>
         </summary>
         <div class="embed-ancillary-content">
             {% include "web.html" %}
 
-            <details class="node fade-in sortable-section" id="agora-wiki-loading" data-section="wiki">
+            <details class="node fade-in" id="agora-wiki-loading">
                 <summary>
                     <span class="node-header">
                         <em>Loading Wikimedia Commons...</em>

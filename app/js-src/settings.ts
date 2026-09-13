@@ -140,6 +140,11 @@ export function initSettings() {
         const enableNagoraEl = document.getElementById("enable-nagora") as HTMLInputElement;
         if (enableNagoraEl) {
             localStorage["enable-nagora"] = enableNagoraEl.checked;
+            if (enableNagoraEl.checked && localStorage.getItem("nagora-columns") === "1") {
+                localStorage.setItem("nagora-columns", "3");
+            } else if (!enableNagoraEl.checked) {
+                localStorage.setItem("nagora-columns", "1");
+            }
         }
         localStorage["auto-scroll-demo"] = (document.getElementById("auto-scroll-demo") as HTMLInputElement).checked;
         localStorage.setItem("toast-duration-seconds", (document.getElementById("toast-duration-seconds") as HTMLInputElement).value);

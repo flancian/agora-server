@@ -2719,13 +2719,13 @@ pre:has(code.language-verse) {
 }
 
 @media (min-width: 1280px) {
-    #nagora-root-wrapper {
+    body.nagora-active #nagora-root-wrapper {
         overflow-x: auto;
         overflow-y: visible;
         scroll-behavior: smooth;
     }
 
-    #nagora-root-wrapper::after {
+    body.nagora-active #nagora-root-wrapper::after {
         content: '›';
         position: fixed;
         right: 0;
@@ -2748,7 +2748,7 @@ pre:has(code.language-verse) {
         z-index: 100;
     }
 
-    #nagora-root-wrapper::before {
+    body.nagora-active #nagora-root-wrapper::before {
         content: '‹';
         position: fixed;
         left: 0;
@@ -2771,12 +2771,12 @@ pre:has(code.language-verse) {
         z-index: 100;
     }
 
-    #nagora-root-wrapper.scrolled-to-end::after {
+    body.nagora-active #nagora-root-wrapper.scrolled-to-end::after {
         opacity: 0;
         pointer-events: none;
     }
 
-    #nagora-root-wrapper.scrolled-to-start::before {
+    body.nagora-active #nagora-root-wrapper.scrolled-to-start::before {
         opacity: 0;
         pointer-events: none;
     }
@@ -2787,14 +2787,16 @@ pre:has(code.language-verse) {
         justify-content: center;
         align-items: flex-start;
         gap: 1.25rem;
-        max-width: 100vw;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
         padding: 0 1.25rem;
     }
 
     body.nagora-active #nagora-root > .content {
-        flex: 1 1 720px;
-        max-width: 54rem;
-        min-width: 480px;
+        flex: 1.3 1 0;
+        min-width: 22rem;
+        max-width: none;
         margin-left: 0;
         margin-right: 0;
     }
@@ -2804,16 +2806,22 @@ pre:has(code.language-verse) {
         display: none !important;
     }
 
+    body.nagora-cols-2 #nagora-root > .content {
+        flex: 1.3 1 0;
+        min-width: 24rem;
+        max-width: none;
+    }
+
     body.nagora-cols-2 #nagora-right-pane {
-        flex: 0 1 420px;
-        width: 420px;
+        flex: 1 1 0;
+        min-width: 20rem;
+        max-width: none;
     }
 
     .nagora-pane {
-        flex: 0 1 380px;
-        width: 380px;
-        min-width: 300px;
-        max-width: 460px;
+        flex: 1 1 0;
+        min-width: 18rem;
+        max-width: none;
         position: sticky;
         top: 75px;
         height: calc(100vh - 95px);
@@ -2880,7 +2888,8 @@ pre:has(code.language-verse) {
     color: var(--main-text);
     font-size: 0.82rem;
     font-weight: 600;
-    max-width: 180px;
+    width: 100%;
+    min-width: 0;
     padding: 2px 4px;
     outline: none;
     cursor: pointer;
