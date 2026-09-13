@@ -20,7 +20,7 @@ import { CLIENT_DEFAULTS, safeJsonParse } from './util';
 declare const NODENAME: string | undefined;
 
 export type ActiveColumn = 'left' | 'center' | 'right';
-export type NagoraColumns = '1' | '2' | '3';
+export type NagoraColumns = 'auto' | '1' | '2' | '3';
 export type CandidateType = 'backlink' | 'history' | 'related' | 'outlink' | 'random';
 
 export interface NagoraCandidate {
@@ -39,6 +39,7 @@ const MAX_HISTORY = 30;
 
 let isInitialized = false;
 let activeColumn: ActiveColumn = 'center';
+let monocleSide: 'left' | 'right' | null = null;
 
 let incomingCandidates: NagoraCandidate[] = [];
 let incomingIndex = 0;
@@ -53,35 +54,59 @@ let rightPaneVisible = false;
  * Checks if N-Agora spatial columns are enabled in user settings and supported by screen size.
  */
 export function isNagoraEnabled(): boolean {
-  const setting = safeJsonParse(localStorage.getItem('enable-nagora') ?? '', CLIENT_DEFAULTS.enableNagora);
-  const cols = localStorage.getItem('nagora-columns');
+  const isExp = safeJsonParse(localStorage.getItem('enable-experimental') ?? '', CLIENT_DEFAULTS.enableExperimental);
+  const isNag = safeJsonParse(localStorage.getItem('enable-nagora') ?? '', CLIENT_DEFAULTS.enableNagora);
+  if (!isExp && !isNag) return false;
+
+  const cols = getNagoraColumns();
   if (cols === '1') return false;
-  return Boolean(setting) && window.innerWidth >= 1280;
+  return window.innerWidth >= 1280;
 }
 
 /**
- * Returns configured column count ('1' | '2' | '3'). Defaults to '1' when disabled.
+ * Returns configured column preference ('auto' | '1' | '2' | '3'). Defaults to 'auto'.
  */
 export function getNagoraColumns(): NagoraColumns {
-  if (!isNagoraEnabled()) {
-    return '1';
-  }
   const stored = localStorage.getItem('nagora-columns');
-  if (stored === '2' || stored === '3') {
+  if (stored === 'auto' || stored === '1' || stored === '2' || stored === '3') {
     return stored;
   }
-  return '3';
+  return 'auto';
 }
 
 /**
- * Updates column layout count ('1', '2', or '3') and refreshes UI.
+ * Resolves the active column count ('1' | '2' | '3') based on configuration and available viewport width.
+ */
+export function getResolvedColumns(): '1' | '2' | '3' {
+  const pref = getNagoraColumns();
+  if (pref === '1' || pref === '2' || pref === '3') {
+    return pref;
+  }
+  // Dynamic auto-tiling based on viewport real estate
+  const width = window.innerWidth;
+  if (width >= 1650) {
+    return '3';
+  } else if (width >= 1280) {
+    return '2';
+  }
+  return '1';
+}
+
+/**
+ * Updates column layout count ('auto', '1', '2', or '3') and refreshes UI.
  */
 export function setNagoraColumns(cols: NagoraColumns): void {
   localStorage.setItem('nagora-columns', cols);
   if (cols === '1') {
-    localStorage.setItem('enable-nagora', 'false');
+    // Setting 1 column closes satellite panes while preserving experimental setting
   } else {
     localStorage.setItem('enable-nagora', 'true');
+    localStorage.setItem('enable-experimental', 'true');
+    document.body.classList.add('experimental-mode');
+    const expCheckbox = document.getElementById('experimental-checkbox') as HTMLInputElement | null;
+    if (expCheckbox) expCheckbox.checked = true;
+    const expSettings = document.getElementById('enable-experimental') as HTMLInputElement | null;
+    if (expSettings) expSettings.checked = true;
   }
   updateLayoutSwitcherUI();
   updateNagoraPanes();
@@ -95,6 +120,39 @@ export function updateLayoutSwitcherUI(): void {
   document.querySelectorAll<HTMLButtonElement>('.nagora-layout-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.cols === current);
   });
+}
+
+/**
+ * Exits monocle (zoom) mode and restores the tiled layout.
+ */
+export function exitMonocle(): void {
+  if (!monocleSide) return;
+  const paneId = monocleSide === 'left' ? 'nagora-left-pane' : 'nagora-right-pane';
+  document.getElementById(paneId)?.classList.remove('nagora-pane-monocle');
+  document.body.classList.remove('nagora-monocle');
+  document.querySelectorAll('.nagora-btn-monocle').forEach(btn => btn.classList.remove('active'));
+  monocleSide = null;
+}
+
+/**
+ * Toggles monocle mode for a specific satellite pane (maximizing it or restoring tiled layout).
+ */
+export function toggleMonocle(side: 'left' | 'right'): void {
+  const paneId = side === 'left' ? 'nagora-left-pane' : 'nagora-right-pane';
+  const pane = document.getElementById(paneId);
+  if (!pane) return;
+
+  if (monocleSide === side) {
+    exitMonocle();
+  } else {
+    if (monocleSide) {
+      exitMonocle();
+    }
+    monocleSide = side;
+    pane.classList.add('nagora-pane-monocle');
+    document.body.classList.add('nagora-monocle');
+    pane.querySelector('.nagora-btn-monocle')?.classList.add('active');
+  }
 }
 
 /**
@@ -168,11 +226,14 @@ export function promotePane(side: 'left' | 'right'): void {
  * Closes a satellite pane and resets layout if both are closed.
  */
 export function closePane(side: 'left' | 'right'): void {
+  if (monocleSide === side) {
+    exitMonocle();
+  }
   const paneId = side === 'left' ? 'nagora-left-pane' : 'nagora-right-pane';
   const pane = document.getElementById(paneId);
   if (pane) {
     pane.style.display = 'none';
-    pane.classList.remove('nagora-pane-focused');
+    pane.classList.remove('nagora-pane-focused', 'nagora-pane-monocle');
   }
 
   if (side === 'left') {
@@ -186,7 +247,7 @@ export function closePane(side: 'left' | 'right'): void {
   }
 
   if (!leftPaneVisible && !rightPaneVisible) {
-    document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3');
+    document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3', 'nagora-monocle');
   }
 }
 
@@ -416,10 +477,11 @@ function renderPane(side: 'left' | 'right', candidates: NagoraCandidate[], index
         </select>
       </div>
       <div class="nagora-pane-actions">
-        <button class="nagora-pane-btn nagora-btn-prev" title="Previous node (‹)" ${total <= 1 ? 'disabled style="opacity:0.35;cursor:default;"' : ''}>‹</button>
-        <button class="nagora-pane-btn nagora-btn-next" title="Next node (›)" ${total <= 1 ? 'disabled style="opacity:0.35;cursor:default;"' : ''}>›</button>
+        <button class="nagora-pane-btn nagora-btn-prev" title="Previous node in stack (‹)" ${total <= 1 ? 'disabled style="opacity:0.35;cursor:default;"' : ''}>‹</button>
+        <button class="nagora-pane-btn nagora-btn-next" title="Next node in stack (›)" ${total <= 1 ? 'disabled style="opacity:0.35;cursor:default;"' : ''}>›</button>
+        <button class="nagora-pane-btn nagora-btn-monocle ${monocleSide === side ? 'active' : ''}" title="Monocle: Toggle maximize pane (z)">⛶</button>
         <button class="nagora-pane-btn nagora-btn-promote" title="Promote: Open this node in main view (Enter)">⬈</button>
-        <button class="nagora-pane-btn nagora-btn-close" title="Close this column (Esc)">✕</button>
+        <button class="nagora-pane-btn nagora-btn-close" title="Un-tile: Close this column (Esc)">✕</button>
       </div>
     </div>
     <div class="nagora-pane-body">
@@ -447,6 +509,12 @@ function renderPane(side: 'left' | 'right', candidates: NagoraCandidate[], index
   nextBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     stepPane(side, 1);
+  });
+
+  const monocleBtn = pane.querySelector('.nagora-btn-monocle');
+  monocleBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMonocle(side);
   });
 
   const promoteBtn = pane.querySelector('.nagora-btn-promote');
@@ -495,22 +563,22 @@ export function updateNagoraPanes(): void {
   if (!isNagoraEnabled()) {
     closePane('left');
     closePane('right');
-    document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3');
+    document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3', 'nagora-monocle');
     return;
   }
 
-  const cols = getNagoraColumns();
+  const cols = getResolvedColumns();
   if (cols === '1') {
     closePane('left');
     closePane('right');
-    document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3');
+    document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3', 'nagora-monocle');
     return;
   }
 
   const incoming = extractIncomingCandidates();
   const outgoing = extractOutgoingCandidates();
 
-  // Mode 2: Center + Right (or Left if right is empty)
+  // Mode 2: Main + Outgoing (or Main + Incoming if right is empty)
   if (cols === '2') {
     closePane('left');
     if (outgoing.length > 0) {
@@ -528,7 +596,7 @@ export function updateNagoraPanes(): void {
     return;
   }
 
-  // Mode 3: 3-column layout (Incoming + Center + Outgoing)
+  // Mode 3: 3-column layout (Incoming + Main + Outgoing)
   if (cols === '3') {
     if (incoming.length > 0) {
       incomingCandidates = incoming;
@@ -561,22 +629,22 @@ export function updateNagoraPanes(): void {
 export function initNagora(): void {
   if (isInitialized) return;
   if (window.self !== window.top) return; // Never run inside embeds
-  if (typeof NODENAME === 'undefined' || !NODENAME) return; // Only on node pages
-
   isInitialized = true;
-
-  // Record session history
-  recordSessionVisit(NODENAME);
 
   // Wire up layout switcher buttons in action bar
   document.querySelectorAll<HTMLButtonElement>('.nagora-layout-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      const targetCols = (btn.dataset.cols as NagoraColumns) || '3';
+      const targetCols = (btn.dataset.cols as NagoraColumns) || 'auto';
       setNagoraColumns(targetCols);
     });
   });
   updateLayoutSwitcherUI();
+
+  if (typeof NODENAME === 'undefined' || !NODENAME) return; // Only populate satellite panes on node pages
+
+  // Record session history
+  recordSessionVisit(NODENAME);
 
   // 1. Initial attempt on DOM ready
   if (isNagoraEnabled()) {
@@ -604,7 +672,7 @@ export function initNagora(): void {
     resizeTimer = window.setTimeout(() => {
       if (window.innerWidth < 1280) {
         if (leftPaneVisible || rightPaneVisible) {
-          document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3');
+          document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3', 'nagora-monocle');
         }
       } else if (isNagoraEnabled()) {
         updateNagoraPanes();

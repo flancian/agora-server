@@ -44,6 +44,10 @@ export function initSettings() {
     if (enableNagoraInput) {
         enableNagoraInput.checked = safeJsonParse(localStorage["enable-nagora"], CLIENT_DEFAULTS.enableNagora);
     }
+    const enableExperimentalInput = document.getElementById("enable-experimental") as HTMLInputElement;
+    if (enableExperimentalInput) {
+        enableExperimentalInput.checked = safeJsonParse(localStorage["enable-experimental"], CLIENT_DEFAULTS.enableExperimental);
+    }
 
     // Function to apply the bracket visibility style
     const applyBracketVisibility = () => {
@@ -140,10 +144,15 @@ export function initSettings() {
         const enableNagoraEl = document.getElementById("enable-nagora") as HTMLInputElement;
         if (enableNagoraEl) {
             localStorage["enable-nagora"] = enableNagoraEl.checked;
-            if (enableNagoraEl.checked && localStorage.getItem("nagora-columns") === "1") {
-                localStorage.setItem("nagora-columns", "3");
-            } else if (!enableNagoraEl.checked) {
-                localStorage.setItem("nagora-columns", "1");
+            if (enableNagoraEl.checked && (!localStorage.getItem("nagora-columns") || localStorage.getItem("nagora-columns") === "1")) {
+                localStorage.setItem("nagora-columns", "auto");
+            }
+        }
+        const enableExperimentalEl = document.getElementById("enable-experimental") as HTMLInputElement;
+        if (enableExperimentalEl) {
+            localStorage["enable-experimental"] = enableExperimentalEl.checked;
+            if (enableExperimentalEl.checked && (!localStorage.getItem("nagora-columns") || localStorage.getItem("nagora-columns") === "1")) {
+                localStorage.setItem("nagora-columns", "auto");
             }
         }
         localStorage["auto-scroll-demo"] = (document.getElementById("auto-scroll-demo") as HTMLInputElement).checked;

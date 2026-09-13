@@ -18,7 +18,12 @@ export const CLIENT_DEFAULTS = {
   showEditSection: false,
   enableShortcuts: true,
   enableNagora: false,
+  enableExperimental: false,
 };
+
+export function isExperimentalEnabled(): boolean {
+  return safeJsonParse(localStorage.getItem('enable-experimental') ?? '', CLIENT_DEFAULTS.enableExperimental);
+}
 
 export function safeJsonParse(value: string, defaultValue: any) {
   try {

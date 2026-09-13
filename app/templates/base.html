@@ -167,6 +167,10 @@
                         <input type="checkbox" id="meditation-checkbox" class="meditation-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
+                    <label class="experimental-switch" for="experimental-checkbox" title="🔭/✨ Experimental Mode: toggle cutting-edge experiments (N-Agora spatial tiling workbench, dynamic columns).">
+                        <input type="checkbox" id="experimental-checkbox" class="experimental-checkbox-input" />
+                        <div class="slider round"></div>
+                    </label>
                 </div>
             </div>
             <div class="topline-node-wrapper scrolled-to-start scrolled-to-end">
@@ -205,10 +209,11 @@
                     <button id="mini-cli-join" value="join" title="Join the Agora to contribute digital gardens or write notes!" style="display: none; opacity: 0; transition: opacity 1s ease-in;">
                         👩‍🌾 Join
                     </button>
-                    <div class="nagora-layout-switcher" title="Switch spatial columns layout (1, 2, or 3 columns)">
-                        <button type="button" class="nagora-layout-btn active" data-cols="1" title="1-Agora: Single central column (classic)">1</button>
-                        <button type="button" class="nagora-layout-btn" data-cols="2" title="2-Agora: Two columns (Center + Outgoing)">2</button>
-                        <button type="button" class="nagora-layout-btn" data-cols="3" title="3-Agora: Three columns (Incoming + Center + Outgoing)">3</button>
+                    <div class="nagora-layout-switcher" title="Switch spatial columns layout (Auto, 1, 2, or 3 columns)">
+                        <button type="button" class="nagora-layout-btn active" data-cols="auto" title="Auto: Dynamically tiles based on available viewport space">Auto</button>
+                        <button type="button" class="nagora-layout-btn" data-cols="1" title="1-Agora: Single central column (classic)">1</button>
+                        <button type="button" class="nagora-layout-btn" data-cols="2" title="2-Agora: Two columns (Main + Outgoing)">2</button>
+                        <button type="button" class="nagora-layout-btn" data-cols="3" title="3-Agora: Three columns (Incoming + Main + Outgoing)">3</button>
                     </div>
                 </div>
             </div>

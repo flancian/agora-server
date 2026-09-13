@@ -27,14 +27,14 @@ const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
 import { initializeStars, initializeNodeStars, initializeExternalStars } from './starring';
 import { initSettings } from './settings';
-import { safeJsonParse, darkenColor, CLIENT_DEFAULTS } from './util';
+import { safeJsonParse, darkenColor, CLIENT_DEFAULTS, isExperimentalEnabled } from './util';
 import { makeDraggable } from './draggable';
 import { initDemoMode } from './demo';
 import { initMusicPlayer } from './music';
 import { renderGraph } from './graph';
 import { initPullButtons } from './pull';
 import { initKeyNavigation } from './keys';
-import { initNagora, syncTheme } from './nagora';
+import { initNagora, syncTheme, updateLayoutSwitcherUI, updateNagoraPanes } from './nagora';
 
 declare const NODENAME: string | undefined;
 declare const NODEQ: string | undefined;
@@ -525,6 +525,24 @@ document.addEventListener("DOMContentLoaded", async function () {
   themeCheckboxes.forEach(checkbox => {
     checkbox.addEventListener('change', () => {
         setTheme(checkbox.checked ? 'light' : 'dark');
+    });
+  });
+
+  // Experimental Mode toggle in navbar & settings
+  const expCheckboxes = document.querySelectorAll<HTMLInputElement>('#experimental-checkbox, #enable-experimental');
+  const initialExperimental = isExperimentalEnabled();
+  if (initialExperimental) {
+    document.body.classList.add('experimental-mode');
+  }
+  expCheckboxes.forEach(cb => {
+    cb.checked = initialExperimental;
+    cb.addEventListener('change', () => {
+      const isEnabled = cb.checked;
+      localStorage.setItem('enable-experimental', JSON.stringify(isEnabled));
+      document.body.classList.toggle('experimental-mode', isEnabled);
+      expCheckboxes.forEach(other => { other.checked = isEnabled; });
+      updateLayoutSwitcherUI();
+      updateNagoraPanes();
     });
   });
 

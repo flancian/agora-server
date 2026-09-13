@@ -22,6 +22,8 @@ import {
   hasVisiblePane,
   scrollActivePane,
   promoteActivePane,
+  toggleMonocle,
+  exitMonocle,
 } from './nagora';
 
 declare const NODENAME: string | undefined;
@@ -393,6 +395,12 @@ export function focusSearch(): void {
  * Closes active overlays, dismisses the shortcuts sheet, and blurs active inputs.
  */
 export function handleEscape(): void {
+  // 0. Exit monocle mode if active
+  if (document.body.classList.contains('nagora-monocle')) {
+    exitMonocle();
+    return;
+  }
+
   // 1. Close keyboard shortcuts modal if open
   closeShortcutsModal();
 
@@ -465,6 +473,10 @@ function getOrCreateShortcutsModal(): HTMLElement {
             <tr>
               <td class="key-col"><kbd>Enter</kbd> / <kbd>o</kbd></td>
               <td class="desc-col">Expand/collapse section, or promote focused column to main view</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>z</kbd></td>
+              <td class="desc-col">Monocle: toggle maximize focused satellite column</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>w</kbd></td>
@@ -644,6 +656,15 @@ export function initKeyNavigation(): void {
         e.preventDefault();
         toggleActiveSection();
         break;
+
+      case 'z': {
+        const col = getActiveColumn();
+        if (col === 'left' || col === 'right') {
+          e.preventDefault();
+          toggleMonocle(col);
+        }
+        break;
+      }
 
       case 'w':
         e.preventDefault();

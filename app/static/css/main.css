@@ -1520,6 +1520,14 @@ table caption {
     flex-shrink: 0;
 }
 
+.experimental-switch {
+    display: inline-block;
+    height: 24px;
+    position: relative;
+    width: 44px;
+    flex-shrink: 0;
+}
+
 .settings-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -1629,6 +1637,21 @@ input:checked + .slider:before {
 }
 .settings-switch input#meditation-checkbox:checked + .slider:before {
     content: "🙏";
+}
+
+/* Custom icons for Experimental toggle */
+.experimental-switch input {
+    display: none;
+}
+.experimental-switch .slider:before {
+    content: "🔭";
+}
+.experimental-switch input:checked + .slider {
+    background-color: var(--wikilink-color, #377ba8);
+}
+.experimental-switch input:checked + .slider:before {
+    transform: translateX(20px);
+    content: "✨";
 }
 
 /* Shaded window state */
@@ -2675,8 +2698,12 @@ pre:has(code.language-verse) {
     box-sizing: border-box;
 }
 
-/* N-Agora Layout Switcher */
+/* N-Agora Layout Switcher (visible strictly in experimental mode on wide screens) */
 .nagora-layout-switcher {
+    display: none;
+}
+
+body.experimental-mode .nagora-layout-switcher {
     display: inline-flex;
     align-items: center;
     border: 1px solid var(--border-color);
@@ -2713,7 +2740,8 @@ pre:has(code.language-verse) {
 }
 
 @media (max-width: 1279px) {
-    .nagora-layout-switcher {
+    .nagora-layout-switcher,
+    body.experimental-mode .nagora-layout-switcher {
         display: none !important;
     }
 }
@@ -2839,6 +2867,21 @@ pre:has(code.language-verse) {
     .nagora-pane.nagora-pane-focused {
         border-color: var(--wikilink-color, #1e53a6);
         box-shadow: 0 0 0 2px var(--wikilink-color, #1e53a6), 0 6px 18px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Tiling Window Manager: Monocle (Maximize) Mode */
+    body.nagora-active.nagora-monocle #nagora-root > .content {
+        display: none !important;
+    }
+
+    body.nagora-active.nagora-monocle .nagora-pane:not(.nagora-pane-monocle) {
+        display: none !important;
+    }
+
+    body.nagora-active.nagora-monocle .nagora-pane.nagora-pane-monocle {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        width: 100% !important;
     }
 }
 
