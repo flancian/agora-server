@@ -84,3 +84,24 @@ def test_rss_feeds(test_agora):
     assert res_user.status_code == 200
     assert b"Agora feed for user @user1" in res_user.data
 
+
+def test_vote_route(test_agora):
+    """
+    Tests that /vote/<node> renders the deliberation and voting view.
+    """
+    # 1. HTML view test
+    res = test_agora.get("/vote/foo")
+    assert res.status_code == 200
+    assert b"Deliberation &amp; Voting on" in res.data or b"Deliberation & Voting on" in res.data
+    assert b"For / Assent" in res.data
+    assert b"Against / Block" in res.data
+
+    # 2. JSON API view test
+    res_json = test_agora.get("/vote/foo", headers={"Accept": "application/json"})
+    assert res_json.status_code == 200
+    data = json.loads(res_json.data)
+    assert data["node"] == "foo"
+    assert "counts" in data
+    assert "for" in data["counts"]
+    assert "against" in data["counts"]
+

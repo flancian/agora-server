@@ -714,6 +714,132 @@ def meet(node):
     return redirect(f"https://jitsi.meet.coop/{n.slug}")
 
 
+@bp.route("/vote/", defaults={"node": "agora"})
+@bp.route("/vote/<path:node>")
+def vote_view(node):
+    """
+    Renders an Agora-wide deliberation and voting view for the given topic.
+    Scans subnodes (direct contributions and backlinking mentions) across all federated gardens.
+    """
+    n = api.build_node(node)
+
+    # Collect all relevant subnodes: direct subnodes + backlinking subnodes
+    subnodes_to_scan = list(n.subnodes)
+
+    # Check backlinking nodes if available
+    try:
+        backlink_nodes = n.back_nodes()
+        for b_node in backlink_nodes:
+            if b_node.wikilink != n.wikilink:
+                subnodes_to_scan.extend(b_node.subnodes)
+    except Exception as e:
+        current_app.logger.warning(f"Error reading back_nodes for vote/{node}: {e}")
+
+    votes_for = []
+    votes_against = []
+    votes_abstain = []
+    delegations = []
+
+    seen_signatures = set()
+
+    for subnode in subnodes_to_scan:
+        if not getattr(subnode, 'content', None) or not subnode.mediatype.startswith("text"):
+            continue
+
+        for line in subnode.content.splitlines():
+            line_str = line.strip()
+
+            subnode_url = getattr(subnode, 'url', f"/@{subnode.user}/{getattr(subnode, 'wikilink', '')}")
+
+            # Check delegation: #delegate [[Person]] or #delegate @user
+            m_del = re.search(r'#delegate\s+(\[\[([^\]]+)\]\]|@?([\w-]+))', line_str, re.IGNORECASE)
+            if m_del:
+                target = m_del.group(2) or m_del.group(3)
+                sig = (subnode.user, "DELEGATE", target)
+                if sig not in seen_signatures:
+                    seen_signatures.add(sig)
+                    delegations.append({
+                        "user": subnode.user,
+                        "delegate": target,
+                        "line": line_str,
+                        "uri": subnode.uri,
+                        "url": subnode_url
+                    })
+                continue
+
+            # Check For / Assent
+            if re.search(r'#(vote\s+)?(for|assent|yes|in-favor)\b', line_str, re.IGNORECASE):
+                sig = (subnode.user, "FOR")
+                if sig not in seen_signatures:
+                    seen_signatures.add(sig)
+                    votes_for.append({
+                        "user": subnode.user,
+                        "line": line_str,
+                        "uri": subnode.uri,
+                        "url": subnode_url
+                    })
+                continue
+
+            # Check Against / Block
+            if re.search(r'#(vote\s+)?(against|block|no|dissent)\b', line_str, re.IGNORECASE):
+                sig = (subnode.user, "AGAINST")
+                if sig not in seen_signatures:
+                    seen_signatures.add(sig)
+                    votes_against.append({
+                        "user": subnode.user,
+                        "line": line_str,
+                        "uri": subnode.uri,
+                        "url": subnode_url
+                    })
+                continue
+
+            # Check Abstain / Stand Aside
+            if re.search(r'#(vote\s+)?(abstain|stand-aside|neutral)\b', line_str, re.IGNORECASE):
+                sig = (subnode.user, "ABSTAIN")
+                if sig not in seen_signatures:
+                    seen_signatures.add(sig)
+                    votes_abstain.append({
+                        "user": subnode.user,
+                        "line": line_str,
+                        "uri": subnode.uri,
+                        "url": subnode_url
+                    })
+                continue
+
+    count_for = len(set(v["user"] for v in votes_for))
+    count_against = len(set(v["user"] for v in votes_against))
+    count_abstain = len(set(v["user"] for v in votes_abstain))
+    count_delegate = len(set(d["user"] for d in delegations))
+
+    if request.headers.get("Accept") == "application/json":
+        return jsonify({
+            "node": node,
+            "counts": {
+                "for": count_for,
+                "against": count_against,
+                "abstain": count_abstain,
+                "delegate": count_delegate
+            },
+            "votes_for": votes_for,
+            "votes_against": votes_against,
+            "votes_abstain": votes_abstain,
+            "delegations": delegations
+        })
+
+    return render_template(
+        "vote.html",
+        node=n,
+        votes_for=votes_for,
+        votes_against=votes_against,
+        votes_abstain=votes_abstain,
+        delegations=delegations,
+        count_for=count_for,
+        count_against=count_against,
+        count_abstain=count_abstain,
+        count_delegate=count_delegate,
+    )
+
+
 @bp.route("/push/<node>/<other>")
 def push2(node, other):
 

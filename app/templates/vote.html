@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="node vote-node">
+    <div class="node-header main-header">
+        <h1>🗳️ Deliberation & Voting on <span class="wikilink-marker">[[</span><a href="/{{ node.qstr }}">{{ node.qstr }}</a><span class="wikilink-marker">]]</span></h1>
+        <p class="lead"><em>An Agora informed heterarchy view: aggregating stances and liquid democracy delegations across the commons.</em></p>
+    </div>
+
+    <!-- Tally Summary Cards -->
+    <div class="vote-tally" style="display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0;">
+        <div class="tally-card" style="flex: 1; min-width: 140px; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color, #ccc); background: rgba(46, 204, 113, 0.1);">
+            <div style="font-size: 2rem; font-weight: bold; color: #27ae60;">{{ count_for }}</div>
+            <div style="font-weight: bold;">🟢 For / Assent</div>
+        </div>
+        <div class="tally-card" style="flex: 1; min-width: 140px; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color, #ccc); background: rgba(231, 76, 60, 0.1);">
+            <div style="font-size: 2rem; font-weight: bold; color: #c0392b;">{{ count_against }}</div>
+            <div style="font-weight: bold;">🔴 Against / Block</div>
+        </div>
+        <div class="tally-card" style="flex: 1; min-width: 140px; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color, #ccc); background: rgba(241, 196, 15, 0.1);">
+            <div style="font-size: 2rem; font-weight: bold; color: #f39c12;">{{ count_abstain }}</div>
+            <div style="font-weight: bold;">🟡 Stand Aside</div>
+        </div>
+        <div class="tally-card" style="flex: 1; min-width: 140px; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color, #ccc); background: rgba(52, 152, 219, 0.1);">
+            <div style="font-size: 2rem; font-weight: bold; color: #2980b9;">{{ count_delegate }}</div>
+            <div style="font-weight: bold;">🌊 Delegations</div>
+        </div>
+    </div>
+
+    <!-- Stances Breakdown -->
+    {% if votes_against %}
+    <div class="subnode vote-section" style="margin-bottom: 24px;">
+        <h2 style="color: #c0392b;">🔴 Against / Block ({{ votes_against|length }})</h2>
+        <ul style="list-style: none; padding-left: 0;">
+            {% for v in votes_against %}
+            <li style="margin-bottom: 12px; padding: 10px; border-left: 4px solid #c0392b; background: rgba(0,0,0,0.02);">
+                <strong><a href="/@{{ v.user }}">@{{ v.user }}</a></strong> in <a href="{{ v.url }}"><code>{{ v.uri }}</code></a>:
+                <div style="margin-top: 4px;"><em>"{{ v.line }}"</em></div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if votes_for %}
+    <div class="subnode vote-section" style="margin-bottom: 24px;">
+        <h2 style="color: #27ae60;">🟢 For / Assent ({{ votes_for|length }})</h2>
+        <ul style="list-style: none; padding-left: 0;">
+            {% for v in votes_for %}
+            <li style="margin-bottom: 12px; padding: 10px; border-left: 4px solid #27ae60; background: rgba(0,0,0,0.02);">
+                <strong><a href="/@{{ v.user }}">@{{ v.user }}</a></strong> in <a href="{{ v.url }}"><code>{{ v.uri }}</code></a>:
+                <div style="margin-top: 4px;"><em>"{{ v.line }}"</em></div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if delegations %}
+    <div class="subnode vote-section" style="margin-bottom: 24px;">
+        <h2 style="color: #2980b9;">🌊 Liquid Democracy Delegations ({{ delegations|length }})</h2>
+        <ul style="list-style: none; padding-left: 0;">
+            {% for d in delegations %}
+            <li style="margin-bottom: 12px; padding: 10px; border-left: 4px solid #2980b9; background: rgba(0,0,0,0.02);">
+                <strong><a href="/@{{ d.user }}">@{{ d.user }}</a></strong> delegates to <strong><a href="/{{ d.delegate }}">{{ d.delegate }}</a></strong> in <a href="{{ d.url }}"><code>{{ d.uri }}</code></a>:
+                <div style="margin-top: 4px;"><em>"{{ d.line }}"</em></div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if votes_abstain %}
+    <div class="subnode vote-section" style="margin-bottom: 24px;">
+        <h2 style="color: #f39c12;">🟡 Stand Aside / Abstain ({{ votes_abstain|length }})</h2>
+        <ul style="list-style: none; padding-left: 0;">
+            {% for v in votes_abstain %}
+            <li style="margin-bottom: 12px; padding: 10px; border-left: 4px solid #f39c12; background: rgba(0,0,0,0.02);">
+                <strong><a href="/@{{ v.user }}">@{{ v.user }}</a></strong> in <a href="{{ v.url }}"><code>{{ v.uri }}</code></a>:
+                <div style="margin-top: 4px;"><em>"{{ v.line }}"</em></div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if not votes_for and not votes_against and not votes_abstain and not delegations %}
+    <div class="subnode" style="padding: 20px; border: 1px dashed var(--border-color, #ccc); text-align: center; border-radius: 8px;">
+        <p>No stances or delegations recorded across the Agora yet for <strong>[[{{ node.qstr }}]]</strong>.</p>
+    </div>
+    {% endif %}
+
+    <!-- Participation Guide -->
+    <div class="subnode" style="margin-top: 30px; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color, #ccc); background: rgba(0,0,0,0.03);">
+        <h3>💡 How to Participate in this Deliberation</h3>
+        <p>In the Agora, you vote by writing in your sovereign digital garden. Add any of the following expressions to your subnode in <code>[[{{ node.qstr }}]]</code> or your daily journal:</p>
+        <ul>
+            <li><strong>Support:</strong> <code>#for [[{{ node.qstr }}]]</code> or <code>#vote for</code></li>
+            <li><strong>Objection:</strong> <code>#against [[{{ node.qstr }}]]</code> or <code>#vote against</code></li>
+            <li><strong>Stand aside:</strong> <code>#vote abstain</code></li>
+            <li><strong>Liquid delegation:</strong> <code>#delegate [[person]]</code></li>
+        </ul>
+        <p>Your stance will federate into this tally on the next Agora sync.</p>
+        <p><a href="/{{ node.qstr }}">← Return to [[{{ node.qstr }}]]</a></p>
+    </div>
+</div>
+{% endblock %}
