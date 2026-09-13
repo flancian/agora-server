@@ -1018,7 +1018,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     miniCliPull.addEventListener("click", () => {
       let node = miniCliInput.value;
       if (!node) {
-          node = prompt("Enter an Agora location to pull (transclude) into this page:", "") || "";
+          node = prompt("Enter an Agora node to pull (transclude) into this page:", "") || "";
       }
       if (node) {
           let container = document.getElementById('manual-pulls-container');
@@ -1044,8 +1044,8 @@ document.addEventListener("DOMContentLoaded", async function () {
           <div class="manual-pull-item" style="margin-top: 0px; margin-bottom: 0px; padding: 0px;">
               <details class="node pulled" open style="padding: 0px; border: none;">
                   <summary style="padding: 5px 10px; border-bottom: 1px solid var(--blockquote-border);"><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens.">
-                      📚 <strong>Agora location</strong> <span class="wikilink-marker">[[</span><a href="/${encodeURIComponent(node)}"><span class="node-name">${node}</span></a><span class="wikilink-marker">]]</span> (pulled manually)</span>
-                      <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled location.">x</span>
+                      📚 <strong>Node</strong> <span class="wikilink-marker">[[</span><a href="/${encodeURIComponent(node)}"><span class="node-name">${node}</span></a><span class="wikilink-marker">]]</span> (pulled manually)</span>
+                      <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled node.">x</span>
                   </summary>
                   <div class="node-embed" id="${safeId}" style="margin-top: 0px; padding: 0px; resize: vertical; overflow: hidden; height: 600px; min-height: 200px;">
                       <iframe loading="lazy" src="/embed/${encodeURIComponent(node)}" onload="window.setupSmartIframeResizer(this);" style="width: 100%; height: 100%; border: none !important; display: block; margin-bottom: 0px; max-height: none !important;" allowfullscreen="allowfullscreen"></iframe>
@@ -1886,7 +1886,7 @@ document.addEventListener("DOMContentLoaded", async function () {
               }, 1000);
           } else {
               setTimeout(() => {
-                  showToast(`⚡ Agora location assembled in ${durationS}s.`, null, false);
+                  showToast(`⚡ Node assembled in ${durationS}s.`, null, false);
               }, 500); // log to console sooner since it loaded fast
           }
 

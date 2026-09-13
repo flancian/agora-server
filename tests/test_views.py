@@ -108,7 +108,7 @@ def test_vote_route(test_agora):
     assert b"Deliberation &amp; Voting on" in res.data or b"Deliberation & Voting on" in res.data
     assert b"For / Assent" in res.data
     assert b"Against / Block" in res.data
-    assert b"Agora location" in res.data  # Transcluded matching node
+    assert b"Node" in res.data  # Transcluded matching node
 
     # 4. Topic JSON API view test
     res_json = test_agora.get("/vote/foo", headers={"Accept": "application/json"})

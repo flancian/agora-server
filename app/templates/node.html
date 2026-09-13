@@ -27,8 +27,8 @@
         {% else %}
             <summary class="node-header main-header">
                 <!-- <div class="inline-flex"> -->
-                    <span style="flex: auto; flex-grow: 1;" title="Agora locations are assembled from community contributions with titles that match your search.">
-                        📚 <strong>Agora location</strong> 
+                    <span style="flex: auto; flex-grow: 1;" title="Agora nodes are assembled from community contributions on a topic.">
+                        📚 <strong>Node</strong> 
                         <span class="wikilink-marker">[[</span><a href="/{{node.qstr}}"><span class="node-name">{{node.qstr}}</span></a><span class="wikilink-marker">]]</span>
                         <span class="node-star-toggle {% if node.uri in starred_nodes %}starred{% endif %}" data-node-uri="{{ node.uri }}" title="{% if not node.subnodes %}A star on an empty node is a wish. Click to add this node to this Agora's wishlist.{% else %}Star this node to add it to this Agora's starred topics (visible on /starred).{% endif %}" style="margin-left: 6px;">
                             {% if node.uri in starred_nodes %}★{% else %}☆{% endif %}
@@ -48,7 +48,7 @@
     
         <!-- yolo -- dedup with stoa.html when time is available :) -->
         <div info-box-id="node" class="info-box with-spacing">
-          Agora locations contain community contributions with titles or topics that match your search.
+          Agora nodes contain community contributions with titles or topics that match your search.
           <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="node" id="dismissbutton" class="dismiss-button">x</span>
         </div>
 
