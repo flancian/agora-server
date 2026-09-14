@@ -392,6 +392,106 @@ export function focusSearch(): void {
 }
 
 /**
+ * Toggles expand or collapse for all sections.
+ */
+export function toggleExpandAll(): void {
+  const expandBtn = document.getElementById('expand-all') as HTMLButtonElement | null;
+  if (expandBtn) {
+    expandBtn.click();
+  }
+}
+
+/**
+ * Toggles light and dark themes.
+ */
+export function toggleTheme(): void {
+  const themeBox = document.getElementById('theme-checkbox') as HTMLInputElement | null;
+  if (themeBox) {
+    themeBox.click();
+  }
+}
+
+/**
+ * Triggers pulling / transcluding another node.
+ */
+export function triggerPull(): void {
+  const pullBtn = document.getElementById('mini-cli-pull') as HTMLButtonElement | null;
+  if (pullBtn) {
+    pullBtn.click();
+  }
+}
+
+/**
+ * Follows [[go]] target or navigates directly to target node.
+ */
+export function triggerGo(): void {
+  const goBtn = document.getElementById('mini-cli-go') as HTMLButtonElement | null;
+  if (goBtn) {
+    goBtn.click();
+  }
+}
+
+/**
+ * Triggers Go Beyond (lucky web search).
+ */
+export function triggerGoBeyond(): void {
+  const beyondBtn = document.getElementById('mini-cli-go-beyond') as HTMLButtonElement | null;
+  if (beyondBtn) {
+    beyondBtn.click();
+  }
+}
+
+/**
+ * Opens editor to write a subnode for this node.
+ */
+export function triggerWrite(): void {
+  const writeBtn = document.getElementById('mini-cli-write') as HTMLButtonElement | null;
+  if (writeBtn) {
+    writeBtn.click();
+  }
+}
+
+/**
+ * Triggers AI perspective synthesis or expands the synthesis section.
+ */
+export function triggerSynthesize(): void {
+  const synBtn = document.getElementById('mini-cli-synthesize') as HTMLButtonElement | null;
+  const synDetails = document.getElementById('synthesis-details') as HTMLDetailsElement | null;
+  if (synBtn && synBtn.style.display !== 'none') {
+    synBtn.click();
+  } else if (synDetails) {
+    synDetails.open = true;
+    synDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    // @ts-ignore
+    if (typeof window.showToast === 'function') {
+      // @ts-ignore
+      window.showToast('✨ AI Synthesis is not available on this page.');
+    }
+  }
+}
+
+/**
+ * Scrolls to the local graph and context.
+ */
+export function triggerLookAround(): void {
+  const lookBtn = document.getElementById('mini-cli-look-around') as HTMLButtonElement | null;
+  if (lookBtn) {
+    lookBtn.click();
+  }
+}
+
+/**
+ * Opens or scrolls to interactive Agora minigames.
+ */
+export function triggerPlay(): void {
+  const playBtn = document.getElementById('mini-cli-play') as HTMLButtonElement | null;
+  if (playBtn) {
+    playBtn.click();
+  }
+}
+
+/**
  * Closes active overlays, dismisses the shortcuts sheet, and blurs active inputs.
  */
 export function handleEscape(): void {
@@ -459,12 +559,8 @@ function getOrCreateShortcutsModal(): HTMLElement {
         <table class="agora-shortcuts-table">
           <tbody>
             <tr>
-              <td class="key-col"><kbd>j</kbd></td>
-              <td class="desc-col">Scroll down within active column or section</td>
-            </tr>
-            <tr>
-              <td class="key-col"><kbd>k</kbd></td>
-              <td class="desc-col">Scroll up within active column or section</td>
+              <td class="key-col"><kbd>j</kbd> / <kbd>k</kbd></td>
+              <td class="desc-col">Scroll down / up within active column or section</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>h</kbd> / <kbd>l</kbd></td>
@@ -479,12 +575,48 @@ function getOrCreateShortcutsModal(): HTMLElement {
               <td class="desc-col">Monocle: toggle maximize focused satellite column</td>
             </tr>
             <tr>
-              <td class="key-col"><kbd>w</kbd></td>
-              <td class="desc-col">Trigger <strong>Wander</strong> (explore connected or random node)</td>
+              <td class="key-col"><kbd>e</kbd></td>
+              <td class="desc-col">Expand or collapse all sections</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>t</kbd></td>
+              <td class="desc-col">Toggle light / dark theme</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>/</kbd></td>
               <td class="desc-col">Jump to search bar (focuses <code>#mini-cli</code>)</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>g</kbd></td>
+              <td class="desc-col"><strong>Go</strong>: follow <code>[[go]]</code> link or jump to target node</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>b</kbd></td>
+              <td class="desc-col"><strong>Go Beyond</strong>: search the web for query</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>w</kbd></td>
+              <td class="desc-col"><strong>Wander</strong>: explore connected or random node</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>p</kbd></td>
+              <td class="desc-col"><strong>Pull</strong>: transclude another node into this page</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>c</kbd></td>
+              <td class="desc-col"><strong>Compose</strong> / Write a subnode for this node</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>s</kbd></td>
+              <td class="desc-col"><strong>Synthesize</strong>: trigger AI perspective synthesis</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>a</kbd></td>
+              <td class="desc-col"><strong>Look Around</strong>: jump to local graph &amp; context</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>m</kbd></td>
+              <td class="desc-col"><strong>Play</strong>: open interactive Agora minigames</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>?</kbd></td>
@@ -674,6 +806,51 @@ export function initKeyNavigation(): void {
       case '/':
         e.preventDefault();
         focusSearch();
+        break;
+
+      case 'e':
+        e.preventDefault();
+        toggleExpandAll();
+        break;
+
+      case 't':
+        e.preventDefault();
+        toggleTheme();
+        break;
+
+      case 'p':
+        e.preventDefault();
+        triggerPull();
+        break;
+
+      case 'g':
+        e.preventDefault();
+        triggerGo();
+        break;
+
+      case 'b':
+        e.preventDefault();
+        triggerGoBeyond();
+        break;
+
+      case 'c':
+        e.preventDefault();
+        triggerWrite();
+        break;
+
+      case 's':
+        e.preventDefault();
+        triggerSynthesize();
+        break;
+
+      case 'a':
+        e.preventDefault();
+        triggerLookAround();
+        break;
+
+      case 'm':
+        e.preventDefault();
+        triggerPlay();
         break;
     }
   });

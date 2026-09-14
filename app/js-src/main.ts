@@ -934,6 +934,9 @@ document.addEventListener("DOMContentLoaded", async function () {
       miniCliGo.textContent = "🏹 Gone gone";
       miniCliGo.disabled = true;
       let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
+      if (!val && typeof NODENAME !== 'undefined' && NODENAME) {
+        val = NODENAME;
+      }
       window.location.href = '/go/' + val;
     });
   }
@@ -945,6 +948,9 @@ document.addEventListener("DOMContentLoaded", async function () {
       miniCliGoBeyond.textContent = "🌠 Gone beyond";
       miniCliGoBeyond.disabled = true;
       let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
+      if (!val && typeof NODENAME !== 'undefined' && NODENAME) {
+        val = NODENAME;
+      }
       window.location.href = '/lucky/' + val;
     });
   }
@@ -1123,7 +1129,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   if (miniCliWrite) {
       miniCliWrite.innerHTML = "✍️ Write";
-      miniCliWrite.setAttribute('title', "Write or edit a subnode for this location.");
+      miniCliWrite.setAttribute('title', "Write or edit a subnode for this node. [c]");
 
       miniCliWrite.addEventListener("click", () => {
           const user = localStorage.getItem('user');
@@ -1406,7 +1412,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (isExpanded) {
             console.log("expand all executes: expanding top-level details");
             expandAllButton.innerHTML = "⊟ collapse all";
-            expandAllButton.title = "Collapse all sections.";
+            expandAllButton.title = "Collapse all sections. [e]";
             document.querySelectorAll("details:not([open]):not(.edit-section-container)").forEach(detail => {
               if (!detail.parentElement || !detail.parentElement.closest('details')) {
                   const summary = detail.querySelector(':scope > summary');
@@ -1418,7 +1424,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         } else {
             console.log("collapse all executes: collapsing top-level details");
             expandAllButton.innerHTML = "⊞ expand all";
-            expandAllButton.title = "Expand all sections.";
+            expandAllButton.title = "Expand all sections. [e]";
             document.querySelectorAll("details[open]:not(.edit-section-container)").forEach(detail => {
               if (!detail.parentElement || !detail.parentElement.closest('details')) {
                   const summary = detail.querySelector(':scope > summary');
