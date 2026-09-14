@@ -2687,6 +2687,26 @@ pre:has(code.language-verse) {
 }
 
 /* N-Agora Spatial Knowledge Workbench (Phase 2) */
+#agora-canopy {
+    max-width: 80em;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+}
+
+#agora-canopy:empty {
+    display: none;
+}
+
+#agora-intro {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+    padding-right: 32px;
+}
+
 #nagora-root-wrapper {
     position: relative;
     width: 100%;
@@ -2869,7 +2889,22 @@ body.experimental-mode .nagora-layout-switcher {
         box-shadow: 0 0 0 2px var(--wikilink-color, #1e53a6), 0 6px 18px rgba(0, 0, 0, 0.12);
     }
 
+    /* Widescreen multi-column N-Agora canopy across active columns */
+    body.nagora-active #agora-canopy {
+        max-width: 100%;
+        padding: 0 1.25rem;
+    }
+
+    body.nagora-active #agora-intro {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
     /* Tiling Window Manager: Monocle (Maximize) Mode */
+    body.nagora-active.nagora-monocle #agora-canopy {
+        display: none !important;
+    }
+
     body.nagora-active.nagora-monocle #nagora-root > .content {
         display: none !important;
     }
@@ -2994,11 +3029,19 @@ body.experimental-mode .nagora-layout-switcher {
     width: 100%;
     height: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     background: var(--background);
     z-index: 2;
     transition: opacity 0.2s;
+}
+
+.nagora-loader-text {
+    margin-top: 12px;
+    font-size: 0.92rem;
+    color: var(--subnode-text-color, #666);
+    font-style: italic;
 }
 
 .nagora-pane-loader.hidden {

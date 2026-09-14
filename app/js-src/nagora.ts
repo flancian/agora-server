@@ -238,8 +238,10 @@ export function closePane(side: 'left' | 'right'): void {
 
   if (side === 'left') {
     leftPaneVisible = false;
+    document.body.classList.remove('nagora-has-left');
   } else {
     rightPaneVisible = false;
+    document.body.classList.remove('nagora-has-right');
   }
 
   if (activeColumn === side) {
@@ -247,7 +249,7 @@ export function closePane(side: 'left' | 'right'): void {
   }
 
   if (!leftPaneVisible && !rightPaneVisible) {
-    document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3', 'nagora-monocle');
+    document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3', 'nagora-monocle', 'nagora-has-left', 'nagora-has-right');
   }
 }
 
@@ -441,6 +443,46 @@ function extractOutgoingCandidates(): NagoraCandidate[] {
   return result;
 }
 
+function renderLoadingPane(side: 'left' | 'right', title: string): void {
+  const paneId = side === 'left' ? 'nagora-left-pane' : 'nagora-right-pane';
+  const pane = document.getElementById(paneId);
+  if (!pane) return;
+
+  const badgeIcon = side === 'left' ? '←' : '→';
+  pane.innerHTML = `
+    <div class="nagora-pane-header">
+      <div class="nagora-pane-info">
+        <span class="nagora-pane-badge">${badgeIcon}</span>
+        <span style="font-size: 0.88rem; opacity: 0.75; font-style: italic;">${title}</span>
+      </div>
+      <div class="nagora-pane-actions">
+        <button class="nagora-pane-btn nagora-btn-close" title="Un-tile: Close this column (Esc)">✕</button>
+      </div>
+    </div>
+    <div class="nagora-pane-body">
+      <div class="nagora-pane-loader">
+        <div class="spinner"><img src="/static/img/agora.png" class="logo" alt="Loading..."></div>
+        <p class="nagora-loader-text"><em>Loading Agora node…</em></p>
+      </div>
+    </div>
+  `;
+
+  const closeBtn = pane.querySelector('.nagora-btn-close');
+  closeBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closePane(side);
+  });
+
+  pane.style.display = 'flex';
+  if (side === 'left') {
+    leftPaneVisible = true;
+    document.body.classList.add('nagora-has-left');
+  } else {
+    rightPaneVisible = true;
+    document.body.classList.add('nagora-has-right');
+  }
+}
+
 function renderPane(side: 'left' | 'right', candidates: NagoraCandidate[], index: number): void {
   const paneId = side === 'left' ? 'nagora-left-pane' : 'nagora-right-pane';
   const pane = document.getElementById(paneId);
@@ -487,6 +529,7 @@ function renderPane(side: 'left' | 'right', candidates: NagoraCandidate[], index
     <div class="nagora-pane-body">
       <div class="nagora-pane-loader">
         <div class="spinner"><img src="/static/img/agora.png" class="logo" alt="Loading..."></div>
+        <p class="nagora-loader-text"><em>Loading Agora node…</em></p>
       </div>
       <iframe class="nagora-pane-iframe" loading="lazy" src="/embed/${encodeURIComponent(current.name)}"></iframe>
     </div>
@@ -551,8 +594,10 @@ function renderPane(side: 'left' | 'right', candidates: NagoraCandidate[], index
   pane.style.display = 'flex';
   if (side === 'left') {
     leftPaneVisible = true;
+    document.body.classList.add('nagora-has-left');
   } else {
     rightPaneVisible = true;
+    document.body.classList.add('nagora-has-right');
   }
 }
 
@@ -581,10 +626,13 @@ export function updateNagoraPanes(): void {
   // Mode 2: Main + Outgoing (or Main + Incoming if right is empty)
   if (cols === '2') {
     closePane('left');
+    const isMainLoading = Boolean(document.getElementById('async-content'));
     if (outgoing.length > 0) {
       outgoingCandidates = outgoing;
       if (outgoingIndex >= outgoingCandidates.length) outgoingIndex = 0;
       renderPane('right', outgoingCandidates, outgoingIndex);
+    } else if (isMainLoading) {
+      renderLoadingPane('right', 'Outgoing links…');
     } else if (incoming.length > 0) {
       // Fallback: show left pane if no outgoing links exist
       incomingCandidates = incoming;
@@ -593,15 +641,21 @@ export function updateNagoraPanes(): void {
     }
     document.body.classList.add('nagora-active', 'nagora-cols-2');
     document.body.classList.remove('nagora-cols-3');
+    document.body.classList.toggle('nagora-has-left', leftPaneVisible);
+    document.body.classList.toggle('nagora-has-right', rightPaneVisible);
     return;
   }
 
   // Mode 3: 3-column layout (Incoming + Main + Outgoing)
   if (cols === '3') {
+    const isMainLoading = Boolean(document.getElementById('async-content'));
+
     if (incoming.length > 0) {
       incomingCandidates = incoming;
       if (incomingIndex >= incomingCandidates.length) incomingIndex = 0;
       renderPane('left', incomingCandidates, incomingIndex);
+    } else if (isMainLoading) {
+      renderLoadingPane('left', 'Incoming links…');
     } else {
       closePane('left');
     }
@@ -610,6 +664,8 @@ export function updateNagoraPanes(): void {
       outgoingCandidates = outgoing;
       if (outgoingIndex >= outgoingCandidates.length) outgoingIndex = 0;
       renderPane('right', outgoingCandidates, outgoingIndex);
+    } else if (isMainLoading) {
+      renderLoadingPane('right', 'Outgoing links…');
     } else {
       closePane('right');
     }
@@ -617,8 +673,10 @@ export function updateNagoraPanes(): void {
     if (leftPaneVisible || rightPaneVisible) {
       document.body.classList.add('nagora-active', 'nagora-cols-3');
       document.body.classList.remove('nagora-cols-2');
+      document.body.classList.toggle('nagora-has-left', leftPaneVisible);
+      document.body.classList.toggle('nagora-has-right', rightPaneVisible);
     } else {
-      document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3');
+      document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3', 'nagora-has-left', 'nagora-has-right');
     }
   }
 }

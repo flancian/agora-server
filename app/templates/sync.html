@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+{% block intro %}
+    <div info-box-id="agora-intro" class="intro" id="agora-intro">
+      <span>This you find in the <strong>{{config['AGORA_NAME']}}</strong>…</span>
+      <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="agora-intro" id="dismissbutton" class="dismiss-button">x</span>
+    </div>
+{% endblock %}
+
 {% block content %}
 
 <!--
@@ -22,11 +29,6 @@
         </div>
         {% endif %}
     -->
-
-    <div info-box-id="agora-intro" class="intro" id="agora-intro">
-      <span>This you find in the <strong>{{config['AGORA_NAME']}}</strong>…</span>
-      <span title="To recall any dialogs, please clear local storage for this Agora on your browser session or in settings." info-box-id="agora-intro" id="dismissbutton" class="dismiss-button">x</span>
-    </div>
 
     {% if not subnode and not rendering_user %}
     {% if embed %}

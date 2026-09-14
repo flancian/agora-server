@@ -220,6 +220,12 @@
         </div>
     </nav>
 
+    {% if not embed %}
+    <div id="agora-canopy">
+        {% block intro %}{% endblock %}
+    </div>
+    {% endif %}
+
     <div id="nagora-root-wrapper" class="scrolled-to-start scrolled-to-end">
         <div id="nagora-root">
             {% if not embed %}
