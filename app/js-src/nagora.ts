@@ -20,7 +20,7 @@ import { CLIENT_DEFAULTS, safeJsonParse } from './util';
 declare const NODENAME: string | undefined;
 
 export type ActiveColumn = 'left' | 'center' | 'right';
-export type NagoraColumns = 'auto' | '1' | '2' | '3';
+export type NagoraColumns = '1' | '2' | '3';
 export type CandidateType = 'backlink' | 'history' | 'related' | 'outlink' | 'random';
 
 export interface NagoraCandidate {
@@ -59,37 +59,43 @@ export function isNagoraEnabled(): boolean {
   if (!isExp && !isNag) return false;
 
   const cols = getNagoraColumns();
-  if (cols === '1') return false;
-  return window.innerWidth >= 1280;
+  return cols !== '1';
 }
 
 /**
- * Returns configured column preference ('auto' | '1' | '2' | '3'). Defaults to 'auto'.
+ * Returns configured column preference ('1' | '2' | '3').
+ * If unset, defaults dynamically to the optimal column count for current viewport.
  */
 export function getNagoraColumns(): NagoraColumns {
   const stored = localStorage.getItem('nagora-columns');
-  if (stored === 'auto' || stored === '1' || stored === '2' || stored === '3') {
+  if (stored === '1' || stored === '2' || stored === '3') {
     return stored;
   }
-  return 'auto';
+  if (stored === 'auto') {
+    try {
+      localStorage.removeItem('nagora-columns');
+    } catch {
+      // Ignore
+    }
+  }
+  // Smart default based on available viewport width:
+  // >= 1280px: 3 columns (full spatial view)
+  // >= 800px: 2 columns (main + context)
+  // < 800px: 1 column
+  const width = window.innerWidth;
+  if (width >= 1280) {
+    return '3';
+  } else if (width >= 800) {
+    return '2';
+  }
+  return '1';
 }
 
 /**
  * Resolves the active column count ('1' | '2' | '3') based on configuration and available viewport width.
  */
 export function getResolvedColumns(): '1' | '2' | '3' {
-  const pref = getNagoraColumns();
-  if (pref === '1' || pref === '2' || pref === '3') {
-    return pref;
-  }
-  // Dynamic auto-tiling based on viewport real estate
-  const width = window.innerWidth;
-  if (width >= 1650) {
-    return '3';
-  } else if (width >= 1280) {
-    return '2';
-  }
-  return '1';
+  return getNagoraColumns();
 }
 
 /**
@@ -693,8 +699,10 @@ export function initNagora(): void {
   document.querySelectorAll<HTMLButtonElement>('.nagora-layout-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      const targetCols = (btn.dataset.cols as NagoraColumns) || 'auto';
-      setNagoraColumns(targetCols);
+      const targetCols = btn.dataset.cols as NagoraColumns | undefined;
+      if (targetCols === '1' || targetCols === '2' || targetCols === '3') {
+        setNagoraColumns(targetCols);
+      }
     });
   });
   updateLayoutSwitcherUI();
@@ -728,12 +736,13 @@ export function initNagora(): void {
   window.addEventListener('resize', () => {
     if (resizeTimer) clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(() => {
-      if (window.innerWidth < 1280) {
-        if (leftPaneVisible || rightPaneVisible) {
-          document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3', 'nagora-monocle');
-        }
-      } else if (isNagoraEnabled()) {
+      updateLayoutSwitcherUI();
+      if (isNagoraEnabled()) {
         updateNagoraPanes();
+      } else {
+        closePane('left');
+        closePane('right');
+        document.body.classList.remove('nagora-active', 'nagora-cols-2', 'nagora-cols-3', 'nagora-monocle');
       }
     }, 200);
   });

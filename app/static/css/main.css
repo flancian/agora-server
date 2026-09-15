@@ -598,6 +598,11 @@ summary, #footer {
     overflow-x: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    padding-right: 35px;
+}
+
+.action-bar > * {
+    flex-shrink: 0;
 }
 
 .action-bar::-webkit-scrollbar {
@@ -2731,6 +2736,7 @@ body.experimental-mode .nagora-layout-switcher {
     overflow: hidden;
     margin-left: 6px;
     vertical-align: middle;
+    flex-shrink: 0;
 }
 
 .nagora-layout-btn {
@@ -2744,6 +2750,8 @@ body.experimental-mode .nagora-layout-switcher {
     cursor: pointer;
     line-height: 1.2;
     transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .nagora-layout-btn:last-child {
@@ -2759,15 +2767,7 @@ body.experimental-mode .nagora-layout-switcher {
     color: #ffffff;
 }
 
-@media (max-width: 1279px) {
-    .nagora-layout-switcher,
-    body.experimental-mode .nagora-layout-switcher {
-        display: none !important;
-    }
-}
-
-@media (min-width: 1280px) {
-    body.nagora-active #nagora-root-wrapper {
+body.nagora-active #nagora-root-wrapper {
         overflow-x: auto;
         overflow-y: visible;
         scroll-behavior: smooth;
@@ -2918,13 +2918,6 @@ body.experimental-mode .nagora-layout-switcher {
         max-width: 100% !important;
         width: 100% !important;
     }
-}
-
-@media (max-width: 1279px) {
-    .nagora-pane {
-        display: none !important;
-    }
-}
 
 .nagora-pane-header {
     display: flex;

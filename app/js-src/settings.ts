@@ -144,15 +144,15 @@ export function initSettings() {
         const enableNagoraEl = document.getElementById("enable-nagora") as HTMLInputElement;
         if (enableNagoraEl) {
             localStorage["enable-nagora"] = enableNagoraEl.checked;
-            if (enableNagoraEl.checked && (!localStorage.getItem("nagora-columns") || localStorage.getItem("nagora-columns") === "1")) {
-                localStorage.setItem("nagora-columns", "auto");
+            if (enableNagoraEl.checked && (!localStorage.getItem("nagora-columns") || localStorage.getItem("nagora-columns") === "1" || localStorage.getItem("nagora-columns") === "auto")) {
+                localStorage.removeItem("nagora-columns");
             }
         }
         const enableExperimentalEl = document.getElementById("enable-experimental") as HTMLInputElement;
         if (enableExperimentalEl) {
             localStorage["enable-experimental"] = enableExperimentalEl.checked;
-            if (enableExperimentalEl.checked && (!localStorage.getItem("nagora-columns") || localStorage.getItem("nagora-columns") === "1")) {
-                localStorage.setItem("nagora-columns", "auto");
+            if (enableExperimentalEl.checked && (!localStorage.getItem("nagora-columns") || localStorage.getItem("nagora-columns") === "1" || localStorage.getItem("nagora-columns") === "auto")) {
+                localStorage.removeItem("nagora-columns");
             }
         }
         localStorage["auto-scroll-demo"] = (document.getElementById("auto-scroll-demo") as HTMLInputElement).checked;
