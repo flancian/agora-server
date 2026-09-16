@@ -227,7 +227,7 @@ nav {
     margin-right: auto;
     position: sticky;
     top: 0;
-    z-index: 4;
+    z-index: 50;
     background-color: var(--main-bg);
     padding: 0.25em;
     padding-bottom: 0px;
@@ -2768,8 +2768,7 @@ body.experimental-mode .nagora-layout-switcher {
 }
 
 body.nagora-active #nagora-root-wrapper {
-        overflow-x: auto;
-        overflow-y: visible;
+        overflow: visible;
         scroll-behavior: smooth;
     }
 
@@ -2871,8 +2870,10 @@ body.nagora-active #nagora-root-wrapper {
         min-width: 18rem;
         max-width: none;
         position: sticky;
-        top: 75px;
-        height: calc(100vh - 95px);
+        top: 110px;
+        height: calc(100vh - 125px);
+        margin-top: 5px;
+        align-self: flex-start;
         background: var(--background);
         border: 1px solid var(--border-color);
         border-radius: 8px;
@@ -2917,6 +2918,13 @@ body.nagora-active #nagora-root-wrapper {
         flex: 1 1 100% !important;
         max-width: 100% !important;
         width: 100% !important;
+        height: calc(100vh - 125px) !important;
+        position: sticky;
+        top: 110px;
+    }
+
+    body.nagora-active.nagora-monocle .nagora-pane.nagora-pane-monocle .nagora-pane-body {
+        overflow-y: auto;
     }
 
 .nagora-pane-header {
@@ -3000,18 +3008,21 @@ body.nagora-active #nagora-root-wrapper {
 }
 
 .nagora-pane-body {
-    flex: 1;
+    flex: 1 1 auto;
     position: relative;
     width: 100%;
     height: 100%;
+    min-height: 0;
     overflow: hidden;
 }
 
 .nagora-pane-iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    min-height: 100% !important;
+    border: none !important;
+    display: block !important;
     background: var(--background);
 }
 
@@ -3071,6 +3082,7 @@ body.is-embed {
     padding: 0;
     margin: 0;
     background-color: var(--background);
+    overflow-x: hidden;
 }
 
 body.is-embed nav,
