@@ -2712,6 +2712,32 @@ pre:has(code.language-verse) {
     padding-right: 32px;
 }
 
+#agora-canopy-footer {
+    max-width: 80em;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+}
+
+#agora-canopy-footer:empty {
+    display: none;
+}
+
+#agora-canopy-footer .footer-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#agora-canopy-footer #footer {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    padding: 10px 14px;
+    text-align: center;
+}
+
 #nagora-root-wrapper {
     position: relative;
     width: 100%;
@@ -2890,19 +2916,22 @@ body.nagora-active #nagora-root-wrapper {
         box-shadow: 0 0 0 2px var(--wikilink-color, #1e53a6), 0 6px 18px rgba(0, 0, 0, 0.12);
     }
 
-    /* Widescreen multi-column N-Agora canopy across active columns */
-    body.nagora-active #agora-canopy {
+    /* Widescreen multi-column N-Agora canopy & footer across active columns */
+    body.nagora-active #agora-canopy,
+    body.nagora-active #agora-canopy-footer {
         max-width: 100%;
         padding: 0 1.25rem;
     }
 
-    body.nagora-active #agora-intro {
+    body.nagora-active #agora-intro,
+    body.nagora-active #agora-canopy-footer #footer {
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
 
     /* Tiling Window Manager: Monocle (Maximize) Mode */
-    body.nagora-active.nagora-monocle #agora-canopy {
+    body.nagora-active.nagora-monocle #agora-canopy,
+    body.nagora-active.nagora-monocle #agora-canopy-footer {
         display: none !important;
     }
 
@@ -3088,6 +3117,9 @@ body.is-embed {
 body.is-embed nav,
 body.is-embed .topline-node,
 body.is-embed footer,
+body.is-embed #footer,
+body.is-embed .footer-wrapper,
+body.is-embed #agora-canopy-footer,
 body.is-embed .intro,
 body.is-embed .edit-section-container,
 body.is-embed .stoa,

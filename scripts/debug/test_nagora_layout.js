@@ -102,23 +102,34 @@ async function main() {
         offsetParent: left.offsetParent?.tagName + '#' + left.offsetParent?.id
       } : null;
 
+      const canopyFooter = document.getElementById('agora-canopy-footer');
+      const relatedNodes = document.getElementById('related-nodes');
+
       return {
         rootChildren,
         leftComputed,
-        rootComputed: root ? {
-          alignItems: getComputedStyle(root).alignItems,
-          justifyContent: getComputedStyle(root).justifyContent,
-          flexDirection: getComputedStyle(root).flexDirection,
-          paddingTop: getComputedStyle(root).paddingTop
+        mainCanopyFooter: canopyFooter ? {
+          rect: serializeRect(canopyFooter),
+          display: getComputedStyle(canopyFooter).display,
+          footerText: canopyFooter.querySelector('#footer')?.textContent?.trim().slice(0, 80)
         } : null,
-        contentFirstChildren: Array.from(content?.children || []).slice(0, 5).map(c => ({
-          tag: c.tagName,
-          id: c.id,
-          className: c.className,
-          rect: serializeRect(c),
-          offsetTop: c.offsetTop,
-          display: getComputedStyle(c).display
-        }))
+        mainRelatedNodes: relatedNodes ? {
+          summary: relatedNodes.querySelector('summary')?.textContent?.trim(),
+          rect: serializeRect(relatedNodes),
+          open: relatedNodes.open
+        } : null,
+        leftEmbed: {
+          hasFooterInDom: Boolean(leftIframe?.contentDocument?.getElementById('footer')),
+          footerDisplay: leftIframe?.contentDocument?.getElementById('footer') ? getComputedStyle(leftIframe.contentDocument.getElementById('footer')).display : 'none',
+          hasRelatedInDom: Boolean(leftIframe?.contentDocument?.getElementById('related-nodes')),
+          relatedSummary: leftIframe?.contentDocument?.getElementById('related-nodes')?.querySelector('summary')?.textContent?.trim()
+        },
+        rightEmbed: {
+          hasFooterInDom: Boolean(rightIframe?.contentDocument?.getElementById('footer')),
+          footerDisplay: rightIframe?.contentDocument?.getElementById('footer') ? getComputedStyle(rightIframe.contentDocument.getElementById('footer')).display : 'none',
+          hasRelatedInDom: Boolean(rightIframe?.contentDocument?.getElementById('related-nodes')),
+          relatedSummary: rightIframe?.contentDocument?.getElementById('related-nodes')?.querySelector('summary')?.textContent?.trim()
+        }
       };
     })()`;
 

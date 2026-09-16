@@ -15,17 +15,24 @@
 -->
 
 {% set related = node.related() %}
-{% if node and related and not embed %}
-    {% for n in related %}
-        {% if n.subnodes %}
-        <details class="node related pulled sortable-section" id="related-{{n.uri}}" data-section="related">
-            <summary>
-                <span class="node-header" title="An Agora node contains community contributions on a topic.">
-                    📚 <strong>Node</strong> <span class="wikilink-marker">[[</span><a href="/{{n.uri}}"><span class="node-name">{{n.description}}</span></a><span class="wikilink-marker">]]</span> (perhaps related)
-                </span>
-            </summary>
-        <div class="node-embed" id="{{n.uri}}"></div>
-        </details>
-        {% endif %}
-    {% endfor %}
+{% if node and related %}
+    <details class="embed-ancillary-zippy node sortable-section" id="related-nodes" data-section="related">
+        <summary class="node-header">
+            <span>🌿 <em>Related nodes ({{ related|length }}) — click to expand</em></span>
+        </summary>
+        <div class="embed-ancillary-content">
+            {% for n in related %}
+                {% if n.subnodes %}
+                <details class="node related pulled" id="related-{{n.uri}}" data-section="related">
+                    <summary>
+                        <span class="node-header" title="An Agora node contains community contributions on a topic.">
+                            📚 <strong>Node</strong> <span class="wikilink-marker">[[</span><a href="/{{n.uri}}"><span class="node-name">{{n.description}}</span></a><span class="wikilink-marker">]]</span> (perhaps related)
+                        </span>
+                    </summary>
+                    <div class="node-embed" id="{{n.uri}}"></div>
+                </details>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </details>
 {% endif %}

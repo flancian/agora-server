@@ -241,6 +241,13 @@
     </div> <!-- end nagora-root-wrapper -->
 
     {% if not embed %}
+    <div id="agora-canopy-footer">
+        {% block footer %}
+        {% endblock %}
+    </div>
+    {% endif %}
+
+    {% if not embed %}
     {% if config.ENABLE_HYPOTHESIS %}
     <div id='hypothesis-frame'>
         <div id="hypothesis-controls" class="agora-popup-header">
