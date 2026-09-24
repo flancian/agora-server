@@ -97,6 +97,10 @@ def build_cache(app):
                 subnodes_to_insert
             )
             app.logger.info(f"Inserted {len(subnodes_to_insert)} subnodes.")
+            try:
+                db.execute(f"CREATE INDEX IF NOT EXISTS idx_{subnodes_table}_node ON {subnodes_table}(node);")
+            except sqlite3.OperationalError as e:
+                app.logger.warning(f"Could not create index on {subnodes_table}: {e}")
 
             if app.config.get('ENABLE_FTS', False) and fts_to_insert:
                 app.logger.info(f"Populating {subnodes_fts_table} & {subnodes_trigram_table}...")
@@ -151,6 +155,10 @@ def deploy_cache(app):
                 # Atomic swap sequence inside single exclusive transaction
                 db.execute("DROP TABLE IF EXISTS subnodes;")
                 db.execute("ALTER TABLE subnodes_new RENAME TO subnodes;")
+                try:
+                    db.execute("CREATE INDEX IF NOT EXISTS idx_subnodes_node ON subnodes(node);")
+                except sqlite3.OperationalError as e:
+                    app.logger.warning(f"Could not recreate index on subnodes: {e}")
                 
                 db.execute("DROP TABLE IF EXISTS links;")
                 db.execute("ALTER TABLE links_new RENAME TO links;")
