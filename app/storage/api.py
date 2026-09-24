@@ -15,6 +15,7 @@
 import os
 import time
 import json
+import urllib.parse
 from flask import current_app
 import app.storage.file_engine as file_engine
 import app.storage.sqlite_engine as sqlite_engine
@@ -181,7 +182,70 @@ def count_search_subnodes(query, mode='exact'):
             return sqlite_engine.count_subnodes_fts(query, mode=mode)
     return 0
 
-    return file_engine.search_subnodes(query)
+
+def live_search(query, limit=7):
+    """
+    Fast, lightweight live search suggestions for quick-switcher UI.
+    """
+    if _is_sqlite_enabled():
+        results = sqlite_engine.live_search(query, limit=limit)
+        if results:
+            return results
+
+    # Fallback to in-memory Graph / file_engine
+    clean_q = query.strip()
+    if not clean_q:
+        return []
+
+    results = []
+    # User query fallback
+    if clean_q.startswith('@'):
+        user_prefix = clean_q[1:].lower()
+        users = all_users()
+        matched_users = [u.uri for u in users if user_prefix in u.uri.lower()]
+        matched_users.sort(key=lambda u: (0 if u.lower() == user_prefix else (1 if u.lower().startswith(user_prefix) else 2), u.lower()))
+        for u in matched_users[:limit]:
+            results.append({
+                "title": f"@{u}",
+                "node": u,
+                "uri": f"/@{u}",
+                "type": "user",
+                "users": [u],
+                "count": 1,
+                "snippet": "User / contributor"
+            })
+        return results
+
+    # Node search in in-memory graph
+    if G:
+        q_lower = clean_q.lower()
+        try:
+            canonical_nodes = G.nodes(only_canonical=True)
+            matched_nodes = []
+            for name, n in canonical_nodes.items():
+                if not name:
+                    continue
+                name_lower = name.lower()
+                if q_lower in name_lower:
+                    rank = 0 if name_lower == q_lower else (1 if name_lower.startswith(q_lower) else (2 if f" {q_lower}" in name_lower or f"_{q_lower}" in name_lower else 3))
+                    matched_nodes.append((rank, -len(n.subnodes), name, n))
+            matched_nodes.sort(key=lambda x: (x[0], x[1], x[2]))
+            for rank, neg_cnt, name, n in matched_nodes[:limit]:
+                users = list(dict.fromkeys([s.user for s in n.subnodes if getattr(s, 'user', None)]))
+                results.append({
+                    "title": name,
+                    "node": name,
+                    "uri": f"/{urllib.parse.quote(name, safe='/@')}",
+                    "type": "node",
+                    "users": users[:5],
+                    "count": len(n.subnodes),
+                    "snippet": None
+                })
+        except Exception as e:
+            current_app.logger.warning(f"Error in in-memory live search: {e}")
+
+    return results
+
 
 def search_subnodes_by_user(query, username):
     return file_engine.search_subnodes_by_user(query, username)

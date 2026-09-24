@@ -16,6 +16,7 @@ import os
 import sqlite3
 import re
 import time
+import urllib.parse
 from flask import current_app, g
 
 # Module-level schema templates to be shared with maintenance worker.
@@ -252,6 +253,12 @@ def create_tables(db):
             db.execute("ALTER TABLE subnodes ADD COLUMN git_mtime INTEGER;")
         except sqlite3.OperationalError:
             # This will fail if the column already exists, which is fine.
+            pass
+
+        # Index on node for fast prefix / title search
+        try:
+            db.execute("CREATE INDEX IF NOT EXISTS idx_subnodes_node ON subnodes(node);")
+        except sqlite3.OperationalError:
             pass
 
 def get_subnode_count():
@@ -793,6 +800,148 @@ def count_subnodes_literal(query):
         return row[0] if row else 0
     except sqlite3.OperationalError:
         return 0
+
+
+
+def live_search(query, limit=7):
+    """
+    Fast, ranking-optimized search for live quick-switcher suggestions.
+    Returns a list of dicts:
+      {
+        "title": str,
+        "node": str,
+        "uri": str,
+        "type": "node" | "content" | "user",
+        "users": list[str],
+        "count": int,
+        "snippet": str or None
+      }
+    """
+    db = get_db()
+    if not db:
+        return []
+
+    clean_q = query.strip()
+    if not clean_q:
+        return []
+
+    results = []
+    seen_nodes = set()
+    cursor = db.cursor()
+
+    if clean_q.startswith('@'):
+        user_prefix = clean_q[1:].lower()
+        try:
+            cursor.execute("""
+                SELECT user, COUNT(*) as cnt
+                FROM subnodes
+                WHERE LOWER(user) LIKE ?
+                GROUP BY user
+                ORDER BY
+                    CASE
+                        WHEN LOWER(user) = ? THEN 0
+                        WHEN LOWER(user) LIKE ? THEN 1
+                        ELSE 2
+                    END,
+                    cnt DESC
+                LIMIT ?
+            """, (f'%{user_prefix}%', user_prefix, f'{user_prefix}%', limit))
+            for row in cursor.fetchall():
+                user_name, cnt = row[0], row[1]
+                if not user_name:
+                    continue
+                results.append({
+                    "title": f"@{user_name}",
+                    "node": user_name,
+                    "uri": f"/@{user_name}",
+                    "type": "user",
+                    "users": [user_name],
+                    "count": cnt,
+                    "snippet": f"User / contributor ({cnt} subnode{'s' if cnt != 1 else ''})"
+                })
+            return results
+        except sqlite3.OperationalError as e:
+            current_app.logger.error(f"SQLite live user search error: {e}")
+            return []
+
+    # 1. Match node titles (exact -> prefix -> word boundary -> substring)
+    try:
+        q_lower = clean_q.lower()
+        cursor.execute("""
+            SELECT node, GROUP_CONCAT(DISTINCT user), COUNT(*) as cnt
+            FROM subnodes
+            WHERE LOWER(node) LIKE ?
+            GROUP BY node
+            ORDER BY
+                CASE
+                    WHEN LOWER(node) = ? THEN 0
+                    WHEN LOWER(node) LIKE ? THEN 1
+                    WHEN LOWER(node) LIKE ? OR LOWER(node) LIKE ? THEN 2
+                    ELSE 3
+                END,
+                cnt DESC,
+                node ASC
+            LIMIT ?
+        """, (
+            f'%{q_lower}%',
+            q_lower,
+            f'{q_lower}%',
+            f'% {q_lower}%',
+            f'%_{q_lower}%',
+            limit
+        ))
+        for row in cursor.fetchall():
+            node_name, users_str, cnt = row[0], row[1], row[2]
+            if not node_name:
+                continue
+            users = [u.strip() for u in (users_str or "").split(",") if u.strip()]
+            seen_nodes.add(node_name.lower())
+            results.append({
+                "title": node_name,
+                "node": node_name,
+                "uri": f"/{urllib.parse.quote(node_name, safe='/@')}",
+                "type": "node",
+                "users": users[:5],
+                "count": cnt,
+                "snippet": None
+            })
+    except sqlite3.OperationalError as e:
+        current_app.logger.error(f"SQLite live title search error: {e}")
+
+    # 2. Content match fallback via FTS if title matches < limit
+    if len(results) < limit and current_app.config.get('ENABLE_FTS', False):
+        remaining = limit - len(results)
+        safe_q = clean_q.replace('"', '""')
+        fts_match = f'"{safe_q}"'
+        try:
+            cursor.execute("""
+                SELECT s.node, s.user, snippet(subnodes_fts, 1, '<b>', '</b>', '...', 8) as snip
+                FROM subnodes_fts
+                JOIN subnodes s ON subnodes_fts.path = s.path
+                WHERE subnodes_fts MATCH ?
+                LIMIT ?
+            """, (fts_match, remaining * 2))
+            for row in cursor.fetchall():
+                node_name, user, snip = row[0], row[1], row[2]
+                if not node_name or node_name.lower() in seen_nodes:
+                    continue
+                seen_nodes.add(node_name.lower())
+                cleaned_snip = re.sub(r'[\r\n\t]+', ' ', snip).strip()
+                results.append({
+                    "title": node_name,
+                    "node": node_name,
+                    "uri": f"/{urllib.parse.quote(node_name, safe='/@')}",
+                    "type": "content",
+                    "users": [user] if user else [],
+                    "count": 1,
+                    "snippet": cleaned_snip
+                })
+                if len(results) >= limit:
+                    break
+        except sqlite3.OperationalError as e:
+            current_app.logger.debug(f"SQLite live FTS snippet query notice: {e}")
+
+    return results
 
 
 

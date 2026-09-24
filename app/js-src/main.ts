@@ -35,6 +35,7 @@ import { renderGraph } from './graph';
 import { initPullButtons } from './pull';
 import { initKeyNavigation } from './keys';
 import { initNagora, syncTheme, updateLayoutSwitcherUI, updateNagoraPanes } from './nagora';
+import { initLiveSearch } from './livesearch';
 
 declare const NODENAME: string | undefined;
 declare const NODEQ: string | undefined;
@@ -182,6 +183,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   initMusicPlayer();
   initKeyNavigation();
   initNagora();
+  initLiveSearch();
 
   // This function reads localStorage and hides any info-boxes that have been previously dismissed.
   // It's safe to call multiple times.

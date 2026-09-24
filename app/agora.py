@@ -1189,6 +1189,21 @@ def search():
     return redirect(url_for(".root", node=q), code=301)
 
 
+@bp.route("/api/search/live")
+def live_search():
+    """
+    Lightweight, debounced live search / quick-switcher endpoint.
+    Returns JSON: {"query": q, "results": [...]}
+    """
+    q = request.args.get("q", "").strip()
+    if not q or len(q) < 2:
+        return jsonify({"query": q, "results": []})
+
+    limit = min(int(request.args.get("limit", 7)), 15)
+    results = api.live_search(q, limit=limit)
+    return jsonify({"query": q, "results": results})
+
+
 @bp.route("/subnode/<path:subnode>")
 def old_subnode(subnode):
     sn = api.subnode_by_uri(subnode)

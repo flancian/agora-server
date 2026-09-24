@@ -104,3 +104,65 @@ def test_literal_search(test_search_app):
 
         results_gardening = api.search_subnodes("gardening", mode="fs")
         assert "exact_stem_leak" not in [r.wikilink for r in results_gardening]
+
+
+def test_live_search_short_query(test_search_app):
+    client = test_search_app.test_client()
+    resp = client.get("/api/search/live?q=a")
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data["results"] == []
+
+    resp_empty = client.get("/api/search/live?q=")
+    assert resp_empty.status_code == 200
+    assert resp_empty.get_json()["results"] == []
+
+
+def test_live_search_node_title(test_search_app):
+    client = test_search_app.test_client()
+    resp = client.get("/api/search/live?q=broad")
+    assert resp.status_code == 200
+    data = resp.get_json()
+    results = data["results"]
+    assert len(results) >= 1
+    assert any(r["node"] == "broad match" and r["type"] == "node" for r in results)
+
+
+def test_live_search_content_fallback(test_search_app):
+    client = test_search_app.test_client()
+    # "commons" appears in phrase_match content, but not in any node name
+    resp = client.get("/api/search/live?q=commons")
+    assert resp.status_code == 200
+    data = resp.get_json()
+    results = data["results"]
+    assert len(results) >= 1
+    match = next((r for r in results if r["node"] == "phrase match"), None)
+    assert match is not None
+    assert match["type"] == "content"
+    assert "commons" in match["snippet"].lower()
+
+
+def test_live_search_user(test_search_app):
+    client = test_search_app.test_client()
+    resp = client.get("/api/search/live?q=@user1")
+    assert resp.status_code == 200
+    data = resp.get_json()
+    results = data["results"]
+    assert len(results) >= 1
+    assert results[0]["type"] == "user"
+    assert results[0]["node"] == "user1"
+
+
+def test_live_search_fallback(test_search_app):
+    # Disable SQLite to exercise in-memory fallback
+    test_search_app.config["ENABLE_SQLITE"] = False
+    try:
+        client = test_search_app.test_client()
+        resp = client.get("/api/search/live?q=broad")
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert any(r["node"] == "broad match" for r in data["results"])
+    finally:
+        test_search_app.config["ENABLE_SQLITE"] = True
+
+

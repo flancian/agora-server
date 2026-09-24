@@ -16,6 +16,7 @@
 // "For the benefit of all beings" 🌿
 
 import { CLIENT_DEFAULTS, safeJsonParse } from './util';
+import { closeLiveSearch } from './livesearch';
 import {
   getActiveColumn,
   setActiveColumn,
@@ -495,7 +496,10 @@ export function triggerPlay(): void {
  * Closes active overlays, dismisses the shortcuts sheet, and blurs active inputs.
  */
 export function handleEscape(): void {
-  // 0. Exit monocle mode if active
+  // 0. Close live search dropdown if active
+  closeLiveSearch();
+
+  // 0b. Exit monocle mode if active
   if (document.body.classList.contains('nagora-monocle')) {
     exitMonocle();
     return;
