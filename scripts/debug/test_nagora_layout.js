@@ -104,10 +104,12 @@ async function main() {
 
       const canopyFooter = document.getElementById('agora-canopy-footer');
       const relatedNodes = document.getElementById('related-nodes');
+      const playBtn = document.getElementById('mini-cli-play');
 
       return {
         rootChildren,
         leftComputed,
+        playButtonDisplay: playBtn ? getComputedStyle(playBtn).display : null,
         mainCanopyFooter: canopyFooter ? {
           rect: serializeRect(canopyFooter),
           display: getComputedStyle(canopyFooter).display,
@@ -118,11 +120,20 @@ async function main() {
           rect: serializeRect(relatedNodes),
           open: relatedNodes.open
         } : null,
+        sectionOrder: Array.from(document.querySelectorAll('.content .sortable-section')).map(el => ({
+          id: el.id,
+          section: el.dataset.section,
+          top: el.getBoundingClientRect().top
+        })),
         leftEmbed: {
           hasFooterInDom: Boolean(leftIframe?.contentDocument?.getElementById('footer')),
           footerDisplay: leftIframe?.contentDocument?.getElementById('footer') ? getComputedStyle(leftIframe.contentDocument.getElementById('footer')).display : 'none',
           hasRelatedInDom: Boolean(leftIframe?.contentDocument?.getElementById('related-nodes')),
-          relatedSummary: leftIframe?.contentDocument?.getElementById('related-nodes')?.querySelector('summary')?.textContent?.trim()
+          relatedSummary: leftIframe?.contentDocument?.getElementById('related-nodes')?.querySelector('summary')?.textContent?.trim(),
+          sectionOrder: Array.from(leftIframe?.contentDocument?.querySelectorAll('.content .sortable-section') || []).map(el => ({
+            id: el.id,
+            section: el.dataset.section
+          }))
         },
         rightEmbed: {
           hasFooterInDom: Boolean(rightIframe?.contentDocument?.getElementById('footer')),

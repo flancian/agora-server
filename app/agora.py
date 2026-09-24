@@ -652,23 +652,50 @@ def go(node0, node1=""):
             current_app.logger.info(f"Detected go link was not a valid URL: {link}.")
 
     # No matching viable links found after all tries.
-    # Fallback to the local Agora node.
+    # Fallback to Google search.
     if node0 != node1 and node1:
-        return redirect(f"{base}/{node0}/{node1}")
+        query = f"{node0} {node1}"
     else:
-        return redirect(f"{base}/{node0}")
+        query = node0
+    current_app.logger.info(f"No go link found for '{query}'. Falling back to Google search.")
+    return redirect(f"https://www.google.com/search?q={urllib.parse.quote_plus(query)}")
 
 @bp.route("/lucky/<node0>/<node1>")
 @bp.route("/lucky/<node0>/")
 @bp.route("/lucky/<node0>")
 def lucky(node0, node1=""):
-    """Redirects to a Google search for the node (Go Beyond)."""
+    """Redirects to the top search result for the query (Go Beyond) via Google Feeling Lucky."""
     if node0 != node1 and node1:
         query = f"{node0} {node1}"
     else:
         query = node0
 
-    current_app.logger.info("Redirecting to Google search (Go Beyond).")
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        )
+    }
+    url = f"https://www.google.com/search?q={urllib.parse.quote_plus(query)}&btnI=1"
+    try:
+        res = requests.get(url, headers=headers, allow_redirects=False, timeout=3)
+        if res.status_code in (301, 302, 303, 307):
+            loc = res.headers.get("Location")
+            if loc:
+                parsed = urllib.parse.urlparse(loc)
+                qs = urllib.parse.parse_qs(parsed.query)
+                if "q" in qs and qs["q"]:
+                    target = qs["q"][0]
+                    current_app.logger.info(f"Resolved lucky search for '{query}' to: {target}")
+                    return redirect(target)
+                elif loc.startswith("http") and "google.com" not in loc:
+                    current_app.logger.info(f"Resolved lucky search for '{query}' to: {loc}")
+                    return redirect(loc)
+    except Exception as e:
+        current_app.logger.warning(f"Error resolving lucky search for '{query}': {e}")
+
+    current_app.logger.info(f"Falling back to standard Google search for '{query}'.")
     return redirect(f"https://www.google.com/search?q={urllib.parse.quote_plus(query)}")
 
 

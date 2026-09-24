@@ -135,26 +135,28 @@ export function saveOrder() {
     }
 }
 
-const SECTION_ORDER_VERSION_KEY = 'agora-section-order-v4';
-const DEFAULT_ORDER = ["web", "wiki", "genai", "main", "context", "pulled", "related", "stoa", "search", "games"];
+const SECTION_ORDER_VERSION_KEY = 'agora-section-order-v5';
+const DEFAULT_ORDER = ["web", "wiki", "genai", "main", "context", "pulled", "stoa", "search", "games", "related"];
 
 export function restoreOrder() {
-    if (document.body.classList.contains('is-embed')) return;
     const container = document.querySelector('.content') as HTMLElement;
     if (!container) return;
 
     try {
         let order: string[] = DEFAULT_ORDER;
-        const currentVersion = localStorage.getItem('agora-section-order-version');
-        if (currentVersion !== SECTION_ORDER_VERSION_KEY) {
-            localStorage.setItem('agora-section-order-version', SECTION_ORDER_VERSION_KEY);
-            localStorage.setItem('agora-section-order', JSON.stringify(DEFAULT_ORDER));
-        } else {
-            const orderStr = localStorage.getItem('agora-section-order');
-            if (orderStr) {
-                const parsed = JSON.parse(orderStr);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    order = parsed;
+        const isEmbed = document.body.classList.contains('is-embed');
+        if (!isEmbed) {
+            const currentVersion = localStorage.getItem('agora-section-order-version');
+            if (currentVersion !== SECTION_ORDER_VERSION_KEY) {
+                localStorage.setItem('agora-section-order-version', SECTION_ORDER_VERSION_KEY);
+                localStorage.setItem('agora-section-order', JSON.stringify(DEFAULT_ORDER));
+            } else {
+                const orderStr = localStorage.getItem('agora-section-order');
+                if (orderStr) {
+                    const parsed = JSON.parse(orderStr);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        order = parsed;
+                    }
                 }
             }
         }
@@ -203,7 +205,7 @@ export function restoreOrder() {
                 let isMatch = id === sectionId;
                 if (sectionId === 'main' && (id === 'main' || htmlEl.id === 'async-content')) isMatch = true;
                 if (sectionId === 'pulled' && id && id.startsWith('pulled-')) isMatch = true;
-                if (sectionId === 'related' && id && id.startsWith('related-')) isMatch = true;
+                if (sectionId === 'related' && (id === 'related' || (id && id.startsWith('related-')))) isMatch = true;
 
                 if (isMatch) {
                     if (anchor) {

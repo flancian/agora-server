@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch, MagicMock
 import pytest
 from app.graph import G
 
@@ -62,6 +63,35 @@ def test_random_redirect(test_agora):
     response = test_agora.get("/random")
     assert response.status_code == 302
     assert "Location" in response.headers
+
+def test_go_redirect_fallback(test_agora):
+    """
+    Tests that /go/<node> redirects to Google search if no go link exists.
+    """
+    response = test_agora.get("/go/nonexistent_go_node")
+    assert response.status_code == 302
+    assert "https://www.google.com/search?q=nonexistent_go_node" in response.headers["Location"]
+
+def test_lucky_redirect(test_agora):
+    """
+    Tests that /lucky/<node> resolves Google I'm Feeling Lucky and redirects to target.
+    """
+    mock_resp = MagicMock()
+    mock_resp.status_code = 302
+    mock_resp.headers = {"Location": "https://www.google.com/url?q=https://flancia.org/"}
+    with patch("requests.get", return_value=mock_resp):
+        response = test_agora.get("/lucky/flancia")
+        assert response.status_code == 302
+        assert response.headers["Location"] == "https://flancia.org/"
+
+def test_lucky_redirect_fallback(test_agora):
+    """
+    Tests that /lucky/<node> falls back to Google search on network/lookup error.
+    """
+    with patch("requests.get", side_effect=Exception("network error")):
+        response = test_agora.get("/lucky/flancia")
+        assert response.status_code == 302
+        assert "https://www.google.com/search?q=flancia" in response.headers["Location"]
 
 def test_rss_feeds(test_agora):
     """

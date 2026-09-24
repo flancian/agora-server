@@ -588,11 +588,11 @@ function getOrCreateShortcutsModal(): HTMLElement {
             </tr>
             <tr>
               <td class="key-col"><kbd>g</kbd></td>
-              <td class="desc-col"><strong>Go</strong>: follow <code>[[go]]</code> link or jump to target node</td>
+              <td class="desc-col"><strong>Go</strong>: follow <code>[[go]]</code> link or Google search</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>b</kbd></td>
-              <td class="desc-col"><strong>Go Beyond</strong>: search the web for query</td>
+              <td class="desc-col"><strong>Go Beyond</strong>: I'm Feeling Lucky search</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>w</kbd></td>
@@ -612,7 +612,7 @@ function getOrCreateShortcutsModal(): HTMLElement {
             </tr>
             <tr>
               <td class="key-col"><kbd>a</kbd></td>
-              <td class="desc-col"><strong>Look Around</strong>: jump to local graph &amp; context</td>
+              <td class="desc-col"><strong>Look</strong>: jump to local graph &amp; context</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>m</kbd></td>

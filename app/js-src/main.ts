@@ -945,7 +945,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (miniCliGoBeyond) {
     miniCliGoBeyond.addEventListener("click", () => {
       console.log("go beyond mini-cli executes");
-      miniCliGoBeyond.textContent = "🌠 Gone beyond";
+      miniCliGoBeyond.textContent = "⛵ To the other shore";
       miniCliGoBeyond.disabled = true;
       let val = (document.querySelector("#mini-cli") as HTMLInputElement).value;
       if (!val && typeof NODENAME !== 'undefined' && NODENAME) {

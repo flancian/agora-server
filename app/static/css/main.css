@@ -1649,7 +1649,7 @@ input:checked + .slider:before {
     display: none;
 }
 .experimental-switch .slider:before {
-    content: "🔭";
+    content: "🧪";
 }
 .experimental-switch input:checked + .slider {
     background-color: var(--wikilink-color, #377ba8);
@@ -2747,6 +2747,17 @@ pre:has(code.language-verse) {
     width: 100%;
     margin: 0 auto;
     box-sizing: border-box;
+}
+
+/* Experimental action bar elements (visible strictly in experimental mode) */
+#mini-cli-play,
+#mini-cli-go-beyond {
+    display: none;
+}
+
+body.experimental-mode #mini-cli-play,
+body.experimental-mode #mini-cli-go-beyond {
+    display: inline-block;
 }
 
 /* N-Agora Layout Switcher (visible strictly in experimental mode on wide screens) */
