@@ -33,7 +33,7 @@ import { initDemoMode } from './demo';
 import { initMusicPlayer } from './music';
 import { renderGraph } from './graph';
 import { initPullButtons } from './pull';
-import { initKeyNavigation } from './keys';
+import { initKeyNavigation, toggleShortcutsModal } from './keys';
 import { initNagora, syncTheme, updateLayoutSwitcherUI, updateNagoraPanes } from './nagora';
 import { initLiveSearch } from './livesearch';
 
@@ -76,6 +76,26 @@ window.setupSmartIframeResizer = function(iframe: HTMLIFrameElement) {
         console.error("Iframe resize error:", e);
     }
 };
+
+export function loadUrlEmbed(item: Element): void {
+  let embed = item.querySelector(".stoa-iframe, .edit-iframe");
+  if (embed && !embed.querySelector("iframe")) {
+    let url = embed.getAttribute('src');
+    if (!url) return;
+    if (embed.classList.contains('edit-iframe')) {
+        const user = localStorage.getItem('user') || (typeof DEFAULT_MAINTAINER !== 'undefined' ? DEFAULT_MAINTAINER : 'flancian');
+        const editorUrl = localStorage.getItem('editor-url') || (typeof AGORA_EDITOR_URL !== 'undefined' ? AGORA_EDITOR_URL : 'https://edit.anagora.org');
+        let nodeUri = url.split('/').pop() || '';
+        if (nodeUri && !nodeUri.includes('.')) {
+            nodeUri += '.md';
+        }
+        url = `${editorUrl}/@${user}/${nodeUri}`;
+    }
+    const iframeHTML = `<iframe loading="lazy" allow="camera; microphone; fullscreen; display-capture; autoplay" src="${url}" style="width: 100%;" height="700px"></iframe>`;
+    const overlayHTML = `<a href="${url}" target="_blank" class="iframe-url-overlay" title="Open in new tab">${url}</a>`;
+    embed.innerHTML = `<div class="iframe-container">${iframeHTML}${overlayHTML}</div>`;
+  }
+}
 
 document.addEventListener("DOMContentLoaded", async function () {
   
@@ -123,6 +143,10 @@ document.addEventListener("DOMContentLoaded", async function () {
           }
       }
 
+      if (miniCliWrite) {
+          miniCliWrite.style.display = "inline-block";
+      }
+
       if (miniCliJoin) {
           if (!user) {
               if (miniCliJoin.style.display !== "inline-block") {
@@ -132,14 +156,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                       }
                   }, 400);
               }
-              if (miniCliWrite) {
-                  miniCliWrite.style.display = "none";
-              }
           } else {
               hideButtonWithFade(miniCliJoin);
-              if (miniCliWrite) {
-                  miniCliWrite.style.display = "inline-block";
-              }
           }
       }
   };
@@ -1134,6 +1152,18 @@ document.addEventListener("DOMContentLoaded", async function () {
       miniCliWrite.setAttribute('title', "Write or edit a subnode for this node. [c]");
 
       miniCliWrite.addEventListener("click", () => {
+          const stoa = document.getElementById('agora-stoa') as HTMLDetailsElement | null;
+          if (stoa) {
+              stoa.open = true;
+              const sharedDoc = stoa.querySelector('details.url') as HTMLDetailsElement | null;
+              if (sharedDoc) {
+                  sharedDoc.open = true;
+                  loadUrlEmbed(sharedDoc);
+              }
+              stoa.scrollIntoView({ behavior: 'smooth' });
+              return;
+          }
+
           const user = localStorage.getItem('user');
           let node = (document.querySelector("#mini-cli") as HTMLInputElement).value;
           if (!node && typeof NODENAME !== 'undefined') {
@@ -1160,6 +1190,84 @@ document.addEventListener("DOMContentLoaded", async function () {
               }
           }
       });
+  }
+
+  // Initialize Stoa Draft & Writing Links
+  const nodeName = typeof NODENAME !== 'undefined' && NODENAME ? NODENAME : (document.querySelector("#mini-cli") as HTMLInputElement)?.value || '';
+  const currentUser = localStorage.getItem('user');
+  const currentEditorUrl = localStorage.getItem('editor-url') || (typeof AGORA_EDITOR_URL !== 'undefined' ? AGORA_EDITOR_URL : 'https://edit.anagora.org');
+
+  document.querySelectorAll<HTMLAnchorElement>('.stoa-bullpen-link').forEach(link => {
+      if (currentUser && nodeName) {
+          const docFile = nodeName.includes('.') ? nodeName : `${nodeName}.md`;
+          link.href = `${currentEditorUrl}/@${currentUser}/${docFile}`;
+      } else {
+          link.href = currentEditorUrl;
+      }
+  });
+
+  const stoaOpenLocalDraft = document.getElementById('stoa-open-local-draft');
+  const stoaLocalDraftContainer = document.getElementById('stoa-local-draft-container');
+  const stoaDraftTextarea = document.getElementById('stoa-draft-textarea') as HTMLTextAreaElement | null;
+  const stoaDraftClose = document.getElementById('stoa-draft-close');
+  const stoaDraftCopy = document.getElementById('stoa-draft-copy');
+  const stoaDraftDownload = document.getElementById('stoa-draft-download');
+
+  if (nodeName && stoaDraftTextarea) {
+      const storageKey = `agora-draft-${nodeName}`;
+      const savedDraft = localStorage.getItem(storageKey);
+      if (savedDraft) {
+          stoaDraftTextarea.value = savedDraft;
+          if (stoaLocalDraftContainer) {
+              stoaLocalDraftContainer.style.display = 'block';
+          }
+      }
+
+      stoaDraftTextarea.addEventListener('input', () => {
+          localStorage.setItem(storageKey, stoaDraftTextarea.value);
+      });
+
+      if (stoaOpenLocalDraft && stoaLocalDraftContainer) {
+          stoaOpenLocalDraft.addEventListener('click', (e) => {
+              e.preventDefault();
+              stoaLocalDraftContainer.style.display = stoaLocalDraftContainer.style.display === 'none' ? 'block' : 'none';
+              if (stoaLocalDraftContainer.style.display === 'block') {
+                  stoaDraftTextarea.focus();
+              }
+          });
+      }
+
+      if (stoaDraftClose && stoaLocalDraftContainer) {
+          stoaDraftClose.addEventListener('click', () => {
+              stoaLocalDraftContainer.style.display = 'none';
+          });
+      }
+
+      if (stoaDraftCopy) {
+          stoaDraftCopy.addEventListener('click', async () => {
+              try {
+                  await navigator.clipboard.writeText(stoaDraftTextarea.value);
+                  showToast('Copied draft to clipboard!');
+              } catch (err) {
+                  console.error('Clipboard copy error:', err);
+              }
+          });
+      }
+
+      if (stoaDraftDownload) {
+          stoaDraftDownload.addEventListener('click', () => {
+              const blob = new Blob([stoaDraftTextarea.value], { type: 'text/markdown;charset=utf-8' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `${nodeName}.md`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+              showToast(`Downloaded ${nodeName}.md`);
+          });
+      }
   }
 
   // Initialize the Agora Console
@@ -1192,6 +1300,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       agoraConsoleCloseBtn.addEventListener('click', () => {
           agoraConsole.style.display = 'none';
           agoraConsole.classList.remove('active');
+      });
+  }
+
+  const agoraShortcutsBtn = document.getElementById('agora-shortcuts-btn');
+  if (agoraShortcutsBtn) {
+      agoraShortcutsBtn.addEventListener('click', () => {
+          toggleShortcutsModal();
       });
   }
 
@@ -1574,25 +1689,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     // bind stoas, search and genai early.
     var details = document.querySelectorAll("details.url");
     details.forEach((item) => {
+      if ((item as HTMLDetailsElement).open) {
+        loadUrlEmbed(item);
+      }
       item.addEventListener("toggle", async (event) => {
-        if (item.open) {
+        if ((item as HTMLDetailsElement).open) {
           console.log("Details have been shown");
-          let embed = item.querySelector(".stoa-iframe, .edit-iframe");
-          if (embed) {
-            let url = embed.getAttribute('src');
-            if (embed.classList.contains('edit-iframe')) {
-                const user = localStorage.getItem('user') || (typeof DEFAULT_MAINTAINER !== 'undefined' ? DEFAULT_MAINTAINER : 'flancian');
-                const editorUrl = localStorage.getItem('editor-url') || (typeof AGORA_EDITOR_URL !== 'undefined' ? AGORA_EDITOR_URL : 'https://edit.anagora.org');
-                let nodeUri = url.split('/').pop();
-                if (nodeUri && !nodeUri.includes('.')) {
-                    nodeUri += '.md';
-                }
-                url = `${editorUrl}/@${user}/${nodeUri}`;
-            }
-            const iframeHTML = `<iframe loading="lazy" allow="camera; microphone; fullscreen; display-capture; autoplay" src="${url}" style="width: 100%;" height="700px"></iframe>`;
-            const overlayHTML = `<a href="${url}" target="_blank" class="iframe-url-overlay" title="Open in new tab">${url}</a>`;
-            embed.innerHTML = `<div class="iframe-container">${iframeHTML}${overlayHTML}</div>`;
-          }
+          loadUrlEmbed(item);
         } else {
           console.log("Details have been hidden");
           let embed = item.querySelector(".stoa-iframe, .edit-iframe");

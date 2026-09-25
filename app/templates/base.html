@@ -163,10 +163,6 @@
                         <div class="slider round"></div>
                     </label>
                     {% endif %}
-                    <label class="settings-switch" for="meditation-checkbox" title="🙏 Meditate: open a moment of calm and contemplation for this node.">
-                        <input type="checkbox" id="meditation-checkbox" class="meditation-checkbox-input" />
-                        <div class="slider round"></div>
-                    </label>
                     <label class="experimental-switch" for="experimental-checkbox" title="🧪/✨ Experimental Mode: toggle cutting-edge Agora experiments (N-Agora spatial tiling workbench, dynamic columns).">
                         <input type="checkbox" id="experimental-checkbox" class="experimental-checkbox-input" />
                         <div class="slider round"></div>
@@ -205,6 +201,9 @@
                     </button>
                     <button id="mini-cli-play" value="play" title="Play interactive Agora minigames! [m]">
                         🎮 Play
+                    </button>
+                    <button id="mini-cli-meditate" value="meditate" title="Meditate: take a moment of calm and contemplation for this node.">
+                        🙏 Meditate
                     </button>
                     <button id="mini-cli-join" value="join" title="Join the Agora to contribute digital gardens or write notes!" style="display: none; opacity: 0; transition: opacity 1s ease-in;">
                         👩‍🌾 Join
@@ -272,6 +271,7 @@
 
     <button id="agora-mobile-tooltip-trigger" style="display: none;"></button>
     <button id="agora-console-btn" title="Agora Console: view message history">📟</button>
+    <button id="agora-shortcuts-btn" title="Agora Keyboard Shortcuts [?]: View quick navigation controls">?</button>
     <button id="scroll-toggle" title="▼/▲ Scroll: Tap to instantly leap to the page bottom or top.">▼</button>
 
     <div id="agora-console" style="display: none;">

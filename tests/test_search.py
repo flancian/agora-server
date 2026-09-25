@@ -166,3 +166,53 @@ def test_live_search_fallback(test_search_app):
         test_search_app.config["ENABLE_SQLITE"] = True
 
 
+def test_live_search_pagination_sqlite(test_search_app):
+    client = test_search_app.test_client()
+    # There are multiple notes in test garden: broad_match, phrase_match, exact_stem_leak, punctuation_match
+    # Search for "match" which matches broad_match, phrase_match, punctuation_match
+    resp_p1 = client.get("/api/search/live?q=match&limit=1&page=1")
+    assert resp_p1.status_code == 200
+    data_p1 = resp_p1.get_json()
+    assert data_p1["page"] == 1
+    assert data_p1["has_prev"] is False
+    assert data_p1["has_more"] is True
+    assert len(data_p1["results"]) == 1
+
+    resp_p2 = client.get("/api/search/live?q=match&limit=1&page=2")
+    assert resp_p2.status_code == 200
+    data_p2 = resp_p2.get_json()
+    assert data_p2["page"] == 2
+    assert data_p2["has_prev"] is True
+    assert len(data_p2["results"]) == 1
+    assert data_p2["results"][0]["node"] != data_p1["results"][0]["node"]
+
+    # Invalid page handling
+    resp_invalid = client.get("/api/search/live?q=match&limit=1&page=-5")
+    assert resp_invalid.status_code == 200
+    assert resp_invalid.get_json()["page"] == 1
+
+
+def test_live_search_pagination_fallback(test_search_app):
+    test_search_app.config["ENABLE_SQLITE"] = False
+    try:
+        client = test_search_app.test_client()
+        resp_p1 = client.get("/api/search/live?q=match&limit=1&page=1")
+        assert resp_p1.status_code == 200
+        data_p1 = resp_p1.get_json()
+        assert data_p1["page"] == 1
+        assert data_p1["has_prev"] is False
+        assert data_p1["has_more"] is True
+        assert len(data_p1["results"]) == 1
+
+        resp_p2 = client.get("/api/search/live?q=match&limit=1&page=2")
+        assert resp_p2.status_code == 200
+        data_p2 = resp_p2.get_json()
+        assert data_p2["page"] == 2
+        assert data_p2["has_prev"] is True
+        assert len(data_p2["results"]) == 1
+        assert data_p2["results"][0]["node"] != data_p1["results"][0]["node"]
+    finally:
+        test_search_app.config["ENABLE_SQLITE"] = True
+
+
+

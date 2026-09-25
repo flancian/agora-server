@@ -24,6 +24,9 @@ export interface LiveSearchResult {
 
 interface LiveSearchApiResponse {
   query: string;
+  page: number;
+  has_more: boolean;
+  has_prev: boolean;
   results: LiveSearchResult[];
 }
 
@@ -32,7 +35,11 @@ let currentItems: LiveSearchResult[] = [];
 let activeIndex = -1;
 let currentAbortController: AbortController | null = null;
 let debounceTimer: number | null = null;
-const searchCache = new Map<string, LiveSearchResult[]>();
+let currentQuery = '';
+let currentPage = 1;
+let currentHasMore = false;
+let currentHasPrev = false;
+const searchCache = new Map<string, LiveSearchApiResponse>();
 const MAX_CACHE_SIZE = 50;
 
 /**
@@ -93,6 +100,10 @@ export function closeLiveSearch(): void {
   }
   currentItems = [];
   activeIndex = -1;
+  currentQuery = '';
+  currentPage = 1;
+  currentHasMore = false;
+  currentHasPrev = false;
 }
 
 /**
@@ -122,16 +133,43 @@ function sanitizeSnippet(snippet: string): string {
 /**
  * Renders the search results inside the dropdown.
  */
-function renderResults(query: string, results: LiveSearchResult[]): void {
+function renderResults(data: LiveSearchApiResponse): void {
   const dropdown = getOrCreateDropdown();
-  currentItems = results;
+  currentItems = data.results || [];
   activeIndex = -1;
+  currentQuery = data.query;
+  currentPage = data.page || 1;
+  currentHasMore = !!data.has_more;
+  currentHasPrev = !!data.has_prev;
 
-  if (results.length === 0) {
+  if (currentItems.length === 0) {
+    if (currentPage > 1) {
+      dropdown.innerHTML = `
+        <div class="live-search-empty">
+          <span class="live-search-empty-text">No more matches on page ${currentPage} for "<strong>${escapeHtml(data.query)}</strong>"</span>
+          <div class="live-search-pagination">
+            <button type="button" class="live-page-btn live-page-prev" aria-label="Previous page">← Prev</button>
+            <span class="live-page-indicator">Page ${currentPage}</span>
+          </div>
+        </div>
+      `;
+      dropdown.style.display = 'block';
+      updateDropdownPosition();
+      const prevBtn = dropdown.querySelector('.live-page-prev');
+      if (prevBtn) {
+        prevBtn.addEventListener('mousedown', (e) => e.preventDefault());
+        prevBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          fetchLiveSearch(currentQuery, currentPage - 1);
+        });
+      }
+      return;
+    }
+
     dropdown.innerHTML = `
       <div class="live-search-empty">
-        <span class="live-search-empty-text">No direct matches found for "<strong>${escapeHtml(query)}</strong>"</span>
-        <a class="live-search-item fullsearch-link" href="/?q=${encodeURIComponent(query)}">
+        <span class="live-search-empty-text">No direct matches found for "<strong>${escapeHtml(data.query)}</strong>"</span>
+        <a class="live-search-item fullsearch-link" href="/?q=${encodeURIComponent(data.query)}">
           <span class="live-search-icon">🔍</span>
           <span class="live-search-title">Press <kbd>↵ Enter</kbd> for full Agora search</span>
         </a>
@@ -142,7 +180,7 @@ function renderResults(query: string, results: LiveSearchResult[]): void {
     return;
   }
 
-  const itemsHtml = results
+  const itemsHtml = currentItems
     .map((item, index) => {
       let icon = '📗';
       let typeLabel = 'Node';
@@ -180,16 +218,31 @@ function renderResults(query: string, results: LiveSearchResult[]): void {
     })
     .join('');
 
+  const paginationHtml = (currentHasMore || currentHasPrev || currentPage > 1)
+    ? `
+      <div class="live-search-pagination">
+        <button type="button" class="live-page-btn live-page-prev" ${!currentHasPrev ? 'disabled' : ''} aria-label="Previous page">← Prev</button>
+        <span class="live-page-indicator">Page ${currentPage}</span>
+        <button type="button" class="live-page-btn live-page-next" ${!currentHasMore ? 'disabled' : ''} aria-label="Next page">Next →</button>
+      </div>
+    `
+    : '';
+
+  const hintsPaging = (currentHasMore || currentHasPrev || currentPage > 1)
+    ? '<kbd>PgUp</kbd>/<kbd>PgDn</kbd> page '
+    : '';
+
   dropdown.innerHTML = `
     <div class="live-search-results-list">
       ${itemsHtml}
     </div>
+    ${paginationHtml}
     <div class="live-search-footer">
-      <a class="live-search-footer-action" href="/?q=${encodeURIComponent(query)}">
+      <a class="live-search-footer-action" href="/?q=${encodeURIComponent(data.query)}">
         <span class="live-search-footer-icon">🔍</span>
-        <span>Full search for "<strong>${escapeHtml(query)}</strong>"</span>
+        <span>Full search for "<strong>${escapeHtml(data.query)}</strong>"</span>
       </a>
-      <span class="live-search-hints"><kbd>↑</kbd><kbd>↓</kbd> navigate <kbd>↵</kbd> select <kbd>esc</kbd> close</span>
+      <span class="live-search-hints"><kbd>↑</kbd><kbd>↓</kbd> navigate ${hintsPaging}<kbd>↵</kbd> select <kbd>esc</kbd> close</span>
     </div>
   `;
 
@@ -209,6 +262,29 @@ function renderResults(query: string, results: LiveSearchResult[]): void {
       }
     });
   });
+
+  // Attach pagination click events
+  const prevBtn = dropdown.querySelector('.live-page-prev');
+  if (prevBtn) {
+    prevBtn.addEventListener('mousedown', (e) => e.preventDefault());
+    prevBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (currentHasPrev && currentPage > 1) {
+        fetchLiveSearch(currentQuery, currentPage - 1);
+      }
+    });
+  }
+
+  const nextBtn = dropdown.querySelector('.live-page-next');
+  if (nextBtn) {
+    nextBtn.addEventListener('mousedown', (e) => e.preventDefault());
+    nextBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (currentHasMore) {
+        fetchLiveSearch(currentQuery, currentPage + 1);
+      }
+    });
+  }
 }
 
 /**
@@ -232,16 +308,17 @@ function updateActiveItem(): void {
 /**
  * Dispatches an asynchronous live search request with debouncing, caching, and in-flight cancellation.
  */
-async function fetchLiveSearch(query: string): Promise<void> {
+async function fetchLiveSearch(query: string, page: number = 1): Promise<void> {
   const cleanQ = query.trim();
   if (cleanQ.length < 2) {
     closeLiveSearch();
     return;
   }
 
+  const cacheKey = `${cleanQ.toLowerCase()}__p${page}`;
   // Check cache first for instantaneous response
-  if (searchCache.has(cleanQ)) {
-    renderResults(cleanQ, searchCache.get(cleanQ)!);
+  if (searchCache.has(cacheKey)) {
+    renderResults(searchCache.get(cacheKey)!);
     return;
   }
 
@@ -252,7 +329,7 @@ async function fetchLiveSearch(query: string): Promise<void> {
   currentAbortController = new AbortController();
 
   try {
-    const res = await fetch(`/api/search/live?q=${encodeURIComponent(cleanQ)}`, {
+    const res = await fetch(`/api/search/live?q=${encodeURIComponent(cleanQ)}&page=${page}`, {
       signal: currentAbortController.signal,
       headers: {
         Accept: 'application/json',
@@ -270,12 +347,12 @@ async function fetchLiveSearch(query: string): Promise<void> {
       const firstKey = searchCache.keys().next().value;
       if (firstKey) searchCache.delete(firstKey);
     }
-    searchCache.set(cleanQ, data.results || []);
+    searchCache.set(cacheKey, data);
 
     // Only render if input value still matches
     const miniCli = document.getElementById('mini-cli') as HTMLInputElement | null;
     if (miniCli && miniCli.value.trim().toLowerCase() === cleanQ.toLowerCase()) {
-      renderResults(cleanQ, data.results || []);
+      renderResults(data);
     }
   } catch (err: unknown) {
     if (err instanceof Error && err.name === 'AbortError') {
@@ -309,7 +386,7 @@ export function initLiveSearch(): void {
     }
 
     debounceTimer = window.setTimeout(() => {
-      fetchLiveSearch(val);
+      fetchLiveSearch(val, 1);
     }, 250);
   });
 
@@ -327,6 +404,16 @@ export function initLiveSearch(): void {
       e.preventDefault();
       activeIndex = (activeIndex - 1 + currentItems.length) % currentItems.length;
       updateActiveItem();
+    } else if (e.key === 'PageDown' || (e.altKey && e.key === 'ArrowDown') || (e.ctrlKey && e.key === 'j')) {
+      if (currentHasMore) {
+        e.preventDefault();
+        fetchLiveSearch(currentQuery, currentPage + 1);
+      }
+    } else if (e.key === 'PageUp' || (e.altKey && e.key === 'ArrowUp') || (e.ctrlKey && e.key === 'k')) {
+      if (currentHasPrev && currentPage > 1) {
+        e.preventDefault();
+        fetchLiveSearch(currentQuery, currentPage - 1);
+      }
     } else if (e.key === 'Enter') {
       if (activeIndex >= 0 && activeIndex < currentItems.length) {
         e.preventDefault();
@@ -348,7 +435,7 @@ export function initLiveSearch(): void {
   miniCli.addEventListener('focus', () => {
     const val = miniCli.value.trim();
     if (val.length >= 2) {
-      fetchLiveSearch(val);
+      fetchLiveSearch(val, 1);
     }
   });
 
@@ -372,3 +459,4 @@ export function initLiveSearch(): void {
     }
   });
 }
+

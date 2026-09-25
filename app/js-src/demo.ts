@@ -374,6 +374,31 @@ export function initDemoMode() {
         });
     }
 
+    const triggerMeditation = () => {
+        const meditationPopupContainer = document.getElementById("meditation-popup-container");
+        if (meditationPopupContainer) {
+            if (meditationPopupContainer.classList.contains('active')) {
+                hidePopup();
+            } else {
+                // If the demo is running, cancel it before showing the popup.
+                const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
+                if (anyCheckedDemoBox) {
+                    const mainCheckbox = document.getElementById('demo-checkbox') as HTMLInputElement;
+                    if (mainCheckbox) {
+                        mainCheckbox.checked = false;
+                        mainCheckbox.dispatchEvent(new Event('change'));
+                    }
+                }
+                showPopup();
+            }
+        }
+    };
+
+    const miniCliMeditate = document.getElementById('mini-cli-meditate');
+    if (miniCliMeditate) {
+        miniCliMeditate.addEventListener('click', triggerMeditation);
+    }
+
     const meditationCheckbox = document.getElementById('meditation-checkbox') as HTMLInputElement;
     if (meditationCheckbox) {
         meditationCheckbox.addEventListener('change', () => {

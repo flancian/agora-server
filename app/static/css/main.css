@@ -785,7 +785,7 @@ summary {
 .info-box {
     background: var(--info-box-bg);
     filter: brightness(100%);
-    padding: 7px;
+    padding: 7px 28px 7px 7px;
     font-style: normal;
     color: var(--info-box-text-color);
     border: 1px dashed var(--border);
@@ -1636,14 +1636,6 @@ input:checked + .slider:before {
     content: "🖋️";
 }
 
-/* Custom icons for Meditation toggle */
-.settings-switch input#meditation-checkbox + .slider:before {
-    content: "🙏";
-}
-.settings-switch input#meditation-checkbox:checked + .slider:before {
-    content: "🙏";
-}
-
 /* Custom icons for Experimental toggle */
 .experimental-switch input {
     display: none;
@@ -2040,11 +2032,11 @@ input:checked + .slider:before {
     animation: fadeOut 0.3s ease-in-out forwards;
 }
 
-/* Agora Console Styles */
+/* Agora Floating Action Buttons (Console, Shortcuts, Scroll) */
 #agora-console-btn {
     position: fixed;
     bottom: 15px;
-    right: 60px;
+    right: 100px;
     z-index: 9998;
     background-color: var(--accent-bg);
     color: var(--text-color);
@@ -2063,6 +2055,33 @@ input:checked + .slider:before {
 }
 
 #agora-console-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+#agora-shortcuts-btn {
+    position: fixed;
+    bottom: 15px;
+    right: 60px;
+    z-index: 9998;
+    background-color: var(--accent-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    opacity: 0.6;
+    transition: opacity 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+#agora-shortcuts-btn:hover {
     opacity: 1;
     transform: scale(1.1);
 }
@@ -2751,12 +2770,14 @@ pre:has(code.language-verse) {
 
 /* Experimental action bar elements (visible strictly in experimental mode) */
 #mini-cli-play,
-#mini-cli-go-beyond {
+#mini-cli-go-beyond,
+#mini-cli-meditate {
     display: none;
 }
 
 body.experimental-mode #mini-cli-play,
-body.experimental-mode #mini-cli-go-beyond {
+body.experimental-mode #mini-cli-go-beyond,
+body.experimental-mode #mini-cli-meditate {
     display: inline-block;
 }
 
@@ -3136,7 +3157,8 @@ body.is-embed .edit-section-container,
 body.is-embed .stoa,
 body.is-embed #games,
 body.is-embed #scroll-toggle,
-body.is-embed #agora-console-btn {
+body.is-embed #agora-console-btn,
+body.is-embed #agora-shortcuts-btn {
     display: none !important;
 }
 
@@ -3313,5 +3335,44 @@ body.is-embed .content {
     padding: 1px 4px;
     font-size: 0.9em;
 }
+
+.live-search-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    background: var(--subnode-bg);
+    border-top: 1px dashed var(--border-color);
+    font-size: 0.85em;
+}
+
+.live-page-btn {
+    background: var(--intro-footer-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 0.88em;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.live-page-btn:hover:not(:disabled) {
+    background: var(--link-color);
+    color: #fff;
+    border-color: var(--link-color);
+}
+
+.live-page-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.live-page-indicator {
+    font-weight: 500;
+    color: var(--subnode-text-color);
+    font-size: 0.9em;
+}
+
 
 

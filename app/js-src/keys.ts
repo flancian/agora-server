@@ -535,6 +535,12 @@ export function handleEscape(): void {
   document.querySelectorAll('.overlay.active').forEach(el => el.classList.remove('active'));
   document.body.classList.remove('overlay-open');
 
+  // 5b. Close meditation popup if active
+  const meditationPopup = document.getElementById('meditation-popup-container');
+  if (meditationPopup && meditationPopup.classList.contains('active')) {
+    meditationPopup.classList.remove('active');
+  }
+
   // 6. Reset spatial column focus to center if a side pane was focused
   if (getActiveColumn() !== 'center') {
     setActiveColumn('center');

@@ -803,31 +803,39 @@ def count_subnodes_literal(query):
 
 
 
-def live_search(query, limit=7):
+def live_search(query, limit=7, page=1):
     """
-    Fast, ranking-optimized search for live quick-switcher suggestions.
-    Returns a list of dicts:
+    Fast, ranking-optimized search for live quick-switcher suggestions with pagination.
+    Returns a dict:
       {
-        "title": str,
-        "node": str,
-        "uri": str,
-        "type": "node" | "content" | "user",
-        "users": list[str],
-        "count": int,
-        "snippet": str or None
+        "query": str,
+        "page": int,
+        "has_more": bool,
+        "has_prev": bool,
+        "results": list[dict]
       }
     """
     db = get_db()
-    if not db:
-        return []
-
     clean_q = query.strip()
-    if not clean_q:
-        return []
+    page = max(1, int(page))
+    limit = max(1, int(limit))
+    offset = (page - 1) * limit
+
+    empty_response = {
+        "query": clean_q,
+        "page": page,
+        "has_more": False,
+        "has_prev": page > 1,
+        "results": []
+    }
+
+    if not db or not clean_q:
+        return empty_response
 
     results = []
     seen_nodes = set()
     cursor = db.cursor()
+    has_more = False
 
     if clean_q.startswith('@'):
         user_prefix = clean_q[1:].lower()
@@ -844,9 +852,13 @@ def live_search(query, limit=7):
                         ELSE 2
                     END,
                     cnt DESC
-                LIMIT ?
-            """, (f'%{user_prefix}%', user_prefix, f'{user_prefix}%', limit))
-            for row in cursor.fetchall():
+                LIMIT ? OFFSET ?
+            """, (f'%{user_prefix}%', user_prefix, f'{user_prefix}%', limit + 1, offset))
+            rows = cursor.fetchall()
+            if len(rows) > limit:
+                has_more = True
+                rows = rows[:limit]
+            for row in rows:
                 user_name, cnt = row[0], row[1]
                 if not user_name:
                     continue
@@ -859,10 +871,16 @@ def live_search(query, limit=7):
                     "count": cnt,
                     "snippet": f"User / contributor ({cnt} subnode{'s' if cnt != 1 else ''})"
                 })
-            return results
+            return {
+                "query": clean_q,
+                "page": page,
+                "has_more": has_more,
+                "has_prev": page > 1,
+                "results": results
+            }
         except sqlite3.OperationalError as e:
             current_app.logger.error(f"SQLite live user search error: {e}")
-            return []
+            return empty_response
 
     # 1. Match node titles (exact -> prefix -> word boundary -> substring)
     try:
@@ -881,16 +899,21 @@ def live_search(query, limit=7):
                 END,
                 cnt DESC,
                 node ASC
-            LIMIT ?
+            LIMIT ? OFFSET ?
         """, (
             f'%{q_lower}%',
             q_lower,
             f'{q_lower}%',
             f'% {q_lower}%',
             f'%_{q_lower}%',
-            limit
+            limit + 1,
+            offset
         ))
-        for row in cursor.fetchall():
+        rows = cursor.fetchall()
+        if len(rows) > limit:
+            has_more = True
+            rows = rows[:limit]
+        for row in rows:
             node_name, users_str, cnt = row[0], row[1], row[2]
             if not node_name:
                 continue
@@ -909,7 +932,7 @@ def live_search(query, limit=7):
         current_app.logger.error(f"SQLite live title search error: {e}")
 
     # 2. Content match fallback via FTS if title matches < limit
-    if len(results) < limit and current_app.config.get('ENABLE_FTS', False):
+    if not has_more and len(results) < limit and current_app.config.get('ENABLE_FTS', False):
         remaining = limit - len(results)
         safe_q = clean_q.replace('"', '""')
         fts_match = f'"{safe_q}"'
@@ -920,8 +943,9 @@ def live_search(query, limit=7):
                 JOIN subnodes s ON subnodes_fts.path = s.path
                 WHERE subnodes_fts MATCH ?
                 LIMIT ?
-            """, (fts_match, remaining * 2))
-            for row in cursor.fetchall():
+            """, (fts_match, remaining * 2 + 1))
+            fts_rows = cursor.fetchall()
+            for row in fts_rows:
                 node_name, user, snip = row[0], row[1], row[2]
                 if not node_name or node_name.lower() in seen_nodes:
                     continue
@@ -938,10 +962,18 @@ def live_search(query, limit=7):
                 })
                 if len(results) >= limit:
                     break
+            if len(results) >= limit and len(fts_rows) > remaining * 2:
+                has_more = True
         except sqlite3.OperationalError as e:
             current_app.logger.debug(f"SQLite live FTS snippet query notice: {e}")
 
-    return results
+    return {
+        "query": clean_q,
+        "page": page,
+        "has_more": has_more,
+        "has_prev": page > 1,
+        "results": results
+    }
 
 
 

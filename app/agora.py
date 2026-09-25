@@ -1193,15 +1193,30 @@ def search():
 def live_search():
     """
     Lightweight, debounced live search / quick-switcher endpoint.
-    Returns JSON: {"query": q, "results": [...]}
+    Returns JSON: {"query": q, "page": page, "has_more": bool, "has_prev": bool, "results": [...]}
     """
     q = request.args.get("q", "").strip()
-    if not q or len(q) < 2:
-        return jsonify({"query": q, "results": []})
+    try:
+        page = max(1, int(request.args.get("page", 1)))
+    except (ValueError, TypeError):
+        page = 1
 
-    limit = min(int(request.args.get("limit", 7)), 15)
-    results = api.live_search(q, limit=limit)
-    return jsonify({"query": q, "results": results})
+    try:
+        limit = min(max(1, int(request.args.get("limit", 7))), 15)
+    except (ValueError, TypeError):
+        limit = 7
+
+    if not q or len(q) < 2:
+        return jsonify({
+            "query": q,
+            "page": page,
+            "has_more": False,
+            "has_prev": page > 1,
+            "results": []
+        })
+
+    data = api.live_search(q, limit=limit, page=page)
+    return jsonify(data)
 
 
 @bp.route("/subnode/<path:subnode>")

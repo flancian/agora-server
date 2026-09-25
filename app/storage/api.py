@@ -183,28 +183,42 @@ def count_search_subnodes(query, mode='exact'):
     return 0
 
 
-def live_search(query, limit=7):
+def live_search(query, limit=7, page=1):
     """
-    Fast, lightweight live search suggestions for quick-switcher UI.
+    Fast, lightweight live search suggestions for quick-switcher UI with pagination.
     """
+    page = max(1, int(page))
+    limit = max(1, int(limit))
+
     if _is_sqlite_enabled():
-        results = sqlite_engine.live_search(query, limit=limit)
-        if results:
-            return results
+        res = sqlite_engine.live_search(query, limit=limit, page=page)
+        if res and res.get("results"):
+            return res
 
     # Fallback to in-memory Graph / file_engine
     clean_q = query.strip()
     if not clean_q:
-        return []
+        return {
+            "query": clean_q,
+            "page": page,
+            "has_more": False,
+            "has_prev": page > 1,
+            "results": []
+        }
 
+    offset = (page - 1) * limit
     results = []
+    has_more = False
+
     # User query fallback
     if clean_q.startswith('@'):
         user_prefix = clean_q[1:].lower()
         users = all_users()
         matched_users = [u.uri for u in users if user_prefix in u.uri.lower()]
         matched_users.sort(key=lambda u: (0 if u.lower() == user_prefix else (1 if u.lower().startswith(user_prefix) else 2), u.lower()))
-        for u in matched_users[:limit]:
+        slice_users = matched_users[offset : offset + limit + 1]
+        has_more = len(slice_users) > limit
+        for u in slice_users[:limit]:
             results.append({
                 "title": f"@{u}",
                 "node": u,
@@ -214,7 +228,13 @@ def live_search(query, limit=7):
                 "count": 1,
                 "snippet": "User / contributor"
             })
-        return results
+        return {
+            "query": clean_q,
+            "page": page,
+            "has_more": has_more,
+            "has_prev": page > 1,
+            "results": results
+        }
 
     # Node search in in-memory graph
     if G:
@@ -230,7 +250,9 @@ def live_search(query, limit=7):
                     rank = 0 if name_lower == q_lower else (1 if name_lower.startswith(q_lower) else (2 if f" {q_lower}" in name_lower or f"_{q_lower}" in name_lower else 3))
                     matched_nodes.append((rank, -len(n.subnodes), name, n))
             matched_nodes.sort(key=lambda x: (x[0], x[1], x[2]))
-            for rank, neg_cnt, name, n in matched_nodes[:limit]:
+            slice_nodes = matched_nodes[offset : offset + limit + 1]
+            has_more = len(slice_nodes) > limit
+            for rank, neg_cnt, name, n in slice_nodes[:limit]:
                 users = list(dict.fromkeys([s.user for s in n.subnodes if getattr(s, 'user', None)]))
                 results.append({
                     "title": name,
@@ -244,7 +266,13 @@ def live_search(query, limit=7):
         except Exception as e:
             current_app.logger.warning(f"Error in in-memory live search: {e}")
 
-    return results
+    return {
+        "query": clean_q,
+        "page": page,
+        "has_more": has_more,
+        "has_prev": page > 1,
+        "results": results
+    }
 
 
 def search_subnodes_by_user(query, username):
