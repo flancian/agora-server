@@ -23,12 +23,31 @@
     </div>
 
     <div class="subnode">
-        <details class="url">
-            <summary>📖 Shared document at <a href="{{config['AGORA_STOA_URL']}}/{{node.slug}}?edit">{{config['AGORA_STOA_URL']}}/{{node.slug}}</a></summary>
+        <details class="url" id="stoa-shared-doc-details">
+            <summary>📖 Shared document at <a href="{{config['AGORA_STOA_URL']}}/{{node.slug}}?edit" target="_blank">{{config['AGORA_STOA_URL']}}/{{node.slug}}</a></summary>
             <div info-box-id="stoa-doc-help" class="info-box with-spacing">
-              <em>This is a shared document for <a href="/{{node.qstr}}" class="wikilink">[[{{node.qstr}}]]</a> where you can collaborate with others.</em>
+              <em>This is a public shared document for <a href="/{{node.qstr}}" class="wikilink">[[{{node.qstr}}]]</a> where anyone can read and write without an account.</em>
+              <span style="display: block; margin-top: 5px; font-size: 0.9em; opacity: 0.95;">
+                (Or <a href="#" id="stoa-open-local-draft" style="text-decoration: underline; font-weight: bold;">draft a private note</a> in your browser, or open in <a href="https://edit.anagora.org" class="stoa-bullpen-link" target="_blank" style="text-decoration: underline; font-weight: bold;">Bullpen editor</a> to save to your hosted garden).
+              </span>
               <span title="Dismiss this tip." info-box-id="stoa-doc-help" class="dismiss-button">x</span>
             </div>
+
+            <div id="stoa-local-draft-container" style="display: none; margin-bottom: 15px; padding: 12px; background: var(--subnode-bg); border: 1px solid var(--border-color); border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <strong>💾 Local Sovereign Draft (saved in browser)</strong>
+                    <div>
+                        <button type="button" id="stoa-draft-download" style="font-size: 12px; padding: 2px 8px; cursor: pointer;">⬇️ Download .md</button>
+                        <button type="button" id="stoa-draft-copy" style="font-size: 12px; padding: 2px 8px; cursor: pointer;">📋 Copy</button>
+                        <button type="button" id="stoa-draft-close" style="font-size: 12px; padding: 2px 8px; cursor: pointer;">✕</button>
+                    </div>
+                </div>
+                <textarea id="stoa-draft-textarea" style="width: 100%; min-height: 120px; font-family: monospace; padding: 8px; box-sizing: border-box; resize: vertical; border-radius: 4px; border: 1px solid var(--border-color); background: var(--main-bg); color: var(--text-color);" placeholder="Write your thoughts on [[{{node.qstr}}]] here... (Auto-saved to your browser's local storage)"></textarea>
+                <div style="margin-top: 6px; font-size: 0.85em; opacity: 0.8;">
+                    💡 Saved in local storage. When you're ready, you can copy this note into your hosted garden or download it for your own notes.
+                </div>
+            </div>
+
             <div class="stoa-iframe" src="{{config['AGORA_STOA_URL']}}/{{node.slug}}">
             </div>
         </details>

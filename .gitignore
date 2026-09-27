@@ -21,5 +21,8 @@ instance/
 app/static/js
 app/static/opus
 *.log
+*.log*
 *.db
+.venv/
 ps.txt
+

@@ -1,78 +1,91 @@
-# In development, but this should work. 
+# [[agora server]]
 #
-# Results in a simple agora-server container running repository pulls only. This is meant to be used with docker-compose and [[coop cloud]] (based on docker swarm) to run alongside an [[agora server]] (which runs the UI/renders nodes).
-
-# As of 2023, you probably want to look at the [[coop cloud]] recipe if you are considering running an Agora for your community :) https://anagora.org/agora-recipe for more.
+# Part of the [[Agora of Flancia]] — an open knowledge commons.
+# https://anagora.org/agora-server
 #
-# To build (you should be able to replace docker with podman):
+# Runs the main Agora web application: renders nodes, subnodes, wikilinks,
+# search, graph visualizations, and the distributed knowledge commons.
 #
-# $ docker build -t agora-server .
+# In 2023, this started as a Debian container for [[coop cloud]] (based on Docker Swarm)
+# and [[agora recipe]].
+# In 2026, we modernized it to a multi-stage Python 3.12 + [[uv]] build with esbuild asset
+# bundling for [[flan.agor.ai]] and [[podman]]:
+# See https://anagora.org/agora-recipe for more.
+#
+# To build with [[podman]] or [[docker]]:
+#
+#   $ podman build -t agora-server .
 #
 # To drop into a debugging shell in the container:
 #
-# $ docker run -it --entrypoint /bin/bash agora-server
+#   $ podman run -it --entrypoint /bin/bash agora-server
 #
-# Aisde: if you are running podman rootless, check that you can write to 'agora' in the container. You may need to:
+# Aside: if you are running podman rootless, check that you can write to 'agora' in the container:
 #
-# $ podman unshare chgrp -R 1001 agora  # I only tested this with podman so far.
+#   $ podman unshare chgrp -R 1000 agora
 #
-# To then run an Agora Server interactively port 5017 (this assumes $HOME/agora contains an Agora, replace that path with your Agora root):
+# To then run an Agora Server interactively on port 5017 (mounting your Agora root):
 #
-# $ docker run -it -p 5017:5017 -v ${HOME}/agora:/home/agora/agora:Z -u agora agora-server
+#   $ podman run -it -p 5017:5017 -v ${HOME}/agora:/home/agora/agora:Z -u agora agora-server
 #
-# To run the Agora Server detached (in serving mode): 
+# To run the full stack with [[podman-compose]] / [[docker compose]] from [[agora]]:
 #
-# $ docker run -dt -p 5017:5017 -v ${HOME}/agora:/home/agora/agora:Z -u agora agora-server
+#   $ podman-compose up
 #
-# To run the reference Agora Server directly from upstream packages, skipping building:
-#
-# $ docker run -dt -p 5017:5017 -v ${HOME}/agora:/home/agora/agora:Z -u agora git.coopcloud.tech/flancian/agora-server
-#
-# Enjoy!
+# Enjoy! For the benefit of all beings.
 
-FROM debian
+# --- Stage 1: Build frontend assets with Node & esbuild ---
+FROM node:20-slim AS assets
 
-MAINTAINER Flancian "0@flancia.org"
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci || npm install
+COPY app/js-src ./app/js-src
+RUN npm run build
 
-# We install first as root.
-USER root
+# --- Stage 2: Production Python runtime ---
+FROM python:3.12-slim AS runtime
 
-RUN apt-get update
-RUN apt-get install -y git python3 python3-pip npm curl
-# We don't need these files in the finished container; this should run after all apt-get invocations.
-RUN rm -rf /var/lib/apt/lists/*
+LABEL maintainer="Flancian <0@flancia.org>"
+LABEL org.opencontainers.image.source="https://github.com/flancian/agora-server"
+LABEL org.opencontainers.image.description="Agora Server: rendering the knowledge commons"
 
-# Install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.cargo/bin:$PATH"
+# Install system dependencies (build-essential/python3-dev for uWSGI, git, curl, ca-certificates)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    python3-dev \
+    git \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# We run as agora user
-RUN groupadd -r agora -g 1000 && useradd -u 1000 -r -g agora -s /bin/bash -c "Agora" agora
-# /home/agora/agora is the agora root; /home/agora/agora-server is where we'll run.
-RUN mkdir -p /home/agora && chown -R agora:agora /home/agora
+# Install uv from official image (fast, reproducible Python tooling)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-WORKDIR /home/agora
-USER agora
-
-RUN mkdir /home/agora/agora
-
-RUN git clone https://github.com/flancian/agora-server.git
-
-# This technically shouldn't be needed as we expect the user to mount an Agora as a volume, 
-# but it makes the Agora easier to run off-the-shelf from head. 
-# RUN git clone https://github.com/flancian/agora.git
-# RUN git clone https://gitlab.com/flancia/agora.git
-# Disabled for now as it's probably better to mount the Agora root as a volume.
-# That volume should end up in /home/agora/agora.
+# We run as the agora user (UID 1000)
+RUN groupadd -r agora -g 1000 && useradd -u 1000 -r -g agora -s /bin/bash -c "Agora" agora \
+    && mkdir -p /home/agora/agora /home/agora/agora-server \
+    && chown -R agora:agora /home/agora
 
 WORKDIR /home/agora/agora-server
-RUN npm install
+USER agora
+ENV PATH="/home/agora/.local/bin:$PATH"
 
-# This seems to work around some version issues. Why it's needed I can't currently tell.
+# Install Python dependencies first for caching layers
+COPY --chown=agora:agora pyproject.toml README.md ./
+RUN uv sync --no-install-project
+
+# Copy application code from local context
+COPY --chown=agora:agora . .
+# Copy compiled static assets from the node build stage
+COPY --from=assets --chown=agora:agora /app/app/static/js ./app/static/js
 RUN uv sync
+
 EXPOSE 5017
+ENV FLASK_APP=app
+ENV FLASK_ENV=production
+ENV AGORA_PATH=/home/agora/agora
+ENV AGORA_CONFIG=ProductionConfig
 
-CMD ./entrypoint.sh
+CMD ["./entrypoint.sh"]
 
-# For debugging only.
-# CMD bash
