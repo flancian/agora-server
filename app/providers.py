@@ -179,16 +179,21 @@ def get_openrouter_api_key():
     if api_key:
         return api_key.strip()
 
-    secret_path = os.path.expanduser("~/flancia/secret/openrouter")
-    if os.path.exists(secret_path):
-        try:
-            with open(secret_path, "r", encoding="utf-8") as f:
-                content = f.read().strip()
-                if content:
-                    return content
-        except Exception as e:
-            current_app.logger.warning(f"Could not read OpenRouter secret file at {secret_path}: {e}")
+    candidate_paths = [
+        os.path.expanduser("~/flancia/secret/openrouter"),
+        os.path.expanduser("~/flancia/secret/api/openrouter.txt"),
+    ]
+    for secret_path in candidate_paths:
+        if os.path.exists(secret_path):
+            try:
+                with open(secret_path, "r", encoding="utf-8") as f:
+                    content = f.read().strip()
+                    if content:
+                        return content
+            except Exception as e:
+                current_app.logger.warning(f"Could not read OpenRouter secret file at {secret_path}: {e}")
     return None
+
 
 
 def openrouter_complete(prompt, model, display_name="OpenRouter"):
