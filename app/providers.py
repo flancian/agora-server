@@ -23,6 +23,7 @@ import time
 import functools
 import requests
 import re
+import os
 
 from . import util
 from .storage import sqlite_engine
@@ -168,6 +169,143 @@ def gemini_chat(messages):
         except Exception as e:
             return f"An error occurred with the Gemini API: {e}"
     return "AI not enabled."
+
+
+def get_openrouter_api_key():
+    """
+    Retrieves the OpenRouter API key from app config, environment, or ~/flancia/secret/openrouter.
+    """
+    api_key = current_app.config.get("OPENROUTER_API_KEY") or os.environ.get("OPENROUTER_API_KEY")
+    if api_key:
+        return api_key.strip()
+
+    secret_path = os.path.expanduser("~/flancia/secret/openrouter")
+    if os.path.exists(secret_path):
+        try:
+            with open(secret_path, "r", encoding="utf-8") as f:
+                content = f.read().strip()
+                if content:
+                    return content
+        except Exception as e:
+            current_app.logger.warning(f"Could not read OpenRouter secret file at {secret_path}: {e}")
+    return None
+
+
+def openrouter_complete(prompt, model, display_name="OpenRouter"):
+    if not current_app.config.get("ENABLE_AI"):
+        return None, "<em>This Agora is not AI-enabled yet</em>."
+
+    api_key = get_openrouter_api_key()
+    if not api_key:
+        error_message = (
+            f"[[GenAI]] is not properly set up for {display_name} in this Agora yet. "
+            "Please set the OPENROUTER_API_KEY environment variable or create ~/flancia/secret/openrouter."
+        )
+        return None, error_message
+
+    enriched_prompt = current_app.config.get("AI_PROMPT", "") + prompt
+    messages = [
+        {"role": "user", "content": enriched_prompt}
+    ]
+
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "HTTP-Referer": current_app.config.get("URL_BASE", "https://anagora.org"),
+        "X-Title": "Agora Client",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": model,
+        "messages": messages,
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=30)
+        if response.status_code == 402:
+            return enriched_prompt, f"OpenRouter API error ({display_name}): credits depleted or payment required. Please check your account quota."
+        elif response.status_code == 429:
+            return enriched_prompt, f"OpenRouter API error ({display_name}): rate limit or quota exceeded. Please try again shortly."
+        elif not response.ok:
+            try:
+                err_data = response.json().get('error', {})
+                err_msg = err_data.get('message', response.text)
+            except Exception:
+                err_msg = response.text
+            return enriched_prompt, f"OpenRouter API error ({display_name}): {err_msg}"
+
+        data = response.json()
+        content = data["choices"][0]["message"]["content"]
+        return enriched_prompt, content
+    except Exception as e:
+        return enriched_prompt, f"An error occurred with the OpenRouter API ({display_name}): {e}"
+
+
+def openrouter_chat(messages, model, display_name="OpenRouter"):
+    """
+    Stateless chat completion via OpenRouter.
+    messages: list of {'role': 'user'|'assistant', 'content': str}
+    """
+    if not current_app.config.get("ENABLE_AI"):
+        return "AI not enabled."
+
+    api_key = get_openrouter_api_key()
+    if not api_key:
+        return f"{display_name} API key not configured (requires OpenRouter key)."
+
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "HTTP-Referer": current_app.config.get("URL_BASE", "https://anagora.org"),
+        "X-Title": "Agora Client",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": model,
+        "messages": messages,
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=30)
+        if response.status_code == 402:
+            return f"OpenRouter API error ({display_name}): credits depleted or payment required. Please check your account quota."
+        elif response.status_code == 429:
+            return f"OpenRouter API error ({display_name}): rate limit or quota exceeded. Please try again shortly."
+        elif not response.ok:
+            try:
+                err_data = response.json().get('error', {})
+                err_msg = err_data.get('message', response.text)
+            except Exception:
+                err_msg = response.text
+            return f"OpenRouter API error ({display_name}): {err_msg}"
+
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
+    except Exception as e:
+        return f"An error occurred with the OpenRouter API ({display_name}): {e}"
+
+
+
+@cache_ai_generation
+def chatgpt_complete(prompt):
+    model = current_app.config.get("OPENROUTER_CHATGPT_MODEL", "openai/gpt-chat-latest")
+    return openrouter_complete(prompt, model, display_name="ChatGPT")
+
+
+@cache_ai_generation
+def claude_complete(prompt):
+    model = current_app.config.get("OPENROUTER_CLAUDE_MODEL", "~anthropic/claude-sonnet-latest")
+    return openrouter_complete(prompt, model, display_name="Claude")
+
+
+def chatgpt_chat(messages):
+    model = current_app.config.get("OPENROUTER_CHATGPT_MODEL", "openai/gpt-chat-latest")
+    return openrouter_chat(messages, model, display_name="ChatGPT")
+
+
+def claude_chat(messages):
+    model = current_app.config.get("OPENROUTER_CLAUDE_MODEL", "~anthropic/claude-sonnet-latest")
+    return openrouter_chat(messages, model, display_name="Claude")
 
 
 def feeling_lucky(query):

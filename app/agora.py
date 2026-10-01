@@ -36,7 +36,16 @@ from flask_cors import CORS
 from markupsafe import escape
 
 from . import federation, forms, providers, render, util, git_utils
-from .providers import gemini_complete, mistral_complete, gemini_chat, mistral_chat
+from .providers import (
+    gemini_complete,
+    mistral_complete,
+    gemini_chat,
+    mistral_chat,
+    chatgpt_complete,
+    claude_complete,
+    chatgpt_chat,
+    claude_chat,
+)
 from .storage import api, feed, sqlite_engine
 from . import visualization
 from .graph import G
@@ -1772,17 +1781,19 @@ def gemini_complete_route(prompt):
 
 @bp.route("/api/chatgpt_complete/<prompt>")
 def chatgpt_complete_route(prompt):
-    # TODO: Implement ChatGPT integration
-    full_prompt = "Prompt not available."
-    answer = "ChatGPT integration is coming soon! Please check back later or contribute to the implementation on GitHub."
-    return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
+    full_prompt, answer = chatgpt_complete(prompt)
+    if full_prompt is None and "not properly set up" not in answer:
+        # This is likely an old cache entry. Reconstruct a prompt for display.
+        full_prompt = "The prompt for this cached response is not available, but the query was:" + prompt
+    return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer), 'raw_answer': answer})
 
 @bp.route("/api/claude_complete/<prompt>")
 def claude_complete_route(prompt):
-    # TODO: Implement Claude integration
-    full_prompt = "Prompt not available."
-    answer = "Claude integration is coming soon! Please check back later or contribute to the implementation on GitHub."
-    return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer)})
+    full_prompt, answer = claude_complete(prompt)
+    if full_prompt is None and "not properly set up" not in answer:
+        # This is likely an old cache entry. Reconstruct a prompt for display.
+        full_prompt = "The prompt for this cached response is not available, but the query was:" + prompt
+    return jsonify({'prompt': full_prompt, 'answer': render.markdown(answer), 'raw_answer': answer})
 
 @bp.route("/api/synthesize/<path:node_name>")
 def synthesize(node_name):
@@ -1840,9 +1851,9 @@ def synthesize(node_name):
     if provider == 'gemini':
         _, answer = gemini_complete(prompt)
     elif provider == 'chatgpt':
-        answer = "ChatGPT synthesis is coming soon! Check back later."
+        _, answer = chatgpt_complete(prompt)
     elif provider == 'claude':
-        answer = "Claude synthesis is coming soon! Check back later."
+        _, answer = claude_complete(prompt)
     else:
         _, answer = mistral_complete(prompt)
 
@@ -1865,10 +1876,15 @@ def api_chat():
         reply = gemini_chat(messages)
     elif provider == 'mistral':
         reply = mistral_chat(messages)
+    elif provider == 'chatgpt':
+        reply = chatgpt_chat(messages)
+    elif provider == 'claude':
+        reply = claude_chat(messages)
     else:
         return jsonify({'error': f'Provider {provider} not supported for chat.'}), 400
 
     return jsonify({'reply': render.markdown(reply), 'raw': reply})
+
 
 @bp.route("/api/meditate_on/<path:node_name>")
 def meditate_on(node_name):

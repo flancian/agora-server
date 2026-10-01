@@ -200,6 +200,14 @@ class DefaultConfig(object):
     except Exception:
         GEMINI_API_KEY = False
 
+    try:
+        OPENROUTER_API_KEY = os.environ["OPENROUTER_API_KEY"]
+    except Exception:
+        OPENROUTER_API_KEY = False
+
+    OPENROUTER_CHATGPT_MODEL = os.environ.get("OPENROUTER_CHATGPT_MODEL", "openai/gpt-chat-latest")
+    OPENROUTER_CLAUDE_MODEL = os.environ.get("OPENROUTER_CLAUDE_MODEL", "~anthropic/claude-sonnet-latest")
+
     # Auto pull rules.
     # A list of dictionaries, each with a 'pattern' (regex) and a list of 'templates'.
     # If a node's name matches the pattern, the templates will be rendered as virtual subnodes.
