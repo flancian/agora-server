@@ -19,7 +19,12 @@
 npm run build
 export FLASK_APP=app
 export FLASK_ENV="development"
-export AGORA_CONFIG="${1}DevelopmentConfig"
+if [[ "$1" == *Config ]]; then
+    export AGORA_CONFIG="${1}"
+else
+    export AGORA_CONFIG="${1}DevelopmentConfig"
+fi
+
 # This shouldn't be needed but it is when running as a systemd service for some reason.
 # Clean up any stale orphaned Flask process on port 5017
 if lsof -ti:5017 >/dev/null 2>&1; then

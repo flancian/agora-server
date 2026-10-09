@@ -367,3 +367,14 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_DEMO = True
     AGORA_DEMO_TARGET = "https://anagora.org"
     ENABLE_FLUSH_CACHE_BUTTON = True
+
+
+class LocalConfig(LocalDevelopmentConfig):
+    # LocalConfig does not hardcode AGORA_NAME, allowing it to be read from AGORA_CONFIG (agora.yaml)
+    AGORA_NAME = os.environ.get("AGORA_NAME") or DefaultConfig.AGORA_CONFIG.get("agora_name", DefaultConfig.AGORA_NAME)
+
+
+class BwDevelopmentConfig(LocalDevelopmentConfig):
+    AGORA_NAME = os.environ.get("AGORA_NAME") or DefaultConfig.AGORA_CONFIG.get("agora_name", "Bitwäscherei Agora")
+
+

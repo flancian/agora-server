@@ -65,13 +65,14 @@ def before_request():
     # hack hack -- try dynamic URI_BASE based on what the browser sent our way.
     # this allows for easily provisioning an Agora in many virtual hosts, e.g. *.agor.ai.
     # If URI_BASE or URL_BASE are empty, try running this as a "wildcard Agora".
-    if not current_app.config.get("URL_BASE") or not current_app.config.get("URI_BASE"):
-        current_app.config["URI_BASE"] = request.headers["Host"]
-        # Try to keep using the same protocol we're using.
-        # Update: disabled as this doesn't really work / it seems to breaks agoras over https?
-        # prefix = 'https://' if 'https' in request.base_url else 'http://'
-        prefix = 'https://' # if 'https' in request.base_url else 'http://'
-        current_app.config["URL_BASE"] = prefix + current_app.config["URI_BASE"]
+    host = request.headers.get("Host")
+    if host:
+        current_app.config["URI_BASE"] = host
+    scheme = request.headers.get('X-Forwarded-Proto', request.scheme)
+    if not current_app.config.get("URL_BASE") or (scheme == "https" and current_app.config["URL_BASE"].startswith("http://")):
+        if host:
+            current_app.config["URL_BASE"] = f"{scheme}://{host}"
+
 
 
 @bp.after_request
