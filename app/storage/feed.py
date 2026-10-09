@@ -12,11 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from feedgen.feed import FeedGenerator
 from flask import current_app
 import feedparser
 import urllib.parse
 from ..graph import G
+
+# XML 1.0 valid character ranges:
+# U+0009 (tab), U+000A (newline), U+000D (carriage return),
+# U+0020-U+D7FF, U+E000-U+FFFD, U+10000-U+10FFFF.
+# All other code points (such as \x00-\x08, \x0b, \x0c, \x0e-\x1f) are invalid XML 1.0.
+_INVALID_XML_CHARS = re.compile(
+    r"[^\u0009\u000a\u000d\u0020-\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]"
+)
+
+
+def sanitize_xml(val) -> str:
+    """Sanitizes text by removing characters incompatible with XML 1.0."""
+    if val is None:
+        return ""
+    if isinstance(val, bytes):
+        try:
+            val = val.decode("utf-8", errors="replace")
+        except Exception:
+            return "(Binary content)"
+    val = str(val)
+    return _INVALID_XML_CHARS.sub("", val)
+
 
 HYPOTHESIS_USERS = {
     "flancian": "flancian",
@@ -71,6 +94,21 @@ def get_latest():
     return feed
 
 
+def _safe_rss_str(fg, default_title="Agora Feed"):
+    """Safely converts a FeedGenerator to RSS string, falling back to a minimal feed on error."""
+    try:
+        return fg.rss_str(pretty=True)
+    except Exception as e:
+        current_app.logger.warning(f"Error generating RSS xml: {e}, falling back to minimal feed")
+        URL_BASE = current_app.config.get("URL_BASE", "https://anagora.org")
+        fallback_fg = FeedGenerator()
+        fallback_fg.id(fg.id() or f"{URL_BASE}/feed")
+        fallback_fg.title(fg.title() or default_title)
+        fallback_fg.subtitle("Feed generation encountered an encoding error.")
+        fallback_fg.link(href=URL_BASE, rel="self")
+        return fallback_fg.rss_str(pretty=True)
+
+
 def node_rss(node):
     fg = FeedGenerator()
     URL_BASE = current_app.config.get("URL_BASE", "https://anagora.org")
@@ -84,16 +122,17 @@ def node_rss(node):
     fg.link(href=f"{URL_BASE}/{node.wikilink}", rel="self")
     fg.language("en")
     for subnode in node.subnodes:
-        fe = fg.add_entry()
-        fe.id(f"{subnode.uri}")
-        fe.title(f"{subnode.uri}")
-        content = subnode.content
-        if isinstance(content, bytes):
-            content = "(Binary content)"
-        fe.content(f"{content}")
-        fe.description(f"A post by user @{subnode.user} in node [[{subnode.node}]].")
-        fe.link(href=f"{URL_BASE}/@{subnode.user}/{subnode.node}")
-    return fg.rss_str(pretty=True)
+        try:
+            fe = fg.add_entry()
+            fe.id(sanitize_xml(subnode.uri))
+            fe.title(sanitize_xml(subnode.uri))
+            fe.content(sanitize_xml(subnode.content))
+            fe.description(sanitize_xml(f"A post by user @{subnode.user} in node [[{subnode.node}]]."))
+            fe.link(href=sanitize_xml(f"{URL_BASE}/@{subnode.user}/{subnode.node}"))
+        except Exception as e:
+            current_app.logger.warning(f"Skipping entry {getattr(subnode, 'uri', 'unknown')} in node_rss: {e}")
+            continue
+    return _safe_rss_str(fg, default_title=f"Agora feed for node [[{node.wikilink}]]")
 
 
 def latest_rss(subnodes):
@@ -113,25 +152,20 @@ def latest_rss(subnodes):
         # to ensure we have access to its content.
         try:
             subnode = next(s for s in G.subnodes() if s.uri == subnode_light.uri)
+            fe = fg.add_entry()
+            fe.id(sanitize_xml(f"{URL_BASE}/{subnode.uri}"))
+            fe.title(sanitize_xml(subnode.wikilink or "Untitled"))
+            fe.link(href=sanitize_xml(f"{URL_BASE}/{subnode.uri}"))
+            fe.content(sanitize_xml(subnode.content))
+            fe.author({"name": sanitize_xml(subnode.user), "email": MAINTAINER_EMAIL})
+            fe.updated(subnode.datetime.isoformat() + "Z")
         except StopIteration:
-            # Should not happen, but as a safeguard...
+            continue
+        except Exception as e:
+            current_app.logger.warning(f"Skipping entry {getattr(subnode_light, 'uri', 'unknown')} in latest_rss: {e}")
             continue
 
-        fe = fg.add_entry()
-        fe.id(f"{URL_BASE}/{subnode.uri}")
-        fe.title(subnode.wikilink)
-        fe.link(href=f"{URL_BASE}/{subnode.uri}")
-        # there is no render function here because we are in storage.
-        # probably this means we should move this function to a different place.
-        # fe.content(f'{render.markdown(subnode.content)}', type='html')
-        content = subnode.content
-        if isinstance(content, bytes):
-            content = "(Binary content)"
-        fe.content(f"{content}")
-        fe.author({"name": subnode.user, "email": MAINTAINER_EMAIL})
-        fe.updated(subnode.datetime.isoformat() + "Z")
-
-    return fg.rss_str(pretty=True)
+    return _safe_rss_str(fg, default_title="Agora feed for latest updates")
 
 
 def user_rss(user, subnodes):
@@ -147,14 +181,15 @@ def user_rss(user, subnodes):
     fg.link(href=f"{URL_BASE}/feed/@{user}", rel="self")
     fg.language("en")
     for subnode in subnodes:
-        fe = fg.add_entry()
-        fe.id(f"{subnode.uri}")
-        fe.title(f"{subnode.uri}")
-        content = subnode.content
-        if isinstance(content, bytes):
-            content = "(Binary content)"
-        fe.content(f"{content}")
-        fe.description(f"A post by user @{user} in node [[{subnode.node}]].")
-        fe.link(href=f"{URL_BASE}/@{user}/{subnode.node}")
-    return fg.rss_str(pretty=True)
+        try:
+            fe = fg.add_entry()
+            fe.id(sanitize_xml(subnode.uri))
+            fe.title(sanitize_xml(subnode.uri))
+            fe.content(sanitize_xml(subnode.content))
+            fe.description(sanitize_xml(f"A post by user @{user} in node [[{subnode.node}]]."))
+            fe.link(href=sanitize_xml(f"{URL_BASE}/@{user}/{subnode.node}"))
+        except Exception as e:
+            current_app.logger.warning(f"Skipping entry {getattr(subnode, 'uri', 'unknown')} in user_rss: {e}")
+            continue
+    return _safe_rss_str(fg, default_title=f"Agora feed for user @{user}")
 

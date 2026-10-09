@@ -58,6 +58,7 @@ This hybrid approach provides the best of both worlds: the data users are active
 -   **Tasks:**
     -   **Protect the Monolith:** Maintain the "Shared Object Identity" architecture in `graph.py`. A regression test (`tests/test_memory_optimization.py`) now enforces that `G.nodes()` and `G.subnodes()` share the same Python objects, keeping RAM usage low (~1.2GB).
     -   **Search Optimization (FTS5):** Current search operations (like `/fullsearch`) are slow (~900ms) because they scan the filesystem or iterate in Python. We need to implement SQLite FTS5 (Full-Text Search) to make these queries instant.
+    -   **Heavy Subnode Rendering Optimization (Outlier Case: `[[fellowship of the link]]`):** Production log analysis identified extreme rendering latency on unusually massive subnodes. Specifically, `[[fellowship of the link]]` (~400KB of dense markdown and wikilinks) requires **~20.4 seconds** to parse through Python-Markdown and its extensions, causing uWSGI worker stalls. Future work should implement subnode-level HTML rendering cache, length-based chunking, or deferred/lazy extension processing for oversized subnodes.
 
 ### Priority 2: Transition to SQLite as Primary Data Source
 

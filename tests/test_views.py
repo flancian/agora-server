@@ -154,3 +154,54 @@ def test_vote_route(test_agora):
     assert res_exec.status_code == 200
     assert b"Deliberation on" in res_exec.data
 
+
+def test_outbox_endpoint(test_agora):
+    """
+    Tests that the global /outbox endpoint returns a valid ActivityPub OrderedCollection.
+    """
+    response = test_agora.get("/outbox")
+    assert response.status_code == 200
+    assert "application/activity+json" in response.headers.get("Content-Type", "")
+    data = json.loads(response.data)
+    assert data["@context"] == "https://www.w3.org/ns/activitystreams"
+    assert data["type"] == "OrderedCollection"
+    assert data["totalItems"] == 0
+    assert data["orderedItems"] == []
+
+
+def test_rss_feeds_sanitization(test_agora):
+    """
+    Tests that RSS generation sanitizes control characters and null bytes without raising ValueError.
+    """
+    from app.storage.feed import sanitize_xml, node_rss
+    # 1. Direct test of sanitize_xml
+    dirty = "Hello\x00 World\x08!\x0c\x1fValid\n\tText"
+    clean = sanitize_xml(dirty)
+    assert clean == "Hello World!Valid\n\tText"
+    assert "\x00" not in clean
+    assert "\x08" not in clean
+    assert "\x0c" not in clean
+    assert "\x1f" not in clean
+
+    # 2. Test node_rss with a subnode containing illegal XML control characters
+    mock_subnode = MagicMock()
+    mock_subnode.uri = "@testuser/bad-chars\x00.md"
+    mock_subnode.user = "testuser"
+    mock_subnode.node = "bad-node"
+    mock_subnode.wikilink = "bad-node"
+    mock_subnode.content = "Broken\x00 content\x0b with\x0c control\x1e chars"
+
+    mock_node = MagicMock()
+    mock_node.wikilink = "bad-node"
+    mock_node.subnodes = [mock_subnode]
+
+    rss_xml = node_rss(mock_node)
+    assert isinstance(rss_xml, (str, bytes))
+    if isinstance(rss_xml, bytes):
+        assert b"Broken content with control chars" in rss_xml
+        assert b"\x00" not in rss_xml
+    else:
+        assert "Broken content with control chars" in rss_xml
+        assert "\x00" not in rss_xml
+
+

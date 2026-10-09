@@ -2822,8 +2822,17 @@ def inbox():
 
 @bp.route("/outbox")
 def outbox():
-    """Reserved."""
-    pass
+    """Serves the server-level ActivityPub outbox as an OrderedCollection."""
+    outbox_collection = {
+        "@context": "https://www.w3.org/ns/activitystreams",
+        "id": url_for(".outbox", _external=True, _scheme="https"),
+        "type": "OrderedCollection",
+        "totalItems": 0,
+        "orderedItems": [],
+    }
+    r = make_response(jsonify(outbox_collection))
+    r.headers["Content-Type"] = "application/activity+json"
+    return r
 
 @bp.route("/users/<username>")
 def ap_user(username):
