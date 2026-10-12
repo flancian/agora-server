@@ -71,8 +71,23 @@ def create_app():
     from flask import render_template
     @app.errorhandler(500)
     def internal_error(error):
-        app.logger.error(f"Server Error: {error}")
+        app.logger.error(f"Server Error (500): {error}")
         return render_template('500.html'), 500
+
+    @app.errorhandler(502)
+    def bad_gateway(error):
+        app.logger.error(f"Bad Gateway (502): {error}")
+        return render_template('500.html'), 502
+
+    @app.errorhandler(503)
+    def service_unavailable(error):
+        app.logger.error(f"Service Unavailable (503): {error}")
+        return render_template('500.html'), 503
+
+    @app.errorhandler(504)
+    def gateway_timeout(error):
+        app.logger.error(f"Gateway Timeout (504): {error}")
+        return render_template('500.html'), 504
 
     # Register the teardown function for the database
     from .storage import sqlite_engine

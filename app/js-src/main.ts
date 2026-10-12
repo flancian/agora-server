@@ -1965,46 +1965,97 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (content != null) {
 
           // block on node loading (expensive if the task is freshly up)
+          let retryCount = 0;
+          const maxRetries = 10;
 
-          // Set a timer to show a "warming up" toast if the fetch takes too long.
-          const slowLoadDelay = 3000; // configurable delay in ms
-          const slowLoadTimer = setTimeout(() => {
-              showToast(`🌱 Warming up the Agora... (this might take a moment)`);
-          }, slowLoadDelay);
+          while (true) {
+            // Set a timer to show a "warming up" toast if the fetch takes too long.
+            const slowLoadDelay = 3000; // configurable delay in ms
+            const slowLoadTimer = setTimeout(() => {
+                showToast(`🌱 Warming up the Agora... (this might take a moment)`);
+            }, slowLoadDelay);
 
-          const startTime = performance.now();
-          try {
-              response = await fetch(AGORAURL + '/node/' + node, { credentials: 'same-origin' });
-          } finally {
-              clearTimeout(slowLoadTimer);
+            const startTime = performance.now();
+            let fetchFailed = false;
+            let failureReason = "";
+
+            try {
+                let fetchBase = (typeof AGORAURL !== 'undefined' ? AGORAURL : '');
+                let fetchUrl = fetchBase + '/node/' + node;
+                if (window.location.protocol === 'https:' && fetchUrl.startsWith('http://')) {
+                    fetchUrl = fetchUrl.replace('http://', 'https://');
+                }
+                response = await fetch(fetchUrl, { credentials: 'same-origin' });
+                if (!response.ok) {
+                    if (response.status >= 500) {
+                        fetchFailed = true;
+                        failureReason = `status ${response.status}`;
+                    } else {
+                        console.error(`Failed to load node ${node}: HTTP ${response.status}`);
+                        showToast(`⚠️ Could not load node (HTTP ${response.status})`);
+                        content.outerHTML = `<div class="subnode-error" style="padding: 1em; margin: 1em 0; border: 1px solid var(--border-color, #ccc); border-radius: 8px; background: var(--bg-secondary, #f9f9f9);"><p>⚠️ Could not load node <strong>[[${node}]]</strong> (HTTP ${response.status}).</p><p>If this site requires authentication, please refresh the page to re-authenticate.</p></div>`;
+                        window.dispatchEvent(new CustomEvent('agora-node-loaded'));
+                        break;
+                    }
+                }
+            } catch (e) {
+                fetchFailed = true;
+                failureReason = "connection resting";
+            } finally {
+                clearTimeout(slowLoadTimer);
+            }
+
+            if (fetchFailed) {
+                retryCount++;
+                if (retryCount <= maxRetries) {
+                    console.warn(`Agora server resting (${failureReason}) when loading ${node} (attempt ${retryCount}/${maxRetries}). Retrying in 4s...`);
+                    showToast(`🌱 Agora server resting (${failureReason}). Retrying in 4s... (${retryCount}/${maxRetries})`);
+                    content.innerHTML = `
+                        <div class="info-box with-spacing" style="text-align: center; margin-top: 2em; padding: 2em;">
+                            <h3>🌱 Agora Server Resting</h3>
+                            <p>Assembling <strong>${node}</strong>... (attempt ${retryCount}/${maxRetries})</p>
+                            <div style="margin-top: 1em; opacity: 0.8;"><em>Retrying in 4 seconds...</em></div>
+                        </div>
+                    `;
+                    await new Promise(res => setTimeout(res, 4000));
+                    continue;
+                } else {
+                    console.error(`Agora server failed to load ${node} after ${maxRetries} attempts.`);
+                    content.innerHTML = `
+                        <div class="info-box with-spacing" style="text-align: center; margin-top: 2em; padding: 2em;">
+                            <h3>502 - Gateway / Server Resting</h3>
+                            <p>Could not reach the server to load <strong>${node}</strong> after multiple attempts.</p>
+                            <button onclick="window.location.reload()" style="margin-top: 1em; padding: 0.5em 1em; cursor: pointer;">🔄 Try again now</button>
+                        </div>
+                    `;
+                    window.dispatchEvent(new CustomEvent('agora-node-loaded'));
+                    break;
+                }
+            }
+
+            if (response) {
+                const durationS = ((performance.now() - startTime) / 1000).toFixed(1);
+                const isCold = response.headers.get('X-Agora-Cold-Start') === 'true';
+                const isSlow = parseFloat(durationS) > 3.0;
+
+                if (isCold || isSlow) {
+                    const reason = isCold ? 'that was a cold start' : 'it took a moment to assemble';
+                    setTimeout(() => {
+                        showToast(`🙏 Apologies for the delay (${durationS}s); ${reason}.`);
+                    }, 1000);
+                } else {
+                    setTimeout(() => {
+                        showToast(`⚡ Node assembled in ${durationS}s.`, null, false);
+                    }, 500); // log to console sooner since it loaded fast
+                }
+
+                content.outerHTML = await response.text();
+            }
+
+            // Notify other scripts (like demo mode) that the DOM has expanded
+            window.dispatchEvent(new CustomEvent('agora-node-loaded'));
+            break;
           }
-          const durationS = ((performance.now() - startTime) / 1000).toFixed(1);
-
-          if (!response.ok) {
-              console.error(`Failed to load node ${node}: HTTP ${response.status}`);
-              showToast(`⚠️ Could not load node (HTTP ${response.status})`);
-              content.outerHTML = `<div class="subnode-error" style="padding: 1em; margin: 1em 0; border: 1px solid var(--border-color, #ccc); border-radius: 8px; background: var(--bg-secondary, #f9f9f9);"><p>⚠️ Could not load node <strong>[[${node}]]</strong> (HTTP ${response.status}).</p><p>If this site requires authentication, please refresh the page to re-authenticate.</p></div>`;
-              return;
-          }
-
-          const isCold = response.headers.get('X-Agora-Cold-Start') === 'true';
-          const isSlow = parseFloat(durationS) > 3.0;
-
-          if (isCold || isSlow) {
-              const reason = isCold ? 'that was a cold start' : 'it took a moment to assemble';
-              setTimeout(() => {
-                  showToast(`🙏 Apologies for the delay (${durationS}s); ${reason}.`);
-              }, 1000);
-          } else {
-              setTimeout(() => {
-                  showToast(`⚡ Node assembled in ${durationS}s.`, null, false);
-              }, 500); // log to console sooner since it loaded fast
-          }
-
-          content.outerHTML = await response.text();
-          
-          // Notify other scripts (like demo mode) that the DOM has expanded
-          window.dispatchEvent(new CustomEvent('agora-node-loaded'));
 
         }
 

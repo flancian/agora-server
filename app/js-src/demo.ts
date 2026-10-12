@@ -94,14 +94,27 @@ export function initDemoMode() {
 
         updateTimer();
 
-        demoIntervalId = window.setInterval(() => {
+        const tick = () => {
             countdown--;
             updateTimer();
             if (countdown <= 0) {
-                clearInterval(demoIntervalId as number);
+                if (demoIntervalId) {
+                    clearInterval(demoIntervalId);
+                    demoIntervalId = null;
+                }
                 // Fetch the random node URL first to ensure clean history navigation (avoiding 302 stack confusion)
                 fetch('/random', { method: 'HEAD' })
                     .then(res => {
+                        if (!res.ok) {
+                            console.warn(`Demo Mode: Server returned status ${res.status} on /random. Retrying in 5 seconds...`);
+                            if ((window as any).showToast) {
+                                (window as any).showToast(`🌱 Agora resting (${res.status}). Retrying in 5s...`);
+                            }
+                            countdown = 5;
+                            updateTimer();
+                            demoIntervalId = window.setInterval(tick, 1000);
+                            return;
+                        }
                         try {
                             const destUrl = new URL(res.url);
                             // Safety check: only allow navigation if the destination is on the same origin.
@@ -117,12 +130,19 @@ export function initDemoMode() {
                             window.location.href = '/agora';
                         }
                     })
-                    .catch(() => {
-                        // Fallback
-                        window.location.href = '/agora';
+                    .catch(err => {
+                        console.warn("Demo Mode: Network error checking /random. Retrying in 5s...", err);
+                        if ((window as any).showToast) {
+                            (window as any).showToast(`🌱 Reconnecting to Agora... Retrying in 5s...`);
+                        }
+                        countdown = 5;
+                        updateTimer();
+                        demoIntervalId = window.setInterval(tick, 1000);
                     });
             }
-        }, 1000);
+        };
+
+        demoIntervalId = window.setInterval(tick, 1000);
 
         // Add interaction listeners that will trigger the cancellation.
         window.addEventListener('scroll', cancelOnInteraction, { once: true });
