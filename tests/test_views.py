@@ -23,10 +23,10 @@ def test_node_route(test_agora):
 
 def test_empty_node_route(test_agora):
     """
-    Tests that an empty node page renders the 'This location is empty' state.
+    Tests that an empty node page renders the 'This location is empty' state with HTTP 404.
     """
     response = test_agora.get("/node/emptyplace")
-    assert response.status_code == 200
+    assert response.status_code == 404
     assert b"empty" in response.data
     assert b"play a minigame" in response.data
 

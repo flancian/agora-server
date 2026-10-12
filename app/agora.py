@@ -66,12 +66,14 @@ def before_request():
     # this allows for easily provisioning an Agora in many virtual hosts, e.g. *.agor.ai.
     # If URI_BASE or URL_BASE are empty, try running this as a "wildcard Agora".
     host = request.headers.get("Host")
-    if host:
+    is_testing = current_app.config.get("TESTING", False)
+    if host and (not is_testing or (host != "localhost" and host != "localhost:80")):
         current_app.config["URI_BASE"] = host
     scheme = request.headers.get('X-Forwarded-Proto', request.scheme)
-    if not current_app.config.get("URL_BASE") or (scheme == "https" and current_app.config["URL_BASE"].startswith("http://")):
-        if host:
-            current_app.config["URL_BASE"] = f"{scheme}://{host}"
+    if not is_testing:
+        if not current_app.config.get("URL_BASE") or (scheme == "https" and current_app.config["URL_BASE"].startswith("http://")):
+            if host:
+                current_app.config["URL_BASE"] = f"{scheme}://{host}"
 
 
 
@@ -104,10 +106,30 @@ def after_request(response):
 # Nodes are the heart of the [[agora]].
 
 
-# In the [[agora]] there are no 404s. Everything that can be described with words has a node in the [[agora]].
+# In the [[agora]] there are no 404s for beings. Everything that can be described with words has a node in the [[agora]].
+# For search engines, we return HTTP 404 on empty nodes to prevent soft-404 indexing penalties while preserving the human creation prompt.
 
 # The [[agora]] is in some ways thus a [[search engine]]: anagora.org/agora-search
 #
+# Sitemap protocol endpoint for search engines and crawlers.
+@bp.route("/sitemap.xml")
+def sitemap():
+    start_time = time.time()
+    nodes = api.get_all_distinct_nodes()
+    canonical_host = current_app.config.get('CANONICAL_URI_BASE') or current_app.config.get('URI_BASE', 'anagora.org')
+    valid_nodes = [n for n in nodes if n and n.strip() and not n.startswith('.')]
+
+    xml_content = render_template(
+        "sitemap.xml",
+        nodes=valid_nodes,
+        canonical_host=canonical_host,
+    )
+    response = make_response(xml_content)
+    response.headers["Content-Type"] = "application/xml; charset=utf-8"
+    response.headers["Cache-Control"] = "public, max-age=86400"
+    current_app.logger.info(f"Generated /sitemap.xml with {len(valid_nodes)} nodes in {time.time() - start_time:.3f}s")
+    return response
+
 # Flask routes work so that the one closest to the function is the canonical one.
 @bp.route("/<node>")
 def root(node, user_list=""):
@@ -141,6 +163,8 @@ def root(node, user_list=""):
     duration = time.time() - start_time
     current_app.logger.debug(f"[[{node}]]: Assembled SKELETON node in {duration:.2f}s.")
     
+    exists = api.node_exists(canonical)
+    status_code = 200 if exists else 404
 
     return render_template(
         "sync.html",
@@ -148,13 +172,14 @@ def root(node, user_list=""):
         config=current_app.config,
         # To disable graphs because of e.g. a CDN outage again, flip this to False here and in /context.
         graph=True,
+        is_empty=(not exists),
         # disabled a bit superstitiously due to [[heisenbug]] after I added this everywhere :).
         # sorry for the fuzzy thinking but I'm short on time and want to get things done.
         # (...famous last words).
         # TODO(2022-06-06): this should now be done in the async path, essentially embedding /annotations/X from node X
         # annotations=n.annotations(),
         # annotations_enabled=True,
-    )
+    ), status_code
 
 # Flask routes work so that the one closest to the function is the canonical one.
 @bp.route("/wikilink/<node>")
@@ -176,6 +201,9 @@ def node(node, user_list=""):
     starred_nodes = sqlite_engine.get_all_starred_nodes()
     t3 = time.time()
 
+    is_empty = not n.subnodes and not n.pushed_subnodes()
+    status_code = 404 if is_empty else 200
+
     ret = render_template(
         "async.html",
         node=n,
@@ -183,6 +211,7 @@ def node(node, user_list=""):
         config=current_app.config,
         starred_subnodes=starred_subnodes,
         starred_nodes=starred_nodes,
+        is_empty=is_empty,
     )
     t4 = time.time()
     
@@ -193,7 +222,7 @@ def node(node, user_list=""):
             f"Slow node load for [[{node}]]: Total={total_time:.3f}s | "
             f"Build={t1-t0:.3f}s | Filter={t2-t1:.3f}s | StarDB={t3-t2:.3f}s | Render={t4-t3:.3f}s"
         )
-    return ret
+    return ret, status_code
 
 @bp.route("/node/<node0>/<node1>")
 @bp.route("/<node0>/<node1>")

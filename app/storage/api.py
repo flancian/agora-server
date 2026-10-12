@@ -72,6 +72,28 @@ def Node(node_uri):
     """
     return NodeClass(node_uri)
 
+def node_exists(title):
+    """
+    Checks whether a node exists and has at least one subnode.
+    """
+    if _is_sqlite_enabled():
+        return sqlite_engine.node_exists(title)
+    try:
+        return title.lower() in G.nodes()
+    except Exception:
+        return False
+
+def get_all_distinct_nodes():
+    """
+    Retrieves all distinct node names that have content.
+    """
+    if _is_sqlite_enabled():
+        return sqlite_engine.get_all_distinct_nodes()
+    try:
+        return sorted(list(G.nodes().keys()))
+    except Exception:
+        return []
+
 def subnode_by_uri(uri):
     # This is a direct lookup, no complex caching logic needed here yet.
     return file_engine.subnode_by_uri(uri)

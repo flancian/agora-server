@@ -1025,6 +1025,36 @@ def get_random_node():
     result = cursor.fetchone()
     return result[0] if result else None
 
+def node_exists(node_uri):
+    """
+    Checks if a node has any subnodes in the database.
+    Returns True if at least one subnode exists, False otherwise.
+    """
+    db = get_db()
+    if not db:
+        return False
+    try:
+        cursor = db.cursor()
+        cursor.execute("SELECT 1 FROM subnodes WHERE node = ? LIMIT 1", (node_uri,))
+        return cursor.fetchone() is not None
+    except sqlite3.OperationalError:
+        return False
+
+def get_all_distinct_nodes():
+    """
+    Retrieves all distinct node names that have at least one subnode.
+    Returns a sorted list of node names.
+    """
+    db = get_db()
+    if not db:
+        return []
+    try:
+        cursor = db.cursor()
+        cursor.execute("SELECT DISTINCT node FROM subnodes WHERE node IS NOT NULL AND node != '' ORDER BY node")
+        return [row[0] for row in cursor.fetchall()]
+    except sqlite3.OperationalError:
+        return []
+
 def get_subnodes_by_node(node_uri):
     """
     Retrieves all subnodes associated with a specific node.

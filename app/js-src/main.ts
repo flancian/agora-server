@@ -1990,6 +1990,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                     if (response.status >= 500) {
                         fetchFailed = true;
                         failureReason = `status ${response.status}`;
+                    } else if (response.status === 404) {
+                        // Empty node stub returns HTTP 404 for search engines,
+                        // but contains valid HTML for the human UI (stub/minigame).
+                        break;
                     } else {
                         console.error(`Failed to load node ${node}: HTTP ${response.status}`);
                         showToast(`⚠️ Could not load node (HTTP ${response.status})`);
