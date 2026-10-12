@@ -25,9 +25,16 @@
     <title>{{config['AGORA_NAME']}} at {{config['URI_BASE']}}</title>
 	{% endif %}
 	<!-- This Agora is: {{config['URI_BASE']}} -->
-	{% if 'dev.' in config['URI_BASE'] %}
-	<!-- This is a development Agora, so it's likely better if it's not indexed (it might not be up most of the time). -->
-	<meta name="robots" content="noindex" />
+	{% set canonical_host = config.get('CANONICAL_URI_BASE') or config['URI_BASE'] %}
+	{% if node is defined and node.qstr %}
+	<link rel="canonical" href="https://{{ canonical_host }}/{{ node.qstr }}" />
+	{% endif %}
+	{% if 'dev.' in config['URI_BASE'] or '0.' in config['URI_BASE'] or config.get('NOINDEX', False) %}
+	<!-- Development, mirror, or private Agora: decline search indexing -->
+	<meta name="robots" content="noindex, follow" />
+	{% elif is_empty is defined and is_empty %}
+	<!-- Empty node: do not index empty stubs in search engines, but follow any links -->
+	<meta name="robots" content="noindex, follow" />
 	{% endif %}
 
     <script>

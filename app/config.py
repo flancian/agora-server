@@ -104,6 +104,15 @@ class DefaultConfig(object):
         # pass
         URI_BASE = "anagora.org"
 
+    # Canonical host for search engines and SEO. Defaults to URI_BASE if not explicitly set.
+    try:
+        CANONICAL_URI_BASE = AGORA_CONFIG.get("canonical_uri_base", os.environ.get("AGORA_CANONICAL_URI", None))
+    except (KeyError, TypeError, AttributeError):
+        CANONICAL_URI_BASE = os.environ.get("AGORA_CANONICAL_URI", None)
+
+    # Opt out of search engine indexing across the entire instance.
+    NOINDEX = os.environ.get("AGORA_NOINDEX", "").lower() in ("1", "true", "yes")
+
     try:
         API_BASE = AGORA_CONFIG["api_base"]
     except (KeyError, TypeError):
