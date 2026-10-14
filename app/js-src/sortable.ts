@@ -136,7 +136,7 @@ export function saveOrder() {
 }
 
 const SECTION_ORDER_VERSION_KEY = 'agora-section-order-v6';
-const DEFAULT_ORDER = ["web", "wiki", "genai", "main", "context", "pulled", "related", "stoa", "search", "games"];
+const DEFAULT_ORDER = ["ancillary", "web", "wiki", "genai", "main", "context", "pulled", "related", "stoa", "search", "games"];
 
 export function restoreOrder() {
     const container = document.querySelector('.content') as HTMLElement;
@@ -160,8 +160,6 @@ export function restoreOrder() {
                 }
             }
         }
-
-        console.log("Restoring section order:", order);
 
         const allSortables = Array.from(container.querySelectorAll('.sortable-section'));
         const untrackedElements: HTMLElement[] = [];
@@ -211,7 +209,7 @@ export function restoreOrder() {
             });
         });
 
-        // Finally, if search/games were not present in order, append any remaining untracked sections
+        // Append any remaining untracked sections
         if (!untrackedInserted) {
             untrackedElements.forEach(el => {
                 if (el.style.display !== 'none' && !desiredElements.includes(el)) {

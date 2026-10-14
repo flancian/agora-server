@@ -107,6 +107,23 @@ class AgorahrRendererMixin(object):
         return '<hr class="agora-hr" />'
 
 
+class HeadingAnchorRendererMixin(object):
+    def render_heading(self, element):
+        children = self.render_children(element)
+        raw_text = re.sub(r"<[^>]+>", "", children).strip()
+        slug = re.sub(r"[^\w\s-]", "", raw_text).strip().lower()
+        slug = re.sub(r"[-\s]+", "-", slug)
+        level = element.level
+        if slug:
+            return (
+                f'<h{level} id="{slug}" class="heading-with-anchor">'
+                f'{children}'
+                f'<a href="#{slug}" class="heading-anchor" title="Link to this section">§</a>'
+                f'</h{level}>\n'
+            )
+        return f'<h{level}>{children}</h{level}>\n'
+
+
 Wikilinks = MarkoExtension(
     elements=[WikilinkElement, TiddlylinkElement, HashtagElement],
     renderer_mixins=[
@@ -114,6 +131,7 @@ Wikilinks = MarkoExtension(
         TiddlylinkRendererMixin,
         HashtagRendererMixin,
         AgorahrRendererMixin,
+        HeadingAnchorRendererMixin,
     ],
 )
 

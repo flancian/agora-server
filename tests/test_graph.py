@@ -45,3 +45,17 @@ def test_node_creation_and_links(test_agora):
     rendered = subnode.render()
     assert "href" in rendered  # Wikilink [[bar]] should render as a hyperlink
 
+def test_empty_node_lookup_sqlite(test_agora):
+    """
+    Tests that an unindexed/empty node lookup (e.g. mirrormaker) returns a polite empty Node
+    without failing or requiring full graph rebuild.
+    """
+    test_agora.application.config["ENABLE_SQLITE"] = True
+    test_agora.application.config["ENABLE_LAZY_LOAD"] = True
+    
+    empty_node = G.node("mirrormaker")
+    assert empty_node is not None
+    assert empty_node.wikilink == "mirrormaker"
+    assert len(empty_node.subnodes) == 0
+    assert len(empty_node.back_nodes()) == 0
+

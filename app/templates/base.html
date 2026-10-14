@@ -59,6 +59,11 @@
 	<link rel="stylesheet" media="screen" type="text/css"
 		href="{{ url_for('static',filename='css/main.css')}}?v={{css_versions.main_css_version}}" />
 
+	<!-- KaTeX math rendering (Issue #86) -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+
 	<script>
 		const APIBASE = "{{config['API_BASE']}}";
 		const AGORANAME = "{{config['AGORA_NAME']}}";

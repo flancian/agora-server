@@ -165,6 +165,98 @@ document.addEventListener("DOMContentLoaded", async function () {
   initSortableSubnodes();
   updateCliButtonsVisibility();
   
+  // KaTeX Math Rendering (Issue #86)
+  function renderMath(root: HTMLElement = document.body) {
+      if (typeof (window as any).renderMathInElement === 'function') {
+          try {
+              (window as any).renderMathInElement(root, {
+                  delimiters: [
+                      { left: '$$', right: '$$', display: true },
+                      { left: '$', right: '$', display: false },
+                      { left: '\\(', right: '\\)', display: false },
+                      { left: '\\[', right: '\\]', display: true }
+                  ],
+                  throwOnError: false,
+                  ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+              });
+          } catch (e) {
+              console.warn('KaTeX rendering error:', e);
+          }
+      }
+  }
+
+  // Subnode Maximize / Focus Mode
+  function initSubnodeMaximize() {
+      if ((window as any)._subnodeMaximizeInitialized) return;
+      (window as any)._subnodeMaximizeInitialized = true;
+
+      document.addEventListener('click', (e) => {
+          const target = e.target as HTMLElement;
+          const maxBtn = target.closest('.subnode-maximize-btn') as HTMLElement;
+          if (!maxBtn) return;
+          
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const subnode = maxBtn.closest('details.subnode') as HTMLDetailsElement;
+          if (!subnode) return;
+          
+          const isMax = subnode.classList.toggle('subnode-maximized');
+          maxBtn.textContent = isMax ? '🗗' : '⛶';
+          maxBtn.title = isMax ? 'Exit fullscreen (Esc)' : 'Maximize this contribution (Esc to exit)';
+          
+          if (isMax) {
+              subnode.open = true;
+              document.body.style.overflow = 'hidden';
+          } else {
+              document.body.style.overflow = '';
+          }
+      });
+
+      document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+              const maximized = document.querySelector('details.subnode.subnode-maximized') as HTMLDetailsElement;
+              if (maximized) {
+                  maximized.classList.remove('subnode-maximized');
+                  const maxBtn = maximized.querySelector('.subnode-maximize-btn');
+                  if (maxBtn) {
+                      maxBtn.textContent = '⛶';
+                      maxBtn.setAttribute('title', 'Maximize this contribution (Esc to exit)');
+                  }
+                  document.body.style.overflow = '';
+              }
+          }
+      });
+  }
+
+  // Deep Linking to Headings (Issue #38)
+  function handleHashNavigation() {
+      const hash = window.location.hash;
+      if (!hash || hash.length < 2) return;
+      try {
+          const targetEl = document.querySelector(hash);
+          if (targetEl) {
+              let parent = targetEl.parentElement;
+              while (parent) {
+                  if (parent.tagName === 'DETAILS' && !(parent as HTMLDetailsElement).open) {
+                      (parent as HTMLDetailsElement).open = true;
+                  }
+                  parent = parent.parentElement;
+              }
+              setTimeout(() => {
+                  targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }, 150);
+          }
+      } catch (e) {
+          console.warn('Hash navigation error:', e);
+      }
+  }
+
+  // Initial bindings
+  initSubnodeMaximize();
+  renderMath();
+  handleHashNavigation();
+
   window.addEventListener('agora-node-loaded', () => {
       // Re-run sortable setup and restore after async content finishes loading
       initInteractiveEmptyState();
@@ -172,7 +264,19 @@ document.addEventListener("DOMContentLoaded", async function () {
       initSortable();
       initSortableSubnodes();
       updateCliButtonsVisibility();
+      initSubnodeMaximize();
+      renderMath();
+      handleHashNavigation();
+
+      // Gentle whimsical flourish on the node header
+      const mainHeader = document.querySelector('.main-header');
+      if (mainHeader) {
+          mainHeader.classList.add('node-loaded-flourish');
+          setTimeout(() => mainHeader.classList.remove('node-loaded-flourish'), 1300);
+      }
+      console.log("🌱 Agora node loaded with loving-kindness. For the benefit of all beings.");
   });
+  window.addEventListener('hashchange', handleHashNavigation);
   console.log("DomContentLoaded");
   initSettings();
   
@@ -2588,7 +2692,17 @@ async function bindEvents() {
                             firstSubnode.parentNode.insertBefore(subnode, firstSubnode);
                         }
                     });
+
+                    console.log(`Animating ${userSubnodes.length} subnodes for user ${user}.`);
+
+                    userSubnodes.forEach(subnode => {
+                        subnode.classList.add('subnode-arrived');
+                        setTimeout(() => {
+                            subnode.classList.remove('subnode-arrived');
+                        }, 500);
+                    });
                 }
+            }
             }
 
         };

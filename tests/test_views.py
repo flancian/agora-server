@@ -204,4 +204,27 @@ def test_rss_feeds_sanitization(test_agora):
         assert "Broken content with control chars" in rss_xml
         assert "\x00" not in rss_xml
 
+def test_subnode_heading_anchors(test_agora):
+    """Verifies that markdown headings render with an anchor and slug ID."""
+    from app import render
+    output = render.markdown("# The Quiet Revolution\n## Chapter One")
+    assert 'id="the-quiet-revolution"' in output
+    assert 'class="heading-anchor"' in output
+    assert 'href="#the-quiet-revolution"' in output
+    assert 'id="chapter-one"' in output
+    assert 'href="#chapter-one"' in output
+
+def test_subnode_maximize_button_and_ancillary_zippy(test_agora):
+    """Verifies subnode maximize button and collapsed ancillary zippy are present."""
+    response = test_agora.get("/node/foo")
+    assert response.status_code == 200
+    content = response.data.decode("utf-8")
+    assert "subnode-maximize-btn" in content
+    
+    # Check sync view has the ancillary zippy
+    sync_response = test_agora.get("/foo")
+    assert sync_response.status_code == 200
+    sync_content = sync_response.data.decode("utf-8")
+    assert "embed-ancillary-zippy" in sync_content
+
 

@@ -162,38 +162,32 @@ class Graph:
         
         # Optimization: When SQLite AND Lazy Load are enabled, build the node on-demand
         # without loading the entire graph into memory.
-        if _is_sqlite_enabled() and current_app.config.get('ENABLE_LAZY_LOAD', False):
-            current_app.logger.debug(f"LAZY LOAD (sqlite): Fetching node [[{uri}]] on-demand.")
-            # Create a fresh node object
-            n = Node(uri)
-            
-            # Fetch its subnodes from the database
+        if _is_sqlite_enabled():
             subnode_data = sqlite_engine.get_subnodes_by_node(uri)
             
-            # Convert to Subnode objects
-            # We assume mediatype can be inferred from extension or defaults to text/plain
-            # Re-using the logic from subnodes() loop or Subnode constructor would be ideal,
-            # but for now we'll rely on Subnode's internal logic.
-            subnodes = []
-            agora_path = current_app.config["AGORA_PATH"]
-            for s_data in subnode_data:
-                # Reconstruct the absolute path from the stored URI (relative path)
-                absolute_path = os.path.join(agora_path, s_data['path'])
+            # If the node has no subnodes in SQLite, it will definitely not exist in the full graph.
+            # Return an empty Node immediately without triggering a 10s monolithic filesystem scan.
+            if not subnode_data:
+                return Node(uri)
 
-                mediatype = guess_mediatype(absolute_path)
+            if current_app.config.get('ENABLE_LAZY_LOAD', False):
+                current_app.logger.debug(f"LAZY LOAD (sqlite): Fetching node [[{uri}]] on-demand.")
+                n = Node(uri)
+                subnodes = []
+                agora_path = current_app.config["AGORA_PATH"]
+                for s_data in subnode_data:
+                    absolute_path = os.path.join(agora_path, s_data['path'])
+                    mediatype = guess_mediatype(absolute_path)
+                    s = Subnode(absolute_path, mediatype, mtime_override=s_data['mtime'])
+                    subnodes.append(s)
 
-                # Pass the absolute path to the Subnode constructor
-                s = Subnode(absolute_path, mediatype, mtime_override=s_data['mtime'])
-                subnodes.append(s)
-
-                if absolute_path.endswith(".py"):
-                    # Only treat .py files as executables if they are explicitly in an 'exec' or 'bin' folder
-                    path_parts = absolute_path.split(os.sep)
-                    if 'exec' in path_parts or 'bin' in path_parts:
-                        n.executable_subnodes.append(ExecutableSubnode(absolute_path))
-            
-            n.subnodes = subnodes
-            return n
+                    if absolute_path.endswith(".py"):
+                        path_parts = absolute_path.split(os.sep)
+                        if 'exec' in path_parts or 'bin' in path_parts:
+                            n.executable_subnodes.append(ExecutableSubnode(absolute_path))
+                
+                n.subnodes = subnodes
+                return n
 
         # Fallback: Load the full graph (slow)
         # current_app.logger.debug(f"MONOLITHIC LOAD (in-memory): Fetching node [[{uri}]] from full graph.")
@@ -359,7 +353,7 @@ class Graph:
             ttl = get_cache_ttl('subnodes')
             cached_value, timestamp = sqlite_engine.get_cached_graph(cache_key)
 
-            if cached_value and (time.time() - timestamp < ttl):
+            if cached_value and ((time.time() - timestamp < ttl) or not os.environ.get('AGORA_WORKER')):
                 current_app.logger.info("CACHE HIT (sqlite): Using cached data for subnodes.")
                 start_time = time.time()
 
