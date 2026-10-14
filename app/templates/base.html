@@ -63,7 +63,32 @@
 		const APIBASE = "{{config['API_BASE']}}";
 		const AGORANAME = "{{config['AGORA_NAME']}}";
 		const AGORAURI= "{{config['URI_BASE']}}";
-		const AGORAURL = "";
+		const AGORAURL = (function() {
+			try {
+				const custom = localStorage.getItem("agora-custom-url");
+				if (custom) return custom.replace(/\/+$/, "");
+			} catch (e) {}
+			return window.location.origin;
+		})();
+		const AGORAS = (function() {
+			const defaults = [
+				AGORAURL,
+				{% if config['URL_BASE'] %}
+				"{{config['URL_BASE']}}".replace(/\/+$/, ""),
+				{% endif %}
+				"https://anagora.org"
+			];
+			try {
+				const stored = localStorage.getItem("agora-sources");
+				if (stored) {
+					const parsed = JSON.parse(stored);
+					if (Array.isArray(parsed) && parsed.length > 0) {
+						return Array.from(new Set([AGORAURL, ...parsed.map(u => String(u).trim().replace(/\/+$/, ""))].filter(Boolean)));
+					}
+				}
+			} catch (e) {}
+			return Array.from(new Set(defaults.filter(Boolean)));
+		})();
 		const DEFAULT_MAINTAINER = "{{config['MAINTAINER_NAME']}}";
 		const AGORA_EDITOR_URL = "{{config['AGORA_EDITOR_URL']}}";
 	</script>

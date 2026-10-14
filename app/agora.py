@@ -1162,6 +1162,8 @@ def fullsearch(qstr):
             if subnode.user not in group['users']:
                 group['users'].append(subnode.user)
 
+    semantic_count = sqlite_engine.get_vector_count() if current_app.config.get('ENABLE_SEMANTIC_SEARCH', False) else 0
+
     return render_template(
         "fullsearch.html", 
         qstr=qstr, 
@@ -1175,7 +1177,9 @@ def fullsearch(qstr):
         has_more=has_more,
         total_count=total_count,
         total_pages=total_pages,
-        ENABLE_FTS=current_app.config.get('ENABLE_FTS', False)
+        ENABLE_FTS=current_app.config.get('ENABLE_FTS', False),
+        ENABLE_SEMANTIC_SEARCH=current_app.config.get('ENABLE_SEMANTIC_SEARCH', False),
+        semantic_count=semantic_count
     )
 
 

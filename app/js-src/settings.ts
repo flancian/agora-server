@@ -13,6 +13,26 @@ export function initSettings() {
     if (editorUrlInput) {
         editorUrlInput.value = localStorage["editor-url"] || CLIENT_DEFAULTS.editorUrl;
     }
+    const customUrlInput = document.getElementById("agora-custom-url") as HTMLInputElement;
+    if (customUrlInput) {
+        customUrlInput.value = localStorage.getItem("agora-custom-url") || "";
+    }
+    const sourcesInput = document.getElementById("agora-sources") as HTMLInputElement;
+    if (sourcesInput) {
+        const stored = localStorage.getItem("agora-sources");
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) {
+                    sourcesInput.value = parsed.join(", ");
+                } else {
+                    sourcesInput.value = stored;
+                }
+            } catch (e) {
+                sourcesInput.value = stored;
+            }
+        }
+    }
     (document.getElementById("auto-expand-all") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-all"], CLIENT_DEFAULTS.autoExpandAll);
     (document.getElementById("auto-expand-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-search"], CLIENT_DEFAULTS.autoExpandSearch);
     (document.getElementById("auto-expand-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-wikipedia"], CLIENT_DEFAULTS.autoExpandWikipedia);
@@ -168,6 +188,27 @@ export function initSettings() {
         const editorUrlElement = document.getElementById("editor-url") as HTMLInputElement;
         if (editorUrlElement) {
             localStorage["editor-url"] = editorUrlElement.value;
+        }
+
+        const customUrlElement = document.getElementById("agora-custom-url") as HTMLInputElement;
+        if (customUrlElement) {
+            const val = customUrlElement.value.trim().replace(/\/+$/, "");
+            if (val) {
+                localStorage.setItem("agora-custom-url", val);
+            } else {
+                localStorage.removeItem("agora-custom-url");
+            }
+        }
+
+        const sourcesElement = document.getElementById("agora-sources") as HTMLInputElement;
+        if (sourcesElement) {
+            const val = sourcesElement.value.trim();
+            if (val) {
+                const list = val.split(/[,\s]+/).map(s => s.trim().replace(/\/+$/, "")).filter(Boolean);
+                localStorage.setItem("agora-sources", JSON.stringify(list));
+            } else {
+                localStorage.removeItem("agora-sources");
+            }
         }
 
         location.reload();

@@ -132,6 +132,14 @@ SCHEMA_TEMPLATES = {
             content, 
             tokenize='trigram'
         );
+    """,
+    'subnode_vectors': """
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            path TEXT PRIMARY KEY,
+            embedding BLOB NOT NULL,
+            model TEXT NOT NULL,
+            timestamp INTEGER NOT NULL
+        );
     """
 }
 
@@ -260,6 +268,10 @@ def create_tables(db):
             db.execute("CREATE INDEX IF NOT EXISTS idx_subnodes_node ON subnodes(node);")
         except sqlite3.OperationalError:
             pass
+
+        # Add Semantic Vectors table if enabled
+        if current_app.config.get('ENABLE_SEMANTIC_SEARCH', False):
+            db.execute(SCHEMA_TEMPLATES['subnode_vectors'].format(table_name='subnode_vectors'))
 
 def get_subnode_count():
     """
@@ -1090,6 +1102,38 @@ def get_latest_subnodes(limit=100):
         {'path': row[0], 'user': row[1], 'node': row[2], 'mtime': row[3]}
         for row in cursor.fetchall()
     ]
+
+def get_all_vectors():
+    """
+    Retrieves all vectors from the database for in-memory semantic search.
+    Returns a list of tuples: [(path, blob), ...]
+    """
+    db = get_db()
+    if not db:
+        return []
+    
+    try:
+        cursor = db.cursor()
+        cursor.execute("SELECT path, embedding FROM subnode_vectors")
+        return cursor.fetchall()
+    except sqlite3.OperationalError:
+        return []
+
+def get_vector_count():
+    """
+    Returns the total number of vector embeddings stored in SQLite.
+    Returns 0 if table does not exist or db is unavailable.
+    """
+    db = get_db()
+    if not db:
+        return 0
+    try:
+        cursor = db.cursor()
+        cursor.execute("SELECT count(*) FROM subnode_vectors")
+        row = cursor.fetchone()
+        return row[0] if row else 0
+    except sqlite3.OperationalError:
+        return 0
 
 def get_ai_generation(prompt, provider):
     """

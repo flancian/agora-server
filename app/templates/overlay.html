@@ -105,7 +105,7 @@
 		                			</div>
 		
 		                    <div class="settings-group">
-		                        <h3 class="settings-group-header">Identity</h3>
+		                        <h3 class="settings-group-header">Identity & Commonsverse</h3>
 		                        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
 		                            <label for="user" style="white-space: nowrap;" title="Browse as: Enter a username to browse the Agora as a specific contributor (filters contributions & sets garden context).">Browse as</label>
 		                            <div style="display: flex; gap: 10px; flex-grow: 1;">
@@ -117,6 +117,18 @@
 		                            <label for="editor-url" style="white-space: nowrap;" title="Editor URL: Configure the endpoint of your Hosted Garden editor (defaults to edit.anagora.org).">Editor URL</label>
 		                            <div style="display: flex; gap: 10px; flex-grow: 1;">
 		                                <input id="editor-url" type="text" placeholder="{{config['AGORA_EDITOR_URL']}}" style="flex-grow: 1; padding: 5px;" />
+		                            </div>
+		                        </div>
+		                        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+		                            <label for="agora-custom-url" style="white-space: nowrap;" title="Custom Agora URL: Override the primary Agora server endpoint (leave empty to use current window origin).">Agora URL</label>
+		                            <div style="display: flex; gap: 10px; flex-grow: 1;">
+		                                <input id="agora-custom-url" type="text" placeholder="{{config['URL_BASE']}}" style="flex-grow: 1; padding: 5px;" />
+		                            </div>
+		                        </div>
+		                        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+		                            <label for="agora-sources" style="white-space: nowrap;" title="Commonsverse Peers: Comma-separated list of peer Agoras to consult or pull from in the Commonsverse.">Agora Sources</label>
+		                            <div style="display: flex; gap: 10px; flex-grow: 1;">
+		                                <input id="agora-sources" type="text" placeholder="https://anagora.org" style="flex-grow: 1; padding: 5px;" />
 		                            </div>
 		                        </div>
 		                    </div>

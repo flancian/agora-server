@@ -68,6 +68,22 @@
             margin-top: 1.5em;
             font-size: 0.95em;
             opacity: 0.85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(128, 128, 128, 0.3);
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         .demo-badge {
             display: inline-block;
@@ -91,10 +107,11 @@
         <h1>🌱 Agora Server Resting</h1>
         <p>The Agora is currently processing updates, restarting, or undergoing maintenance. Reconnecting shortly.</p>
         
-        <button onclick="window.location.reload()">🔄 Try again now</button>
+        <button onclick="window.location.reload()">Retry now</button>
         
         <div class="timer">
-            Automatically retrying in <span id="countdown">8</span> seconds...
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Automatically retrying in <span id="countdown">8</span> seconds...</span>
         </div>
     </div>
     

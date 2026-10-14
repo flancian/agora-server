@@ -163,8 +163,28 @@ def subnodes_by_user(username, sort_by="mtime", mediatype=None, reverse=True):
     return file_engine.subnodes_by_user(username, sort_by, mediatype, reverse)
 
 def search_subnodes(query, mode='exact', page=1, per_page=50):
-    # mode: 'exact' (FTS phrase), 'broad' (FTS stemmed), 'fuzzy' / 'fs' (FTS trigram)
+    # mode: 'exact' (FTS phrase), 'broad' (FTS stemmed), 'fuzzy' / 'fs' (FTS trigram), 'semantic' (Vector embeddings)
     
+    if mode == 'semantic' and current_app.config.get('ENABLE_SEMANTIC_SEARCH', False):
+        from app import semantic
+        start_time = time.time()
+        offset = (page - 1) * per_page
+        scored_results = semantic.search(query, top_k=offset + per_page + 1)
+        page_results = scored_results[offset:offset + per_page + 1]
+        paths = [p for p, s in page_results]
+        if paths:
+            agora_path = current_app.config['AGORA_PATH']
+            subnodes = []
+            for relative_path in paths:
+                absolute_path = os.path.join(agora_path, relative_path)
+                if os.path.exists(absolute_path):
+                    subnodes.append(SubnodeClass(absolute_path))
+            current_app.logger.info(f"Semantic search for '{query}' found {len(subnodes)} results in {time.time() - start_time:.4f}s.")
+            return subnodes
+        else:
+            current_app.logger.info(f"Semantic search for '{query}' found 0 results.")
+            return []
+
     if _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
         start_time = time.time()
         offset = (page - 1) * per_page
@@ -192,8 +212,15 @@ def search_subnodes(query, mode='exact', page=1, per_page=50):
             current_app.logger.info(f"SQLite search ({mode}) for '{query}' found 0 results.")
             return []
 
+    return []
+
 
 def count_search_subnodes(query, mode='exact'):
+    if mode == 'semantic' and current_app.config.get('ENABLE_SEMANTIC_SEARCH', False):
+        from app import semantic
+        results = semantic.search(query, top_k=200)
+        return len(results)
+
     if _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
         if mode in ('fs', 'fuzzy'):
             count = sqlite_engine.count_subnodes_trigram(query)

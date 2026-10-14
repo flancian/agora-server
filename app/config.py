@@ -159,6 +159,9 @@ class DefaultConfig(object):
     # Adds full content indexing to agora.db for sub-second search.
     ENABLE_FTS = False
     
+    # Semantic Search with vector embeddings. Requires ENABLE_SQLITE = True.
+    ENABLE_SEMANTIC_SEARCH = False
+    
     # AI Synthesis of node content.
     ENABLE_SYNTHESIS = False
 
@@ -359,6 +362,7 @@ class LocalDevelopmentConfig(DefaultConfig):
     ENABLE_HYPOTHESIS = True
     ENABLE_SQLITE = True
     ENABLE_FTS = True
+    ENABLE_SEMANTIC_SEARCH = True
     ENABLE_SYNTHESIS = True
     ENABLE_LAZY_LOAD = False
     USE_GIT_MTIME = False

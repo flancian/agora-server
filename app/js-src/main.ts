@@ -41,6 +41,8 @@ declare const NODENAME: string | undefined;
 declare const NODEQ: string | undefined;
 declare const DEFAULT_MAINTAINER: string | undefined;
 declare const AGORA_EDITOR_URL: string | undefined;
+declare const AGORAURL: string;
+declare const AGORAS: string[];
 
 
 // @ts-ignore
@@ -303,6 +305,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (mode === 'exact') loadingText = 'Searching FTS5 index (exact phrase)...';
       if (mode === 'broad') loadingText = 'Searching FTS5 index (any order)...';
       if (mode === 'fs' || mode === 'fuzzy') loadingText = 'Searching FTS5 Trigram index (fuzzy)...';
+      if (mode === 'semantic') loadingText = 'Searching semantic embedding index (vector similarity)...';
 
       // We preserve the header but replace the content below it with a spinner
       // Actually, easier to replace the whole thing and let the server re-render the tabs with the new active state
@@ -312,7 +315,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <span style="margin-right: 10px;"><strong>Search Mode:</strong></span>
                 <span class="search-mode-tab ${mode === 'exact' ? 'active' : ''}" title="Exact Phrase: Matches your consecutive search phrase in sequence order using SQLite FTS5 phrase indexing.">Exact Phrase</span> • 
                 <span class="search-mode-tab ${mode === 'broad' ? 'active' : ''}" title="Any Order: Matches documents containing all of your search words in any order using SQLite FTS5 stemmed indexing.">Any Order</span> • 
-                <span class="search-mode-tab ${(mode === 'fs' || mode === 'fuzzy') ? 'active' : ''}" title="Fuzzy Match: Finds misspellings, partial character sequences, and code symbols using SQLite FTS5 Trigram indexing.">Fuzzy</span>
+                <span class="search-mode-tab ${(mode === 'fs' || mode === 'fuzzy') ? 'active' : ''}" title="Fuzzy Match: Finds misspellings, partial character sequences, and code symbols using SQLite FTS5 Trigram indexing.">Fuzzy</span> • 
+                <span class="search-mode-tab ${mode === 'semantic' ? 'active' : ''}" title="Semantic Match: Finds conceptually related notes and ideas across the Agora using local vector embeddings.">✨ Semantic</span>
           </div>
           <center>
             <p>
