@@ -11,6 +11,9 @@ _corpus_matrix = None
 _corpus_paths = None
 _corpus_timestamp = 0
 
+# Hugging Face identifier of the embedding model. Index and query must agree.
+MODEL_NAME = 'nomic-ai/nomic-embed-text-v1.5'
+
 def get_model():
     """
     Lazy loads the SentenceTransformer model.
@@ -28,9 +31,9 @@ def get_model():
         torch.set_num_threads(min(8, os.cpu_count() or 4))
         from sentence_transformers import SentenceTransformer
         # Use a high-quality model with a large context window.
-        current_app.logger.info("Semantic: Loading embedding model 'nomic-ai/nomic-embed-text-v1.5'...")
+        current_app.logger.info(f"Semantic: Loading embedding model '{MODEL_NAME}'...")
         start = time.time()
-        _model = SentenceTransformer('nomic-ai/nomic-embed-text-v1.5', trust_remote_code=True)
+        _model = SentenceTransformer(MODEL_NAME, trust_remote_code=True)
         # Ensure CPU usage.
         _model.cpu()
         current_app.logger.info(f"Semantic: Model loaded in {time.time() - start:.2f}s.")
@@ -63,6 +66,30 @@ def embed(text):
         return vector
     except Exception as e:
         current_app.logger.error(f"Semantic: Error embedding text: {e}")
+        return None
+
+def embed_remote(texts, embedder_url):
+    """
+    Requests embeddings from the local embedder service.
+
+    `texts` may be a single string or a list of strings. Returns a list of
+    numpy float32 arrays (one per input), or None if the service is unavailable.
+    """
+    import requests
+
+    if isinstance(texts, str):
+        texts = [texts]
+    try:
+        resp = requests.post(
+            embedder_url.rstrip("/") + "/embed",
+            json={"texts": texts},
+            timeout=30,
+        )
+        resp.raise_for_status()
+        payload = resp.json()
+        return [np.asarray(vec, dtype=np.float32) for vec in payload["embeddings"]]
+    except Exception as e:
+        current_app.logger.error(f"Semantic: Embedded service request failed: {e}")
         return None
 
 def cosine_similarity(query_vec, corpus_mat):
@@ -130,7 +157,15 @@ def search(query, top_k=20):
         return []
 
     overall_start = time.time()
-    query_vec = embed(query)
+
+    # Prefer the local embedder service so web workers never load torch.
+    embedder_url = current_app.config.get('EMBEDDER_URL')
+    if embedder_url:
+        remote = embed_remote(query, embedder_url)
+        query_vec = remote[0] if remote else None
+    else:
+        query_vec = embed(query)
+
     if query_vec is None:
         return []
 

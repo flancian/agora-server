@@ -381,8 +381,14 @@ def run_full_reindex(app=None):
                 
                 regenerate_expensive_cache(app)
 
-                # Update semantic vectors
-                update_vectors(app)
+                # Update semantic vectors. When a dedicated embedder service
+                # owns the model (EMBEDDER_URL set), it also owns incremental
+                # vector indexing, so the periodic worker skips this to avoid
+                # loading torch here and racing the embedder.
+                if app.config.get('EMBEDDER_URL'):
+                    app.logger.info("Semantic: skipping vector update (dedicated embedder owns indexing).")
+                else:
+                    update_vectors(app)
         except Exception as e:
             app.logger.error(f"Maintenance re-index failed: {e}")
         finally:

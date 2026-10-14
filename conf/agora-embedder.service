@@ -1,0 +1,21 @@
+# to run the Agora semantic embedder as a service:
+#
+# 1. create a dedicated user, I use 'agora'. If you use a different user/path, adjust below.
+# 2. copy or symlink this to ~/.config/systemd/user/agora-embedder.service in that user
+# 3. start: systemctl --user start agora-embedder
+# 4. enable (so it automatically starts on boot): systemctl --user enable agora-embedder
+#
+# The web server reaches it via AGORA_EMBEDDER_URL (e.g. http://127.0.0.1:5020).
+
+[Unit]
+Description=Agora Semantic Embedder (owns the embedding model; serves /embed on localhost)
+After=network.target
+
+[Service]
+WorkingDirectory=%h/agora-server
+ExecStart=%h/agora-server/run-embedder-prod.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

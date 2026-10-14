@@ -161,6 +161,13 @@ class DefaultConfig(object):
     
     # Semantic Search with vector embeddings. Requires ENABLE_SQLITE = True.
     ENABLE_SEMANTIC_SEARCH = False
+
+    # Base URL of the local embedder service (e.g. http://127.0.0.1:5020).
+    # When set, the web server sends query text here instead of loading the
+    # embedding model (and torch) inside every uWSGI worker. When unset,
+    # semantic search falls back to an in-process model (handy for development).
+    EMBEDDER_URL = os.environ.get("AGORA_EMBEDDER_URL", None)
+    
     
     # AI Synthesis of node content.
     ENABLE_SYNTHESIS = False
