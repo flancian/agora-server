@@ -10,4 +10,4 @@ export AGORA_CONFIG="${AGORA_CONFIG:-ProductionConfig}"
 export AGORA_EMBEDDER_PORT="${AGORA_EMBEDDER_PORT:-5020}"
 
 echo "Starting Agora Embedder on 127.0.0.1:${AGORA_EMBEDDER_PORT}..."
-exec uv run python3 scripts/embedder.py
+exec uv run --extra semantic python3 scripts/embedder.py

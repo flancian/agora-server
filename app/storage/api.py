@@ -218,8 +218,7 @@ def search_subnodes(query, mode='exact', page=1, per_page=50):
 def count_search_subnodes(query, mode='exact'):
     if mode == 'semantic' and current_app.config.get('ENABLE_SEMANTIC_SEARCH', False):
         from app import semantic
-        results = semantic.search(query, top_k=200)
-        return len(results)
+        return semantic.count(query)
 
     if _is_sqlite_enabled() and current_app.config.get('ENABLE_FTS', False):
         if mode in ('fs', 'fuzzy'):

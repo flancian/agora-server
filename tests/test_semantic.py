@@ -37,3 +37,15 @@ def test_semantic_cosine_similarity(test_semantic_app):
         assert len(scores) == 2
         # Similar concept should score noticeably higher than unrelated concept
         assert scores[0] > scores[1]
+
+def test_semantic_pre_normalized_cosine_similarity(test_semantic_app):
+    with test_semantic_app.app_context():
+        v_base = semantic.embed("climate change and renewable energy")
+        v_sim = semantic.embed("solar power and wind turbines")
+        
+        # Manually normalize
+        v_sim_norm = v_sim / np.linalg.norm(v_sim)
+        corpus = np.array([v_sim_norm])
+        scores = semantic.cosine_similarity(v_base, corpus, is_normalized=True)
+        assert len(scores) == 1
+        assert scores[0] > 0.5

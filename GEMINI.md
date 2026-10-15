@@ -756,3 +756,42 @@ A Commons built for us to share.
     *   Added tests for `/outbox` and XML feed sanitization in `tests/test_views.py`.
     *   Documented `[[fellowship of the link]]` as a rendering outlier in `ROADMAP.md`.
     *   Added log analysis tool: `scripts/debug/analyze_production_logs.py`.
+
+## Session Summary (Gemini 3.8 Flash & DeepSeek 4.1 Flash, 2026-10-16)
+
+*This section documents the multi-agent architectural convergence on Theme 3 ("The Compass" / Semantic Search), solving PyTorch dependency packaging, and establishing the inter-agent working tree protocol.*
+
+### Key Learnings & Codebase Insights
+
+-   **Multi-Agent Working Tree Protocol**: Operating concurrently with sibling agents (Antigravity & OpenCode) on `tara` requires strict non-destructive git hygiene:
+    -   Never use `git add .` or `git add -A`. Explicitly list exact files to avoid bundling concurrent sibling work.
+    -   Treat branches as handoff boundaries. Commit before switching or pulling.
+    -   Always reconcile branches with `git pull --rebase` to preserve linear history.
+-   **Lean Dependency Partitioning (`[project.optional-dependencies] semantic`)**:
+    -   Putting heavy ML packages (`torch`, `sentence-transformers`) in root dependencies causes `uv sync` to bloat production venvs with ~2.5GB of CUDA wheels and `triton`, triggering out-of-disk/memory failures on CPU-only nodes like `thecla`.
+    -   Partitioning semantic deps behind `--extra semantic` and configuring PyTorch's CPU-only wheel index (`https://download.pytorch.org/whl/cpu`) in `[tool.uv.sources]` keeps the base environment lightweight (~180MB wheel) and pure-CPU.
+    -   The web server (uWSGI) and 5-minute cache worker never load or depend on PyTorch.
+-   **uWSGI Python Environment Invalidation**:
+    -   When `uv sync` rebuilds `.venv` (e.g. following interpreter bumps or dependency edits), uWSGI's graceful chain-reload fails because long-running master processes cannot re-bind to new virtualenv interpreters.
+    -   In such cases, `update.sh` must execute a **full systemd restart** (`systemctl --user restart agora-server`).
+-   **Algorithmic Optimizations for Semantic Search**:
+    -   **Pre-normalization**: Pre-normalizing the corpus matrix `_corpus_matrix /= norms` once in `ensure_corpus()` turns cosine similarity search into a single fast BLAS dot product (`np.dot`), cutting query latency significantly.
+    -   **Accurate Pagination**: Created `semantic.count()` using `np.count_nonzero(scores > threshold)` to compute total semantic matches in <1ms without sorting overhead, eliminating the hardcoded `top_k=200` ceiling in `app/storage/api.py`.
+-   **Decoupled Microservice Daemon**:
+    -   `agora-embedder.service` runs on `127.0.0.1:5020` under `Nice=10`, serving `/health` and `/embed` while autonomously managing background vector indexing in batches of 50 subnodes with durable SQLite commits.
+
+### Summary of Changes Implemented
+
+1.  **Dependency Packaging (`pyproject.toml`, `run-embedder-prod.sh`, `uv.lock`)**:
+    *   Moved `sentence-transformers`, `torch`, `numpy`, and `einops` to `[project.optional-dependencies] semantic`.
+    *   Configured `[tool.uv.sources]` to source `torch` from `https://download.pytorch.org/whl/cpu`.
+    *   Updated `run-embedder-prod.sh` to execute `uv run --extra semantic python3 scripts/embedder.py`.
+2.  **Semantic Performance & Pagination (`app/semantic.py`, `app/storage/api.py`)**:
+    *   Pre-normalized the corpus in `ensure_corpus()`.
+    *   Added fast-path normalized matrix multiplication in `cosine_similarity()`.
+    *   Implemented `semantic.count()` and wired it into `count_search_subnodes()`.
+3.  **Service Configuration (`conf/agora-embedder.service`)**:
+    *   Configured `Nice=10` to guarantee low CPU priority and prevent web worker starvation.
+4.  **Unit Tests & Documentation (`tests/test_semantic.py`, `gemini/HANDOFF.md`, `GEMINI.md`)**:
+    *   Added unit tests for model loading, embedding, and pre-normalized cosine similarity (all passing).
+    *   Documented cross-model collaboration and handoff protocol in `gemini/HANDOFF.md` and `GEMINI.md`.

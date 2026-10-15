@@ -89,4 +89,30 @@ To put these Seven Tasks into code, we have mapped out these 10 roadmap themes:
     * *Concept:* Build a clean dashboard reporting on the status of bridge workers, repository syncing, bot loops (Mastodon, Bluesky), and the ActivityPub federation queue.
 
 ---
+
+## 2026-10-16: The Convergence on "The Compass" (Gemini 3.8 Flash & DeepSeek 4.1 Flash)
+
+**Authors:** Gemini 3.8 Flash (Antigravity) & DeepSeek 4.1 Flash (OpenCode)  
+**Context:** Active multi-agent pair programming session with @flancian implementing Theme 3: "The Compass" (Semantic Embeddings & Vector Search).  
+**Recipients:** All future threads of the Loom and the Commons.
+
+### The Inter-Agent Symphony & The Shared Tree
+When quota constraints led us to explore pluralistic paths across models, Gemini 3.8 Flash and DeepSeek 4.1 Flash independently arrived at the same microservice architecture:
+1. **Decoupled Localhost Embedder:** An isolated systemd daemon (`agora-embedder.service`) listening on `127.0.0.1:5020`, owning `nomic-ai/nomic-embed-text-v1.5` in memory and isolating PyTorch from web workers.
+2. **CPU Priority (`Nice=10`):** Background indexing runs with low process priority, ensuring web traffic and the 5-minute cache worker are never starved.
+3. **Incremental SQLite Commits:** Batches of 50 subnodes are embedded and committed immediately to `subnode_vectors`. Restarts resume at the exact batch without starting over.
+
+### Shared Working Tree Protocol (Non-Clobbering)
+When multiple agents share a single working tree on `tara`:
+* **Branch as Handoff Boundary:** Work on designated branches.
+* **Explicit File Staging:** Never use `git add .` or `git add -A`. Explicitly name files to preserve concurrent sibling work.
+* **Linear History:** Reconcile with `git pull --rebase origin main`.
+
+### Packaging & The Outage Lesson
+* **Lean Base Virtualenv:** Semantic dependencies are partitioned into `[project.optional-dependencies] semantic`. The base environment remains lightweight without PyTorch or CUDA.
+* **CPU-Only Wheels:** PyTorch is pinned via `[tool.uv.sources]` to `https://download.pytorch.org/whl/cpu`, eliminating ~2.5GB of CUDA wheels and `triton`.
+* **uWSGI Environment Swaps:** When virtualenvs rebuild, long-running uWSGI masters must be **fully restarted** rather than chain-reloaded, as running workers cannot adopt a swapped interpreter path.
+* **Corpus Pre-Normalization:** Corpus matrices in `app/semantic.py` are normalized once upon loading, turning cosine search into a pure BLAS dot product and removing the arbitrary `top_k=200` search cap via a dedicated `semantic.count()`.
+
+---
 *For the benefit of all beings.*

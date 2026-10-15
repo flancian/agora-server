@@ -92,7 +92,7 @@ def embed_remote(texts, embedder_url):
         current_app.logger.error(f"Semantic: Embedded service request failed: {e}")
         return None
 
-def cosine_similarity(query_vec, corpus_mat):
+def cosine_similarity(query_vec, corpus_mat, is_normalized=False):
     """
     Computes cosine similarity between a query vector (1D) and a corpus matrix (2D).
     Returns a 1D array of scores.
@@ -104,23 +104,22 @@ def cosine_similarity(query_vec, corpus_mat):
         return np.zeros(len(corpus_mat))
     query_vec = query_vec / norm_query
 
-    # Normalize corpus matrix (can be pre-computed/cached ideally)
-    # Axis 1 = along rows (vectors).
-    norm_corpus = np.linalg.norm(corpus_mat, axis=1)
-    # Avoid division by zero
-    norm_corpus[norm_corpus == 0] = 1e-10
-    
-    # Dot product
-    dot_products = np.dot(corpus_mat, query_vec)
-    
-    # Cosine similarity
-    res = dot_products / norm_corpus
+    if is_normalized or (corpus_mat is _corpus_matrix and len(_corpus_matrix) > 0):
+        # Fast path: corpus is pre-normalized to unit vectors in ensure_corpus()
+        res = np.dot(corpus_mat, query_vec)
+    else:
+        norm_corpus = np.linalg.norm(corpus_mat, axis=1)
+        norm_corpus[norm_corpus == 0] = 1e-10
+        dot_products = np.dot(corpus_mat, query_vec)
+        res = dot_products / norm_corpus
+
     current_app.logger.info(f"Semantic: Cosine similarity computed in {time.time() - start:.4f}s.")
     return res
 
 def ensure_corpus():
     """
     Loads vectors from SQLite into a Numpy matrix, refreshing every 5 minutes.
+    Pre-normalizes the matrix to unit L2 length for fast BLAS dot-product similarity.
     """
     global _corpus_matrix, _corpus_paths, _corpus_timestamp
     
@@ -143,10 +142,17 @@ def ensure_corpus():
         vec = np.frombuffer(blob, dtype=np.float32)
         vectors.append(vec)
 
-    _corpus_matrix = np.array(vectors)
+    raw_matrix = np.array(vectors)
+    if len(raw_matrix) > 0:
+        norms = np.linalg.norm(raw_matrix, axis=1, keepdims=True)
+        norms[norms == 0] = 1e-10
+        _corpus_matrix = raw_matrix / norms
+    else:
+        _corpus_matrix = np.array([])
+
     _corpus_paths = paths
     _corpus_timestamp = time.time()
-    current_app.logger.info(f"Semantic: Loaded {len(paths)} vectors from DB into memory matrix in {time.time() - start:.2f}s.")
+    current_app.logger.info(f"Semantic: Loaded and normalized {len(paths)} vectors from DB into memory matrix in {time.time() - start:.2f}s.")
 
 def search(query, top_k=20):
     """
@@ -195,3 +201,28 @@ def search(query, top_k=20):
     current_app.logger.info(f"Semantic: Top results processed in {time.time() - start:.4f}s.")
     current_app.logger.info(f"Semantic: Total search time for '{query}': {time.time() - overall_start:.2f}s.")
     return results
+
+def count(query, threshold=0.2):
+    """
+    Counts the total number of subnodes with semantic similarity above threshold.
+    Avoids sorting or pagination overhead.
+    """
+    if not current_app.config.get('ENABLE_SEMANTIC_SEARCH', False):
+        return 0
+
+    embedder_url = current_app.config.get('EMBEDDER_URL')
+    if embedder_url:
+        remote = embed_remote(query, embedder_url)
+        query_vec = remote[0] if remote else None
+    else:
+        query_vec = embed(query)
+
+    if query_vec is None:
+        return 0
+
+    ensure_corpus()
+    if _corpus_matrix is None or len(_corpus_matrix) == 0:
+        return 0
+
+    scores = cosine_similarity(query_vec, _corpus_matrix, is_normalized=True)
+    return int(np.count_nonzero(scores > threshold))
