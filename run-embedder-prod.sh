@@ -4,7 +4,7 @@
 
 export PATH=$HOME/.local/bin:${PATH}
 export FLASK_ENV="production"
-export AGORA_CONFIG="ProductionConfig"
+export AGORA_CONFIG="${AGORA_CONFIG:-ProductionConfig}"
 
 # Port the local web workers will call for query embeddings.
 export AGORA_EMBEDDER_PORT="${AGORA_EMBEDDER_PORT:-5020}"

@@ -16,6 +16,7 @@ WorkingDirectory=%h/agora-server
 ExecStart=%h/agora-server/run-embedder-prod.sh
 Restart=always
 RestartSec=5
+Nice=10
 
 [Install]
 WantedBy=default.target
