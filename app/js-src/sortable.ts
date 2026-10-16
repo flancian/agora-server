@@ -135,8 +135,8 @@ export function saveOrder() {
     }
 }
 
-const SECTION_ORDER_VERSION_KEY = 'agora-section-order-v5';
-const DEFAULT_ORDER = ["web", "wiki", "genai", "main", "context", "pulled", "stoa", "search", "games", "related"];
+const SECTION_ORDER_VERSION_KEY = 'agora-section-order-v6';
+const DEFAULT_ORDER = ["web", "wiki", "genai", "main", "context", "pulled", "related", "stoa", "search", "games"];
 
 export function restoreOrder() {
     const container = document.querySelector('.content') as HTMLElement;
@@ -182,17 +182,15 @@ export function restoreOrder() {
         });
 
         const anchor = document.querySelector('.edit-section-container') || null;
+        const desiredElements: HTMLElement[] = [];
         let untrackedInserted = false;
 
         order.forEach(sectionId => {
             // Insert untracked elements before search or games if reached
             if ((sectionId === 'search' || sectionId === 'games') && !untrackedInserted) {
                 untrackedElements.forEach(el => {
-                    if (el.style.display === 'none') return;
-                    if (anchor) {
-                        container.insertBefore(el, anchor);
-                    } else {
-                        container.appendChild(el);
+                    if (el.style.display !== 'none' && !desiredElements.includes(el)) {
+                        desiredElements.push(el);
                     }
                 });
                 untrackedInserted = true;
@@ -207,12 +205,8 @@ export function restoreOrder() {
                 if (sectionId === 'pulled' && id && id.startsWith('pulled-')) isMatch = true;
                 if (sectionId === 'related' && (id === 'related' || (id && id.startsWith('related-')))) isMatch = true;
 
-                if (isMatch) {
-                    if (anchor) {
-                        container.insertBefore(htmlEl, anchor);
-                    } else {
-                        container.appendChild(htmlEl);
-                    }
+                if (isMatch && !desiredElements.includes(htmlEl)) {
+                    desiredElements.push(htmlEl);
                 }
             });
         });
@@ -220,12 +214,58 @@ export function restoreOrder() {
         // Finally, if search/games were not present in order, append any remaining untracked sections
         if (!untrackedInserted) {
             untrackedElements.forEach(el => {
-                if (anchor) {
-                    container.insertBefore(el, anchor);
-                } else {
-                    container.appendChild(el);
+                if (el.style.display !== 'none' && !desiredElements.includes(el)) {
+                    desiredElements.push(el);
                 }
             });
+        }
+
+        // Check if the DOM already matches desiredElements before anchor
+        const currentElements: HTMLElement[] = [];
+        for (let i = 0; i < container.children.length; i++) {
+            const child = container.children[i] as HTMLElement;
+            if (desiredElements.includes(child)) {
+                currentElements.push(child);
+            }
+        }
+
+        const isSameOrder = currentElements.length === desiredElements.length &&
+            currentElements.every((el, idx) => el === desiredElements[idx]);
+
+        let anchorOk = true;
+        if (anchor) {
+            let foundAnchor = false;
+            for (let i = 0; i < container.children.length; i++) {
+                const child = container.children[i];
+                if (child === anchor) {
+                    foundAnchor = true;
+                } else if (foundAnchor && desiredElements.includes(child as HTMLElement)) {
+                    anchorOk = false;
+                    break;
+                }
+            }
+        }
+
+        // If elements are already in the exact target order, DO NOT touch the DOM!
+        // This avoids layout reflows, subnode flickering, and unneeded redraws.
+        if (isSameOrder && anchorOk) {
+            return;
+        }
+
+        // Minimally reorder using backwards traversal to avoid full-tree detach/re-attach
+        let nextRef: HTMLElement | null = anchor as HTMLElement | null;
+        for (let i = desiredElements.length - 1; i >= 0; i--) {
+            const el = desiredElements[i];
+            if (nextRef) {
+                if (el.nextElementSibling !== nextRef) {
+                    container.insertBefore(el, nextRef);
+                }
+            } else {
+                if (container.lastElementChild !== el) {
+                    container.appendChild(el);
+                }
+            }
+            nextRef = el;
         }
     } catch (e) {
         console.error("Failed to restore section order", e);
@@ -354,20 +394,53 @@ function restoreSubnodeOrder(parent: HTMLElement) {
 
         console.log(`Restoring subnode order for ${parentId}:`, order);
 
-        const subnodes = Array.from(parent.querySelectorAll('details.subnode'));
-        const anchor = parent.querySelector('.pushed-subnodes-embed') || null;
-
+        const desiredSubnodes: HTMLElement[] = [];
         order.forEach(uri => {
             subnodes.forEach(el => {
-                if ((el as HTMLElement).dataset.subnodeUri === uri) {
-                    if (anchor) {
-                        parent.insertBefore(el, anchor);
-                    } else {
-                        parent.appendChild(el);
-                    }
+                const htmlEl = el as HTMLElement;
+                if (htmlEl.dataset.subnodeUri === uri && !desiredSubnodes.includes(htmlEl)) {
+                    desiredSubnodes.push(htmlEl);
                 }
             });
         });
+
+        // Include any subnodes not in the saved order
+        subnodes.forEach(el => {
+            const htmlEl = el as HTMLElement;
+            if (!desiredSubnodes.includes(htmlEl)) {
+                desiredSubnodes.push(htmlEl);
+            }
+        });
+
+        // Check if already in order
+        const currentSubnodes: HTMLElement[] = [];
+        for (let i = 0; i < parent.children.length; i++) {
+            const child = parent.children[i] as HTMLElement;
+            if (desiredSubnodes.includes(child)) {
+                currentSubnodes.push(child);
+            }
+        }
+
+        if (currentSubnodes.length === desiredSubnodes.length &&
+            currentSubnodes.every((el, idx) => el === desiredSubnodes[idx])) {
+            return;
+        }
+
+        const anchor = parent.querySelector('.pushed-subnodes-embed') || null;
+        let nextRef: HTMLElement | null = anchor as HTMLElement | null;
+        for (let i = desiredSubnodes.length - 1; i >= 0; i--) {
+            const el = desiredSubnodes[i];
+            if (nextRef) {
+                if (el.nextElementSibling !== nextRef) {
+                    parent.insertBefore(el, nextRef);
+                }
+            } else {
+                if (parent.lastElementChild !== el) {
+                    parent.appendChild(el);
+                }
+            }
+            nextRef = el;
+        }
     } catch (e) {
         console.error(`Failed to restore subnode order for ${parentId}`, e);
     }

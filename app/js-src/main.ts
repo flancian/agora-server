@@ -307,17 +307,24 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (mode === 'fs' || mode === 'fuzzy') loadingText = 'Searching FTS5 Trigram index (fuzzy)...';
       if (mode === 'semantic') loadingText = 'Searching semantic embedding index (vector similarity)...';
 
-      // We preserve the header but replace the content below it with a spinner
-      // Actually, easier to replace the whole thing and let the server re-render the tabs with the new active state
-      container.innerHTML = `
-        <div class="search-agora">
-          <div class="search-header" style="margin-bottom: 1em; margin-top: 1em;">
-                <span style="margin-right: 10px;"><strong>Search Mode:</strong></span>
-                <span class="search-mode-tab ${mode === 'exact' ? 'active' : ''}" title="Exact Phrase: Matches your consecutive search phrase in sequence order using SQLite FTS5 phrase indexing.">Exact Phrase</span> • 
-                <span class="search-mode-tab ${mode === 'broad' ? 'active' : ''}" title="Any Order: Matches documents containing all of your search words in any order using SQLite FTS5 stemmed indexing.">Any Order</span> • 
-                <span class="search-mode-tab ${(mode === 'fs' || mode === 'fuzzy') ? 'active' : ''}" title="Fuzzy Match: Finds misspellings, partial character sequences, and code symbols using SQLite FTS5 Trigram indexing.">Fuzzy</span> • 
-                <span class="search-mode-tab ${mode === 'semantic' ? 'active' : ''}" title="Semantic Match: Finds conceptually related notes and ideas across the Agora using local vector embeddings.">✨ Semantic</span>
-          </div>
+      // Preserve the existing header tabs and update active tab state in-place to prevent blinking
+      const searchHeader = container.querySelector('.search-header');
+      if (searchHeader) {
+        searchHeader.querySelectorAll('.search-mode-tab').forEach((tab) => {
+          if (tab.getAttribute('data-mode') === mode) {
+            tab.classList.add('active');
+          } else {
+            tab.classList.remove('active');
+          }
+        });
+
+        // Remove existing search results / summary below header and append spinner
+        while (searchHeader.nextSibling) {
+          searchHeader.nextSibling.remove();
+        }
+        const spinner = document.createElement('div');
+        spinner.className = 'search-spinner-container';
+        spinner.innerHTML = `
           <center>
             <p>
               <div class="spinner">
@@ -325,8 +332,21 @@ document.addEventListener("DOMContentLoaded", async function () {
               </div>
             </p>
             <p><em>${loadingText}</em></p>
-          </center>
-        </div>`;
+          </center>`;
+        searchHeader.parentElement?.appendChild(spinner);
+      } else {
+        container.innerHTML = `
+          <div class="search-agora">
+            <center>
+              <p>
+                <div class="spinner">
+                  <img src="/static/img/agora.png" class="logo"></img>
+                </div>
+              </p>
+              <p><em>${loadingText}</em></p>
+            </center>
+          </div>`;
+      }
 
       try {
         const url = `${AGORAURL}/fullsearch/${encodeURIComponent(qstr)}?mode=${mode}&page=${page}`;
@@ -2570,39 +2590,21 @@ async function bindEvents() {
 
             if (userSubnodes.length === 0) return;
 
-            // Move the elements to their new position.
+            // Check if user's subnodes are already at the top in order
+            const alreadyAtTop = userSubnodes.every((subnode, idx) => subnode === allSubnodes[idx]);
 
-            const firstSubnode = subnodesContainer.querySelector('details.subnode[data-author]');
+            if (!alreadyAtTop) {
+                // Move the elements to their new position only if not already at top.
+                const firstSubnode = subnodesContainer.querySelector('details.subnode[data-author]');
 
-            if (firstSubnode) {
-
-                userSubnodes.reverse().forEach(subnode => {
-
-                    firstSubnode.parentNode.insertBefore(subnode, firstSubnode);
-
-                });
-
+                if (firstSubnode && firstSubnode.parentNode) {
+                    userSubnodes.slice().reverse().forEach(subnode => {
+                        if (firstSubnode.parentNode) {
+                            firstSubnode.parentNode.insertBefore(subnode, firstSubnode);
+                        }
+                    });
+                }
             }
-
-            // Add the highlight class, then remove it to fade back to normal.
-
-            console.log(`Animating ${userSubnodes.length} subnodes for user ${user}.`);
-
-            userSubnodes.forEach(subnode => {
-
-                // Start the highlight.
-
-                subnode.classList.add('subnode-arrived');
-
-                // Set a timer to remove the highlight, which triggers the fade-out transition.
-
-                setTimeout(() => {
-
-                    subnode.classList.remove('subnode-arrived');
-
-                }, 100); // A short delay before fading back.
-
-            });
 
         };
 
@@ -3467,88 +3469,87 @@ async function bindEvents() {
               .then(response => response.text())
               .then(html => {
                   if (html.trim()) {
-                      placeholder.classList.add('fade-out');
-                      placeholder.addEventListener('animationend', () => {
-                          const temp = document.createElement('div');
-                          temp.innerHTML = html;
-                          const newContent = temp.firstElementChild as HTMLElement;
+                      const temp = document.createElement('div');
+                      temp.innerHTML = html;
+                      const newContent = temp.firstElementChild as HTMLElement;
 
-                          if (newContent) {
-                              newContent.classList.add('fade-in');
-                              placeholder.replaceWith(newContent);
-                              restoreOrder();
-
-                              // Initialize stars for the newly added content
-                              initializeExternalStars();
-
-                              // Re-attach event listeners for the new content
-                              const autoExpandWikipedia = localStorage.getItem('auto-expand-wikipedia') === 'true';
-                              const autoExpandExactMatch = safeJsonParse(localStorage.getItem('auto-expand-exact-match'), CLIENT_DEFAULTS.autoExpandExactMatch);
-                              const isEmptyNode = document.querySelector('.not-found') !== null;
-                              
-                              // Check for exact match
-                              const wikiTitleElement = newContent.querySelector('.external-star-toggle[data-external-source="wikipedia"]');
-                              const wikiTitle = wikiTitleElement ? wikiTitleElement.getAttribute('data-external-title') : null;
-                              const isExactMatch = wikiTitle && (wikiTitle.toLowerCase() === NODENAME.toLowerCase());
-
-                              const shouldAutoPull = autoExpandWikipedia || (isEmptyNode && autoPull) || (isExactMatch && autoExpandExactMatch);
-
-                              if (shouldAutoPull) {
-                                  const details = (newContent.classList.contains('wiki') ? newContent : newContent.querySelector('.wiki')) as HTMLDetailsElement;
-                                  if (details) {
-                                       // Show toast explaining why we are expanding.
-                                       console.log('Checking toast conditions:', { isEmptyNode, autoPull, autoExpandWikipedia, isExactMatch, autoExpandExactMatch });
-                                       if (isEmptyNode && autoPull) {
-                                            showToast("Empty node: auto-expanding Wikipedia");
-                                       } else if (isExactMatch && autoExpandExactMatch) {
-                                            showToast("Exact match: auto-expanding Wikipedia");
-                                       } else if (autoExpandWikipedia) {
-                                            showToast("Auto-expanding Wikipedia (per setting)");
-                                       }
-                                       details.setAttribute('open', '');
-                                  }
+                      if (newContent) {
+                          newContent.classList.add('fade-in');
+                          newContent.addEventListener('animationend', (e) => {
+                              if (e.target === newContent) {
+                                  newContent.classList.remove('fade-in');
                               }
+                          }, { once: true });
+                          placeholder.replaceWith(newContent);
+                          initSortable();
 
-                              newContent.querySelectorAll('.wiki-provider-tab').forEach(tab => {
-                                  tab.addEventListener('click', e => {
-                                      e.preventDefault();
+                          // Initialize stars for the newly added content
+                          initializeExternalStars();
 
-                                      const details = (newContent.classList.contains('wiki') ? newContent : newContent.querySelector('.wiki')) as HTMLDetailsElement;
+                          // Re-attach event listeners for the new content
+                          const autoExpandWikipedia = localStorage.getItem('auto-expand-wikipedia') === 'true';
+                          const autoExpandExactMatch = safeJsonParse(localStorage.getItem('auto-expand-exact-match'), CLIENT_DEFAULTS.autoExpandExactMatch);
+                          const isEmptyNode = document.querySelector('.not-found') !== null;
+                          
+                          // Check for exact match
+                          const wikiTitleElement = newContent.querySelector('.external-star-toggle[data-external-source="wikipedia"]');
+                          const wikiTitle = wikiTitleElement ? wikiTitleElement.getAttribute('data-external-title') : null;
+                          const isExactMatch = wikiTitle && (wikiTitle.toLowerCase() === NODENAME.toLowerCase());
 
-                                      if (details && details.hasAttribute('open') && tab.classList.contains('active')) {
-                                          // If the details are open and the tab is already active, open link in a new window.
-                                          const linkElement = tab.nextElementSibling?.querySelector('a');
-                                          if (linkElement && linkElement.href) {
-                                              window.open(linkElement.href, '_blank');
-                                          }
-                                          return;
+                          const shouldAutoPull = autoExpandWikipedia || (isEmptyNode && autoPull) || (isExactMatch && autoExpandExactMatch);
+
+                          if (shouldAutoPull) {
+                              const details = (newContent.classList.contains('wiki') ? newContent : newContent.querySelector('.wiki')) as HTMLDetailsElement;
+                              if (details) {
+                                   // Show toast explaining why we are expanding.
+                                   console.log('Checking toast conditions:', { isEmptyNode, autoPull, autoExpandWikipedia, isExactMatch, autoExpandExactMatch });
+                                   if (isEmptyNode && autoPull) {
+                                        showToast("Empty node: auto-expanding Wikipedia");
+                                   } else if (isExactMatch && autoExpandExactMatch) {
+                                        showToast("Exact match: auto-expanding Wikipedia");
+                                   } else if (autoExpandWikipedia) {
+                                        showToast("Auto-expanding Wikipedia (per setting)");
+                                   }
+                                   details.setAttribute('open', '');
+                              }
+                          }
+
+                          newContent.querySelectorAll('.wiki-provider-tab').forEach(tab => {
+                              tab.addEventListener('click', e => {
+                                  e.preventDefault();
+
+                                  const details = (newContent.classList.contains('wiki') ? newContent : newContent.querySelector('.wiki')) as HTMLDetailsElement;
+
+                                  if (details && details.hasAttribute('open') && tab.classList.contains('active')) {
+                                      // If the details are open and the tab is already active, open link in a new window.
+                                      const linkElement = tab.nextElementSibling?.querySelector('a');
+                                      if (linkElement && linkElement.href) {
+                                          window.open(linkElement.href, '_blank');
                                       }
+                                      return;
+                                  }
 
-                                      // Otherwise, ensure the details are open and switch to the clicked tab.
-                                      if (details && !details.hasAttribute('open')) {
-                                          details.setAttribute('open', '');
+                                  // Otherwise, ensure the details are open and switch to the clicked tab.
+                                  if (details && !details.hasAttribute('open')) {
+                                      details.setAttribute('open', '');
+                                  }
+
+                                  newContent.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
+                                  tab.classList.add('active');
+
+                                  const provider = (tab as HTMLElement).dataset.provider;
+                                  newContent.querySelectorAll('.wiki-embed').forEach(embed => {
+                                      if ((embed as HTMLElement).dataset.provider === provider) {
+                                          (embed as HTMLElement).style.display = 'block';
+                                      } else {
+                                          (embed as HTMLElement).style.display = 'none';
                                       }
-
-                                      newContent.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));
-                                      tab.classList.add('active');
-
-                                      const provider = (tab as HTMLElement).dataset.provider;
-                                      newContent.querySelectorAll('.wiki-embed').forEach(embed => {
-                                          if ((embed as HTMLElement).dataset.provider === provider) {
-                                              (embed as HTMLElement).style.display = 'block';
-                                          } else {
-                                              (embed as HTMLElement).style.display = 'none';
-                                          }
-                                      });
                                   });
                               });
+                          });
 
-                              applyDismissals(); // Run again, as the wp info-box is now in the DOM.
-
-                              // Re-init sortable and restore order, ensuring the new content is registered
-                              window.dispatchEvent(new CustomEvent('agora-node-loaded'));
-                          }
-                      }, { once: true });
+                          applyDismissals(); // Run again, as the wp info-box is now in the DOM.
+                      }
                   }
               });
       }
