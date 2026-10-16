@@ -866,8 +866,10 @@ summary {
 
 #footer {
     background: var(--intro-footer-bg);
-    padding: 7px;
+    padding: 8px 12px;
     color: var(--intro-footer-text-color);
+    border-radius: 6px;
+    text-align: left;
 }
 
 .intro {
@@ -2753,8 +2755,9 @@ pre:has(code.language-verse) {
     margin-top: 10px;
     margin-bottom: 20px;
     border-radius: 6px;
-    padding: 10px 14px;
-    text-align: center;
+    padding: 8px 12px;
+    text-align: left;
+    line-height: 1.5;
 }
 
 #nagora-root-wrapper {
@@ -2768,33 +2771,130 @@ pre:has(code.language-verse) {
     box-sizing: border-box;
 }
 
-/* Experimental action bar elements (visible strictly in experimental mode) */
+/* Collapsible action bar elements (experimental & dynamic): smoothly animated fade-in and space allocation */
 #mini-cli-play,
 #mini-cli-go-beyond,
-#mini-cli-meditate {
-    display: none;
+#mini-cli-meditate,
+.action-bar-btn-experimental,
+#mini-cli-pull,
+#mini-cli-synthesize,
+#mini-cli-look-around,
+#mini-cli-wander,
+#mini-cli-join,
+.action-bar-btn-dynamic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    max-width: 0;
+    opacity: 0;
+    padding: 3px 0 3px 0;
+    margin-left: 0;
+    margin-right: -0.2em; /* Absorbs flexbox gap (0.2em) so adjacent buttons leave no ghost gap */
+    border-left-width: 0;
+    border-right-width: 0;
+    border-color: transparent;
+    overflow: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+    visibility: hidden;
+    transform: scale(0.9);
+    vertical-align: middle;
 }
 
 body.experimental-mode #mini-cli-play,
 body.experimental-mode #mini-cli-go-beyond,
-body.experimental-mode #mini-cli-meditate {
-    display: inline-block;
+body.experimental-mode #mini-cli-meditate,
+body.experimental-mode .action-bar-btn-experimental,
+#mini-cli-pull.action-bar-btn-visible,
+#mini-cli-synthesize.action-bar-btn-visible,
+#mini-cli-look-around.action-bar-btn-visible,
+#mini-cli-wander.action-bar-btn-visible,
+#mini-cli-join.action-bar-btn-visible,
+.action-bar-btn-dynamic.action-bar-btn-visible {
+    max-width: 140px;
+    opacity: 1;
+    padding: 3px 6px 3px 6px;
+    margin-right: 0;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-color: var(--button-border-color);
+    overflow: hidden;
+    pointer-events: auto;
+    visibility: visible;
+    transform: scale(1);
 }
 
-/* N-Agora Layout Switcher (visible strictly in experimental mode on wide screens) */
+body.experimental-mode #mini-cli-play {
+    max-width: 85px;
+}
+
+body.experimental-mode #mini-cli-meditate {
+    max-width: 110px;
+}
+
+body.experimental-mode #mini-cli-go-beyond {
+    max-width: 135px;
+}
+
+#mini-cli-pull.action-bar-btn-visible {
+    max-width: 85px;
+}
+
+#mini-cli-synthesize.action-bar-btn-visible {
+    max-width: 135px;
+}
+
+#mini-cli-look-around.action-bar-btn-visible {
+    max-width: 85px;
+}
+
+#mini-cli-wander.action-bar-btn-visible {
+    max-width: 95px;
+}
+
+#mini-cli-join.action-bar-btn-visible {
+    max-width: 85px;
+}
+
+body.action-bar-transitions #mini-cli-play,
+body.action-bar-transitions #mini-cli-go-beyond,
+body.action-bar-transitions #mini-cli-meditate,
+body.action-bar-transitions .action-bar-btn-experimental,
+body.action-bar-transitions #mini-cli-pull,
+body.action-bar-transitions #mini-cli-synthesize,
+body.action-bar-transitions #mini-cli-look-around,
+body.action-bar-transitions #mini-cli-wander,
+body.action-bar-transitions #mini-cli-join,
+body.action-bar-transitions .action-bar-btn-dynamic {
+    transition: max-width 0.35s cubic-bezier(0.2, 0, 0, 1),
+                opacity 0.28s cubic-bezier(0.2, 0, 0, 1),
+                padding-left 0.35s cubic-bezier(0.2, 0, 0, 1),
+                padding-right 0.35s cubic-bezier(0.2, 0, 0, 1),
+                margin-right 0.35s cubic-bezier(0.2, 0, 0, 1),
+                border-left-width 0.35s cubic-bezier(0.2, 0, 0, 1),
+                border-right-width 0.35s cubic-bezier(0.2, 0, 0, 1),
+                border-color 0.28s ease,
+                transform 0.35s cubic-bezier(0.2, 0, 0, 1),
+                visibility 0.35s;
+}
+
+/* N-Agora Layout Switcher (visible on wide screens >= 800px) */
 .nagora-layout-switcher {
     display: none;
 }
 
-body.experimental-mode .nagora-layout-switcher {
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-left: 6px;
-    vertical-align: middle;
-    flex-shrink: 0;
+@media (min-width: 800px) {
+    .nagora-layout-switcher {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-left: 6px;
+        vertical-align: middle;
+        flex-shrink: 0;
+    }
 }
 
 .nagora-layout-btn {
@@ -2990,21 +3090,68 @@ body.nagora-active #nagora-root-wrapper {
 
 .nagora-pane-header {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.45rem 0.65rem;
+    flex-direction: column;
+    padding: 0.4rem 0.6rem;
     background: var(--card-header-bg, rgba(125, 125, 125, 0.08));
     border-bottom: 1px solid var(--border-color);
     font-size: 0.88rem;
     user-select: none;
-    gap: 0.4rem;
+    gap: 0.35rem;
     flex-shrink: 0;
+}
+
+.nagora-pane-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    width: 100%;
+}
+
+.nagora-pane-modes {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.nagora-mode-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--subnode-text-color, #777);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    cursor: pointer;
+    line-height: 1.3;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
+.nagora-mode-btn:hover {
+    background: rgba(125, 125, 125, 0.12);
+    color: var(--text-color);
+}
+
+.nagora-mode-btn.active {
+    background: var(--accent-bg, rgba(125, 125, 125, 0.2));
+    border-color: var(--border-color);
+    color: var(--wikilink-color, var(--text-color));
+}
+
+.nagora-pane-bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    width: 100%;
 }
 
 .nagora-pane-info {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.3rem;
     overflow: hidden;
     flex: 1;
     min-width: 0;

@@ -25,6 +25,7 @@ import {
   promoteActivePane,
   toggleMonocle,
   exitMonocle,
+  stepPane,
 } from './nagora';
 
 declare const NODENAME: string | undefined;
@@ -458,7 +459,7 @@ export function triggerWrite(): void {
 export function triggerSynthesize(): void {
   const synBtn = document.getElementById('mini-cli-synthesize') as HTMLButtonElement | null;
   const synDetails = document.getElementById('synthesis-details') as HTMLDetailsElement | null;
-  if (synBtn && synBtn.style.display !== 'none') {
+  if (synBtn && (synBtn.classList.contains('action-bar-btn-visible') || (synBtn.style.display !== 'none' && synBtn.offsetWidth > 0))) {
     synBtn.click();
   } else if (synDetails) {
     synDetails.open = true;
@@ -573,8 +574,16 @@ function getOrCreateShortcutsModal(): HTMLElement {
               <td class="desc-col">Scroll down / up within active column or section</td>
             </tr>
             <tr>
-              <td class="key-col"><kbd>h</kbd> / <kbd>l</kbd></td>
+              <td class="key-col"><kbd>h</kbd> / <kbd>l</kbd> or <kbd>←</kbd> / <kbd>→</kbd></td>
               <td class="desc-col">Switch spatial column focus (Left / Center / Right)</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>[</kbd> / <kbd>]</kbd></td>
+              <td class="desc-col">Previous / next node in focused side pane</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>Shift</kbd> + click</td>
+              <td class="desc-col">Open link in side pane (multi-column view)</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>Enter</kbd> / <kbd>o</kbd></td>
@@ -735,6 +744,7 @@ export function initKeyNavigation(): void {
     }
 
     switch (e.key) {
+      case 'ArrowLeft':
       case 'h': {
         const col = getActiveColumn();
         if (col === 'right') {
@@ -748,6 +758,7 @@ export function initKeyNavigation(): void {
         break;
       }
 
+      case 'ArrowRight':
       case 'l': {
         const col = getActiveColumn();
         if (col === 'left') {
@@ -757,6 +768,24 @@ export function initKeyNavigation(): void {
           e.preventDefault();
           clearHighlight();
           setActiveColumn('right');
+        }
+        break;
+      }
+
+      case '[': {
+        const col = getActiveColumn();
+        if (col === 'left' || col === 'right') {
+          e.preventDefault();
+          stepPane(col, -1);
+        }
+        break;
+      }
+
+      case ']': {
+        const col = getActiveColumn();
+        if (col === 'left' || col === 'right') {
+          e.preventDefault();
+          stepPane(col, 1);
         }
         break;
       }

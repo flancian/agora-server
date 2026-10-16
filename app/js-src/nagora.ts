@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Part of N-Agora Phase 2: Spatial Knowledge Workbench (Multi-Column Layout)
+// Part of N-Agora: Spatial Knowledge Workbench (Multi-Column Layout)
 // "For the benefit of all beings" 🌿
 
 import { CLIENT_DEFAULTS, safeJsonParse } from './util';
+import { renderGraph } from './graph';
 
 declare const NODENAME: string | undefined;
 
 export type ActiveColumn = 'left' | 'center' | 'right';
 export type NagoraColumns = '1' | '2' | '3';
-export type CandidateType = 'backlink' | 'history' | 'related' | 'outlink' | 'random';
+export type LeftPaneMode = 'backlinks' | 'history' | 'related' | 'commons';
+export type RightPaneMode = 'outlinks' | 'ambient' | 'commons';
+export type CandidateType = 'backlink' | 'history' | 'related' | 'outlink' | 'commons' | 'random';
 
 export interface NagoraCandidate {
   name: string;
@@ -36,6 +39,19 @@ const SYSTEM_ROUTES = new Set([
   'regexsearch', 'ctzn-login', 'lucky', 'wander', 'feed', 'export'
 ]);
 
+const DEFAULT_COMMONS_NODES = [
+  'node club',
+  'agora',
+  'flancia',
+  'digital garden',
+  'stoa',
+  'federation',
+  'free software',
+  'go',
+  'social coop',
+  'open source'
+];
+
 const HISTORY_STORAGE_KEY = 'agora-session-history';
 const MAX_HISTORY = 30;
 
@@ -43,11 +59,25 @@ let isInitialized = false;
 let activeColumn: ActiveColumn = 'center';
 let monocleSide: 'left' | 'right' | null = null;
 
-let incomingCandidates: NagoraCandidate[] = [];
-let incomingIndex = 0;
+let currentLeftMode: LeftPaneMode = 'backlinks';
+let currentRightMode: RightPaneMode = 'outlinks';
 
-let outgoingCandidates: NagoraCandidate[] = [];
-let outgoingIndex = 0;
+let backlinksCandidates: NagoraCandidate[] = [];
+let backlinksIndex = 0;
+
+let historyCandidates: NagoraCandidate[] = [];
+let historyIndex = 0;
+
+let relatedCandidates: NagoraCandidate[] = [];
+let relatedIndex = 0;
+
+let commonsCandidates: NagoraCandidate[] = [];
+let commonsIndex = 0;
+
+let outlinksCandidates: NagoraCandidate[] = [];
+let outlinksIndex = 0;
+
+let dynamicStarredNodes: string[] = [];
 
 let leftPaneVisible = false;
 let rightPaneVisible = false;
@@ -56,66 +86,33 @@ let rightPaneVisible = false;
  * Checks if N-Agora spatial columns are enabled in user settings and supported by screen size.
  */
 export function isNagoraEnabled(): boolean {
-  const isExp = safeJsonParse(localStorage.getItem('enable-experimental') ?? '', CLIENT_DEFAULTS.enableExperimental);
-  const isNag = safeJsonParse(localStorage.getItem('enable-nagora') ?? '', CLIENT_DEFAULTS.enableNagora);
-  if (!isExp && !isNag) return false;
-
-  const cols = getNagoraColumns();
-  return cols !== '1';
+  return getNagoraColumns() !== '1';
 }
 
 /**
  * Returns configured column preference ('1' | '2' | '3').
- * If unset, defaults dynamically to the optimal column count for current viewport.
+ * Default: '1' (classic single column).
  */
 export function getNagoraColumns(): NagoraColumns {
   const stored = localStorage.getItem('nagora-columns');
   if (stored === '1' || stored === '2' || stored === '3') {
     return stored;
   }
-  if (stored === 'auto') {
-    try {
-      localStorage.removeItem('nagora-columns');
-    } catch {
-      // Ignore
-    }
-  }
-  // Smart default based on available viewport width:
-  // >= 1280px: 3 columns (full spatial view)
-  // >= 800px: 2 columns (main + context)
-  // < 800px: 1 column
-  const width = window.innerWidth;
-  if (width >= 1280) {
-    return '3';
-  } else if (width >= 800) {
-    return '2';
-  }
   return '1';
 }
 
 /**
- * Resolves the active column count ('1' | '2' | '3') based on configuration and available viewport width.
+ * Resolves the active column count ('1' | '2' | '3').
  */
 export function getResolvedColumns(): '1' | '2' | '3' {
   return getNagoraColumns();
 }
 
 /**
- * Updates column layout count ('auto', '1', '2', or '3') and refreshes UI.
+ * Updates column layout count ('1', '2', or '3') and refreshes UI.
  */
 export function setNagoraColumns(cols: NagoraColumns): void {
   localStorage.setItem('nagora-columns', cols);
-  if (cols === '1') {
-    // Setting 1 column closes satellite panes while preserving experimental setting
-  } else {
-    localStorage.setItem('enable-nagora', 'true');
-    localStorage.setItem('enable-experimental', 'true');
-    document.body.classList.add('experimental-mode');
-    const expCheckbox = document.getElementById('experimental-checkbox') as HTMLInputElement | null;
-    if (expCheckbox) expCheckbox.checked = true;
-    const expSettings = document.getElementById('enable-experimental') as HTMLInputElement | null;
-    if (expSettings) expSettings.checked = true;
-  }
   updateLayoutSwitcherUI();
   updateNagoraPanes();
 }
@@ -232,8 +229,13 @@ export function promoteActivePane(): void {
  * Promotes a specific pane (navigates top window to that node).
  */
 export function promotePane(side: 'left' | 'right'): void {
-  const candidates = side === 'left' ? incomingCandidates : outgoingCandidates;
-  const index = side === 'left' ? incomingIndex : outgoingIndex;
+  const currentNode = typeof NODENAME !== 'undefined' ? NODENAME : '';
+  if (side === 'right' && currentRightMode === 'ambient') {
+    window.location.href = '/context/' + encodeURIComponent(currentNode);
+    return;
+  }
+  const candidates = getActiveCandidates(side);
+  const index = getActiveIndex(side);
   const target = candidates[index]?.name;
   if (target) {
     window.location.href = '/' + encodeURIComponent(target);
@@ -272,17 +274,96 @@ export function closePane(side: 'left' | 'right'): void {
 }
 
 /**
+ * Gets candidate list for the current mode of a given pane side.
+ */
+export function getActiveCandidates(side: 'left' | 'right'): NagoraCandidate[] {
+  if (side === 'left') {
+    switch (currentLeftMode) {
+      case 'backlinks': return backlinksCandidates;
+      case 'history': return historyCandidates;
+      case 'related': return relatedCandidates;
+      case 'commons': return commonsCandidates;
+    }
+  } else {
+    switch (currentRightMode) {
+      case 'outlinks': return outlinksCandidates;
+      case 'commons': return commonsCandidates;
+      case 'ambient': return [];
+    }
+  }
+}
+
+/**
+ * Gets active candidate index for the current mode of a given pane side.
+ */
+export function getActiveIndex(side: 'left' | 'right'): number {
+  if (side === 'left') {
+    switch (currentLeftMode) {
+      case 'backlinks': return backlinksIndex;
+      case 'history': return historyIndex;
+      case 'related': return relatedIndex;
+      case 'commons': return commonsIndex;
+    }
+  } else {
+    switch (currentRightMode) {
+      case 'outlinks': return outlinksIndex;
+      case 'commons': return commonsIndex;
+      case 'ambient': return 0;
+    }
+  }
+}
+
+/**
+ * Sets active candidate index for the current mode of a given pane side.
+ */
+function setActiveIndex(side: 'left' | 'right', index: number): void {
+  if (side === 'left') {
+    switch (currentLeftMode) {
+      case 'backlinks': backlinksIndex = index; break;
+      case 'history': historyIndex = index; break;
+      case 'related': relatedIndex = index; break;
+      case 'commons': commonsIndex = index; break;
+    }
+  } else {
+    switch (currentRightMode) {
+      case 'outlinks': outlinksIndex = index; break;
+      case 'commons': commonsIndex = index; break;
+    }
+  }
+}
+
+/**
+ * Switches the viewing mode of a satellite pane.
+ */
+export function setPaneMode(side: 'left' | 'right', mode: LeftPaneMode | RightPaneMode): void {
+  if (side === 'left') {
+    currentLeftMode = mode as LeftPaneMode;
+    renderPane('left');
+  } else {
+    currentRightMode = mode as RightPaneMode;
+    renderPane('right');
+  }
+}
+
+/**
  * Steps to the next or previous candidate node in a satellite pane.
  */
 export function stepPane(side: 'left' | 'right', delta: number): void {
   if (side === 'left') {
-    if (incomingCandidates.length <= 1) return;
-    incomingIndex = (incomingIndex + delta + incomingCandidates.length) % incomingCandidates.length;
-    renderPane('left', incomingCandidates, incomingIndex);
+    const candidates = getActiveCandidates('left');
+    if (candidates.length <= 1) return;
+    let idx = getActiveIndex('left');
+    idx = (idx + delta + candidates.length) % candidates.length;
+    setActiveIndex('left', idx);
+    renderPane('left');
   } else {
-    if (outgoingCandidates.length <= 1) return;
-    outgoingIndex = (outgoingIndex + delta + outgoingCandidates.length) % outgoingCandidates.length;
-    renderPane('right', outgoingCandidates, outgoingIndex);
+    if (currentRightMode === 'ambient') return;
+    const candidates = getActiveCandidates('right');
+    if (candidates.length <= 1) return;
+    let idx = getActiveIndex('right');
+    idx = (idx + delta + candidates.length) % candidates.length;
+    setActiveIndex('right', idx);
+    renderPane('right');
   }
 }
 
@@ -290,16 +371,54 @@ export function stepPane(side: 'left' | 'right', delta: number): void {
  * Selects a specific candidate by index in a satellite pane.
  */
 export function selectCandidate(side: 'left' | 'right', index: number): void {
-  if (side === 'left') {
-    if (index >= 0 && index < incomingCandidates.length) {
-      incomingIndex = index;
-      renderPane('left', incomingCandidates, incomingIndex);
+  const candidates = getActiveCandidates(side);
+  if (index >= 0 && index < candidates.length) {
+    setActiveIndex(side, index);
+    renderPane(side);
+  }
+}
+
+/**
+ * Opens a specific node inside a side pane. Automatically expands layout to 2 columns if in 1-column view.
+ */
+export function openInPane(side: 'left' | 'right', nodeName: string): void {
+  const clean = cleanNodeName(nodeName) || nodeName.trim();
+  if (!clean) return;
+
+  // 1. If currently in 1-column mode, graduate to 2-column mode
+  const currentCols = getNagoraColumns();
+  if (currentCols === '1') {
+    setNagoraColumns('2');
+  }
+
+  // 2. Insert target node into active candidate stack
+  if (side === 'right') {
+    currentRightMode = 'outlinks';
+    const existingIdx = outlinksCandidates.findIndex(c => c.name.toLowerCase() === clean.toLowerCase());
+    if (existingIdx !== -1) {
+      outlinksIndex = existingIdx;
+    } else {
+      outlinksCandidates.unshift({ name: clean, type: 'outlink' });
+      outlinksIndex = 0;
     }
+    renderPane('right');
   } else {
-    if (index >= 0 && index < outgoingCandidates.length) {
-      outgoingIndex = index;
-      renderPane('right', outgoingCandidates, outgoingIndex);
+    currentLeftMode = 'backlinks';
+    const existingIdx = backlinksCandidates.findIndex(c => c.name.toLowerCase() === clean.toLowerCase());
+    if (existingIdx !== -1) {
+      backlinksIndex = existingIdx;
+    } else {
+      backlinksCandidates.unshift({ name: clean, type: 'backlink' });
+      backlinksIndex = 0;
     }
+    renderPane('left');
+  }
+
+  setActiveColumn(side);
+
+  // 3. User feedback
+  if (typeof (window as any).showToast === 'function') {
+    (window as any).showToast(`🌱 Opened <strong>[[${clean}]]</strong> in ${side} pane`);
   }
 }
 
@@ -351,7 +470,7 @@ function getSessionHistory(currentNode: string): string[] {
   }
 }
 
-function cleanNodeName(raw: string): string | null {
+export function cleanNodeName(raw: string): string | null {
   let clean = raw.trim();
   if (clean.startsWith('/')) {
     clean = clean.substring(1);
@@ -374,18 +493,18 @@ function cleanNodeName(raw: string): string | null {
     return null;
   }
   const current = (typeof NODENAME !== 'undefined' ? NODENAME : '').toLowerCase();
-  if (clean.toLowerCase() === current) {
+  if (current && clean.toLowerCase() === current) {
     return null;
   }
   return clean;
 }
 
-function extractIncomingCandidates(): NagoraCandidate[] {
+function extractBacklinksCandidates(): NagoraCandidate[] {
   const result: NagoraCandidate[] = [];
   const seen = new Set<string>();
-  const currentNode = typeof NODENAME !== 'undefined' ? NODENAME : '';
+  const currentNode = (typeof NODENAME !== 'undefined' ? NODENAME : '').toLowerCase();
+  if (currentNode) seen.add(currentNode);
 
-  // 1. Natural backlinks from .context
   const backlinkElements = document.querySelectorAll('.context-column.backlinks .link-list a, .backlinks .link-list a');
   backlinkElements.forEach(el => {
     const href = el.getAttribute('href');
@@ -397,16 +516,30 @@ function extractIncomingCandidates(): NagoraCandidate[] {
     }
   });
 
-  // 2. Session history (time of visiting horizon: where did I come from?)
+  return result;
+}
+
+function extractHistoryCandidates(): NagoraCandidate[] {
+  const result: NagoraCandidate[] = [];
+  const seen = new Set<string>();
+  const currentNode = typeof NODENAME !== 'undefined' ? NODENAME : '';
   const historyNodes = getSessionHistory(currentNode);
   historyNodes.forEach(node => {
-    if (!seen.has(node.toLowerCase())) {
-      seen.add(node.toLowerCase());
-      result.push({ name: node, type: 'history' });
+    const clean = cleanNodeName(node);
+    if (clean && !seen.has(clean.toLowerCase())) {
+      seen.add(clean.toLowerCase());
+      result.push({ name: clean, type: 'history' });
     }
   });
+  return result;
+}
 
-  // 3. Related nodes from DOM as conceptual neighbors
+function extractRelatedCandidates(): NagoraCandidate[] {
+  const result: NagoraCandidate[] = [];
+  const seen = new Set<string>();
+  const currentNode = (typeof NODENAME !== 'undefined' ? NODENAME : '').toLowerCase();
+  if (currentNode) seen.add(currentNode);
+
   const relatedElements = document.querySelectorAll('.node.related a .node-name, .node.related a, .related .link-item a');
   relatedElements.forEach(el => {
     const href = el.getAttribute('href') || el.closest('a')?.getAttribute('href');
@@ -424,9 +557,10 @@ function extractIncomingCandidates(): NagoraCandidate[] {
 function extractOutgoingCandidates(): NagoraCandidate[] {
   const result: NagoraCandidate[] = [];
   const seen = new Set<string>();
-  const currentNode = typeof NODENAME !== 'undefined' ? NODENAME : '';
+  const currentNode = (typeof NODENAME !== 'undefined' ? NODENAME : '').toLowerCase();
+  if (currentNode) seen.add(currentNode);
 
-  // 1. First priority: wikilinks explicitly written in the subnode text (appearance order!)
+  // 1. First priority: wikilinks written in subnode text (appearance order)
   const contentWikilinks = document.querySelectorAll('.content .subnode a.wikilink, .content a.wikilink');
   contentWikilinks.forEach(el => {
     const href = el.getAttribute('href');
@@ -450,93 +584,64 @@ function extractOutgoingCandidates(): NagoraCandidate[] {
     }
   });
 
-  // 3. Third priority: related conceptual neighbors
-  const relatedElements = document.querySelectorAll('.node.related a .node-name, .node.related a, .related .link-item a');
-  relatedElements.forEach(el => {
-    const href = el.getAttribute('href') || el.closest('a')?.getAttribute('href');
-    if (!href) return;
-    const node = cleanNodeName(href);
-    if (node && !seen.has(node.toLowerCase())) {
-      seen.add(node.toLowerCase());
-      result.push({ name: node, type: 'related' });
-    }
-  });
-
-  // 4. Fourth priority: session history (excluding current node)
-  const historyNodes = getSessionHistory(currentNode);
-  historyNodes.forEach(node => {
-    if (!seen.has(node.toLowerCase())) {
-      seen.add(node.toLowerCase());
-      result.push({ name: node, type: 'history' });
-    }
-  });
-
   return result;
 }
 
-/**
- * Returns graceful serendipitous concept fallbacks when a node has zero links,
- * keeping the spatial multi-column layout intact without using system routes.
- */
-function getConceptFallbacks(defaults: string[], exclude?: string): NagoraCandidate[] {
-  const currentNode = (typeof NODENAME !== 'undefined' ? NODENAME : '').toLowerCase();
+export function refreshCommonsCandidates(): void {
   const result: NagoraCandidate[] = [];
   const seen = new Set<string>();
-  if (exclude) seen.add(exclude.toLowerCase());
-  seen.add(currentNode);
+  const currentNode = (typeof NODENAME !== 'undefined' ? NODENAME : '').toLowerCase();
+  if (currentNode) seen.add(currentNode);
 
-  for (const node of defaults) {
-    const clean = cleanNodeName(node);
+  for (const raw of [...DEFAULT_COMMONS_NODES, ...dynamicStarredNodes]) {
+    const clean = cleanNodeName(raw) || (raw.trim() && !raw.includes(':') && !raw.includes('#') ? raw.trim() : null);
     if (clean && !seen.has(clean.toLowerCase())) {
       seen.add(clean.toLowerCase());
-      result.push({ name: clean, type: 'random' });
+      result.push({ name: clean, type: 'commons' });
     }
   }
-  return result;
+  commonsCandidates = result;
 }
 
-function renderLoadingPane(side: 'left' | 'right', title: string): void {
-  const paneId = side === 'left' ? 'nagora-left-pane' : 'nagora-right-pane';
-  const pane = document.getElementById(paneId);
-  if (!pane) return;
-
-  if (pane.querySelector('.nagora-pane-loader') && !pane.querySelector('iframe')) {
-    pane.style.display = 'flex';
-    if (side === 'left') {
-      leftPaneVisible = true;
-      document.body.classList.add('nagora-has-left');
-    } else {
-      rightPaneVisible = true;
-      document.body.classList.add('nagora-has-right');
+export async function fetchStarredCommons(): Promise<void> {
+  try {
+    const res = await fetch('/api/starred_nodes', { credentials: 'same-origin' });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        dynamicStarredNodes = data.filter((item): item is string => typeof item === 'string');
+        refreshCommonsCandidates();
+        if (leftPaneVisible && currentLeftMode === 'commons') {
+          renderPane('left');
+        }
+        if (rightPaneVisible && currentRightMode === 'commons') {
+          renderPane('right');
+        }
+      }
     }
-    return;
+  } catch {
+    // Graceful fallback
   }
+}
 
-  const badgeIcon = side === 'left' ? '←' : '→';
-  pane.innerHTML = `
-    <div class="nagora-pane-header">
-      <div class="nagora-pane-info">
-        <span class="nagora-pane-badge">${badgeIcon}</span>
-        <span style="font-size: 0.88rem; opacity: 0.75; font-style: italic;">${title}</span>
-      </div>
-      <div class="nagora-pane-actions">
-        <button class="nagora-pane-btn nagora-btn-close" title="Un-tile: Close this column (Esc)">✕</button>
-      </div>
-    </div>
-    <div class="nagora-pane-body">
-      <div class="nagora-pane-loader">
-        <div class="spinner"><img src="/static/img/agora.png" class="logo" alt="Loading..."></div>
-        <p class="nagora-loader-text"><em>Loading Agora node…</em></p>
-      </div>
-    </div>
-  `;
+function renderModePills(side: 'left' | 'right'): string {
+  if (side === 'left') {
+    return `
+      <button class="nagora-mode-btn ${currentLeftMode === 'backlinks' ? 'active' : ''}" data-side="left" data-mode="backlinks" title="Incoming backlinks">👈 In</button>
+      <button class="nagora-mode-btn ${currentLeftMode === 'history' ? 'active' : ''}" data-side="left" data-mode="history" title="Session history trail">⏳ Trail</button>
+      <button class="nagora-mode-btn ${currentLeftMode === 'related' ? 'active' : ''}" data-side="left" data-mode="related" title="Related conceptual neighbors">⥅ Related</button>
+      <button class="nagora-mode-btn ${currentLeftMode === 'commons' ? 'active' : ''}" data-side="left" data-mode="commons" title="Agora Commons & Node Club">🏛️ Commons</button>
+    `;
+  } else {
+    return `
+      <button class="nagora-mode-btn ${currentRightMode === 'outlinks' ? 'active' : ''}" data-side="right" data-mode="outlinks" title="Outgoing forward links">👉 Out</button>
+      <button class="nagora-mode-btn ${currentRightMode === 'ambient' ? 'active' : ''}" data-side="right" data-mode="ambient" title="Ambient Agora context & dynamic graph">✨ Ambient</button>
+      <button class="nagora-mode-btn ${currentRightMode === 'commons' ? 'active' : ''}" data-side="right" data-mode="commons" title="Agora Commons & Node Club">🏛️ Commons</button>
+    `;
+  }
+}
 
-  const closeBtn = pane.querySelector('.nagora-btn-close');
-  closeBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    closePane(side);
-  });
-
+function showPane(side: 'left' | 'right', pane: HTMLElement): void {
   pane.style.display = 'flex';
   if (side === 'left') {
     leftPaneVisible = true;
@@ -547,30 +652,297 @@ function renderLoadingPane(side: 'left' | 'right', title: string): void {
   }
 }
 
-
-function renderPane(side: 'left' | 'right', candidates: NagoraCandidate[], index: number): void {
+function renderLoadingPane(side: 'left' | 'right', title: string): void {
   const paneId = side === 'left' ? 'nagora-left-pane' : 'nagora-right-pane';
   const pane = document.getElementById(paneId);
-  if (!pane || candidates.length === 0) return;
+  if (!pane) return;
 
-  const current = candidates[index];
-  const total = candidates.length;
-
-  let badgeIcon = side === 'left' ? '←' : '→';
-  let badgeTitle = side === 'left' ? 'Incoming backlink' : 'Outgoing forward link';
-  if (current.type === 'history') {
-    badgeIcon = '⏳';
-    badgeTitle = 'Session history: previously visited node';
-  } else if (current.type === 'related') {
-    badgeIcon = '⥅';
-    badgeTitle = 'Related conceptual neighbor';
-  } else if (current.type === 'random') {
-    badgeIcon = '✨';
-    badgeTitle = 'Serendipitous exploration';
+  if (pane.querySelector('.nagora-pane-loader') && !pane.querySelector('iframe')) {
+    showPane(side, pane);
+    return;
   }
 
+  pane.innerHTML = `
+    <div class="nagora-pane-header">
+      <div class="nagora-pane-top-row">
+        <div class="nagora-pane-info">
+          <span style="font-size: 0.84rem; opacity: 0.75; font-style: italic;">${title}</span>
+        </div>
+        <div class="nagora-pane-actions">
+          <button class="nagora-pane-btn nagora-btn-close" title="Un-tile: Close this column (Esc)">✕</button>
+        </div>
+      </div>
+    </div>
+    <div class="nagora-pane-body">
+      <div class="nagora-pane-loader">
+        <div class="spinner"><img src="/static/img/agora.png" class="logo" alt="Loading..."></div>
+        <p class="nagora-loader-text"><em>Loading Agora node…</em></p>
+      </div>
+    </div>
+  `;
+
+  pane.querySelector('.nagora-btn-close')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closePane(side);
+  });
+
+  showPane(side, pane);
+}
+
+function renderEmptyPane(pane: HTMLElement, side: 'left' | 'right'): void {
+  const currentMode = side === 'left' ? currentLeftMode : currentRightMode;
+  pane.innerHTML = `
+    <div class="nagora-pane-header">
+      <div class="nagora-pane-top-row">
+        <div class="nagora-pane-modes">
+          ${renderModePills(side)}
+        </div>
+        <div class="nagora-pane-actions">
+          <button class="nagora-pane-btn nagora-btn-monocle ${monocleSide === side ? 'active' : ''}" title="Monocle: Toggle maximize pane (z)">⛶</button>
+          <button class="nagora-pane-btn nagora-btn-promote" title="Promote: Open this node in main view (Enter)">⬈</button>
+          <button class="nagora-pane-btn nagora-btn-close" title="Un-tile: Close this column (Esc)">✕</button>
+        </div>
+      </div>
+      <div class="nagora-pane-bottom-row">
+        <span style="opacity: 0.6; font-size: 0.82rem; font-style: italic;">(0 candidates)</span>
+      </div>
+    </div>
+    <div class="nagora-pane-body">
+      <div style="padding: 2.5rem 1rem; text-align: center; opacity: 0.8; font-size: 0.9rem;">
+        <p><em>No ${currentMode === 'backlinks' ? 'backlinks' : 'nodes'} found in this mode.</em></p>
+        <button class="nagora-mode-btn active nagora-empty-commons-btn" style="margin-top: 0.75rem; padding: 4px 10px; display: inline-block;">Browse Commons 🏛️</button>
+      </div>
+    </div>
+  `;
+
+  attachPaneEvents(pane, side);
+  pane.querySelector('.nagora-empty-commons-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setPaneMode(side, 'commons');
+  });
+  showPane(side, pane);
+}
+
+function renderAmbientPane(pane: HTMLElement, currentNode: string): void {
+  pane.innerHTML = `
+    <div class="nagora-pane-header">
+      <div class="nagora-pane-top-row">
+        <div class="nagora-pane-modes">
+          ${renderModePills('right')}
+        </div>
+        <div class="nagora-pane-actions">
+          <button class="nagora-pane-btn nagora-btn-monocle ${monocleSide === 'right' ? 'active' : ''}" title="Monocle: Toggle maximize pane (z)">⛶</button>
+          <button class="nagora-pane-btn nagora-btn-promote" title="Promote: Open this node in main view (Enter)">⬈</button>
+          <button class="nagora-pane-btn nagora-btn-close" title="Un-tile: Close this column (Esc)">✕</button>
+        </div>
+      </div>
+      <div class="nagora-pane-bottom-row">
+        <span class="nagora-pane-ambient-title" style="flex: 1; font-size: 0.82rem; font-weight: 500; opacity: 0.85; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          🌌 Agora context for <strong>[[${currentNode}]]</strong>
+        </span>
+        <button class="nagora-pane-btn nagora-btn-ambient-refresh" title="Refresh context">🔄</button>
+      </div>
+    </div>
+    <div class="nagora-pane-body">
+      <div class="nagora-pane-loader">
+        <div class="spinner"><img src="/static/img/agora.png" class="logo" alt="Loading..."></div>
+        <p class="nagora-loader-text"><em>Loading Agora context…</em></p>
+      </div>
+      <div class="nagora-pane-ambient-container context" style="padding: 0.8rem; height: 100%; overflow-y: auto; box-sizing: border-box; display: none;"></div>
+    </div>
+  `;
+
+  attachPaneEvents(pane, 'right');
+
+  const loader = pane.querySelector('.nagora-pane-loader') as HTMLElement | null;
+  const container = pane.querySelector('.nagora-pane-ambient-container') as HTMLElement | null;
+  const refreshBtn = pane.querySelector('.nagora-btn-ambient-refresh');
+
+  const loadAmbient = async () => {
+    if (loader) loader.style.display = 'flex';
+    if (container) container.style.display = 'none';
+    try {
+      const res = await fetch('/context/' + encodeURIComponent(currentNode), { credentials: 'same-origin' });
+      if (res.ok && container) {
+        const text = await res.text();
+        container.innerHTML = text;
+        if (loader) loader.style.display = 'none';
+        container.style.display = 'block';
+
+        const graphEl = container.querySelector('#graph');
+        if (graphEl) {
+          graphEl.id = 'nagora-ambient-graph';
+          renderGraph('nagora-ambient-graph', '/graph/json/' + currentNode);
+        }
+      }
+    } catch {
+      if (loader) loader.innerHTML = '<p style="padding:1rem;"><em>Could not load context.</em></p>';
+    }
+  };
+
+  refreshBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    loadAmbient();
+  });
+
+  loadAmbient();
+  showPane('right', pane);
+}
+
+function updatePaneControls(pane: HTMLElement, side: 'left' | 'right', optionsHtml: string, index: number, total: number): void {
+  const select = pane.querySelector('.nagora-pane-select') as HTMLSelectElement | null;
+  if (select) {
+    select.innerHTML = optionsHtml;
+    select.value = String(index);
+  }
+  const prevBtn = pane.querySelector('.nagora-btn-prev') as HTMLButtonElement | null;
+  const nextBtn = pane.querySelector('.nagora-btn-next') as HTMLButtonElement | null;
+  if (prevBtn) {
+    prevBtn.disabled = total <= 1;
+    prevBtn.style.opacity = total <= 1 ? '0.35' : '';
+    prevBtn.style.cursor = total <= 1 ? 'default' : '';
+  }
+  if (nextBtn) {
+    nextBtn.disabled = total <= 1;
+    nextBtn.style.opacity = total <= 1 ? '0.35' : '';
+    nextBtn.style.cursor = total <= 1 ? 'default' : '';
+  }
+  // Update mode pills active state
+  const currentMode = side === 'left' ? currentLeftMode : currentRightMode;
+  pane.querySelectorAll<HTMLButtonElement>('.nagora-mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === currentMode);
+  });
+}
+
+function attachPaneEvents(pane: HTMLElement, side: 'left' | 'right'): void {
+  // Mode switcher buttons
+  pane.querySelectorAll<HTMLButtonElement>('.nagora-mode-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const targetMode = btn.dataset.mode;
+      if (targetMode) {
+        setPaneMode(side, targetMode as any);
+      }
+    });
+  });
+
+  // Candidate select dropdown
+  const select = pane.querySelector('.nagora-pane-select') as HTMLSelectElement | null;
+  select?.addEventListener('change', () => {
+    const idx = parseInt(select.value, 10);
+    if (!isNaN(idx)) selectCandidate(side, idx);
+  });
+
+  // Prev / next buttons
+  pane.querySelector('.nagora-btn-prev')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    stepPane(side, -1);
+  });
+
+  pane.querySelector('.nagora-btn-next')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    stepPane(side, 1);
+  });
+
+  // Monocle toggle
+  pane.querySelector('.nagora-btn-monocle')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMonocle(side);
+  });
+
+  // Promote
+  pane.querySelector('.nagora-btn-promote')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    promotePane(side);
+  });
+
+  // Close / un-tile
+  pane.querySelector('.nagora-btn-close')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closePane(side);
+  });
+
+  // Pane focus on click
+  pane.addEventListener('click', () => {
+    setActiveColumn(side);
+  });
+
+  // Iframe load listener
+  const loader = pane.querySelector('.nagora-pane-loader') as HTMLElement | null;
+  const iframe = pane.querySelector('.nagora-pane-iframe') as HTMLIFrameElement | null;
+  if (iframe) {
+    iframe.addEventListener('load', () => {
+      if (loader) {
+        loader.classList.add('hidden');
+      }
+      const theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
+      try {
+        iframe.contentDocument?.documentElement.setAttribute('data-theme', theme);
+        // Attach Shift+click handler inside iframe
+        iframe.contentDocument?.addEventListener('click', (e: MouseEvent) => {
+          if (!e.shiftKey && !e.altKey) return;
+          if (e.defaultPrevented || e.button !== 0) return;
+          const target = (e.target as HTMLElement | null)?.closest('a');
+          if (!target) return;
+          const href = target.getAttribute('href');
+          if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:')) return;
+          if (href.startsWith('http://') || href.startsWith('https://')) {
+            try {
+              const url = new URL(href);
+              if (url.origin !== window.location.origin) return;
+            } catch {
+              return;
+            }
+          }
+          const clean = cleanNodeName(href);
+          if (clean) {
+            e.preventDefault();
+            e.stopPropagation();
+            openInPane('right', clean);
+          }
+        }, true);
+      } catch {
+        // Cross-origin fallback
+      }
+    });
+  }
+}
+
+export function renderPane(side: 'left' | 'right'): void {
+  const paneId = side === 'left' ? 'nagora-left-pane' : 'nagora-right-pane';
+  const pane = document.getElementById(paneId);
+  if (!pane) return;
+
+  const currentNode = typeof NODENAME !== 'undefined' ? NODENAME : '';
+
+  // 1. Right pane Ambient mode
+  if (side === 'right' && currentRightMode === 'ambient') {
+    renderAmbientPane(pane, currentNode);
+    return;
+  }
+
+  // 2. Node-based modes
+  const candidates = getActiveCandidates(side);
+  const rawIndex = getActiveIndex(side);
+  const total = candidates.length;
+
+  if (total === 0) {
+    renderEmptyPane(pane, side);
+    return;
+  }
+
+  const index = (rawIndex >= 0 && rawIndex < total) ? rawIndex : 0;
+  setActiveIndex(side, index);
+  const current = candidates[index];
+
   const optionsHtml = candidates.map((c, i) => {
-    const prefix = c.type === 'history' ? '⏳ ' : c.type === 'related' ? '⥅ ' : c.type === 'random' ? '✨ ' : '';
+    let prefix = '';
+    if (c.type === 'history') prefix = '⏳ ';
+    else if (c.type === 'related') prefix = '⥅ ';
+    else if (c.type === 'commons') prefix = '🏛️ ';
+    else if (c.type === 'random') prefix = '✨ ';
+    else if (side === 'left') prefix = '👈 ';
+    else prefix = '👉 ';
     const label = `${i + 1}/${total}: ${prefix}[[${c.name}]]`;
     return `<option value="${i}" ${i === index ? 'selected' : ''}>${label}</option>`;
   }).join('');
@@ -578,55 +950,34 @@ function renderPane(side: 'left' | 'right', candidates: NagoraCandidate[], index
   const targetSrc = `/embed/${encodeURIComponent(current.name)}`;
   const existingIframe = pane.querySelector('.nagora-pane-iframe') as HTMLIFrameElement | null;
 
-  // If iframe is already rendering this exact node, only update dropdown & controls without reloading
+  // If iframe is already rendering this exact node, update controls without reloading iframe
   if (existingIframe && existingIframe.getAttribute('src') === targetSrc) {
-    const select = pane.querySelector('.nagora-pane-select') as HTMLSelectElement | null;
-    if (select) {
-      select.innerHTML = optionsHtml;
-      select.value = String(index);
-    }
-    const badge = pane.querySelector('.nagora-pane-badge') as HTMLElement | null;
-    if (badge) {
-      badge.textContent = badgeIcon;
-      badge.title = badgeTitle;
-    }
-    const prevBtn = pane.querySelector('.nagora-btn-prev') as HTMLButtonElement | null;
-    const nextBtn = pane.querySelector('.nagora-btn-next') as HTMLButtonElement | null;
-    if (prevBtn) {
-      prevBtn.disabled = total <= 1;
-      prevBtn.style.opacity = total <= 1 ? '0.35' : '';
-      prevBtn.style.cursor = total <= 1 ? 'default' : '';
-    }
-    if (nextBtn) {
-      nextBtn.disabled = total <= 1;
-      nextBtn.style.opacity = total <= 1 ? '0.35' : '';
-      nextBtn.style.cursor = total <= 1 ? 'default' : '';
-    }
-    pane.style.display = 'flex';
-    if (side === 'left') {
-      leftPaneVisible = true;
-      document.body.classList.add('nagora-has-left');
-    } else {
-      rightPaneVisible = true;
-      document.body.classList.add('nagora-has-right');
-    }
+    updatePaneControls(pane, side, optionsHtml, index, total);
+    showPane(side, pane);
     return;
   }
 
+  // Build full pane markup
   pane.innerHTML = `
     <div class="nagora-pane-header">
-      <div class="nagora-pane-info">
-        <span class="nagora-pane-badge" title="${badgeTitle}">${badgeIcon}</span>
-        <select class="nagora-pane-select" aria-label="Select node to view in ${side} pane">
-          ${optionsHtml}
-        </select>
+      <div class="nagora-pane-top-row">
+        <div class="nagora-pane-modes">
+          ${renderModePills(side)}
+        </div>
+        <div class="nagora-pane-actions">
+          <button class="nagora-pane-btn nagora-btn-monocle ${monocleSide === side ? 'active' : ''}" title="Monocle: Toggle maximize pane (z)">⛶</button>
+          <button class="nagora-pane-btn nagora-btn-promote" title="Promote: Open this node in main view (Enter)">⬈</button>
+          <button class="nagora-pane-btn nagora-btn-close" title="Un-tile: Close this column (Esc)">✕</button>
+        </div>
       </div>
-      <div class="nagora-pane-actions">
-        <button class="nagora-pane-btn nagora-btn-prev" title="Previous node in stack (‹)" ${total <= 1 ? 'disabled style="opacity:0.35;cursor:default;"' : ''}>‹</button>
-        <button class="nagora-pane-btn nagora-btn-next" title="Next node in stack (›)" ${total <= 1 ? 'disabled style="opacity:0.35;cursor:default;"' : ''}>›</button>
-        <button class="nagora-pane-btn nagora-btn-monocle ${monocleSide === side ? 'active' : ''}" title="Monocle: Toggle maximize pane (z)">⛶</button>
-        <button class="nagora-pane-btn nagora-btn-promote" title="Promote: Open this node in main view (Enter)">⬈</button>
-        <button class="nagora-pane-btn nagora-btn-close" title="Un-tile: Close this column (Esc)">✕</button>
+      <div class="nagora-pane-bottom-row">
+        <button class="nagora-pane-btn nagora-btn-prev" title="Previous node in stack (‹ or [)" ${total <= 1 ? 'disabled style="opacity:0.35;cursor:default;"' : ''}>‹</button>
+        <div class="nagora-pane-info">
+          <select class="nagora-pane-select" aria-label="Select node to view in ${side} pane">
+            ${optionsHtml}
+          </select>
+        </div>
+        <button class="nagora-pane-btn nagora-btn-next" title="Next node in stack (› or ])" ${total <= 1 ? 'disabled style="opacity:0.35;cursor:default;"' : ''}>›</button>
       </div>
     </div>
     <div class="nagora-pane-body">
@@ -638,72 +989,8 @@ function renderPane(side: 'left' | 'right', candidates: NagoraCandidate[], index
     </div>
   `;
 
-  // Attach controls
-  const select = pane.querySelector('.nagora-pane-select') as HTMLSelectElement | null;
-  select?.addEventListener('change', () => {
-    const idx = parseInt(select.value, 10);
-    if (!isNaN(idx)) selectCandidate(side, idx);
-  });
-
-  const prevBtn = pane.querySelector('.nagora-btn-prev');
-  prevBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    stepPane(side, -1);
-  });
-
-  const nextBtn = pane.querySelector('.nagora-btn-next');
-  nextBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    stepPane(side, 1);
-  });
-
-  const monocleBtn = pane.querySelector('.nagora-btn-monocle');
-  monocleBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleMonocle(side);
-  });
-
-  const promoteBtn = pane.querySelector('.nagora-btn-promote');
-  promoteBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    promotePane(side);
-  });
-
-  const closeBtn = pane.querySelector('.nagora-btn-close');
-  closeBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    closePane(side);
-  });
-
-  pane.addEventListener('click', () => {
-    setActiveColumn(side);
-  });
-
-  const loader = pane.querySelector('.nagora-pane-loader') as HTMLElement | null;
-  const iframe = pane.querySelector('.nagora-pane-iframe') as HTMLIFrameElement | null;
-
-  if (iframe) {
-    iframe.addEventListener('load', () => {
-      if (loader) {
-        loader.classList.add('hidden');
-      }
-      const theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
-      try {
-        iframe.contentDocument?.documentElement.setAttribute('data-theme', theme);
-      } catch {
-        // Cross-origin fallback
-      }
-    });
-  }
-
-  pane.style.display = 'flex';
-  if (side === 'left') {
-    leftPaneVisible = true;
-    document.body.classList.add('nagora-has-left');
-  } else {
-    rightPaneVisible = true;
-    document.body.classList.add('nagora-has-right');
-  }
+  attachPaneEvents(pane, side);
+  showPane(side, pane);
 }
 
 /**
@@ -728,7 +1015,6 @@ export function updateNagoraPanes(): void {
   const isMainLoading = Boolean(document.getElementById('async-content'));
 
   // If central content is still loading, show column loading skeletons without spawning iframes
-  // to avoid concurrent cache-warming deserialization passes on cold starts.
   if (isMainLoading) {
     if (cols === '2') {
       closePane('left');
@@ -748,60 +1034,41 @@ export function updateNagoraPanes(): void {
   }
 
   // Central node has loaded. Discover actual graph links.
-  const incoming = extractIncomingCandidates();
-  const outgoing = extractOutgoingCandidates();
+  backlinksCandidates = extractBacklinksCandidates();
+  historyCandidates = extractHistoryCandidates();
+  relatedCandidates = extractRelatedCandidates();
+  outlinksCandidates = extractOutgoingCandidates();
+  refreshCommonsCandidates();
 
-  // Mode 2: Main + Outgoing (or Main + Incoming if no outgoing links)
+  // Mode 2: Main + Outgoing (or Ambient/Commons fallback)
   if (cols === '2') {
     closePane('left');
-    if (outgoing.length > 0) {
-      outgoingCandidates = outgoing;
-      if (outgoingIndex >= outgoingCandidates.length) outgoingIndex = 0;
-      renderPane('right', outgoingCandidates, outgoingIndex);
-    } else if (incoming.length > 0) {
-      // Fallback: show left pane if no outgoing links exist
-      incomingCandidates = incoming;
-      if (incomingIndex >= incomingCandidates.length) incomingIndex = 0;
-      renderPane('left', incomingCandidates, incomingIndex);
-    } else {
-      outgoingCandidates = getConceptFallbacks(['agora', 'flancia', 'digital-garden']);
-      outgoingIndex = 0;
-      renderPane('right', outgoingCandidates, outgoingIndex);
+    if (currentRightMode === 'outlinks' && outlinksCandidates.length === 0) {
+      currentRightMode = 'ambient';
     }
+    renderPane('right');
     document.body.classList.add('nagora-active', 'nagora-cols-2');
     document.body.classList.remove('nagora-cols-3');
-    document.body.classList.toggle('nagora-has-left', leftPaneVisible);
-    document.body.classList.toggle('nagora-has-right', rightPaneVisible);
+    document.body.classList.remove('nagora-has-left');
+    document.body.classList.add('nagora-has-right');
     return;
   }
 
   // Mode 3: 3-column layout (Incoming + Main + Outgoing)
   if (cols === '3') {
-    if (incoming.length > 0) {
-      incomingCandidates = incoming;
-      if (incomingIndex >= incomingCandidates.length) incomingIndex = 0;
-      renderPane('left', incomingCandidates, incomingIndex);
-    } else {
-      incomingCandidates = getConceptFallbacks(['agora', 'digital-garden', 'flancia']);
-      incomingIndex = 0;
-      renderPane('left', incomingCandidates, incomingIndex);
+    if (currentLeftMode === 'backlinks' && backlinksCandidates.length === 0) {
+      currentLeftMode = historyCandidates.length > 0 ? 'history' : 'commons';
     }
+    renderPane('left');
 
-    const leftNode = incomingCandidates[incomingIndex]?.name;
-    if (outgoing.length > 0) {
-      outgoingCandidates = outgoing;
-      if (outgoingIndex >= outgoingCandidates.length) outgoingIndex = 0;
-      renderPane('right', outgoingCandidates, outgoingIndex);
-    } else {
-      outgoingCandidates = getConceptFallbacks(['flancia', 'digital-garden', 'agora'], leftNode);
-      outgoingIndex = 0;
-      renderPane('right', outgoingCandidates, outgoingIndex);
+    if (currentRightMode === 'outlinks' && outlinksCandidates.length === 0) {
+      currentRightMode = 'ambient';
     }
+    renderPane('right');
 
     document.body.classList.add('nagora-active', 'nagora-cols-3');
     document.body.classList.remove('nagora-cols-2');
-    document.body.classList.toggle('nagora-has-left', leftPaneVisible);
-    document.body.classList.toggle('nagora-has-right', rightPaneVisible);
+    document.body.classList.add('nagora-has-left', 'nagora-has-right');
   }
 }
 
@@ -824,6 +1091,41 @@ export function initNagora(): void {
     });
   });
   updateLayoutSwitcherUI();
+
+  // Initialize Commons and fetch starred items
+  refreshCommonsCandidates();
+  fetchStarredCommons();
+
+  // Global click interception for Shift+Click / Alt+Click on internal links
+  document.addEventListener('click', (e: MouseEvent) => {
+    if (!e.shiftKey && !e.altKey) return;
+    if (e.defaultPrevented || e.button !== 0) return;
+
+    const target = (e.target as HTMLElement | null)?.closest('a');
+    if (!target) return;
+
+    const href = target.getAttribute('href');
+    if (!href) return;
+
+    if (href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:')) {
+      return;
+    }
+    if (href.startsWith('http://') || href.startsWith('https://')) {
+      try {
+        const url = new URL(href);
+        if (url.origin !== window.location.origin) return;
+      } catch {
+        return;
+      }
+    }
+
+    const clean = cleanNodeName(href);
+    if (clean) {
+      e.preventDefault();
+      e.stopPropagation();
+      openInPane('right', clean);
+    }
+  }, true);
 
   if (typeof NODENAME === 'undefined' || !NODENAME) return; // Only populate satellite panes on node pages
 

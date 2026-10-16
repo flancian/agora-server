@@ -101,21 +101,16 @@ export function loadUrlEmbed(item: Element): void {
 
 document.addEventListener("DOMContentLoaded", async function () {
   
-  const showButtonWithFade = (btn: HTMLButtonElement) => {
-      if (btn.style.display !== "inline-block") {
-          btn.style.display = "inline-block";
-          void btn.offsetHeight; // force reflow
-      }
-      btn.style.opacity = "1";
+  const showButtonWithFade = (btn: HTMLElement) => {
+      btn.classList.add('action-bar-btn-visible');
+      btn.style.display = '';
+      btn.style.opacity = '';
   };
 
-  const hideButtonWithFade = (btn: HTMLButtonElement) => {
-      btn.style.opacity = "0";
-      setTimeout(() => {
-          if (btn.style.opacity === "0") {
-              btn.style.display = "none";
-          }
-      }, 500);
+  const hideButtonWithFade = (btn: HTMLElement) => {
+      btn.classList.remove('action-bar-btn-visible');
+      btn.style.display = '';
+      btn.style.opacity = '';
   };
 
   const updateCliButtonsVisibility = () => {
@@ -151,7 +146,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       if (miniCliJoin) {
           if (!user) {
-              if (miniCliJoin.style.display !== "inline-block") {
+              if (!miniCliJoin.classList.contains('action-bar-btn-visible')) {
                   setTimeout(() => {
                       if (!localStorage.getItem('user')) {
                           showButtonWithFade(miniCliJoin);
@@ -578,9 +573,15 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (initialExperimental) {
     document.body.classList.add('experimental-mode');
   }
+  // Arm action-bar transitions after initial paint to prevent animating on initial page load
+  setTimeout(() => {
+    document.body.classList.add('action-bar-transitions');
+  }, 100);
+
   expCheckboxes.forEach(cb => {
     cb.checked = initialExperimental;
     cb.addEventListener('change', () => {
+      document.body.classList.add('action-bar-transitions');
       const isEnabled = cb.checked;
       localStorage.setItem('enable-experimental', JSON.stringify(isEnabled));
       document.body.classList.toggle('experimental-mode', isEnabled);
@@ -1047,18 +1048,9 @@ document.addEventListener("DOMContentLoaded", async function () {
           const isCurrentLocation = currentVal === currentNodeName || currentVal === currentWikilink;
 
           if (currentVal && !isCurrentLocation) {
-              miniCliPull.style.display = "inline-block";
-              // Force reflow
-              void miniCliPull.offsetHeight;
-              miniCliPull.style.opacity = "1";
+              showButtonWithFade(miniCliPull);
           } else {
-              miniCliPull.style.opacity = "0";
-              // We'll hide it via a single timeout that checks if it's still supposed to be hidden
-              setTimeout(() => {
-                  if (miniCliPull.style.opacity === "0") {
-                      miniCliPull.style.display = "none";
-                  }
-              }, 500); 
+              hideButtonWithFade(miniCliPull);
           }
       };
 
@@ -2287,11 +2279,8 @@ function createAiFooter(prompt: string, provider: string, initialAnswer: string 
         const newBtn = miniCliSynthesize.cloneNode(true) as HTMLButtonElement;
         miniCliSynthesize.parentNode?.replaceChild(newBtn, miniCliSynthesize);
 
-        // Fade it in since synthesis is available
-        newBtn.style.display = "inline-block";
-        setTimeout(() => {
-            newBtn.style.opacity = "1";
-        }, 100); // small delay to ensure display: block has taken effect
+        // Smoothly slide and fade in since synthesis is available
+        showButtonWithFade(newBtn);
 
         newBtn.addEventListener("click", () => {
             synthesisDetails.open = true;
