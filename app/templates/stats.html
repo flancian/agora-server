@@ -28,8 +28,8 @@
     </div>
 
     <div class="stats-section">
-        <h2>System Caches</h2>
-        <p><em>Status of background worker caches.</em></p>
+        <h2>System Caches & Services</h2>
+        <p><em>Status of background workers, database caches, and semantic embedder daemon.</em></p>
         
         <div class="stats-grid">
             <!-- Memory Status -->
@@ -62,22 +62,73 @@
                 </div>
                 <div class="stat-label">Graph Rebuild</div>
             </div>
+
+            <!-- Embedder Daemon -->
+            <div class="stat-card" style="border-color: var(--link-color);">
+                <div class="stat-value" style="font-size: 1.2rem;">{{ embedder_info.status_label }}</div>
+                <div class="stat-label">Embedder Daemon</div>
+            </div>
+
+            <!-- Embeddings Count -->
+            <div class="stat-card" style="border-color: var(--link-color);">
+                <div class="stat-value" style="font-size: 1.2rem;">{{ embedder_info.vector_count }} <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: normal;">/ {{ embedder_info.total_subnodes }}</span></div>
+                <div class="stat-label">Semantic Vectors ({{ embedder_info.percent }}%)</div>
+            </div>
         </div>
         
-        {% if memory_stats and not memory_stats.Error %}
-        <div style="margin-top: 1rem; font-size: 0.9rem; text-align: center; color: var(--text-secondary);">
-            In-Memory Details: 
-            {% for k, v in memory_stats.items() if k != 'Status' %}
-                {{ k }}: <strong>{{ v }}</strong>{% if not loop.last %} | {% endif %}
-            {% endfor %}
+        <!-- Embedder Details & Progress -->
+        <div class="service-details" style="margin-top: 1.5rem; padding: 1rem; border-radius: 6px; background: var(--bg-primary); border: 1px solid var(--border-color); font-size: 0.9rem; text-align: center; color: var(--text-secondary);">
+            <div>
+                ✨ <strong>Semantic Embedder:</strong> 
+                Endpoint: <code>{{ embedder_info.url }}</code> | 
+                Model: <code>{{ embedder_info.model }}</code> | 
+                Indexed: <strong>{{ embedder_info.vector_count }}</strong> of {{ embedder_info.total_subnodes }} contributions (<strong>{{ embedder_info.percent }}%</strong>)
+            </div>
+            {% if embedder_info.active and embedder_info.percent < 99.5 %}
+            <div style="margin-top: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <progress value="{{ embedder_info.vector_count }}" max="{{ embedder_info.total_subnodes }}" style="width: 250px; height: 12px;"></progress>
+                <span style="font-size: 0.85rem; color: var(--link-color);">⚡ Background regeneration active</span>
+            </div>
+            {% endif %}
+            {% if memory_stats and not memory_stats.Error %}
+            <div style="margin-top: 0.8rem; border-top: 1px dashed var(--border-color); padding-top: 0.8rem;">
+                🧠 <strong>In-Memory Details:</strong> 
+                {% for k, v in memory_stats.items() if k != 'Status' %}
+                    {{ k }}: <strong>{{ v }}</strong>{% if not loop.last %} | {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
 
-        <div class="cache-actions" style="margin-top: 1rem; text-align: center;">
-             <button class="btn-flush-mem" title="Clear in-memory cache (fast)" style="margin-right: 0.5rem;">🧠 Clear Memory</button>
-             <button class="btn-flush-sqlite" title="Clear SQLite cache (thorough)">💾 Flush SQLite</button>
+        <div class="cache-actions" style="margin-top: 1.5rem; text-align: center;">
+             <button class="btn-flush-mem" title="Clear in-memory cache (fast)" style="margin-right: 0.5rem; padding: 0.5em 1.2em; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-color); cursor: pointer;">🧠 Clear Memory</button>
+             <button class="btn-flush-sqlite" title="Clear SQLite cache (thorough)" style="padding: 0.5em 1.2em; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-color); cursor: pointer;">💾 Flush SQLite</button>
         </div>
     </div>
+
+    {% if db_stats %}
+    <details class="node" style="margin-bottom: 2rem;">
+        <summary><strong>🗄️ Database Tables & Storage</strong></summary>
+        <div style="padding: 1rem 0;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                        <th style="padding: 8px;">Table / Resource</th>
+                        <th style="padding: 8px; text-align: right;">Rows / Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in db_stats %}
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 8px;"><code>{{ item.table }}</code></td>
+                        <td style="padding: 8px; text-align: right; font-weight: 500;">{{ item.rows }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </details>
+    {% endif %}
 
     <!-- Transcluded content for [[stats]] -->
     <details class="node pulled">
