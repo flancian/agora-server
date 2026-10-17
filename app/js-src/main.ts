@@ -2002,14 +2002,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                     fetchUrl = fetchUrl.replace('http://', 'https://');
                 }
                 response = await fetch(fetchUrl, { credentials: 'same-origin' });
-                if (!response.ok) {
+                if (!response.ok && response.status !== 404) {
                     if (response.status >= 500) {
                         fetchFailed = true;
                         failureReason = `status ${response.status}`;
-                    } else if (response.status === 404) {
-                        // Empty node stub returns HTTP 404 for search engines,
-                        // but contains valid HTML for the human UI (stub/minigame).
-                        break;
                     } else {
                         console.error(`Failed to load node ${node}: HTTP ${response.status}`);
                         showToast(`⚠️ Could not load node (HTTP ${response.status})`);
