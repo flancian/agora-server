@@ -1606,7 +1606,10 @@ table caption {
 }
 
 .demo-switch .slider:before {
-    content: "🧘"; /* Person in Lotus Position */
+    content: "▶️"; /* Play icon */
+    font-size: 11px;
+    filter: grayscale(1);
+    opacity: 0.6;
 }
 
 .music-switch .slider:before {
@@ -1627,7 +1630,9 @@ input:checked + .slider:before {
 }
 
 .demo-switch input:checked + .slider:before {
-    content: "🏃‍♀️"; /* Woman Running */
+    content: "▶️";
+    filter: none;
+    opacity: 1;
 }
 
 .music-switch input:checked + .slider:before {
@@ -1661,21 +1666,21 @@ input:checked + .slider:before {
     content: "✨";
 }
 
-/* Custom icons for Auto-scroll toggle */
+/* Custom icons for Auto-scroll toggle (movement) */
 .autoscroll-switch input {
     display: none;
 }
 .autoscroll-switch .slider:before {
-    content: "📜";
+    content: "🏃‍♀️";
     filter: grayscale(1);
-    opacity: 0.7;
+    opacity: 0.6;
 }
 .autoscroll-switch input:checked + .slider {
     background-color: var(--wikilink-color, #377ba8);
 }
 .autoscroll-switch input:checked + .slider:before {
     transform: translateX(20px);
-    content: "📜";
+    content: "🏃‍♀️";
     filter: none;
     opacity: 1;
 }

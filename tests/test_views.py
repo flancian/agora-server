@@ -256,6 +256,9 @@ def test_navbar_autoscroll_and_action_bar_buttons(test_agora):
     play_pos = content.find('id="mini-cli-play"')
     meditate_pos = content.find('id="mini-cli-meditate"')
     write_pos = content.find('id="mini-cli-write"')
+    # Emojis and titles
+    assert "🏃‍♀️ Auto Scroll" in content
+    assert "🧘 Meditate" in content
 
     assert write_pos < beyond_pos < play_pos < meditate_pos
 
