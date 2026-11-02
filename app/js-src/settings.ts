@@ -175,7 +175,12 @@ export function initSettings() {
                 localStorage.removeItem("nagora-columns");
             }
         }
-        localStorage["auto-scroll-demo"] = (document.getElementById("auto-scroll-demo") as HTMLInputElement).checked;
+        const autoScrollChecked = (document.getElementById("auto-scroll-demo") as HTMLInputElement).checked;
+        localStorage["auto-scroll-demo"] = autoScrollChecked;
+        const autoscrollNavbar = document.getElementById("autoscroll-checkbox") as HTMLInputElement | null;
+        if (autoscrollNavbar) {
+            autoscrollNavbar.checked = autoScrollChecked;
+        }
         localStorage.setItem("toast-duration-seconds", (document.getElementById("toast-duration-seconds") as HTMLInputElement).value);
         
         const showGraphLabels = (document.getElementById("show-graph-labels") as HTMLInputElement).checked;

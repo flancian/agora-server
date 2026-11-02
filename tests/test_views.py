@@ -227,4 +227,37 @@ def test_subnode_maximize_button_and_ancillary_zippy(test_agora):
     sync_content = sync_response.data.decode("utf-8")
     assert "embed-ancillary-zippy" in sync_content
 
+def test_navbar_autoscroll_and_action_bar_buttons(test_agora):
+    """Verifies navbar autoscroll toggle and dynamic action bar buttons."""
+    response = test_agora.get("/foo")
+    assert response.status_code == 200
+    content = response.data.decode("utf-8")
+
+    # Autoscroll navbar switch
+    assert "autoscroll-switch" in content
+    assert 'id="autoscroll-checkbox"' in content
+
+    # Action bar presence and dynamic classes
+    assert 'id="mini-cli-exec"' in content
+    assert 'id="mini-cli-go"' in content
+    assert 'id="expand-all"' in content
+    assert 'id="mini-cli-write"' in content
+    assert 'id="mini-cli-pull" class="action-bar-btn-dynamic"' in content
+    assert 'id="mini-cli-synthesize" class="action-bar-btn-dynamic"' in content
+    assert 'id="mini-cli-look-around" class="action-bar-btn-dynamic"' in content
+    assert 'id="mini-cli-wander" class="action-bar-btn-dynamic"' in content
+    assert 'id="mini-cli-go-beyond" class="action-bar-btn-dynamic"' in content
+    assert 'id="mini-cli-play" class="action-bar-btn-dynamic"' in content
+    assert 'id="mini-cli-meditate" class="action-bar-btn-dynamic"' in content
+    assert 'id="mini-cli-join" class="action-bar-btn-dynamic"' in content
+
+    # Button order: Go Beyond, Play, and Meditate appear towards the end of the action bar
+    beyond_pos = content.find('id="mini-cli-go-beyond"')
+    play_pos = content.find('id="mini-cli-play"')
+    meditate_pos = content.find('id="mini-cli-meditate"')
+    write_pos = content.find('id="mini-cli-write"')
+
+    assert write_pos < beyond_pos < play_pos < meditate_pos
+
+
 

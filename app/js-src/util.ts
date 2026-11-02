@@ -14,7 +14,7 @@ export const CLIENT_DEFAULTS = {
   autoExpandStoas: false,
   demoTimeoutSeconds: '31',
   toastDurationSeconds: '3.5',
-  autoScrollDemo: true,
+  autoScrollDemo: false,
   showEditSection: false,
   enableShortcuts: true,
   enableNagora: false,

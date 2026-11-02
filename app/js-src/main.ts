@@ -157,6 +157,53 @@ document.addEventListener("DOMContentLoaded", async function () {
               hideButtonWithFade(miniCliJoin);
           }
       }
+
+      // Schedule progressive discovery for playability & contemplation tools
+      scheduleProgressiveDiscovery();
+  };
+
+  let progressiveDiscoveryTimers: number[] = [];
+
+  const scheduleProgressiveDiscovery = () => {
+      progressiveDiscoveryTimers.forEach(id => clearTimeout(id));
+      progressiveDiscoveryTimers = [];
+
+      const miniCliGoBeyond = document.querySelector("#mini-cli-go-beyond") as HTMLButtonElement | null;
+      const miniCliPlay = document.querySelector("#mini-cli-play") as HTMLButtonElement | null;
+      const miniCliMeditate = document.querySelector("#mini-cli-meditate") as HTMLButtonElement | null;
+
+      const isInteractiveEmpty = !!document.getElementById("interactive-empty-state-details") || 
+                                 document.body.classList.contains("empty-node");
+
+      // On empty node stubs / minigame nodes, Play appears immediately!
+      if (isInteractiveEmpty && miniCliPlay) {
+          showButtonWithFade(miniCliPlay);
+      }
+
+      // Progressive dwell reveals:
+      // 1. Go Beyond appears at ~1200ms
+      if (miniCliGoBeyond && !miniCliGoBeyond.classList.contains('action-bar-btn-visible')) {
+          const t1 = window.setTimeout(() => {
+              showButtonWithFade(miniCliGoBeyond);
+          }, 1200);
+          progressiveDiscoveryTimers.push(t1);
+      }
+
+      // 2. Play appears at ~2200ms (if not already shown)
+      if (miniCliPlay && !miniCliPlay.classList.contains('action-bar-btn-visible')) {
+          const t2 = window.setTimeout(() => {
+              showButtonWithFade(miniCliPlay);
+          }, 2200);
+          progressiveDiscoveryTimers.push(t2);
+      }
+
+      // 3. Meditate appears at ~3600ms
+      if (miniCliMeditate && !miniCliMeditate.classList.contains('action-bar-btn-visible')) {
+          const t3 = window.setTimeout(() => {
+              showButtonWithFade(miniCliMeditate);
+          }, 3600);
+          progressiveDiscoveryTimers.push(t3);
+      }
   };
 
   // Try to restore order and initialize sortables if content is mostly synchronous
@@ -2702,7 +2749,6 @@ async function bindEvents() {
                         }, 500);
                     });
                 }
-            }
             }
 
         };

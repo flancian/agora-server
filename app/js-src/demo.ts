@@ -7,6 +7,7 @@ import { CLIENT_DEFAULTS, safeJsonParse } from './util';
 export function initDemoMode() {
     if (window.self !== window.top) return;
     const demoCheckboxes = document.querySelectorAll(".demo-checkbox-input") as NodeListOf<HTMLInputElement>;
+    const autoscrollCheckboxes = document.querySelectorAll(".autoscroll-checkbox-input, #auto-scroll-demo") as NodeListOf<HTMLInputElement>;
     const meditationPopupContainer = document.getElementById("meditation-popup-container");
     const meditationPopupContent = document.getElementById("meditation-popup-body");
     const meditationCloseButton = document.getElementById("meditation-popup-close-btn");
@@ -14,6 +15,19 @@ export function initDemoMode() {
     let demoIntervalId: number | null = null;
     let isDraggableInitialized = false;
     let meditationDraggable: { reposition: (force?: boolean) => void } | null = null;
+
+    const stopGentleScroll = () => {
+        if ((window as any).gentleScrollInterval) {
+            console.log('Clearing gentle scroll interval.');
+            clearInterval((window as any).gentleScrollInterval);
+            (window as any).gentleScrollInterval = null;
+        }
+        if ((window as any).gentleScrollTimeout) {
+            console.log('Clearing gentle scroll timeout.');
+            clearTimeout((window as any).gentleScrollTimeout);
+            (window as any).gentleScrollTimeout = null;
+        }
+    };
 
     // This function is ONLY for implicit cancellation via user interaction.
     const cancelOnInteraction = (event: Event) => {
@@ -29,12 +43,13 @@ export function initDemoMode() {
         }
         const target = event.target as HTMLElement;
         const demoSwitch = target.closest('.demo-switch');
+        const autoscrollSwitch = target.closest('.autoscroll-switch');
         const burgerMenu = target.closest('#burger');
         const musicSwitch = target.closest('.music-switch');
         const musicPlayer = target.closest('#music-player-container');
 
         // If the interaction was a click on the toggle itself, the burger menu, or the music player/toggles, do nothing.
-        if (event.type === 'click' && (demoSwitch || burgerMenu || musicSwitch || musicPlayer)) {
+        if (event.type === 'click' && (demoSwitch || autoscrollSwitch || burgerMenu || musicSwitch || musicPlayer)) {
             return;
         }
 
@@ -52,11 +67,7 @@ export function initDemoMode() {
     };
 
     const cancelDeepDemo = () => {
-        if ((window as any).gentleScrollInterval) {
-            console.log('Clearing gentle scroll interval.');
-            clearInterval((window as any).gentleScrollInterval);
-            (window as any).gentleScrollInterval = null;
-        }
+        stopGentleScroll();
         if (demoIntervalId) {
             console.log('Cancelling deep demo timer.');
             clearInterval(demoIntervalId);
@@ -280,13 +291,17 @@ export function initDemoMode() {
         }
 
         console.log("Demo: Preparing gentle scroll.");
-        if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
-        if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
+        stopGentleScroll();
         
+        const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
+
         // Let the user know it's about to start scrolling.
         const showInitialToast = () => {
             if ((window as any).showToast) {
-                let msg = `🏃‍♀️ Demo mode active! Auto-scroll starting in 3 seconds...`;
+                let msg = `📜 Auto-scroll starting in 3 seconds...`;
+                if (anyCheckedDemoBox) {
+                    msg = `🏃‍♀️ Demo mode active! Auto-scroll starting in 3 seconds...`;
+                }
                 if (isRootAutoEnable) {
                     msg = `🏃‍♀️ Demo mode is auto-enabled here! Auto-scroll starting in 3 seconds...`;
                 }
@@ -312,7 +327,9 @@ export function initDemoMode() {
                     if (stopLink) {
                         stopLink.addEventListener('click', (e) => {
                             e.preventDefault();
-                            if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
+                            stopGentleScroll();
+                            localStorage.setItem("auto-scroll-demo", "false");
+                            autoscrollCheckboxes.forEach(cb => { cb.checked = false; });
                             if ((window as any).showToast) {
                                 (window as any).showToast("🛑 Auto-scroll stopped.");
                             }
@@ -331,7 +348,7 @@ export function initDemoMode() {
             (window as any).gentleScrollInterval = setInterval(() => {
                 if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
                      console.log("Gentle scroll hit bottom.");
-                     clearInterval((window as any).gentleScrollInterval);
+                     stopGentleScroll();
                 } else {
                     window.scrollBy(0, 1);
                 }
@@ -350,8 +367,7 @@ export function initDemoMode() {
         } else {
             cancelDeepDemo();
             hidePopup();
-            if ((window as any).gentleScrollInterval) clearInterval((window as any).gentleScrollInterval);
-            if ((window as any).gentleScrollTimeout) clearTimeout((window as any).gentleScrollTimeout);
+            stopGentleScroll();
         }
     };
 
@@ -393,6 +409,31 @@ export function initDemoMode() {
             hidePopup();
         });
     }
+
+    // Initialize and bind autoscroll toggle checkboxes (navbar & settings)
+    const storedAutoScroll = localStorage.getItem("auto-scroll-demo");
+    const isAutoScrollActive = storedAutoScroll !== null 
+        ? safeJsonParse(storedAutoScroll, CLIENT_DEFAULTS.autoScrollDemo)
+        : CLIENT_DEFAULTS.autoScrollDemo;
+
+    autoscrollCheckboxes.forEach(checkbox => {
+        checkbox.checked = isAutoScrollActive;
+        checkbox.addEventListener('change', () => {
+            const enabled = checkbox.checked;
+            localStorage.setItem("auto-scroll-demo", JSON.stringify(enabled));
+            autoscrollCheckboxes.forEach(other => {
+                other.checked = enabled;
+            });
+            if (enabled) {
+                startGentleScroll(false, false);
+            } else {
+                stopGentleScroll();
+                if ((window as any).showToast) {
+                    (window as any).showToast("🛑 Auto-scroll stopped.");
+                }
+            }
+        });
+    });
 
     const triggerMeditation = () => {
         const meditationPopupContainer = document.getElementById("meditation-popup-container");
