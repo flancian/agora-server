@@ -135,8 +135,8 @@ export function saveOrder() {
     }
 }
 
-const SECTION_ORDER_VERSION_KEY = 'agora-section-order-v6';
-const DEFAULT_ORDER = ["ancillary", "web", "wiki", "genai", "main", "context", "pulled", "related", "stoa", "search", "games"];
+const SECTION_ORDER_VERSION_KEY = 'agora-section-order-v7';
+const DEFAULT_ORDER = ["ancillary", "web", "wiki", "main", "context", "genai", "pulled", "related", "stoa", "search", "games"];
 
 export function restoreOrder() {
     const container = document.querySelector('.content') as HTMLElement;

@@ -17,7 +17,7 @@
 {% if not node.subnodes and not node.pushed_subnodes() %}
 {% if not embed %}
 <div class="node right" id="{{node.uri}}">
-    <span class="node-header main-header">📚 node <a href="/{{node}}">[[{{node.qstr}}]]</a></span>
+    <span class="node-header main-header">📚 Agora node <a href="/{{node}}">[[{{node.qstr}}]]</a></span>
 {% endif %}
     <div class="not-found subnode" data-author="agora">
            <span>Welcome to the Agora!</span>
@@ -71,10 +71,10 @@
 
     {% if subnode %}
     <span class="node-header main-header">📕 contribution <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a>
-    in 📚 node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
+    in 📚 Agora node <a href="/{{node.uri}}">[[{{node.uri}}]]</a></span>
     </span>
     {% else %}
-    <span class="node-header main-header">📚 node <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a></span>
+    <span class="node-header main-header">📚 Agora node <a href="/{{node.qstr}}">[[{{node.qstr}}]]</a></span>
     {% endif %} 
 {% endif %}
 

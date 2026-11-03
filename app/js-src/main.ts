@@ -1262,7 +1262,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           <div class="manual-pull-item" style="margin-top: 0px; margin-bottom: 0px; padding: 0px;">
               <details class="node pulled" open style="padding: 0px; border: none;">
                   <summary style="padding: 5px 10px; border-bottom: 1px solid var(--blockquote-border);"><span class="node-header" title="A concept or topic crowdsourced from the Agora's digital gardens.">
-                      📚 <strong>Node</strong> <span class="wikilink-marker">[[</span><a href="/${encodeURIComponent(node)}"><span class="node-name">${node}</span></a><span class="wikilink-marker">]]</span> (pulled manually)</span>
+                      📚 <strong>Agora node</strong> <span class="wikilink-marker">[[</span><a href="/${encodeURIComponent(node)}"><span class="node-name">${node}</span></a><span class="wikilink-marker">]]</span> (pulled manually)</span>
                       <span class="manual-pull-dismiss dismiss-button" title="Dismiss this pulled node.">x</span>
                   </summary>
                   <div class="node-embed" id="${safeId}" style="margin-top: 0px; padding: 0px; resize: vertical; overflow: hidden; height: 600px; min-height: 200px;">

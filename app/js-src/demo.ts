@@ -286,14 +286,31 @@ export function initDemoMode() {
         // Let the user know it's about to start scrolling.
         const showInitialToast = () => {
             if ((window as any).showToast) {
-                let msg = `🏃‍♀️ Auto-scroll starting in 3 seconds...`;
+                const cancelHtml = ` <span style="font-size: 0.85em; opacity: 0.8;">(<a href="#" id="toast-cancel-scroll" style="text-decoration: underline; color: inherit;">cancel</a>)</span>`;
+                let msg = `🏃‍♀️ Auto-scroll starting in 3 seconds...${cancelHtml}`;
                 if (anyCheckedDemoBox) {
-                    msg = `⏯ Demo mode active! Auto-scroll starting in 3 seconds...`;
+                    msg = `⏱️ Demo mode active! Auto-scroll starting in 3 seconds...${cancelHtml}`;
                 }
                 if (isRootAutoEnable) {
-                    msg = `⏯ Demo mode is auto-enabled here! Auto-scroll starting in 3 seconds...`;
+                    msg = `⏱️ Demo mode is auto-enabled here! Auto-scroll starting in 3 seconds...${cancelHtml}`;
                 }
                 (window as any).showToast(msg);
+
+                setTimeout(() => {
+                    const cancelLink = document.getElementById('toast-cancel-scroll');
+                    if (cancelLink) {
+                        cancelLink.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            stopGentleScroll();
+                            localStorage.setItem("auto-scroll-demo", "false");
+                            autoscrollCheckboxes.forEach(cb => { cb.checked = false; });
+                            updateAutoscrollTooltip(false);
+                            if ((window as any).showToast) {
+                                (window as any).showToast("🛑 Auto-scroll cancelled.");
+                            }
+                        });
+                    }
+                }, 50);
             }
         };
 
@@ -318,6 +335,7 @@ export function initDemoMode() {
                             stopGentleScroll();
                             localStorage.setItem("auto-scroll-demo", "false");
                             autoscrollCheckboxes.forEach(cb => { cb.checked = false; });
+                            updateAutoscrollTooltip(false);
                             if ((window as any).showToast) {
                                 (window as any).showToast("🛑 Auto-scroll stopped.");
                             }
@@ -457,6 +475,11 @@ export function initDemoMode() {
             }
         });
     });
+
+    const isDemoActive = demoCheckboxes.length > 0 && Array.from(demoCheckboxes).some(cb => cb.checked);
+    if (isAutoScrollActive && !isDemoActive) {
+        startGentleScroll(true, false);
+    }
 
     const triggerMeditation = () => {
         const meditationPopupContainer = document.getElementById("meditation-popup-container");

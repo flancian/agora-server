@@ -84,8 +84,6 @@
             </center>
         </div>
     </details>
-
-    {% include "genai.html" %}
     {% endif %}
     {% endif %}
 
@@ -107,6 +105,9 @@
         <p><em>Loading Agora node...</em></p>
     </center>
 </div>
+{% if not subnode and not rendering_user and not embed %}
+{% include "genai.html" %}
+{% endif %}
 {% if not subnode and not rendering_user %}
 {% include "stoa.html" %}
 {% endif %}
