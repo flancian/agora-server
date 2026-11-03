@@ -1606,7 +1606,7 @@ table caption {
 }
 
 .demo-switch .slider:before {
-    content: "▶️"; /* Play icon */
+    content: "⏱️"; /* Stopwatch / Timer icon */
     font-size: 11px;
     filter: grayscale(1);
     opacity: 0.6;
@@ -1614,10 +1614,14 @@ table caption {
 
 .music-switch .slider:before {
     content: "🔇"; /* Muted Speaker */
+    filter: grayscale(1);
+    opacity: 0.6;
 }
 
 .settings-switch .slider:before {
     content: "❌"; /* Off */
+    filter: grayscale(1);
+    opacity: 0.6;
 }
 
 input:checked + .slider {
@@ -1630,25 +1634,37 @@ input:checked + .slider:before {
 }
 
 .demo-switch input:checked + .slider:before {
-    content: "▶️";
+    transform: translateX(20px);
+    content: "⏱️";
     filter: none;
     opacity: 1;
 }
 
 .music-switch input:checked + .slider:before {
+    transform: translateX(20px);
     content: "🎵"; /* Musical Note */
+    filter: none;
+    opacity: 1;
 }
 
 .settings-switch input:checked + .slider:before {
+    transform: translateX(20px);
     content: "✔️"; /* On */
+    filter: none;
+    opacity: 1;
 }
 
 /* Custom icons for Annotate toggle */
 .settings-switch input#show-hypothesis-navbar + .slider:before {
     content: "🖋️";
+    filter: grayscale(1);
+    opacity: 0.6;
 }
 .settings-switch input#show-hypothesis-navbar:checked + .slider:before {
+    transform: translateX(20px);
     content: "🖋️";
+    filter: none;
+    opacity: 1;
 }
 
 /* Custom icons for Experimental toggle */
@@ -1657,13 +1673,17 @@ input:checked + .slider:before {
 }
 .experimental-switch .slider:before {
     content: "🧪";
+    filter: grayscale(1);
+    opacity: 0.6;
 }
 .experimental-switch input:checked + .slider {
-    background-color: var(--wikilink-color, #377ba8);
+    background-color: #377ba8;
 }
 .experimental-switch input:checked + .slider:before {
     transform: translateX(20px);
     content: "✨";
+    filter: none;
+    opacity: 1;
 }
 
 /* Custom icons for Auto-scroll toggle (movement) */
@@ -1676,7 +1696,7 @@ input:checked + .slider:before {
     opacity: 0.6;
 }
 .autoscroll-switch input:checked + .slider {
-    background-color: var(--wikilink-color, #377ba8);
+    background-color: #377ba8;
 }
 .autoscroll-switch input:checked + .slider:before {
     transform: translateX(20px);
@@ -1764,17 +1784,21 @@ input:checked + .slider:before {
 
 #demo-timer {
     position: absolute;
-    left: 8px;
+    left: 6px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 11px;
-    font-weight: bold;
+    font-size: 10px;
+    font-weight: 700;
     color: #fff; /* Bright white for contrast */
     display: none; /* Hidden by default */
+    z-index: 2;
+    pointer-events: none;
+    line-height: 1;
+    font-family: monospace, sans-serif;
 }
 
 .demo-switch input:checked + .slider #demo-timer {
-    display: inline; /* Show timer when active */
+    display: inline-block; /* Show timer when active */
 }
 
 
@@ -2834,10 +2858,6 @@ pre:has(code.language-verse) {
     vertical-align: middle;
 }
 
-body.experimental-mode #mini-cli-play,
-body.experimental-mode #mini-cli-go-beyond,
-body.experimental-mode #mini-cli-meditate,
-body.experimental-mode .action-bar-btn-experimental,
 #mini-cli-play.action-bar-btn-visible,
 #mini-cli-go-beyond.action-bar-btn-visible,
 #mini-cli-meditate.action-bar-btn-visible,
@@ -2860,18 +2880,15 @@ body.experimental-mode .action-bar-btn-experimental,
     transform: scale(1);
 }
 
-#mini-cli-play.action-bar-btn-visible,
-body.experimental-mode #mini-cli-play {
+#mini-cli-play.action-bar-btn-visible {
     max-width: 85px;
 }
 
-#mini-cli-meditate.action-bar-btn-visible,
-body.experimental-mode #mini-cli-meditate {
+#mini-cli-meditate.action-bar-btn-visible {
     max-width: 110px;
 }
 
-#mini-cli-go-beyond.action-bar-btn-visible,
-body.experimental-mode #mini-cli-go-beyond {
+#mini-cli-go-beyond.action-bar-btn-visible {
     max-width: 135px;
 }
 

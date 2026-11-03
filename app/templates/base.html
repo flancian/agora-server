@@ -185,16 +185,20 @@
                         <input type="checkbox" id="theme-checkbox" class="theme-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
+                    <label class="music-switch" for="music-checkbox" title="🔇/🎵 Ambient Music: auto-play background lo-fi or MIDI tracks.">
+                        <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
+                        <div class="slider round"></div>
+                    </label>
                     {% if config.ENABLE_DEMO %}
-                    <label class="demo-switch" for="demo-checkbox" title="▶️ Demo Mode: contemplative auto-browsing to connected nodes.">
+                    <label class="demo-switch" for="demo-checkbox" title="⏱️ Demo Mode: contemplative auto-browsing to connected nodes. [d]">
                         <input type="checkbox" id="demo-checkbox" class="demo-checkbox-input" />
                         <div class="slider round">
                             <span id="demo-timer"></span>
                         </div>
                     </label>
                     {% endif %}
-                    <label class="music-switch" for="music-checkbox" title="🔇/🎵 Ambient Music: auto-play background lo-fi or MIDI tracks.">
-                        <input type="checkbox" id="music-checkbox" class="music-checkbox-input" />
+                    <label class="autoscroll-switch" for="autoscroll-checkbox" title="🏃‍♀️ Auto Scroll: gently scroll page content smoothly.">
+                        <input type="checkbox" id="autoscroll-checkbox" class="autoscroll-checkbox-input" />
                         <div class="slider round"></div>
                     </label>
                     {% if config.ENABLE_HYPOTHESIS %}
@@ -203,10 +207,6 @@
                         <div class="slider round"></div>
                     </label>
                     {% endif %}
-                    <label class="autoscroll-switch" for="autoscroll-checkbox" title="🏃‍♀️ Auto Scroll: gently scroll page content smoothly.">
-                        <input type="checkbox" id="autoscroll-checkbox" class="autoscroll-checkbox-input" />
-                        <div class="slider round"></div>
-                    </label>
                 </div>
             </div>
             <div class="topline-node-wrapper scrolled-to-start scrolled-to-end">
@@ -218,17 +218,14 @@
                         <button id="mini-cli-go" value="go" title="Follow a [[go]] link in the Agora, or Google search if none exists. [g]">
                             ➳ Go
                         </button>
-                        <button id="expand-all" value="expand" title="Expand or collapse all sections. [e]">
-    					    ⊞ expand all
+                        <button id="mini-cli-go-beyond" class="action-bar-btn-dynamic" value="go" title="I'm Feeling Lucky search for this query. [b]">
+                            ⏩ Go Beyond
                         </button>
-                        <button id="mini-cli-write" value="write" title="Write a subnode for this node. [c]">
-                            ✍️ Write
+                        <button id="expand-all" value="expand" title="Expand all sections. [e]">
+    					    ⊞ expand
                         </button>
-                        <button id="mini-cli-pull" class="action-bar-btn-dynamic" value="pull" title="Pull (transclude) another node into this node. [p]">
-                            📥 Pull
-                        </button>
-                        <button id="mini-cli-synthesize" class="action-bar-btn-dynamic" value="synthesize" title="Trigger an AI synthesis for this node. [s]">
-                            ✨ Synthesize
+                        <button id="collapse-all" value="collapse" title="Collapse all sections.">
+    					    ⊟ collapse
                         </button>
                         <button id="mini-cli-look-around" class="action-bar-btn-dynamic" value="look" title="Look at the local graph and context. [a]">
                             👀 Look
@@ -236,17 +233,23 @@
                         <button id="mini-cli-wander" class="action-bar-btn-dynamic" value="wander" title="Wander to a random connected node. [w]">
                             🧭 Wander
                         </button>
-                        <button id="mini-cli-go-beyond" class="action-bar-btn-dynamic" value="go" title="I'm Feeling Lucky search for this query. [b]">
-                            ⏩ Go Beyond
+                        <button id="mini-cli-synthesize" class="action-bar-btn-dynamic" value="synthesize" title="Trigger an AI synthesis for this node. [s]">
+                            ✨ Synthesize
                         </button>
-                        <button id="mini-cli-play" class="action-bar-btn-dynamic" value="play" title="Play interactive Agora minigames! [m]">
-                            🎮 Play
+                        <button id="mini-cli-write" value="write" title="Write a subnode for this node. [c]">
+                            ✍️ Write
                         </button>
-                        <button id="mini-cli-meditate" class="action-bar-btn-dynamic" value="meditate" title="Meditate: take a moment of calm and contemplation for this node.">
-                            🧘 Meditate
+                        <button id="mini-cli-pull" class="action-bar-btn-dynamic" value="pull" title="Pull (transclude) another node into this node. [p]">
+                            📥 Pull
                         </button>
                         <button id="mini-cli-join" class="action-bar-btn-dynamic" value="join" title="Join the Agora to contribute digital gardens or write notes!">
                             👩‍🌾 Join
+                        </button>
+                        <button id="mini-cli-meditate" class="action-bar-btn-dynamic" value="meditate" title="Meditate: take a moment of calm and contemplation for this node. [m]">
+                            🧘 Meditate
+                        </button>
+                        <button id="mini-cli-play" class="action-bar-btn-dynamic" value="play" title="Play interactive Agora minigames! [o]">
+                            🎮 Play
                         </button>
                         <div class="nagora-layout-switcher" title="Switch spatial columns layout (1, 2, or 3 columns)">
                             <button type="button" class="nagora-layout-btn" data-cols="1" title="1-Agora: Single central column (classic)">1</button>
@@ -300,7 +303,7 @@
     <div id="meditation-popup-container">
         <div id="meditation-popup">
             <div id="meditation-popup-header" class="agora-popup-header">
-                <span id="meditation-popup-title" class="agora-popup-title">🙏 Agora Meditation</span>
+                <span id="meditation-popup-title" class="agora-popup-title">🧘 Agora Meditation</span>
                 <button id="meditation-popup-close-btn" class="header-btn agora-popup-close-btn">×</button>
             </div>
             <div id="meditation-popup-body">

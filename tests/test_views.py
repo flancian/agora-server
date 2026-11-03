@@ -214,18 +214,18 @@ def test_subnode_heading_anchors(test_agora):
     assert 'id="chapter-one"' in output
     assert 'href="#chapter-one"' in output
 
-def test_subnode_maximize_button_and_ancillary_zippy(test_agora):
-    """Verifies subnode maximize button and collapsed ancillary zippy are present."""
+def test_subnode_maximize_button(test_agora):
+    """Verifies subnode maximize button and embed ancillary zippy are present."""
     response = test_agora.get("/node/foo")
     assert response.status_code == 200
     content = response.data.decode("utf-8")
     assert "subnode-maximize-btn" in content
     
-    # Check sync view has the ancillary zippy
-    sync_response = test_agora.get("/foo")
-    assert sync_response.status_code == 200
-    sync_content = sync_response.data.decode("utf-8")
-    assert "embed-ancillary-zippy" in sync_content
+    # Check embed view has the ancillary zippy
+    embed_response = test_agora.get("/embed/foo")
+    assert embed_response.status_code == 200
+    embed_content = embed_response.data.decode("utf-8")
+    assert "embed-ancillary-zippy" in embed_content
 
 def test_navbar_autoscroll_and_action_bar_buttons(test_agora):
     """Verifies navbar autoscroll toggle and dynamic action bar buttons."""
@@ -241,6 +241,7 @@ def test_navbar_autoscroll_and_action_bar_buttons(test_agora):
     assert 'id="mini-cli-exec"' in content
     assert 'id="mini-cli-go"' in content
     assert 'id="expand-all"' in content
+    assert 'id="collapse-all"' in content
     assert 'id="mini-cli-write"' in content
     assert 'id="mini-cli-pull" class="action-bar-btn-dynamic"' in content
     assert 'id="mini-cli-synthesize" class="action-bar-btn-dynamic"' in content
@@ -251,16 +252,34 @@ def test_navbar_autoscroll_and_action_bar_buttons(test_agora):
     assert 'id="mini-cli-meditate" class="action-bar-btn-dynamic"' in content
     assert 'id="mini-cli-join" class="action-bar-btn-dynamic"' in content
 
-    # Button order: Go Beyond, Play, and Meditate appear towards the end of the action bar
+    # Button order: search -> go -> go beyond -> expand -> collapse -> look -> wander -> synthesize -> write -> join -> meditate -> play
+    search_pos = content.find('id="mini-cli-exec"')
+    go_pos = content.find('id="mini-cli-go"')
     beyond_pos = content.find('id="mini-cli-go-beyond"')
-    play_pos = content.find('id="mini-cli-play"')
-    meditate_pos = content.find('id="mini-cli-meditate"')
+    expand_pos = content.find('id="expand-all"')
+    collapse_pos = content.find('id="collapse-all"')
+    look_pos = content.find('id="mini-cli-look-around"')
+    wander_pos = content.find('id="mini-cli-wander"')
+    synthesize_pos = content.find('id="mini-cli-synthesize"')
     write_pos = content.find('id="mini-cli-write"')
+    join_pos = content.find('id="mini-cli-join"')
+    meditate_pos = content.find('id="mini-cli-meditate"')
+    play_pos = content.find('id="mini-cli-play"')
+
     # Emojis and titles
     assert "🏃‍♀️ Auto Scroll" in content
     assert "🧘 Meditate" in content
+    assert "🧘 Agora Meditation" in content
+    assert "⊞ expand" in content
+    assert "⊟ collapse" in content
 
-    assert write_pos < beyond_pos < play_pos < meditate_pos
+    # Navbar toggle sequence: theme -> music -> autoscroll
+    theme_pos = content.find('class="theme-switch"')
+    music_pos = content.find('class="music-switch"')
+    autoscroll_pos = content.find('class="autoscroll-switch"')
+    assert theme_pos < music_pos < autoscroll_pos
+
+    assert search_pos < go_pos < beyond_pos < expand_pos < collapse_pos < look_pos < wander_pos < synthesize_pos < write_pos < join_pos < meditate_pos < play_pos
 
 
 

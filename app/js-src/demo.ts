@@ -29,37 +29,20 @@ export function initDemoMode() {
         }
     };
 
-    // This function is ONLY for implicit cancellation via user interaction.
-    const cancelOnInteraction = (event: Event) => {
-        // Ignore events that are not triggered by direct user action.
-        if (!event.isTrusted) {
-            // console.log('Ignoring untrusted event:', event.type);
-            return;
-        }
-
-        // A guard clause to ensure the event target is a DOM element.
-        if (!(event.target instanceof Element)) {
-            return;
-        }
-        const target = event.target as HTMLElement;
-        const demoSwitch = target.closest('.demo-switch');
-        const autoscrollSwitch = target.closest('.autoscroll-switch');
-        const burgerMenu = target.closest('#burger');
-        const musicSwitch = target.closest('.music-switch');
-        const musicPlayer = target.closest('#music-player-container');
-
-        // If the interaction was a click on the toggle itself, the burger menu, or the music player/toggles, do nothing.
-        if (event.type === 'click' && (demoSwitch || autoscrollSwitch || burgerMenu || musicSwitch || musicPlayer)) {
-            return;
-        }
-
-        // For any other interaction, programmatically uncheck the box.
-        const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
-        if (anyCheckedDemoBox) {
-            console.log('Deep demo mode cancelled by user interaction:', event.type);
-            // Programmatically uncheck the box and trigger the change event.
+    // Pause demo mode if user engages in active typing/editing
+    const cancelOnEditing = (event: Event) => {
+        const target = event.target as HTMLElement | null;
+        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+            // Do not pause if the target is one of the toggle checkboxes
+            if (target.classList.contains('demo-checkbox-input') || 
+                target.classList.contains('autoscroll-checkbox-input') ||
+                target.classList.contains('theme-checkbox-input') ||
+                target.classList.contains('music-checkbox-input')) {
+                return;
+            }
+            console.log('Deep demo mode paused: user engaged in typing/editing.');
             const mainCheckbox = document.getElementById('demo-checkbox') as HTMLInputElement;
-            if (mainCheckbox) {
+            if (mainCheckbox && mainCheckbox.checked) {
                 mainCheckbox.checked = false;
                 mainCheckbox.dispatchEvent(new Event('change'));
             }
@@ -77,10 +60,8 @@ export function initDemoMode() {
                 timerElement.innerHTML = '';
                 timerElement.style.display = 'none';
             }
-            // Remove interaction listeners since the demo is now off.
-            window.removeEventListener('scroll', cancelOnInteraction);
-            window.removeEventListener('click', cancelOnInteraction);
-            window.removeEventListener('keypress', cancelOnInteraction);
+            window.removeEventListener('focusin', cancelOnEditing);
+            updateDemoTooltip(false);
             console.log('Deep demo mode cancelled.');
         }
     };
@@ -101,6 +82,7 @@ export function initDemoMode() {
             if (timerElement) {
                 timerElement.innerHTML = `<span>${countdown}</span>`;
             }
+            updateDemoTooltip(true, countdown);
         };
 
         updateTimer();
@@ -155,10 +137,8 @@ export function initDemoMode() {
 
         demoIntervalId = window.setInterval(tick, 1000);
 
-        // Add interaction listeners that will trigger the cancellation.
-        window.addEventListener('scroll', cancelOnInteraction, { once: true });
-        window.addEventListener('click', cancelOnInteraction, { once: true });
-        window.addEventListener('keypress', cancelOnInteraction, { once: true });
+        // Pause demo mode if user starts typing in an input or textarea
+        window.addEventListener('focusin', cancelOnEditing);
     };
 
     const renderClientSideWikilinks = (text: string) => {
@@ -186,6 +166,9 @@ export function initDemoMode() {
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
         meditationPopupContent.innerHTML = renderClientSideWikilinks(randomMessage);
         meditationPopupContainer.classList.add('active');
+        if ((window as any).showToast) {
+            (window as any).showToast("🧘 Agora Meditation opened.");
+        }
 
         const setupArtifactSection = () => {
             const artifactContainer = document.createElement('div');
@@ -268,11 +251,16 @@ export function initDemoMode() {
             });
     }
 
-    const hidePopup = () => {
+    const hidePopup = (showNotification = false) => {
+        if (!meditationPopupContainer) return;
+        const wasActive = meditationPopupContainer.classList.contains('active');
         meditationPopupContainer.classList.remove('active');
         const meditationCheckbox = document.getElementById("meditation-checkbox") as HTMLInputElement;
         if (meditationCheckbox) {
             meditationCheckbox.checked = false;
+        }
+        if (showNotification && wasActive && (window as any).showToast) {
+            (window as any).showToast("🧘 Agora Meditation closed.");
         }
     };
 
@@ -300,10 +288,10 @@ export function initDemoMode() {
             if ((window as any).showToast) {
                 let msg = `🏃‍♀️ Auto-scroll starting in 3 seconds...`;
                 if (anyCheckedDemoBox) {
-                    msg = `▶️ Demo mode active! Auto-scroll starting in 3 seconds...`;
+                    msg = `⏯ Demo mode active! Auto-scroll starting in 3 seconds...`;
                 }
                 if (isRootAutoEnable) {
-                    msg = `▶️ Demo mode is auto-enabled here! Auto-scroll starting in 3 seconds...`;
+                    msg = `⏯ Demo mode is auto-enabled here! Auto-scroll starting in 3 seconds...`;
                 }
                 (window as any).showToast(msg);
             }
@@ -356,18 +344,47 @@ export function initDemoMode() {
         }, 3000 + startDelay); // 3 second delay after the initial toast delay
     }
 
+    const updateDemoTooltip = (active: boolean, remaining?: number) => {
+        const demoSwitch = document.querySelector('.demo-switch');
+        if (demoSwitch) {
+            if (active) {
+                const rem = typeof remaining === 'number' ? ` (${remaining}s remaining)` : '';
+                demoSwitch.setAttribute('title', `⏱️ Demo Mode: active${rem} (click to pause) [d]`);
+            } else {
+                demoSwitch.setAttribute('title', "⏱️ Demo Mode: inactive (click to start contemplative timer) [d]");
+            }
+        }
+    };
+
+    const updateAutoscrollTooltip = (active: boolean) => {
+        const autoscrollSwitch = document.querySelector('.autoscroll-switch');
+        if (autoscrollSwitch) {
+            autoscrollSwitch.setAttribute('title', active 
+                ? "🏃‍♀️ Auto Scroll: active (click to stop)" 
+                : "🏃‍♀️ Auto Scroll: inactive (click to start)");
+        }
+    };
+
     const setDemoMode = (isChecked: boolean, isInitialLoad = false, isRootAutoEnable = false) => {
         localStorage.setItem("deep-demo-active", JSON.stringify(isChecked));
         demoCheckboxes.forEach(checkbox => {
             checkbox.checked = isChecked;
         });
+        updateDemoTooltip(isChecked);
         if (isChecked) {
             startDeepDemo();
             startGentleScroll(isInitialLoad, isRootAutoEnable);
+            if (!isInitialLoad && (window as any).showToast) {
+                const timeoutSeconds = parseInt(localStorage.getItem("demo-timeout-seconds") || CLIENT_DEFAULTS.demoTimeoutSeconds, 10);
+                (window as any).showToast(`⏱️ Demo mode active! Wandering in ${timeoutSeconds}s...`);
+            }
         } else {
             cancelDeepDemo();
             hidePopup();
             stopGentleScroll();
+            if (!isInitialLoad && (window as any).showToast) {
+                (window as any).showToast("🛑 Demo mode paused.");
+            }
         }
     };
 
@@ -406,7 +423,7 @@ export function initDemoMode() {
         });
 
         meditationCloseButton?.addEventListener("click", () => {
-            hidePopup();
+            hidePopup(true);
         });
     }
 
@@ -416,6 +433,8 @@ export function initDemoMode() {
         ? safeJsonParse(storedAutoScroll, CLIENT_DEFAULTS.autoScrollDemo)
         : CLIENT_DEFAULTS.autoScrollDemo;
 
+    updateAutoscrollTooltip(isAutoScrollActive);
+
     autoscrollCheckboxes.forEach(checkbox => {
         checkbox.checked = isAutoScrollActive;
         checkbox.addEventListener('change', () => {
@@ -424,8 +443,12 @@ export function initDemoMode() {
             autoscrollCheckboxes.forEach(other => {
                 other.checked = enabled;
             });
+            updateAutoscrollTooltip(enabled);
             if (enabled) {
                 startGentleScroll(false, false);
+                if ((window as any).showToast) {
+                    (window as any).showToast("🏃‍♀️ Auto-scroll active!");
+                }
             } else {
                 stopGentleScroll();
                 if ((window as any).showToast) {
@@ -439,7 +462,7 @@ export function initDemoMode() {
         const meditationPopupContainer = document.getElementById("meditation-popup-container");
         if (meditationPopupContainer) {
             if (meditationPopupContainer.classList.contains('active')) {
-                hidePopup();
+                hidePopup(true);
             } else {
                 // If the demo is running, cancel it before showing the popup.
                 const anyCheckedDemoBox = Array.from(demoCheckboxes).some(cb => cb.checked);
@@ -478,7 +501,7 @@ export function initDemoMode() {
                     showPopup();
                 }
             } else {
-                hidePopup();
+                hidePopup(true);
             }
         });
     }

@@ -7,6 +7,7 @@ export const CLIENT_DEFAULTS = {
   autoExpandWikipedia: false,
   autoExpandExactMatch: false,
   autoExpandAll: false,
+  autoExpandRelated: false,
   autoPull: true,
   showBrackets: false,
   showGraphLabels: true,

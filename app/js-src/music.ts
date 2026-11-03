@@ -466,7 +466,7 @@ export function initMusicPlayer() {
                             if (musicControls) musicControls.style.display = 'none';
                             if (autoplayMessage) {
                                 autoplayMessage.style.display = 'block';
-                                autoplayMessage.textContent = '▶️ Click to play';
+                                autoplayMessage.textContent = '▶ Click to play';
                             }
                         } else {
                             player.play();
@@ -541,7 +541,7 @@ export function initMusicPlayer() {
                         if (musicControls) musicControls.style.display = 'none';
                         if (autoplayMessage) {
                             autoplayMessage.style.display = 'block';
-                            autoplayMessage.textContent = '▶️ Click to play';
+                            autoplayMessage.textContent = '▶ Click to play';
                         }
                     } else {
                         console.error('An error occurred during playback:', error);
@@ -646,11 +646,25 @@ export function initMusicPlayer() {
         musicDraggable = makeDraggable(musicPlayerContainer, musicDragHandle, 'music-player-position', 'top-right');
     }
 
-    const setMusicState = (isPlaying: boolean) => {
+    const updateMusicTooltip = (isPlaying: boolean) => {
+        const musicSwitch = document.querySelector('.music-switch');
+        if (musicSwitch) {
+            musicSwitch.setAttribute('title', isPlaying 
+                ? "🎵 Ambient Music: playing (click to mute)" 
+                : "🔇 Ambient Music: muted (click to play)");
+        }
+    };
+
+    const setMusicState = (isPlaying: boolean, showNotification = false) => {
         localStorage.setItem("ambient-music-active", JSON.stringify(isPlaying));
         musicCheckboxes.forEach(checkbox => {
             checkbox.checked = isPlaying;
         });
+        updateMusicTooltip(isPlaying);
+
+        if (showNotification && (window as any).showToast) {
+            (window as any).showToast(isPlaying ? "🎵 Ambient music playing." : "🔇 Ambient music muted.");
+        }
 
         if (isPlaying) {
             const isPlayerVisible = JSON.parse(localStorage.getItem("music-player-visible") || 'true');
@@ -678,6 +692,7 @@ export function initMusicPlayer() {
     if (musicCheckboxes.length > 0) {
         fetchStarredTracks();
         const isMusicActive = JSON.parse(localStorage.getItem("ambient-music-active") || 'false');
+        updateMusicTooltip(isMusicActive);
         // If active on load, fetch playlist and start
         if (isMusicActive) {
              loadPlaylist()
@@ -692,7 +707,7 @@ export function initMusicPlayer() {
                 if (isPlaying) {
                     localStorage.setItem("music-player-visible", "true");
                 }
-                setMusicState(isPlaying);
+                setMusicState(isPlaying, true);
             });
         });
 
@@ -784,7 +799,7 @@ export function initMusicPlayer() {
                 // @ts-ignore
                 if (musicPlayer && musicPlayer.isPlaying()) musicPlayer.pause();
                 if (opusPlayer && !opusPlayer.paused) opusPlayer.pause();
-                if (pauseButton) pauseButton.textContent = '▶️';
+                if (pauseButton) pauseButton.textContent = '▶';
             } else {
                 const track = playlist[currentTrackIndex];
                 if (track && track.type === 'mid') {

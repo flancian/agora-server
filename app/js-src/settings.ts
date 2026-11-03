@@ -33,6 +33,10 @@ export function initSettings() {
             }
         }
     }
+    const autoExpandRelatedInput = document.getElementById("auto-expand-related") as HTMLInputElement;
+    if (autoExpandRelatedInput) {
+        autoExpandRelatedInput.checked = safeJsonParse(localStorage["auto-expand-related"], CLIENT_DEFAULTS.autoExpandRelated);
+    }
     (document.getElementById("auto-expand-all") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-all"], CLIENT_DEFAULTS.autoExpandAll);
     (document.getElementById("auto-expand-search") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-search"], CLIENT_DEFAULTS.autoExpandSearch);
     (document.getElementById("auto-expand-wikipedia") as HTMLInputElement).checked = safeJsonParse(localStorage["auto-expand-wikipedia"], CLIENT_DEFAULTS.autoExpandWikipedia);
@@ -145,7 +149,64 @@ export function initSettings() {
         applyUser();
     });
 
+    // Auto-save checkbox states on change and trigger dynamic handlers
+    const bindAutoSaveCheckbox = (id: string, storageKey: string, callback?: (checked: boolean) => void) => {
+        const el = document.getElementById(id) as HTMLInputElement;
+        if (el) {
+            el.addEventListener('change', () => {
+                localStorage[storageKey] = el.checked;
+                if (callback) callback(el.checked);
+            });
+        }
+    };
+
+    bindAutoSaveCheckbox("auto-expand-related", "auto-expand-related", (checked) => {
+        const relatedNodes = document.getElementById("related-nodes") as HTMLDetailsElement;
+        if (relatedNodes) {
+            if (checked) relatedNodes.setAttribute('open', '');
+            else relatedNodes.removeAttribute('open');
+        }
+    });
+    bindAutoSaveCheckbox("auto-expand-all", "auto-expand-all");
+    bindAutoSaveCheckbox("auto-expand-search", "auto-expand-search");
+    bindAutoSaveCheckbox("auto-expand-wikipedia", "auto-expand-wikipedia");
+    bindAutoSaveCheckbox("auto-expand-exact-match", "auto-expand-exact-match");
+    bindAutoSaveCheckbox("auto-expand-stoas", "auto-expand-stoas");
+    bindAutoSaveCheckbox("auto-pull", "auto-pull");
+    bindAutoSaveCheckbox("show-brackets", "showBrackets", applyBracketVisibility);
+    bindAutoSaveCheckbox("show-hypothesis", "show-hypothesis", (checked) => {
+        const hypothesisFrame = document.getElementById('hypothesis-frame');
+        if (hypothesisFrame) {
+            if (checked) hypothesisFrame.classList.add('visible');
+            else hypothesisFrame.classList.remove('visible');
+        }
+    });
+    bindAutoSaveCheckbox("show-edit-section", "show-edit-section", (checked) => {
+        const editSection = document.querySelector('.edit-section-container') as HTMLElement;
+        if (editSection) {
+            editSection.style.display = checked ? 'block' : 'none';
+        }
+    });
+    bindAutoSaveCheckbox("enable-shortcuts", "enable-shortcuts");
+    bindAutoSaveCheckbox("enable-experimental", "enable-experimental");
+    bindAutoSaveCheckbox("auto-scroll-demo", "auto-scroll-demo");
+    bindAutoSaveCheckbox("show-graph-labels", "graph-show-labels", (checked) => {
+        localStorage["graph-show-labels-full"] = checked;
+    });
+
+    document.getElementById("demo-timeout-seconds")?.addEventListener('change', (e) => {
+        localStorage.setItem("demo-timeout-seconds", (e.target as HTMLInputElement).value);
+    });
+    document.getElementById("toast-duration-seconds")?.addEventListener('change', (e) => {
+        localStorage.setItem("toast-duration-seconds", (e.target as HTMLInputElement).value);
+    });
+
     document.getElementById("apply-settings")?.addEventListener('click', () => {
+        // Section Defaults
+
+        const autoExpandRelatedEl = document.getElementById("auto-expand-related") as HTMLInputElement;
+        if (autoExpandRelatedEl) localStorage["auto-expand-related"] = autoExpandRelatedEl.checked;
+
         // Content Settings
         localStorage["auto-expand-all"] = (document.getElementById("auto-expand-all") as HTMLInputElement).checked;
         localStorage["auto-pull"] = (document.getElementById("auto-pull") as HTMLInputElement).checked;

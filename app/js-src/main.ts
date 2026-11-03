@@ -172,14 +172,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       const miniCliPlay = document.querySelector("#mini-cli-play") as HTMLButtonElement | null;
       const miniCliMeditate = document.querySelector("#mini-cli-meditate") as HTMLButtonElement | null;
 
-      const isInteractiveEmpty = !!document.getElementById("interactive-empty-state-details") || 
-                                 document.body.classList.contains("empty-node");
-
-      // On empty node stubs / minigame nodes, Play appears immediately!
-      if (isInteractiveEmpty && miniCliPlay) {
-          showButtonWithFade(miniCliPlay);
-      }
-
       // Progressive dwell reveals:
       // 1. Go Beyond appears at ~1200ms
       if (miniCliGoBeyond && !miniCliGoBeyond.classList.contains('action-bar-btn-visible')) {
@@ -189,19 +181,19 @@ document.addEventListener("DOMContentLoaded", async function () {
           progressiveDiscoveryTimers.push(t1);
       }
 
-      // 2. Play appears at ~2200ms (if not already shown)
-      if (miniCliPlay && !miniCliPlay.classList.contains('action-bar-btn-visible')) {
+      // 2. Meditate appears at ~2500ms
+      if (miniCliMeditate && !miniCliMeditate.classList.contains('action-bar-btn-visible')) {
           const t2 = window.setTimeout(() => {
-              showButtonWithFade(miniCliPlay);
-          }, 2200);
+              showButtonWithFade(miniCliMeditate);
+          }, 2500);
           progressiveDiscoveryTimers.push(t2);
       }
 
-      // 3. Meditate appears at ~3600ms
-      if (miniCliMeditate && !miniCliMeditate.classList.contains('action-bar-btn-visible')) {
+      // 3. Play appears at ~5000ms (noticeably later than Meditate)
+      if (miniCliPlay && !miniCliPlay.classList.contains('action-bar-btn-visible')) {
           const t3 = window.setTimeout(() => {
-              showButtonWithFade(miniCliMeditate);
-          }, 3600);
+              showButtonWithFade(miniCliPlay);
+          }, 5000);
           progressiveDiscoveryTimers.push(t3);
       }
   };
@@ -601,7 +593,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // Function to sync hypothesis toggles and panel visibility
-  const syncHypothesisState = (isVisible: boolean) => {
+  const syncHypothesisState = (isVisible: boolean, showNotification = false) => {
     if (hypothesisFrame) {
       hypothesisFrame.classList.toggle('visible', isVisible);
       if (isVisible && hypothesisDraggable) hypothesisDraggable.reposition();
@@ -612,6 +604,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (showHypothesisNavbar) {
       showHypothesisNavbar.checked = isVisible;
     }
+    if (showHypothesisNavbarLabel) {
+      showHypothesisNavbarLabel.setAttribute('title', isVisible 
+        ? "🖋️ Annotations: visible (click to hide)" 
+        : "🖋️ Annotations: hidden (click to show)");
+    }
     localStorage.setItem('show-hypothesis', isVisible.toString());
     if (isVisible) {
       localStorage.setItem('hypothesis-activated', 'true');
@@ -619,19 +616,22 @@ document.addEventListener("DOMContentLoaded", async function () {
         showHypothesisNavbarLabel.classList.add('visible');
       }
     }
+    if (showNotification && (window as any).showToast) {
+      (window as any).showToast(isVisible ? "🖋️ Annotations visible." : "🖋️ Annotations hidden.");
+    }
   };
 
   // Event listener for the "Show annotations" toggle in settings
   if (showHypothesisCheckbox) {
     showHypothesisCheckbox.addEventListener('change', () => {
-      syncHypothesisState(showHypothesisCheckbox.checked);
+      syncHypothesisState(showHypothesisCheckbox.checked, true);
     });
   }
 
   // Event listener for the new navbar toggle
   if (showHypothesisNavbar) {
     showHypothesisNavbar.addEventListener('change', () => {
-      syncHypothesisState(showHypothesisNavbar.checked);
+      syncHypothesisState(showHypothesisNavbar.checked, true);
     });
   }
 
@@ -681,12 +681,23 @@ document.addEventListener("DOMContentLoaded", async function () {
   const themeCheckboxes = document.querySelectorAll(".theme-checkbox-input") as NodeListOf<HTMLInputElement>;
   const currentTheme = localStorage.getItem("theme");
 
-  const setTheme = (theme: 'dark' | 'light') => {
+  const setTheme = (theme: 'dark' | 'light', showNotification = false) => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem("theme", theme);
     themeCheckboxes.forEach(checkbox => {
         checkbox.checked = theme === 'light';
     });
+
+    const themeSwitch = document.querySelector('.theme-switch');
+    if (themeSwitch) {
+        themeSwitch.setAttribute('title', theme === 'dark' 
+            ? "🌙 Dark theme active (click to switch to light) [t]" 
+            : "🌞 Light theme active (click to switch to dark) [t]");
+    }
+
+    if (showNotification && (window as any).showToast) {
+        (window as any).showToast(theme === 'dark' ? "🌙 Switched to dark theme." : "🌞 Switched to light theme.");
+    }
 
     // Re-render graphs if they exist.
     if (document.getElementById('graph') && typeof NODENAME !== 'undefined' && NODENAME) {
@@ -714,7 +725,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Add event listeners to both checkboxes
   themeCheckboxes.forEach(checkbox => {
     checkbox.addEventListener('change', () => {
-        setTheme(checkbox.checked ? 'light' : 'dark');
+        setTheme(checkbox.checked ? 'light' : 'dark', true);
     });
   });
 
@@ -729,6 +740,16 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.body.classList.add('action-bar-transitions');
   }, 100);
 
+  const updateExperimentalTooltip = (isEnabled: boolean) => {
+    const expSwitch = document.querySelector('.experimental-switch');
+    if (expSwitch) {
+      expSwitch.setAttribute('title', isEnabled 
+        ? "✨ Experimental Mode: enabled (click to disable)" 
+        : "🧪 Experimental Mode: disabled (click to enable)");
+    }
+  };
+  updateExperimentalTooltip(initialExperimental);
+
   expCheckboxes.forEach(cb => {
     cb.checked = initialExperimental;
     cb.addEventListener('change', () => {
@@ -737,8 +758,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       localStorage.setItem('enable-experimental', JSON.stringify(isEnabled));
       document.body.classList.toggle('experimental-mode', isEnabled);
       expCheckboxes.forEach(other => { other.checked = isEnabled; });
+      updateExperimentalTooltip(isEnabled);
       updateLayoutSwitcherUI();
       updateNagoraPanes();
+      if ((window as any).showToast) {
+        (window as any).showToast(isEnabled ? "✨ Experimental mode enabled." : "🧪 Experimental mode disabled.");
+      }
     });
   });
 
@@ -1687,37 +1712,33 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  const expandAllButton = document.querySelector("#expand-all") as HTMLButtonElement;
+  const expandAllButton = document.querySelector("#expand-all") as HTMLButtonElement | null;
   if (expandAllButton) {
-    let isExpanded = false;
-    expandAllButton.addEventListener("click", (e) => {
-        isExpanded = !isExpanded;
-        
-        if (isExpanded) {
-            console.log("expand all executes: expanding top-level details");
-            expandAllButton.innerHTML = "⊟ collapse all";
-            expandAllButton.title = "Collapse all sections. [e]";
-            document.querySelectorAll("details:not([open]):not(.edit-section-container)").forEach(detail => {
-              if (!detail.parentElement || !detail.parentElement.closest('details')) {
-                  const summary = detail.querySelector(':scope > summary');
-                  if (summary) {
-                      (summary as HTMLElement).click();
-                  }
+    expandAllButton.addEventListener("click", () => {
+        console.log("expand executes: expanding top-level details");
+        document.querySelectorAll("details:not([open]):not(.edit-section-container)").forEach(detail => {
+          if (!detail.parentElement || !detail.parentElement.closest('details')) {
+              const summary = detail.querySelector(':scope > summary');
+              if (summary) {
+                  (summary as HTMLElement).click();
               }
-            });
-        } else {
-            console.log("collapse all executes: collapsing top-level details");
-            expandAllButton.innerHTML = "⊞ expand all";
-            expandAllButton.title = "Expand all sections. [e]";
-            document.querySelectorAll("details[open]:not(.edit-section-container)").forEach(detail => {
-              if (!detail.parentElement || !detail.parentElement.closest('details')) {
-                  const summary = detail.querySelector(':scope > summary');
-                  if (summary) {
-                      (summary as HTMLElement).click();
-                  }
+          }
+        });
+    });
+  }
+
+  const collapseAllButton = document.querySelector("#collapse-all") as HTMLButtonElement | null;
+  if (collapseAllButton) {
+    collapseAllButton.addEventListener("click", () => {
+        console.log("collapse executes: collapsing top-level details");
+        document.querySelectorAll("details[open]:not(.edit-section-container)").forEach(detail => {
+          if (!detail.parentElement || !detail.parentElement.closest('details')) {
+              const summary = detail.querySelector(':scope > summary');
+              if (summary) {
+                  (summary as HTMLElement).click();
               }
-            });
-        }
+          }
+        });
     });
   }
 
@@ -2624,27 +2645,38 @@ async function bindEvents() {
     initInteractiveEmptyState();
 
     if (document.querySelector('.not-found') && autoPull) {
-                                                            const wikiDetails = document.querySelector('#agora-wiki') as HTMLDetailsElement;
+        const wikiDetails = document.querySelector('#agora-wiki') as HTMLDetailsElement;
 
-                                                            if (wikiDetails && !wikiDetails.hasAttribute('open')) {
+        if (wikiDetails && !wikiDetails.hasAttribute('open')) {
+            showToast("Empty node: auto-expanding Wikipedia");
+            wikiDetails.setAttribute('open', '');
+            const ancillaryParent = wikiDetails.closest('details.embed-ancillary-zippy') as HTMLDetailsElement;
+            if (ancillaryParent && !ancillaryParent.hasAttribute('open')) {
+                ancillaryParent.setAttribute('open', '');
+            }
+        }
+        
+        // Also expand search for empty nodes, as a fallback.
+        const searchDetails = document.querySelector('details.search') as HTMLDetailsElement;
+        if (searchDetails && !searchDetails.hasAttribute('open')) {
+            setTimeout(() => {
+                showToast("Empty node: auto-expanding Search");
+                const summary = searchDetails.querySelector('summary');
+                if (summary) summary.click();
+                const ancillaryParent = searchDetails.closest('details.embed-ancillary-zippy') as HTMLDetailsElement;
+                if (ancillaryParent && !ancillaryParent.hasAttribute('open')) {
+                    ancillaryParent.setAttribute('open', '');
+                }
+            }, 750);
+        }
+    }
 
-                                                                showToast("Empty node: auto-expanding Wikipedia");
-
-                                                                wikiDetails.setAttribute('open', '');
-
-                                                            }
-                                                            
-                                                            // Also expand search for empty nodes, as a fallback.
-                                                            const searchDetails = document.querySelector('details.search') as HTMLDetailsElement;
-                                                            if (searchDetails && !searchDetails.hasAttribute('open')) {
-                                                                setTimeout(() => {
-                                                                    showToast("Empty node: auto-expanding Search");
-                                                                    const summary = searchDetails.querySelector('summary');
-                                                                    if (summary) summary.click();
-                                                                }, 750);
-                                                            }
-
-                                                        }
+    if (safeJsonParse(localStorage["auto-expand-related"], CLIENT_DEFAULTS.autoExpandRelated)) {
+        const relatedNodes = document.getElementById("related-nodes") as HTMLDetailsElement;
+        if (relatedNodes && !relatedNodes.hasAttribute('open')) {
+            relatedNodes.setAttribute('open', '');
+        }
+    }
 
                                       initializeStars();
 
@@ -3656,6 +3688,10 @@ async function bindEvents() {
                                         showToast("Auto-expanding Wikipedia (per setting)");
                                    }
                                    details.setAttribute('open', '');
+                                   const ancillaryParent = details.closest('details.embed-ancillary-zippy') as HTMLDetailsElement;
+                                   if (ancillaryParent && !ancillaryParent.hasAttribute('open')) {
+                                       ancillaryParent.setAttribute('open', '');
+                                   }
                               }
                           }
 
@@ -3677,6 +3713,10 @@ async function bindEvents() {
                                   // Otherwise, ensure the details are open and switch to the clicked tab.
                                   if (details && !details.hasAttribute('open')) {
                                       details.setAttribute('open', '');
+                                      const ancillaryParent = details.closest('details.embed-ancillary-zippy') as HTMLDetailsElement;
+                                      if (ancillaryParent && !ancillaryParent.hasAttribute('open')) {
+                                          ancillaryParent.setAttribute('open', '');
+                                      }
                                   }
 
                                   newContent.querySelectorAll('.wiki-provider-tab').forEach(t => t.classList.remove('active'));

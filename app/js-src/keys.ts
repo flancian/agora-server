@@ -398,7 +398,11 @@ export function focusSearch(): void {
  */
 export function toggleExpandAll(): void {
   const expandBtn = document.getElementById('expand-all') as HTMLButtonElement | null;
-  if (expandBtn) {
+  const collapseBtn = document.getElementById('collapse-all') as HTMLButtonElement | null;
+  const anyOpen = document.querySelector("details[open]:not(.edit-section-container)");
+  if (anyOpen && collapseBtn) {
+    collapseBtn.click();
+  } else if (expandBtn) {
     expandBtn.click();
   }
 }
@@ -490,6 +494,26 @@ export function triggerPlay(): void {
   const playBtn = document.getElementById('mini-cli-play') as HTMLButtonElement | null;
   if (playBtn) {
     playBtn.click();
+  }
+}
+
+/**
+ * Opens Agora meditation popup.
+ */
+export function triggerMeditate(): void {
+  const medBtn = document.getElementById('mini-cli-meditate') as HTMLButtonElement | null;
+  if (medBtn) {
+    medBtn.click();
+  }
+}
+
+/**
+ * Toggles Demo Mode (contemplative auto-wandering stopwatch timer).
+ */
+export function toggleDemoMode(): void {
+  const demoCheckbox = document.getElementById('demo-checkbox') as HTMLInputElement | null;
+  if (demoCheckbox) {
+    demoCheckbox.click();
   }
 }
 
@@ -635,7 +659,15 @@ function getOrCreateShortcutsModal(): HTMLElement {
             </tr>
             <tr>
               <td class="key-col"><kbd>m</kbd></td>
+              <td class="desc-col"><strong>Meditate</strong>: open Agora meditation popup</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>o</kbd></td>
               <td class="desc-col"><strong>Play</strong>: open interactive Agora minigames</td>
+            </tr>
+            <tr>
+              <td class="key-col"><kbd>d</kbd></td>
+              <td class="desc-col"><strong>Demo Mode</strong>: toggle contemplative auto-wandering timer (⏱️)</td>
             </tr>
             <tr>
               <td class="key-col"><kbd>?</kbd></td>
@@ -825,7 +857,12 @@ export function initKeyNavigation(): void {
 
       case 'o':
         e.preventDefault();
-        toggleActiveSection();
+        triggerPlay();
+        break;
+
+      case 'd':
+        e.preventDefault();
+        toggleDemoMode();
         break;
 
       case 'z': {
@@ -889,7 +926,7 @@ export function initKeyNavigation(): void {
 
       case 'm':
         e.preventDefault();
-        triggerPlay();
+        triggerMeditate();
         break;
     }
   });
