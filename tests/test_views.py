@@ -282,4 +282,20 @@ def test_navbar_autoscroll_and_action_bar_buttons(test_agora):
     assert search_pos < go_pos < beyond_pos < expand_pos < collapse_pos < look_pos < wander_pos < synthesize_pos < write_pos < join_pos < meditate_pos < play_pos
 
 
+def test_nodes_and_all_routes(test_agora):
+    """Verifies /nodes, /all, and /top render properly with stat cards and 'all' navbar link."""
+    for path in ("/nodes", "/all", "/top"):
+        response = test_agora.get(path)
+        assert response.status_code == 200
+        content = response.data.decode("utf-8")
+        assert "Agora overview" in content
+        assert "graph-overview-grid" in content
+        assert "stat-card" in content
+        assert "stat-value" in content
+        assert "stat-label" in content
+        assert "All nodes" in content
+        assert '<span>all</span>' in content
+
+
+
 

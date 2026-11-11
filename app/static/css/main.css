@@ -3661,3 +3661,62 @@ details.subnode.subnode-maximized > .subnode-header {
 .node-loaded-flourish {
     animation: nodeLoadedFlourish 1.2s ease-out;
 }
+
+/* Stats & Overview Grids (used in /nodes, /stats, and dashboards) */
+.graph-overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .graph-overview-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-card {
+    background-color: var(--node-bg, #191919);
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid var(--border, #666);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.stat-card:hover {
+    border-color: var(--link-color, #9fc6e0);
+    transform: translateY(-2px);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--link-color, #9fc6e0);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-color, #bfbfbf);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 0.35rem;
+    opacity: 0.85;
+}
+
+.stat-highlight {
+    font-weight: bold;
+    color: var(--link-color, #9fc6e0);
+    font-size: 1.4rem;
+}
