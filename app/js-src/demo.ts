@@ -27,6 +27,11 @@ export function initDemoMode() {
             clearTimeout((window as any).gentleScrollTimeout);
             (window as any).gentleScrollTimeout = null;
         }
+        if ((window as any).gentleScrollPauseTimeout) {
+            console.log('Clearing gentle scroll pause timeout.');
+            clearTimeout((window as any).gentleScrollPauseTimeout);
+            (window as any).gentleScrollPauseTimeout = null;
+        }
     };
 
     // Pause demo mode if user engages in active typing/editing
@@ -351,13 +356,58 @@ export function initDemoMode() {
                     }
                 }, 50);
             }
+            let scrollDirection = 1;
+            let isPaused = false;
+
+            // If already near bottom when starting, scroll up instead
+            const initialHeight = Math.max(
+                document.body.scrollHeight,
+                document.documentElement.scrollHeight,
+                document.body.offsetHeight,
+                document.documentElement.offsetHeight
+            );
+            if ((window.innerHeight + window.scrollY) >= initialHeight - 10) {
+                scrollDirection = -1;
+            }
+
             (window as any).gentleScrollInterval = setInterval(() => {
-                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
-                     console.log("Gentle scroll hit bottom.");
-                     stopGentleScroll();
-                } else {
-                    window.scrollBy(0, 1);
+                if (isPaused) return;
+
+                const totalHeight = Math.max(
+                    document.body.scrollHeight,
+                    document.documentElement.scrollHeight,
+                    document.body.offsetHeight,
+                    document.documentElement.offsetHeight
+                );
+                const maxScroll = totalHeight - window.innerHeight;
+
+                if (maxScroll <= 5) {
+                    return;
                 }
+
+                if (scrollDirection > 0) {
+                    if ((window.innerHeight + window.scrollY) >= totalHeight - 2) {
+                        console.log("Gentle scroll hit bottom; pausing before scrolling up.");
+                        isPaused = true;
+                        scrollDirection = -1;
+                        (window as any).gentleScrollPauseTimeout = setTimeout(() => {
+                            isPaused = false;
+                        }, 2000);
+                        return;
+                    }
+                } else if (scrollDirection < 0) {
+                    if (window.scrollY <= 1) {
+                        console.log("Gentle scroll hit top; pausing before scrolling down.");
+                        isPaused = true;
+                        scrollDirection = 1;
+                        (window as any).gentleScrollPauseTimeout = setTimeout(() => {
+                            isPaused = false;
+                        }, 2000);
+                        return;
+                    }
+                }
+
+                window.scrollBy(0, scrollDirection);
             }, 33);
         }, 3000 + startDelay); // 3 second delay after the initial toast delay
     }
