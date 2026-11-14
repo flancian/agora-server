@@ -205,6 +205,31 @@
         }
       );
 
+      apps = forAllSystems (
+        system:
+        let
+          pkg = self.packages.${system}.agora-server;
+        in
+        {
+          default = {
+            type = "app";
+            program = "${pkg}/bin/agora-server";
+          };
+          agora-server = {
+            type = "app";
+            program = "${pkg}/bin/agora-server";
+          };
+          uwsgi = {
+            type = "app";
+            program = "${pkg}/bin/agora-server-uwsgi";
+          };
+          worker = {
+            type = "app";
+            program = "${pkg}/bin/agora-server-worker";
+          };
+        }
+      );
+
       devShells = forAllSystems (
         system:
         let

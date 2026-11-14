@@ -22,6 +22,16 @@ The Agora Protocol is not a formal network protocol, but rather a set of core pr
 -   **Composition over Centralization**: Nodes are built by pulling and combining content from other, more specialized nodes.
 -   **Everything Has a Place (No 404s)**: Every possible query resolves to a node, turning dead ends into invitations to contribute. Whether it's a broken link, an empty node, or an unwritten thought—every absence of information is an invitation to create.
 
+## Running with Nix
+
+If you use [Nix with flakes enabled](https://wiki.nixos.org/wiki/Flakes), you can run `agora-server` directly:
+
+```bash
+AGORA_PATH=/path/to/agora nix run github:flancian/agora-server
+```
+
+Also available via `#uwsgi` and `#worker` (e.g. `nix run github:flancian/agora-server#worker`), or `nix develop` for a dev shell.
+
 # To develop
 
 Install OS dependencies:
