@@ -1534,11 +1534,12 @@ def garden(garden):
 
 
 # Lists
+@bp.route("/all")
 @bp.route("/top")
 @bp.route("/nodes")
 @bp.route("/locations")
 def nodes():
-    n = api.build_node("top")
+    n = api.build_node("all")
     page = request.args.get('page', 1, type=int)
     per_page = 52
     all_nodes = api.top()
@@ -1559,7 +1560,7 @@ def nodes():
         page=page,
         per_page=per_page,
         total_nodes=total_nodes,
-        header="🚀 <strong>Top locations</strong> by number of contributions", 
+        header="📚 <strong>All nodes</strong> by number of contributions", 
     )
 
 
