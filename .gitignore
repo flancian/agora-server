@@ -25,4 +25,6 @@ app/static/opus
 *.db
 .venv/
 ps.txt
+result
+result-*
 
