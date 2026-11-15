@@ -1608,20 +1608,30 @@ table caption {
 .demo-switch .slider:before {
     content: "⏱️"; /* Stopwatch / Timer icon */
     font-size: 11px;
-    filter: grayscale(1);
-    opacity: 0.6;
+    filter: grayscale(0.35);
+    opacity: 0.85;
 }
 
 .music-switch .slider:before {
     content: "🔇"; /* Muted Speaker */
-    filter: grayscale(1);
-    opacity: 0.6;
+    filter: grayscale(0.35);
+    opacity: 0.85;
 }
 
 .settings-switch .slider:before {
     content: "❌"; /* Off */
-    filter: grayscale(1);
-    opacity: 0.6;
+    filter: grayscale(0.35);
+    opacity: 0.85;
+}
+
+/* Tactile hover on idle/off toggles to preview activation */
+.demo-switch:hover .slider:before,
+.music-switch:hover .slider:before,
+.settings-switch:hover .slider:before,
+.experimental-switch:hover .slider:before,
+.autoscroll-switch:hover .slider:before {
+    filter: none;
+    opacity: 1;
 }
 
 input:checked + .slider {
@@ -1657,8 +1667,8 @@ input:checked + .slider:before {
 /* Custom icons for Annotate toggle */
 .settings-switch input#show-hypothesis-navbar + .slider:before {
     content: "🖋️";
-    filter: grayscale(1);
-    opacity: 0.6;
+    filter: grayscale(0.35);
+    opacity: 0.85;
 }
 .settings-switch input#show-hypothesis-navbar:checked + .slider:before {
     transform: translateX(20px);
@@ -1673,8 +1683,8 @@ input:checked + .slider:before {
 }
 .experimental-switch .slider:before {
     content: "🧪";
-    filter: grayscale(1);
-    opacity: 0.6;
+    filter: grayscale(0.35);
+    opacity: 0.85;
 }
 .experimental-switch input:checked + .slider {
     background-color: #377ba8;
@@ -1692,8 +1702,8 @@ input:checked + .slider:before {
 }
 .autoscroll-switch .slider:before {
     content: "🏃‍♀️";
-    filter: grayscale(1);
-    opacity: 0.6;
+    filter: grayscale(0.35);
+    opacity: 0.85;
 }
 .autoscroll-switch input:checked + .slider {
     background-color: #377ba8;
