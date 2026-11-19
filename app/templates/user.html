@@ -32,10 +32,15 @@
     {% endif %}
 
     <details class="node" open>
-        <summary>👤 <strong>About</strong> <a href="/@{{user}}">@{{user}}</summary>
+        <summary>👤 <strong>About</strong> <a href="/@{{user}}">@{{user}}</a></summary>
         <ul>
+            {% if user.container %}
+            <li><strong>Container:</strong> <a href="/@{{user.container}}">@{{user.container}}</a></li>
+            {% endif %}
+            {% if user.repo_url %}
             <li><strong>Repository URL:</strong> <a href="{{user.repo_url}}">{{user.repo_url}}</a></li>
             <li><strong>Repository type:</strong> {{user.repo_type}}</li>
+            {% endif %}
             <li><strong># Contributions:</strong> {{subnodes|length}}</li>
             {% if user.web %}
             <li><strong>Website:</strong> <a href="{{user.web}}">{{user.web}}</a></li>
@@ -44,7 +49,23 @@
             <li><strong>Support:</strong> <a href="{{user.support}}">{{user.support}}</a></li>
             {% endif %}
         </ul>
+
+    {% set members = user.members() %}
+    {% if members %}
+    <div class="subnodes">
+        <h3>Members / Sources in @{{user}} ({{members|length}})</h3>
+        <div class="nodes-list">
+            {% for member in members %}
+            <div class="node-item">
+                <a href="{{member.url}}" class="node-link">@{{member.uri}}</a>
+                <span class="node-date" style="color: var(--u-muted-text-color); font-size: 0.9em;">
+                    ({{member.size()}})
+                </span>
+            </div>
+            {% endfor %}
+        </div>
     </div>
+    {% endif %}
 
     <div class="subnodes">
         <h3>Latest contributed</h3>
@@ -55,9 +76,14 @@
 
             {% for subnode in latest %}
             <div class="node-item">
-                <a href="/@{{user}}/{{subnode.wikilink}}" class="node-link">
+                <a href="/@{{subnode.user}}/{{subnode.wikilink}}" class="node-link">
                     <span class="wikilink-marker">[[</span><span class="node-name">{{subnode.wikilink}}</span><span class="wikilink-marker">]]</span>
                 </a>
+                {% if subnode.user != user.uri %}
+                <span class="node-author" style="color: var(--u-muted-text-color); font-size: 0.85em;">
+                    by <a href="/@{{subnode.user}}">@{{subnode.user}}</a>
+                </span>
+                {% endif %}
                 <span class="node-date" style="color: var(--u-muted-text-color); font-size: 0.9em;">
                     {{ subnode.get_display_mtime()[0]|datetimeformat('%Y-%m-%d') }}
                 </span>
@@ -75,9 +101,14 @@
 
             {% for subnode in subnodes %}
             <div class="node-item">
-                <a href="/@{{user}}/{{subnode.wikilink}}" class="node-link">
+                <a href="/@{{subnode.user}}/{{subnode.wikilink}}" class="node-link">
                     <span class="wikilink-marker">[[</span><span class="node-name">{{subnode.wikilink}}</span><span class="wikilink-marker">]]</span>
                 </a>
+                {% if subnode.user != user.uri %}
+                <span class="node-author" style="color: var(--u-muted-text-color); font-size: 0.85em;">
+                    by <a href="/@{{subnode.user}}">@{{subnode.user}}</a>
+                </span>
+                {% endif %}
             </div>
             {% endfor %}
         </div>

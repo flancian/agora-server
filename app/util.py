@@ -65,7 +65,10 @@ def similar(l, term):
 
 def filter(l, projection):
     # hack hack
-    return [n for n in l if n.user == projection]
+    if "@" in projection:
+        return [n for n in l if n.user == projection]
+    suffix = f"@{projection}"
+    return [n for n in l if n.user == projection or n.user.endswith(suffix)]
 
 
 def canonical_wikilink(wikilink):
@@ -151,22 +154,60 @@ def format_datetime(value, format='%Y-%m-%d %H:%M'):
         return ""
     return datetime.datetime.fromtimestamp(value).strftime(format)
 
+CONTAINER_IGNORED_DIRS = {
+    ".git", ".github", ".obsidian", ".logseq", "logseq",
+    "images", "img", "assets", "media", "static", "css", "js", "fonts", "files",
+}
+
+
+def _get_multiuser_targets(sources_config=None) -> set:
+    if sources_config is None:
+        try:
+            from flask import current_app
+            sources_config = current_app.config.get("SOURCES_CONFIG", []) or []
+        except RuntimeError:
+            sources_config = []
+    targets = set()
+    for item in sources_config:
+        if isinstance(item, dict) and item.get("multiuser"):
+            target = item.get("target", "").strip("/")
+            if target:
+                targets.add(target)
+    return targets
+
+
 def path_to_uri(path: str, agora_path: str) -> str:
     return path.replace(agora_path + "/", "")
 
 def path_to_garden_relative(path: str, agora_path: str) -> str:
     relative = re.sub(agora_path + '/', "", path)
-    relative = re.sub(r"(garden|stream|stoa)/.*?/", "", relative)
+    relative = re.sub(r"^(garden|friends|stream|stoa)/[^/]+/", "", relative)
     return relative
 
-def path_to_user(path: str) -> str:
-    m = re.search(r"garden/([^/]+)", path)
+def path_to_user(path: str, sources_config=None) -> str:
+    multiuser_targets = _get_multiuser_targets(sources_config)
+    for target in multiuser_targets:
+        m_multi = re.search(rf"(?:^|/){re.escape(target)}/(.+)$", path)
+        if m_multi:
+            container = target.split("/")[-1]
+            rest = m_multi.group(1)
+            parts = rest.split("/")
+            if len(parts) >= 2 and parts[0].lower() not in CONTAINER_IGNORED_DIRS and not parts[0].startswith("."):
+                return f"{parts[0]}@{container}"
+            if target.startswith("stoa/"):
+                return f"anonymous@{container}"
+            return container
+
+    m = re.search(r"(?:^|/)garden/([^/]+)", path)
     if m:
         return m.group(1)
-    m = re.search(r"stoa/([^/]+)", path)
+    m = re.search(r"(?:^|/)friends/([^/]+)", path)
+    if m:
+        return m.group(1) + "@friends"
+    m = re.search(r"(?:^|/)stoa/([^/]+)", path)
     if m:
         return "anonymous@" + m.group(1)
-    m = re.search(r"stream/([^/]+)", path)
+    m = re.search(r"(?:^|/)stream/([^/]+)", path)
     if m:
         return m.group(1)
     return "agora"
