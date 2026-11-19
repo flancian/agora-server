@@ -319,6 +319,8 @@ class AlphaConfig(DefaultConfig):
     ENABLE_SQLITE = True
     ENABLE_LAZY_LOAD = True
     ENABLE_FTS = True
+    ENABLE_SEMANTIC_SEARCH = True
+    EMBEDDER_URL = os.environ.get("AGORA_EMBEDDER_URL", "http://127.0.0.1:5020")
     ENABLE_DEMO = True
     USE_GIT_MTIME = False
     ENABLE_SYNTHESIS = True
