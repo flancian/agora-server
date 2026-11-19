@@ -269,6 +269,13 @@ def create_tables(db):
         except sqlite3.OperationalError:
             pass
 
+        # Indexes on links for fast backlink and push-link lookups
+        try:
+            db.execute("CREATE INDEX IF NOT EXISTS idx_links_target_type ON links(target_node, type);")
+            db.execute("CREATE INDEX IF NOT EXISTS idx_links_type ON links(type);")
+        except sqlite3.OperationalError:
+            pass
+
         # Add Semantic Vectors table if enabled
         if current_app.config.get('ENABLE_SEMANTIC_SEARCH', False):
             db.execute(SCHEMA_TEMPLATES['subnode_vectors'].format(table_name='subnode_vectors'))
@@ -498,7 +505,7 @@ def get_git_mtime(path):
     except sqlite3.OperationalError:
         return None
 
-def update_subnode(path, user, node, mtime, links):
+def update_subnode(path, user, node, mtime, links, push_links=None):
     """
     Updates or inserts a subnode and its associated links in the index.
     The 'node' parameter is the source_node for the links.
@@ -516,10 +523,14 @@ def update_subnode(path, user, node, mtime, links):
             )
             
             db.execute("DELETE FROM links WHERE source_path = ?", (path,))
+            link_data = []
             if links:
-                unique_links = set(links)
-                # Note the new 'node' field being inserted as source_node.
-                link_data = [(path, node, target, 'wikilink') for target in unique_links]
+                for target in set(links):
+                    link_data.append((path, node, target, 'wikilink'))
+            if push_links:
+                for target in set(push_links):
+                    link_data.append((path, node, target, 'push'))
+            if link_data:
                 db.executemany("INSERT INTO links (source_path, source_node, target_node, type) VALUES (?, ?, ?, ?)", link_data)
     except sqlite3.OperationalError as e:
         if 'read-only database' in str(e):
@@ -558,6 +569,9 @@ def update_subnodes_bulk(subnodes_to_update):
             unique_links = set(subnode['links'])
             for target in unique_links:
                 link_data.append((subnode['path'], subnode['node'], target, 'wikilink'))
+        if subnode.get('push_links'):
+            for target in set(subnode['push_links']):
+                link_data.append((subnode['path'], subnode['node'], target, 'push'))
         
         # Handle FTS data if present
         if 'content' in subnode and subnode['content'] is not None:
@@ -1022,6 +1036,35 @@ def get_backlinking_nodes(node_uri):
     # We select the source_node directly and use DISTINCT to avoid duplicates.
     cursor.execute("SELECT DISTINCT source_node FROM links WHERE target_node = ?", (node_uri,))
     return [row[0] for row in cursor.fetchall()]
+
+def get_pushing_nodes(node_uri, canonical_uri=None):
+    """
+    Retrieves unique source_node URIs that push to a given node from SQLite.
+    Returns None if push links have not been indexed yet so callers can fall back.
+    """
+    db = get_db()
+    if not db:
+        return None
+
+    cursor = db.cursor()
+    try:
+        cursor.execute("SELECT 1 FROM links WHERE type = 'push' LIMIT 1")
+        if not cursor.fetchone():
+            return None
+
+        if canonical_uri and canonical_uri != node_uri:
+            cursor.execute(
+                "SELECT DISTINCT source_node FROM links WHERE (target_node = ? OR target_node = ?) AND type = 'push'",
+                (node_uri, canonical_uri),
+            )
+        else:
+            cursor.execute(
+                "SELECT DISTINCT source_node FROM links WHERE target_node = ? AND type = 'push'",
+                (node_uri,),
+            )
+        return [row[0] for row in cursor.fetchall() if row[0] is not None]
+    except sqlite3.OperationalError:
+        return None
 
 def get_random_node():
     """

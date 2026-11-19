@@ -124,3 +124,87 @@ def test_push_counts(test_agora_push_duplicates):
     assert len(target_five.pushed_subnodes()) == 1, "Double implicit push on same line should result in 1 pushed subnode"
 
 
+def test_sqlite_push_index_and_fallback(tmp_path, monkeypatch):
+    """
+    Tests that maintenance indexes type='push' links into SQLite and Node.pushing_nodes()
+    uses the SQLite push index without scanning back_nodes(), while falling back cleanly
+    on legacy DBs that have no push rows yet.
+    """
+    import sqlite3
+    from app import create_app
+    from app.storage import maintenance, sqlite_engine
+
+    agora_path = tmp_path
+    user_path = agora_path / "garden" / "user1"
+    user_path.mkdir(parents=True)
+
+    (user_path / "pusher.md").write_text("- [[push]] [[target]]\n- [[second-node]]!\n")
+    (user_path / "mentioner.md").write_text("Just mentioning [[target]] without pushing.\n")
+    (user_path / "target.md").write_text("Target node.\n")
+    (agora_path / "sources.yaml").write_text("- target: garden/user1\n  url: http://example.com/user1\n")
+
+    app = create_app()
+    db_path = agora_path / "agora.db"
+    app.config.update({
+        "TESTING": True,
+        "AGORA_PATH": str(agora_path),
+        "SQLALCHEMY_DATABASE_URI": f"sqlite:///{db_path}?check_same_thread=false",
+        "ENABLE_SQLITE": True,
+        "ENABLE_LAZY_LOAD": True,
+        "ENABLE_FTS": False,
+    })
+
+    with app.app_context():
+        clear_g_caches()
+        assert maintenance.build_cache(app)
+        assert maintenance.deploy_cache(app)
+
+        # Verify 'push' rows and indexes exist in SQLite
+        with sqlite3.connect(db_path) as conn:
+            push_rows = conn.execute(
+                "SELECT source_node, target_node FROM links WHERE type = 'push' ORDER BY target_node"
+            ).fetchall()
+            assert ("pusher", "second node") in push_rows
+            assert ("pusher", "target") in push_rows
+            assert all(src != "mentioner" for src, _ in push_rows)
+
+            indexes = {
+                row[0]
+                for row in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = 'links'"
+                ).fetchall()
+            }
+            assert "idx_links_target_type" in indexes
+            assert "idx_links_type" in indexes
+
+        # Ensure pushing_nodes() uses SQLite push index directly and does NOT call back_nodes()
+        def fail_if_called(self):
+            raise AssertionError("back_nodes() should not be called when SQLite push index is available")
+
+        monkeypatch.setattr("app.graph.Node.back_nodes", fail_if_called)
+
+        target = G.node("target")
+        pushers = target.pushing_nodes()
+        assert [n.wikilink for n in pushers] == ["pusher"]
+        pushed = target.pushed_subnodes()
+        assert len(pushed) == 1
+        assert pushed[0].virtual_wikilink == "pusher"
+
+        # Hyphenated URI lookup should also resolve canonical push target
+        other_target = G.node("second-node")
+        assert [n.wikilink for n in other_target.pushing_nodes()] == ["pusher"]
+
+        # Memoization check: second call returns cached list
+        assert target.pushed_subnodes() is pushed
+
+        # Legacy DB fallback check: delete 'push' rows and verify fallback via back_nodes() still works
+        monkeypatch.undo()
+        db = sqlite_engine.get_db()
+        with db:
+            db.execute("DELETE FROM links WHERE type = 'push'")
+
+        target_legacy = G.node("target")
+        assert [n.wikilink for n in target_legacy.pushing_nodes()] == ["pusher"]
+        assert len(target_legacy.pushed_subnodes()) == 1
+
+

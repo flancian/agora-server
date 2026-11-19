@@ -487,6 +487,9 @@ class Node:
         self.subnodes = []
         # Same here.
         self.executable_subnodes = []
+        # Per-instance memoization for expensive push lookups/renders within a request.
+        self._pushing_nodes_cache = None
+        self._pushed_subnodes_cache = None
 
     def __lt__(self, other):
         return self.wikilink.lower() < other.wikilink.lower()
@@ -696,6 +699,13 @@ class Node:
         limit = current_app.config.get("MAX_RELATED_DISPLAY", 10)
         return sorted(l[:limit], key=lambda x: x.uri)
 
+    def push_links(self) -> List[str]:
+        """Returns sorted unique canonical wikilinks pushed to from this node."""
+        links = []
+        for subnode in self.subnodes:
+            links.extend(subnode.push_links())
+        return sorted(set(links))
+
     def push_nodes(self) -> List['Node']:
         # nodes pushed to from this node.
         links = []
@@ -706,17 +716,31 @@ class Node:
     def pushing_nodes(self):
         # the nodes pushing to *this* node.
         # compare with: push_nodes.
-        nodes = []
+        if self._pushing_nodes_cache is not None:
+            return self._pushing_nodes_cache
+
         canonical = util.canonical_wikilink(self.wikilink)
+        if _is_sqlite_enabled():
+            pushing_uris = sqlite_engine.get_pushing_nodes(self.wikilink, canonical)
+            if pushing_uris is not None:
+                nodes = [
+                    G.node(uri)
+                    for uri in pushing_uris
+                    if uri not in (self.wikilink, canonical)
+                ]
+                self._pushing_nodes_cache = sorted(nodes)
+                return self._pushing_nodes_cache
+
+        nodes = []
         for n in self.back_nodes():
             if self.wikilink == n.wikilink:
                 # ignore nodes pushing to themselves.
                 continue
-            pushed_wikilinks = [x.wikilink for x in n.push_nodes()]
-            pushed_canonicals = [util.canonical_wikilink(x.wikilink) for x in n.push_nodes()]
-            if self.wikilink in pushed_wikilinks or canonical in pushed_canonicals:
+            pushed_links = n.push_links()
+            if self.wikilink in pushed_links or canonical in pushed_links:
                 nodes.append(n)
-        return nodes
+        self._pushing_nodes_cache = nodes
+        return self._pushing_nodes_cache
 
     def pushing(self, other):
         # returns the blocks that this node pushes to one other as "virtual subnodes"
@@ -738,9 +762,8 @@ class Node:
         subnodes = []
         pushed_blocks = set()
         other_canonical = util.canonical_wikilink(other.wikilink)
-        pushed_wikilinks = [n.wikilink for n in self.push_nodes()]
-        pushed_canonicals = [util.canonical_wikilink(n.wikilink) for n in self.push_nodes()]
-        if other.wikilink in pushed_wikilinks or other_canonical in pushed_canonicals:
+        pushed_links = self.push_links()
+        if other.wikilink in pushed_links or other_canonical in pushed_links:
             for subnode in self.subnodes:
                 if not subnode.mediatype.startswith("text"):
                     continue
@@ -856,6 +879,9 @@ class Node:
         # This returns a list of VirtualSubnodes representing the pushed or executed blocks.
         # Returning long lists here makes the Agora slow as each of these requires processing.
         # Better to only call this in async paths to keep basic node rendering fast.
+        if self._pushed_subnodes_cache is not None:
+            return self._pushed_subnodes_cache
+
         subnodes = []
         # these are blocks that senders have published to the current location, which in Agora node/feed parlance is [[subnodes pushed to this node]] from another.
         for node in self.pushing_nodes():
@@ -871,7 +897,8 @@ class Node:
             current_app.logger.debug(f"In pushed_subnodes, found virtual subnode ({subnode.uri}.")
             subnodes.append(subnode)
 
-        return sorted(subnodes, key=lambda x: x.mtime, reverse=True)
+        self._pushed_subnodes_cache = sorted(subnodes, key=lambda x: x.mtime, reverse=True)
+        return self._pushed_subnodes_cache
 
     def annotations(self):
         from .storage import feed
@@ -1265,24 +1292,28 @@ class Subnode:
         return nodes
 
     @cachetools.func.ttl_cache(ttl=CACHE_TTL)
-    def push_nodes(self) -> List['Node']:
+    def push_links(self) -> List[str]:
         """
-        returns a set of push links contained in this subnode
+        returns canonical wikilink strings pushed to from this subnode
         push links are blocks of the form:
         - [[push]] [[node]]
         - #push [[node]]
         - [[node]]!
         - [[node]]:
-
-        TODO: refactor with the above.
         """
-
-        # TODO: test.
         push_blocks = subnode_to_actions(self, "push")
         push_blocks += subnode_to_taglink(self, "push")
         push_blocks += subnode_to_pushes(self)
-        push_nodes = content_to_forward_links("\n".join(push_blocks))
-        return [G.node(node) for node in push_nodes]
+        return content_to_forward_links("\n".join(push_blocks))
+
+    @cachetools.func.ttl_cache(ttl=CACHE_TTL)
+    def push_nodes(self) -> List['Node']:
+        """
+        returns a set of push links contained in this subnode
+
+        TODO: refactor with the above.
+        """
+        return [G.node(node) for node in self.push_links()]
 
 
 class VirtualSubnode(Subnode):

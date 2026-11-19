@@ -120,6 +120,9 @@ def build_cache(app):
                 for link in node.forward_links():
                     for subnode in node.subnodes:
                         links_to_insert.append((subnode.uri, node.uri, link, 'wikilink'))
+                for subnode in node.subnodes:
+                    for target in set(subnode.push_links()):
+                        links_to_insert.append((subnode.uri, node.uri, target, 'push'))
             
             db.executemany(
                 f"REPLACE INTO {links_table} (source_path, source_node, target_node, type) VALUES (?, ?, ?, ?)",
@@ -162,6 +165,11 @@ def deploy_cache(app):
                 
                 db.execute("DROP TABLE IF EXISTS links;")
                 db.execute("ALTER TABLE links_new RENAME TO links;")
+                try:
+                    db.execute("CREATE INDEX IF NOT EXISTS idx_links_target_type ON links(target_node, type);")
+                    db.execute("CREATE INDEX IF NOT EXISTS idx_links_type ON links(type);")
+                except sqlite3.OperationalError as e:
+                    app.logger.warning(f"Could not recreate indexes on links: {e}")
                 
                 if app.config.get('ENABLE_FTS', False):
                     db.execute("DROP TABLE IF EXISTS subnodes_fts;")
