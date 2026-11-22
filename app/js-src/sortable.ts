@@ -1,3 +1,5 @@
+import { isPushedSubnodesAboveEnabled, applyPushedSubnodesPosition } from './util';
+
 let draggedEl: HTMLElement | null = null;
 let placeholder: HTMLElement | null = null;
 let draggedSubnode: HTMLElement | null = null;
@@ -359,6 +361,7 @@ export function initSortableSubnodes() {
         });
 
         restoreSubnodeOrder(parent as HTMLElement);
+        applyPushedSubnodesPosition();
     });
 }
 
@@ -392,6 +395,7 @@ function restoreSubnodeOrder(parent: HTMLElement) {
 
         console.log(`Restoring subnode order for ${parentId}:`, order);
 
+        const subnodes = parent.querySelectorAll('details.subnode');
         const desiredSubnodes: HTMLElement[] = [];
         order.forEach(uri => {
             subnodes.forEach(el => {
@@ -424,7 +428,9 @@ function restoreSubnodeOrder(parent: HTMLElement) {
             return;
         }
 
-        const anchor = parent.querySelector('.pushed-subnodes-embed') || null;
+        const anchor = isPushedSubnodesAboveEnabled()
+            ? (parent.querySelector('#synthesis-container') || null)
+            : (parent.querySelector('.pushed-subnodes-embed') || parent.querySelector('#synthesis-container') || null);
         let nextRef: HTMLElement | null = anchor as HTMLElement | null;
         for (let i = desiredSubnodes.length - 1; i >= 0; i--) {
             const el = desiredSubnodes[i];

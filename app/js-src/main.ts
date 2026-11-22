@@ -27,7 +27,7 @@ const pullRecursive = JSON.parse(localStorage["pull-recursive"] || 'true')
 
 import { initializeStars, initializeNodeStars, initializeExternalStars } from './starring';
 import { initSettings } from './settings';
-import { safeJsonParse, darkenColor, CLIENT_DEFAULTS, isExperimentalEnabled } from './util';
+import { safeJsonParse, darkenColor, CLIENT_DEFAULTS, isExperimentalEnabled, applyPushedSubnodesPosition } from './util';
 import { makeDraggable } from './draggable';
 import { initDemoMode } from './demo';
 import { initMusicPlayer } from './music';
@@ -301,6 +301,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       initInteractiveEmptyState();
       restoreOrder();
       initSortable();
+      applyPushedSubnodesPosition();
       initSortableSubnodes();
       updateCliButtonsVisibility();
       initSubnodeMaximize();
@@ -2788,6 +2789,7 @@ async function bindEvents() {
         // Initial sort after async content is loaded
 
         sortSubnodes();
+        applyPushedSubnodesPosition();
 
         // New, safe info box dismissal logic.
         applyDismissals();
@@ -2870,7 +2872,8 @@ async function bindEvents() {
           if (!response.ok) return;
           const data = await response.text();
 
-          document.querySelector(id).innerHTML = data;
+          element.innerHTML = data;
+          applyPushedSubnodesPosition();
 
           // end auto pull pushed subnodes.
 

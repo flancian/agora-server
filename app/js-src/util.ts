@@ -20,10 +20,52 @@ export const CLIENT_DEFAULTS = {
   enableShortcuts: true,
   enableNagora: false,
   enableExperimental: false,
+  pushedSubnodesAbove: false,
 };
 
 export function isExperimentalEnabled(): boolean {
   return safeJsonParse(localStorage.getItem('enable-experimental') ?? '', CLIENT_DEFAULTS.enableExperimental);
+}
+
+export function isPushedSubnodesAboveEnabled(): boolean {
+  return safeJsonParse(localStorage.getItem('pushed-subnodes-above') ?? '', CLIENT_DEFAULTS.pushedSubnodesAbove);
+}
+
+/**
+ * Positions pushed subnode containers above or below direct subnodes within each node section.
+ */
+export function applyPushedSubnodesPosition(): void {
+  const showAbove = isPushedSubnodesAboveEnabled();
+  const nodeSections = document.querySelectorAll('details.node');
+
+  nodeSections.forEach((parent) => {
+    const embed = parent.querySelector(':scope > .pushed-subnodes-embed') as HTMLElement | null;
+    const virtualPushed = Array.from(parent.querySelectorAll(':scope > details.pushed-subnode')) as HTMLElement[];
+    const pushedElements: HTMLElement[] = [...virtualPushed, ...(embed ? [embed] : [])];
+    if (pushedElements.length === 0) return;
+
+    const directSubnodes = Array.from(parent.querySelectorAll(':scope > details.subnode')) as HTMLElement[];
+    if (directSubnodes.length === 0) return;
+
+    let nextRef: HTMLElement | null;
+    if (showAbove) {
+      nextRef = directSubnodes[0];
+    } else {
+      const lastDirect = directSubnodes[directSubnodes.length - 1];
+      nextRef = lastDirect.nextElementSibling as HTMLElement | null;
+      while (nextRef && pushedElements.includes(nextRef)) {
+        nextRef = nextRef.nextElementSibling as HTMLElement | null;
+      }
+    }
+
+    for (let i = pushedElements.length - 1; i >= 0; i--) {
+      const el = pushedElements[i];
+      if (el.nextElementSibling !== nextRef) {
+        parent.insertBefore(el, nextRef);
+      }
+      nextRef = el;
+    }
+  });
 }
 
 export function safeJsonParse(value: string, defaultValue: any) {

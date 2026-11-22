@@ -1,7 +1,7 @@
 
 // app/js-src/settings.ts
 
-import { CLIENT_DEFAULTS, safeJsonParse } from './util';
+import { CLIENT_DEFAULTS, safeJsonParse, applyPushedSubnodesPosition } from './util';
 import { renderGraph } from './graph';
 
 declare const NODENAME: string;
@@ -72,6 +72,10 @@ export function initSettings() {
     if (enableExperimentalInput) {
         enableExperimentalInput.checked = safeJsonParse(localStorage["enable-experimental"], CLIENT_DEFAULTS.enableExperimental);
     }
+    const pushedSubnodesAboveInput = document.getElementById("pushed-subnodes-above") as HTMLInputElement;
+    if (pushedSubnodesAboveInput) {
+        pushedSubnodesAboveInput.checked = safeJsonParse(localStorage.getItem("pushed-subnodes-above") ?? "", CLIENT_DEFAULTS.pushedSubnodesAbove);
+    }
 
     // Function to apply the bracket visibility style
     const applyBracketVisibility = () => {
@@ -84,6 +88,7 @@ export function initSettings() {
 
     // Apply styles on initial load
     applyBracketVisibility();
+    applyPushedSubnodesPosition();
 
     // Toggle Hypothesis visibility on initial load
     const hypothesisFrame = document.getElementById('hypothesis-frame');
@@ -189,6 +194,9 @@ export function initSettings() {
     });
     bindAutoSaveCheckbox("enable-shortcuts", "enable-shortcuts");
     bindAutoSaveCheckbox("enable-experimental", "enable-experimental");
+    bindAutoSaveCheckbox("pushed-subnodes-above", "pushed-subnodes-above", () => {
+        applyPushedSubnodesPosition();
+    });
     bindAutoSaveCheckbox("auto-scroll-demo", "auto-scroll-demo");
     bindAutoSaveCheckbox("show-graph-labels", "graph-show-labels", (checked) => {
         localStorage["graph-show-labels-full"] = checked;
@@ -235,6 +243,10 @@ export function initSettings() {
             if (enableExperimentalEl.checked && (!localStorage.getItem("nagora-columns") || localStorage.getItem("nagora-columns") === "1" || localStorage.getItem("nagora-columns") === "auto")) {
                 localStorage.removeItem("nagora-columns");
             }
+        }
+        const pushedSubnodesAboveEl = document.getElementById("pushed-subnodes-above") as HTMLInputElement;
+        if (pushedSubnodesAboveEl) {
+            localStorage["pushed-subnodes-above"] = pushedSubnodesAboveEl.checked;
         }
         const autoScrollChecked = (document.getElementById("auto-scroll-demo") as HTMLInputElement).checked;
         localStorage["auto-scroll-demo"] = autoScrollChecked;
