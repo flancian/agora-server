@@ -2593,10 +2593,24 @@ pre:has(code.language-verse) {
 
 .context-column.backlinks,
 .context-column.outlinks,
-.context-column.forwardlinks {
+.context-column.forwardlinks,
+.context-column.related {
     background-color: var(--graph-bg);
     padding: 12px;
     border-radius: 8px;
+}
+
+.context-column.related {
+    order: 4;
+    flex: 1 1 100%;
+    text-align: center;
+}
+
+.relatedlinks-header {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    text-align: center;
 }
 
 #scroll-toggle {

@@ -490,9 +490,10 @@ class Node:
         self.subnodes = []
         # Same here.
         self.executable_subnodes = []
-        # Per-instance memoization for expensive push lookups/renders within a request.
+        # Per-instance memoization for expensive push/related lookups within a request.
         self._pushing_nodes_cache = None
         self._pushed_subnodes_cache = None
+        self._related_cache = None
 
     def __lt__(self, other):
         return self.wikilink.lower() < other.wikilink.lower()
@@ -630,12 +631,39 @@ class Node:
     def related(self):
         # nodes that are probably heavily related; right now it does:
         #
+        # singular/plural morphological variants (e.g. waterfall charts <-> waterfall chart)
         # suffix/prefix matching
         # levenshtein distance
         #
         # same caveats as for equivalent() :)
         #
+        if self._related_cache is not None:
+            return self._related_cache
+
         l = []
+        pull_node_uris = [x.uri for x in self.pull_nodes()]
+        limit = current_app.config.get("MAX_RELATED_DISPLAY", 10)
+        min_threshold = current_app.config.get("MIN_RELATED_FUZZ_SCORE", 50)
+
+        # 1. Fast exact singular/plural morphological pass (O(log N) in SQLite, O(1) dict lookup in memory)
+        variant_hits = []
+        variants = util.singular_plural_variants(self.uri)
+        if variants:
+            if _is_sqlite_enabled():
+                variant_hits = sqlite_engine.get_existing_nodes(variants)
+            else:
+                all_nodes = G.nodes(only_canonical=True)
+                variant_hits = [
+                    v for v in variants
+                    if v in all_nodes and all_nodes[v].subnodes
+                ]
+
+        scored_map = {}
+        for v in variant_hits:
+            if v != self.uri and v not in pull_node_uris:
+                scored_map[v] = 99
+
+        # 2. Regex suffix/prefix matching
         # Escape special regex characters in the URI to prevent regex injection/bombs
         escaped_uri = re.escape(self.uri)
         regex = re.sub(r"\\?[-_ ]", ".*", escaped_uri)
@@ -649,42 +677,28 @@ class Node:
                     wikilink for wikilink in all_nodes.keys()
                     if re.search(regex, wikilink)
                 ]
-            
-            # Filter out self
-            matching_wikilinks = [w for w in matching_wikilinks if w != self.uri]
-            
-            # Calculate similarity scores on strings directly
-            scored_wikilinks = []
+
             for w in matching_wikilinks:
+                if w == self.uri or w in pull_node_uris:
+                    continue
                 score = fuzz.ratio(w, self.uri)
-                scored_wikilinks.append((w, score))
-                
-            # Filter by a minimum threshold (e.g., 50) to ensure meaningful similarity
-            min_threshold = current_app.config.get("MIN_RELATED_FUZZ_SCORE", 50)
-            scored_wikilinks = [item for item in scored_wikilinks if item[1] >= min_threshold]
-            
-            # Sort descending by score, then alphabetically for determinism
-            scored_wikilinks.sort(key=lambda x: (-x[1], x[0]))
-            
-            # Take the top N (e.g., 10)
-            limit = current_app.config.get("MAX_RELATED_DISPLAY", 10)
-            top_wikilinks = [item[0] for item in scored_wikilinks[:limit]]
-            
-            # Pull nodes (to exclude them from related list)
-            pull_node_uris = [x.uri for x in self.pull_nodes()]
-            
-            # Instantiate Node objects ONLY for the top candidates that aren't already pulled
-            for w in top_wikilinks:
-                if w not in pull_node_uris:
-                    l.append(G.node(w))
+                if score >= min_threshold and score > scored_map.get(w, -1):
+                    scored_map[w] = score
         except re.error:
             # sometimes node names might contain invalid regexes.
             pass
 
-        # Also run the legacy fuzzy search on the whole graph if not lazy loading,
+        # Sort descending by score, then alphabetically for determinism
+        scored_wikilinks = sorted(scored_map.items(), key=lambda x: (-x[1], x[0]))
+        top_wikilinks = [item[0] for item in scored_wikilinks[:limit]]
+
+        # Instantiate Node objects ONLY for the top candidates
+        for w in top_wikilinks:
+            l.append(G.node(w))
+
+        # 3. Also run the legacy fuzzy search on the whole graph if not lazy loading,
         # but apply the same limit and string-first optimization to be safe.
         if not current_app.config.get('ENABLE_LAZY_LOAD', False):
-            pull_node_uris = [x.uri for x in self.pull_nodes()]
             all_canonical = list(G.nodes(only_canonical=True).keys())
             extra_scored = []
             for w in all_canonical:
@@ -694,13 +708,14 @@ class Node:
                         extra_scored.append((w, score))
             # Sort and merge
             extra_scored.sort(key=lambda x: (-x[1], x[0]))
-            limit = current_app.config.get("MAX_RELATED_DISPLAY", 10)
+            existing_uris = {n.uri for n in l}
             for w, score in extra_scored[:limit]:
-                if w not in [n.uri for n in l]:
+                if w not in existing_uris:
                     l.append(G.node(w))
-                    
-        limit = current_app.config.get("MAX_RELATED_DISPLAY", 10)
-        return sorted(l[:limit], key=lambda x: x.uri)
+                    existing_uris.add(w)
+
+        self._related_cache = sorted(l[:limit], key=lambda x: x.uri)
+        return self._related_cache
 
     def push_links(self) -> List[str]:
         """Returns sorted unique canonical wikilinks pushed to from this node."""

@@ -7,7 +7,10 @@
     </span>
 </summary>
 <div class="context-layout">
-{% if node.back_nodes() or node.push_nodes() or node.pull_nodes() or node.forward_nodes() %}
+{% set back_nodes = node.back_nodes() %}
+{% set forward_nodes = node.forward_nodes() %}
+{% set related_nodes = node.related() %}
+{% if back_nodes or node.push_nodes() or node.pull_nodes() or forward_nodes or related_nodes %}
 
     <!-- Center/Top: Interactive Graph -->
     <div class="context-column center-column graph">
@@ -18,8 +21,8 @@
     <div class="context-column left-column backlinks">
         <span class="backlinks-header" title="← Backlinks: other nodes in the Agora that link back to this topic.">← Backlinks</span>
         <div class="link-list">
-        {% if node.back_nodes() %}
-            {% for n in node.back_nodes() %}
+        {% if back_nodes %}
+            {% for n in back_nodes %}
             <span class="link-item"><span class="wikilink-marker">[[</span><a href="/{{n.uri}}">{{n.description}}</a><span class="wikilink-marker">]]</span></span>
             {% endfor %}
         {% else %}
@@ -28,12 +31,12 @@
         </div>
     </div>
 
-    <!-- Right/Bottom: Outlinks -->
+    <!-- Right/Bottom: Forward links -->
     <div class="context-column right-column outlinks">
-        <span class="forwardlinks-header" title="Outlinks →: other concepts and topics mentioned inside this node's contributions.">Outlinks →</span>
+        <span class="forwardlinks-header" title="Forward links →: other concepts and topics mentioned inside this node's contributions.">Forward links →</span>
         <div class="link-list">
-        {% if node.forward_nodes() %}
-            {% for n in node.forward_nodes() %}
+        {% if forward_nodes %}
+            {% for n in forward_nodes %}
             <span class="link-item"><span class="wikilink-marker">[[</span><a href="/{{n.uri}}">{{n.description}}</a><span class="wikilink-marker">]]</span></span>
             {% endfor %}
         {% else %}
@@ -41,6 +44,18 @@
         {% endif %}
         </div>
     </div>
+
+    {% if related_nodes %}
+    <!-- Bottom: Related nodes -->
+    <div class="context-column related">
+        <span class="relatedlinks-header" title="≈ Related: closely matching or morphologically related nodes in this Agora.">≈ Related</span>
+        <div class="link-list">
+            {% for n in related_nodes %}
+            <span class="link-item"><span class="wikilink-marker">[[</span><a href="/{{n.uri}}">{{n.description}}</a><span class="wikilink-marker">]]</span></span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 
 {% else %}
 

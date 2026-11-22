@@ -63,6 +63,43 @@ def similar(l, term):
     return [n.wikilink for n in l if n.wikilink.startswith(term)]
 
 
+def singular_plural_variants(wikilink: str):
+    """Return likely singular/plural morphological variants of a canonical wikilink."""
+    if not wikilink:
+        return []
+    words = wikilink.split()
+    if not words:
+        return []
+    prefix = " ".join(words[:-1])
+    last = words[-1]
+    candidates = []
+
+    def add_variant(new_last: str):
+        if not new_last or new_last == last:
+            return
+        full = f"{prefix} {new_last}".strip() if prefix else new_last
+        if full != wikilink and full not in candidates:
+            candidates.append(full)
+
+    # De-pluralize
+    if len(last) > 4 and last.endswith("ies"):
+        add_variant(last[:-3] + "y")
+    if len(last) > 4 and last.endswith(("ses", "xes", "zes", "ches", "shes")):
+        add_variant(last[:-2])
+    if len(last) > 3 and last.endswith("s") and not last.endswith(("ss", "us", "is")):
+        add_variant(last[:-1])
+
+    # Pluralize
+    if len(last) > 2 and last.endswith("y") and last[-2] not in "aeiou":
+        add_variant(last[:-1] + "ies")
+    elif len(last) > 2 and last.endswith(("s", "x", "z", "ch", "sh")):
+        add_variant(last + "es")
+    elif len(last) > 2:
+        add_variant(last + "s")
+
+    return candidates
+
+
 def filter(l, projection):
     # hack hack
     if "@" in projection:
