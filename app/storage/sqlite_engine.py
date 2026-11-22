@@ -1146,6 +1146,37 @@ def get_latest_subnodes(limit=100):
         for row in cursor.fetchall()
     ]
 
+def get_journal_subnodes():
+    """
+    Retrieves candidate journal subnodes from the index, ordered by node descending.
+    Returns None if SQLite is unavailable or the subnodes table is empty (not indexed yet),
+    so callers can fall back to the file engine.
+    Otherwise returns a list of dicts: {'path': ..., 'user': ..., 'node': ..., 'mtime': ...}.
+    """
+    db = get_db()
+    if not db:
+        return None
+
+    try:
+        cursor = db.cursor()
+        cursor.execute("SELECT 1 FROM subnodes LIMIT 1")
+        if not cursor.fetchone():
+            return None
+
+        cursor.execute(
+            "SELECT path, user, node, mtime FROM subnodes "
+            "WHERE node >= '0000-' AND node < '9999:' "
+            "AND node GLOB '[0-9][0-9][0-9][0-9]-*' "
+            "ORDER BY node DESC"
+        )
+        return [
+            {'path': row[0], 'user': row[1], 'node': row[2], 'mtime': row[3]}
+            for row in cursor.fetchall()
+        ]
+    except sqlite3.OperationalError as e:
+        current_app.logger.error(f"SQLite journal query error: {e}")
+        return None
+
 def get_all_vectors():
     """
     Retrieves all vectors from the database for in-memory semantic search.

@@ -12,15 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import os
+import re
 import time
 import json
 import urllib.parse
 from flask import current_app
+from app import util
 import app.storage.file_engine as file_engine
 import app.storage.sqlite_engine as sqlite_engine
 # Import the canonical Graph object 'G' directly.
-from app.graph import G, Node as NodeClass, User as UserClass, Subnode as SubnodeClass
+from app.graph import G, Node as NodeClass, User as UserClass, Subnode as SubnodeClass, guess_mediatype
 
 # The file engine is always the source of truth.
 # The sqlite engine is a cache.
@@ -107,32 +110,77 @@ def random_node():
             return NodeClass(wikilink)
     return file_engine.random_node()
 
-def all_journals():
-    # The caching logic below was found to be faulty, causing FileNotFoundErrors.
-    # It assumes that the journals are Nodes and tries to reconstruct Subnodes from Node URIs.
-    # Disabling for now to restore functionality.
-    # TODO: Implement a correct caching strategy for all_journals, likely by caching
-    # a list of dictionaries with full subnode paths and mediatypes.
-    # if _is_sqlite_enabled():
-    #     cache_key = 'all_journals'
-    #     ttl = current_app.config['QUERY_CACHE_TTL'].get('all_journals', 3600)
-    #     cached_value, timestamp = sqlite_engine.get_cached_query(cache_key)
+def _quiet_strptime(s, fmt):
+    try:
+        return datetime.datetime.strptime(s, fmt)
+    except ValueError:
+        return None
 
-    #     if cached_value and (time.time() - timestamp < ttl):
-    #         current_app.logger.info(f"CACHE HIT (sqlite): Using cached data for all_journals.")
-    #         # The result is a list of Subnode objects. We cache the URIs and reconstruct.
-    #         # The Subnode constructor is cheap enough for this purpose.
-    #         subnode_uris = json.loads(cached_value)
-    #         return [SubnodeClass(uri) for uri in subnode_uris]
 
-    #     current_app.logger.info(f"CACHE MISS (sqlite): Recomputing all_journals.")
-    #     journals = file_engine.all_journals()
-    #     # Extract URIs for serialization.
-    #     subnode_uris = [j.uri for j in journals]
-    #     sqlite_engine.save_cached_query(cache_key, json.dumps(subnode_uris), time.time())
-    #     return journals
-    # else:
-    return file_engine.all_journals()
+def all_journals(skip_future=True, entries=None):
+    """
+    Returns journal Subnode objects sorted by date descending.
+    When SQLite is enabled and indexed, queries journal candidates directly from
+    the subnodes table, filters/sorts/slices before constructing Subnode objects,
+    and skips non-text or missing files cleanly. Falls back to file_engine.all_journals()
+    when SQLite is disabled or empty.
+    """
+    if entries is not None and entries <= 0:
+        return []
+
+    if _is_sqlite_enabled():
+        rows = sqlite_engine.get_journal_subnodes()
+        if rows:
+            agora_path = current_app.config['AGORA_PATH']
+            now = datetime.datetime.now() + datetime.timedelta(days=1) if skip_future else None
+
+            candidates = []
+            for row in rows:
+                rel_path = row['path']
+                wikilink = util.path_to_wikilink(rel_path)
+                if not util.is_journal(wikilink):
+                    continue
+
+                abs_path = os.path.join(agora_path, rel_path)
+                mediatype = guess_mediatype(abs_path)
+                if not mediatype.startswith("text"):
+                    continue
+
+                if skip_future:
+                    dt = _quiet_strptime(wikilink, "%Y-%m-%d")
+                    if not dt or dt >= now:
+                        continue
+
+                candidates.append({
+                    'abs_path': abs_path,
+                    'mediatype': mediatype,
+                    'mtime': row.get('mtime'),
+                    'datekey': re.sub(r"[-_ ]", "", wikilink),
+                })
+
+            candidates.sort(key=lambda c: c['datekey'], reverse=True)
+
+            subnodes = []
+            for cand in candidates:
+                if entries is not None and len(subnodes) >= entries:
+                    break
+                if not os.path.isfile(cand['abs_path']):
+                    continue
+                subnode = SubnodeClass(
+                    cand['abs_path'],
+                    cand['mediatype'],
+                    mtime_override=cand['mtime'],
+                )
+                if not subnode.mediatype.startswith("text"):
+                    continue
+                subnodes.append(subnode)
+
+            return subnodes
+
+    journals = file_engine.all_journals(skip_future=skip_future)
+    if entries is not None:
+        return journals[:entries]
+    return journals
 
 def all_users():
     if _is_sqlite_enabled():

@@ -1636,7 +1636,7 @@ def journals(entries):
             # long story, this is a hack working around a bug for now.
             return redirect(url_for(".root", node=entries))
 
-    journal_subnodes = api.all_journals()[0:entries]
+    journal_subnodes = api.all_journals(entries=entries)
     subnodes_by_date = collections.defaultdict(list)
     for subnode in journal_subnodes:
         # Group by wikilink, which is the date for a journal subnode.
