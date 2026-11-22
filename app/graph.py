@@ -381,7 +381,10 @@ class Graph:
         
         # Glob all potential subnode files.
         patterns = [
-            "**/*.md", "garden/**/*.org", "garden/**/*.myco",
+            "**/*.md",
+            "garden/**/*.org", "garden/**/*.myco",
+            "friends/**/*.org", "friends/**/*.myco",
+            "stoa/**/*.org", "stoa/**/*.myco",
             "**/*.tex", "**/*.latex", "**/*.rst", "**/*.adoc", "**/*.bib",
             "**/*.jpg", "**/*.jpeg", "**/*.png", "**/*.gif", "**/*.webp", "**/*.py",
             "**/*.mp4", "**/*.webm", "**/*.ogv", "**/*.mov", "**/*.mkv",
@@ -1463,16 +1466,16 @@ class User:
         self.uri = user
         # yikes
         self.url = "/@" + self.uri
+        if self.user.startswith("friends@"):
+            self.container = "friends"
+        elif "@" in self.user:
+            self.container = self.user.split("@", 1)[1]
+        else:
+            self.container = None
         # this is a *lot* of printing.
         # current_app.logger.debug(f"{current_app.config['SOURCES_CONFIG']}")
-        try:
-            self.config = [
-                x
-                for x in current_app.config["SOURCES_CONFIG"]
-                if x["target"].split("/")[-1] == self.user.split("@")[-1]
-            ][0]
-        except IndexError:
-            self.config = {}
+        sources_config = current_app.config.get("SOURCES_CONFIG") or []
+        self.config = self._find_source_config(sources_config)
         if self.config:
             self.repo_url = self.config["url"]
             self.repo_target = self.config["target"]
@@ -1480,6 +1483,42 @@ class User:
             self.edit = self.config.get("edit", "")
             self.web = self.config.get("web", "")
             self.support = self.config.get("support", "")
+
+    def _find_source_config(self, sources_config) -> dict:
+        if "@" in self.user:
+            left, right = self.user.split("@", 1)
+            # 1. Mount-prefixed match (e.g. friends@hackuarium -> target: friends/hackuarium)
+            mount_target = f"{left}/{right}"
+            for x in sources_config:
+                if x.get("target", "").strip("/") == mount_target:
+                    return x
+            # 2. Container target match (e.g. Simon@patterning -> target: garden/patterning,
+            #    or anonymous@doc.anagora.org -> target: stoa/doc.anagora.org)
+            for x in sources_config:
+                if x.get("target", "").strip("/").split("/")[-1] == right:
+                    return x
+        else:
+            for x in sources_config:
+                if x.get("target", "").strip("/").split("/")[-1] == self.user:
+                    return x
+        return {}
+
+    def members(self) -> List['User']:
+        """If this user is a container (no '@'), return distinct member Users."""
+        if "@" in self.user:
+            return []
+        if self.user == "friends":
+            member_names = sorted({
+                subnode.user for subnode in G.subnodes()
+                if subnode.user.startswith("friends@")
+            }, key=lambda x: x.lower())
+        else:
+            suffix = f"@{self.user}"
+            member_names = sorted({
+                subnode.user for subnode in G.subnodes()
+                if subnode.user.endswith(suffix)
+            }, key=lambda x: x.lower())
+        return [User(name) for name in member_names]
 
     def subnodes(self) -> List['Subnode']:
         return subnodes_by_user(self.user)
@@ -1639,7 +1678,19 @@ def subnodes_by_wikilink(wikilink: str, fuzzy_matching: bool = True) -> List['Su
 
 
 def subnodes_by_user(user: str, sort_by: str = "mtime", mediatype: Optional[str] = None, reverse: bool = True) -> List['Subnode']:
-    subnodes = [subnode for subnode in G.subnodes() if subnode.user == user]
+    if "@" in user:
+        subnodes = [subnode for subnode in G.subnodes() if subnode.user == user]
+    elif user == "friends":
+        subnodes = [
+            subnode for subnode in G.subnodes()
+            if subnode.user == "friends" or subnode.user.startswith("friends@")
+        ]
+    else:
+        suffix = f"@{user}"
+        subnodes = [
+            subnode for subnode in G.subnodes()
+            if subnode.user == user or subnode.user.endswith(suffix)
+        ]
     if mediatype:
         subnodes = [
             subnode

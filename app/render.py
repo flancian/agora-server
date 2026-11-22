@@ -436,23 +436,33 @@ def force_tiddlylink_parsing(content, subnode):
 # Obsidian pasted images / attachments.
 
 
+def _subnode_raw_prefix(subnode):
+    parts = getattr(subnode, "uri", "").split("/")
+    if len(parts) >= 2 and parts[0] in ("garden", "friends", "stoa", "stream"):
+        return f"/raw/{parts[0]}/{parts[1]}"
+    return f"/raw/garden/{subnode.user}"
+
+
 def add_obsidian_embeds(content, subnode):
     OBSIDIAN_REGEX = re.compile("!" + regexes.WIKILINK.pattern)
-    OBSIDIAN_EMBED = f'<a href="/raw/garden/{subnode.user}/\\1"><img class="image-embed" src="/raw/garden/{subnode.user}/\\1"></img><p class="obsidian-embed"></a>⥅ [[\\1]]</p>'
+    prefix = _subnode_raw_prefix(subnode)
+    OBSIDIAN_EMBED = f'<a href="{prefix}/\\1"><img class="image-embed" src="{prefix}/\\1"></img><p class="obsidian-embed"></a>⥅ [[\\1]]</p>'
     # also include something like this to move to a lazily loaded div?
     # <script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
     return re.sub(OBSIDIAN_REGEX, OBSIDIAN_EMBED, content)
 
 def add_silverbullet_embeds(content, subnode):
     SILVERBULLET_REGEX = re.compile(r"!\[\]\( *(.+?) *\)")
-    SILVERBULLET_EMBED = f'<a href="/raw/garden/{subnode.user}/\\1"><img class="image-embed" src="/raw/garden/{subnode.user}/\\1"></img><p class="obsidian-embed"></a>⥅ [[\\1]]</p>'
+    prefix = _subnode_raw_prefix(subnode)
+    SILVERBULLET_EMBED = f'<a href="{prefix}/\\1"><img class="image-embed" src="{prefix}/\\1"></img><p class="obsidian-embed"></a>⥅ [[\\1]]</p>'
     # also include something like this to move to a lazily loaded div?
     # <script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
     return re.sub(SILVERBULLET_REGEX, SILVERBULLET_EMBED, content)
 
 def add_logseq_embeds(content, subnode):
     LOGSEQ_REGEX = re.compile(r"(\./assets/.*)")
-    LOGSEQ_FIX = f"/raw/garden/{subnode.user}/\\1"
+    prefix = _subnode_raw_prefix(subnode)
+    LOGSEQ_FIX = f"{prefix}/\\1"
     # also include something like this to move to a lazily loaded div?
     # <script async src="https://anagora.org.com/widgets.js" charset="utf-8"></script>
     content = re.sub(LOGSEQ_REGEX, LOGSEQ_FIX, content)

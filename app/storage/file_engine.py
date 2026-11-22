@@ -83,16 +83,58 @@ def stats():
 
 
 def all_users():
-    denylist = ['.git']
-    users = os.listdir(os.path.join(current_app.config["AGORA_PATH"], "garden"))
-    try:
-        # hack hack -- we treat all of gardens, streams and stoas as users -- does that make sense?
-        # ...maybe yes.
-        users += os.listdir(os.path.join(current_app.config["AGORA_PATH"], "stream"))
-        users += os.listdir(os.path.join(current_app.config["AGORA_PATH"], "stoa"))
-    except Exception:
-        current_app.logger.info("Some of: streams, stoas not found.")
-    return sorted([User(u) for u in users if u not in denylist], key=lambda x: x.uri.lower())
+    denylist = {'.git'}
+    agora_path = current_app.config["AGORA_PATH"]
+    usernames = set()
+
+    # 1. Garden users
+    garden_dir = os.path.join(agora_path, "garden")
+    if os.path.isdir(garden_dir):
+        for u in os.listdir(garden_dir):
+            if u not in denylist and not u.startswith("."):
+                usernames.add(u)
+
+    # 2. Friends mount (friends/<source> -> friends@<source> + container 'friends')
+    friends_dir = os.path.join(agora_path, "friends")
+    if os.path.isdir(friends_dir):
+        friend_entries = [
+            f for f in os.listdir(friends_dir)
+            if f not in denylist and not f.startswith(".") and os.path.isdir(os.path.join(friends_dir, f))
+        ]
+        if friend_entries:
+            usernames.add("friends")
+            for f in friend_entries:
+                usernames.add(f"friends@{f}")
+
+    # 3. Streams and Stoas (checked independently so a missing stream/ doesn't skip stoa/)
+    for mount in ("stream", "stoa"):
+        mount_dir = os.path.join(agora_path, mount)
+        if os.path.isdir(mount_dir):
+            for u in os.listdir(mount_dir):
+                if u not in denylist and not u.startswith("."):
+                    usernames.add(u)
+
+    # 4. Multiuser container members (from sources.yaml `multiuser: true`)
+    sources_config = current_app.config.get("SOURCES_CONFIG", []) or []
+    for item in sources_config:
+        if isinstance(item, dict) and item.get("multiuser"):
+            target = item.get("target", "").strip("/")
+            if not target:
+                continue
+            container = target.split("/")[-1]
+            target_path = os.path.join(agora_path, target)
+            if os.path.isdir(target_path):
+                usernames.add(container)
+                for entry in os.listdir(target_path):
+                    entry_path = os.path.join(target_path, entry)
+                    if (
+                        os.path.isdir(entry_path)
+                        and entry.lower() not in util.CONTAINER_IGNORED_DIRS
+                        and not entry.startswith(".")
+                    ):
+                        usernames.add(f"{entry}@{container}")
+
+    return sorted([User(u) for u in usernames], key=lambda x: x.uri.lower())
 
 
 def user_journals(user):
