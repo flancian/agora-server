@@ -67,6 +67,8 @@ def filter(l, projection):
     # hack hack
     if "@" in projection:
         return [n for n in l if n.user == projection]
+    if projection == "friends":
+        return [n for n in l if n.user == "friends" or n.user.startswith("friends@")]
     suffix = f"@{projection}"
     return [n for n in l if n.user == projection or n.user.endswith(suffix)]
 
@@ -203,7 +205,7 @@ def path_to_user(path: str, sources_config=None) -> str:
         return m.group(1)
     m = re.search(r"(?:^|/)friends/([^/]+)", path)
     if m:
-        return m.group(1) + "@friends"
+        return "friends@" + m.group(1)
     m = re.search(r"(?:^|/)stoa/([^/]+)", path)
     if m:
         return "anonymous@" + m.group(1)

@@ -1466,7 +1466,12 @@ class User:
         self.uri = user
         # yikes
         self.url = "/@" + self.uri
-        self.container = self.user.split("@", 1)[1] if "@" in self.user else None
+        if self.user.startswith("friends@"):
+            self.container = "friends"
+        elif "@" in self.user:
+            self.container = self.user.split("@", 1)[1]
+        else:
+            self.container = None
         # this is a *lot* of printing.
         # current_app.logger.debug(f"{current_app.config['SOURCES_CONFIG']}")
         sources_config = current_app.config.get("SOURCES_CONFIG") or []
@@ -1481,16 +1486,16 @@ class User:
 
     def _find_source_config(self, sources_config) -> dict:
         if "@" in self.user:
-            member, container = self.user.split("@", 1)
-            # 1. Exact mount/source match (e.g. hackuarium@friends -> target: friends/hackuarium)
-            exact_target = f"{container}/{member}"
+            left, right = self.user.split("@", 1)
+            # 1. Mount-prefixed match (e.g. friends@hackuarium -> target: friends/hackuarium)
+            mount_target = f"{left}/{right}"
             for x in sources_config:
-                if x.get("target", "").strip("/") == exact_target:
+                if x.get("target", "").strip("/") == mount_target:
                     return x
             # 2. Container target match (e.g. Simon@patterning -> target: garden/patterning,
             #    or anonymous@doc.anagora.org -> target: stoa/doc.anagora.org)
             for x in sources_config:
-                if x.get("target", "").strip("/").split("/")[-1] == container:
+                if x.get("target", "").strip("/").split("/")[-1] == right:
                     return x
         else:
             for x in sources_config:
@@ -1499,14 +1504,20 @@ class User:
         return {}
 
     def members(self) -> List['User']:
-        """If this user is a container (no '@'), return distinct member Users (*@<self.user>)."""
+        """If this user is a container (no '@'), return distinct member Users."""
         if "@" in self.user:
             return []
-        suffix = f"@{self.user}"
-        member_names = sorted({
-            subnode.user for subnode in G.subnodes()
-            if subnode.user.endswith(suffix)
-        }, key=lambda x: x.lower())
+        if self.user == "friends":
+            member_names = sorted({
+                subnode.user for subnode in G.subnodes()
+                if subnode.user.startswith("friends@")
+            }, key=lambda x: x.lower())
+        else:
+            suffix = f"@{self.user}"
+            member_names = sorted({
+                subnode.user for subnode in G.subnodes()
+                if subnode.user.endswith(suffix)
+            }, key=lambda x: x.lower())
         return [User(name) for name in member_names]
 
     def subnodes(self) -> List['Subnode']:
@@ -1669,6 +1680,11 @@ def subnodes_by_wikilink(wikilink: str, fuzzy_matching: bool = True) -> List['Su
 def subnodes_by_user(user: str, sort_by: str = "mtime", mediatype: Optional[str] = None, reverse: bool = True) -> List['Subnode']:
     if "@" in user:
         subnodes = [subnode for subnode in G.subnodes() if subnode.user == user]
+    elif user == "friends":
+        subnodes = [
+            subnode for subnode in G.subnodes()
+            if subnode.user == "friends" or subnode.user.startswith("friends@")
+        ]
     else:
         suffix = f"@{user}"
         subnodes = [

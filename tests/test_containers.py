@@ -90,14 +90,14 @@ def test_friends_mount_attribution_and_web_links(container_agora):
     agora_path = container_agora.config["AGORA_PATH"]
     path = os.path.join(agora_path, "friends", "hackuarium", "Foldscope.md")
 
-    assert util.path_to_user(path) == "hackuarium@friends"
+    assert util.path_to_user(path) == "friends@hackuarium"
     assert util.path_to_garden_relative(path, agora_path) == "Foldscope.md"
 
     sn = Subnode(path)
-    assert sn.user == "hackuarium@friends"
+    assert sn.user == "friends@hackuarium"
     assert sn.web == "https://wiki.hackuarium.ch/w/Foldscope"
 
-    u = User("hackuarium@friends")
+    u = User("friends@hackuarium")
     assert u.container == "friends"
     assert u.repo_url == "https://wiki.hackuarium.ch/api.php"
 
@@ -126,8 +126,8 @@ def test_multiuser_container_attribution(container_agora):
 def test_container_aggregation_and_routes(container_agora):
     all_u = {u.uri for u in file_engine.all_users()}
     assert "friends" in all_u
-    assert "hackuarium@friends" in all_u
-    assert "gaudilabs@friends" in all_u
+    assert "friends@hackuarium" in all_u
+    assert "friends@gaudilabs" in all_u
     assert "patterning" in all_u
     assert "Simon@patterning" in all_u
     assert "Jonathan@patterning" in all_u
@@ -135,7 +135,7 @@ def test_container_aggregation_and_routes(container_agora):
 
     friends_user = User("friends")
     member_uris = [m.uri for m in friends_user.members()]
-    assert member_uris == ["gaudilabs@friends", "hackuarium@friends"]
+    assert member_uris == ["friends@gaudilabs", "friends@hackuarium"]
     assert len(subnodes_by_user("friends")) == 2
 
     client = container_agora.test_client()
@@ -143,16 +143,21 @@ def test_container_aggregation_and_routes(container_agora):
     # Container page /@friends shows members and aggregated contributions
     resp = client.get("/@friends")
     assert resp.status_code == 200
-    assert b"hackuarium@friends" in resp.data
-    assert b"gaudilabs@friends" in resp.data
+    assert b"friends@hackuarium" in resp.data
+    assert b"friends@gaudilabs" in resp.data
     assert b"Foldscope" in resp.data
     assert b"OpenDrop" in resp.data
 
-    # Member page /@hackuarium@friends shows backlink to @friends container
-    resp_member = client.get("/@hackuarium@friends")
+    # Member page /@friends@hackuarium shows backlink to @friends container
+    resp_member = client.get("/@friends@hackuarium")
     assert resp_member.status_code == 200
     assert b"Container:" in resp_member.data
     assert b"/@friends" in resp_member.data
+
+    # Friends container node projection /node/@friends/foldscope
+    resp_friends_proj = client.get("/node/@friends/foldscope")
+    assert resp_friends_proj.status_code == 200
+    assert b"friends@hackuarium" in resp_friends_proj.data
 
     # Multiuser container node projection /node/@patterning/window-place shows both Simon and Jonathan
     resp_proj = client.get("/node/@patterning/window-place")

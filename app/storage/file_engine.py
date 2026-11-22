@@ -94,7 +94,7 @@ def all_users():
             if u not in denylist and not u.startswith("."):
                 usernames.add(u)
 
-    # 2. Friends mount (friends/<source> -> <source>@friends + container 'friends')
+    # 2. Friends mount (friends/<source> -> friends@<source> + container 'friends')
     friends_dir = os.path.join(agora_path, "friends")
     if os.path.isdir(friends_dir):
         friend_entries = [
@@ -104,7 +104,7 @@ def all_users():
         if friend_entries:
             usernames.add("friends")
             for f in friend_entries:
-                usernames.add(f"{f}@friends")
+                usernames.add(f"friends@{f}")
 
     # 3. Streams and Stoas (checked independently so a missing stream/ doesn't skip stoa/)
     for mount in ("stream", "stoa"):
