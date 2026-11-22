@@ -30,7 +30,7 @@ export async function renderGraph(containerId: string, dataUrl: string, forceNoL
         nodeBg: '#f0f0f0'
     };
 
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
     const palette = currentTheme === 'dark' ? darkPalette : lightPalette;
 
     // Default to labels for per-node graph, no labels for full graph.

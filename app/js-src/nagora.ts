@@ -875,7 +875,7 @@ function attachPaneEvents(pane: HTMLElement, side: 'left' | 'right'): void {
       if (loader) {
         loader.classList.add('hidden');
       }
-      const theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
+      const theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'dark';
       try {
         iframe.contentDocument?.documentElement.setAttribute('data-theme', theme);
         // Attach Shift+click handler inside iframe

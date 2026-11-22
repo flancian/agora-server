@@ -682,9 +682,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   const themeCheckboxes = document.querySelectorAll(".theme-checkbox-input") as NodeListOf<HTMLInputElement>;
   const currentTheme = localStorage.getItem("theme");
 
-  const setTheme = (theme: 'dark' | 'light', showNotification = false) => {
+  const setTheme = (theme: 'dark' | 'light', showNotification = false, persist = true) => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem("theme", theme);
+    if (persist) {
+      localStorage.setItem("theme", theme);
+    }
     themeCheckboxes.forEach(checkbox => {
         checkbox.checked = theme === 'light';
     });
@@ -716,11 +718,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     syncTheme(theme);
   };
 
-  // Set the theme on initial load
-  if (currentTheme === "dark") {
-    setTheme('dark');
+  // Set the theme on initial load (default to dark when no preference is saved)
+  if (currentTheme === "light") {
+    setTheme('light', false, false);
   } else {
-    setTheme('light');
+    setTheme('dark', false, false);
   }
 
   // Add event listeners to both checkboxes

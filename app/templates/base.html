@@ -15,7 +15,7 @@
  limitations under the License.
 -->
 
-<html>
+<html data-theme="dark">
 
 <head>
 	<meta charset="utf-8" />
@@ -41,8 +41,8 @@
       // IIFE to prevent leaking variables into global scope
       (function() {
         try {
-          // 1. Read theme from localStorage
-          var theme = localStorage.getItem('theme') || 'light';
+          // 1. Read theme from localStorage (default to dark)
+          var theme = localStorage.getItem('theme') || 'dark';
           // 2. Apply it to the root <html> element
           document.documentElement.setAttribute('data-theme', theme);
         } catch (e) {
