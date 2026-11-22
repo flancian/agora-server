@@ -347,6 +347,8 @@ def graph_js_top(count):
 
 @bp.route("/graph/json/<node>")
 def graph_js_node(node):
+    node = urllib.parse.unquote_plus(node)
+    node = util.canonical_wikilink(node)
     n = G.node(node)
     response = make_response(visualization.json_node(n))
     response.mimetype = "application/json"

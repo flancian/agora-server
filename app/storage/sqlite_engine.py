@@ -1095,6 +1095,28 @@ def node_exists(node_uri):
     except sqlite3.OperationalError:
         return False
 
+
+def get_existing_nodes(node_uris):
+    """
+    Returns the subset of node_uris that have at least one subnode in SQLite.
+    Uses the idx_subnodes_node index via a single IN query.
+    """
+    if not node_uris:
+        return []
+    db = get_db()
+    if not db:
+        return []
+    try:
+        placeholders = ",".join(["?"] * len(node_uris))
+        cursor = db.cursor()
+        cursor.execute(
+            f"SELECT DISTINCT node FROM subnodes WHERE node IN ({placeholders})",
+            list(node_uris),
+        )
+        return [row[0] for row in cursor.fetchall()]
+    except sqlite3.OperationalError:
+        return []
+
 def get_all_distinct_nodes():
     """
     Retrieves all distinct node names that have at least one subnode.

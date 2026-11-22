@@ -104,7 +104,8 @@ export async function renderGraph(containerId: string, dataUrl: string, forceNoL
                 Graph.nodeRelSize(2);
             }
 
-            Graph.linkDirectionalArrowLength(3)
+            Graph.linkDirectionalArrowLength((link: any) => link.type === 'related' ? 0 : 3)
+                .linkLineDash((link: any) => link.type === 'related' ? [4, 4] : null)
                 .linkDirectionalParticles(1)
                 .linkDirectionalParticleSpeed(0.005)
                 .linkDirectionalParticleColor(() => palette.particle)

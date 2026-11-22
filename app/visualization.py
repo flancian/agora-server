@@ -121,6 +121,17 @@ def parse_node(node: db.Node) -> dict:
     back_links = node.back_links()
     pushing_nodes = [n.wikilink for n in node.pushing_nodes()]
     pulling_nodes = [n.wikilink for n in node.pulling_nodes()]
+    already_linked = (
+        {this, "pull", "push", "back", "forward", "related"}
+        | set(forward_links)
+        | set(back_links)
+        | set(pushing_nodes)
+        | set(pulling_nodes)
+    )
+    related_links = [
+        n.wikilink for n in node.related()
+        if n.subnodes and n.wikilink not in already_linked
+    ]
 
     if pushing_nodes:
         unique_nodes.add("push")
@@ -178,6 +189,14 @@ def parse_node(node: db.Node) -> dict:
             unique_nodes.add(n0)
             unique_nodes.add(n1)
 
+    if related_links:
+        unique_nodes.add("related")
+        unique_nodes.add(this)
+        d["links"].append({"source": this, "target": "related", "type": "related"})
+        for related_node in related_links:
+            d["links"].append({"source": "related", "target": related_node, "type": "related"})
+            unique_nodes.add(related_node)
+
     for n in unique_nodes:
         if n == node.wikilink:
             d["nodes"].append(
@@ -190,6 +209,10 @@ def parse_node(node: db.Node) -> dict:
         elif n == "forward":
             d["nodes"].append(
                 {"id": n, "name": n.replace("-", " "), "val": 3, "group": 2}
+            )
+        elif n == "related":
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 3, "group": 9}
             )
         elif n == "pull":
             d["nodes"].append(
@@ -214,6 +237,10 @@ def parse_node(node: db.Node) -> dict:
         elif n in pushing_nodes:
             d["nodes"].append(
                 {"id": n, "name": n.replace("-", " "), "val": 1, "group": 7}
+            )
+        elif n in related_links:
+            d["nodes"].append(
+                {"id": n, "name": n.replace("-", " "), "val": 1, "group": 10}
             )
         elif n == "":
             # sometimes we get an empty forward link.
